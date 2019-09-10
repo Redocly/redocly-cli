@@ -2,3 +2,12 @@ openapi: 3.0.1
 info:
   name: as
 desc: afsafs
+paths:
+  /pet:
+    get:
+      responses:
+        '400':
+          description: 'Not found'
+          content: {}
+        '200':
+          description: 'Success'
