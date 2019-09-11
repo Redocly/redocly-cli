@@ -1,13 +1,41 @@
 openapi: 3.0.1
 info:
-  name: as
-desc: afsafs
+  # description: Sample API
+  version: 0.0.1
 paths:
-  /pet:
+  /user/{userId}:
     get:
+      summary: Get a list of all users
+      description: Also gives their status
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
       responses:
         '400':
           description: 'Not found'
-          content: {}
         '200':
           description: 'Success'
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                name: John
+                email: john@example.org
+components:
+  schemas:
+    user:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        email:
+          type: string
