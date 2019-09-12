@@ -17,8 +17,6 @@ paths:
             format: int64
             minimum: 1
       responses:
-        '400':
-          description: 'Not found'
         '200':
           description: 'Success'
           content: 
@@ -28,8 +26,25 @@ paths:
               example:
                 name: John
                 email: john@example.org
+        '400':
+          example: asf
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                name: me
+        
 components:
   schemas:
+    newUser:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      type: object
     user:
       type: object
       required:
@@ -39,3 +54,7 @@ components:
           type: string
         email:
           type: string
+        friends:
+          allOf:
+            - $ref: '#/components/schemas/newUser'
+            - $ref: '#/components/schemas/newUser'
