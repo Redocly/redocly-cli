@@ -44,17 +44,16 @@ components:
           type: string
       required:
         - name
-      type: object
+      # type: object
     user:
       type: object
       required:
         - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+        - $ref: '#/components/schemas/newUser'
       properties:
         name:
           type: string
         email:
           type: string
-        friends:
-          allOf:
-            - $ref: '#/components/schemas/newUser'
-            - $ref: '#/components/schemas/newUser'
