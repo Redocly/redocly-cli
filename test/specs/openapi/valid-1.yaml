@@ -1,21 +1,22 @@
 openapi: 3.0.1
 info:
-  # description: Sample API
+  description: Sample API
   version: 0.0.1
 paths:
   /user/{userId}:
     get:
       summary: Get a list of all users
       description: Also gives their status
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Id of a user
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
+      # parameters:
+      #   - name: userId
+      #     in: path
+      #     required: true
+      #     description: Id of a user
+      #     type: object
+      #     schema:
+      #       type: integer
+      #       format: int64
+      #       minimum: 1
       responses:
         '200':
           description: 'Success'
@@ -26,15 +27,15 @@ paths:
               example:
                 name: John
                 email: john@example.org
-        '400':
-          example: asf
-          description: 'Not found'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/user'
-              example:
-                name: me
+        # '400':
+        #   example: asf
+        #   description: 'Not found'
+        #   content:
+        #     application/json:
+        #       schema:
+        #         $ref: '#/components/schemas/user'
+        #       example:
+        #         name: me
         
 components:
   schemas:
@@ -44,13 +45,12 @@ components:
           type: string
       required:
         - name
-      # type: object
+      type: object
     user:
       type: object
       required:
         - name
       allOf:
-        - $ref: '#/components/schemas/newUser'
         - $ref: '#/components/schemas/newUser'
       properties:
         name:
