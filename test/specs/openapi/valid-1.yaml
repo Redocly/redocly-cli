@@ -1,6 +1,8 @@
 openapi: 3.0.1
 info:
-  description: Sample API
+  title: Sample API
+  license: 
+    name: new name
   version: 0.0.1
 paths:
   /user/{userId}:
@@ -19,7 +21,7 @@ paths:
       #       minimum: 1
       responses:
         '200':
-          description: 'Success'
+          description: Success
           content: 
             application/json:
               schema:
@@ -39,18 +41,29 @@ paths:
         
 components:
   schemas:
+    socialNetworkAccount:
+      type: object
+      properties:
+        - account
+        - link
+      required:
+        - account
+        - link
     newUser:
       properties:
         name:
           type: string
       required:
         - name
+      allOf:
+        - $ref: '#/components/schemas/socialNetworkAccount'
       type: object
     user:
       type: object
       required:
         - name
       allOf:
+        - $ref: '#/components/schemas/newUser'
         - $ref: '#/components/schemas/newUser'
       properties:
         name:

@@ -25,7 +25,6 @@
     "jest": "^24.9.0"
   },
   "dependencies": {
-    "jsonpath-plus": "^1.0.0",
     "yaml": "^1.6.0",
     "yaml-unist-parser": "^1.0.0"
   }
