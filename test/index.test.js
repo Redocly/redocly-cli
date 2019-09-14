@@ -1,5 +1,4 @@
-import { validateFromFile } from './../lib';
+import { validateFromFile } from './../src';
 
 test('validate correct spec', () => {
-    expect(validateFromFile('./test/specs/openapi/valid-1.yaml')).toBe(null);
 });

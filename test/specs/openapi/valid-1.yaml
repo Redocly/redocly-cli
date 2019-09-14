@@ -1,8 +1,7 @@
 openapi: 3.0.1
 info:
   # title: Sample API
-  license: 
-    name: new name
+  license: a
   version: 0.0.1
 paths:
   /user/{userId}:
@@ -42,7 +41,7 @@ paths:
 components:
   schemas:
     socialNetworkAccount:
-      type: object
+      # type: object
       properties:
         - account
         - link

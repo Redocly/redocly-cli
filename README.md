@@ -10,7 +10,7 @@
 - [x] Implement map & array fields resolving
 - [x] Implement 'already visited' check to avoid multiple validations of a single sub-tree AND infinite loops in recursive objects
 - [x] Implement informative error format with path to error and descriptive info message
-- [ ] Create folder directory for each of the validators
+- [x] Create folder directory for each of the validators
 - [ ] Implement JSON Schema format as a tree of validators
 - [ ] Implement OpenAPI validation
 - [ ] Create tests
