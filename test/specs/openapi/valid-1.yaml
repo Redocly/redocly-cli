@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Sample API
+  # title: Sample API
   license: 
     name: new name
   version: 0.0.1
@@ -29,15 +29,15 @@ paths:
               example:
                 name: John
                 email: john@example.org
-        # '400':
-        #   example: asf
-        #   description: 'Not found'
-        #   content:
-        #     application/json:
-        #       schema:
-        #         $ref: '#/components/schemas/user'
-        #       example:
-        #         name: me
+        '400':
+          example: asf
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                name: me
         
 components:
   schemas:
