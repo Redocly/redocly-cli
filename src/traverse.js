@@ -6,6 +6,15 @@ const traverse = (node, definition) => {
     return ctx.result;
 };
 
+const validateNode = (node, definition, ctx)=> {
+    if (node && definition && definition.validators) {   
+        Object.keys(definition.validators).forEach(v => {
+            let validationResult;
+            validationResult = definition.validators[v]()(node[v], ctx);
+            if (validationResult) ctx.result.push(validationResult);
+        });
+    }
+};
 
 const _traverse = (node, definition, ctx) => {
     const currentPath = ctx.path.join('/');
@@ -34,13 +43,7 @@ const _traverse = (node, definition, ctx) => {
         return;
     }
 
-    if (node && definition && definition.validators) {   
-        Object.keys(definition.validators).forEach(v => {
-            let validationResult;
-            validationResult = definition.validators[v]()(node[v], ctx);
-            if (validationResult) ctx.result.push(validationResult);
-        });
-    }
+    validateNode(node, definition, ctx);
 
     if (node && definition && definition.properties) {
         switch (typeof definition.properties) {

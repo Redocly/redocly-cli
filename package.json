@@ -22,7 +22,8 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2"
   },
   "dependencies": {
     "yaml": "^1.6.0",
