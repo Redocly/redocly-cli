@@ -1,13 +1,72 @@
 openapi: 3.0.1
 info:
-  name: as
-desc: afsafs
+  title: Sample API
+  license: 
+    name: new name
+  version: 0.0.1
 paths:
-  /pet:
+  /user/{userId}:
     get:
+      summary: Get a list of all users
+      description: Also gives their status
+      # parameters:
+      #   - name: userId
+      #     in: path
+      #     required: true
+      #     description: Id of a user
+      #     type: object
+      #     schema:
+      #       type: integer
+      #       format: int64
+      #       minimum: 1
       responses:
-        '400':
-          description: 'Not found'
-          content: {}
         '200':
-          description: 'Success'
+          description: Success
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                name: John
+                email: john@example.org
+        # '400':
+        #   example: asf
+        #   description: 'Not found'
+        #   content:
+        #     application/json:
+        #       schema:
+        #         $ref: '#/components/schemas/user'
+        #       example:
+        #         name: me
+        
+components:
+  schemas:
+    socialNetworkAccount:
+      type: object
+      properties:
+        - account
+        - link
+      required:
+        - account
+        - link
+    newUser:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/socialNetworkAccount'
+      type: object
+    user:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        email:
+          type: string

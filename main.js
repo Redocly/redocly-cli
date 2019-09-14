@@ -1,3 +1,3 @@
 import { validateFromFile } from './lib';
 
-validateFromFile('./test/specs/yaml/valid-1.yaml');
+validateFromFile('./test/specs/openapi/valid-1.yaml');
