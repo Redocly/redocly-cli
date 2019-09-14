@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/knidarkness/revalid.svg?branch=master)](https://travis-ci.org/knidarkness/revalid)
+
 # REVALID. Custom OpenAPI validator
 
 ## Approach
