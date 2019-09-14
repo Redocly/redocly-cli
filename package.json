@@ -8,7 +8,7 @@
     "build": "babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build",
     "start": "npx babel-node main.js",
-    "test": "jest --verbose"
+    "test": "jest --coverage"
   },
   "author": "Serhii Dubovyk",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
     "jest": "^24.9.0",
+    "nyc": "^14.1.1",
     "prettier": "^1.18.2"
   },
   "dependencies": {
