@@ -13,6 +13,6 @@
 - [x] Create folder directory for each of the validators
 - [ ] Implement JSON Schema format as a tree of validators
 - [ ] Implement OpenAPI validation
-- [ ] Create tests for core functions 
+- [x] Create tests for core functions 
 - [ ] Create tests for validators
 - [ ] Create library ready for install
