@@ -1,5 +1,7 @@
 import createError from './../error';
 
+import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
+
 export const OpenAPISchemaObject = {
     validators: {
         title() {
@@ -204,6 +206,15 @@ export const OpenAPISchemaObject = {
         },
         properties() {
             return OpenAPISchemaMap;
+        },
+        discriminator() {
+            return OpenAPIDiscriminator;
+        },
+        externalDocs() {
+            return OpenAPIExternalDocumentation;
+        },
+        xml() {
+            return OpenAPIXML;
         }
     }
 };
@@ -215,3 +226,55 @@ const OpenAPISchemaMap = {
         return props;
     }
 };
+
+const OpenAPIXML = {
+    validators: {
+        name() {
+            return (node, ctx) => {
+                if (node && node.name && typeof node.name !== 'string') return createError('name of the Xml object must be a string', node, ctx);
+            }
+        },
+        namespace() {
+            return (node, ctx) => {
+                //TODO: add validation that format is uri
+                if (node && node.namespace && typeof node.namespace !== 'string') return createError('namespace of the Xml object must be a string', node, ctx);
+            }
+        },
+        prefix() {
+            return (node, ctx) => {
+                if (node && node.prefix && typeof node.prefix !== 'string') return createError('prefix of the Xml object must be a string', node, ctx);
+            }
+        },
+        attribute() {
+            return (node, ctx) => {
+                if (node && node.attribute && typeof node.attribute !== 'boolean') return createError('attribute of the Xml object must be a boolean', node, ctx);
+            }
+        },
+        wrapped() {
+            return (node, ctx) => {
+                if (node && node.wrapped && typeof node.wrapped !== 'boolean') return createError('wrapped of the Xml object must be a boolean', node, ctx);
+            }
+        }
+    }
+};
+
+const OpenAPIDiscriminator = {
+    validators: {
+        propertyName() {
+            return (node, ctx) => {
+                if (!(node && node.propertyName)) return createError('propertyName field is required for Discriminator object', node, ctx);
+                if (typeof node.propertyName !== 'string') return createError('propertyName of the Discriminator must be a string', node, ctx);
+            }
+        },
+        mapping() {
+            return (node, ctx) => {
+                if (node && node.mapping) {
+                    if (typeof node.mapping !== 'object') return createError('mapping must be a [string, string] object', node, ctx);
+                    if (Object.keys(node.mapping).filter(key => typeof node.mapping[key] !== 'string').length !== 0) return createError('mapping must be a [string, string] object', node, ctx);
+                }
+            }
+        }
+    },
+
+};
+

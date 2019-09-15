@@ -67,6 +67,10 @@ components:
           - "available"
           - "pending"
           - "sold"
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: Dog
     socialNetworkAccount:
       type: string
       enum:
@@ -93,3 +97,5 @@ components:
           $ref: '#/components/schemas/socialNetworkAccount'
         pet:
           $ref: '#/components/schemas/Pet'
+      externalDocs:
+        url: https://google.com
