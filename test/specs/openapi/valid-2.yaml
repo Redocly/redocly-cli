@@ -99,3 +99,19 @@ components:
           $ref: '#/components/schemas/Pet'
       externalDocs:
         url: https://google.com
+servers:
+  - url: https://{username}.gigantic-server.com:{port}/{basePath}
+    description: The production API server
+    variables:
+      username:
+        # note! no enum here means it is an open value
+        default: demo
+        description: this value is assigned by the service provider, in this example `gigantic-server.com`
+      port:
+        enum:
+          - '8443'
+          - '443'
+        default: '8443'
+      basePath:
+        # open meaning there is the opportunity to use special base paths as assigned by the provider, default is `v2`
+        default: v2
