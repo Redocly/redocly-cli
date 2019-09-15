@@ -1,6 +1,6 @@
 import createError from './../error';
 
-import { OpenAPISchemaObject } from './OpenAPISchema';
+import OpenAPISchema from './OpenAPISchema';
 
 export const OpenAPIPaths = {
     properties (node) {
@@ -86,7 +86,7 @@ export const OpenAPIMediaObject = {
     },
     properties: {
         schema() {
-            return OpenAPISchemaObject;
+            return OpenAPISchema;
         }
     }
 };

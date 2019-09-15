@@ -1,6 +1,7 @@
 import createError from './../error';
 
 import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
+import OpenAPISchemaMap from './OpenAPISchemaMap';
 
 export const OpenAPISchemaObject = {
     validators: {
@@ -219,14 +220,6 @@ export const OpenAPISchemaObject = {
     }
 };
 
-const OpenAPISchemaMap = {
-    properties(node) {
-        const props = {};
-        Object.keys(node).forEach(k => props[k] = OpenAPISchemaObject);
-        return props;
-    }
-};
-
 const OpenAPIXML = {
     validators: {
         name() {
@@ -278,3 +271,4 @@ const OpenAPIDiscriminator = {
 
 };
 
+export default OpenAPISchemaObject;

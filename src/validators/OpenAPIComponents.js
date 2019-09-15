@@ -1,6 +1,10 @@
+import OpenAPISchemaMap from './OpenAPISchemaMap';
+
 export const OpenAPIComponents = {
     properties: {
-        schemas() {},
+        schemas() {
+            return OpenAPISchemaMap;
+        },
         responses() {},
         parameters() {},
         examples() {},
