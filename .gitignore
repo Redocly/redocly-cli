@@ -1,3 +1,5 @@
 node_modules/
 coverage/
 .vscode/
+test/specs/openapi/rebilly-full.yaml
+test/specs/openapi/rebilly-full (1).yaml

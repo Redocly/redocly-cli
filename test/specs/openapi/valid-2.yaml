@@ -6,9 +6,35 @@ info:
   version: 0.0.1
 paths:
   /user/{userId}:
-    get:
+    summary: Get a list of all users
+    post:
+      tags:
+        - users
+        - retreive
       summary: Get a list of all users
       description: Also gives their status
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                companyAddress:
+                  description: company address lines
+                  type: string
+                companyName:
+                  description: Company name
+                  type: string
+                companyNumber:
+                  description: official company number
+                  type: string
+                vatNumber:
+                  description: VAT number to validate
+                  type: string
+              required:
+                - vatNumber
+              type: object
+        description: VAT number and the company details
+        required: true
       parameters:
         - name: userId
           in: path
@@ -29,13 +55,63 @@ paths:
                 name: John
                 email: john@example.org
         '400':
-          description: 'Not found'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-              example:
-                name: me
+                properties:
+                  company:
+                    properties:
+                      address:
+                        items:
+                          type: string
+                        type: array
+                      country:
+                        type: string
+                      dateOfIncorporation:
+                        type: string
+                      extraData:
+                        type: object
+                      formattedAddress:
+                        items:
+                          type: string
+                        type: array
+                      id:
+                        type: string
+                      legalForm:
+                        type: string
+                      managingDirectors:
+                        items:
+                          type: string
+                        type: array
+                      name:
+                        type: string
+                      registrationNumber:
+                        type: string
+                      requestTime:
+                        type: integer
+                      secretaries:
+                        items:
+                          type: string
+                        type: array
+                      sicNaceCodes:
+                        items:
+                          type: string
+                        type: array
+                      status:
+                        type: string
+                    required:
+                      - country
+                      - id
+                      - name
+                      - registrationNumber
+                  confidenceScore:
+                    type: number
+                  validationStatus:
+                    type: boolean
+                required:
+                  - confidenceScore
+                  - validationStatus
+          description: Denotes validity of checked VAT
         
 components:
   schemas:

@@ -32,7 +32,7 @@ const OpenAPIServerVariable = {
     validators: {
         default() {
             return (node, ctx) => node && node.defaut && typeof node.default !== 'string' ? 
-                createError('default field of the Server Variable must be a string') : null;
+                createError('default field of the Server Variable must be a string', node, ctx) : null;
         },
         description() {
             return (node, ctx) => node && node.description && typeof node.description !== 'string' ? 

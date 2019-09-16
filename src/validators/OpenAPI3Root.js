@@ -4,6 +4,9 @@ import { OpenAPIInfo } from './OpenAPIInfo';
 import { OpenAPIPaths } from './OpenAPIPaths';
 import { OpenAPIComponents } from './OpenAPIComponents';
 import { OpenAPIServer } from './OpenAPIServer';
+import { OpenAPISecurityRequirement } from './OpenAPISecurityRequirement';
+import { OpenAPITag } from './OpenAPITag';
+import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 
 export const OpenAPIRoot = {
     validators: {
@@ -27,8 +30,14 @@ export const OpenAPIRoot = {
         components() {
             return OpenAPIComponents;
         },
-        security() {},
-        tags() {},
-        externalDocs() {},
+        security() {
+            return OpenAPISecurityRequirement;
+        },
+        tags() {
+            return OpenAPITag;
+        },
+        externalDocs() {
+            return OpenAPIExternalDocumentation;
+        },
     },
 };

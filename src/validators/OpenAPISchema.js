@@ -51,7 +51,6 @@ export const OpenAPISchemaObject = {
         maxLength() {
             return (node, ctx) => {
                 if (node && node.maxLength) {
-                    console.log('aaaaaaaaaaaaa');
                     if (typeof node.maxLength !== 'number') return createError('Value of maxLength must be a number', node, ctx);
                     if (node.maxLength < 0) return createError('Value of maxLength must be greater or equal to zero', node, ctx);
                 }
@@ -124,16 +123,20 @@ export const OpenAPISchemaObject = {
             return (node, ctx) => {
                 if (node && node.enum) {
                     if (!Array.isArray(node.enum)) return createError('Value of enum must be an array', node, ctx);
-                    if (node.type && node.enum.filter(item => typeof item !== node.type).length !== 0) return createError('All values of "enum" field must be of the same type as the "type" field', node, ctx);
+                    if (node.type && node.enum.filter(item => typeof item !== node.type).length !== 0) {
+                        console.log(node.enum);
+                        return createError('All values of "enum" field must be of the same type as the "type" field', node, ctx);
+
+                    }
                 }
             };
         },
         type() {
             return (node, ctx) => {
-                if (!node || !node.type) return createError('Schema Object must include type', node, ctx);
-                if (!['string', 'object', 'array', 'integer', 'number', 'boolean'].includes(node.type)) {
-                    return createError('Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean"', node, ctx);
-                }
+                // if (!node || !node.type) return createError('Schema Object must include type', node, ctx);
+                // if (!['string', 'object', 'array', 'integer', 'number', 'boolean'].includes(node.type)) {
+                //     return createError('Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean"', node, ctx);
+                // }
             }
         },
         items() {

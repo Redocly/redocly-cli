@@ -1,5 +1,9 @@
 import createError from './../error';
 
+// const CustomInfo = {
+//     path: 'OpenAPIRoot.OpenAPIInfo',
+// }
+
 export const OpenAPIInfo = {
     validators: {
         title() {
