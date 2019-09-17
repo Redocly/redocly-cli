@@ -17,4 +17,5 @@
 - [x] Create tests for validators
 - [ ] Create library ready for install
 - [ ] Add AST-based error messages
+- [ ] Add codeframes for errors
 - [ ] Add fix proposals (e.g. "Did you mean "type: number" instead of "type: nmber"?)
