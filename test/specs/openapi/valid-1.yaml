@@ -1,23 +1,23 @@
 openapi: 3.0.1
 info:
-  # title: Sample API
-  license: a
+  title: Sample API
+  license:
+    name: MIT
   version: 0.0.1
 paths:
   /user/{userId}:
     get:
       summary: Get a list of all users
       description: Also gives their status
-      # parameters:
-      #   - name: userId
-      #     in: path
-      #     required: true
-      #     description: Id of a user
-      #     type: object
-      #     schema:
-      #       type: integer
-      #       format: int64
-      #       minimum: 1
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
       responses:
         '200':
           description: Success
@@ -29,7 +29,6 @@ paths:
                 name: John
                 email: john@example.org
         '400':
-          example: asf
           description: 'Not found'
           content:
             application/json:
@@ -40,22 +39,49 @@ paths:
         
 components:
   schemas:
-    socialNetworkAccount:
-      # type: object
-      properties:
-        - account
-        - link
+    Pet:
+      type: "object"
       required:
-        - account
-        - link
+        - "name"
+        - "photoUrls"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        category:
+          type: string
+        name:
+          type: "string"
+          example: "doggie"
+        photoUrls:
+          type: "array"
+          xml:
+            name: "photoUrl"
+            wrapped: true
+          items:
+            type: "string"
+        status:
+          type: "string"
+          description: "pet status in the store"
+          enum:
+          - "available"
+          - "pending"
+          - "sold"
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: Dog
+    socialNetworkAccount:
+      type: string
+      enum:
+        - bla
+        - blalblabla
     newUser:
       properties:
         name:
           type: string
       required:
         - name
-      allOf:
-        - $ref: '#/components/schemas/socialNetworkAccount'
       type: object
     user:
       type: object
@@ -67,5 +93,9 @@ components:
       properties:
         name:
           type: string
-        email:
-          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: '#/components/schemas/Pet'
+      externalDocs:
+        url: https://google.com

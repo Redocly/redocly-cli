@@ -1,7 +1,7 @@
 import resolveNode from './resolver';
 
 const traverse = (node, definition) => {
-    const ctx = { document: node, path: [], visited: [], result: [] };
+    const ctx = { document: node, path: [], visited: [], result: [], pathStack: [] };
     _traverse(node, definition, ctx);
     return ctx.result;
 };
@@ -10,7 +10,7 @@ const validateNode = (node, definition, ctx)=> {
     if (node && definition && definition.validators) {   
         Object.keys(definition.validators).forEach(v => {
             let validationResult;
-            validationResult = definition.validators[v]()(node[v], ctx);
+            validationResult = definition.validators[v]()(node, ctx);
             if (validationResult) ctx.result.push(validationResult);
         });
     }
@@ -23,11 +23,12 @@ const _traverse = (node, definition, ctx) => {
     if (ctx.visited.includes(currentPath)) return;
     ctx.visited.push(currentPath);
 
-    console.log(`Current path: ${currentPath}`);
+    // console.log(`Current path: ${currentPath}`);
     
     let nextPath, prevPath;
     ({node, nextPath: nextPath} = resolveNode(node, ctx));
     if (nextPath) {
+        ctx.pathStack.push(ctx.path);
         prevPath = ctx.path;
         ctx.path = nextPath.replace('#/', '').split('/');
     }
@@ -66,7 +67,7 @@ const _traverse = (node, definition, ctx) => {
                 break;
         }
     }
-    if (nextPath) ctx.path = prevPath;
+    if (nextPath) ctx.path = ctx.pathStack.pop();
 };
 
 export default traverse;

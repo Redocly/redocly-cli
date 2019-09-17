@@ -4,6 +4,7 @@
   "description": "",
   "main": "./src/index.js",
   "scripts": {
+    "profile": "npx babel-node --prof main.js",
     "babel-node": "babel-node",
     "build": "babel src --out-dir dist --source-maps inline",
     "prepublishOnly": "npm run build",
@@ -17,6 +18,8 @@
     "@babel/core": "^7.6.0",
     "@babel/node": "^7.6.1",
     "@babel/preset-env": "^7.6.0",
+    "@stoplight/spectral": "^4.1.1",
+    "@stoplight/yaml": "^3.1.0",
     "babel-eslint": "^10.0.3",
     "eslint": "^6.3.0",
     "eslint-config-airbnb-base": "^14.0.0",
@@ -27,6 +30,7 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
+    "js-yaml": "^3.13.1",
     "yaml": "^1.6.0",
     "yaml-unist-parser": "^1.0.0"
   }

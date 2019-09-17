@@ -8,4 +8,3 @@ test("Traverse over a flat node with empty resolver", () => {
   const resolver = {};
   expect(traverse(node, resolver)).toMatchInlineSnapshot(`Array []`);
 });
-

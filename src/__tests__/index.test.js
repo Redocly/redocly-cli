@@ -1,6 +1,13 @@
 import { validateFromFile } from "./../index";
 
-test("validate simple correct document", () => {});
+test("validate simple document", () => {
+  expect(
+    validateFromFile("./test/specs/openapi/simple.yaml")
+  ).toMatchInlineSnapshot(`Array []`);
+});
 
-test("validate real document", () => {});
-
+test("Validate simple valid OpenAPI document", () => {
+  expect(
+    validateFromFile("./test/specs/openapi/valid-2.yaml")
+  ).toMatchInlineSnapshot(`Array []`);
+});
