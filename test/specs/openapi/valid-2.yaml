@@ -44,6 +44,12 @@ paths:
             type: integer
             format: int64
             minimum: 1
+        - name: val
+          in: query
+          type: string
+          enum:
+            - 123
+            - value
       responses:
         '200':
           description: Success

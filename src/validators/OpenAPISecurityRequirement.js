@@ -1,3 +1,3 @@
-export const OpenAPISecurityRequirement = {
-    validators: {}
+export default {
+  validators: {},
 };

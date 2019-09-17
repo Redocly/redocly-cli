@@ -7,6 +7,7 @@
     "profile": "npx babel-node --prof main.js",
     "babel-node": "babel-node",
     "build": "babel src --out-dir dist --source-maps inline",
+    "lint": "eslint --cache --fix ./src",
     "prepublishOnly": "npm run build",
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
@@ -21,7 +22,7 @@
     "@stoplight/spectral": "^4.1.1",
     "@stoplight/yaml": "^3.1.0",
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.3.0",
+    "eslint": "^6.4.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
