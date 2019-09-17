@@ -1,7 +1,7 @@
 import resolveNode from './resolver';
 
 const traverse = (node, definition) => {
-    const ctx = { document: node, path: [], visited: [], result: [] };
+    const ctx = { document: node, path: [], visited: [], result: [], pathStack: [] };
     _traverse(node, definition, ctx);
     return ctx.result;
 };
@@ -28,6 +28,7 @@ const _traverse = (node, definition, ctx) => {
     let nextPath, prevPath;
     ({node, nextPath: nextPath} = resolveNode(node, ctx));
     if (nextPath) {
+        ctx.pathStack.push(ctx.path);
         prevPath = ctx.path;
         ctx.path = nextPath.replace('#/', '').split('/');
     }
@@ -66,7 +67,7 @@ const _traverse = (node, definition, ctx) => {
                 break;
         }
     }
-    if (nextPath) ctx.path = prevPath;
+    if (nextPath) ctx.path = ctx.pathStack.pop();
 };
 
 export default traverse;

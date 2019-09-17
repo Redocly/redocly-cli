@@ -12,8 +12,7 @@ export const OpenAPIRoot = {
     validators: {
         openapi() {
             return (node, ctx) => {
-                //TODO
-                return null;
+                if (node && !node.openapi) return createError('The openapi field must be included to the root.', node, ctx);
             }
         }
     },
