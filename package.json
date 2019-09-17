@@ -7,7 +7,7 @@
     "profile": "npx babel-node --prof main.js",
     "babel-node": "babel-node",
     "build": "babel src --out-dir dist --source-maps inline",
-    "lint": "eslint --cache --fix ./src",
+    "lint": "eslint --fix ./src",
     "prepublishOnly": "npm run build",
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
