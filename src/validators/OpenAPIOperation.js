@@ -44,25 +44,14 @@ export const OpenAPIOperation = {
         },
     },
     properties: {
-        externalDocs() {
-            return OpenAPIExternalDocumentation;
-        },
-        parameters() {
-            return OpenAPIParameter;
-        },
-        requestBody() {
-            return OpenAPIRequestBody;
-        },
-        responses() {
-            return OpenAPIResponseMap;
-        },
-        callbacks() {
-            return OpenAPICallbackMap;
-        },
-        security() {},
-        server() {
-            return OpenAPIServer;
-        }
+        externalDocs: OpenAPIExternalDocumentation,
+        parameters: OpenAPIParameter,
+        requestBody: OpenAPIRequestBody,
+        responses: OpenAPIResponseMap,
+        callbacks: OpenAPICallbackMap,
+        // TODO:
+        // security() {},
+        server: OpenAPIServer
     }
 };
 

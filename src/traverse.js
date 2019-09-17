@@ -61,7 +61,11 @@ const _traverse = (node, definition, ctx) => {
             case 'object':
                 Object.keys(definition.properties).forEach(p => {
                     ctx.path.push(p);
-                    if (node[p]) _traverse(node[p], definition.properties[p](), ctx);
+                    if (typeof definition.properties[p] === 'function') {
+                        if (node[p]) _traverse(node[p], definition.properties[p](), ctx);
+                    } else {
+                        if (node[p]) _traverse(node[p], definition.properties[p], ctx);
+                    }
                     ctx.path.pop();
                 });
                 break;

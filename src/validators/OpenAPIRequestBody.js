@@ -26,9 +26,7 @@ export const OpenAPIRequestBody = {
         }
     },
     properties: {
-        content() {
-            return OpenAPIMediaTypeObject;
-        }
+        content: OpenAPIMediaTypeObject
     }
 };
 

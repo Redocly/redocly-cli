@@ -65,15 +65,9 @@ export const OpenAPIParameter = {
         }
     },
     properties: {
-        schema() {
-            return OpenAPISchemaObject;
-        },
-        content() {
-            return OpenAPIMediaTypeObject;
-        },
-        examples() {
-            return OpenAPIExampleMap;
-        }
+        schema: OpenAPISchemaObject,
+        content: OpenAPIMediaTypeObject,
+        examples: OpenAPIExampleMap
     }
 };
 

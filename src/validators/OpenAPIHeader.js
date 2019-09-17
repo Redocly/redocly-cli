@@ -3,14 +3,6 @@ import { OpenAPIExampleMap } from './OpenAPIExample';
 import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 import OpenAPISchemaObject from './OpenAPISchema';
 
-export const OpenAPIHeaderMap = {
-    properties(node) {
-        const props = {};
-        Object.keys(node).forEach(k => props[k] = OpenAPIHeader);
-        return props;
-    }
-};
-
 export const OpenAPIHeader = {
     validators: {
         description() {
@@ -58,14 +50,16 @@ export const OpenAPIHeader = {
         }
     },
     properties: {
-        schema() {
-            return OpenAPISchemaObject;
-        },
-        content() {
-            return OpenAPIMediaTypeObject;
-        },
-        examples() {
-            return OpenAPIExampleMap;
-        }
+        schema: OpenAPISchemaObject,
+        content: OpenAPIMediaTypeObject,
+        examples: OpenAPIExampleMap
+    }
+};
+
+export const OpenAPIHeaderMap = {
+    properties(node) {
+        const props = {};
+        Object.keys(node).forEach(k => props[k] = OpenAPIHeader);
+        return props;
     }
 };

@@ -18,8 +18,6 @@ export const OpenAPIResponse = {
         }
     },
     properties: {
-        content() {
-            return OpenAPIMediaTypeObject;
-        }
+        content: OpenAPIMediaTypeObject
     }
 };

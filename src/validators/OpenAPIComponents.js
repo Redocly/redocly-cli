@@ -10,32 +10,14 @@ import { OpenAPIRequestBodyMap } from './OpenAPIRequestBody';
 
 export const OpenAPIComponents = {
     properties: {
-        schemas() {
-            return OpenAPISchemaMap;
-        },
-        responses() {
-            return OpenAPIResponseMap;
-        },
-        parameters() {
-            return OpenAPIParameterMap;
-        },
-        examples() {
-            return OpenAPIExampleMap;
-        },
-        requestBodies() {
-            return OpenAPIRequestBodyMap;
-        },
-        headers() {
-            return OpenAPIHeaderMap;
-        },
-        securitySchemes() {
-            return OpenAPISecuritySchemaMap;
-        },
-        links() {
-            return OpenAPILinkMap;
-        },
-        callbacks() {
-            return OpenAPICallbackMap;
-        },
+        schemas: OpenAPISchemaMap,
+        responses: OpenAPIResponseMap,
+        parameters: OpenAPIParameterMap,
+        examples: OpenAPIExampleMap,
+        requestBodies: OpenAPIRequestBodyMap,
+        headers: OpenAPIHeaderMap,
+        securitySchemes: OpenAPISecuritySchemaMap,
+        links: OpenAPILinkMap,
+        callbacks: OpenAPICallbackMap,
     }
 };

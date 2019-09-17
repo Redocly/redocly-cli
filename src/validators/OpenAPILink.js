@@ -1,14 +1,6 @@
 import createError from './../error';
 import OpenAPIServer from './OpenAPIServer';
 
-export const OpenAPILinkMap = {
-    properties(node) {
-        const props = {};
-        Object.keys(node).forEach(k => props[k] = OpenAPILink);
-        return props;
-    }
-};
-
 export const OpenAPILink = {
     validators: {
         operationRef() {
@@ -41,8 +33,14 @@ export const OpenAPILink = {
         }
     },
     properties: {
-        server() {
-            return OpenAPIServer;
-        }
+        server: OpenAPIServer
+    }
+};
+
+export const OpenAPILinkMap = {
+    properties(node) {
+        const props = {};
+        Object.keys(node).forEach(k => props[k] = OpenAPILink);
+        return props;
     }
 };

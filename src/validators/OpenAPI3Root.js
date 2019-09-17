@@ -17,26 +17,12 @@ export const OpenAPIRoot = {
         }
     },
     properties: {
-        info() {
-            return OpenAPIInfo;
-        },
-        paths() {
-            return OpenAPIPaths;
-        },
-        servers() {
-            return OpenAPIServer;
-        },
-        components() {
-            return OpenAPIComponents;
-        },
-        security() {
-            return OpenAPISecurityRequirement;
-        },
-        tags() {
-            return OpenAPITag;
-        },
-        externalDocs() {
-            return OpenAPIExternalDocumentation;
-        },
+        info: OpenAPIInfo,
+        paths: OpenAPIPaths,
+        servers: OpenAPIServer,
+        components : OpenAPIComponents,
+        security: OpenAPISecurityRequirement,
+        tags: OpenAPITag,
+        externalDocs: OpenAPIExternalDocumentation,
     },
 };

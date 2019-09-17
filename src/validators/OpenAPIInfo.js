@@ -1,8 +1,12 @@
 import createError from './../error';
 
-// const CustomInfo = {
-//     path: 'OpenAPIRoot.OpenAPIInfo',
-// }
+export const OpenAPILicense = {
+    validators: {
+        name() {
+            return (node, ctx) => !node || !node.name ? createError('Name is required for the license object', node, ctx) : null;
+        }
+    },
+};
 
 export const OpenAPIInfo = {
     validators: {
@@ -11,16 +15,6 @@ export const OpenAPIInfo = {
         },
     },
     properties: {
-        license () {
-            return OpenAPILicense;
-        }
+        license: OpenAPILicense,
     }
-};
-
-export const OpenAPILicense = {
-    validators: {
-        name() {
-            return (node, ctx) => !node || !node.name ? createError('Name is required for the license object', node, ctx) : null;
-        }
-    },
 };

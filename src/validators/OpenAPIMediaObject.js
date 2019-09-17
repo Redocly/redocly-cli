@@ -4,14 +4,6 @@ import { OpenAPIExampleMap } from './OpenAPIExample';
 import { OpenAPIEncoding } from './OpenAPIEncoding';
 
 
-export const OpenAPIMediaTypeObject = {
-    properties(node) {
-        const props = {};
-        Object.keys(node).forEach(k => props[k] = OpenAPIMediaObject);
-        return props;
-    }
-};
-
 export const OpenAPIMediaObject = {
     validators: {
         schema() {
@@ -26,14 +18,16 @@ export const OpenAPIMediaObject = {
         }
     },
     properties: {
-        schema() {
-            return OpenAPISchema;
-        },
-        examples() {
-            return OpenAPIExampleMap;
-        },
-        encoding() {
-            return OpenAPIEncoding;
-        }
+        schema: OpenAPISchema,
+        examples: OpenAPIExampleMap,
+        encoding: OpenAPIEncoding
+    }
+};
+
+export const OpenAPIMediaTypeObject = {
+    properties(node) {
+        const props = {};
+        Object.keys(node).forEach(k => props[k] = OpenAPIMediaObject);
+        return props;
     }
 };

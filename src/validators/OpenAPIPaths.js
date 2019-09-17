@@ -40,36 +40,16 @@ export const OpenAPIPathItem = {
     },
 
     properties: {
-        get() {
-            return OpenAPIOperation;
-        },
-        put() {
-            return OpenAPIOperation;
-        },
-        post() {
-            return OpenAPIOperation;
-        },
-        delete() {
-            return OpenAPIOperation;
-        },
-        options() {
-            return OpenAPIOperation;
-        },
-        head() {
-            return OpenAPIOperation;
-        },
-        patch() {
-            return OpenAPIOperation;
-        },
-        trace() {
-            return OpenAPIOperation;
-        },
-        servers() {
-            return OpenAPIServer;
-        },
-        parameters() {
-            return OpenAPIParameter;
-        }
+        get: OpenAPIOperation,
+        put: OpenAPIOperation,
+        post: OpenAPIOperation,
+        delete: OpenAPIOperation,
+        options: OpenAPIOperation,
+        head: OpenAPIOperation,
+        patch: OpenAPIOperation,
+        trace: OpenAPIOperation,
+        servers: OpenAPIServer,
+        parameters: OpenAPIParameter
     }
 }
 

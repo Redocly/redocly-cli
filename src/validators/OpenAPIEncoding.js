@@ -33,8 +33,6 @@ export const OpenAPIEncoding = {
         }
     },
     properties: {
-        headers () {
-            return OpenAPIHeaderMap;
-        }
+        headers: OpenAPIHeaderMap,
     }
 };

@@ -20,8 +20,6 @@ export const OpenAPITag = {
         }
     },
     properties: {
-        externalDocs() {
-            return OpenAPIExternalDocumentation;
-        }
+        externalDocs: OpenAPIExternalDocumentation
     }
 }
