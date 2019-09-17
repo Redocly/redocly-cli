@@ -1,6 +1,6 @@
-import { OpenAPIInfo, OpenAPILicense } from "./../OpenAPIInfo";
+import { OpenAPIInfo, OpenAPILicense } from '../OpenAPIInfo';
 
-test("OpenAPIInfo resolver format", () => {
+test('OpenAPIInfo resolver format', () => {
   expect(OpenAPIInfo).toMatchInlineSnapshot(`
     Object {
       "properties": Object {
@@ -17,9 +17,9 @@ test("OpenAPIInfo resolver format", () => {
   `);
 });
 
-test("OpenAPIInfo resover validation of undefined title", () => {
+test('OpenAPIInfo resover validation of undefined title', () => {
   expect(
-    OpenAPIInfo.validators.title()(undefined, { path: ["info"], pathStack: [] })
+    OpenAPIInfo.validators.title()(undefined, { path: ['info'], pathStack: [] }),
   ).toMatchInlineSnapshot(`
     Object {
       "message": "Info section must include title",
@@ -31,7 +31,7 @@ test("OpenAPIInfo resover validation of undefined title", () => {
   `);
 });
 
-test("OpenAPIInfo expect properties.license format", () => {
+test('OpenAPIInfo expect properties.license format', () => {
   expect(OpenAPIInfo.properties.license).toMatchInlineSnapshot(`
     Object {
       "validators": Object {
@@ -41,7 +41,7 @@ test("OpenAPIInfo expect properties.license format", () => {
   `);
 });
 
-test("OpenAPILicense resolver format", () => {
+test('OpenAPILicense resolver format', () => {
   expect(OpenAPILicense).toMatchInlineSnapshot(`
     Object {
       "validators": Object {
@@ -51,12 +51,12 @@ test("OpenAPILicense resolver format", () => {
   `);
 });
 
-test("OpenAPILicense check for undefined name", () => {
+test('OpenAPILicense check for undefined name', () => {
   expect(
     OpenAPILicense.validators.name()(undefined, {
-      path: ["info", "license"],
-      pathStack: []
-    })
+      path: ['info', 'license'],
+      pathStack: [],
+    }),
   ).toMatchInlineSnapshot(`
     Object {
       "message": "Name is required for the license object",

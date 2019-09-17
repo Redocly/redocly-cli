@@ -1,9 +1,11 @@
-import { OpenAPISecuritySchema } from './OpenAPISecuritySchema';
+import OpenAPISecuritySchema from './OpenAPISecuritySchema';
 
-export const OpenAPISecuritySchemaMap = {
-    properties(node) {
-        const props = {};
-        Object.keys(node).forEach(k => props[k] = OpenAPISecuritySchema);
-        return props;
-    }
+export default {
+  properties(node) {
+    const props = {};
+    Object.keys(node).forEach((k) => {
+      props[k] = OpenAPISecuritySchema;
+    });
+    return props;
+  },
 };

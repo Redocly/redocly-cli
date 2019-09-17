@@ -1,6 +1,6 @@
-openapi: 3.0.1
+# openapi: 3.0.1
 info:
-  title: Sample API
+  # title: Sample API
   license:
     name: MIT
   version: 0.0.1
@@ -18,6 +18,13 @@ paths:
             type: integer
             format: int64
             minimum: 1
+        - name: val
+          in: query
+          schema:
+            type: string
+            enum:
+              - 123
+              - value
       responses:
         '200':
           description: Success
