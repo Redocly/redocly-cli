@@ -52,7 +52,25 @@ export const getLocationByPath = (path, ctx) => {
     startCol: positionStart.posNum,
     endLine: endPosition.lineNum,
     endCol: endPosition.posNum,
+    startIndex: node.startPosition,
+    endIndex: node.endPosition,
   };
+};
+
+export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, linesAfter = 3) => {
+  let frameStart = start;
+  let frameEnd = end;
+  let actualLinesBefore = -1;
+  let actualLinesAfter = -1;
+  while (actualLinesBefore !== linesBefore) {
+    if (source[frameStart] === '\n') actualLinesBefore += 1;
+    frameStart -= 1;
+  }
+  while (actualLinesAfter !== linesAfter) {
+    if (source[frameEnd] === '\n') actualLinesAfter += 1;
+    frameEnd += 1;
+  }
+  return source.substring(frameStart + 1, frameEnd + 1);
 };
 
 export default getLocationByPath;
