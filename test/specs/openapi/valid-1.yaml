@@ -1,6 +1,10 @@
-# openapi: 3.0.1
+openapi: 3.0.1
 info:
-  # title: Sample API
+  title: Sample API
+  tags:
+    - api
+    - documentation
+    - simple
   license:
     name: MIT
   version: 0.0.1
@@ -19,11 +23,11 @@ paths:
             format: int64
             minimum: 1
         - name: val
-          in: query
+          in: queryaaa
           schema:
             type: string
             enum:
-              - 123
+              - ad
               - value
       responses:
         '200':
@@ -32,9 +36,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/user'
-              example:
-                name: John
-                email: john@example.org
+              # example:
+              #   name: John
+              #   email: john@example.org
         '400':
           description: 'Not found'
           content:
@@ -95,7 +99,6 @@ components:
       required:
         - name
       allOf:
-        - $ref: '#/components/schemas/newUser'
         - $ref: '#/components/schemas/newUser'
       properties:
         name:

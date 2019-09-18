@@ -3,7 +3,9 @@ import resolveNode from './resolver';
 const validateNode = (node, definition, ctx) => {
   if (node && definition && definition.validators) {
     Object.keys(definition.validators).forEach((v) => {
+      ctx.path.push(v);
       const validationResult = definition.validators[v]()(node, ctx);
+      ctx.path.pop();
       if (validationResult) ctx.result.push(validationResult);
     });
   }
@@ -77,9 +79,14 @@ const traverseNode = (node, definition, ctx) => {
   if (nextPath) ctx.path = ctx.pathStack.pop();
 };
 
-const traverse = (node, definition) => {
+const traverse = (node, definition, sourceFile) => {
   const ctx = {
-    document: node, path: [], visited: [], result: [], pathStack: [],
+    document: node,
+    path: [],
+    visited: [],
+    result: [],
+    pathStack: [],
+    source: sourceFile,
   };
   traverseNode(node, definition, ctx);
   return ctx.result;
