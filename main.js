@@ -13,7 +13,7 @@ const test = async (fn, fNmae, name) => {
 };
 
 
-test(validateFromFile, './test/specs/openapi/empty.yaml', 'revalid');
+test(validateFromFile, './test/specs/openapi/rebilly-full (1).yaml', 'revalid');
 
 // const data = validate(fs.readFileSync('./test/specs/openapi/valid-1.yaml', 'utf-8'));
 // data.forEach((d) => {

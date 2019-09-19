@@ -10,6 +10,7 @@ export const validate = (yamlData) => {
     const result = traverse(document, OpenAPIRoot, yamlData);
     return result;
   } catch (ex) {
+    console.log('invalid yaml');
     return [];
   }
 };

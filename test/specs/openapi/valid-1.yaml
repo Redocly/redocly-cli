@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Sample API
+  titlae: Sample API
   x-tags:
     - api
     - documentation
@@ -15,7 +15,7 @@ paths:
       description: Also gives their status
       parameters:
         - name: userId
-          in: path
+          in: patha
           required: true
           description: Id of a user
           schema:

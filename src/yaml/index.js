@@ -18,7 +18,7 @@ const getMappingChild = (mapping, childName) => {
 const getSequenceElement = (seq, id) => (seq.value ? seq.value.items[id] : seq.items[id]);
 
 const getNodeByPath = (tree, path, target = 'value') => {
-  if (path.length === 0) return target === 'value' ? tree.value : tree.key;
+  if (path.length === 0) return target === 'value' ? tree : tree.key;
   const nextKey = path.pop();
   let next;
   if ((tree.value && tree.value.mappings) || tree.mappings) {
@@ -32,6 +32,7 @@ const getNodeByPath = (tree, path, target = 'value') => {
 export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
+  // console.log(node);
   const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
   const endPosition = getLineNumberFromId(ctx.source, node.endPosition);
   return {
