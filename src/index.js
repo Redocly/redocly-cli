@@ -5,9 +5,13 @@ import traverse from './traverse';
 import OpenAPIRoot from './validators';
 
 export const validate = (yamlData) => {
-  const document = yaml.safeLoad(yamlData);
-  const result = traverse(document, OpenAPIRoot, yamlData);
-  return result;
+  try {
+    const document = yaml.safeLoad(yamlData);
+    const result = traverse(document, OpenAPIRoot, yamlData);
+    return result;
+  } catch (ex) {
+    return [];
+  }
 };
 
 export const validateFromFile = (fName) => {
