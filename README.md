@@ -16,8 +16,8 @@
 - [x] Implement JSON Schema format as a tree of validators
 - [x] Implement OpenAPI validation
 - [x] Create tests for core functions 
-- [x] Create tests for validators
-- [ ] Create library ready for install
 - [x] Add AST-based error messages
 - [x] Add codeframes for errors
 - [ ] Add fix proposals (e.g. "Did you mean "type: number" instead of "type: nmber"?)
+- [ ] Create library ready for install
+- [ ] Create tests for validators

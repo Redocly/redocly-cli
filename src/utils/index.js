@@ -7,3 +7,19 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 
 export const isUrl = (string) => urlPattern.test(string);
+export const outputRed = (str) => `\u001b[31m${str}\u001b[39m`;
+export const outputUnderline = (str) => `\u001b[4m${str}\u001b[24m`;
+export const getLineNumberFromId = (source, charId) => {
+  let lineNum = 1;
+  let posNum;
+  for (let i = 0; i < charId; i += 1) {
+    if (source[i] === '\n') {
+      lineNum += 1;
+      posNum = charId - i;
+    }
+  }
+  return {
+    lineNum,
+    posNum,
+  };
+};
