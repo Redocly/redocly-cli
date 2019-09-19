@@ -2,6 +2,5 @@ node_modules/
 coverage/
 .vscode/
 .eslintcache
-dist/
 test/specs/openapi/rebilly-full.yaml
 test/specs/openapi/rebilly-full (1).yaml
