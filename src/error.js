@@ -4,8 +4,9 @@ const prettyPrintError = (error) => {
   const message = `${error.location.startLine}:${error.location.startCol}`
   + ' Following error occured:\n'
   + `${error.message} by path ${error.path}\n`
-  + `${error.pathStack.length ? `path stack is ${error.pathStack}` : ''}\n`
-  + `${error.codeFrame}`;
+  + `${error.codeFrame ? `${error.codeFrame}\n` : ''}`
+  + `${error.pathStack.length ? '\nError traced by following path:\n' : ''}`
+  + `${error.pathStack.length ? error.pathStack.join('\n') : ''}\n`;
   return message;
 };
 
@@ -16,7 +17,7 @@ const createError = (msg, node, ctx, target) => {
     path: ctx.path.join('/'),
     pathStack: ctx.pathStack.map((el) => el.join('/')),
     location,
-    codeFrame: getCodeFrameForLocation(location.startIndex, location.endIndex, ctx.source),
+    codeFrame: ctx.enableCodeframe ? getCodeFrameForLocation(location.startIndex, location.endIndex, ctx.source) : null,
     value: node,
     severity: 'ERROR',
   };

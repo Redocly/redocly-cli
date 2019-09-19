@@ -31,7 +31,7 @@ export const OpenAPIParameter = {
     required() {
       return (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') return createError('required field must be a boolean', node, ctx);
-        if (node && node.in && node.in === 'path' && !(node.required || node.required !== true)) {
+        if (node && node.in && node.in === 'path' && !(node.required && node.required === true)) {
           return createError('If the parameter location is "path", this property is REQUIRED and its value MUST be true.', node, ctx);
         }
         return null;
