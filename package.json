@@ -32,6 +32,6 @@
   },
   "dependencies": {
     "js-yaml": "^3.13.1",
-    "yaml-ast-parser": "0.0.43",
+    "yaml-ast-parser": "0.0.43"
   }
 }
