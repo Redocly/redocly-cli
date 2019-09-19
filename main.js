@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import fs from 'fs';
-import { validate, validateFromFile } from './src';
+import { validateFromFile } from './src';
 
 const test = async (fn, fNmae, name) => {
   const start = Date.now();
@@ -14,7 +13,7 @@ const test = async (fn, fNmae, name) => {
 };
 
 
-test(validateFromFile, './test/specs/openapi/valid-1.yaml', 'revalid');
+test(validateFromFile, './test/specs/openapi/rebilly-full (1).yaml', 'revalid');
 
 // const data = validate(fs.readFileSync('./test/specs/openapi/valid-1.yaml', 'utf-8'));
 // data.forEach((d) => {

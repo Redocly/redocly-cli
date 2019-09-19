@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Sample API
-  tags:
+  x-tags:
     - api
     - documentation
     - simple
@@ -23,7 +23,7 @@ paths:
             format: int64
             minimum: 1
         - name: val
-          in: queryaaa
+          in: query
           schema:
             type: string
             enum:
@@ -35,7 +35,7 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/usera'
+                $ref: '#/components/schemas/user'
               # example:
               #   name: John
               #   email: john@example.org

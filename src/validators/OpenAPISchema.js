@@ -196,6 +196,12 @@ const OpenAPISchemaObject = {
         return null;
       };
     },
+    example() {
+      return () => null;
+    },
+    default() {
+      return () => null;
+    },
   },
   properties: {
     allOf() {

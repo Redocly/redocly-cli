@@ -9,8 +9,8 @@ const prettyPrintError = (error) => {
   return message;
 };
 
-const createError = (msg, node, ctx) => {
-  const location = getLocationByPath(Array.from(ctx.path), ctx);
+const createError = (msg, node, ctx, target) => {
+  const location = getLocationByPath(Array.from(ctx.path), ctx, target);
   const body = {
     message: msg,
     path: ctx.path.join('/'),

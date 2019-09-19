@@ -17,8 +17,8 @@ const getMappingChild = (mapping, childName) => {
 
 const getSequenceElement = (seq, id) => (seq.value ? seq.value.items[id] : seq.items[id]);
 
-const getNodeByPath = (tree, path) => {
-  if (path.length === 0 || !tree) return tree;
+const getNodeByPath = (tree, path, target = 'value') => {
+  if (path.length === 0) return target === 'value' ? tree.value : tree.key;
   const nextKey = path.pop();
   let next;
   if ((tree.value && tree.value.mappings) || tree.mappings) {
@@ -26,12 +26,12 @@ const getNodeByPath = (tree, path) => {
   } else if ((tree.value && tree.value.items) || tree.items) {
     next = getSequenceElement(tree, nextKey);
   }
-  return getNodeByPath(next, path);
+  return getNodeByPath(next, path, target);
 };
 
-export const getLocationByPath = (path, ctx) => {
+export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
-  const node = getNodeByPath(AST, path.reverse());
+  const node = getNodeByPath(AST, path.reverse(), target);
   const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
   const endPosition = getLineNumberFromId(ctx.source, node.endPosition);
   return {
@@ -49,11 +49,11 @@ export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, lin
   let frameEnd = end;
   let actualLinesBefore = -1;
   let actualLinesAfter = -1;
-  while (actualLinesBefore !== linesBefore) {
+  while (actualLinesBefore !== linesBefore && frameStart !== 0) {
     if (source[frameStart] === '\n') actualLinesBefore += 1;
     frameStart -= 1;
   }
-  while (actualLinesAfter !== linesAfter) {
+  while (actualLinesAfter !== linesAfter && frameEnd !== source.length) {
     if (source[frameEnd] === '\n') actualLinesAfter += 1;
     frameEnd += 1;
   }

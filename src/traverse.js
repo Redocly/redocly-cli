@@ -2,10 +2,25 @@ import resolveNode from './resolver';
 
 const validateNode = (node, definition, ctx) => {
   if (node && definition && definition.validators) {
+    // TODO: enable this validation when completed with all allowed fields in validators
+    // const allowedChildren = [
+    //   ...(Object.keys(definition.properties || {})),
+    //   ...(Object.keys(definition.validators || {})),
+    // ];
+    // Object.keys(node).forEach((field) => {
+    //   ctx.path.push(field);
+
+    //   if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0) {
+    //     ctx.result.push(createError('This field is not permitted here', node, ctx, 'key'));
+    //   }
+
+    //   ctx.path.pop();
+    // });
+
     Object.keys(definition.validators).forEach((v) => {
-      ctx.path.push(v);
+      if (Object.keys(node).includes(v)) ctx.path.push(v);
       const validationResult = definition.validators[v]()(node, ctx);
-      ctx.path.pop();
+      if (Object.keys(node).includes(v)) ctx.path.pop();
       if (validationResult) ctx.result.push(validationResult);
     });
   }
