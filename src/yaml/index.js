@@ -1,5 +1,7 @@
 import { safeLoad } from 'yaml-ast-parser';
 
+import { outputRed, outputUnderline, getLineNumberFromId } from '../utils';
+
 const parseAST = (ctx) => {
   if (ctx.AST) return ctx.AST;
   ctx.AST = safeLoad(ctx.source);
@@ -27,21 +29,6 @@ const getNodeByPath = (tree, path) => {
   return getNodeByPath(next, path);
 };
 
-const getLineNumberFromId = (source, charId) => {
-  let lineNum = 1;
-  let posNum;
-  for (let i = 0; i < charId; i += 1) {
-    if (source[i] === '\n') {
-      lineNum += 1;
-      posNum = charId - i;
-    }
-  }
-  return {
-    lineNum,
-    posNum,
-  };
-};
-
 export const getLocationByPath = (path, ctx) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse());
@@ -57,7 +44,7 @@ export const getLocationByPath = (path, ctx) => {
   };
 };
 
-export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, linesAfter = 3) => {
+export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, linesAfter = 2) => {
   let frameStart = start;
   let frameEnd = end;
   let actualLinesBefore = -1;
@@ -70,7 +57,10 @@ export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, lin
     if (source[frameEnd] === '\n') actualLinesAfter += 1;
     frameEnd += 1;
   }
-  return source.substring(frameStart + 1, frameEnd + 1);
+  const codeFrame = source.substring(frameStart + 1, frameEnd + 1);
+  const startOffset = start - frameStart;
+  const endOffset = startOffset + end - start;
+  return `${codeFrame.substring(0, startOffset - 1)}${outputUnderline(outputRed(codeFrame.substring(startOffset - 1, endOffset)))}${codeFrame.substring(endOffset)}`;
 };
 
 export default getLocationByPath;
