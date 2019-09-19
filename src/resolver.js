@@ -1,3 +1,5 @@
+import createError from './error';
+
 const resolve = (link, ctx) => {
   const steps = link.replace('#/', '').split('/');
   let target = ctx.document;
@@ -15,6 +17,10 @@ const resolveNode = (node, ctx) => {
     if (p === '$ref') {
       nextPath = node.$ref;
       resolved = resolve(node[p], ctx);
+      if (!resolved) {
+        ctx.result.push(createError('Refernce does not exist', node, ctx));
+        resolved = node;
+      }
     }
   });
   return { node: resolved, nextPath };
