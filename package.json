@@ -31,10 +31,7 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
     "js-yaml": "^3.13.1",
-    "yaml": "^1.6.0",
     "yaml-ast-parser": "0.0.43",
-    "yaml-unist-parser": "^1.0.0"
   }
 }
