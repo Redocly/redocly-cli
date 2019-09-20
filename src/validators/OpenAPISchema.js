@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-disable import/no-cycle */
 import createError from '../error';
 
@@ -5,6 +6,7 @@ import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 import OpenAPISchemaMap from './OpenAPISchemaMap';
 import OpenAPIDiscriminator from './OpenAPIDiscriminator';
 import OpenAPIXML from './OpenAPIXML';
+import { matchesJsonSchemaType } from '../utils';
 
 const OpenAPISchemaObject = {
   validators: {
@@ -136,7 +138,7 @@ const OpenAPISchemaObject = {
           if (node.type
               && typeof node.type === 'string'
               // eslint-disable-next-line valid-typeof
-              && node.enum.filter((item) => typeof item !== node.type).length !== 0) {
+              && node.enum.some((item) => !matchesJsonSchemaType(item, node.type))) {
             return createError('All values of "enum" field must be of the same type as the "type" field', node, ctx);
           }
         }

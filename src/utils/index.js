@@ -1,3 +1,6 @@
+// @ts-check
+/** @typedef {'string'|'number'|'integer'|'boolean'|'null'|'object'|'array'} JSONSchemaType */
+
 /* eslint-disable import/prefer-default-export */
 const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name
@@ -23,3 +26,25 @@ export const getLineNumberFromId = (source, charId) => {
     posNum,
   };
 };
+
+/**
+ * Checks if value matches specified JSON schema type
+ *
+ * @param {*} value - value to check
+ * @param {JSONSchemaType} type - JSON Schema type
+ * @returns string
+ */
+export function matchesJsonSchemaType(value, type) {
+  switch(type) {
+    case 'array':
+      return Array.isArray(value)
+    case 'object':
+      return typeof value === 'object' && value !== null && !Array.isArray(value)
+    case 'null':
+      return value === null
+    case 'integer':
+      return Number.isInteger(value)
+    default:
+      return typeof value === type
+  }
+}
