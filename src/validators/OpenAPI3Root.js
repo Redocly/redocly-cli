@@ -16,13 +16,28 @@ export default {
         return null;
       };
     },
+    info() {
+      return (node, ctx) => {
+        if (node && !node.info) return createError('The info field must be included to the root.', node, ctx);
+        return null;
+      };
+    },
+    paths() {
+      return (node, ctx) => {
+        if (node && !node.paths) return createError('The paths field must be included to the root.', node, ctx);
+        return null;
+      };
+    },
+    security() {
+      return () => null;
+    },
   },
   properties: {
     info: OpenAPIInfo,
     paths: OpenAPIPaths,
     servers: OpenAPIServer,
     components: OpenAPIComponents,
-    security: OpenAPISecurityRequirement,
+    // security: OpenAPISecurityRequirement,
     tags: OpenAPITag,
     externalDocs: OpenAPIExternalDocumentation,
   },

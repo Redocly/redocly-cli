@@ -7,16 +7,11 @@ import OpenAPIEncoding from './OpenAPIEncoding';
 
 export const OpenAPIMediaObject = {
   validators: {
-    schema() {
-      return (node, ctx) => (!node.schema ? createError('MediaType Object must include schema', node, ctx) : null);
-    },
     example() {
-      return (node, ctx) => {
-        if (node.example && node.examples) {
-          return createError('The example and examples fields are mutually exclusive', node, ctx);
-        }
-        return null;
-      };
+      return (node, ctx) => (node.example && node.examples ? createError('The example and examples fields are mutually exclusive', node, ctx) : null);
+    },
+    examples() {
+      return (node, ctx) => (node.example && node.examples ? createError('The examples and example fields are mutually exclusive', node, ctx) : null);
     },
   },
   properties: {

@@ -3,8 +3,11 @@ import createError from '../error';
 const OpenAPIServerVariable = {
   validators: {
     default() {
-      return (node, ctx) => (node && node.defaut && typeof node.default !== 'string'
-        ? createError('default field of the Server Variable must be a string', node, ctx) : null);
+      return (node, ctx) => {
+        if (!node || !node.default) return createError('The default field is required for the Server Variable', node, ctx);
+        if (typeof node.default !== 'string') return createError('default field of the Server Variable must be a string', node, ctx);
+        return null;
+      };
     },
     description() {
       return (node, ctx) => (node && node.description && typeof node.description !== 'string'

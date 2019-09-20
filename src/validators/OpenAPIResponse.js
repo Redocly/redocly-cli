@@ -1,6 +1,8 @@
 import createError from '../error';
 
 import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
+import { OpenAPIHeaderMap } from './OpenAPIHeader';
+import { OpenAPILinkMap } from './OpenAPILink';
 
 export const OpenAPIResponse = {
   validators: {
@@ -10,6 +12,8 @@ export const OpenAPIResponse = {
   },
   properties: {
     content: OpenAPIMediaTypeObject,
+    headers: OpenAPIHeaderMap,
+    links: OpenAPILinkMap,
   },
 };
 

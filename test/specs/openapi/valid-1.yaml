@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  titlae: Sample API
+  title: Sample API
   x-tags:
     - api
     - documentation
@@ -15,7 +15,7 @@ paths:
       description: Also gives their status
       parameters:
         - name: userId
-          in: patha
+          in: path
           required: true
           description: Id of a user
           schema:
@@ -25,7 +25,7 @@ paths:
         - name: val
           in: query
           schema:
-            type: string
+            type: star
             enum:
               - ad
               - value
@@ -35,7 +35,7 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
+                $ref: '#/components/schemas/usera'
               # example:
               #   name: John
               #   email: john@example.org
@@ -85,7 +85,7 @@ components:
     socialNetworkAccount:
       type: string
       enum:
-        - bla
+        - 12
         - blalblabla
     newUser:
       properties:

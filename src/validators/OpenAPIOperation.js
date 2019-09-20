@@ -48,6 +48,9 @@ export default {
         return null;
       };
     },
+    security() {
+      return () => null;
+    },
   },
   properties: {
     externalDocs: OpenAPIExternalDocumentation,
@@ -57,6 +60,6 @@ export default {
     callbacks: OpenAPICallbackMap,
     // TODO:
     // security() {},
-    server: OpenAPIServer,
+    servers: OpenAPIServer,
   },
 };

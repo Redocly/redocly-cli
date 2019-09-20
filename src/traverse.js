@@ -1,21 +1,22 @@
 import resolveNode from './resolver';
+import createError from './error';
 
 const validateNode = (node, definition, ctx) => {
   if (node && definition && definition.validators) {
     // TODO: enable this validation when completed with all allowed fields in validators
-    // const allowedChildren = [
-    //   ...(Object.keys(definition.properties || {})),
-    //   ...(Object.keys(definition.validators || {})),
-    // ];
-    // Object.keys(node).forEach((field) => {
-    //   ctx.path.push(field);
+    const allowedChildren = [
+      ...(Object.keys(definition.properties || {})),
+      ...(Object.keys(definition.validators || {})),
+    ];
+    Object.keys(node).forEach((field) => {
+      ctx.path.push(field);
 
-    //   if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0) {
-    //     ctx.result.push(createError('This field is not permitted here', node, ctx, 'key'));
-    //   }
+      if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0) {
+        ctx.result.push(createError('This field is not permitted here', node, ctx, 'key'));
+      }
 
-    //   ctx.path.pop();
-    // });
+      ctx.path.pop();
+    });
 
     Object.keys(definition.validators).forEach((v) => {
       if (Object.keys(node).includes(v)) ctx.path.push(v);
@@ -102,6 +103,7 @@ const traverse = (node, definition, sourceFile) => {
     result: [],
     pathStack: [],
     source: sourceFile,
+    // enableCodeframe: true,
   };
   traverseNode(node, definition, ctx);
   return ctx.result;

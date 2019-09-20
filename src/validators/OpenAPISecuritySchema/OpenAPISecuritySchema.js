@@ -44,9 +44,9 @@ export default {
     },
     bearerFormat() {
       return (node, ctx) => {
-        if (node.type !== 'http') return null;
-        if (!node.bearerFormat) return createError('The bearerFormat field is required for the OpenAPI Security Scheme object', node, ctx);
-        if (typeof node.scheme !== 'string') return createError('The bearerFormat field must be a string for the OpenAPI Security Scheme object', node, ctx);
+        if (node.bearerFormat && node.type !== 'http') return createError('The bearerFormat field is applicable only for http', node, ctx);
+        if (!node.bearerFormat && node.type === 'http') return createError('The bearerFormat field is required for the OpenAPI Security Scheme object', node, ctx);
+        if (node.bearerFormat && typeof node.bearerFormat !== 'string') return createError('The bearerFormat field must be a string for the OpenAPI Security Scheme object', node, ctx);
         return null;
       };
     },

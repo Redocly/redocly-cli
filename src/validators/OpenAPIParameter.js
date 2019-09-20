@@ -10,6 +10,9 @@ export const OpenAPIParameter = {
       return (node, ctx) => {
         if (!node) return null;
         if (!node.name || typeof node.name !== 'string') return createError('name is required and must be a string', node, ctx);
+        if (node.in && node.in === 'path' && ctx.path.filter((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1).length === 0) {
+          // return createError('The in value is not in the current parameter path.', node, ctx);
+        }
         return null;
       };
     },
@@ -31,7 +34,7 @@ export const OpenAPIParameter = {
     required() {
       return (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') return createError('required field must be a boolean', node, ctx);
-        if (node && node.in && node.in === 'path' && !(node.required && node.required === true)) {
+        if (node && node.in && node.in === 'path' && node.required !== true) {
           return createError('If the parameter location is "path", this property is REQUIRED and its value MUST be true.', node, ctx);
         }
         return null;
@@ -46,6 +49,14 @@ export const OpenAPIParameter = {
     allowEmptyValue() {
       return (node, ctx) => {
         if (node && node.allowEmptyValue && typeof node.allowEmptyValue !== 'boolean') return createError('allowEmptyValue field must be a boolean', node, ctx);
+        return null;
+      };
+    },
+    style() {
+      return (node, ctx) => {
+        if (node && node.style && typeof node.style !== 'string') {
+          return createError('The style field must be a string for Parameter object', node, ctx);
+        }
         return null;
       };
     },
@@ -70,6 +81,22 @@ export const OpenAPIParameter = {
     examples() {
       return (node, ctx) => {
         if (node.example && node.examples) return createError('The examples field is mutually exclusive of the example field.', node, ctx);
+        return null;
+      };
+    },
+    schema() {
+      return (node, ctx) => {
+        if (node.schema && node.content) {
+          return createError('A parameter MUST contain either a schema property, or a content property, but not both.', node, ctx);
+        }
+        return null;
+      };
+    },
+    content() {
+      return (node, ctx) => {
+        if (node.schema && node.content) {
+          return createError('A parameter MUST contain either a schema property, or a content property, but not both.', node, ctx);
+        }
         return null;
       };
     },

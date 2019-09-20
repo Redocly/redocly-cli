@@ -37,6 +37,9 @@ export const OpenAPILink = {
         return null;
       };
     },
+    requestBody() {
+      return () => null;
+    },
   },
   properties: {
     server: OpenAPIServer,
