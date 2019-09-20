@@ -9,7 +9,7 @@ info:
     name: MIT
   version: 0.0.1
 paths:
-  /user/{userId}:
+  /user/{userId}/{name}:
     get:
       summary: Get a list of all users
       description: Also gives their status
@@ -29,6 +29,7 @@ paths:
             enum:
               - false
               - true
+        - $ref: '#/components/parameters/name'
       responses:
         '200':
           description: Success
@@ -40,7 +41,7 @@ components:
   parameters:
     name:
       in: path
-      name: blabla
+      name: name
       required: true
   schemas:
     Pet:

@@ -10,13 +10,13 @@ export const OpenAPIParameter = {
       return (node, ctx) => {
         if (!node) return null;
         if (!node.name || typeof node.name !== 'string') return createError('name is required and must be a string', node, ctx);
+        const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...val], []);
         if (node.in && node.in === 'path'
-          && [...ctx.path, ...ctx.pathStack.flat()]
+          && [...ctx.path, ...visitedNodes]
             .filter((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1)
             .length === 0
-          && (ctx.path.indexOf('components') === -1 || ctx.pathStack.flat().indexOf('paths') !== -1)
+          && (ctx.path.indexOf('components') === -1 || visitedNodes.indexOf('paths') !== -1)
         ) {
-          // console.log(ctx.path);
           return createError('The "name" field value is not in the current parameter path.', node, ctx);
         }
         return null;
