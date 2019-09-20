@@ -25,7 +25,7 @@ paths:
         - name: val
           in: query
           schema:
-            type: star
+            type: striang
             enum:
               - ad
               - value
@@ -35,20 +35,12 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/usera'
-              # example:
-              #   name: John
-              #   email: john@example.org
-        '400':
-          description: 'Not found'
-          content:
-            application/json:
-              schema:
                 $ref: '#/components/schemas/user'
-              example:
-                name: me
-        
 components:
+  parameters:
+    name:
+      in: path
+      name: blabla
   schemas:
     Pet:
       type: "object"
@@ -85,7 +77,7 @@ components:
     socialNetworkAccount:
       type: string
       enum:
-        - 12
+        - a
         - blalblabla
     newUser:
       properties:

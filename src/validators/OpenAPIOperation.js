@@ -40,7 +40,7 @@ export default {
       };
     },
     responses() {
-      return (node, ctx) => (!node.responses ? createError('Operation must include responses section', node, ctx) : null);
+      return (node, ctx) => (!node.responses ? createError('Operation must include responses section', node, ctx, 'key') : null);
     },
     deprecated() {
       return (node, ctx) => {

@@ -4,7 +4,7 @@ const OpenAPIServerVariable = {
   validators: {
     default() {
       return (node, ctx) => {
-        if (!node || !node.default) return createError('The default field is required for the Server Variable', node, ctx);
+        if (!node || !node.default) return createError('The default field is required for the Server Variable', node, ctx, 'key');
         if (typeof node.default !== 'string') return createError('default field of the Server Variable must be a string', node, ctx);
         return null;
       };
@@ -39,7 +39,7 @@ const OpenAPIServer = {
   validators: {
     url() {
       return (node, ctx) => {
-        if (!node || !node.url || typeof node.url !== 'string') return createError('url is required for a server object and must be a string', node, ctx);
+        if (!node || !node.url || typeof node.url !== 'string') return createError('url is required for a server object and must be a string', node, ctx, 'key');
         return null;
       };
     },

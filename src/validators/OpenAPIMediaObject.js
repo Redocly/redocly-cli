@@ -8,10 +8,10 @@ import OpenAPIEncoding from './OpenAPIEncoding';
 export const OpenAPIMediaObject = {
   validators: {
     example() {
-      return (node, ctx) => (node.example && node.examples ? createError('The example and examples fields are mutually exclusive', node, ctx) : null);
+      return (node, ctx) => (node.example && node.examples ? createError('The example and examples fields are mutually exclusive', node, ctx, 'key') : null);
     },
     examples() {
-      return (node, ctx) => (node.example && node.examples ? createError('The examples and example fields are mutually exclusive', node, ctx) : null);
+      return (node, ctx) => (node.example && node.examples ? createError('The examples and example fields are mutually exclusive', node, ctx, 'key') : null);
     },
   },
   properties: {

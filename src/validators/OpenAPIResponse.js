@@ -7,7 +7,7 @@ import { OpenAPILinkMap } from './OpenAPILink';
 export const OpenAPIResponse = {
   validators: {
     description() {
-      return (node, ctx) => (!node.description ? createError('Description is required part of a Response definition.', node, ctx) : null);
+      return (node, ctx) => (!node.description ? createError('Description is required part of a Response definition.', node, ctx, 'key') : null);
     },
   },
   properties: {

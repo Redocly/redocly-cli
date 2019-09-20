@@ -4,7 +4,7 @@ export default {
   validators: {
     propertyName() {
       return (node, ctx) => {
-        if (!(node && node.propertyName)) return createError('propertyName field is required for Discriminator object', node, ctx);
+        if (!(node && node.propertyName)) return createError('propertyName field is required for Discriminator object', node, ctx, 'key');
         if (typeof node.propertyName !== 'string') return createError('propertyName of the Discriminator must be a string', node, ctx);
         return null;
       };

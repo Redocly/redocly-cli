@@ -14,7 +14,7 @@ export const OpenAPIRequestBody = {
     content() {
       return (node, ctx) => {
         if (node && !node.content) {
-          return createError('The content field is required for the Open API RequestBody object.', node, ctx);
+          return createError('The content field is required for the Open API RequestBody object.', node, ctx, 'key');
         }
         return null;
       };

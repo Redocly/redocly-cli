@@ -5,7 +5,7 @@ export const OpenAPIExample = {
     value() {
       return (node, ctx) => {
         if (node.value && node.externalValue) {
-          return createError('The value field and externalValue field are mutually exclusive.', node, ctx);
+          return createError('The value field and externalValue field are mutually exclusive.', node, ctx, 'key');
         }
         return null;
       };
@@ -16,7 +16,7 @@ export const OpenAPIExample = {
           return createError('The externalValue field must be a string', node, ctx);
         }
         if (node.value && node.externalValue) {
-          return createError('The value field and externalValue field are mutually exclusive.', node, ctx);
+          return createError('The value field and externalValue field are mutually exclusive.', node, ctx, 'key');
         }
         return null;
       };

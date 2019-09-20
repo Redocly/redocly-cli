@@ -9,7 +9,7 @@ const OpenAPIExternalDocumentation = {
     },
     url() {
       return (node, ctx) => {
-        if (node && !node.url) return createError('url is a required field for an ExternalDocumentation object', node, ctx);
+        if (node && !node.url) return createError('url is a required field for an ExternalDocumentation object', node, ctx, 'key');
         if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx);
         return null;
       };

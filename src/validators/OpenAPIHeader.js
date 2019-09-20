@@ -47,13 +47,13 @@ export const OpenAPIHeader = {
     },
     example() {
       return (node, ctx) => {
-        if (node.example && node.examples) return createError('The example field is mutually exclusive of the examples field.', node, ctx);
+        if (node.example && node.examples) return createError('The example field is mutually exclusive of the examples field.', node, ctx, 'key');
         return null;
       };
     },
     examples() {
       return (node, ctx) => {
-        if (node.example && node.examples) return createError('The examples field is mutually exclusive of the example field.', node, ctx);
+        if (node.example && node.examples) return createError('The examples field is mutually exclusive of the example field.', node, ctx, 'key');
         return null;
       };
     },

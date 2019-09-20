@@ -6,7 +6,7 @@ export const OpenAPILink = {
     operationRef() {
       return (node, ctx) => {
         if (!node || !node.operationRef) return null;
-        if (node.operationRef && node.operationId) return createError('Fields operationRef and operationId are mutually exclusive', node, ctx);
+        if (node.operationRef && node.operationId) return createError('Fields operationRef and operationId are mutually exclusive', node, ctx, 'key');
         if (typeof node.operationRef !== 'string') return createError('The operationRef field must be a string in the Open API Link', node, ctx);
         return null;
       };
@@ -14,7 +14,7 @@ export const OpenAPILink = {
     operationId() {
       return (node, ctx) => {
         if (!node || !node.operationId) return null;
-        if (node.operationRef && node.operationId) return createError('Fields operationId and operationRef are mutually exclusive', node, ctx);
+        if (node.operationRef && node.operationId) return createError('Fields operationId and operationRef are mutually exclusive', node, ctx, 'key');
         if (typeof node.operationId !== 'string') return createError('The operationId field must be a string in the Open API Link', node, ctx);
         return null;
       };

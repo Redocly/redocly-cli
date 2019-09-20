@@ -5,7 +5,7 @@ export default {
   validators: {
     name() {
       return (node, ctx) => {
-        if (!node.name) return createError('The name property is required for the Open API Tag object', node, ctx);
+        if (!node.name) return createError('The name property is required for the Open API Tag object', node, ctx, 'key');
         if (node && node.name && typeof node.name !== 'string') {
           return createError('The name field must be a string', node, ctx);
         }
