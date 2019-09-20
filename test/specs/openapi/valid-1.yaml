@@ -25,10 +25,10 @@ paths:
         - name: val
           in: query
           schema:
-            type: striang
+            type: boolean
             enum:
-              - ad
-              - value
+              - false
+              - true
       responses:
         '200':
           description: Success
@@ -41,6 +41,7 @@ components:
     name:
       in: path
       name: blabla
+      required: true
   schemas:
     Pet:
       type: "object"
