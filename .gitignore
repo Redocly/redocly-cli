@@ -4,3 +4,5 @@ coverage/
 .eslintcache
 test/specs/openapi/rebilly-full.yaml
 test/specs/openapi/rebilly-full (1).yaml
+yarn.lock
+package-lock.json
