@@ -1,4 +1,4 @@
-import createError from '../error';
+import { createErrorMutuallyExclusiveFields, createErrrorFieldTypeMismatch } from '../error';
 import OpenAPIServer from './OpenAPIServer';
 
 export const OpenAPILink = {
@@ -6,16 +6,16 @@ export const OpenAPILink = {
     operationRef() {
       return (node, ctx) => {
         if (!node || !node.operationRef) return null;
-        if (node.operationRef && node.operationId) return createError('Fields operationRef and operationId are mutually exclusive', node, ctx, 'key');
-        if (typeof node.operationRef !== 'string') return createError('The operationRef field must be a string in the Open API Link', node, ctx);
+        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationRef', 'operationId'], node, ctx);
+        if (typeof node.operationRef !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         return null;
       };
     },
     operationId() {
       return (node, ctx) => {
         if (!node || !node.operationId) return null;
-        if (node.operationRef && node.operationId) return createError('Fields operationId and operationRef are mutually exclusive', node, ctx, 'key');
-        if (typeof node.operationId !== 'string') return createError('The operationId field must be a string in the Open API Link', node, ctx);
+        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationId', 'operationRef'], node, ctx);
+        if (typeof node.operationId !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         return null;
       };
     },
@@ -23,7 +23,7 @@ export const OpenAPILink = {
       return (node, ctx) => {
         if (!node || !node.parameters) return null;
         if (Object.keys(node.parameters).filter((key) => typeof key !== 'string').length > 0) {
-          return createError('The parameters field must be a Map with string keys', node, ctx);
+          return createErrrorFieldTypeMismatch('Map[string, any]', node, ctx);
         }
         return null;
       };
@@ -32,7 +32,7 @@ export const OpenAPILink = {
       return (node, ctx) => {
         if (!node || !node.description) return null;
         if (typeof node.description !== 'string') {
-          return createError('The description field must be a string in the Open API Link', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         return null;
       };

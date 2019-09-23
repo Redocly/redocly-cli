@@ -1,4 +1,4 @@
-import createError from '../error';
+import { createErrorMissingRequiredField } from '../error';
 
 import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 import { OpenAPIHeaderMap } from './OpenAPIHeader';
@@ -7,7 +7,7 @@ import { OpenAPILinkMap } from './OpenAPILink';
 export const OpenAPIResponse = {
   validators: {
     description() {
-      return (node, ctx) => (!node.description ? createError('Description is required part of a Response definition.', node, ctx, 'key') : null);
+      return (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx) : null);
     },
   },
   properties: {

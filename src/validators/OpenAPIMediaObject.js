@@ -1,6 +1,6 @@
 /* eslint-disable import/no-cycle */
 import OpenAPISchema from './OpenAPISchema';
-import createError from '../error';
+import { createErrorMutuallyExclusiveFields } from '../error';
 import { OpenAPIExampleMap } from './OpenAPIExample';
 import OpenAPIEncoding from './OpenAPIEncoding';
 
@@ -8,10 +8,10 @@ import OpenAPIEncoding from './OpenAPIEncoding';
 export const OpenAPIMediaObject = {
   validators: {
     example() {
-      return (node, ctx) => (node.example && node.examples ? createError('The example and examples fields are mutually exclusive', node, ctx, 'key') : null);
+      return (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null);
     },
     examples() {
-      return (node, ctx) => (node.example && node.examples ? createError('The examples and example fields are mutually exclusive', node, ctx, 'key') : null);
+      return (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null);
     },
   },
   properties: {

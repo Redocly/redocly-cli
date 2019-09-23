@@ -1,4 +1,4 @@
-import { getLocationByPath, getCodeFrameForLocation } from './yaml';
+import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 
 const prettyPrintError = (error, enableCodeframe) => {
   const message = `${error.location.startLine}:${error.location.startCol}`
@@ -6,7 +6,7 @@ const prettyPrintError = (error, enableCodeframe) => {
   + `${error.message} by path ${error.path}\n`
   + `${enableCodeframe ? `${error.codeFrame}\n` : ''}`
   + `${error.pathStack.length ? '\nError traced by following path:\n' : ''}`
-  + `${error.pathStack.length ? error.pathStack.join('\n') : ''}\n`;
+  + `${error.pathStack.length ? error.pathStack.join('\n') : ''}`;
   return message;
 };
 

@@ -1,9 +1,9 @@
-import createError from '../error';
+import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
 
 export const OpenAPILicense = {
   validators: {
     name() {
-      return (node, ctx) => (!node || !node.name ? createError('Name is required for the license object', node, ctx, 'key') : null);
+      return (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx) : null);
     },
     url() {
       return () => null;
@@ -14,13 +14,13 @@ export const OpenAPILicense = {
 export const OpenAPIContact = {
   validators: {
     name() {
-      return (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createError('Name must be a string', node, ctx) : null);
+      return (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null);
     },
     url() {
-      return (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createError('Url must be a string', node, ctx) : null);
+      return (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null);
     },
     email() {
-      return (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createError('Email must be a string', node, ctx) : null);
+      return (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null);
     },
   },
 };
@@ -28,10 +28,10 @@ export const OpenAPIContact = {
 export const OpenAPIInfo = {
   validators: {
     title() {
-      return (node, ctx) => (!node || !node.title ? createError('Info section must include title', node, ctx, 'key') : null);
+      return (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx) : null);
     },
     version() {
-      return (node, ctx) => (!node || !node.version ? createError('Version is required for the info section', node, ctx, 'key') : null);
+      return (node, ctx) => (!node || !node.version ? createErrorMissingRequiredField('version', node, ctx) : null);
     },
     description() {
       return () => null;
