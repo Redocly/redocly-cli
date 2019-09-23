@@ -15,11 +15,12 @@ const resolveNode = (node, ctx) => {
   let resolved = node;
   Object.keys(node).forEach((p) => {
     if (p === '$ref') {
-      nextPath = node.$ref;
+      nextPath = node.$ref.replace('#/', '').split('/');
       resolved = resolve(node[p], ctx);
       if (!resolved) {
         ctx.result.push(createError('Refernce does not exist', node, ctx));
         resolved = node;
+        nextPath = ctx.path;
       }
     }
   });

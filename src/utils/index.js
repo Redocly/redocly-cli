@@ -35,16 +35,16 @@ export const getLineNumberFromId = (source, charId) => {
  * @returns string
  */
 export function matchesJsonSchemaType(value, type) {
-  switch(type) {
+  switch (type) {
     case 'array':
-      return Array.isArray(value)
+      return Array.isArray(value);
     case 'object':
-      return typeof value === 'object' && value !== null && !Array.isArray(value)
+      return typeof value === 'object' && value !== null && !Array.isArray(value);
     case 'null':
-      return value === null
+      return value === null;
     case 'integer':
-      return Number.isInteger(value)
+      return Number.isInteger(value);
     default:
-      return typeof value === type
+      return typeof value === type;
   }
 }
