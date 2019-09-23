@@ -1,7 +1,7 @@
-import { validateFromFile } from "../index";
+import { validateFromFile } from '../index';
 
-test("validate simple document", () => {
-  expect(validateFromFile("./test/specs/openapi/simple.yaml"))
+test('validate simple document', () => {
+  expect(validateFromFile('./test/specs/openapi/simple.yaml'))
     .toMatchInlineSnapshot(`
     Array [
       Object {
@@ -80,14 +80,14 @@ test("validate simple document", () => {
   `);
 });
 
-test("Validate simple valid OpenAPI document", () => {
+test('Validate simple valid OpenAPI document', () => {
   expect(
-    validateFromFile("./test/specs/openapi/test-2.yaml")
-  ).toMatchInlineSnapshot("Array []");
+    validateFromFile('./test/specs/openapi/test-2.yaml'),
+  ).toMatchInlineSnapshot('Array []');
 });
 
-test("Validate from invalid file", () => {
+test('Validate from invalid file', () => {
   expect(
-    validateFromFile("./test/specs/openapi/test-invalid-1.yaml")
-  ).toMatchInlineSnapshot(`Array []`);
+    validateFromFile('./test/specs/openapi/test-invalid-1.yaml'),
+  ).toMatchInlineSnapshot('Array []');
 });
