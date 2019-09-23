@@ -1,5 +1,5 @@
 import resolveNode from './resolver';
-import createError from './error';
+import { createErrorFieldNotAllowed } from './error';
 
 const validateNode = (node, definition, ctx) => {
   if (node && definition && definition.validators) {
@@ -12,7 +12,7 @@ const validateNode = (node, definition, ctx) => {
       ctx.path.push(field);
 
       if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0) {
-        ctx.result.push(createError('This field is not permitted here', node, ctx, 'key'));
+        ctx.result.push(createErrorFieldNotAllowed(field, node, ctx));
       }
 
       ctx.path.pop();

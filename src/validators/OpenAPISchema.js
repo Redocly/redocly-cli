@@ -1,6 +1,6 @@
 // @ts-check
 /* eslint-disable import/no-cycle */
-import createError from '../error';
+import createError, { createErrrorFieldTypeMismatch } from '../error';
 
 import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 import OpenAPISchemaMap from './OpenAPISchemaMap';
@@ -13,7 +13,7 @@ const OpenAPISchemaObject = {
     title() {
       return (node, ctx) => {
         if (node && node.title) {
-          if (!(typeof node.title === 'string')) return createError('Title of the schema must be a string', node, ctx);
+          if (!(typeof node.title === 'string')) return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         return null;
       };
@@ -21,7 +21,7 @@ const OpenAPISchemaObject = {
     multipleOf() {
       return (node, ctx) => {
         if (node && node.multipleOf) {
-          if (typeof node.multipleOf !== 'number') return createError('Value of multipleOf must be a number', node, ctx);
+          if (typeof node.multipleOf !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.multipleOf < 0) return createError('Value of multipleOf must be greater or equal to zero', node, ctx);
         }
         return null;
@@ -29,32 +29,32 @@ const OpenAPISchemaObject = {
     },
     maximum() {
       return (node, ctx) => {
-        if (node && node.maximum && typeof node.maximum !== 'number') return createError('Value of maximum must be a number', node, ctx);
+        if (node && node.maximum && typeof node.maximum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
         return null;
       };
     },
     exclusiveMaximum() {
       return (node, ctx) => {
-        if (node && node.exclusiveMaximum && typeof node.exclusiveMaximum !== 'boolean') return createError('Value of exclusiveMaximum must be a boolean', node, ctx);
+        if (node && node.exclusiveMaximum && typeof node.exclusiveMaximum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },
     minimum() {
       return (node, ctx) => {
-        if (node && node.minimum && typeof node.minimum !== 'number') return createError('Value of minimum must be a number', node, ctx);
+        if (node && node.minimum && typeof node.minimum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
         return null;
       };
     },
     exclusiveMinimum() {
       return (node, ctx) => {
-        if (node && node.exclusiveMinimum && typeof node.exclusiveMinimum !== 'boolean') return createError('Value of exclusiveMinimum must be a boolean', node, ctx);
+        if (node && node.exclusiveMinimum && typeof node.exclusiveMinimum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },
     maxLength() {
       return (node, ctx) => {
         if (node && node.maxLength) {
-          if (typeof node.maxLength !== 'number') return createError('Value of maxLength must be a number', node, ctx);
+          if (typeof node.maxLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.maxLength < 0) return createError('Value of maxLength must be greater or equal to zero', node, ctx);
         }
         return null;
@@ -63,7 +63,7 @@ const OpenAPISchemaObject = {
     minLength() {
       return (node, ctx) => {
         if (node && node.minLength) {
-          if (typeof node.minLength !== 'number') return createError('Value of minLength must be a number', node, ctx);
+          if (typeof node.minLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.minLength < 0) return createError('Value of minLength must be greater or equal to zero', node, ctx);
         }
         return null;
@@ -73,7 +73,7 @@ const OpenAPISchemaObject = {
       return (node, ctx) => {
         if (node && node.pattern) {
           // TODO: add regexp validation.
-          if (typeof node.pattern !== 'string') return createError('Value of pattern must be a string', node, ctx);
+          if (typeof node.pattern !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         return null;
       };
@@ -81,7 +81,7 @@ const OpenAPISchemaObject = {
     maxItems() {
       return (node, ctx) => {
         if (node && node.maxItems) {
-          if (typeof node.maxItems !== 'number') return createError('Value of maxItems must be a number', node, ctx);
+          if (typeof node.maxItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.maxItems < 0) return createError('Value of maxItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
         }
         return null;
@@ -90,7 +90,7 @@ const OpenAPISchemaObject = {
     minItems() {
       return (node, ctx) => {
         if (node && node.minItems) {
-          if (typeof node.minItems !== 'number') return createError('Value of minItems must be a number', node, ctx);
+          if (typeof node.minItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.minItems < 0) return createError('Value of minItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
         }
         return null;
@@ -99,7 +99,7 @@ const OpenAPISchemaObject = {
     uniqueItems() {
       return (node, ctx) => {
         if (node && node.uniqueItems) {
-          if (typeof node.uniqueItems !== 'boolean') return createError('Value of uniqueItems must be a boolean', node, ctx);
+          if (typeof node.uniqueItems !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         }
         return null;
       };
@@ -107,7 +107,7 @@ const OpenAPISchemaObject = {
     maxProperties() {
       return (node, ctx) => {
         if (node && node.maxProperties) {
-          if (typeof node.maxProperties !== 'number') return createError('Value of maxProperties must be a number', node, ctx);
+          if (typeof node.maxProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.maxProperties < 0) return createError('Value of maxProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
         }
         return null;
@@ -116,7 +116,7 @@ const OpenAPISchemaObject = {
     minProperties() {
       return (node, ctx) => {
         if (node && node.minProperties) {
-          if (typeof node.minProperties !== 'number') return createError('Value of minProperties must be a number', node, ctx);
+          if (typeof node.minProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
           if (node.minProperties < 0) return createError('Value of minProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
         }
         return null;
@@ -125,7 +125,7 @@ const OpenAPISchemaObject = {
     required() {
       return (node, ctx) => {
         if (node && node.required) {
-          if (!Array.isArray(node.required)) return createError('Value of required must be an array', node, ctx);
+          if (!Array.isArray(node.required)) return createErrrorFieldTypeMismatch('array', node, ctx);
           if (node.required.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "required" field must be strings', node, ctx);
         }
         return null;
@@ -134,7 +134,7 @@ const OpenAPISchemaObject = {
     enum() {
       return (node, ctx) => {
         if (node && node.enum) {
-          if (!Array.isArray(node.enum)) return createError('Value of enum must be an array', node, ctx);
+          if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
           if (node.type
               && typeof node.type === 'string'
               // eslint-disable-next-line valid-typeof
@@ -164,37 +164,37 @@ const OpenAPISchemaObject = {
     },
     description() {
       return (node, ctx) => {
-        if (node && node.description && typeof node.description !== 'string') return createError('Value of description must be a string', node, ctx);
+        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         return null;
       };
     },
     format() {
       return (node, ctx) => {
-        if (node && node.format && typeof node.format !== 'string') return createError('Value of format must be a string', node, ctx);
+        if (node && node.format && typeof node.format !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         return null;
       };
     },
     nullable() {
       return (node, ctx) => {
-        if (node && node.nullable && typeof node.nullable !== 'boolean') return createError('Value of nullable must be a boolean', node, ctx);
+        if (node && node.nullable && typeof node.nullable !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },
     readOnly() {
       return (node, ctx) => {
-        if (node && node.readOnly && typeof node.readOnly !== 'boolean') return createError('Value of readOnly must be a boolean', node, ctx);
+        if (node && node.readOnly && typeof node.readOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },
     writeOnly() {
       return (node, ctx) => {
-        if (node && node.writeOnly && typeof node.writeOnly !== 'boolean') return createError('Value of writeOnly must be a boolean', node, ctx);
+        if (node && node.writeOnly && typeof node.writeOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },
     deprecated() {
       return (node, ctx) => {
-        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createError('Value of deprecated must be a boolean', node, ctx);
+        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
         return null;
       };
     },

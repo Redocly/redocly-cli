@@ -1,4 +1,4 @@
-import createError from '../error';
+import { createErrorMissingRequiredField } from '../error';
 
 import { OpenAPIInfo } from './OpenAPIInfo';
 import { OpenAPIPaths } from './OpenAPIPaths';
@@ -12,19 +12,19 @@ export default {
   validators: {
     openapi() {
       return (node, ctx) => {
-        if (node && !node.openapi) return createError('The openapi field must be included to the root.', node, ctx);
+        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx);
         return null;
       };
     },
     info() {
       return (node, ctx) => {
-        if (node && !node.info) return createError('The info field must be included to the root.', node, ctx);
+        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx);
         return null;
       };
     },
     paths() {
       return (node, ctx) => {
-        if (node && !node.paths) return createError('The paths field must be included to the root.', node, ctx);
+        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx);
         return null;
       };
     },

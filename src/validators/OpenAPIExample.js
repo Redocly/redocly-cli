@@ -1,11 +1,11 @@
-import createError from '../error';
+import { createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../error';
 
 export const OpenAPIExample = {
   validators: {
     value() {
       return (node, ctx) => {
         if (node.value && node.externalValue) {
-          return createError('The value field and externalValue field are mutually exclusive.', node, ctx, 'key');
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx);
         }
         return null;
       };
@@ -13,10 +13,10 @@ export const OpenAPIExample = {
     externalValue() {
       return (node, ctx) => {
         if (node.externalValue && typeof node.externalValue !== 'string') {
-          return createError('The externalValue field must be a string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         if (node.value && node.externalValue) {
-          return createError('The value field and externalValue field are mutually exclusive.', node, ctx, 'key');
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx);
         }
         return null;
       };
@@ -24,7 +24,7 @@ export const OpenAPIExample = {
     description() {
       return (node, ctx) => {
         if (node.description && typeof node.description !== 'string') {
-          return createError('The description field must be a string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         return null;
       };
@@ -32,7 +32,7 @@ export const OpenAPIExample = {
     summary() {
       return (node, ctx) => {
         if (node.summary && typeof node.summary !== 'string') {
-          return createError('The summary field must be a string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx);
         }
         return null;
       };

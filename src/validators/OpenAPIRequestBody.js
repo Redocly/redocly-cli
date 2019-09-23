@@ -1,4 +1,4 @@
-import createError from '../error';
+import { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../error';
 import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 
 export const OpenAPIRequestBody = {
@@ -6,7 +6,7 @@ export const OpenAPIRequestBody = {
     description() {
       return (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createError('The required field must be a string.', node, ctx);
+          return createErrrorFieldTypeMismatch('string.', node, ctx);
         }
         return null;
       };
@@ -14,7 +14,7 @@ export const OpenAPIRequestBody = {
     content() {
       return (node, ctx) => {
         if (node && !node.content) {
-          return createError('The content field is required for the Open API RequestBody object.', node, ctx, 'key');
+          return createErrorMissingRequiredField('content', node, ctx);
         }
         return null;
       };
@@ -22,7 +22,7 @@ export const OpenAPIRequestBody = {
     required() {
       return (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') {
-          return createError('The required field must be a boolean.', node, ctx);
+          return createErrrorFieldTypeMismatch('boolean.', node, ctx);
         }
         return null;
       };
