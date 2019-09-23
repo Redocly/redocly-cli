@@ -11,7 +11,7 @@ const validateNode = (node, definition, ctx) => {
     Object.keys(node).forEach((field) => {
       ctx.path.push(field);
 
-      if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0) {
+      if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field.indexOf('$ref') !== 0) {
         ctx.result.push(createErrorFieldNotAllowed(field, node, ctx));
       }
 
@@ -45,7 +45,7 @@ const traverseNode = (node, definition, ctx) => {
   if (nextPath) {
     ctx.pathStack.push(ctx.path);
     prevPath = ctx.path;
-    ctx.path = nextPath.replace('#/', '').split('/');
+    ctx.path = nextPath;
   }
 
   if (Array.isArray(resolvedNode)) {
