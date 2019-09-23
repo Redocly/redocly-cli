@@ -32,6 +32,7 @@ const getNodeByPath = (tree, path, target = 'value') => {
 export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
+  if (!node) return null;
   // console.log(node);
   const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
   const endPosition = getLineNumberFromId(ctx.source, node.endPosition);
@@ -43,6 +44,11 @@ export const getLocationByPath = (path, ctx, target) => {
     startIndex: node.startPosition,
     endIndex: node.endPosition,
   };
+};
+
+export const getLocationByPathURI = (path, ctx, target) => {
+  const pathArray = path.replace('#/', '').split('/');
+  return getLocationByPath(pathArray, ctx, target);
 };
 
 export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, linesAfter = 2) => {
