@@ -16,7 +16,7 @@ paths:
       parameters:
         - name: userId
           in: path
-          required: 123
+          required: true
           description: Id of a user
           schema:
             type: integer

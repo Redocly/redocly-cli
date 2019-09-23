@@ -1,0 +1,192 @@
+openapi: 3.0.1
+info:
+  title: Sample API
+  licensasf
+  /user/{userId}:
+    summary: Get a list of all users
+    post:
+      tags:
+        - users
+        - retreive
+      summary: Get a list of all users
+      description: Also gives their status
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                companyAddress:
+                  description: company address lines
+                  type: string
+                companyName:
+                  description: Company name
+                  type: string
+                companyNumber:
+                  description: official company number
+                  type: string
+                vatNumber:
+                  description: VAT number to validate
+                  type: string
+              required:
+                - vatNumber
+              type: object
+        description: VAT number and the company details
+        required: true
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: val
+          in: query
+      responses:
+        '200':
+          description: Success
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                name: John
+                email: john@example.org
+        '400':
+          content:
+            application/json:
+              schema:
+                properties:
+                  company:
+                    properties:
+                      address:
+                        items:
+                          type: string
+                        type: array
+                      country:
+                        type: string
+                      dateOfIncorporation:
+                        type: string
+                      extraData:
+                        type: object
+                      formattedAddress:
+                        items:
+                          type: string
+                        type: array
+                      id:
+                        type: string
+                      legalForm:
+                        type: string
+                      managingDirectors:
+                        items:
+                          type: string
+                        type: array
+                      name:
+                        type: string
+                      registrationNumber:
+                        type: string
+                      requestTime:
+                        type: integer
+                      secretaries:
+                        items:
+                          type: string
+                        type: array
+                      sicNaceCodes:
+                        items:
+                          type: string
+                        type: array
+                      status:
+                        type: string
+                    required:
+                      - country
+                      - id
+                      - name
+                      - registrationNumber
+                  confidenceScore:
+                    type: number
+                  validationStatus:
+                    type: boolean
+                required:
+                  - confidenceScore
+                  - validationStatus
+          description: Denotes validity of checked VAT
+        
+components:
+  schemas:
+    Pet:
+      type: "object"
+      required:
+        - "name"
+        - "photoUrls"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        category:
+          type: string
+        name:
+          type: "string"
+          example: "doggie"
+        photoUrls:
+          type: "array"
+          xml:
+            name: "photoUrl"
+            wrapped: true
+          items:
+            type: "string"
+        status:
+          type: "string"
+          description: "pet status in the store"
+          enum:
+          - "available"
+          - "pending"
+          - "sold"
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: Dog
+    socialNetworkAccount:
+      type: string
+      enum:
+        - bla
+        - blalblabla
+    newUser:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      type: object
+    user:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: '#/components/schemas/Pet'
+      externalDocs:
+        url: https://google.com
+servers:
+  - url: https://{username}.gigantic-server.com:{port}/{basePath}
+    description: The production API server
+    variables:
+      username:
+        # note! no enum here means it is an open value
+        default: demo
+        description: this value is assigned by the service provider, in this example `gigantic-server.com`
+      port:
+        enum:
+          - '8443'
+          - '443'
+        default: '8443'
+      basePath:
+        # open meaning there is the opportunity to use special base paths as assigned by the provider, default is `v2`
+        default: v2

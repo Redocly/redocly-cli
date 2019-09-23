@@ -27,7 +27,7 @@ const validateNode = (node, definition, ctx) => {
   }
 };
 
-const traverseNode = (node, definition, ctx) => {
+export const traverseNode = (node, definition, ctx) => {
   const currentPath = ctx.path.join('/');
 
   // TO-DO: refactor ctx.visited into dictionary for O(1) check time
@@ -89,7 +89,7 @@ const traverseNode = (node, definition, ctx) => {
 
         break;
       default:
-        break;
+        // do nothing
     }
   }
   if (nextPath) ctx.path = ctx.pathStack.pop();
