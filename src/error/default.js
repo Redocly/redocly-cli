@@ -2,10 +2,10 @@ import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 
 const prettyPrintError = (error, enableCodeframe) => {
   const message = `${error.location.startLine}:${error.location.startCol}`
-  + ' Following error occured:\n'
-  + `${error.message} by path ${error.path}${error.file ? ` in file ${error.file}` : ''}\n`
-  + `${error.pathStack.length ? '\nError traced by following path:\n' : ''}`
-  + `${error.pathStack.length ? `${error.pathStack.join('\n')}\n` : ''}`
+  + ' Following error occured:'
+  + `\n${error.message} by path ${error.path}${error.file ? ` in file ${error.file}` : ''}\n`
+  + `${error.pathStack.length ? '\nError traced by following path:' : ''}`
+  + `${error.pathStack.length ? `\n${error.pathStack.join('\n')}\n` : ''}`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`;
   return message;
 };

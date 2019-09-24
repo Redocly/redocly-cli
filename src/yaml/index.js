@@ -56,18 +56,23 @@ export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, lin
   let frameEnd = end;
   let actualLinesBefore = -1;
   let actualLinesAfter = -1;
-  while (actualLinesBefore !== linesBefore && frameStart !== 0) {
-    if (source[frameStart] === '\n') actualLinesBefore += 1;
-    frameStart -= 1;
+
+  for (; actualLinesBefore !== linesBefore && frameStart >= 0; frameStart -= 1) {
+    if (source[frameStart - 1] === '\n') actualLinesBefore += 1;
   }
+
   while (actualLinesAfter !== linesAfter && frameEnd !== source.length) {
     if (source[frameEnd] === '\n') actualLinesAfter += 1;
     frameEnd += 1;
   }
-  const codeFrame = source.substring(frameStart + 1, frameEnd + 1);
-  const startOffset = start - frameStart;
+
+  const codeFrame = source.substring(frameStart, frameEnd + 1);
+  let startOffset = start - frameStart;
   const endOffset = startOffset + end - start;
-  return `${codeFrame.substring(0, startOffset - 1)}${outputUnderline(outputRed(codeFrame.substring(startOffset - 1, endOffset)))}${codeFrame.substring(endOffset)}`;
+
+  if (frameStart === -1) startOffset -= 1;
+
+  return `${codeFrame.substring(0, startOffset)}${outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)))}${codeFrame.substring(endOffset)}`;
 };
 
 export default getLocationByPath;
