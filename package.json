@@ -2,13 +2,14 @@
   "name": "revalid",
   "version": "0.0.1",
   "description": "",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "profile": "npx babel-node --prof main.js",
     "babel-node": "babel-node",
     "build": "babel src --out-dir dist --source-maps inline",
     "lint": "eslint --fix ./src",
     "prepublishOnly": "npm run build",
+    "postinstall": "npm run build",
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
   },
