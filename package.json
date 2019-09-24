@@ -9,7 +9,6 @@
     "build": "babel src --out-dir dist --source-maps inline",
     "lint": "eslint --fix ./src",
     "prepublishOnly": "npm run build",
-    "postinstall": "npm run build",
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
   },
