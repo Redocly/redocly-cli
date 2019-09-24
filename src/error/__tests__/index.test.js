@@ -29,10 +29,11 @@ describe("createErrorFieldNotAllowed", () => {
           get:
             summary: Get a list of all users
             description: Also gives their status
-            [4m[31mparameters:[39m[24m
+            [4m[31mparameters[39m[24m:
               - name: userId
                 in: path
        ",
+        "file": undefined,
         "location": Object {
           "endCol": 17,
           "endIndex": 275,
@@ -65,10 +66,11 @@ describe("createErrorMissingRequiredField", () => {
           get:
             summary: Get a list of all users
             description: Also gives their status
-            [4m[31mparameters:[39m[24m
+            [4m[31mparameters[39m[24m:
               - name: userId
                 in: path
        ",
+        "file": undefined,
         "location": Object {
           "endCol": 17,
           "endIndex": 275,
@@ -109,10 +111,11 @@ describe("createErrrorFieldTypeMismatch", () => {
             parameters:
               - name: userId
                 in: path
-                [4m[31mrequired:[39m[24m true
+                [4m[31mrequired[39m[24m: true
                 description: Id of a user
                 schema:
        ",
+        "file": undefined,
         "location": Object {
           "endCol": 19,
           "endIndex": 337,
@@ -156,10 +159,11 @@ describe("createErrorMutuallyExclusiveFields", () => {
           parameters:
             - name: userId
               in: path
-              [4m[31mrequired:[39m[24m true
+              [4m[31mrequired[39m[24m: true
               description: Id of a user
               schema:
      ",
+      "file": undefined,
       "location": Object {
         "endCol": 19,
         "endIndex": 337,

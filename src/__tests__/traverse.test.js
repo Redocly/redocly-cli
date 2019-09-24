@@ -46,11 +46,12 @@ test("", () => {
   expect(traverse(node, resolver, getSource())).toMatchInlineSnapshot(`
     Array [
       Object {
-        "codeFrame": "ield: 12
+        "codeFrame": "field: 12
     [4m[31mb:[39m[24m  12
     x-allowed: true
     child:
      ",
+        "file": "",
         "location": Object {
           "endCol": 2,
           "endIndex": 11,
@@ -74,10 +75,11 @@ test("", () => {
         },
       },
       Object {
-        "codeFrame": "[4m[31mield:[39m[24m 12
+        "codeFrame": "[4m[31mfield:[39m[24m 12
     b:  12
     x-allowed: true
     c",
+        "file": "",
         "location": Object {
           "endCol": 0,
           "endIndex": 5,

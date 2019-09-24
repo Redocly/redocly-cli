@@ -1,26 +1,28 @@
 /* eslint-disable max-len */
-import yaml from 'js-yaml';
-import fs from 'fs';
-import resolveNode from '../resolver';
+import yaml from "js-yaml";
+import fs from "fs";
+import resolveNode from "../resolver";
 
-const getSource = () => fs.readFileSync('./test/specs/openapi/test-1.yaml', 'utf-8');
+const getSource = () =>
+  fs.readFileSync("./test/specs/openapi/test-1.yaml", "utf-8");
 
 const createContext = () => ({
   document: yaml.safeLoad(getSource()),
-  path: ['paths', '/user/{userId}/{name}', 'get', 'parameters'],
+  path: ["paths", "/user/{userId}/{name}", "get", "parameters"],
   pathStack: [],
   source: getSource(),
   result: [],
-  enableCodeframe: true,
+  enableCodeframe: true
 });
 
-test('Resolve a node without a $ref', () => {
+test("Resolve a node without a $ref", () => {
   const context = createContext();
   const node = {
-    property: 'value',
+    property: "value"
   };
   expect(resolveNode(node, context)).toMatchInlineSnapshot(`
     Object {
+      "filePath": undefined,
       "nextPath": undefined,
       "node": Object {
         "property": "value",
@@ -30,13 +32,14 @@ test('Resolve a node without a $ref', () => {
   `);
 });
 
-test('Resolve a node with a one $ref', () => {
+test("Resolve a node with a one $ref", () => {
   const context = createContext();
   const node = {
-    $ref: '#/components/schemas/user',
+    $ref: "#/components/schemas/user"
   };
   expect(resolveNode(node, context)).toMatchInlineSnapshot(`
     Object {
+      "filePath": null,
       "nextPath": Array [
         "components",
         "schemas",
@@ -72,14 +75,15 @@ test('Resolve a node with a one $ref', () => {
   `);
 });
 
-test('Resolve node with $ref and content', () => {
+test("Resolve node with $ref and content", () => {
   const context = createContext();
   const node = {
-    $ref: '#/components/schemas/user',
-    properties: ['thisShouldNotPersist'],
+    $ref: "#/components/schemas/user",
+    properties: ["thisShouldNotPersist"]
   };
   expect(resolveNode(node, context)).toMatchInlineSnapshot(`
     Object {
+      "filePath": null,
       "nextPath": Array [
         "components",
         "schemas",
@@ -115,7 +119,7 @@ test('Resolve node with $ref and content', () => {
   `);
 });
 
-test('Resolve undefined instead of a node', () => {
+test("Resolve undefined instead of a node", () => {
   const context = createContext();
   expect(resolveNode(undefined, context)).toMatchInlineSnapshot(`
     Object {
@@ -125,15 +129,16 @@ test('Resolve undefined instead of a node', () => {
   `);
 });
 
-test('Resolve node which does not exists', () => {
+test("Resolve node which does not exists", () => {
   const node = {
-    $ref: '#/components/schemas/notUser',
+    $ref: "#/components/schemas/notUser"
   };
   const ctx = createContext();
   ctx.enableCodeframe = false;
   const resolvedNode = resolveNode(node, ctx);
   expect(resolvedNode).toMatchInlineSnapshot(`
     Object {
+      "filePath": null,
       "nextPath": Array [
         "paths",
         "/user/{userId}/{name}",
@@ -3057,6 +3062,7 @@ test('Resolve node which does not exists', () => {
       "result": Array [
         Object {
           "codeFrame": null,
+          "file": undefined,
           "location": null,
           "message": "Refernce does not exist",
           "path": "paths//user/{userId}/{name}/get/parameters/$ref",

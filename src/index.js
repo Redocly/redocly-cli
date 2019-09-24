@@ -6,14 +6,14 @@ import traverse from './traverse';
 import OpenAPIRoot from './validators';
 
 export const validate = (yamlData, filePath) => {
-  // try {
-  const document = yaml.safeLoad(yamlData);
+  let document;
+  try {
+    document = yaml.safeLoad(yamlData);
+  } catch (ex) {
+    throw new Error("Can't load yaml file");
+  }
   const result = traverse(document, OpenAPIRoot, yamlData, filePath);
   return result;
-  // } catch (ex) {
-  //   // console.log('invalid yaml');
-  //   return [];
-  // }
 };
 
 export const validateFromFile = (fName) => {
