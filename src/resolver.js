@@ -1,39 +1,66 @@
+import fs from 'fs';
+import yaml from 'js-yaml';
 import createError from './error';
 
 /**
  *
- * Here we simply go over each of the steps in the link and try to retreive the value
+ * Here we go over each of the steps in the link and try to retreive the value
  * for it. If failed (e.g. because of undefined value) -- return null, to indicate that such
  * reference does not exist.
  *
  * @param {string} link A path in the yaml document which is to be resolved
- * @param {*} document JSON Object which represents the YAML structure
+ * @param {*} ctx JSON Object with the document field which represents the YAML structure
  */
-const resolve = (link, document) => {
-  const steps = link.replace('#/', '').split('/');
-  let target = document;
-  Object.keys(steps).forEach((step) => {
-    target = steps[step] && target[steps[step]] ? target[steps[step]] : null;
-  });
-  return target;
+const resolve = (link, ctx) => {
+  const linkSplitted = link.split('#/');
+  const [filePath, docPath] = linkSplitted;
+
+  let target;
+  let fData;
+  if (filePath) {
+    const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
+    fData = fs.readFileSync(`${path}/${filePath}`, 'utf-8');
+    target = yaml.safeLoad(fData);
+  } else {
+    target = ctx.document;
+  }
+
+  if (docPath) {
+    const steps = docPath.split('/').filter((el) => el !== '');
+    Object.keys(steps).forEach((step) => {
+      target = target && steps[step] && target[steps[step]] ? target[steps[step]] : null;
+    });
+  }
+
+  return {
+    node: target,
+    updatedSource: filePath ? fData : null,
+    docPath: docPath ? docPath.split('/') : [],
+    filePath: filePath || null,
+  };
 };
 
 const resolveNode = (node, ctx) => {
   if (!node || typeof node !== 'object') return { node, nextPath: null };
   let nextPath;
-  let resolved = node;
+  let resolved = {
+    node,
+  };
   Object.keys(node).forEach((p) => {
     if (p === '$ref') {
-      nextPath = node.$ref.replace('#/', '').split('/');
-      resolved = resolve(node[p], ctx.document);
-      if (!resolved) {
+      resolved = resolve(node[p], ctx);
+      nextPath = resolved.docPath;
+      if (!resolved.node) {
+        ctx.path.push('$ref');
         ctx.result.push(createError('Refernce does not exist', node, ctx));
-        resolved = node;
+        ctx.path.pop();
+        resolved.node = node;
         nextPath = ctx.path;
+        resolved.updatedSource = null;
       }
     }
   });
-  return { node: resolved, nextPath };
+  return { node: resolved.node, nextPath, updatedSource: resolved.updatedSource };
 };
 
 export default resolveNode;

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import yaml from 'js-yaml';
 import fs from 'fs';
 import resolveNode from '../resolver';
@@ -24,6 +25,7 @@ test('Resolve a node without a $ref', () => {
       "node": Object {
         "property": "value",
       },
+      "updatedSource": undefined,
     }
   `);
 });
@@ -65,6 +67,7 @@ test('Resolve a node with a one $ref', () => {
         ],
         "type": "object",
       },
+      "updatedSource": null,
     }
   `);
 });
@@ -107,6 +110,7 @@ test('Resolve node with $ref and content', () => {
         ],
         "type": "object",
       },
+      "updatedSource": null,
     }
   `);
 });
@@ -126,6 +130,7 @@ test('Resolve node which does not exists', () => {
     $ref: '#/components/schemas/notUser',
   };
   const ctx = createContext();
+  ctx.enableCodeframe = false;
   const resolvedNode = resolveNode(node, ctx);
   expect(resolvedNode).toMatchInlineSnapshot(`
     Object {
@@ -138,6 +143,7 @@ test('Resolve node which does not exists', () => {
       "node": Object {
         "$ref": "#/components/schemas/notUser",
       },
+      "updatedSource": null,
     }
   `);
   expect(ctx).toMatchInlineSnapshot(`
@@ -3040,7 +3046,7 @@ test('Resolve node which does not exists', () => {
           },
         },
       },
-      "enableCodeframe": true,
+      "enableCodeframe": false,
       "path": Array [
         "paths",
         "/user/{userId}/{name}",
@@ -3050,41 +3056,10 @@ test('Resolve node which does not exists', () => {
       "pathStack": Array [],
       "result": Array [
         Object {
-          "codeFrame": "
-        get:
-          summary: Get a list of all users
-          description: Also gives their status
-          [4m[31mparameters:
-            - name: userId
-              in: path
-              required: true
-              description: Id of a user
-              schema:
-                type: integer
-                format: int64
-                minimum: 1
-            - name: val
-              in: query
-              schema:
-                type: boolean
-                enum:
-                  - false
-                  - true
-            - $ref: '#/components/parameters/name'
-          r[39m[24mesponses:
-            '200':
-              description: Success
-     ",
-          "location": Object {
-            "endCol": 7,
-            "endIndex": 671,
-            "endLine": 33,
-            "startCol": 7,
-            "startIndex": 265,
-            "startLine": 16,
-          },
+          "codeFrame": null,
+          "location": null,
           "message": "Refernce does not exist",
-          "path": "paths//user/{userId}/{name}/get/parameters",
+          "path": "paths//user/{userId}/{name}/get/parameters/$ref",
           "pathStack": Array [],
           "prettyPrint": [Function],
           "severity": "ERROR",

@@ -1,50 +1,56 @@
-import fs from 'fs';
+import fs from "fs";
 
-import traverse from '../traverse';
-import { createErrrorFieldTypeMismatch } from '../error';
+import traverse from "../traverse";
+import { createErrrorFieldTypeMismatch } from "../error";
 
-const getSource = () => fs.readFileSync('./test/specs/openapi/test-3.yaml', 'utf-8');
+const getSource = () =>
+  fs.readFileSync("./test/specs/openapi/test-3.yaml", "utf-8");
 
-test('Traverse over a flat node with empty resolver', () => {
+test("Traverse over a flat node with empty resolver", () => {
   const node = {
-    name: 'test node',
-    value: 12,
+    name: "test node",
+    value: 12
   };
   const resolver = {};
-  expect(traverse(node, resolver)).toMatchInlineSnapshot('Array []');
+  expect(traverse(node, resolver)).toMatchInlineSnapshot("Array []");
 });
 
-test('', () => {
+test("", () => {
   const node = {
     field: 12,
     b: 12,
-    'x-allowed': true,
+    "x-allowed": true,
     child: {
-      a: 'text',
-    },
+      a: "text"
+    }
   };
   const resolver = {
     validators: {
       field() {
-        return (targetNode, ctx) => (typeof node.field === 'string'
-          ? null
-          : createErrrorFieldTypeMismatch('string', targetNode, ctx));
-      },
+        return (targetNode, ctx) =>
+          typeof node.field === "string"
+            ? null
+            : createErrrorFieldTypeMismatch("string", targetNode, ctx);
+      }
     },
     properties: {
       child: {
         validators: {
           a() {
             return () => null;
-          },
-        },
-      },
-    },
+          }
+        }
+      }
+    }
   };
   expect(traverse(node, resolver, getSource())).toMatchInlineSnapshot(`
     Array [
       Object {
-        "codeFrame": null,
+        "codeFrame": "ield: 12
+    [4m[31mb:[39m[24m  12
+    x-allowed: true
+    child:
+     ",
         "location": Object {
           "endCol": 2,
           "endIndex": 11,
@@ -68,7 +74,10 @@ test('', () => {
         },
       },
       Object {
-        "codeFrame": null,
+        "codeFrame": "[4m[31mield:[39m[24m 12
+    b:  12
+    x-allowed: true
+    c",
         "location": Object {
           "endCol": 0,
           "endIndex": 5,

@@ -45,6 +45,7 @@ export function matchesJsonSchemaType(value, type) {
     case 'integer':
       return Number.isInteger(value);
     default:
+      // eslint-disable-next-line valid-typeof
       return typeof value === type;
   }
 }

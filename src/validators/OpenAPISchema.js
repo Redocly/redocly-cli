@@ -135,11 +135,16 @@ const OpenAPISchemaObject = {
       return (node, ctx) => {
         if (node && node.enum) {
           if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
-          if (node.type
-              && typeof node.type === 'string'
-              // eslint-disable-next-line valid-typeof
-              && node.enum.some((item) => !matchesJsonSchemaType(item, node.type))) {
-            return createError('All values of "enum" field must be of the same type as the "type" field', node, ctx);
+          if (node.type && typeof node.type === 'string') {
+            const typeMimsatch = node.enum.filter(
+              (item) => !matchesJsonSchemaType(item, node.type),
+            );
+            if (typeMimsatch.length !== 0) {
+              ctx.path.push(node.enum.indexOf(typeMimsatch[0]));
+              const error = createError('All values of "enum" field must be of the same type as the "type" field', node, ctx);
+              ctx.path.pop();
+              return error;
+            }
           }
         }
         return null;

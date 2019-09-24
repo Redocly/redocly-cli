@@ -1,0 +1,69 @@
+openapi: 3.0.2
+info:
+  title: nanana
+  version: fafafa
+  license:
+    $ref: license-fragment.yaml#/license/adasf/asd
+paths:
+  /user/{userId}/{name}:
+    get:
+      summary: Get a list of all users
+      description: Also gives their status
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: val
+          in: query
+          schema:
+            type: number
+            enum:
+              - false
+              - true
+        - $ref: '#/components/parameters/name'
+      responses:
+        '200':
+          description: Success
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+components:
+  parameters:
+    name:
+      in: path
+      name: name
+      required: true
+  schemas:
+    socialNetworkAccount:
+      type: string
+      enum:
+        - a
+        - blalblabla
+    newUser:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      type: object
+    user:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: 'license-fragment.yaml#/schemas/Pet'
+      externalDocs:
+        url: https://google.com

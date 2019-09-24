@@ -3,11 +3,11 @@ import { createErrorFieldNotAllowed } from './error';
 
 const validateNode = (node, definition, ctx) => {
   if (node && definition && definition.validators) {
-    // TODO: enable this validation when completed with all allowed fields in validators
     const allowedChildren = [
       ...(Object.keys(definition.properties || {})),
       ...(Object.keys(definition.validators || {})),
     ];
+
     Object.keys(node).forEach((field) => {
       ctx.path.push(field);
 
@@ -34,18 +34,32 @@ export const traverseNode = (node, definition, ctx) => {
   if (ctx.visited.includes(currentPath)) return;
   ctx.visited.push(currentPath);
 
+  // console.log('+++++++++++++');
+  // console.log(`Current path: ${currentPath}`);
+  // console.log(node);
+  // console.log(definition);
+  // console.log('***************');
+
   if (!node || !definition) return;
 
-  // console.log(`Current path: ${currentPath}`);
   let nextPath;
   let prevPath;
   let resolvedNode;
+  let updatedSource;
+  let prevSource;
   // eslint-disable-next-line prefer-const
-  ({ node: resolvedNode, nextPath } = resolveNode(node, ctx));
+  ({ node: resolvedNode, nextPath, updatedSource } = resolveNode(node, ctx));
+
   if (nextPath) {
     ctx.pathStack.push(ctx.path);
     prevPath = ctx.path;
     ctx.path = nextPath;
+  }
+
+  if (updatedSource) {
+    ctx.AST = null;
+    prevSource = ctx.source;
+    ctx.source = updatedSource;
   }
 
   if (Array.isArray(resolvedNode)) {
@@ -61,27 +75,25 @@ export const traverseNode = (node, definition, ctx) => {
   validateNode(resolvedNode, definition, ctx);
 
   if (definition.properties) {
-    let nodeChildres;
+    let nodeChildren;
     switch (typeof definition.properties) {
       case 'function':
-        nodeChildres = definition.properties(resolvedNode);
-
-        Object.keys(nodeChildres).forEach((child) => {
+        nodeChildren = definition.properties(resolvedNode);
+        Object.keys(nodeChildren).forEach((child) => {
           if (Object.keys(resolvedNode).includes(child)) {
             ctx.path.push(child);
-            if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildres[child], ctx);
+            if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
             ctx.path.pop();
           }
         });
 
         break;
       case 'object':
-
         Object.keys(definition.properties).forEach((p) => {
           ctx.path.push(p);
           if (typeof definition.properties[p] === 'function') {
             if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
-          } else if (node[p]) {
+          } else if (resolvedNode[p]) {
             traverseNode(resolvedNode[p], definition.properties[p], ctx);
           }
           ctx.path.pop();
@@ -92,18 +104,26 @@ export const traverseNode = (node, definition, ctx) => {
         // do nothing
     }
   }
-  if (nextPath) ctx.path = ctx.pathStack.pop();
+
+  if (nextPath) {
+    ctx.path = ctx.pathStack.pop();
+  }
+  if (updatedSource) {
+    ctx.AST = null;
+    ctx.source = prevSource;
+  }
 };
 
-const traverse = (node, definition, sourceFile) => {
+const traverse = (node, definition, sourceFile, filePath = '') => {
   const ctx = {
     document: node,
+    filePath,
     path: [],
     visited: [],
     result: [],
     pathStack: [],
     source: sourceFile,
-    // enableCodeframe: true,
+    enableCodeframe: true,
   };
   traverseNode(node, definition, ctx);
   return ctx.result;

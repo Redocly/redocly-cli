@@ -7,6 +7,7 @@ const OpenAPISchemaMap = {
     Object.keys(node).forEach((k) => {
       props[k] = OpenAPISchema;
     });
+
     return props;
   },
 };

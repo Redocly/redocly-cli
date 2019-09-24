@@ -1,27 +1,28 @@
-import yaml from 'js-yaml';
-import fs from 'fs';
+import yaml from "js-yaml";
+import fs from "fs";
 import {
   createErrorMissingRequiredField,
   createErrorFieldNotAllowed,
   createErrrorFieldTypeMismatch,
-  createErrorMutuallyExclusiveFields,
-} from '..';
+  createErrorMutuallyExclusiveFields
+} from "..";
 
-const getSource = () => fs.readFileSync('./test/specs/openapi/test-1.yaml', 'utf-8');
+const getSource = () =>
+  fs.readFileSync("./test/specs/openapi/test-1.yaml", "utf-8");
 
 const createContext = () => ({
   document: yaml.safeLoad(getSource()),
-  path: ['paths', '/user/{userId}/{name}', 'get', 'parameters'],
+  path: ["paths", "/user/{userId}/{name}", "get", "parameters"],
   pathStack: [],
   source: getSource(),
-  enableCodeframe: true,
+  enableCodeframe: true
 });
 
-describe('createErrorFieldNotAllowed', () => {
-  test('', () => {
+describe("createErrorFieldNotAllowed", () => {
+  test("", () => {
     const ctx = createContext();
     const node = { required: 123 };
-    const error = createErrorFieldNotAllowed('wrong', node, ctx);
+    const error = createErrorFieldNotAllowed("wrong", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
         "codeFrame": "
@@ -53,42 +54,25 @@ describe('createErrorFieldNotAllowed', () => {
   });
 });
 
-describe('createErrorMissingRequiredField', () => {
-  test('', () => {
+describe("createErrorMissingRequiredField", () => {
+  test("", () => {
     const ctx = createContext();
     const node = { required: 123 };
-    const error = createErrorMissingRequiredField('name', node, ctx);
+    const error = createErrorMissingRequiredField("name", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
         "codeFrame": "
           get:
             summary: Get a list of all users
             description: Also gives their status
-            [4m[31mparameters:
+            [4m[31mparameters:[39m[24m
               - name: userId
                 in: path
-                required: true
-                description: Id of a user
-                schema:
-                  type: integer
-                  format: int64
-                  minimum: 1
-              - name: val
-                in: query
-                schema:
-                  type: boolean
-                  enum:
-                    - false
-                    - true
-              - $ref: '#/components/parameters/name'
-            r[39m[24mesponses:
-              '200':
-                description: Success
        ",
         "location": Object {
-          "endCol": 7,
-          "endIndex": 671,
-          "endLine": 33,
+          "endCol": 17,
+          "endIndex": 275,
+          "endLine": 16,
           "startCol": 7,
           "startIndex": 265,
           "startLine": 16,
@@ -106,19 +90,19 @@ describe('createErrorMissingRequiredField', () => {
   });
 });
 
-describe('createErrrorFieldTypeMismatch', () => {
-  test('', () => {
+describe("createErrrorFieldTypeMismatch", () => {
+  test("", () => {
     const ctx = createContext();
     ctx.path = [
-      'paths',
-      '/user/{userId}/{name}',
-      'get',
-      'parameters',
+      "paths",
+      "/user/{userId}/{name}",
+      "get",
+      "parameters",
       0,
-      'required',
+      "required"
     ];
     const node = { required: 123 };
-    const error = createErrrorFieldTypeMismatch('boolean', node, ctx);
+    const error = createErrrorFieldTypeMismatch("boolean", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
         "codeFrame": "
@@ -150,21 +134,21 @@ describe('createErrrorFieldTypeMismatch', () => {
   });
 });
 
-describe('createErrorMutuallyExclusiveFields', () => {
+describe("createErrorMutuallyExclusiveFields", () => {
   const ctx = createContext();
   ctx.path = [
-    'paths',
-    '/user/{userId}/{name}',
-    'get',
-    'parameters',
+    "paths",
+    "/user/{userId}/{name}",
+    "get",
+    "parameters",
     0,
-    'required',
+    "required"
   ];
   const node = { required: 123 };
   const error = createErrorMutuallyExclusiveFields(
-    ['example', 'examples'],
+    ["example", "examples"],
     node,
-    ctx,
+    ctx
   );
   expect(error).toMatchInlineSnapshot(`
     Object {

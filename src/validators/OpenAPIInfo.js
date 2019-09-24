@@ -1,4 +1,5 @@
-import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
+import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
+import { isUrl } from '../utils';
 
 export const OpenAPILicense = {
   validators: {
@@ -6,7 +7,7 @@ export const OpenAPILicense = {
       return (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx) : null);
     },
     url() {
-      return () => null;
+      return (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx) : null);
     },
   },
 };
