@@ -11,7 +11,8 @@ const prettyPrintError = (error, enableCodeframe) => {
 };
 
 const createError = (msg, node, ctx, target) => {
-  const location = getLocationByPath(Array.from(ctx.path), ctx, target);
+  let location = getLocationByPath(Array.from(ctx.path), ctx, target);
+  if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {
     message: msg,
     path: ctx.path.join('/'),
