@@ -1,6 +1,8 @@
 import { safeLoad } from 'yaml-ast-parser';
 
-import { outputRed, outputUnderline, getLineNumberFromId } from '../utils';
+import {
+  outputRed, outputUnderline, getLineNumberFromId, outputGrey,
+} from '../utils';
 
 const parseAST = (ctx) => {
   if (ctx.AST) return ctx.AST;
@@ -51,7 +53,7 @@ export const getLocationByPathURI = (path, ctx, target) => {
   return getLocationByPath(pathArray, ctx, target);
 };
 
-export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, linesAfter = 2) => {
+export const getCodeFrameForLocation = (start, end, source, startLine = 0, linesBefore = 3, linesAfter = 2) => {
   let frameStart = start;
   let frameEnd = end;
   let actualLinesBefore = -1;
@@ -68,11 +70,24 @@ export const getCodeFrameForLocation = (start, end, source, linesBefore = 3, lin
 
   const codeFrame = source.substring(frameStart, frameEnd + 1);
   let startOffset = start - frameStart;
-  const endOffset = startOffset + end - start;
+  let endOffset = startOffset + end - start;
 
   if (frameStart === -1) startOffset -= 1;
+  if (frameStart === -1) endOffset -= 1;
 
-  return `${codeFrame.substring(0, startOffset)}${outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)))}${codeFrame.substring(endOffset)}`;
+  const codeFrameStart = codeFrame.substring(0, startOffset);
+  const codeFrameEnd = codeFrame.substring(endOffset);
+  const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
+  let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
+
+  const lines = codeFrameString.split('\n');
+  lines.forEach((_, id) => {
+    lines[id] = outputGrey(`[${startLine - actualLinesBefore + id - 1}]: ${lines[id]}`);
+  });
+
+  codeFrameString = lines.join('\n');
+
+  return codeFrameString;
 };
 
 export default getLocationByPath;

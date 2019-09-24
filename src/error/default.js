@@ -1,11 +1,12 @@
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
+import { outputLightBlue } from '../utils';
 
 const prettyPrintError = (error, enableCodeframe) => {
-  const message = `${error.location.startLine}:${error.location.startCol}`
+  const message = `${outputLightBlue(error.file)}::${error.location.startLine}:${error.location.startCol}`
   + ' Following error occured:'
-  + `\n${error.message} by path ${error.path}${error.file ? ` in file ${error.file}` : ''}\n`
+  + `\n${error.message} by path #/${error.path}\n`
   + `${error.pathStack.length ? '\nError traced by following path:' : ''}`
-  + `${error.pathStack.length ? `\n${error.pathStack.join('\n')}\n` : ''}`
+  + `${error.pathStack.length ? `\n- #/${error.pathStack.join('\n- #/')}\n` : ''}`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`;
   return message;
 };
@@ -19,7 +20,13 @@ const createError = (msg, node, ctx, target) => {
     pathStack: ctx.pathStack.map((el) => el.join('/')),
     location,
     codeFrame: ctx.enableCodeframe
-      ? getCodeFrameForLocation(location.startIndex, location.endIndex, ctx.source) : null,
+      ? getCodeFrameForLocation(
+        location.startIndex,
+        location.endIndex,
+        ctx.source,
+        location.startLine,
+      )
+      : null,
     value: node,
     file: ctx.filePath,
     severity: 'ERROR',

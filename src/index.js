@@ -1,5 +1,4 @@
 import yaml from 'js-yaml';
-import path from 'path';
 import fs from 'fs';
 
 import traverse from './traverse';
@@ -17,7 +16,7 @@ export const validate = (yamlData, filePath) => {
 };
 
 export const validateFromFile = (fName) => {
-  const resolvedFileName = path.resolve(fName);
+  const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   const validationResult = validate(doc, resolvedFileName);
   return validationResult;

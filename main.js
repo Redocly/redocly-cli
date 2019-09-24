@@ -2,7 +2,6 @@
 import path from 'path';
 import { validateFromFile } from './src';
 
-
 const test = async (fn, fNmae, name) => {
   const start = Date.now();
   const results = await fn(fNmae);
@@ -16,8 +15,3 @@ const test = async (fn, fNmae, name) => {
 
 console.log(path.resolve(''));
 test(validateFromFile, 'test/specs/openapi/with-file-ref.yaml', 'revalid');
-
-// const data = validate(fs.readFileSync('./test/specs/openapi/valid-1.yaml', 'utf-8'));
-// data.forEach((d) => {
-//   console.log(d.prettyPrint());
-// });

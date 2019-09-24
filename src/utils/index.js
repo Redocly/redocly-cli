@@ -12,6 +12,9 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 export const isUrl = (string) => urlPattern.test(string);
 export const outputRed = (str) => `\u001b[31m${str}\u001b[39m`;
 export const outputUnderline = (str) => `\u001b[4m${str}\u001b[24m`;
+export const outputBgLightBlue = (str) => `[44m${str}[49m`;
+export const outputLightBlue = (str) => `[94m${str}[39m`;
+export const outputGrey = (str) => `[90m${str}[39m`;
 export const getLineNumberFromId = (source, charId) => {
   let lineNum = 1;
   let posNum = 0;
