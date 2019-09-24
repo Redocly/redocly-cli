@@ -47,8 +47,12 @@ export const traverseNode = (node, definition, ctx) => {
   let resolvedNode;
   let updatedSource;
   let prevSource;
-  // eslint-disable-next-line prefer-const
-  ({ node: resolvedNode, nextPath, updatedSource } = resolveNode(node, ctx));
+  let filePath;
+  let prevFilePath;
+  ({
+    // eslint-disable-next-line prefer-const
+    node: resolvedNode, nextPath, updatedSource, filePath,
+  } = resolveNode(node, ctx));
 
   if (nextPath) {
     ctx.pathStack.push(ctx.path);
@@ -58,6 +62,8 @@ export const traverseNode = (node, definition, ctx) => {
 
   if (updatedSource) {
     ctx.AST = null;
+    prevFilePath = ctx.filePath;
+    ctx.filePath = filePath;
     prevSource = ctx.source;
     ctx.source = updatedSource;
   }
@@ -111,6 +117,7 @@ export const traverseNode = (node, definition, ctx) => {
   if (updatedSource) {
     ctx.AST = null;
     ctx.source = prevSource;
+    ctx.filePath = prevFilePath;
   }
 };
 

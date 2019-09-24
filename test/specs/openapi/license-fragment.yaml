@@ -24,12 +24,7 @@ schemas:
         items:
           type: "string"
       status:
-        type: number
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
+        $ref: fragment.yaml
     discriminator:
       propertyName: petType
       mapping:

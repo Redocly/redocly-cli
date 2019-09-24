@@ -14,12 +14,14 @@ import createError from './error';
 const resolve = (link, ctx) => {
   const linkSplitted = link.split('#/');
   const [filePath, docPath] = linkSplitted;
+  let fullFileName;
 
   let target;
   let fData;
   if (filePath) {
     const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
-    fData = fs.readFileSync(`${path}/${filePath}`, 'utf-8');
+    fullFileName = `${path}/${filePath}`;
+    fData = fs.readFileSync(fullFileName, 'utf-8');
     target = yaml.safeLoad(fData);
   } else {
     target = ctx.document;
@@ -36,7 +38,7 @@ const resolve = (link, ctx) => {
     node: target,
     updatedSource: filePath ? fData : null,
     docPath: docPath ? docPath.split('/') : [],
-    filePath: filePath || null,
+    filePath: fullFileName || null,
   };
 };
 
@@ -60,7 +62,12 @@ const resolveNode = (node, ctx) => {
       }
     }
   });
-  return { node: resolved.node, nextPath, updatedSource: resolved.updatedSource };
+  return {
+    node: resolved.node,
+    nextPath,
+    updatedSource: resolved.updatedSource,
+    filePath: resolved.filePath,
+  };
 };
 
 export default resolveNode;
