@@ -134,7 +134,7 @@ function traverseNode(node, definition, ctx) {
   onNodeExit(nodeContext, ctx);
 }
 
-const traverse = (node, definition, sourceFile, filePath = '') => {
+const traverse = (node, definition, sourceFile, filePath = '', options) => {
   const ctx = {
     document: node,
     filePath,
@@ -143,7 +143,7 @@ const traverse = (node, definition, sourceFile, filePath = '') => {
     result: [],
     pathStack: [],
     source: sourceFile,
-    enableCodeframe: true,
+    enableCodeframe: options && options.enableCodeframe ? options.enableCodeframe : false,
   };
   traverseNode(node, definition, ctx);
   return ctx.result;

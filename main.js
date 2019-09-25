@@ -1,10 +1,11 @@
+/* eslint-disable import/no-named-as-default */
 /* eslint-disable no-console */
-import path from 'path';
+// eslint-disable-next-line import/no-named-as-default-member
 import validateFromFile from './src';
 
-const test = async (fn, fNmae, name) => {
+const test = async (fNmae, name) => {
   const start = Date.now();
-  const results = await fn(fNmae);
+  const results = await validateFromFile(fNmae, { enableCodeframe: true });
   const end = Date.now();
   console.log(results ? results.length : `good with ${name}`);
   results.forEach((res) => {
@@ -13,5 +14,4 @@ const test = async (fn, fNmae, name) => {
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };
 
-console.log(path.resolve(''));
-test(validateFromFile, 'test/specs/openapi/with-file-ref.yaml', 'revalid');
+test('test/specs/openapi/with-file-ref.yaml', 'revalid');
