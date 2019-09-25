@@ -35,9 +35,12 @@ export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
   if (!node) return null;
-  // console.log(node);
+
+  const frame = ctx.source.substring(node.startPosition, node.endPosition + 1);
+  const offset = frame.length - frame.trimRight().length;
+
   const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
-  const endPosition = getLineNumberFromId(ctx.source, node.endPosition);
+  const endPosition = getLineNumberFromId(ctx.source, node.endPosition - offset);
   return {
     startLine: positionStart.lineNum,
     startCol: positionStart.posNum,
@@ -54,23 +57,22 @@ export const getLocationByPathURI = (path, ctx, target) => {
 };
 
 export const getCodeFrameForLocation = (
-  start, end, source, startLine = 0, linesBefore = 3, linesAfter = 2,
+  start, end, source, startLine = 0, linesBefore = 3, linesAfter = 3,
 ) => {
   let frameStart = start;
   let frameEnd = end;
   let actualLinesBefore = -1;
-  let actualLinesAfter = -1;
+  let actualLinesAfter = 0;
 
   for (; actualLinesBefore !== linesBefore && frameStart >= 0; frameStart -= 1) {
     if (source[frameStart - 2] === '\n') actualLinesBefore += 1;
   }
 
-  while (actualLinesAfter !== linesAfter && frameEnd !== source.length) {
-    if (source[frameEnd + 1] === '\n') actualLinesAfter += 1;
-    frameEnd += 1;
+  for (; actualLinesAfter !== linesAfter && frameEnd !== source.length; frameEnd += 1) {
+    if (source[frameEnd + 2] === '\n') actualLinesAfter += 1;
   }
 
-  const codeFrame = source.substring(frameStart, frameEnd);
+  const codeFrame = source.substring(frameStart, frameEnd + 1);
   let startOffset = start - frameStart;
   let endOffset = startOffset + end - start;
 
@@ -96,7 +98,7 @@ export const getCodeFrameForLocation = (
   });
 
   lines.forEach((_, id) => {
-    const lineNum = String(`0${startLine - actualLinesBefore + id - 1}`).slice(-maxLineNum.toString().length);
+    const lineNum = String(`0${startLine - actualLinesBefore + id}`).slice(-maxLineNum.toString().length);
     const line = minSpaces >= 4 ? lines[id].slice(minSpaces) : lines[id];
     lines[id] = outputGrey(`${lineNum}| ${line}`);
   });

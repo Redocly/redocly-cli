@@ -54,7 +54,7 @@ const resolveNode = (node, ctx) => {
       nextPath = resolved.docPath;
       if (!resolved.node) {
         ctx.path.push('$ref');
-        ctx.result.push(createError('Refernce does not exist', node, ctx));
+        ctx.result.push(createError('Reference does not exist.', node, ctx));
         ctx.path.pop();
         resolved.node = node;
         nextPath = null;
