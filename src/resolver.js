@@ -20,7 +20,7 @@ const resolve = (link, ctx) => {
   let fData;
   if (filePath) {
     const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
-    fullFileName = `${path}/${filePath}`;
+    fullFileName = path ? `${path}/${filePath}` : filePath;
     fData = fs.readFileSync(fullFileName, 'utf-8');
     target = yaml.safeLoad(fData);
   } else {

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import path from 'path';
-import { validateFromFile } from './src';
+import validateFromFile from './src';
 
 const test = async (fn, fNmae, name) => {
   const start = Date.now();

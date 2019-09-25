@@ -1,4 +1,10 @@
-import { validate as validateText, validateFromFile } from './validate';
+#!/usr/bin/env node
+import { validateFromFile } from './validate';
+import cli from './cli';
 
+export { validate, validateFromFile } from './validate';
 export default validateFromFile;
-export const validate = validateText;
+
+if (require.main === module) {
+  cli();
+}
