@@ -85,17 +85,8 @@ export const getCodeFrameForLocation = (
   const lines = codeFrameString.split('\n');
 
   const maxLineNum = lines.length + startLine;
-  const minLineNum = startLine;
-
-  /**
-   *
-   * 5
-   * 12
-   *
-   */
 
   lines.forEach((_, id) => {
-    // TODO: add rightpadding
     const lineNum = String(`0${startLine - actualLinesBefore + id - 1}`).slice(-maxLineNum.toString().length);
     lines[id] = outputGrey(`${lineNum}| ${lines[id]}`);
   });
