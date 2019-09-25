@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/knidarkness/revalid.svg?branch=master)](https://travis-ci.org/knidarkness/revalid)
-
 # REVALID. Custom OpenAPI validator
 
 ## Approach
@@ -21,3 +19,11 @@
 - [ ] Add fix proposals (e.g. "Did you mean "type: number" instead of "type: nmber"?)
 - [ ] Create library ready for install
 - [ ] Create tests for validators
+
+## Features
+
+## Limitations
+
+## Contributing
+
+## License
