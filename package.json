@@ -12,6 +12,16 @@
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
+  },
   "author": "Serhii Dubovyk",
   "license": "ISC",
   "devDependencies": {

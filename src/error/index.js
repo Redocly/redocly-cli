@@ -5,7 +5,7 @@ export const createErrorFieldNotAllowed = (fieldName, node, ctx) => createError(
 );
 
 export const createErrorMissingRequiredField = (fieldName, node, ctx) => createError(
-  `${fieldName} must be present on this level`, node, ctx, 'key',
+  `The field "${fieldName}" must be present on this level`, node, ctx, 'key',
 );
 
 export const createErrrorFieldTypeMismatch = (desiredType, node, ctx) => createError(

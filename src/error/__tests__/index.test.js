@@ -25,14 +25,14 @@ describe("createErrorFieldNotAllowed", () => {
     const error = createErrorFieldNotAllowed("wrong", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "
-          get:
-            summary: Get a list of all users
-            description: Also gives their status
-            [4m[31mparameters[39m[24m:
-              - name: userId
-                in: path
-       ",
+        "codeFrame": "[90m[12]: [39m
+      [90m[13]:     get:[39m
+      [90m[14]:       summary: Get a list of all users[39m
+      [90m[15]:       description: Also gives their status[39m
+      [90m[16]:       [4m[31mparameters[39m[24m:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:  [39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -62,14 +62,14 @@ describe("createErrorMissingRequiredField", () => {
     const error = createErrorMissingRequiredField("name", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "
-          get:
-            summary: Get a list of all users
-            description: Also gives their status
-            [4m[31mparameters[39m[24m:
-              - name: userId
-                in: path
-       ",
+        "codeFrame": "[90m[12]: [39m
+      [90m[13]:     get:[39m
+      [90m[14]:       summary: Get a list of all users[39m
+      [90m[15]:       description: Also gives their status[39m
+      [90m[16]:       [4m[31mparameters[39m[24m:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:  [39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -79,7 +79,7 @@ describe("createErrorMissingRequiredField", () => {
           "startIndex": 265,
           "startLine": 16,
         },
-        "message": "name must be present on this level",
+        "message": "The field \\"name\\" must be present on this level",
         "path": "paths//user/{userId}/{name}/get/parameters",
         "pathStack": Array [],
         "prettyPrint": [Function],
@@ -107,14 +107,14 @@ describe("createErrrorFieldTypeMismatch", () => {
     const error = createErrrorFieldTypeMismatch("boolean", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "
-            parameters:
-              - name: userId
-                in: path
-                [4m[31mrequired[39m[24m: true
-                description: Id of a user
-                schema:
-       ",
+        "codeFrame": "[90m[15]: [39m
+      [90m[16]:       parameters:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:           [4m[31mrequired[39m[24m: true[39m
+      [90m[20]:           description: Id of a user[39m
+      [90m[21]:           schema:[39m
+      [90m[22]:  [39m",
         "file": undefined,
         "location": Object {
           "endCol": 19,
@@ -155,14 +155,14 @@ describe("createErrorMutuallyExclusiveFields", () => {
   );
   expect(error).toMatchInlineSnapshot(`
     Object {
-      "codeFrame": "
-          parameters:
-            - name: userId
-              in: path
-              [4m[31mrequired[39m[24m: true
-              description: Id of a user
-              schema:
-     ",
+      "codeFrame": "[90m[15]: [39m
+    [90m[16]:       parameters:[39m
+    [90m[17]:         - name: userId[39m
+    [90m[18]:           in: path[39m
+    [90m[19]:           [4m[31mrequired[39m[24m: true[39m
+    [90m[20]:           description: Id of a user[39m
+    [90m[21]:           schema:[39m
+    [90m[22]:  [39m",
       "file": undefined,
       "location": Object {
         "endCol": 19,

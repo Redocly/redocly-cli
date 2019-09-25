@@ -1,12 +1,11 @@
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
-import { outputLightBlue } from '../utils';
+import { outputLightBlue, outputBgLightBlue, outputBgRed } from '../utils';
 
 const prettyPrintError = (error, enableCodeframe) => {
-  const message = `${outputLightBlue(error.file)}::${error.location.startLine}:${error.location.startCol}`
-  + ' Following error occured:'
-  + `\n${error.message} by path #/${error.path}\n`
-  + `${error.pathStack.length ? '\nError traced by following path:' : ''}`
-  + `${error.pathStack.length ? `\n- #/${error.pathStack.join('\n- #/')}\n` : ''}`
+  const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
+  + `\n${error.message} by path ${outputLightBlue(`#/${error.path}`)}\n`
+  + `${error.pathStack.length ? '\nError referenced from:' : ''}`
+  + `${error.pathStack.length ? outputLightBlue(`\n- #/${error.pathStack.join('\n- #/')}\n`) : ''}`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`;
   return message;
 };

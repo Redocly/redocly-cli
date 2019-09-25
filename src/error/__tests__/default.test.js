@@ -20,14 +20,14 @@ describe("createError", () => {
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "
-            parameters:
-              - name: userId
-                in: path
-                [4m[31mrequired: true[39m[24m
-                description: Id of a user
-                schema:
-       ",
+        "codeFrame": "[90m[15]: [39m
+      [90m[16]:       parameters:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
+      [90m[20]:           description: Id of a user[39m
+      [90m[21]:           schema:[39m
+      [90m[22]:  [39m",
         "file": undefined,
         "location": Object {
           "endCol": 25,
@@ -83,17 +83,17 @@ describe("createError", () => {
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "19:11 Following error occured:
-      test error msg by path paths//user/{userId}/{name}/get/parameters/0/required
+      "[41mundefined:19:11[49m
+      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
 
-
-            parameters:
-              - name: userId
-                in: path
-                [4m[31mrequired: true[39m[24m
-                description: Id of a user
-                schema:
-       
+      [90m[15]: [39m
+      [90m[16]:       parameters:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
+      [90m[20]:           description: Id of a user[39m
+      [90m[21]:           schema:[39m
+      [90m[22]:  [39m
       "
     `);
   });
@@ -104,8 +104,8 @@ describe("createError", () => {
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "19:11 Following error occured:
-      test error msg by path paths//user/{userId}/{name}/get/parameters/0/required
+      "[41mundefined:19:11[49m
+      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
       "
     `);
   });
@@ -119,14 +119,14 @@ describe("createError", () => {
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "
-            parameters:
-              - name: userId
-                in: path
-                [4m[31mrequired: true[39m[24m
-                description: Id of a user
-                schema:
-       ",
+        "codeFrame": "[90m[15]: [39m
+      [90m[16]:       parameters:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
+      [90m[20]:           description: Id of a user[39m
+      [90m[21]:           schema:[39m
+      [90m[22]:  [39m",
         "file": undefined,
         "location": Object {
           "endCol": 25,
@@ -158,20 +158,20 @@ describe("createError", () => {
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "19:11 Following error occured:
-      test error msg by path paths//user/{userId}/{name}/get/parameters/0/required
+      "[41mundefined:19:11[49m
+      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
 
-      Error traced by following path:
-      paths//user/{userId}/{name}/post/parameters/0/required
-
-
-            parameters:
-              - name: userId
-                in: path
-                [4m[31mrequired: true[39m[24m
-                description: Id of a user
-                schema:
-       
+      Error referenced from:[94m
+      - #/paths//user/{userId}/{name}/post/parameters/0/required
+      [39m
+      [90m[15]: [39m
+      [90m[16]:       parameters:[39m
+      [90m[17]:         - name: userId[39m
+      [90m[18]:           in: path[39m
+      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
+      [90m[20]:           description: Id of a user[39m
+      [90m[21]:           schema:[39m
+      [90m[22]:  [39m
       "
     `);
   });
