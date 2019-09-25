@@ -14,4 +14,4 @@ const test = async (fn, fNmae, name) => {
 };
 
 console.log(path.resolve(''));
-test(validateFromFile, 'test/specs/openapi/with-file-ref.yaml', 'revalid');
+test(validateFromFile, 'test/specs/openapi/rebilly-full.yaml', 'revalid');

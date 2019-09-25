@@ -53,7 +53,9 @@ export const getLocationByPathURI = (path, ctx, target) => {
   return getLocationByPath(pathArray, ctx, target);
 };
 
-export const getCodeFrameForLocation = (start, end, source, startLine = 0, linesBefore = 3, linesAfter = 2) => {
+export const getCodeFrameForLocation = (
+  start, end, source, startLine = 0, linesBefore = 3, linesAfter = 2,
+) => {
   let frameStart = start;
   let frameEnd = end;
   let actualLinesBefore = -1;

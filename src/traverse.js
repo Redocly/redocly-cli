@@ -1,7 +1,8 @@
+/* eslint-disable no-use-before-define */
 import resolveNode from './resolver';
 import { createErrorFieldNotAllowed } from './error';
 
-const validateNode = (node, definition, ctx) => {
+function validateNode(node, definition, ctx) {
   if (node && definition && definition.validators) {
     const allowedChildren = [
       ...(Object.keys(definition.properties || {})),
@@ -25,61 +26,9 @@ const validateNode = (node, definition, ctx) => {
       if (validationResult) ctx.result.push(validationResult);
     });
   }
-};
+}
 
-export const traverseNode = (node, definition, ctx) => {
-  const currentPath = ctx.path.join('/');
-
-  // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-  if (ctx.visited.includes(currentPath)) return;
-  ctx.visited.push(currentPath);
-
-  // console.log('+++++++++++++');
-  // console.log(`Current path: ${currentPath}`);
-  // console.log(node);
-  // console.log(definition);
-  // console.log('***************');
-
-  if (!node || !definition) return;
-
-  let nextPath;
-  let prevPath;
-  let resolvedNode;
-  let updatedSource;
-  let prevSource;
-  let filePath;
-  let prevFilePath;
-  ({
-    // eslint-disable-next-line prefer-const
-    node: resolvedNode, nextPath, updatedSource, filePath,
-  } = resolveNode(node, ctx));
-
-  if (nextPath) {
-    ctx.pathStack.push(ctx.path);
-    prevPath = ctx.path;
-    ctx.path = nextPath;
-  }
-
-  if (updatedSource) {
-    ctx.AST = null;
-    prevFilePath = ctx.filePath;
-    ctx.filePath = filePath;
-    prevSource = ctx.source;
-    ctx.source = updatedSource;
-  }
-
-  if (Array.isArray(resolvedNode)) {
-    resolvedNode.forEach((nodeChild, i) => {
-      ctx.path.push(i);
-      traverseNode(nodeChild, definition, ctx);
-      ctx.path.pop();
-    });
-    if (nextPath) ctx.path = prevPath;
-    return;
-  }
-
-  validateNode(resolvedNode, definition, ctx);
-
+function traverseChildren(resolvedNode, definition, ctx) {
   if (definition.properties) {
     let nodeChildren;
     switch (typeof definition.properties) {
@@ -110,16 +59,80 @@ export const traverseNode = (node, definition, ctx) => {
         // do nothing
     }
   }
+}
+
+function onNodeEnter(node, ctx) {
+  let nextPath;
+  let prevPath;
+  let resolvedNode;
+  let updatedSource;
+  let prevSource;
+  let filePath;
+  let prevFilePath;
+  ({
+    // eslint-disable-next-line prefer-const
+    node: resolvedNode, nextPath, updatedSource, filePath,
+  } = resolveNode(node, ctx));
 
   if (nextPath) {
-    ctx.path = ctx.pathStack.pop();
+    ctx.pathStack.push(ctx.path);
+    prevPath = ctx.path;
+    ctx.path = nextPath;
   }
+
   if (updatedSource) {
     ctx.AST = null;
-    ctx.source = prevSource;
-    ctx.filePath = prevFilePath;
+    prevFilePath = ctx.filePath;
+    ctx.filePath = filePath;
+    prevSource = ctx.source;
+    ctx.source = updatedSource;
   }
-};
+
+  return {
+    resolvedNode,
+    prevPath,
+    prevFilePath,
+    prevSource,
+  };
+}
+
+function onNodeExit(nodeContext, ctx) {
+  if (nodeContext.prevPath) {
+    ctx.path = ctx.pathStack.pop();
+  }
+  if (nodeContext.prevSource) {
+    ctx.AST = null;
+    ctx.source = nodeContext.prevSource;
+    ctx.filePath = nodeContext.prevFilePath;
+  }
+}
+
+function traverseNode(node, definition, ctx) {
+  const currentPath = ctx.path.join('/');
+
+  // TO-DO: refactor ctx.visited into dictionary for O(1) check time
+  if (ctx.visited.includes(currentPath)) return;
+  ctx.visited.push(currentPath);
+
+  if (!node || !definition) return;
+
+  const nodeContext = onNodeEnter(node, ctx);
+
+  if (Array.isArray(nodeContext.resolvedNode)) {
+    nodeContext.resolvedNode.forEach((nodeChild, i) => {
+      ctx.path.push(i);
+      traverseNode(nodeChild, definition, ctx);
+      ctx.path.pop();
+    });
+    if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
+    return;
+  }
+
+  validateNode(nodeContext.resolvedNode, definition, ctx);
+  traverseChildren(nodeContext.resolvedNode, definition, ctx);
+
+  onNodeExit(nodeContext, ctx);
+}
 
 const traverse = (node, definition, sourceFile, filePath = '') => {
   const ctx = {

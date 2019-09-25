@@ -1,5 +1,5 @@
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
-import { outputLightBlue, outputBgLightBlue, outputBgRed } from '../utils';
+import { outputLightBlue, outputBgRed } from '../utils';
 
 const prettyPrintError = (error, enableCodeframe) => {
   const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
