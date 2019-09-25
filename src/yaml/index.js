@@ -62,15 +62,15 @@ export const getCodeFrameForLocation = (
   let actualLinesAfter = -1;
 
   for (; actualLinesBefore !== linesBefore && frameStart >= 0; frameStart -= 1) {
-    if (source[frameStart - 1] === '\n') actualLinesBefore += 1;
+    if (source[frameStart - 2] === '\n') actualLinesBefore += 1;
   }
 
   while (actualLinesAfter !== linesAfter && frameEnd !== source.length) {
-    if (source[frameEnd] === '\n') actualLinesAfter += 1;
+    if (source[frameEnd + 1] === '\n') actualLinesAfter += 1;
     frameEnd += 1;
   }
 
-  const codeFrame = source.substring(frameStart, frameEnd + 1);
+  const codeFrame = source.substring(frameStart, frameEnd);
   let startOffset = start - frameStart;
   let endOffset = startOffset + end - start;
 
@@ -86,9 +86,19 @@ export const getCodeFrameForLocation = (
 
   const maxLineNum = lines.length + startLine;
 
+  let minSpaces = lines.reduce((acc, val) => (val.length > acc ? val.length : acc), 0);
+
+
+  lines.forEach((line) => {
+    let spaces;
+    for (spaces = 0; line[spaces] === ' ' && spaces < line.length; spaces += 1);
+    if (minSpaces > spaces) minSpaces = spaces;
+  });
+
   lines.forEach((_, id) => {
     const lineNum = String(`0${startLine - actualLinesBefore + id - 1}`).slice(-maxLineNum.toString().length);
-    lines[id] = outputGrey(`${lineNum}| ${lines[id]}`);
+    const line = minSpaces >= 4 ? lines[id].slice(minSpaces) : lines[id];
+    lines[id] = outputGrey(`${lineNum}| ${line}`);
   });
 
   codeFrameString = lines.join('\n');

@@ -4,15 +4,16 @@ import { outputLightBlue, outputBgRed, outputGrey } from '../utils';
 
 const prettyPrintError = (error, enableCodeframe) => {
   const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
-  + ` ${outputGrey(`at ${error.path}`)}`
+  + ` ${outputGrey(`at #/${error.path}`)}`
+  // + `\n  at ${outputLightBlue(`${error.file}:${error.location.startLine}:${error.location.startCol}`)} ${outputGrey(`at #/${error.path}`)}`
+  + `${error.pathStack.length ? `\n  at ${error.pathStack.reverse().join('\n  at ')}\n` : '\n'}`
   + `\n${error.message}\n`
-  + `\nat ${outputLightBlue(`${error.file}:${error.location.startLine}:${error.location.startCol}`)} ${outputGrey(`at ${error.path}`)}`
-  + `${error.pathStack.length ? `\nat ${error.pathStack.reverse().join('\nat ')}\n` : '\n'}`
-  + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`;
+  + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`
+  + '\n\n';
   return message;
 };
 
-const pathImproveReadability = (path) => path.map((el) => (el[0] === '/' ? outputGrey('[\'') + outputLightBlue(el) + outputGrey('\']') : el));
+const pathImproveReadability = (path) => path.map((el) => (el[0] === '/' ? outputGrey('[\'') + outputLightBlue(el) + outputGrey('\']') : outputGrey(el)));
 
 const getLocationForPath = (fName, path, target) => {
   const fContent = fs.readFileSync(fName, 'utf-8');
@@ -26,7 +27,7 @@ const createError = (msg, node, ctx, target) => {
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {
     message: msg,
-    path: pathImproveReadability(ctx.path).join('/'),
+    path: pathImproveReadability(ctx.path).join(outputGrey('/')),
     pathStack: ctx.pathStack.map((el) => {
       const startLine = getLocationForPath(el.file, el.path, target);
       return `${outputLightBlue(`${el.file}:${startLine}`)} ${outputGrey(`#/${el.path.join('/')}`)}`;
