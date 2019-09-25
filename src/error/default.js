@@ -18,7 +18,7 @@ const createError = (msg, node, ctx, target) => {
     path: ctx.path.join('/'),
     pathStack: ctx.pathStack.map((el) => el.join('/')),
     location,
-    codeFrame: ctx.enableCodeframe
+    codeFrame: ctx.enableCodeframe && location
       ? getCodeFrameForLocation(
         location.startIndex,
         location.endIndex,
