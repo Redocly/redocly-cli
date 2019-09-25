@@ -6,7 +6,7 @@ const prettyPrintError = (error, enableCodeframe) => {
   const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
   + ` ${outputGrey(`at #/${error.path}`)}`
   // + `\n  at ${outputLightBlue(`${error.file}:${error.location.startLine}:${error.location.startCol}`)} ${outputGrey(`at #/${error.path}`)}`
-  + `${error.pathStack.length ? `\n  at ${error.pathStack.reverse().join('\n  at ')}\n` : '\n'}`
+  + `${error.pathStack.length ? `\n  from ${error.pathStack.reverse().join('\n  from ')}\n` : '\n'}`
   + `\n${error.message}\n`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`
   + '\n\n';
