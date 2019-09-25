@@ -4,6 +4,7 @@ import fs from 'fs';
 import traverse from './traverse';
 import OpenAPIRoot from './validators';
 
+
 export const validate = (yamlData, filePath) => {
   let document;
   try {
@@ -11,6 +12,7 @@ export const validate = (yamlData, filePath) => {
   } catch (ex) {
     throw new Error("Can't load yaml file");
   }
+  if (!document.openapi) return [];
   const result = traverse(document, OpenAPIRoot, yamlData, filePath);
   return result;
 };
