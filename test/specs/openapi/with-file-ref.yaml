@@ -6,7 +6,7 @@ info:
     $ref: license-fragment.yaml#/license/adasf/asd
 paths:
   /user/{userId}/{name}:
-    get:
+    gets:
       summary: Get a list of all users
       description: Also gives their status
       parameters:
@@ -54,6 +54,51 @@ components:
       type: object
     user:
       type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: 'license-fragment.yaml#/schemas/Pet'
+      externalDocs:
+        url: https://google.com
+    usera:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: 'license-fragment.yaml#/schemas/Pet'
+      externalDocs:
+        url: https://google.com
+    usersss:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/newUser'
+      properties:
+        name:
+          type: string
+        socialAccount:
+          $ref: '#/components/schemas/socialNetworkAccount'
+        pet:
+          $ref: 'license-fragment.yaml#/schemas/Pet'
+      externalDocs:
+        url: https://google.com
+    userad:
+      type: objecat
       required:
         - name
       allOf:

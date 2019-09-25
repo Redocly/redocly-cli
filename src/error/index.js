@@ -1,7 +1,7 @@
 import createError from './default';
 
 export const createErrorFieldNotAllowed = (fieldName, node, ctx) => createError(
-  `${fieldName} is not allowed here. Use "x-" prefix to override this behavior`, node, ctx, 'key',
+  `The field '${fieldName}' is not allowed here. Use "x-" prefix to override this behavior`, node, ctx, 'key',
 );
 
 export const createErrorMissingRequiredField = (fieldName, node, ctx) => createError(
@@ -13,7 +13,7 @@ export const createErrrorFieldTypeMismatch = (desiredType, node, ctx) => createE
 );
 
 export const createErrorMutuallyExclusiveFields = (fieldNames, node, ctx) => createError(
-  `${fieldNames.join(', ')} are mutually exclusive`, node, ctx, 'key',
+  `Fields ${fieldNames.map((el) => `'${el}'`).join(', ')} are mutually exclusive`, node, ctx, 'key',
 );
 
 export default createError;

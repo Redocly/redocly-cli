@@ -57,7 +57,7 @@ const resolveNode = (node, ctx) => {
         ctx.result.push(createError('Refernce does not exist', node, ctx));
         ctx.path.pop();
         resolved.node = node;
-        nextPath = ctx.path;
+        nextPath = null;
         resolved.updatedSource = null;
       }
     }
