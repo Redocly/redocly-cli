@@ -10,7 +10,7 @@ export const OpenAPIParameter = {
       return (node, ctx) => {
         if (!node) return null;
         if (!node.name || typeof node.name !== 'string') return createError('name is required and must be a string', node, ctx);
-        const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...val], []);
+        const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...(val.path)], []);
         if (node.in && node.in === 'path'
           && [...ctx.path, ...visitedNodes]
             .filter((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1)

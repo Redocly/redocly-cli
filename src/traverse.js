@@ -75,7 +75,7 @@ function onNodeEnter(node, ctx) {
   } = resolveNode(node, ctx));
 
   if (nextPath) {
-    ctx.pathStack.push(ctx.path);
+    ctx.pathStack.push({ path: ctx.path, file: ctx.filePath });
     prevPath = ctx.path;
     ctx.path = nextPath;
   }
@@ -98,7 +98,7 @@ function onNodeEnter(node, ctx) {
 
 function onNodeExit(nodeContext, ctx) {
   if (nodeContext.prevPath) {
-    ctx.path = ctx.pathStack.pop();
+    ctx.path = ctx.pathStack.pop().path;
   }
   if (nodeContext.prevSource) {
     ctx.AST = null;

@@ -5,7 +5,7 @@ const prettyPrintError = (error, enableCodeframe) => {
   const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
   + `\n${error.message} by path ${outputLightBlue(`#/${error.path}`)}\n`
   + `${error.pathStack.length ? '\nError referenced from:' : ''}`
-  + `${error.pathStack.length ? outputLightBlue(`\n- #/${error.pathStack.join('\n- #/')}\n`) : ''}`
+  + `${error.pathStack.length ? outputLightBlue(`\n- ${error.pathStack.join('\n- ')}\n`) : ''}`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`;
   return message;
 };
@@ -16,7 +16,7 @@ const createError = (msg, node, ctx, target) => {
   const body = {
     message: msg,
     path: ctx.path.join('/'),
-    pathStack: ctx.pathStack.map((el) => el.join('/')),
+    pathStack: ctx.pathStack.map((el) => `${el.file}#/${el.path.join('/')}`),
     location,
     codeFrame: ctx.enableCodeframe && location
       ? getCodeFrameForLocation(

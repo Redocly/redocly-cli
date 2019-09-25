@@ -113,7 +113,17 @@ describe("createError", () => {
   test("create error with path stack", () => {
     const ctx = createContext();
     ctx.pathStack = [
-      ["paths", "/user/{userId}/{name}", "post", "parameters", 0, "required"]
+      {
+        path: [
+          "paths",
+          "/user/{userId}/{name}",
+          "post",
+          "parameters",
+          0,
+          "required"
+        ],
+        file: "src/example.yaml"
+      }
     ];
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
@@ -139,7 +149,7 @@ describe("createError", () => {
         "message": "test error msg",
         "path": "paths//user/{userId}/{name}/get/parameters/0/required",
         "pathStack": Array [
-          "paths//user/{userId}/{name}/post/parameters/0/required",
+          "src/example.yaml#/paths//user/{userId}/{name}/post/parameters/0/required",
         ],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -153,7 +163,17 @@ describe("createError", () => {
   test("pretty print error with path stack", () => {
     const ctx = createContext();
     ctx.pathStack = [
-      ["paths", "/user/{userId}/{name}", "post", "parameters", 0, "required"]
+      {
+        path: [
+          "paths",
+          "/user/{userId}/{name}",
+          "post",
+          "parameters",
+          0,
+          "required"
+        ],
+        file: "src/example.yaml"
+      }
     ];
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
@@ -162,7 +182,7 @@ describe("createError", () => {
       test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
 
       Error referenced from:[94m
-      - #/paths//user/{userId}/{name}/post/parameters/0/required
+      - src/example.yaml#/paths//user/{userId}/{name}/post/parameters/0/required
       [39m
       [90m[15]: [39m
       [90m[16]:       parameters:[39m
