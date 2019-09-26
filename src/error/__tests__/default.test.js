@@ -20,17 +20,16 @@ describe("createError", () => {
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m[15]: [39m
-      [90m[16]:       parameters:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
-      [90m[20]:           description: Id of a user[39m
-      [90m[21]:           schema:[39m
-      [90m[22]:  [39m",
+        "codeFrame": "[90m16| parameters:[39m
+      [90m17|   - name: userId[39m
+      [90m18|     in: path[39m
+      [90m19|     [4m[31mrequired: true[39m[24m[39m
+      [90m20|     description: Id of a user[39m
+      [90m21|     schema:[39m
+      [90m22|       type: integer[39m",
         "file": undefined,
         "location": Object {
-          "endCol": 25,
+          "endCol": 24,
           "endIndex": 343,
           "endLine": 19,
           "startCol": 11,
@@ -38,7 +37,7 @@ describe("createError", () => {
           "startLine": 19,
         },
         "message": "test error msg",
-        "path": "paths//user/{userId}/{name}/get/parameters/0/required",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -59,7 +58,7 @@ describe("createError", () => {
         "codeFrame": null,
         "file": undefined,
         "location": Object {
-          "endCol": 25,
+          "endCol": 24,
           "endIndex": 343,
           "endLine": 19,
           "startCol": 11,
@@ -67,7 +66,7 @@ describe("createError", () => {
           "startLine": 19,
         },
         "message": "test error msg",
-        "path": "paths//user/{userId}/{name}/get/parameters/0/required",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -83,17 +82,19 @@ describe("createError", () => {
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m
-      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
+      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
 
-      [90m[15]: [39m
-      [90m[16]:       parameters:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
-      [90m[20]:           description: Id of a user[39m
-      [90m[21]:           schema:[39m
-      [90m[22]:  [39m
+      test error msg
+
+      [90m16| parameters:[39m
+      [90m17|   - name: userId[39m
+      [90m18|     in: path[39m
+      [90m19|     [4m[31mrequired: true[39m[24m[39m
+      [90m20|     description: Id of a user[39m
+      [90m21|     schema:[39m
+      [90m22|       type: integer[39m
+
+
       "
     `);
   });
@@ -104,8 +105,11 @@ describe("createError", () => {
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m
-      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
+      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
+
+      test error msg
+
+
       "
     `);
   });
@@ -114,32 +118,24 @@ describe("createError", () => {
     const ctx = createContext();
     ctx.pathStack = [
       {
-        path: [
-          "paths",
-          "/user/{userId}/{name}",
-          "post",
-          "parameters",
-          0,
-          "required"
-        ],
-        file: "src/example.yaml"
+        path: ["paths"],
+        file: "test/specs/openapi/test-1.yaml"
       }
     ];
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m[15]: [39m
-      [90m[16]:       parameters:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
-      [90m[20]:           description: Id of a user[39m
-      [90m[21]:           schema:[39m
-      [90m[22]:  [39m",
+        "codeFrame": "[90m16| parameters:[39m
+      [90m17|   - name: userId[39m
+      [90m18|     in: path[39m
+      [90m19|     [4m[31mrequired: true[39m[24m[39m
+      [90m20|     description: Id of a user[39m
+      [90m21|     schema:[39m
+      [90m22|       type: integer[39m",
         "file": undefined,
         "location": Object {
-          "endCol": 25,
+          "endCol": 24,
           "endIndex": 343,
           "endLine": 19,
           "startCol": 11,
@@ -147,9 +143,9 @@ describe("createError", () => {
           "startLine": 19,
         },
         "message": "test error msg",
-        "path": "paths//user/{userId}/{name}/get/parameters/0/required",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
         "pathStack": Array [
-          "src/example.yaml#/paths//user/{userId}/{name}/post/parameters/0/required",
+          "[94mtest/specs/openapi/test-1.yaml:11[39m [90m#/paths[39m",
         ],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -167,31 +163,31 @@ describe("createError", () => {
         path: [
           "paths",
           "/user/{userId}/{name}",
-          "post",
+          "get",
           "parameters",
           0,
           "required"
         ],
-        file: "src/example.yaml"
+        file: "test/specs/openapi/test-1.yaml"
       }
     ];
     const node = { required: 123 };
     const error = createError("test error msg", node, ctx);
     expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m
-      test error msg by path [94m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
+      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
+        from [94mtest/specs/openapi/test-1.yaml:19[39m [90m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
 
-      Error referenced from:[94m
-      - src/example.yaml#/paths//user/{userId}/{name}/post/parameters/0/required
-      [39m
-      [90m[15]: [39m
-      [90m[16]:       parameters:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:           [4m[31mrequired: true[39m[24m[39m
-      [90m[20]:           description: Id of a user[39m
-      [90m[21]:           schema:[39m
-      [90m[22]:  [39m
+      test error msg
+
+      [90m16| parameters:[39m
+      [90m17|   - name: userId[39m
+      [90m18|     in: path[39m
+      [90m19|     [4m[31mrequired: true[39m[24m[39m
+      [90m20|     description: Id of a user[39m
+      [90m21|     schema:[39m
+      [90m22|       type: integer[39m
+
+
       "
     `);
   });

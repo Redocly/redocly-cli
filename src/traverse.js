@@ -98,9 +98,10 @@ function onNodeEnter(node, ctx) {
 
 function onNodeExit(nodeContext, ctx) {
   if (nodeContext.prevPath) {
-    ctx.path = ctx.pathStack.pop().path;
+    const fromStack = ctx.pathStack.pop();
+    ctx.path = fromStack.path;
   }
-  if (nodeContext.prevSource) {
+  if (nodeContext.prevFilePath) {
     ctx.AST = null;
     ctx.source = nodeContext.prevSource;
     ctx.filePath = nodeContext.prevFilePath;
@@ -108,15 +109,19 @@ function onNodeExit(nodeContext, ctx) {
 }
 
 function traverseNode(node, definition, ctx) {
-  const currentPath = ctx.path.join('/');
+  if (!node || !definition) return;
+  const nodeContext = onNodeEnter(node, ctx);
+  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
   // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-  if (ctx.visited.includes(currentPath)) return;
+  if (ctx.visited.includes(currentPath)) {
+    onNodeExit(nodeContext, ctx);
+    return;
+  }
   ctx.visited.push(currentPath);
 
-  if (!node || !definition) return;
 
-  const nodeContext = onNodeEnter(node, ctx);
+  // console.log(`${ctx.filePath}::${currentPath}`);
 
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
@@ -125,11 +130,10 @@ function traverseNode(node, definition, ctx) {
       ctx.path.pop();
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
-    return;
+  } else {
+    validateNode(nodeContext.resolvedNode, definition, ctx);
+    traverseChildren(nodeContext.resolvedNode, definition, ctx);
   }
-
-  validateNode(nodeContext.resolvedNode, definition, ctx);
-  traverseChildren(nodeContext.resolvedNode, definition, ctx);
 
   onNodeExit(nodeContext, ctx);
 }

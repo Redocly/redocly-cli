@@ -25,14 +25,13 @@ describe("createErrorFieldNotAllowed", () => {
     const error = createErrorFieldNotAllowed("wrong", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m[12]: [39m
-      [90m[13]:     get:[39m
-      [90m[14]:       summary: Get a list of all users[39m
-      [90m[15]:       description: Also gives their status[39m
-      [90m[16]:       [4m[31mparameters[39m[24m:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:  [39m",
+        "codeFrame": "[90m13| get:[39m
+      [90m14|   summary: Get a list of all users[39m
+      [90m15|   description: Also gives their status[39m
+      [90m16|   [4m[31mparameters[39m[24m:[39m
+      [90m17|     - name: userId[39m
+      [90m18|       in: path[39m
+      [90m19|       required: true[39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -42,8 +41,8 @@ describe("createErrorFieldNotAllowed", () => {
           "startIndex": 265,
           "startLine": 16,
         },
-        "message": "wrong is not allowed here. Use \\"x-\\" prefix to override this behavior",
-        "path": "paths//user/{userId}/{name}/get/parameters",
+        "message": "The field 'wrong' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -62,14 +61,13 @@ describe("createErrorMissingRequiredField", () => {
     const error = createErrorMissingRequiredField("name", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m[12]: [39m
-      [90m[13]:     get:[39m
-      [90m[14]:       summary: Get a list of all users[39m
-      [90m[15]:       description: Also gives their status[39m
-      [90m[16]:       [4m[31mparameters[39m[24m:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:  [39m",
+        "codeFrame": "[90m13| get:[39m
+      [90m14|   summary: Get a list of all users[39m
+      [90m15|   description: Also gives their status[39m
+      [90m16|   [4m[31mparameters[39m[24m:[39m
+      [90m17|     - name: userId[39m
+      [90m18|       in: path[39m
+      [90m19|       required: true[39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -79,8 +77,8 @@ describe("createErrorMissingRequiredField", () => {
           "startIndex": 265,
           "startLine": 16,
         },
-        "message": "The field \\"name\\" must be present on this level",
-        "path": "paths//user/{userId}/{name}/get/parameters",
+        "message": "The field 'name' must be present on this level.",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -107,14 +105,12 @@ describe("createErrrorFieldTypeMismatch", () => {
     const error = createErrrorFieldTypeMismatch("boolean", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m[15]: [39m
-      [90m[16]:       parameters:[39m
-      [90m[17]:         - name: userId[39m
-      [90m[18]:           in: path[39m
-      [90m[19]:           [4m[31mrequired[39m[24m: true[39m
-      [90m[20]:           description: Id of a user[39m
-      [90m[21]:           schema:[39m
-      [90m[22]:  [39m",
+        "codeFrame": "[90m16| parameters:[39m
+      [90m17|   - name: userId[39m
+      [90m18|     in: path[39m
+      [90m19|     [4m[31mrequired[39m[24m: true[39m
+      [90m20|     description: Id of a user[39m
+      [90m21|     schema:[39m",
         "file": undefined,
         "location": Object {
           "endCol": 19,
@@ -124,8 +120,8 @@ describe("createErrrorFieldTypeMismatch", () => {
           "startIndex": 329,
           "startLine": 19,
         },
-        "message": "This field must be of boolean type",
-        "path": "paths//user/{userId}/{name}/get/parameters/0/required",
+        "message": "This field must be of boolean type.",
+        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -155,14 +151,12 @@ describe("createErrorMutuallyExclusiveFields", () => {
   );
   expect(error).toMatchInlineSnapshot(`
     Object {
-      "codeFrame": "[90m[15]: [39m
-    [90m[16]:       parameters:[39m
-    [90m[17]:         - name: userId[39m
-    [90m[18]:           in: path[39m
-    [90m[19]:           [4m[31mrequired[39m[24m: true[39m
-    [90m[20]:           description: Id of a user[39m
-    [90m[21]:           schema:[39m
-    [90m[22]:  [39m",
+      "codeFrame": "[90m16| parameters:[39m
+    [90m17|   - name: userId[39m
+    [90m18|     in: path[39m
+    [90m19|     [4m[31mrequired[39m[24m: true[39m
+    [90m20|     description: Id of a user[39m
+    [90m21|     schema:[39m",
       "file": undefined,
       "location": Object {
         "endCol": 19,
@@ -172,8 +166,8 @@ describe("createErrorMutuallyExclusiveFields", () => {
         "startIndex": 329,
         "startLine": 19,
       },
-      "message": "example, examples are mutually exclusive",
-      "path": "paths//user/{userId}/{name}/get/parameters/0/required",
+      "message": "Fields 'example', 'examples' are mutually exclusive.",
+      "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
       "pathStack": Array [],
       "prettyPrint": [Function],
       "severity": "ERROR",

@@ -59,6 +59,7 @@ const resolveNode = (node, ctx) => {
         resolved.node = node;
         nextPath = null;
         resolved.updatedSource = null;
+        resolved.filePath = null;
       }
     }
   });
