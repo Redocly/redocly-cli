@@ -9,6 +9,7 @@ import { OpenAPICallbackMap } from './OpenAPICallback';
 import { OpenAPIRequestBody } from './OpenAPIRequestBody';
 
 export default {
+  name: 'OpenAPIOperation',
   validators: {
     tags() {
       return (node, ctx) => {

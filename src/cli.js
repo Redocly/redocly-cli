@@ -4,10 +4,16 @@ import { validateFromFile } from './validate';
 function cli() {
   program
     .arguments('<path>')
-    .option('-s, --no-frame', 'Print no codeframes with errors.', false)
+    .option('-f, --frame', 'Print no codeframes with errors.')
+    .option('-c, --custom-ruleset <path>', 'Path to additional custom ruleset')
     .action((path) => {
       process.stdout.write(`Will validate the ${path}\n`);
-      const result = validateFromFile(path, { enableCodeframe: program.frame });
+      const options = {};
+
+      if (program.frame) options.enableCodeframe = program.frame;
+      if (program.customRuleset) options.enbaleCustomRuleset = program.customRuleset;
+
+      const result = validateFromFile(path, options);
       process.stdout.write('Following results received:\n');
       if (result.length > 0) {
         process.stdout.write('\n\n');

@@ -5,7 +5,11 @@ import validateFromFile from './src';
 
 const test = async (fNmae, name) => {
   const start = Date.now();
-  const results = await validateFromFile(fNmae, { enableCodeframe: true });
+  const options = {
+    enableCodeframe: true,
+    enbaleCustomRuleset: true,
+  };
+  const results = await validateFromFile(fNmae, options);
   const end = Date.now();
   console.log(results ? results.length : `good with ${name}`);
   results.forEach((res) => {
@@ -14,4 +18,4 @@ const test = async (fNmae, name) => {
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };
 
-test('test/specs/openapi/test-2.yaml', 'revalid');
+test('test/specs/openapi/with-file-ref.yaml', 'revalid');

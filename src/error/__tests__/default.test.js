@@ -20,13 +20,12 @@ describe("createError", () => {
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| parameters:[39m
-      [90m17|   - name: userId[39m
-      [90m18|     in: path[39m
-      [90m19|     [4m[31mrequired: true[39m[24m[39m
-      [90m20|     description: Id of a user[39m
-      [90m21|     schema:[39m
-      [90m22|       type: integer[39m",
+        "codeFrame": "[90m16| [39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m
+      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
+      [90m20|           description: Id of a user[39m
+      [90m21|           schema:[39m",
         "file": undefined,
         "location": Object {
           "endCol": 24,
@@ -86,13 +85,12 @@ describe("createError", () => {
 
       test error msg
 
-      [90m16| parameters:[39m
-      [90m17|   - name: userId[39m
-      [90m18|     in: path[39m
-      [90m19|     [4m[31mrequired: true[39m[24m[39m
-      [90m20|     description: Id of a user[39m
-      [90m21|     schema:[39m
-      [90m22|       type: integer[39m
+      [90m16| [39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m
+      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
+      [90m20|           description: Id of a user[39m
+      [90m21|           schema:[39m
 
 
       "
@@ -126,13 +124,12 @@ describe("createError", () => {
     const error = createError("test error msg", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| parameters:[39m
-      [90m17|   - name: userId[39m
-      [90m18|     in: path[39m
-      [90m19|     [4m[31mrequired: true[39m[24m[39m
-      [90m20|     description: Id of a user[39m
-      [90m21|     schema:[39m
-      [90m22|       type: integer[39m",
+        "codeFrame": "[90m16| [39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m
+      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
+      [90m20|           description: Id of a user[39m
+      [90m21|           schema:[39m",
         "file": undefined,
         "location": Object {
           "endCol": 24,
@@ -179,13 +176,12 @@ describe("createError", () => {
 
       test error msg
 
-      [90m16| parameters:[39m
-      [90m17|   - name: userId[39m
-      [90m18|     in: path[39m
-      [90m19|     [4m[31mrequired: true[39m[24m[39m
-      [90m20|     description: Id of a user[39m
-      [90m21|     schema:[39m
-      [90m22|       type: integer[39m
+      [90m16| [39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m
+      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
+      [90m20|           description: Id of a user[39m
+      [90m21|           schema:[39m
 
 
       "

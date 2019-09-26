@@ -27,6 +27,7 @@ export const OpenAPIContact = {
 };
 
 export const OpenAPIInfo = {
+  name: 'OpenAPIInfo',
   validators: {
     title() {
       return (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx) : null);

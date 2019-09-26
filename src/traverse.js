@@ -120,7 +120,6 @@ function traverseNode(node, definition, ctx) {
   }
   ctx.visited.push(currentPath);
 
-
   // console.log(`${ctx.filePath}::${currentPath}`);
 
   if (Array.isArray(nodeContext.resolvedNode)) {
@@ -131,26 +130,24 @@ function traverseNode(node, definition, ctx) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
+    // can use async / promises here
+    ctx.customRules.forEach((rule) => {
+      const errors = rule.onEnter
+        ? rule.onEnter(nodeContext.resolvedNode, definition, { ...ctx }) : [];
+      if (errors) ctx.result.push(...errors);
+    });
+
     validateNode(nodeContext.resolvedNode, definition, ctx);
     traverseChildren(nodeContext.resolvedNode, definition, ctx);
+
+    // can use async / promises here
+    ctx.customRules.forEach((rule) => {
+      const errors = rule.onExit ? rule.onExit(nodeContext.resolvedNode, definition, ctx) : [];
+      if (errors) ctx.result.push(...errors);
+    });
   }
 
   onNodeExit(nodeContext, ctx);
 }
 
-const traverse = (node, definition, sourceFile, filePath = '', options) => {
-  const ctx = {
-    document: node,
-    filePath,
-    path: [],
-    visited: [],
-    result: [],
-    pathStack: [],
-    source: sourceFile,
-    enableCodeframe: options && options.enableCodeframe ? options.enableCodeframe : false,
-  };
-  traverseNode(node, definition, ctx);
-  return ctx.result;
-};
-
-export default traverse;
+export default traverseNode;

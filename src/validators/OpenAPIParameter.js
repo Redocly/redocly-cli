@@ -5,6 +5,7 @@ import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 import { OpenAPIExampleMap } from './OpenAPIExample';
 
 export const OpenAPIParameter = {
+  name: 'OpenAPIParameter',
   validators: {
     name() {
       return (node, ctx) => {

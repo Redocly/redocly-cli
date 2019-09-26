@@ -2,11 +2,19 @@ openapi: 3.0.2
 info:
   title: nanana
   version: fafafa
-  license:
-    $ref: license-fragment.yaml#/license/adasf/asd
+  # license:
+  #   $ref: license-fragment.yaml#/license
 paths:
   /user/{userId}/{name}:
-    gets:
+    parameters:
+      - name: userId
+        required: true
+        in: path
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
       summary: Get a list of all users
       description: Also gives their status
       parameters:
@@ -21,7 +29,7 @@ paths:
         - name: val
           in: query
           schema:
-            type: number
+            type: boolean
             enum:
               - false
               - true
@@ -98,7 +106,7 @@ components:
       externalDocs:
         url: https://google.com
     userad:
-      type: objecat
+      type: object
       required:
         - name
       allOf:
