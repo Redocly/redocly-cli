@@ -4,7 +4,7 @@ tags:
 summary: Get a list of all users
 description: Also gives their status
 externalDocs:
-  url: jfkdj
+  url: googleacom
 requestBody:
   content:
     application/x-www-form-urlencoded:
@@ -44,7 +44,7 @@ responses:
     content:
       application/json:
         schema:
-          $ref: '#/components/schemas/user'
+          $ref: '../../test-2.yaml#/components/schemas/user'
         example:
           name: John
           email: john@example.org

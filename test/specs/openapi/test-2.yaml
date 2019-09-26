@@ -8,9 +8,9 @@ paths:
   /user/{userId}:
     summary: Get a list of all users
     post:
-      $ref: ./operations/test/operation.yaml
+      $ref: operations/test/operation.yaml
     get:
-      $ref: ./operations/test/operation-2.yaml
+      $ref: operations/test/operation-2.yaml
 components:
   schemas:
     Pet:
@@ -40,7 +40,7 @@ components:
           enum:
           - "available"
           - "pending"
-          - "sold"
+          - 12
       discriminator:
         propertyName: petType
         mapping:
