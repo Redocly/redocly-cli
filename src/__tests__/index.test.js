@@ -5,23 +5,17 @@ test("validate simple document", () => {
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "codeFrame": "[90m[1]: [4m[31mopenapi: 3.0.1[39m
-    [90m[2]: info:[39m
-    [90m[3]:   taitle: 123[39m
-    [90m[4]:   license:[39m
-    [90m[5]:     name: Test license[39m
-    [90m[6]:   version: 0.0.1[39m
-    [90m[7]: [39m[24m[39m",
+        "codeFrame": null,
         "file": "./test/specs/openapi/simple.yaml",
         "location": Object {
-          "endCol": 1,
+          "endCol": 17,
           "endIndex": 86,
-          "endLine": 7,
+          "endLine": 6,
           "startCol": 0,
           "startIndex": 0,
           "startLine": 1,
         },
-        "message": "The field \\"paths\\" must be present on this level",
+        "message": "The field 'paths' must be present on this level.",
         "path": "",
         "pathStack": Array [],
         "prettyPrint": [Function],
@@ -38,12 +32,7 @@ test("validate simple document", () => {
         },
       },
       Object {
-        "codeFrame": "[90m[1]: openapi: 3.0.1[39m
-    [90m[2]: info:[39m
-    [90m[3]:   [4m[31mtaitle[39m[24m: 123[39m
-    [90m[4]:   license:[39m
-    [90m[5]:     name: Test license[39m
-    [90m[6]:  [39m",
+        "codeFrame": null,
         "file": "./test/specs/openapi/simple.yaml",
         "location": Object {
           "endCol": 9,
@@ -53,8 +42,8 @@ test("validate simple document", () => {
           "startIndex": 23,
           "startLine": 3,
         },
-        "message": "taitle is not allowed here. Use \\"x-\\" prefix to override this behavior",
-        "path": "info/taitle",
+        "message": "The field 'taitle' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
+        "path": "[90minfo[39m[90m/[39m[90mtaitle[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -67,11 +56,7 @@ test("validate simple document", () => {
         },
       },
       Object {
-        "codeFrame": "[90m[1]: openapi: 3.0.1[39m
-    [90m[2]: [4m[31minfo[39m[24m:[39m
-    [90m[3]:   taitle: 123[39m
-    [90m[4]:   license:[39m
-    [90m[5]:  [39m",
+        "codeFrame": null,
         "file": "./test/specs/openapi/simple.yaml",
         "location": Object {
           "endCol": 5,
@@ -81,8 +66,8 @@ test("validate simple document", () => {
           "startIndex": 15,
           "startLine": 2,
         },
-        "message": "The field \\"title\\" must be present on this level",
-        "path": "info",
+        "message": "The field 'title' must be present on this level.",
+        "path": "[90minfo[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -101,7 +86,113 @@ test("validate simple document", () => {
 test("Validate simple valid OpenAPI document", () => {
   expect(
     validateFromFile("./test/specs/openapi/test-2.yaml")
-  ).toMatchInlineSnapshot("Array []");
+  ).toMatchInlineSnapshot(
+    "Array []",
+    `
+    Array [
+      Object {
+        "codeFrame": null,
+        "file": "./test/specs/openapi/operations/test/operation-2.yaml",
+        "location": Object {
+          "endCol": 17,
+          "endIndex": 130,
+          "endLine": 7,
+          "startCol": 3,
+          "startIndex": 115,
+          "startLine": 7,
+        },
+        "message": "url must be a valid URL",
+        "path": "[90mexternalDocs[39m[90m/[39m[90murl[39m",
+        "pathStack": Array [
+          "[94m./test/specs/openapi/test-2.yaml:12[39m [90m#/paths//user/{userId}/get[39m",
+        ],
+        "prettyPrint": [Function],
+        "severity": "ERROR",
+        "value": Object {
+          "url": "googleacom",
+        },
+      },
+      Object {
+        "codeFrame": null,
+        "file": "./test/specs/openapi/operations/test/../../test-2.yaml",
+        "location": Object {
+          "endCol": 14,
+          "endIndex": 873,
+          "endLine": 43,
+          "startCol": 13,
+          "startIndex": 871,
+          "startLine": 43,
+        },
+        "message": "All values of \\"enum\\" field must be of the same type as the \\"type\\" field",
+        "path": "[90mcomponents[39m[90m/[39m[90mschemas[39m[90m/[39m[90mPet[39m[90m/[39m[90mproperties[39m[90m/[39m[90mstatus[39m[90m/[39m[90menum[39m[90m/[39m[90m2[39m",
+        "pathStack": Array [
+          "[94m./test/specs/openapi/test-2.yaml:12[39m [90m#/paths//user/{userId}/get[39m",
+          "[94m./test/specs/openapi/operations/test/operation-2.yaml:46[39m [90m#/responses/200/content/application/json/schema[39m",
+          "[94m./test/specs/openapi/operations/test/../../test-2.yaml:72[39m [90m#/components/schemas/user/properties/pet[39m",
+        ],
+        "prettyPrint": [Function],
+        "severity": "ERROR",
+        "value": Object {
+          "description": "pet status in the store",
+          "enum": Array [
+            "available",
+            "pending",
+            12,
+          ],
+          "type": "string",
+        },
+      },
+      Object {
+        "codeFrame": null,
+        "file": "./test/specs/openapi/operations/test/operation.yaml",
+        "location": Object {
+          "endCol": 15,
+          "endIndex": 128,
+          "endLine": 7,
+          "startCol": 3,
+          "startIndex": 115,
+          "startLine": 7,
+        },
+        "message": "url must be a valid URL",
+        "path": "[90mexternalDocs[39m[90m/[39m[90murl[39m",
+        "pathStack": Array [
+          "[94m./test/specs/openapi/test-2.yaml:10[39m [90m#/paths//user/{userId}/post[39m",
+        ],
+        "prettyPrint": [Function],
+        "severity": "ERROR",
+        "value": Object {
+          "url": "asdasdas",
+        },
+      },
+      Object {
+        "codeFrame": null,
+        "file": "./test/specs/openapi/test-2.yaml",
+        "location": Object {
+          "endCol": 14,
+          "endIndex": 873,
+          "endLine": 43,
+          "startCol": 13,
+          "startIndex": 871,
+          "startLine": 43,
+        },
+        "message": "All values of \\"enum\\" field must be of the same type as the \\"type\\" field",
+        "path": "[90mcomponents[39m[90m/[39m[90mschemas[39m[90m/[39m[90mPet[39m[90m/[39m[90mproperties[39m[90m/[39m[90mstatus[39m[90m/[39m[90menum[39m[90m/[39m[90m2[39m",
+        "pathStack": Array [],
+        "prettyPrint": [Function],
+        "severity": "ERROR",
+        "value": Object {
+          "description": "pet status in the store",
+          "enum": Array [
+            "available",
+            "pending",
+            12,
+          ],
+          "type": "string",
+        },
+      },
+    ]
+  `
+  );
 });
 
 test("Validate from invalid file", () => {

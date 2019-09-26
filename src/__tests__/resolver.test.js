@@ -139,12 +139,7 @@ test("Resolve node which does not exists", () => {
   expect(resolvedNode).toMatchInlineSnapshot(`
     Object {
       "filePath": null,
-      "nextPath": Array [
-        "paths",
-        "/user/{userId}/{name}",
-        "get",
-        "parameters",
-      ],
+      "nextPath": null,
       "node": Object {
         "$ref": "#/components/schemas/notUser",
       },
@@ -3064,8 +3059,8 @@ test("Resolve node which does not exists", () => {
           "codeFrame": null,
           "file": undefined,
           "location": null,
-          "message": "Refernce does not exist",
-          "path": "paths//user/{userId}/{name}/get/parameters/$ref",
+          "message": "Reference does not exist.",
+          "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m$ref[39m",
           "pathStack": Array [],
           "prettyPrint": [Function],
           "severity": "ERROR",

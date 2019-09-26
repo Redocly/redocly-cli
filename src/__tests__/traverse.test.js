@@ -46,11 +46,7 @@ test("", () => {
   expect(traverse(node, resolver, getSource())).toMatchInlineSnapshot(`
     Array [
       Object {
-        "codeFrame": "[90m[1]: field: 12[39m
-    [90m[2]: [4m[31mb[39m[24m:  12[39m
-    [90m[3]: x-allowed: true[39m
-    [90m[4]: child:[39m
-    [90m[5]:  [39m",
+        "codeFrame": null,
         "file": "",
         "location": Object {
           "endCol": 2,
@@ -60,8 +56,8 @@ test("", () => {
           "startIndex": 10,
           "startLine": 2,
         },
-        "message": "b is not allowed here. Use \\"x-\\" prefix to override this behavior",
-        "path": "b",
+        "message": "The field 'b' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
+        "path": "[90mb[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
@@ -75,10 +71,7 @@ test("", () => {
         },
       },
       Object {
-        "codeFrame": "[90m[1]: [4m[31mfield[39m[24m: 12[39m
-    [90m[2]: b:  12[39m
-    [90m[3]: x-allowed: true[39m
-    [90m[4]: c[39m",
+        "codeFrame": null,
         "file": "",
         "location": Object {
           "endCol": 0,
@@ -88,8 +81,8 @@ test("", () => {
           "startIndex": 0,
           "startLine": 1,
         },
-        "message": "This field must be of string type",
-        "path": "field",
+        "message": "This field must be of string type.",
+        "path": "[90mfield[39m",
         "pathStack": Array [],
         "prettyPrint": [Function],
         "severity": "ERROR",
