@@ -132,8 +132,8 @@ function traverseNode(node, definition, ctx) {
   } else {
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule.onEnter
-        ? rule.onEnter(nodeContext.resolvedNode, definition, { ...ctx }) : [];
+      const errors = rule[definition.name] && rule[definition.name]().onEnter
+        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, { ...ctx }, rule) : [];
       if (errors) ctx.result.push(...errors);
     });
 
@@ -142,7 +142,7 @@ function traverseNode(node, definition, ctx) {
 
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule.onExit ? rule.onExit(nodeContext.resolvedNode, definition, ctx) : [];
+      const errors = rule[definition.name] && rule[definition.name]().onExit ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx, rule) : [];
       if (errors) ctx.result.push(...errors);
     });
   }
