@@ -1,0 +1,10 @@
+{
+    "enableCodeframe": true,
+    "enbaleCustomRuleset": false,
+    "rules": {
+        "licenseRequired": "off",
+        "uniqueParameterNames": {
+            "msg": "Found error with duplicating parameters."
+        }
+    }
+}

@@ -57,15 +57,15 @@ export const getLocationByPathURI = (path, ctx, target) => {
 };
 
 export const getCodeFrameForLocation = (
-  start, end, source, startLine = 0, linesBefore = 3, linesAfter = 3,
+  start, end, source, startLine = 1, linesBefore = 3, linesAfter = 2,
 ) => {
   let frameStart = start;
   let frameEnd = end;
-  let actualLinesBefore = -1;
+  let actualLinesBefore = 0;
   let actualLinesAfter = 0;
 
   for (; actualLinesBefore !== linesBefore && frameStart >= 0; frameStart -= 1) {
-    if (source[frameStart - 2] === '\n') actualLinesBefore += 1;
+    if (source[frameStart - 1] === '\n') actualLinesBefore += 1;
   }
 
   for (; actualLinesAfter !== linesAfter && frameEnd !== source.length; frameEnd += 1) {
@@ -100,7 +100,11 @@ export const getCodeFrameForLocation = (
   lines.forEach((_, id) => {
     const lineNum = String(`0${startLine - actualLinesBefore + id}`).slice(-maxLineNum.toString().length);
     const line = minSpaces >= 4 ? lines[id].slice(minSpaces) : lines[id];
-    lines[id] = outputGrey(`${lineNum}| ${line}`);
+    if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
+      lines[id] = outputGrey(`${lineNum}| ${line}`);
+    } else {
+      lines[id] = `${outputGrey(`${lineNum}|`)}${outputRed(` ${line}`)}`;
+    }
   });
 
   codeFrameString = lines.join('\n');

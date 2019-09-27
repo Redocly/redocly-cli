@@ -25,13 +25,12 @@ describe("createErrorFieldNotAllowed", () => {
     const error = createErrorFieldNotAllowed("wrong", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13| get:[39m
-      [90m14|   summary: Get a list of all users[39m
-      [90m15|   description: Also gives their status[39m
-      [90m16|   [4m[31mparameters[39m[24m:[39m
-      [90m17|     - name: userId[39m
-      [90m18|       in: path[39m
-      [90m19|       required: true[39m",
+        "codeFrame": "[90m13| [39m
+      [90m14|       summary: Get a list of all users[39m
+      [90m15|       description: Also gives their status[39m
+      [90m16|[39m[31m       [4m[31mparameters[39m[24m:[39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -61,13 +60,12 @@ describe("createErrorMissingRequiredField", () => {
     const error = createErrorMissingRequiredField("name", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13| get:[39m
-      [90m14|   summary: Get a list of all users[39m
-      [90m15|   description: Also gives their status[39m
-      [90m16|   [4m[31mparameters[39m[24m:[39m
-      [90m17|     - name: userId[39m
-      [90m18|       in: path[39m
-      [90m19|       required: true[39m",
+        "codeFrame": "[90m13| [39m
+      [90m14|       summary: Get a list of all users[39m
+      [90m15|       description: Also gives their status[39m
+      [90m16|[39m[31m       [4m[31mparameters[39m[24m:[39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m",
         "file": undefined,
         "location": Object {
           "endCol": 17,
@@ -105,12 +103,11 @@ describe("createErrrorFieldTypeMismatch", () => {
     const error = createErrrorFieldTypeMismatch("boolean", node, ctx);
     expect(error).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| parameters:[39m
-      [90m17|   - name: userId[39m
-      [90m18|     in: path[39m
-      [90m19|     [4m[31mrequired[39m[24m: true[39m
-      [90m20|     description: Id of a user[39m
-      [90m21|     schema:[39m",
+        "codeFrame": "[90m16| [39m
+      [90m17|         - name: userId[39m
+      [90m18|           in: path[39m
+      [90m19|           [4m[31mrequired[39m[24m: true[39m
+      [90m20|           description: Id of a user[39m",
         "file": undefined,
         "location": Object {
           "endCol": 19,
@@ -151,12 +148,11 @@ describe("createErrorMutuallyExclusiveFields", () => {
   );
   expect(error).toMatchInlineSnapshot(`
     Object {
-      "codeFrame": "[90m16| parameters:[39m
-    [90m17|   - name: userId[39m
-    [90m18|     in: path[39m
-    [90m19|     [4m[31mrequired[39m[24m: true[39m
-    [90m20|     description: Id of a user[39m
-    [90m21|     schema:[39m",
+      "codeFrame": "[90m16| [39m
+    [90m17|         - name: userId[39m
+    [90m18|           in: path[39m
+    [90m19|           [4m[31mrequired[39m[24m: true[39m
+    [90m20|           description: Id of a user[39m",
       "file": undefined,
       "location": Object {
         "endCol": 19,

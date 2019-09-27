@@ -84,11 +84,8 @@ test("validate simple document", () => {
 });
 
 test("Validate simple valid OpenAPI document", () => {
-  expect(
-    validateFromFile("./test/specs/openapi/test-2.yaml")
-  ).toMatchInlineSnapshot(
-    "Array []",
-    `
+  expect(validateFromFile("./test/specs/openapi/test-2.yaml"))
+    .toMatchInlineSnapshot(`
     Array [
       Object {
         "codeFrame": null,
@@ -191,8 +188,7 @@ test("Validate simple valid OpenAPI document", () => {
         },
       },
     ]
-  `
-  );
+  `);
 });
 
 test("Validate from invalid file", () => {

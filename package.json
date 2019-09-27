@@ -6,7 +6,7 @@
   "scripts": {
     "profile": "npx babel-node --prof main.js",
     "babel-node": "babel-node",
-    "build": "babel src --out-dir dist --source-maps inline",
+    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js",
     "lint": "eslint --fix ./src",
     "prepublishOnly": "npm run build",
     "postinstall": "chmod +x ./dist/index.js",

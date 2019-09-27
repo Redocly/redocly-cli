@@ -1,4 +1,4 @@
-type: number
+type: string
 description: "pet status in the store"
 enum:
   - available

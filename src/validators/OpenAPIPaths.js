@@ -34,6 +34,7 @@ export const OpenAPIPathItem = {
   },
 
   properties: {
+    parameters: OpenAPIParameter,
     get: OpenAPIOperation,
     put: OpenAPIOperation,
     post: OpenAPIOperation,
@@ -43,7 +44,6 @@ export const OpenAPIPathItem = {
     patch: OpenAPIOperation,
     trace: OpenAPIOperation,
     servers: OpenAPIServer,
-    parameters: OpenAPIParameter,
   },
 };
 

@@ -1,0 +1,41 @@
+openapi: 3.0.1
+info:
+  title: Sample API
+  version: 0.0.1
+paths:
+  /user/{userId}/{name}:
+    parameters:
+      - name: name
+        in: path
+        required: true
+    get:
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+      responses:
+        '200':
+          description: Success
+          content: 
+            application/json:
+    post:
+      parameters:
+        - name: name
+          in: path
+          required: true
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+  /user/{userId}/delete:
+    delete:
+      parameters:
+        - name: userId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: done
+
