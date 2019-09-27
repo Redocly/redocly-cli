@@ -5,7 +5,7 @@ info:
   # license:
   #   $ref: license-fragment.yaml#/license
 paths:
-  /user/{userId}/{name}:
+  /user/{userId}/{nam}:
     parameters:
       - name: userId
         required: true
