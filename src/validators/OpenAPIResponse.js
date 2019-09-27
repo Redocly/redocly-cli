@@ -1,15 +1,12 @@
-import { createErrorMissingRequiredField } from '../error';
-
 import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 import { OpenAPIHeaderMap } from './OpenAPIHeader';
 import { OpenAPILinkMap } from './OpenAPILink';
 
 export const OpenAPIResponse = {
-  validators: {
-    description() {
-      return (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx) : null);
-    },
-  },
+  name: 'OpenAPIResponse',
+  allowedFields: [
+    'description',
+  ],
   properties: {
     content: OpenAPIMediaTypeObject,
     headers: OpenAPIHeaderMap,

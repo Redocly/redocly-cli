@@ -45,7 +45,7 @@ class UniqueParameterNames {
         let error;
         if (this.parametersStack.includes(node.name)) {
           ctx.path.push('name');
-          error = createError('Duplicate parameters are not allowed. This name already used on higher level.', node, ctx);
+          error = createError('Duplicate parameters are not allowed. This name already used on higher or same level.', node, ctx);
           ctx.path.pop();
         }
         this.parametersStack.push(node.name);

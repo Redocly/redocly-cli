@@ -36,7 +36,7 @@ export const validate = (yamlData, filePath, options) => {
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
 
-  console.log(config);
+  // console.log(config);
 
   traverseNode(document, OpenAPIRoot, ctx);
 

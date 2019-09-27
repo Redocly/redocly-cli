@@ -1,7 +1,10 @@
 {
-    "enableCodeframe": true,
+    "enableCodeframe": false,
     "enbaleCustomRuleset": true,
     "rules": {
+        "validateOpenAPILicense": {
+            "url": "off"
+        },
         "licenseRequired": "enable",
         "uniqueParameterNames": {
             "msg": "Found error with duplicating parameters."

@@ -3,11 +3,23 @@ import resolveNode from './resolver';
 import { createErrorFieldNotAllowed } from './error';
 
 function validateNode(node, definition, ctx) {
-  if (node && definition && definition.validators) {
-    const allowedChildren = [
-      ...(Object.keys(definition.properties || {})),
-      ...(Object.keys(definition.validators || {})),
-    ];
+  if (node && definition) {
+    const allowedChildren = [];
+
+    if (definition.validators) allowedChildren.push(...Object.keys(definition.validators));
+    if (definition.properties) {
+      switch (typeof definition.properties) {
+        case 'object':
+          allowedChildren.push(...Object.keys(definition.properties));
+          break;
+        case 'function':
+          allowedChildren.push(...Object.keys(definition.properties(node)));
+          break;
+        default:
+          // do-nothing
+      }
+    }
+    if (definition.allowedFields) allowedChildren.push(...definition.allowedFields);
 
     Object.keys(node).forEach((field) => {
       ctx.path.push(field);
@@ -19,7 +31,7 @@ function validateNode(node, definition, ctx) {
       ctx.path.pop();
     });
 
-    Object.keys(definition.validators).forEach((v) => {
+    Object.keys(definition.validators || {}).forEach((v) => {
       if (Object.keys(node).includes(v)) ctx.path.push(v);
       const validationResult = definition.validators[v]()(node, ctx);
       if (Object.keys(node).includes(v)) ctx.path.pop();
@@ -133,7 +145,7 @@ function traverseNode(node, definition, ctx) {
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
       const errors = rule[definition.name] && rule[definition.name]().onEnter
-        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, { ...ctx }, rule) : [];
+        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, ctx) : [];
       if (errors) ctx.result.push(...errors);
     });
 
@@ -142,7 +154,8 @@ function traverseNode(node, definition, ctx) {
 
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule[definition.name] && rule[definition.name]().onExit ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx, rule) : [];
+      const errors = rule[definition.name] && rule[definition.name]().onExit
+        ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx) : [];
       if (errors) ctx.result.push(...errors);
     });
   }

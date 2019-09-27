@@ -2,20 +2,15 @@ openapi: 3.0.2
 info:
   title: nanana
   version: fafafa
-  # license:
-  #   $ref: license-fragment.yaml#/license
+  license:
+    $ref: license-fragment.yaml#/license
 paths:
   /user/{userId}/{nam}:
-    parameters:
-      - name: userId
-        required: true
-        in: query
-        schema:
-          type: integer
-          format: int64
-          minimum: 1
     post:
       parameters:
+        - name: userId
+          required: true
+          in: path
         - name: userId
           required: true
           in: path
@@ -53,14 +48,18 @@ components:
   parameters:
     name:
       in: path
+      name: nam
+      required: true
+    otherName:
+      in: path
       name: name
       required: true
   schemas:
     socialNetworkAccount:
       type: string
       enum:
-        - a
-        - blalblabla
+        - 12
+        - 13
     newUser:
       properties:
         name:
