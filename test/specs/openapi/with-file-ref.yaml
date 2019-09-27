@@ -9,11 +9,19 @@ paths:
     parameters:
       - name: userId
         required: true
-        in: path
+        in: query
         schema:
           type: integer
           format: int64
           minimum: 1
+    post:
+      parameters:
+        - name: userId
+          required: true
+          in: path
+      responses:
+        '200':
+          description: bla
     get:
       summary: Get a list of all users
       description: Also gives their status

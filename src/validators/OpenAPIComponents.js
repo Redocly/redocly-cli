@@ -9,6 +9,7 @@ import { OpenAPICallbackMap } from './OpenAPICallback';
 import { OpenAPIRequestBodyMap } from './OpenAPIRequestBody';
 
 export default {
+  name: 'OpenAPIComponents',
   properties: {
     schemas: OpenAPISchemaMap,
     responses: OpenAPIResponseMap,

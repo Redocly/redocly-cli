@@ -6,6 +6,7 @@ import OpenAPIOperation from './OpenAPIOperation';
 import { OpenAPIParameter } from './OpenAPIParameter';
 
 export const OpenAPIPathItem = {
+  name: 'OpenAPIPath',
   validators: {
     summary() {
       return (node, ctx) => (node && node.summary && typeof node.summary !== 'string'

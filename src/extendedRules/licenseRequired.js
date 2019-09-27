@@ -7,12 +7,15 @@ class LicenseRequired {
     return 'licenseRequired';
   }
 
-  onEnter(node, definition, ctx) {
-    if (definition.name !== 'OpenAPIInfo') return null;
-    if (!node.license) {
-      return [createErrorMissingRequiredField('license', node, ctx, messageLevels.WARNING)];
-    }
-    return null;
+  OpenAPIInfo() {
+    return {
+      onEnter(node, definition, ctx) {
+        if (!node.license) {
+          return [createErrorMissingRequiredField('license', node, ctx, messageLevels.WARNING)];
+        }
+        return null;
+      },
+    };
   }
 }
 
