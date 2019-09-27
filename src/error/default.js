@@ -1,10 +1,30 @@
 import fs from 'fs';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
-import { outputLightBlue, outputBgRed, outputGrey } from '../utils';
+import {
+  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed,
+} from '../utils';
 
-const prettyPrintError = (error, enableCodeframe) => {
-  const message = `${outputBgRed(`${error.file}:${error.location.startLine}:${error.location.startCol}`)}`
-  + ` ${outputGrey(`at #/${error.path}`)}`
+export const messageLevels = {
+  ERROR: 4,
+  WARNING: 3,
+  INFO: 2,
+  DEBUG: 1,
+};
+
+const colorizeMessageHeader = (msg) => {
+  const msgHeader = `${msg.file}:${msg.location.startLine}:${msg.location.startCol}`;
+  switch (msg.severity) {
+    case messageLevels.ERROR:
+      return outputBgRed(msgHeader);
+    case messageLevels.WARNING:
+      return outputRed(outputBgYellow(msgHeader));
+    default:
+      return msgHeader;
+  }
+};
+
+const prettyPrint = (error, enableCodeframe) => {
+  const message = `${colorizeMessageHeader(error)} ${outputGrey(`at #/${error.path}`)}`
   + `${error.pathStack.length ? `\n  from ${error.pathStack.reverse().join('\n  from ')}\n` : '\n'}`
   + `\n${error.message}\n`
   + `${enableCodeframe ? `\n${error.codeFrame}\n` : ''}`
@@ -21,7 +41,8 @@ const getLocationForPath = (fName, path, target) => {
   return location.startLine;
 };
 
-const createError = (msg, node, ctx, target) => {
+const createError = (msg, node, ctx, target, severity) => {
+  if (!severity) severity = messageLevels.ERROR;
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {
@@ -42,11 +63,11 @@ const createError = (msg, node, ctx, target) => {
       : null,
     value: node,
     file: ctx.filePath,
-    severity: 'ERROR',
+    severity,
   };
   return {
     ...body,
-    prettyPrint: () => prettyPrintError(body, ctx.enableCodeframe),
+    prettyPrint: () => prettyPrint(body, ctx.enableCodeframe),
   };
 };
 
