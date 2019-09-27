@@ -16,6 +16,7 @@ export const outputBgLightBlue = (str) => `[44m${str}[49m`;
 export const outputLightBlue = (str) => `[94m${str}[39m`;
 export const outputGrey = (str) => `[90m${str}[39m`;
 export const outputBgRed = (str) => `\u001b[41m${str}\u001b[49m`;
+export const outputBgYellow = (str) => `\x1b[43m${str}\x1b[0m`;
 export const getLineNumberFromId = (source, charId) => {
   let lineNum = 1;
   let posNum = 0;
