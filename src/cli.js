@@ -18,6 +18,7 @@ function cli() {
       if (result.length > 0) {
         process.stdout.write('\n\n');
         result.forEach((entry) => process.stdout.write(entry.prettyPrint()));
+        process.stdout.write(`Total erorrs: ${result.length}\n`);
       } else {
         process.stdout.write('No errors found. Congrats!');
       }

@@ -1,9 +1,9 @@
 {
-    "enableCodeframe": false,
+    "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
         "validateOpenAPILicense": {
-            "url": "enable"
+            "url": "on"
         },
         "licenseRequired": "enable",
         "uniqueParameterNames": {

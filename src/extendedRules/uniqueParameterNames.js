@@ -43,7 +43,7 @@ class UniqueParameterNames {
     return {
       onEnter: (node, definition, ctx) => {
         let error;
-        if (this.parametersStack.includes(node.name)) {
+        if (this.parametersStack.includes(node.name) && !(ctx.pathStack.length === 0 && ctx.path.includes('components'))) {
           ctx.path.push('name');
           error = createError('Duplicate parameters are not allowed. This name already used on higher or same level.', node, ctx);
           ctx.path.pop();

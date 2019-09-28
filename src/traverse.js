@@ -113,14 +113,8 @@ function onNodeExit(nodeContext, ctx) {
 function traverseNode(node, definition, ctx) {
   if (!node || !definition) return;
   const nodeContext = onNodeEnter(node, ctx);
-  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
-  // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-  if (ctx.visited.includes(currentPath)) {
-    onNodeExit(nodeContext, ctx);
-    return;
-  }
-  ctx.visited.push(currentPath);
+  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
   // console.log(`${ctx.filePath}::${currentPath}`);
 
@@ -132,15 +126,22 @@ function traverseNode(node, definition, ctx) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
-    // can use async / promises here
-    ctx.customRules.forEach((rule) => {
-      const errors = rule[definition.name] && rule[definition.name]().onEnter
-        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, { ...ctx }) : [];
-      if (errors) ctx.result.push(...errors);
-    });
+    if (!Array.isArray(nodeContext.resolvedNode)) {
+      ctx.customRules.forEach((rule) => {
+        const errors = rule[definition.name] && rule[definition.name]().onEnter
+          ? rule[definition.name]()
+            .onEnter(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
+        if (errors) ctx.result.push(...errors);
+      });
+    }
 
     validateNode(nodeContext.resolvedNode, definition, ctx);
-    traverseChildren(nodeContext.resolvedNode, definition, ctx);
+
+    // TO-DO: refactor ctx.visited into dictionary for O(1) check time
+    if (!ctx.visited.includes(currentPath)) {
+      ctx.visited.push(currentPath);
+      traverseChildren(nodeContext.resolvedNode, definition, ctx);
+    }
 
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
@@ -149,7 +150,6 @@ function traverseNode(node, definition, ctx) {
       if (errors) ctx.result.push(...errors);
     });
   }
-
   onNodeExit(nodeContext, ctx);
 }
 
