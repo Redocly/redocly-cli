@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import loadRuleset from './loader';
 import getConfig from './config';
-import OpenAPIRoot from './validators';
+import OpenAPIRoot from './types';
 
 import traverseNode from './traverse';
 
