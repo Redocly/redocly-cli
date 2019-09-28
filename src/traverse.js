@@ -1,36 +1,5 @@
 /* eslint-disable no-use-before-define */
 import resolveNode from './resolver';
-import { createErrorFieldNotAllowed } from './error';
-
-function validateNode(node, definition, ctx) {
-  if (node && definition) {
-    const allowedChildren = [];
-
-    if (definition.properties) {
-      switch (typeof definition.properties) {
-        case 'object':
-          allowedChildren.push(...Object.keys(definition.properties));
-          break;
-        case 'function':
-          allowedChildren.push(...Object.keys(definition.properties(node)));
-          break;
-        default:
-          // do-nothing
-      }
-    }
-    if (definition.allowedFields) allowedChildren.push(...definition.allowedFields);
-
-    Object.keys(node).forEach((field) => {
-      ctx.path.push(field);
-
-      if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field.indexOf('$ref') !== 0) {
-        ctx.result.push(createErrorFieldNotAllowed(field, node, ctx));
-      }
-
-      ctx.path.pop();
-    });
-  }
-}
 
 function traverseChildren(resolvedNode, definition, ctx) {
   let nodeChildren;
@@ -126,16 +95,18 @@ function traverseNode(node, definition, ctx) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
-    if (!Array.isArray(nodeContext.resolvedNode)) {
-      ctx.customRules.forEach((rule) => {
-        const errors = rule[definition.name] && rule[definition.name]().onEnter
-          ? rule[definition.name]()
-            .onEnter(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
-        if (errors) ctx.result.push(...errors);
-      });
-    }
+    ctx.customRules.forEach((rule) => {
+      const errorsOnEnterForType = rule[definition.name] && rule[definition.name]().onEnter
+        ? rule[definition.name]().onEnter(
+          nodeContext.resolvedNode, definition, { ...ctx }, node,
+        ) : [];
 
-    validateNode(nodeContext.resolvedNode, definition, ctx);
+      const errorsOnEnterGeneric = rule.any && rule.any().onEnter
+        ? rule.any().onEnter(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
+
+      if (errorsOnEnterForType) ctx.result.push(...errorsOnEnterForType);
+      if (errorsOnEnterGeneric) ctx.result.push(...errorsOnEnterGeneric);
+    });
 
     // TO-DO: refactor ctx.visited into dictionary for O(1) check time
     if (!ctx.visited.includes(currentPath)) {
@@ -145,9 +116,14 @@ function traverseNode(node, definition, ctx) {
 
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule[definition.name] && rule[definition.name]().onExit
+      const errorsOnExitForType = rule[definition.name] && rule[definition.name]().onExit
         ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx) : [];
-      if (errors) ctx.result.push(...errors);
+
+      const errorsOnExitGeneric = rule.any && rule.any().onExit
+        ? rule.any().onExit(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
+
+      if (errorsOnExitForType) ctx.result.push(...errorsOnExitForType);
+      if (errorsOnExitGeneric) ctx.result.push(...errorsOnExitGeneric);
     });
   }
   onNodeExit(nodeContext, ctx);

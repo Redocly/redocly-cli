@@ -5,7 +5,7 @@
         "validateOpenAPILicense": {
             "url": "on"
         },
-        "licenseRequired": "enable",
+        "licenseRequired": "off",
         "uniqueParameterNames": {
             "msg": "Found error with duplicating parameters."
         }
