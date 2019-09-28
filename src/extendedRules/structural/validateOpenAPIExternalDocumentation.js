@@ -1,30 +1,30 @@
 /* eslint-disable class-methods-use-this */
-import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
+import createError, { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isUrl } from '../../utils';
+import { isRuleEnabled } from '../utils';
 
-class ValidateOpenAPIServer {
+class ValidateOpenAPIExternalDocumentation {
   constructor(config) {
     this.config = config;
   }
 
   static get ruleName() {
-    return 'validateOpenAPIServer';
+    return 'validateOpenAPIExternalDocumentation';
   }
 
   validators() {
     return {
+      description: (node, ctx) => (node && node.description && typeof node.description !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
       url: (node, ctx) => {
-        if (!node || !node.url || typeof node.url !== 'string') return createErrorMissingRequiredField('url', node, ctx);
-        if (typeof node.url !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (node && !node.url) return createErrorMissingRequiredField('url', node, ctx);
+        if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx);
         return null;
       },
-      description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
     };
   }
 
-  OpenAPIServer() {
+  OpenAPIExternalDocumentation() {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
@@ -45,4 +45,4 @@ class ValidateOpenAPIServer {
   }
 }
 
-module.exports = ValidateOpenAPIServer;
+module.exports = ValidateOpenAPIExternalDocumentation;

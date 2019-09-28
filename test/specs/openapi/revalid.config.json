@@ -3,7 +3,7 @@
     "enbaleCustomRuleset": true,
     "rules": {
         "validateOpenAPILicense": {
-            "url": "off"
+            "url": "enable"
         },
         "licenseRequired": "enable",
         "uniqueParameterNames": {

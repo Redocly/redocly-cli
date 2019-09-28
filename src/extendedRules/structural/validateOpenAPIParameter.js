@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import createError from '../error';
+import createError from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
 class ValidateOpenAPIParameter {
   constructor(config) {

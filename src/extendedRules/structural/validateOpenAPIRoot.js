@@ -1,36 +1,36 @@
 /* eslint-disable class-methods-use-this */
-import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
+import { createErrorMissingRequiredField } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
-class ValidateOpenAPITag {
+class ValidateOpenAPIRoot {
   constructor(config) {
     this.config = config;
   }
 
   static get ruleName() {
-    return 'validateOpenAPITag';
+    return 'validateOpenAPIRoot';
   }
 
   validators() {
     return {
-      name: (node, ctx) => {
-        if (!node.name) return createErrorMissingRequiredField('name', node, ctx);
-        if (node && node.name && typeof node.name !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
-        }
+      openapi: (node, ctx) => {
+        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx);
         return null;
       },
-      description: (node, ctx) => {
-        if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
-        }
+      info: (node, ctx) => {
+        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx);
         return null;
       },
+      paths: (node, ctx) => {
+        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx);
+        return null;
+      },
+      security: () => null,
     };
   }
 
-  OpenAPITag() {
+  OpenAPIRoot() {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
@@ -51,4 +51,4 @@ class ValidateOpenAPITag {
   }
 }
 
-module.exports = ValidateOpenAPITag;
+module.exports = ValidateOpenAPIRoot;

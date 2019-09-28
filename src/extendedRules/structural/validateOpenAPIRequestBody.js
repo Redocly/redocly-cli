@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../error';
+import { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
 class ValidateOpenAPIRequestBody {
   constructor(config) {

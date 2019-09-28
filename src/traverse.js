@@ -6,7 +6,6 @@ function validateNode(node, definition, ctx) {
   if (node && definition) {
     const allowedChildren = [];
 
-    if (definition.validators) allowedChildren.push(...Object.keys(definition.validators));
     if (definition.properties) {
       switch (typeof definition.properties) {
         case 'object':
@@ -30,46 +29,37 @@ function validateNode(node, definition, ctx) {
 
       ctx.path.pop();
     });
-
-    Object.keys(definition.validators || {}).forEach((v) => {
-      if (Object.keys(node).includes(v)) ctx.path.push(v);
-      const validationResult = definition.validators[v]()(node, ctx);
-      if (Object.keys(node).includes(v)) ctx.path.pop();
-      if (validationResult) ctx.result.push(validationResult);
-    });
   }
 }
 
 function traverseChildren(resolvedNode, definition, ctx) {
-  if (definition.properties) {
-    let nodeChildren;
-    switch (typeof definition.properties) {
-      case 'function':
-        nodeChildren = definition.properties(resolvedNode);
-        Object.keys(nodeChildren).forEach((child) => {
-          if (Object.keys(resolvedNode).includes(child)) {
-            ctx.path.push(child);
-            if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
-            ctx.path.pop();
-          }
-        });
-
-        break;
-      case 'object':
-        Object.keys(definition.properties).forEach((p) => {
-          ctx.path.push(p);
-          if (typeof definition.properties[p] === 'function') {
-            if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
-          } else if (resolvedNode[p]) {
-            traverseNode(resolvedNode[p], definition.properties[p], ctx);
-          }
+  let nodeChildren;
+  switch (typeof definition.properties) {
+    case 'function':
+      nodeChildren = definition.properties(resolvedNode);
+      Object.keys(nodeChildren).forEach((child) => {
+        if (Object.keys(resolvedNode).includes(child)) {
+          ctx.path.push(child);
+          if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
           ctx.path.pop();
-        });
+        }
+      });
 
-        break;
-      default:
+      break;
+    case 'object':
+      Object.keys(definition.properties).forEach((p) => {
+        ctx.path.push(p);
+        if (typeof definition.properties[p] === 'function') {
+          if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
+        } else if (resolvedNode[p]) {
+          traverseNode(resolvedNode[p], definition.properties[p], ctx);
+        }
+        ctx.path.pop();
+      });
+
+      break;
+    default:
         // do nothing
-    }
   }
 }
 
@@ -145,7 +135,7 @@ function traverseNode(node, definition, ctx) {
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
       const errors = rule[definition.name] && rule[definition.name]().onEnter
-        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, ctx) : [];
+        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, { ...ctx }) : [];
       if (errors) ctx.result.push(...errors);
     });
 

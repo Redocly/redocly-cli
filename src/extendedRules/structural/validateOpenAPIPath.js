@@ -1,37 +1,39 @@
 /* eslint-disable class-methods-use-this */
-import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../error';
+import createError, { createErrrorFieldTypeMismatch } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
-class ValidateOpenAPIServerVariable {
+class ValidateOpenAPIPath {
   constructor(config) {
     this.config = config;
   }
 
   static get ruleName() {
-    return 'validateOpenAPIServerVariable';
+    return 'validateOpenAPIPath';
   }
 
   validators() {
     return {
-      default: (node, ctx) => {
-        if (!node || !node.default) return createErrorMissingRequiredField('default', node, ctx, 'key');
-        if (typeof node.default !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
-        return null;
-      },
+      summary: (node, ctx) => (node && node.summary && typeof node.summary !== 'string'
+        ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
         ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
-      enum: (node, ctx) => {
-        if (node && node.enum) {
-          if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
-          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "enum" field must be strings', node, ctx);
+      servers: (node, ctx) => (node && node.servers && !Array.isArray(node.servers)
+        ? createErrrorFieldTypeMismatch('array', node, ctx) : null),
+      parameters: (node, ctx) => {
+        if (!node || !node.parameters) return null;
+        if (!Array.isArray(node.parameters)) {
+          return createErrrorFieldTypeMismatch('array', node, ctx);
+        }
+        if ((new Set(node.parameters)).size !== node.parameters.length) {
+          return createError('parameters must be unique in the Path Item object', node, ctx);
         }
         return null;
       },
     };
   }
 
-  OpenAPIServerVariable() {
+  OpenAPIPath() {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
@@ -52,4 +54,4 @@ class ValidateOpenAPIServerVariable {
   }
 }
 
-module.exports = ValidateOpenAPIServerVariable;
+module.exports = ValidateOpenAPIPath;

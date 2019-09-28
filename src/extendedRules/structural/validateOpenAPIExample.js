@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import { createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../error';
+import { createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
 class ValidateOpenAPIExample {
   constructor(config) {

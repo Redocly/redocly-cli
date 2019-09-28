@@ -8,9 +8,10 @@ function loadRuleset(config) {
   if (!fs.existsSync(rulesDirectory)) {
     rulesDirectory = `${__dirname}/../extendedRules`;
   }
-  const files = fs.readdirSync(rulesDirectory)
-    .map((fName) => `${rulesDirectory}/${fName}`)
-    .filter((fName) => fs.lstatSync(fName).isFile());
+  const ruleSetDirContents = fs.readdirSync(rulesDirectory)
+    .map((fName) => `${rulesDirectory}/${fName}`);
+  const files = ruleSetDirContents.filter((fName) => fs.lstatSync(fName).isFile());
+  const dirs = ruleSetDirContents.filter((fName) => fName !== `${rulesDirectory}/utils` && !(fs.lstatSync(fName).isFile()));
   files.forEach((file) => {
     const Rule = require(file);
     if (config && config.rules) {
@@ -22,6 +23,10 @@ function loadRuleset(config) {
       const ruleInstance = new Rule();
       ruleSet.push(ruleInstance);
     }
+  });
+  dirs.forEach((directory) => {
+    const nestedRules = loadRuleset({ ...config, rulesPath: directory });
+    ruleSet.push(...nestedRules);
   });
   return ruleSet;
 }

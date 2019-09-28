@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import createError, { createErrrorFieldTypeMismatch } from '../error';
+import createError, { createErrrorFieldTypeMismatch } from '../../error';
 
-import { matchesJsonSchemaType } from '../utils';
-import { isRuleEnabled } from './utils';
+import { matchesJsonSchemaType } from '../../utils';
+import { isRuleEnabled } from '../utils';
 
 class ValidateOpenAPISchema {
   constructor(config) {

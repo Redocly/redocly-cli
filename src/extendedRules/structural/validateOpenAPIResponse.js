@@ -1,25 +1,24 @@
 /* eslint-disable class-methods-use-this */
-import { createErrorMutuallyExclusiveFields } from '../error';
+import { createErrorMissingRequiredField } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
-class ValidateOpenAPIMediaObject {
+class ValidateOpenAPIResponse {
   constructor(config) {
     this.config = config;
   }
 
   static get ruleName() {
-    return 'validateOpenAPIMediaObject';
+    return 'validateOpenAPIResponse';
   }
 
   validators() {
     return {
-      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
-      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
+      description: (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx) : null),
     };
   }
 
-  OpenAPIMediaObject() {
+  OpenAPIResponse() {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
@@ -40,4 +39,4 @@ class ValidateOpenAPIMediaObject {
   }
 }
 
-module.exports = ValidateOpenAPIMediaObject;
+module.exports = ValidateOpenAPIResponse;

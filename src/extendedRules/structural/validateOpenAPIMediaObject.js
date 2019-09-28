@@ -1,36 +1,25 @@
 /* eslint-disable class-methods-use-this */
-import { createErrorMissingRequiredField } from '../error';
+import { createErrorMutuallyExclusiveFields } from '../../error';
 
-import { isRuleEnabled } from './utils';
+import { isRuleEnabled } from '../utils';
 
-class ValidateOpenAPIRoot {
+class ValidateOpenAPIMediaObject {
   constructor(config) {
     this.config = config;
   }
 
   static get ruleName() {
-    return 'validateOpenAPIRoot';
+    return 'validateOpenAPIMediaObject';
   }
 
   validators() {
     return {
-      openapi: (node, ctx) => {
-        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx);
-        return null;
-      },
-      info: (node, ctx) => {
-        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx);
-        return null;
-      },
-      paths: (node, ctx) => {
-        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx);
-        return null;
-      },
-      security: () => null,
+      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
+      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
     };
   }
 
-  OpenAPIRoot() {
+  OpenAPIMediaObject() {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
@@ -51,4 +40,4 @@ class ValidateOpenAPIRoot {
   }
 }
 
-module.exports = ValidateOpenAPIRoot;
+module.exports = ValidateOpenAPIMediaObject;
