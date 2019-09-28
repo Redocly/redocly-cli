@@ -32,7 +32,7 @@ class NoExtraFields {
         Object.keys(node).forEach((field) => {
           ctx.path.push(field);
 
-          if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field.indexOf('$ref') !== 0) {
+          if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
             errors.push(createErrorFieldNotAllowed(field, node, ctx));
           }
 
