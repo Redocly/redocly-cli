@@ -109,8 +109,8 @@ function traverseNode(node, definition, ctx) {
     });
 
     // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-    if (!ctx.visited.includes(currentPath)) {
-      ctx.visited.push(currentPath);
+    if (ctx.visited.filter((i) => i.currentPath === currentPath && i.name === definition.name).length === 0) {
+      ctx.visited.push({ currentPath, name: definition.name });
       traverseChildren(nodeContext.resolvedNode, definition, ctx);
     }
 
