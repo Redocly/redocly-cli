@@ -1,0 +1,80 @@
+openapi: 3.0.2
+info:
+  title: nanana
+  version: fafafa
+  license:
+    $ref: license-fragment.yaml#/license
+paths:
+  /user/{userId}/{nam}:
+    post:
+      parameters:
+        - name: userId
+          required: true
+          in: path
+      responses:
+        '200':
+          description: bla
+    get:
+      summary: Get a list of all users
+      description: Also gives their status
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Id of a user
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: val
+          in: query
+          schema:
+            type: boolean
+            enum:
+              - false
+              - true
+        - $ref: '#/components/parameters/name'
+      responses:
+        '200':
+          description: Success
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+components:
+  parameters:
+    name:
+      in: path
+      name: nam
+      required: true
+    otherName:
+      in: path
+      name: name
+      required: true
+  schemas:
+    contact:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+      discriminator:
+        propertyName: type
+    contactExampleItem:
+      type: object
+      properties:
+        userName:
+          type: string
+    contactPhone:
+      type: object
+      description: AstroPay settings object
+      allOf: 
+        - $ref: '#/components/schemas/contact'
+      properties:
+        type:
+          type: object
+          items:
+            $ref: '#/components/schemas/contactExampleItem'
+        example:
+          $ref: '#/components/schemas/contactPhone'

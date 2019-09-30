@@ -6,11 +6,6 @@ class NoExtraFields extends AbstractRule {
     return 'noExtraFields';
   }
 
-  constructor(config) {
-    super(config);
-    this.config = config;
-  }
-
   any() {
     return {
       onEnter: (node, definition, ctx) => {
@@ -35,7 +30,7 @@ class NoExtraFields extends AbstractRule {
           ctx.path.push(field);
 
           if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
-            errors.push(createErrorFieldNotAllowed(field, node, ctx));
+            errors.push(createErrorFieldNotAllowed(field, node, ctx, this.config.level));
           }
 
           ctx.path.pop();

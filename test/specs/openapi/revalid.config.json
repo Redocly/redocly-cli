@@ -9,6 +9,9 @@
         "licenseRequired": {
 	    "level": "warning"
 	},
+	"noExtraFields": {
+	    "level": "info"
+	},
         "uniqueParameterNames": {
             "msg": "Found error with duplicating parameters."
         },
