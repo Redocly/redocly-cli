@@ -2,15 +2,12 @@ openapi: 3.0.2
 info:
   title: nanana
   version: fafafa
-  # license:
-  #   $ref: license-fragment.yaml#/license
+  license:
+    $ref: license-fragment.yaml#/license
 paths:
   /user/{userId}/{nam}:
     post:
       parameters:
-        - name: userId
-          required: true
-          in: path
         - name: userId
           required: true
           in: path
@@ -48,22 +45,13 @@ components:
   parameters:
     name:
       in: path
-      name: name
+      name: nam
       required: true
     otherName:
       in: path
       name: name
       required: true
   schemas:
-    user:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-      externalDocs:
-        url: https://google.com
     contact:
       type: object
       required:

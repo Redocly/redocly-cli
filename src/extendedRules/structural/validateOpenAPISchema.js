@@ -169,13 +169,13 @@ class ValidateOpenAPISchema extends AbstractRule {
         const vals = Object.keys(validators);
         for (let i = 0; i < vals.length; i += 1) {
           if (isRuleEnabled(this, vals[i])) {
-            ctx.path.push(vals[i]);
+            if (Object.keys(node).indexOf(vals[i]) !== -1) ctx.path.push(vals[i]);
             const res = validators[vals[i]](node, ctx, this.config);
             if (res) {
               if (Array.isArray(res)) result.push(...res);
               else result.push(res);
             }
-            ctx.path.pop();
+            if (Object.keys(node).indexOf(vals[i]) !== -1) ctx.path.pop();
           }
         }
         return result;

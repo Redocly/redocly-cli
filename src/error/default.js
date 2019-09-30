@@ -44,6 +44,11 @@ const getLocationForPath = (fName, path, target) => {
 };
 
 const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => {
+  console.log(ctx.filePath);
+  console.log(ctx.source);
+  console.log(msg);
+  console.log(ctx.path);
+  console.log('\n\n\n\n\n=======');
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {

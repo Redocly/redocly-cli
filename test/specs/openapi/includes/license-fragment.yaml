@@ -1,6 +1,6 @@
 license:
-  name: MIT License
-  url: good.com
+  xname: ad
+  url: adsadsdasdasdassa
 schemas:
   Pet:
     type: "object"

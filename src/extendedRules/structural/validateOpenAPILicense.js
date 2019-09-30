@@ -13,7 +13,7 @@ class ValidateOpenAPILicense extends AbstractRule {
   validators() {
     return {
       name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx, this.config.level) : null),
-      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx, this.config.level) : null),
+      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx, 'value', this.config.level) : null),
     };
   }
 
@@ -26,13 +26,13 @@ class ValidateOpenAPILicense extends AbstractRule {
         const vals = Object.keys(validators);
         for (let i = 0; i < vals.length; i += 1) {
           if (isRuleEnabled(this.config, vals[i])) {
-            ctx.path.push(vals[i]);
+            if (Object.keys(node).indexOf(vals[i]) !== -1) ctx.path.push(vals[i]);
             const res = validators[vals[i]](node, ctx, this.config);
             if (res) {
               if (Array.isArray(res)) result.push(...res);
               else result.push(res);
             }
-            ctx.path.pop();
+            if (Object.keys(node).indexOf(vals[i]) !== -1) ctx.path.pop();
           }
         }
         return result;

@@ -17,8 +17,8 @@ function cli() {
       const result = validateFromFile(path, options);
       process.stdout.write('Following results received:\n');
 
-      const totalErrors = result.filter((msg) => msg.severity === messageLevels.ERROR);
-      const totalWarnings = result.filter((msg) => msg.severity === messageLevels.INFO);
+      const totalErrors = result.filter((msg) => msg.severity === messageLevels.ERROR).length;
+      const totalWarnings = result.filter((msg) => msg.severity === messageLevels.INFO).length;
 
       process.stdout.write('\n\n');
 
