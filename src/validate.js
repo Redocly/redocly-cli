@@ -22,7 +22,7 @@ function createContext(node, sourceFile, filePath, config) {
   };
 }
 
-export const validate = (yamlData, filePath, options) => {
+export const validate = (yamlData, filePath, options = {}) => {
   let document;
   try {
     document = yaml.safeLoad(yamlData);
@@ -30,8 +30,6 @@ export const validate = (yamlData, filePath, options) => {
     throw new Error("Can't load yaml file");
   }
   if (!document.openapi) return [];
-
-  if (!options) options = {};
 
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);

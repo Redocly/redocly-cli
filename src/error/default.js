@@ -43,8 +43,7 @@ const getLocationForPath = (fName, path, target) => {
   return location.startLine;
 };
 
-const createError = (msg, node, ctx, target, severity) => {
-  if (!severity) severity = messageLevels.ERROR;
+const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => {
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {
