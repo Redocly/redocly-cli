@@ -20,6 +20,7 @@ class ValidateOpenAPILicense extends AbstractRule {
   OpenAPILicense() {
     return {
       onEnter: (node, definition, ctx) => {
+        if (!node) return [];
         const result = [];
         const validators = this.validators();
         const vals = Object.keys(validators);

@@ -1,5 +1,6 @@
 import program from 'commander';
 import { validateFromFile } from './validate';
+import { messageLevels } from './error/default';
 
 function cli() {
   program
@@ -15,13 +16,17 @@ function cli() {
 
       const result = validateFromFile(path, options);
       process.stdout.write('Following results received:\n');
-      if (result.length > 0) {
-        process.stdout.write('\n\n');
-        result.forEach((entry) => process.stdout.write(entry.prettyPrint()));
-        process.stdout.write(`Total erorrs: ${result.length}\n`);
-      } else {
-        process.stdout.write('No errors found. Congrats!');
-      }
+
+      const totalErrors = result.filter((msg) => msg.severity === messageLevels.ERROR);
+      const totalWarnings = result.filter((msg) => msg.severity === messageLevels.INFO);
+
+      process.stdout.write('\n\n');
+
+      result.forEach((entry) => process.stdout.write(entry.prettyPrint()));
+
+      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
+
+      process.exit(totalErrors ? -1 : 0);
     });
 
   if (process.argv.length === 2) process.argv.push('-h');

@@ -15,6 +15,9 @@ function loadRuleset(config) {
     .map((fName) => `${rulesDirectory}/${fName}`);
   const files = ruleSetDirContents.filter((fName) => fs.lstatSync(fName).isFile());
 
+  const dirs = ruleSetDirContents
+    .filter((fName) => !fs.lstatSync(fName).isFile() && fName.indexOf('utils') === -1);
+
   files.forEach((file) => {
     const Rule = require(file);
     if (configCopy && configCopy.rules) {
@@ -26,6 +29,14 @@ function loadRuleset(config) {
       const ruleInstance = new Rule();
       ruleSet.push(ruleInstance);
     }
+  });
+
+  dirs.forEach((dir) => {
+    const nestedRules = loadRuleset({
+      ...configCopy,
+      rulesPath: dir,
+    });
+    ruleSet.push(...nestedRules);
   });
   return ruleSet;
 }

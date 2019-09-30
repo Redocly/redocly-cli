@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import fs from 'fs';
+import path from 'path';
 
 import loadRuleset from './loader';
 import getConfig from './config';
@@ -10,7 +11,7 @@ import traverseNode from './traverse';
 function createContext(node, sourceFile, filePath, config) {
   return {
     document: node,
-    filePath,
+    filePath: path.resolve(filePath),
     path: [],
     visited: [],
     result: [],
@@ -34,6 +35,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
 
+  // ctx.result.push(ctx);
   // console.log(config);
 
   traverseNode(document, OpenAPIRoot, ctx);
