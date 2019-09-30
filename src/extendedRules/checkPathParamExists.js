@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import createError from '../error';
+import AbstractRule from './utils/AbstractRule';
 
-class LicenseRequired {
+class LicenseRequired extends AbstractRule {
   static get ruleName() {
     return 'checkPathParamExists';
   }

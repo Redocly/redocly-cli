@@ -1,63 +1,34 @@
 /* eslint-disable no-use-before-define */
 import resolveNode from './resolver';
-import { createErrorFieldNotAllowed } from './error';
-
-function validateNode(node, definition, ctx) {
-  if (node && definition && definition.validators) {
-    const allowedChildren = [
-      ...(Object.keys(definition.properties || {})),
-      ...(Object.keys(definition.validators || {})),
-    ];
-
-    Object.keys(node).forEach((field) => {
-      ctx.path.push(field);
-
-      if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field.indexOf('$ref') !== 0) {
-        ctx.result.push(createErrorFieldNotAllowed(field, node, ctx));
-      }
-
-      ctx.path.pop();
-    });
-
-    Object.keys(definition.validators).forEach((v) => {
-      if (Object.keys(node).includes(v)) ctx.path.push(v);
-      const validationResult = definition.validators[v]()(node, ctx);
-      if (Object.keys(node).includes(v)) ctx.path.pop();
-      if (validationResult) ctx.result.push(validationResult);
-    });
-  }
-}
 
 function traverseChildren(resolvedNode, definition, ctx) {
-  if (definition.properties) {
-    let nodeChildren;
-    switch (typeof definition.properties) {
-      case 'function':
-        nodeChildren = definition.properties(resolvedNode);
-        Object.keys(nodeChildren).forEach((child) => {
-          if (Object.keys(resolvedNode).includes(child)) {
-            ctx.path.push(child);
-            if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
-            ctx.path.pop();
-          }
-        });
-
-        break;
-      case 'object':
-        Object.keys(definition.properties).forEach((p) => {
-          ctx.path.push(p);
-          if (typeof definition.properties[p] === 'function') {
-            if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
-          } else if (resolvedNode[p]) {
-            traverseNode(resolvedNode[p], definition.properties[p], ctx);
-          }
+  let nodeChildren;
+  switch (typeof definition.properties) {
+    case 'function':
+      nodeChildren = definition.properties(resolvedNode);
+      Object.keys(nodeChildren).forEach((child) => {
+        if (Object.keys(resolvedNode).includes(child)) {
+          ctx.path.push(child);
+          if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
           ctx.path.pop();
-        });
+        }
+      });
 
-        break;
-      default:
+      break;
+    case 'object':
+      Object.keys(definition.properties).forEach((p) => {
+        ctx.path.push(p);
+        if (typeof definition.properties[p] === 'function') {
+          if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
+        } else if (resolvedNode[p]) {
+          traverseNode(resolvedNode[p], definition.properties[p], ctx);
+        }
+        ctx.path.pop();
+      });
+
+      break;
+    default:
         // do nothing
-    }
   }
 }
 
@@ -111,14 +82,8 @@ function onNodeExit(nodeContext, ctx) {
 function traverseNode(node, definition, ctx) {
   if (!node || !definition) return;
   const nodeContext = onNodeEnter(node, ctx);
-  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
-  // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-  if (ctx.visited.includes(currentPath)) {
-    onNodeExit(nodeContext, ctx);
-    return;
-  }
-  ctx.visited.push(currentPath);
+  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
   // console.log(`${ctx.filePath}::${currentPath}`);
 
@@ -130,23 +95,37 @@ function traverseNode(node, definition, ctx) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
-    // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule[definition.name] && rule[definition.name]().onEnter
-        ? rule[definition.name]().onEnter(nodeContext.resolvedNode, definition, { ...ctx }, rule) : [];
-      if (errors) ctx.result.push(...errors);
+      const errorsOnEnterForType = rule[definition.name] && rule[definition.name]().onEnter
+        ? rule[definition.name]().onEnter(
+          nodeContext.resolvedNode, definition, { ...ctx }, node,
+        ) : [];
+
+      const errorsOnEnterGeneric = rule.any && rule.any().onEnter
+        ? rule.any().onEnter(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
+
+      if (errorsOnEnterForType) ctx.result.push(...errorsOnEnterForType);
+      if (errorsOnEnterGeneric) ctx.result.push(...errorsOnEnterGeneric);
     });
 
-    validateNode(nodeContext.resolvedNode, definition, ctx);
-    traverseChildren(nodeContext.resolvedNode, definition, ctx);
+    // TO-DO: refactor ctx.visited into dictionary for O(1) check time
+    if (!ctx.visited.includes(currentPath)) {
+      ctx.visited.push(currentPath);
+      traverseChildren(nodeContext.resolvedNode, definition, ctx);
+    }
 
     // can use async / promises here
     ctx.customRules.forEach((rule) => {
-      const errors = rule[definition.name] && rule[definition.name]().onExit ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx, rule) : [];
-      if (errors) ctx.result.push(...errors);
+      const errorsOnExitForType = rule[definition.name] && rule[definition.name]().onExit
+        ? rule[definition.name]().onExit(nodeContext.resolvedNode, definition, ctx) : [];
+
+      const errorsOnExitGeneric = rule.any && rule.any().onExit
+        ? rule.any().onExit(nodeContext.resolvedNode, definition, { ...ctx }, node) : [];
+
+      if (errorsOnExitForType) ctx.result.push(...errorsOnExitForType);
+      if (errorsOnExitGeneric) ctx.result.push(...errorsOnExitGeneric);
     });
   }
-
   onNodeExit(nodeContext, ctx);
 }
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 import {
-  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed,
+  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue,
 } from '../utils';
 
 export const messageLevels = {
@@ -18,6 +18,8 @@ const colorizeMessageHeader = (msg) => {
       return outputBgRed(msgHeader);
     case messageLevels.WARNING:
       return outputRed(outputBgYellow(msgHeader));
+    case messageLevels.INFO:
+      return outputBgLightBlue(msgHeader);
     default:
       return msgHeader;
   }
@@ -41,8 +43,7 @@ const getLocationForPath = (fName, path, target) => {
   return location.startLine;
 };
 
-const createError = (msg, node, ctx, target, severity) => {
-  if (!severity) severity = messageLevels.ERROR;
+const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => {
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
   const body = {

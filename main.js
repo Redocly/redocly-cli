@@ -11,10 +11,10 @@ const test = async (fNmae, name) => {
   };
   const results = await validateFromFile(fNmae, options);
   const end = Date.now();
-  console.log(results ? results.length : `good with ${name}`);
   results.forEach((res) => {
     console.log(res.prettyPrint());
   });
+  console.log(results ? results.length : `good with ${name}`);
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };
 

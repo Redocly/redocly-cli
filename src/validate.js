@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import loadRuleset from './loader';
 import getConfig from './config';
-import OpenAPIRoot from './validators';
+import OpenAPIRoot from './types';
 
 import traverseNode from './traverse';
 
@@ -22,7 +22,7 @@ function createContext(node, sourceFile, filePath, config) {
   };
 }
 
-export const validate = (yamlData, filePath, options) => {
+export const validate = (yamlData, filePath, options = {}) => {
   let document;
   try {
     document = yaml.safeLoad(yamlData);
@@ -31,12 +31,10 @@ export const validate = (yamlData, filePath, options) => {
   }
   if (!document.openapi) return [];
 
-  if (!options) options = {};
-
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
 
-  console.log(config);
+  // console.log(config);
 
   traverseNode(document, OpenAPIRoot, ctx);
 

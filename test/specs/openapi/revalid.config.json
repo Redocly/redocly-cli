@@ -2,9 +2,18 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
-        "licenseRequired": "enable",
+	"noExtraFields": "enabled",
+        "validateOpenAPILicense": {
+            "url": "on"
+        },
+        "licenseRequired": {
+	    "level": "warning"
+	},
         "uniqueParameterNames": {
             "msg": "Found error with duplicating parameters."
-        }
+        },
+	"noUnusedComponents": {
+	    "level": "info"
+	}
     }
 }

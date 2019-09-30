@@ -1,0 +1,52 @@
+/* eslint-disable class-methods-use-this */
+import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../error';
+
+import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
+
+class ValidateOpenAPIServerVariable extends AbstractRule {
+  static get ruleName() {
+    return 'validateOpenAPIServerVariable';
+  }
+
+  validators() {
+    return {
+      default: (node, ctx) => {
+        if (!node || !node.default) return createErrorMissingRequiredField('default', node, ctx, this.config.level);
+        if (typeof node.default !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        return null;
+      },
+      description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
+        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+      enum: (node, ctx) => {
+        if (node && node.enum) {
+          if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
+          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "enum" field must be strings', node, ctx, 'value', this.config.level);
+        }
+        return null;
+      },
+    };
+  }
+
+  OpenAPIServerVariable() {
+    return {
+      onEnter: (node, definition, ctx) => {
+        const result = [];
+        const validators = this.validators();
+        const vals = Object.keys(validators);
+        for (let i = 0; i < vals.length; i += 1) {
+          if (isRuleEnabled(this, vals[i])) {
+            const res = validators[vals[i]](node, ctx, this.config);
+            if (res) {
+              if (Array.isArray(res)) result.push(...res);
+              else result.push(res);
+            }
+          }
+        }
+        return result;
+      },
+    };
+  }
+}
+
+module.exports = ValidateOpenAPIServerVariable;
