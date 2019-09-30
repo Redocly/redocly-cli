@@ -3,22 +3,19 @@ import createError, { createErrrorFieldTypeMismatch, createErrorMissingRequiredF
 
 import { isUrl } from '../../utils';
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIExternalDocumentation {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIExternalDocumentation extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIExternalDocumentation';
   }
 
   validators() {
     return {
-      description: (node, ctx) => (node && node.description && typeof node.description !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
+      description: (node, ctx) => (node && node.description && typeof node.description !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
       url: (node, ctx) => {
-        if (node && !node.url) return createErrorMissingRequiredField('url', node, ctx);
-        if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx);
+        if (node && !node.url) return createErrorMissingRequiredField('url', node, ctx, this.config.level);
+        if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx, 'value', this.config.level);
         return null;
       },
     };

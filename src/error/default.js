@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 import {
-  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed,
+  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue,
 } from '../utils';
 
 export const messageLevels = {
@@ -18,6 +18,8 @@ const colorizeMessageHeader = (msg) => {
       return outputBgRed(msgHeader);
     case messageLevels.WARNING:
       return outputRed(outputBgYellow(msgHeader));
+    case messageLevels.INFO:
+      return outputBgLightBlue(msgHeader);
     default:
       return msgHeader;
   }

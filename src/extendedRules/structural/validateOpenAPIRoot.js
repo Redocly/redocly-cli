@@ -2,12 +2,9 @@
 import { createErrorMissingRequiredField } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIRoot {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIRoot extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIRoot';
   }
@@ -15,15 +12,15 @@ class ValidateOpenAPIRoot {
   validators() {
     return {
       openapi: (node, ctx) => {
-        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx);
+        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, this.config.level);
         return null;
       },
       info: (node, ctx) => {
-        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx);
+        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, this.config.level);
         return null;
       },
       paths: (node, ctx) => {
-        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx);
+        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, this.config.level);
         return null;
       },
       security: () => null,

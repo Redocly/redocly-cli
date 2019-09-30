@@ -3,12 +3,9 @@ import createError, { createErrrorFieldTypeMismatch } from '../../error';
 
 import { matchesJsonSchemaType } from '../../utils';
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPISchema {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPISchema extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPISchema';
   }
@@ -17,92 +14,92 @@ class ValidateOpenAPISchema {
     return {
       title: (node, ctx) => {
         if (node && node.title) {
-          if (!(typeof node.title === 'string')) return createErrrorFieldTypeMismatch('string', node, ctx);
+          if (!(typeof node.title === 'string')) return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },
       multipleOf: (node, ctx) => {
         if (node && node.multipleOf) {
-          if (typeof node.multipleOf !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.multipleOf < 0) return createError('Value of multipleOf must be greater or equal to zero', node, ctx);
+          if (typeof node.multipleOf !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.multipleOf < 0) return createError('Value of multipleOf must be greater or equal to zero', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       maximum: (node, ctx) => {
-        if (node && node.maximum && typeof node.maximum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
+        if (node && node.maximum && typeof node.maximum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
         return null;
       },
       exclusiveMaximum: (node, ctx) => {
-        if (node && node.exclusiveMaximum && typeof node.exclusiveMaximum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.exclusiveMaximum && typeof node.exclusiveMaximum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       minimum: (node, ctx) => {
-        if (node && node.minimum && typeof node.minimum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
+        if (node && node.minimum && typeof node.minimum !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
         return null;
       },
       exclusiveMinimum: (node, ctx) => {
-        if (node && node.exclusiveMinimum && typeof node.exclusiveMinimum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.exclusiveMinimum && typeof node.exclusiveMinimum !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       maxLength: (node, ctx) => {
         if (node && node.maxLength) {
-          if (typeof node.maxLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.maxLength < 0) return createError('Value of maxLength must be greater or equal to zero', node, ctx);
+          if (typeof node.maxLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.maxLength < 0) return createError('Value of maxLength must be greater or equal to zero.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       minLength: (node, ctx) => {
         if (node && node.minLength) {
-          if (typeof node.minLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.minLength < 0) return createError('Value of minLength must be greater or equal to zero', node, ctx);
+          if (typeof node.minLength !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.minLength < 0) return createError('Value of minLength must be greater or equal to zero.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       pattern: (node, ctx) => {
         if (node && node.pattern) {
           // TODO: add regexp validation.
-          if (typeof node.pattern !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+          if (typeof node.pattern !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },
       maxItems: (node, ctx) => {
         if (node && node.maxItems) {
-          if (typeof node.maxItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.maxItems < 0) return createError('Value of maxItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
+          if (typeof node.maxItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.maxItems < 0) return createError('Value of maxItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       minItems: (node, ctx) => {
         if (node && node.minItems) {
-          if (typeof node.minItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.minItems < 0) return createError('Value of minItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
+          if (typeof node.minItems !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.minItems < 0) return createError('Value of minItems must be greater or equal to zero. You can`t have negative amount of something.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       uniqueItems: (node, ctx) => {
         if (node && node.uniqueItems) {
-          if (typeof node.uniqueItems !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+          if (typeof node.uniqueItems !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         }
         return null;
       },
       maxProperties: (node, ctx) => {
         if (node && node.maxProperties) {
-          if (typeof node.maxProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.maxProperties < 0) return createError('Value of maxProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
+          if (typeof node.maxProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.maxProperties < 0) return createError('Value of maxProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       minProperties: (node, ctx) => {
         if (node && node.minProperties) {
-          if (typeof node.minProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx);
-          if (node.minProperties < 0) return createError('Value of minProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx);
+          if (typeof node.minProperties !== 'number') return createErrrorFieldTypeMismatch('number', node, ctx, this.config.level);
+          if (node.minProperties < 0) return createError('Value of minProperties must be greater or equal to zero. You can`t have negative amount of something.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       required: (node, ctx) => {
         if (node && node.required) {
-          if (!Array.isArray(node.required)) return createErrrorFieldTypeMismatch('array', node, ctx);
-          if (node.required.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "required" field must be strings', node, ctx);
+          if (!Array.isArray(node.required)) return createErrrorFieldTypeMismatch('array', node, ctx, this.config.level);
+          if (node.required.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "required" field must be strings', node, ctx, 'value', this.config.level);
         }
         return null;
       },
@@ -110,7 +107,7 @@ class ValidateOpenAPISchema {
         const errors = [];
 
         if (node && node.enum) {
-          if (!Array.isArray(node.enum)) return [createErrrorFieldTypeMismatch('array', node, ctx)];
+          if (!Array.isArray(node.enum)) return [createErrrorFieldTypeMismatch('array', node, ctx, this.config.level)];
           if (node.type && typeof node.type === 'string') {
             const typeMimsatch = node.enum.filter(
               (item) => !matchesJsonSchemaType(item, node.type),
@@ -118,7 +115,7 @@ class ValidateOpenAPISchema {
 
             typeMimsatch.forEach((val) => {
               ctx.path.push(node.enum.indexOf(val));
-              errors.push(createError('All values of "enum" field must be of the same type as the "type" field', node, ctx));
+              errors.push(createError('All values of "enum" field must be of the same type as the "type" field', node, ctx, 'value', this.config.level));
               ctx.path.pop();
             });
           }
@@ -133,32 +130,32 @@ class ValidateOpenAPISchema {
         return errors;
       },
       items: (node, ctx) => {
-        if (node && node.items && Array.isArray(node.items)) return createError('Value of items must not be an array. It must be a Schema object', node, ctx);
+        if (node && node.items && Array.isArray(node.items)) return createError('Value of items must not be an array. It must be a Schema object', node, ctx, 'value', this.config.level);
         return null;
       },
       additionalProperties: () => null,
       description: (node, ctx) => {
-        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       format: (node, ctx) => {
-        if (node && node.format && typeof node.format !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (node && node.format && typeof node.format !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       nullable: (node, ctx) => {
-        if (node && node.nullable && typeof node.nullable !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.nullable && typeof node.nullable !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       readOnly: (node, ctx) => {
-        if (node && node.readOnly && typeof node.readOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.readOnly && typeof node.readOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       writeOnly: (node, ctx) => {
-        if (node && node.writeOnly && typeof node.writeOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.writeOnly && typeof node.writeOnly !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       deprecated: (node, ctx) => {
-        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx);
+        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
     };

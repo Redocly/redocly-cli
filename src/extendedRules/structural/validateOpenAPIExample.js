@@ -2,12 +2,9 @@
 import { createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIExample {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIExample extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIExample';
   }
@@ -16,28 +13,28 @@ class ValidateOpenAPIExample {
     return {
       value: (node, ctx) => {
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx);
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, this.config.level);
         }
         return null;
       },
       externalValue: (node, ctx) => {
         if (node.externalValue && typeof node.externalValue !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx);
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, this.config.level);
         }
         return null;
       },
       description: (node, ctx) => {
         if (node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },
       summary: (node, ctx) => {
         if (node.summary && typeof node.summary !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },

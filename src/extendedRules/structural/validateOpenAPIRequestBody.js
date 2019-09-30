@@ -2,12 +2,9 @@
 import { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIRequestBody {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIRequestBody extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIRequestBody';
   }
@@ -16,19 +13,19 @@ class ValidateOpenAPIRequestBody {
     return {
       description: (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string.', node, ctx);
+          return createErrrorFieldTypeMismatch('string.', node, ctx, this.config.level);
         }
         return null;
       },
       content: (node, ctx) => {
         if (node && !node.content) {
-          return createErrorMissingRequiredField('content', node, ctx);
+          return createErrorMissingRequiredField('content', node, ctx, this.config.level);
         }
         return null;
       },
       required: (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') {
-          return createErrrorFieldTypeMismatch('boolean.', node, ctx);
+          return createErrrorFieldTypeMismatch('boolean.', node, ctx, this.config.level);
         }
         return null;
       },

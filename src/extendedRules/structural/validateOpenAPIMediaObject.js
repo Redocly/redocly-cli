@@ -2,20 +2,17 @@
 import { createErrorMutuallyExclusiveFields } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIMediaObject {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIMediaObject extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIMediaObject';
   }
 
   validators() {
     return {
-      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
-      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx) : null),
+      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, this.config.level) : null),
+      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, this.config.level) : null),
     };
   }
 

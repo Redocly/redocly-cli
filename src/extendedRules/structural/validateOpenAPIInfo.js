@@ -2,20 +2,17 @@
 import { createErrorMissingRequiredField } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIInfo {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIInfo extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIInfo';
   }
 
   validators() {
     return {
-      title: (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx) : null),
-      version: (node, ctx) => (!node || !node.version ? createErrorMissingRequiredField('version', node, ctx) : null),
+      title: (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx, this.config.level) : null),
+      version: (node, ctx) => (!node || !node.version ? createErrorMissingRequiredField('version', node, ctx, this.config.level) : null),
       description: () => null,
       termsOfService: () => null,
     };

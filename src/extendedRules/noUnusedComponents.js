@@ -1,9 +1,9 @@
 import createError from '../error';
-import { messageLevels } from '../error/default';
+import AbstractRule from './utils/AbstractRule';
 
-class NoUnusedComponents {
+class NoUnusedComponents extends AbstractRule {
   constructor(config) {
-    this.config = config;
+    super(config);
     this.components = {};
   }
 
@@ -20,7 +20,7 @@ class NoUnusedComponents {
           .filter((schemaName) => this.components[schemaName] === false)
           .forEach((schemaName) => {
             ctx.path.push(schemaName);
-            messages.push(createError(`The schema "${schemaName}" is never used`, node, ctx, 'key', messageLevels.WARNING));
+            messages.push(createError(`The schema "${schemaName}" is never used.`, node, ctx, 'key', this.config.level));
             ctx.path.pop();
           });
         ctx.path.pop();

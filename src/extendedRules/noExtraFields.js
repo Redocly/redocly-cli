@@ -1,11 +1,13 @@
 import { createErrorFieldNotAllowed } from '../error';
+import AbstractRule from './utils/AbstractRule';
 
-class NoExtraFields {
+class NoExtraFields extends AbstractRule {
   static get ruleName() {
     return 'noExtraFields';
   }
 
   constructor(config) {
+    super(config);
     this.config = config;
   }
 

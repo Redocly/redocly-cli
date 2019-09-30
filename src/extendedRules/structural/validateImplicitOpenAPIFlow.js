@@ -1,13 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import createError from '../../error';
+import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateImplicitOpenAPIFlow {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateImplicitOpenAPIFlow extends AbstractRule {
   static get ruleName() {
     return 'validateImplicitOpenAPIFlow';
   }
@@ -15,20 +12,20 @@ class ValidateImplicitOpenAPIFlow {
   validators() {
     return {
       authorizationUrl: (node, ctx) => {
-        if (!node.authorizationUrl) return createError('The authorizationUrl is required in the Open API Flow Object', node, ctx);
-        if (typeof node.authorizationUrl !== 'string') return createError('The authorizationUrl must be a string in the Open API Flow Object', node, ctx);
+        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, this.config.level);
+        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       refreshUrl: (node, ctx) => {
-        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createError('The refreshUrl must be a string in the Open API Flow Object', node, ctx);
+        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
         return null;
       },
       scopes: (node, ctx) => {
-        if (!node.scopes) return createError('The scopes field is required for the OpenAPI Flow Object', node, ctx);
+        if (!node.scopes) return createErrorMissingRequiredField('scopes', node, ctx, this.config.level);
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx);
+        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx, 'value', this.config.level);
         return null;
       },
     };

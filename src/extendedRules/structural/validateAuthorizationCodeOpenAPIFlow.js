@@ -1,13 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import createError from '../../error';
+import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateAuthorizationCodeOpenAPIFlow {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateAuthorizationCodeOpenAPIFlow extends AbstractRule {
   static get ruleName() {
     return 'validateAuthorizationCodeOpenAPIFlow';
   }
@@ -15,13 +12,13 @@ class ValidateAuthorizationCodeOpenAPIFlow {
   validators() {
     return {
       authorizationUrl: (node, ctx) => {
-        if (!node.authorizationUrl) return createError('The authorizationUrl is required in the Open API Flow Object', node, ctx);
-        if (typeof node.authorizationUrl !== 'string') return createError('The authorizationUrl must be a string in the Open API Flow Object', node, ctx);
+        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, this.config.level);
+        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       tokenUrl: (node, ctx) => {
-        if (!node.tokenUrl) return createError('The tokenUrl is required in the Open API Flow Object', node, ctx);
-        if (typeof node.tokenUrl !== 'string') return createError('The tokenUrl must be a string in the Open API Flow Object', node, ctx);
+        if (!node.tokenUrl) return createErrorMissingRequiredField('tokenUrl', node, ctx, this.config.level);
+        if (typeof node.tokenUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       refreshUrl: (node, ctx) => {

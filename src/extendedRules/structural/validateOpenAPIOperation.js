@@ -1,13 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import createError from '../../error';
+import createError, { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIOperation {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIOperation extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIOperation';
   }
@@ -16,28 +13,28 @@ class ValidateOpenAPIOperation {
     return {
       tags: (node, ctx) => {
         if (node && node.tags && !Array.isArray(node.tags)) {
-          return createError('The tags field must be an array in the Open API Operation object.', node, ctx);
+          return createErrrorFieldTypeMismatch('array.', node, ctx, this.config.level);
         }
         if (node && node.tags && node.tags.filter((item) => typeof item !== 'string').length > 0) {
-          return createError('Items of the tags array must be strings in the Open API Operation object.', node, ctx);
+          return createError('Items of the tags array must be strings in the Open API Operation object.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       summary: (node, ctx) => {
-        if (node && node.summary && typeof node.summary !== 'string') return createError('The summary field must be a string', node, ctx);
+        if (node && node.summary && typeof node.summary !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       description: (node, ctx) => {
-        if (node && node.description && typeof node.description !== 'string') return createError('The description field must be a string', node, ctx);
+        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       operationId: (node, ctx) => {
-        if (node && node.operationId && typeof node.operationId !== 'string') return createError('The operationId field must be a string', node, ctx);
+        if (node && node.operationId && typeof node.operationId !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
-      responses: (node, ctx) => (!node.responses ? createError('Operation must include responses section', node, ctx, 'key') : null),
+      responses: (node, ctx) => (!node.responses ? createErrorMissingRequiredField('responses', node, ctx, this.config.level) : null),
       deprecated: (node, ctx) => {
-        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createError('The deprecated field must be a string', node, ctx);
+        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
     };

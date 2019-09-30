@@ -3,20 +3,17 @@ import createError, { createErrorMissingRequiredField } from '../../error';
 
 import { isUrl } from '../../utils';
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPILicense {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPILicense extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPILicense';
   }
 
   validators() {
     return {
-      name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx) : null),
-      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx) : null),
+      name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx, this.config.level) : null),
+      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx, this.config.level) : null),
     };
   }
 

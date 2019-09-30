@@ -2,21 +2,18 @@
 import { createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIContact {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIContact extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIContact';
   }
 
   validators() {
     return {
-      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
-      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
-      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
+      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
 
     };
   }

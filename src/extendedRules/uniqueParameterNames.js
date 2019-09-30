@@ -1,13 +1,13 @@
 import createError from '../error';
+import AbstractRule from './utils/AbstractRule';
 
-class UniqueParameterNames {
+class UniqueParameterNames extends AbstractRule {
   static get ruleName() {
     return 'uniqueParameterNames';
   }
 
-  constructor(opts) {
-    const { msg = 'example argument' } = opts || {};
-    this.msg = msg;
+  constructor(config) {
+    super(config);
     this.parametersStack = [];
   }
 

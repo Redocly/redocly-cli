@@ -2,12 +2,9 @@
 import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIServer {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIServer extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIServer';
   }
@@ -15,12 +12,12 @@ class ValidateOpenAPIServer {
   validators() {
     return {
       url: (node, ctx) => {
-        if (!node || !node.url || typeof node.url !== 'string') return createErrorMissingRequiredField('url', node, ctx);
-        if (typeof node.url !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (!node || !node.url || typeof node.url !== 'string') return createErrorMissingRequiredField('url', node, ctx, this.config.level);
+        if (typeof node.url !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
     };
   }
 

@@ -1,13 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import createError from '../../error';
+import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIParameter {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIParameter extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIParameter';
   }
@@ -16,66 +13,67 @@ class ValidateOpenAPIParameter {
     return {
       name: (node, ctx) => {
         if (!node) return null;
-        if (!node.name || typeof node.name !== 'string') return createError('name is required and must be a string', node, ctx);
+        if (!node.name) return createErrorMissingRequiredField('name', node, ctx, this.config.level);
+        if (typeof node.name !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       in: (node, ctx) => {
         if (!node) return null;
-        if (!node.in) return createError('in field is required for Parameter object', node, ctx);
-        if (typeof node.in !== 'string') return createError('in field must be a string', node, ctx);
-        if (!['query', 'header', 'path', 'cookie'].includes(node.in)) return createError("in value can be only one of: 'query', 'header', 'path', 'cookie'", node, ctx);
+        if (!node.in) return createErrorMissingRequiredField('in', node, ctx, this.config.level);
+        if (typeof node.in !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!['query', 'header', 'path', 'cookie'].includes(node.in)) return createError("The 'in' field value can be only one of: 'query', 'header', 'path', 'cookie'", node, ctx, 'value', this.config.level);
         return null;
       },
       description: (node, ctx) => {
-        if (node && node.description && typeof node.description !== 'string') return createError('description field must be a string', node, ctx);
+        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       required: (node, ctx) => {
-        if (node && node.required && typeof node.required !== 'boolean') return createError('required field must be a boolean', node, ctx);
+        if (node && node.required && typeof node.required !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         if (node && node.in && node.in === 'path' && node.required !== true) {
-          return createError('If the parameter location is "path", this property is REQUIRED and its value MUST be true.', node, ctx);
+          return createError('If the parameter location is "path", this property is REQUIRED and its value MUST be true.', node, ctx, 'value', this.config.level);
         }
         return null;
       },
       deprecated: (node, ctx) => {
-        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createError('deprecated field must be a boolean', node, ctx);
+        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       allowEmptyValue: (node, ctx) => {
-        if (node && node.allowEmptyValue && typeof node.allowEmptyValue !== 'boolean') return createError('allowEmptyValue field must be a boolean', node, ctx);
+        if (node && node.allowEmptyValue && typeof node.allowEmptyValue !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       style: (node, ctx) => {
         if (node && node.style && typeof node.style !== 'string') {
-          return createError('The style field must be a string for Parameter object', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },
       explode: (node, ctx) => {
-        if (node && node.explode && typeof node.explode !== 'boolean') return createError('explode field must be a boolean', node, ctx);
+        if (node && node.explode && typeof node.explode !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       allowReserved: (node, ctx) => {
-        if (node && node.allowReserved && typeof node.allowReserved !== 'boolean') return createError('allowReserved field must be a boolean', node, ctx);
+        if (node && node.allowReserved && typeof node.allowReserved !== 'boolean') return createErrrorFieldTypeMismatch('boolean', node, ctx, this.config.level);
         return null;
       },
       example: (node, ctx) => {
-        if (node.example && node.examples) return createError('The example field is mutually exclusive of the examples field.', node, ctx);
+        if (node.example && node.examples) return createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, this.config.level);
         return null;
       },
       examples: (node, ctx) => {
-        if (node.example && node.examples) return createError('The examples field is mutually exclusive of the example field.', node, ctx);
+        if (node.example && node.examples) return createErrorMutuallyExclusiveFields(['examples', 'example'], node, ctx, this.config.level);
         return null;
       },
       schema: (node, ctx) => {
         if (node.schema && node.content) {
-          return createError('A parameter MUST contain either a schema property, or a content property, but not both.', node, ctx);
+          return createErrorMutuallyExclusiveFields(['schema', 'content'], node, ctx, this.config.level);
         }
         return null;
       },
       content: (node, ctx) => {
         if (node.schema && node.content) {
-          return createError('A parameter MUST contain either a schema property, or a content property, but not both.', node, ctx);
+          return createErrorMutuallyExclusiveFields(['content', 'schema'], node, ctx, this.config.level);
         }
         return null;
       },

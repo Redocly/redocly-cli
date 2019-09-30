@@ -2,12 +2,9 @@
 import { createErrorMutuallyExclusiveFields, createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPILink {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPILink extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPILink';
   }
@@ -16,27 +13,27 @@ class ValidateOpenAPILink {
     return {
       operationRef: (node, ctx) => {
         if (!node || !node.operationRef) return null;
-        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationRef', 'operationId'], node, ctx);
-        if (typeof node.operationRef !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationRef', 'operationId'], node, ctx, this.config.level);
+        if (typeof node.operationRef !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       operationId: (node, ctx) => {
         if (!node || !node.operationId) return null;
-        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationId', 'operationRef'], node, ctx);
-        if (typeof node.operationId !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx);
+        if (node.operationRef && node.operationId) return createErrorMutuallyExclusiveFields(['operationId', 'operationRef'], node, ctx, this.config.level);
+        if (typeof node.operationId !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         return null;
       },
       parameters: (node, ctx) => {
         if (!node || !node.parameters) return null;
         if (Object.keys(node.parameters).filter((key) => typeof key !== 'string').length > 0) {
-          return createErrrorFieldTypeMismatch('Map[string, any]', node, ctx);
+          return createErrrorFieldTypeMismatch('Map[string, any]', node, ctx, this.config.level);
         }
         return null;
       },
       description: (node, ctx) => {
         if (!node || !node.description) return null;
         if (typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },

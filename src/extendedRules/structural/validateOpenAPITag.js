@@ -2,12 +2,9 @@
 import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPITag {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPITag extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPITag';
   }
@@ -15,15 +12,15 @@ class ValidateOpenAPITag {
   validators() {
     return {
       name: (node, ctx) => {
-        if (!node.name) return createErrorMissingRequiredField('name', node, ctx);
+        if (!node.name) return createErrorMissingRequiredField('name', node, ctx, this.config.level);
         if (node && node.name && typeof node.name !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },
       description: (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx);
+          return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
         }
         return null;
       },

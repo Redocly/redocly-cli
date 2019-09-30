@@ -2,12 +2,9 @@
 import createError, { createErrrorFieldTypeMismatch } from '../../error';
 
 import { isRuleEnabled } from '../utils';
+import AbstractRule from '../utils/AbstractRule';
 
-class ValidateOpenAPIPath {
-  constructor(config) {
-    this.config = config;
-  }
-
+class ValidateOpenAPIPath extends AbstractRule {
   static get ruleName() {
     return 'validateOpenAPIPath';
   }
@@ -15,18 +12,18 @@ class ValidateOpenAPIPath {
   validators() {
     return {
       summary: (node, ctx) => (node && node.summary && typeof node.summary !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
       servers: (node, ctx) => (node && node.servers && !Array.isArray(node.servers)
-        ? createErrrorFieldTypeMismatch('array', node, ctx) : null),
+        ? createErrrorFieldTypeMismatch('array', node, ctx, this.config.level) : null),
       parameters: (node, ctx) => {
         if (!node || !node.parameters) return null;
         if (!Array.isArray(node.parameters)) {
-          return createErrrorFieldTypeMismatch('array', node, ctx);
+          return createErrrorFieldTypeMismatch('array', node, ctx, this.config.level);
         }
         if ((new Set(node.parameters)).size !== node.parameters.length) {
-          return createError('parameters must be unique in the Path Item object', node, ctx);
+          return createError('parameters must be unique in the Path Item object', node, ctx, 'value', this.config.level);
         }
         return null;
       },
