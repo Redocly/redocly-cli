@@ -18,13 +18,14 @@ function cli() {
       process.stdout.write('Following results received:\n');
 
       const totalErrors = result.filter((msg) => msg.severity === messageLevels.ERROR).length;
-      const totalWarnings = result.filter((msg) => msg.severity === messageLevels.INFO).length;
+      const totalWarnings = result.filter((msg) => msg.severity === messageLevels.WARNING).length;
+      const totalInfo = result.filter((msg) => msg.severity === messageLevels.INFO).length;
 
       process.stdout.write('\n\n');
 
       result.forEach((entry) => process.stdout.write(entry.prettyPrint()));
 
-      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
+      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}, information: ${totalInfo}\n`);
 
       process.exit(totalErrors ? -1 : 0);
     });
