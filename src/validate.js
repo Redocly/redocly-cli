@@ -15,6 +15,7 @@ function createContext(node, sourceFile, filePath, config) {
     path: [],
     visited: [],
     result: [],
+    definitionStack: [],
     pathStack: [],
     source: sourceFile,
     enableCodeframe: config && config.enableCodeframe ? config.enableCodeframe : false,

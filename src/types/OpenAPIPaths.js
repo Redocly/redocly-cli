@@ -26,6 +26,7 @@ export const OpenAPIPathItem = {
 };
 
 export const OpenAPIPaths = {
+  name: 'OpenAPIPaths',
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

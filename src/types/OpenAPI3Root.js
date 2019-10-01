@@ -17,8 +17,8 @@ export default {
   properties: {
     info: OpenAPIInfo,
     paths: OpenAPIPaths,
-    servers: OpenAPIServer,
     components: OpenAPIComponents,
+    servers: OpenAPIServer,
     // security: OpenAPISecurityRequirement,
     tags: OpenAPITag,
     externalDocs: OpenAPIExternalDocumentation,

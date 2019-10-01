@@ -15,6 +15,7 @@ export const OpenAPIResponse = {
 };
 
 export const OpenAPIResponseMap = {
+  name: 'OpenAPIResponseMap',
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

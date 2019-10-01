@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import resolveNode from './resolver';
 
-function traverseChildren(resolvedNode, definition, ctx) {
+function traverseChildren(resolvedNode, definition, ctx, visited) {
   let nodeChildren;
   switch (typeof definition.properties) {
     case 'function':
@@ -9,7 +9,7 @@ function traverseChildren(resolvedNode, definition, ctx) {
       Object.keys(nodeChildren).forEach((child) => {
         if (Object.keys(resolvedNode).includes(child)) {
           ctx.path.push(child);
-          if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx);
+          if (resolvedNode[child]) traverseNode(resolvedNode[child], nodeChildren[child], ctx, visited);
           ctx.path.pop();
         }
       });
@@ -19,9 +19,9 @@ function traverseChildren(resolvedNode, definition, ctx) {
       Object.keys(definition.properties).forEach((p) => {
         ctx.path.push(p);
         if (typeof definition.properties[p] === 'function') {
-          if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx);
+          if (resolvedNode[p]) traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
         } else if (resolvedNode[p]) {
-          traverseNode(resolvedNode[p], definition.properties[p], ctx);
+          traverseNode(resolvedNode[p], definition.properties[p], ctx, visited);
         }
         ctx.path.pop();
       });
@@ -79,18 +79,27 @@ function onNodeExit(nodeContext, ctx) {
   }
 }
 
-function traverseNode(node, definition, ctx) {
+const nestedIncludes = (c, s) => {
+  const res = s.find((el) => el.filter((v, id) => c[id] === v).length === c.length) !== undefined;
+  // console.log(c, s, res);
+  return res;
+};
+
+function traverseNode(node, definition, ctx, visited = []) {
   if (!node || !definition) return;
+
   const nodeContext = onNodeEnter(node, ctx);
+  const isRecursive = nestedIncludes(ctx.path, visited);
 
-  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
+  // const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
-  // console.log(`${ctx.filePath}::${currentPath}`);
+  const localVisited = Array.from(visited);
+  localVisited.push(Array.from(ctx.path));
 
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
       ctx.path.push(i);
-      traverseNode(nodeChild, definition, ctx);
+      traverseNode(nodeChild, definition, ctx, localVisited);
       ctx.path.pop();
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
@@ -108,10 +117,9 @@ function traverseNode(node, definition, ctx) {
       if (errorsOnEnterGeneric) ctx.result.push(...errorsOnEnterGeneric);
     });
 
-    // TO-DO: refactor ctx.visited into dictionary for O(1) check time
-    if (ctx.visited.filter((i) => i.currentPath === currentPath && i.name === definition.name).length === 0) {
-      ctx.visited.push({ currentPath, name: definition.name });
-      traverseChildren(nodeContext.resolvedNode, definition, ctx);
+    if (!isRecursive) {
+      // console.log(`Will traverse ${currentPath}`);
+      traverseChildren(nodeContext.resolvedNode, definition, ctx, localVisited);
     }
 
     // can use async / promises here
