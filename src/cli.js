@@ -36,36 +36,32 @@ const prettyPrint = (error) => {
   return message;
 };
 
-function errorBelongsToGroup(error, group) {
-  return error.msg === group.msg
+const errorBelongsToGroup = (error, group) => error.msg === group.msg
     && error.path.join('/') === group.path.join('/')
     && error.severity === group.severity
     && error.location.startIndex === group.location.startIndex
     && error.location.endIndex === group.location.endIndex;
-}
 
-function groupFromError(error) {
-  return {
-    message: error.message,
-    location: error.location,
-    path: error.path,
-    codeFrame: error.codeFrame,
-    value: error.value,
-    file: error.file,
-    severity: error.severity,
-    enableCodeframe: error.enableCodeframe,
-    target: error.target,
-    pathStacks: error.pathStack.length !== 0 ? [error.pathStack] : [],
-  };
-}
+const groupFromError = (error) => ({
+  message: error.message,
+  location: error.location,
+  path: error.path,
+  codeFrame: error.codeFrame,
+  value: error.value,
+  file: error.file,
+  severity: error.severity,
+  enableCodeframe: error.enableCodeframe,
+  target: error.target,
+  pathStacks: error.pathStack.length !== 0 ? [error.pathStack] : [],
+});
 
-function addErrorToGroup(error, group) {
+const addErrorToGroup = (error, group) => {
   if (error.pathStack.length !== 0) group.pathStacks.push(error.pathStack);
   return true;
-}
+};
 
 
-function groupErrors(errors) {
+const groupErrors = (errors) => {
   const groups = [];
   for (let i = 0; i < errors.length; i += 1) {
     let assigned = false;
@@ -78,9 +74,9 @@ function groupErrors(errors) {
     if (!assigned) groups.push(groupFromError(errors[i]));
   }
   return groups;
-}
+};
 
-function cli() {
+const cli = () => {
   program
     .arguments('<path>')
     .option('-f, --frame', 'Print no codeframes with errors.')
@@ -119,6 +115,6 @@ function cli() {
   if (process.argv.length === 2) process.argv.push('-h');
 
   program.parse(process.argv);
-}
+};
 
 export default cli;
