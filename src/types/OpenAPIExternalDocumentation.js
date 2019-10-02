@@ -1,5 +1,6 @@
 const OpenAPIExternalDocumentation = {
   name: 'OpenAPIExternalDocumentation',
+  isIdempotent: true,
   allowedFields: [
     'description',
     'url',

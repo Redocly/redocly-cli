@@ -2,6 +2,7 @@ import OpenAPIServer from './OpenAPIServer';
 
 export const OpenAPILink = {
   name: 'OpenAPILink',
+  isIdempotent: true,
   allowedFields: [
     'operationRef',
     'operationId',
@@ -15,6 +16,7 @@ export const OpenAPILink = {
 };
 
 export const OpenAPILinkMap = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

@@ -9,6 +9,7 @@ import { OpenAPIRequestBody } from './OpenAPIRequestBody';
 
 export default {
   name: 'OpenAPIOperation',
+  isIdempotent: false,
   allowedFields: [
     'tags',
     'summary',

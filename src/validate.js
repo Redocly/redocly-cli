@@ -13,6 +13,7 @@ function createContext(node, sourceFile, filePath, config) {
     document: node,
     filePath: path.resolve(filePath),
     path: [],
+    cache: {},
     visited: [],
     result: [],
     definitionStack: [],
@@ -40,7 +41,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   // console.log(config);
 
   traverseNode(document, OpenAPIRoot, ctx);
-
+  // console.log(ctx.cache);
   return ctx.result;
 };
 

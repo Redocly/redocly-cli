@@ -10,6 +10,7 @@ import { OpenAPIRequestBodyMap } from './OpenAPIRequestBody';
 
 export default {
   name: 'OpenAPIComponents',
+  isIdempotent: true,
   properties: {
     schemas: OpenAPISchemaMap,
     responses: OpenAPIResponseMap,

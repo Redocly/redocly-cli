@@ -5,6 +5,7 @@ import { OpenAPIParameter } from './OpenAPIParameter';
 
 export const OpenAPIPathItem = {
   name: 'OpenAPIPath',
+  isIdempotent: true,
   allowedFields: [
     'summary',
     'description',
@@ -27,6 +28,7 @@ export const OpenAPIPathItem = {
 
 export const OpenAPIPaths = {
   name: 'OpenAPIPaths',
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

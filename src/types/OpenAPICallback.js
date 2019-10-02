@@ -2,6 +2,7 @@
 import { OpenAPIPathItem } from './OpenAPIPaths';
 
 export const OpenAPICallback = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {
@@ -13,6 +14,7 @@ export const OpenAPICallback = {
 
 
 export const OpenAPICallbackMap = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

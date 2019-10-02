@@ -3,6 +3,7 @@ import { OpenAPIHeaderMap } from './OpenAPIHeader';
 
 export default {
   name: 'OpenAPIEncoding',
+  isIdempotent: true,
   allowedFields: [
     'contentType',
     'style',

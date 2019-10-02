@@ -1,5 +1,6 @@
 export default {
   name: 'OpenAPIXML',
+  isIdempotent: true,
   allowedFields: [
     'name',
     'namespace',

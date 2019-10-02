@@ -1,5 +1,6 @@
 export const OpenAPILicense = {
   name: 'OpenAPILicense',
+  isIdempotent: true,
   allowedFields: [
     'name',
     'url',
@@ -8,6 +9,7 @@ export const OpenAPILicense = {
 
 export const OpenAPIContact = {
   name: 'OpenAPIContact',
+  isIdempotent: true,
   allowedFields: [
     'name',
     'url',
@@ -17,6 +19,7 @@ export const OpenAPIContact = {
 
 export const OpenAPIInfo = {
   name: 'OpenAPIInfo',
+  isIdempotent: true,
   allowedFields: [
     'title',
     'version',

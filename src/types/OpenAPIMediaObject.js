@@ -6,6 +6,7 @@ import OpenAPIEncoding from './OpenAPIEncoding';
 
 export const OpenAPIMediaObject = {
   name: 'OpenAPIMediaObject',
+  isIdempotent: true,
   allowedFields: [
     'example',
     'examples',
@@ -18,6 +19,7 @@ export const OpenAPIMediaObject = {
 };
 
 export const OpenAPIMediaTypeObject = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

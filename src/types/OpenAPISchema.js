@@ -8,6 +8,7 @@ import OpenAPIXML from './OpenAPIXML';
 
 const OpenAPISchemaObject = {
   name: 'OpenAPISchema',
+  isIdempotent: true,
   allowedFields: [
     'title',
     'description',

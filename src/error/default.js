@@ -65,10 +65,29 @@ const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => 
     value: node,
     file: ctx.filePath,
     severity,
+    enableCodeframe: ctx.enableCodeframe,
+    target,
   };
   return {
     ...body,
     prettyPrint: () => prettyPrint(body, ctx.enableCodeframe),
+  };
+};
+
+export const fromError = (error, ctx) => {
+  let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);
+  if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
+  const body = {
+    ...error,
+    ...ctx,
+    pathStack: ctx.pathStack.map((el) => {
+      const startLine = getLocationForPath(el.file, el.path, error.target);
+      return `${outputLightBlue(`${el.file}:${startLine}`)} ${outputGrey(`#/${el.path.join('/')}`)}`;
+    }),
+  };
+  return {
+    ...body,
+    prettyPrint: () => prettyPrint(body, body.enableCodeframe),
   };
 };
 

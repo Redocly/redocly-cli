@@ -4,6 +4,7 @@ import { OpenAPILinkMap } from './OpenAPILink';
 
 export const OpenAPIResponse = {
   name: 'OpenAPIResponse',
+  isIdempotent: true,
   allowedFields: [
     'description',
   ],
@@ -16,6 +17,7 @@ export const OpenAPIResponse = {
 
 export const OpenAPIResponseMap = {
   name: 'OpenAPIResponseMap',
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

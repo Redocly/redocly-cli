@@ -1,13 +1,30 @@
 openapi: 3.0.1
 info:
+  license:
+    name: MIT
   title: Sample API
   version: 0.0.1
 paths:
+  /user/{test}:
+    get:
+      responses:
+        '200':
+          description: bla
+          content:
+            application/json:
+              schema:
+                type: object
+  /usera/{test}:
+    get:
+      responses:
+        '200':
+          description: bla
+          content:
+            application/json:
+              schema:
+                type: object
+
   /user/{userId}/{name}:
-    parameters:
-      - name: name
-        in: path
-        required: true
     get:
       parameters:
         - name: userId
@@ -24,6 +41,8 @@ paths:
         - name: name
           in: path
           required: true
+          schema:
+            $ref: '#/components/schemas/exampleSchema'
       responses:
         '200':
           description: success
@@ -36,6 +55,43 @@ paths:
           in: path
           required: true
       responses:
+        '201':
+          description: sd
+          content:
+            application/json:
+              # schema:
+              #   $ref: '#/components/schemas/wrong'
         '200':
-          description: done
+          description: asdasds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exampleSchema'
+        '202':
+          description: asdasds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exampleSchema'
+          
+
+components:
+  schemas:
+    exampleSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        property:
+          type: object
+          properties:
+            name:
+              type: string
+            location:
+              type: stringa
+    # Test:
+    #   type: object
+    #   properties:
+    #     name:
+    #       type: string
 

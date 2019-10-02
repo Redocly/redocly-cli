@@ -2,6 +2,7 @@ import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 
 export const OpenAPIRequestBody = {
   name: 'OpenAPIRequestBody',
+  isIdempotent: true,
   allowedFields: [
     'description',
     'content',
@@ -13,6 +14,7 @@ export const OpenAPIRequestBody = {
 };
 
 export const OpenAPIRequestBodyMap = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

@@ -3,6 +3,7 @@ import OpenAPISchema from './OpenAPISchema';
 
 const OpenAPISchemaMap = {
   name: 'OpenAPISchemaMap',
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

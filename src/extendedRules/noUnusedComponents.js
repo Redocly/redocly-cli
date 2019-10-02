@@ -11,10 +11,11 @@ class NoUnusedComponents extends AbstractRule {
     return 'noUnusedComponents';
   }
 
-  OpenAPIComponents() {
+  OpenAPIRoot() {
     return {
       onExit: (node, definition, ctx) => {
         const messages = [];
+        ctx.path.push('components');
         ctx.path.push('schemas');
         Object.keys(this.components)
           .filter((schemaName) => this.components[schemaName] === false)
@@ -23,6 +24,7 @@ class NoUnusedComponents extends AbstractRule {
             messages.push(createError(`The schema "${schemaName}" is never used.`, node, ctx, 'key', this.config.level));
             ctx.path.pop();
           });
+        ctx.path.pop();
         ctx.path.pop();
         return messages;
       },

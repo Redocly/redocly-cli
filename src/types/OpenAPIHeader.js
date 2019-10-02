@@ -5,6 +5,7 @@ import OpenAPISchemaObject from './OpenAPISchema';
 
 export const OpenAPIHeader = {
   name: 'OpenAPIHeader',
+  isIdempotent: true,
   allowedFields: [
     'description',
     'required',
@@ -23,6 +24,7 @@ export const OpenAPIHeader = {
 };
 
 export const OpenAPIHeaderMap = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {

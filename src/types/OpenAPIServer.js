@@ -1,5 +1,6 @@
 const OpenAPIServerVariable = {
   name: 'OpenAPIServerVariable',
+  isIdempotent: true,
   allowedFields: [
     'default',
     'description',
@@ -8,6 +9,7 @@ const OpenAPIServerVariable = {
 };
 
 const OpenAPIServerVariableMap = {
+  isIdempotent: true,
   properties(node) {
     const props = {};
     Object.keys(node).forEach((k) => {
@@ -19,6 +21,7 @@ const OpenAPIServerVariableMap = {
 
 const OpenAPIServer = {
   name: 'OpenAPIServer',
+  isIdempotent: true,
   allowedFields: [
     'url',
     'description',

@@ -8,6 +8,7 @@ import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 
 export default {
   name: 'OpenAPIRoot',
+  isIdempotent: true,
   allowedFields: [
     'openapi',
     'info',
@@ -15,9 +16,9 @@ export default {
     'security',
   ],
   properties: {
+    components: OpenAPIComponents,
     info: OpenAPIInfo,
     paths: OpenAPIPaths,
-    components: OpenAPIComponents,
     servers: OpenAPIServer,
     // security: OpenAPISecurityRequirement,
     tags: OpenAPITag,
