@@ -2,10 +2,18 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
-	 "noExtraFields": "on",
-        "noUnusedComponents": "on",
+        "noExtraFields": "on",
+        "checkPathParamExists": {
+            "level": "info"
+        },
+        "validateOpenAPISchema": {
+            "level": "info"
+        },
+        "noUnusedComponents": {
+            "level": "warning"
+        },
         "validateOpenAPILicense": {
-            "url": "on"
+            "level": "warning"
         },
         "licenseRequired": {
             "level": "warning"
