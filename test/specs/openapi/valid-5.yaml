@@ -2,6 +2,7 @@ openapi: 3.0.1
 info:
   license:
     name: MIT
+    url: badcom
   title: Sample API
   version: 0.0.1
 paths:
