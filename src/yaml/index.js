@@ -84,12 +84,15 @@ export const getCodeFrameForLocation = (
   const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
   let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
 
-  const lines = codeFrameString.split('\n');
+  const lines = codeFrameString.split('\n').slice(1);
 
   const maxLineNum = lines.length + startLine;
 
-  let minSpaces = lines.reduce((acc, val) => (val.length > acc ? val.length : acc), 0);
 
+  // Here we do deindenting. First of: find how much spaces there are before the line start,
+  // and then -- deindent as much as we can.
+
+  let minSpaces = lines.reduce((acc, val) => (val.length > acc ? val.length : acc), 0);
 
   lines.forEach((line) => {
     let spaces;
@@ -98,8 +101,8 @@ export const getCodeFrameForLocation = (
   });
 
   lines.forEach((_, id) => {
-    const lineNum = String(`0${startLine - actualLinesBefore + id}`).slice(-maxLineNum.toString().length);
-    const line = minSpaces >= 4 ? lines[id].slice(minSpaces) : lines[id];
+    const lineNum = String(`0${startLine - actualLinesBefore + id + 1}`).slice(-maxLineNum.toString().length);
+    const line = minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id];
     if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
       lines[id] = outputGrey(`${lineNum}| ${line}`);
     } else {
