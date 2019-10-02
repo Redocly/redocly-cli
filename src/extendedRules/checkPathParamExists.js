@@ -9,7 +9,7 @@ class LicenseRequired extends AbstractRule {
 
   OpenAPIParameter() {
     return {
-      onEnter(node, definition, ctx) {
+      onEnter: (node, definition, ctx) => {
         const errors = [];
         if (node.in && node.in === 'path') {
           const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...(val.path)], []);
@@ -19,7 +19,7 @@ class LicenseRequired extends AbstractRule {
               && (ctx.path.indexOf('components') === -1 || visitedNodes.indexOf('paths') !== -1);
           if (missingNameInPath) {
             ctx.path.push('name');
-            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx));
+            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, 'value', this.config.level));
             ctx.path.pop();
           }
         }

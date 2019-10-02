@@ -16,10 +16,10 @@ export default {
     'security',
   ],
   properties: {
-    components: OpenAPIComponents,
     info: OpenAPIInfo,
     paths: OpenAPIPaths,
     servers: OpenAPIServer,
+    components: OpenAPIComponents,
     // security: OpenAPISecurityRequirement,
     tags: OpenAPITag,
     externalDocs: OpenAPIExternalDocumentation,

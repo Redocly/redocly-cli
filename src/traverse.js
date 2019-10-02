@@ -16,7 +16,9 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
         let childResult = [];
         if (resolvedNodeKeys.includes(child)) {
           ctx.path.push(child);
-          if (resolvedNode[child]) childResult = traverseNode(resolvedNode[child], nodeChildren[child], ctx, visited);
+          if (resolvedNode[child]) {
+            childResult = traverseNode(resolvedNode[child], nodeChildren[child], ctx, visited);
+          }
           if (childResult) errors.push(...childResult);
           ctx.path.pop();
         }
@@ -30,7 +32,9 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
         let propResult = [];
         ctx.path.push(p);
         if (typeof definition.properties[p] === 'function') {
-          if (resolvedNode[p]) propResult = traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
+          if (resolvedNode[p]) {
+            propResult = traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
+          }
         } else if (resolvedNode[p]) {
           propResult = traverseNode(resolvedNode[p], definition.properties[p], ctx, visited);
         }
@@ -110,8 +114,6 @@ function traverseNode(node, definition, ctx, visited = []) {
   const localVisited = Array.from(visited);
   localVisited.push(Array.from(ctx.path));
 
-  const allowedMultipleEntries = ['OpenAPIParameter', 'OpenAPIOperation'];
-
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
       ctx.path.push(i);
@@ -130,7 +132,9 @@ function traverseNode(node, definition, ctx, visited = []) {
       const errorsChildren = traverseChildren(nodeContext.resolvedNode, definition, ctx, localVisited);
       errors.push(...errorsChildren);
     } else {
-      const cachedResult = ctx.cache[currentPath] ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
+      // Will use cached result if we have already traversed this nodes children
+      const cachedResult = ctx.cache[currentPath]
+        ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
 
       ctx.result.push(...cachedResult);
       onNodeExit(nodeContext, ctx);
