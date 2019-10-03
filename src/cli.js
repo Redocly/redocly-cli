@@ -27,10 +27,10 @@ const renderReferencedFrom = (pathStacks) => {
   return `This error is referenced from:\n${pathStacks.map((rows, id) => `${id + 1}) ${prettifyPathStackRow(rows.pop())}`).join('\n')}`;
 };
 
-const prettyPrint = (error) => {
-  const message = `${colorizeMessageHeader(error)} ${outputGrey(`at #/${pathImproveReadability(error.path).join(outputGrey('/'))}`)}`
+const prettyPrint = (i, error) => {
+  const message = `[${i}] ${colorizeMessageHeader(error)} ${outputGrey(`at #/${pathImproveReadability(error.path).join(outputGrey('/'))}`)}`
   + `\n${error.message}\n`
-  + `${error.possibleAlternate ? `\nDid you mean: ${outputLightBlue(error.possibleAlternate)}?\n` : ''}`
+  + `${error.possibleAlternate ? `\nDid you mean: ${outputLightBlue(error.possibleAlternate)} ?\n` : ''}`
   + `${error.enableCodeframe ? `\n${error.codeFrame}\n\n` : ''}`
   + `${renderReferencedFrom(error.pathStacks)}`
   + '\n\n';
@@ -107,7 +107,7 @@ const cli = () => {
 
       errorsGrouped
         .sort((a, b) => a.severity < b.severity)
-        .forEach((entry) => process.stdout.write(prettyPrint(entry)));
+        .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
 
       process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
       process.exit(totalErrors ? -1 : 0);
