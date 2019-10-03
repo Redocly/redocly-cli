@@ -1,12 +1,12 @@
 export const OpenAPIExample = {
   name: 'OpenAPIExample',
   isIdempotent: true,
-  allowedFields: [
-    'value',
-    'externalValue',
-    'description',
-    'summary',
-  ],
+  properties: {
+    value: null,
+    externalValue: null,
+    description: null,
+    summary: null,
+  },
 };
 
 export const OpenAPIExampleMap = {

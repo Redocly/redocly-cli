@@ -6,13 +6,9 @@ import { OpenAPIParameter } from './OpenAPIParameter';
 export const OpenAPIPathItem = {
   name: 'OpenAPIPath',
   isIdempotent: true,
-  allowedFields: [
-    'summary',
-    'description',
-    'servers',
-    'parameters',
-  ],
   properties: {
+    summary: null,
+    description: null,
     parameters: OpenAPIParameter,
     get: OpenAPIOperation,
     put: OpenAPIOperation,

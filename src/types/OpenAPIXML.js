@@ -1,11 +1,11 @@
 export default {
   name: 'OpenAPIXML',
   isIdempotent: true,
-  allowedFields: [
-    'name',
-    'namespace',
-    'prefix',
-    'attribute',
-    'wrapped',
-  ],
+  properties: {
+    name: null,
+    namespace: null,
+    prefix: null,
+    attribute: null,
+    wrapped: null,
+  },
 };

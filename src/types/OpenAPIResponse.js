@@ -5,10 +5,9 @@ import { OpenAPILinkMap } from './OpenAPILink';
 export const OpenAPIResponse = {
   name: 'OpenAPIResponse',
   isIdempotent: true,
-  allowedFields: [
-    'description',
-  ],
+
   properties: {
+    description: null,
     content: OpenAPIMediaTypeObject,
     headers: OpenAPIHeaderMap,
     links: OpenAPILinkMap,

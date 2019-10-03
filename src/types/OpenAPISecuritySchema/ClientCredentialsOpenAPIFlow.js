@@ -1,8 +1,8 @@
 export default {
   name: 'ClientCredentialsOpenAPIFlow',
-  allowedFields: [
-    'tokenUrl',
-    'refreshUrl',
-    'scopes',
-  ],
+  properties: {
+    tokenUrl: null,
+    refreshUrl: null,
+    scopes: null,
+  },
 };

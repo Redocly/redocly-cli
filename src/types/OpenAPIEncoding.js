@@ -4,13 +4,11 @@ import { OpenAPIHeaderMap } from './OpenAPIHeader';
 export default {
   name: 'OpenAPIEncoding',
   isIdempotent: true,
-  allowedFields: [
-    'contentType',
-    'style',
-    'explode',
-    'allowReserved',
-  ],
   properties: {
+    contentType: null,
+    style: null,
+    explode: null,
+    allowReserved: null,
     headers: OpenAPIHeaderMap,
   },
 };

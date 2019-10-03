@@ -10,16 +10,13 @@ import { OpenAPIRequestBody } from './OpenAPIRequestBody';
 export default {
   name: 'OpenAPIOperation',
   isIdempotent: false,
-  allowedFields: [
-    'tags',
-    'summary',
-    'description',
-    'operationId',
-    'responses',
-    'deprecated',
-    'security',
-  ],
   properties: {
+    tags: null,
+    summary: null,
+    description: null,
+    operationId: null,
+    deprecated: null,
+    security: null,
     externalDocs: OpenAPIExternalDocumentation,
     parameters: OpenAPIParameter,
     requestBody: OpenAPIRequestBody,

@@ -1,17 +1,14 @@
 /* eslint-disable import/no-cycle */
 import OpenAPISchema from './OpenAPISchema';
-import { OpenAPIExampleMap } from './OpenAPIExample';
+import { OpenAPIExampleMap, OpenAPIExample } from './OpenAPIExample';
 import OpenAPIEncoding from './OpenAPIEncoding';
 
 
 export const OpenAPIMediaObject = {
   name: 'OpenAPIMediaObject',
   isIdempotent: true,
-  allowedFields: [
-    'example',
-    'examples',
-  ],
   properties: {
+    example: OpenAPIExample,
     schema: OpenAPISchema,
     examples: OpenAPIExampleMap,
     encoding: OpenAPIEncoding,

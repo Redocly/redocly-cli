@@ -1,8 +1,8 @@
 export default {
   name: 'PasswordOpenAPIFlow',
-  allowedFields: [
-    'tokenUrl',
-    'refreshUrl',
-    'scopes',
-  ],
+  properties: {
+    tokenUrl: null,
+    refreshUrl: null,
+    scopes: null,
+  },
 };
