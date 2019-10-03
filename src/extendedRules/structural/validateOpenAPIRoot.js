@@ -12,15 +12,15 @@ class ValidateOpenAPIRoot extends AbstractRule {
   validators() {
     return {
       openapi: (node, ctx) => {
-        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, this.config.level);
+        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, { severity: this.config.level });
         return null;
       },
       info: (node, ctx) => {
-        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, this.config.level);
+        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, { severity: this.config.level });
         return null;
       },
       paths: (node, ctx) => {
-        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, this.config.level);
+        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, { severity: this.config.level });
         return null;
       },
       security: () => null,

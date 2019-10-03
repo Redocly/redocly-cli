@@ -11,8 +11,8 @@ class ValidateOpenAPIMediaObject extends AbstractRule {
 
   validators() {
     return {
-      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, this.config.level) : null),
-      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, this.config.level) : null),
+      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { severity: this.config.level }) : null),
+      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { severity: this.config.level }) : null),
     };
   }
 

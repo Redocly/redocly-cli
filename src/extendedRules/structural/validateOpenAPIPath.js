@@ -12,18 +12,18 @@ class ValidateOpenAPIPath extends AbstractRule {
   validators() {
     return {
       summary: (node, ctx) => (node && node.summary && typeof node.summary !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
       servers: (node, ctx) => (node && node.servers && !Array.isArray(node.servers)
-        ? createErrrorFieldTypeMismatch('array', node, ctx, this.config.level) : null),
+        ? createErrrorFieldTypeMismatch('array', node, ctx, { severity: this.config.level }) : null),
       parameters: (node, ctx) => {
         if (!node || !node.parameters) return null;
         if (!Array.isArray(node.parameters)) {
-          return createErrrorFieldTypeMismatch('array', node, ctx, this.config.level);
+          return createErrrorFieldTypeMismatch('array', node, ctx, { severity: this.config.level });
         }
         if ((new Set(node.parameters)).size !== node.parameters.length) {
-          return createError('parameters must be unique in the Path Item object', node, ctx, 'value', this.config.level);
+          return createError('parameters must be unique in the Path Item object', node, ctx, { target: 'value', severity: this.config.level });
         }
         return null;
       },

@@ -12,8 +12,8 @@ class ValidateImplicitOpenAPIFlow extends AbstractRule {
   validators() {
     return {
       authorizationUrl: (node, ctx) => {
-        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, this.config.level);
-        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, { severity: this.config.level });
+        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
         return null;
       },
       refreshUrl: (node, ctx) => {
@@ -21,11 +21,11 @@ class ValidateImplicitOpenAPIFlow extends AbstractRule {
         return null;
       },
       scopes: (node, ctx) => {
-        if (!node.scopes) return createErrorMissingRequiredField('scopes', node, ctx, this.config.level);
+        if (!node.scopes) return createErrorMissingRequiredField('scopes', node, ctx, { severity: this.config.level });
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx, 'value', this.config.level);
+        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx, { target: 'value', severity: this.config.level });
         return null;
       },
     };

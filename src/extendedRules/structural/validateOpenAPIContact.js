@@ -11,9 +11,9 @@ class ValidateOpenAPIContact extends AbstractRule {
 
   validators() {
     return {
-      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
-      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
-      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
+      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
+      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
 
     };
   }

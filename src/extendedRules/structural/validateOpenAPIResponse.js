@@ -11,7 +11,7 @@ class ValidateOpenAPIResponse extends AbstractRule {
 
   validators() {
     return {
-      description: (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx, this.config.level) : null),
+      description: (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx, { severity: this.config.level }) : null),
     };
   }
 

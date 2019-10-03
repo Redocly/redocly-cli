@@ -19,7 +19,7 @@ class LicenseRequired extends AbstractRule {
               && (ctx.path.indexOf('components') === -1 || visitedNodes.indexOf('paths') !== -1);
           if (missingNameInPath) {
             ctx.path.push('name');
-            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, 'value', this.config.level));
+            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, { target: 'value', severity: this.config.level }));
             ctx.path.pop();
           }
         }

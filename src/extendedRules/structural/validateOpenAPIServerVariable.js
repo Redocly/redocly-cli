@@ -12,16 +12,16 @@ class ValidateOpenAPIServerVariable extends AbstractRule {
   validators() {
     return {
       default: (node, ctx) => {
-        if (!node || !node.default) return createErrorMissingRequiredField('default', node, ctx, this.config.level);
-        if (typeof node.default !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!node || !node.default) return createErrorMissingRequiredField('default', node, ctx, { severity: this.config.level });
+        if (typeof node.default !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
         return null;
       },
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
       enum: (node, ctx) => {
         if (node && node.enum) {
           if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
-          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "enum" field must be strings', node, ctx, 'value', this.config.level);
+          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "enum" field must be strings', node, ctx, { target: 'value', severity: this.config.level });
         }
         return null;
       },

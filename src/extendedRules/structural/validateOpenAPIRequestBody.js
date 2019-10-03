@@ -13,19 +13,19 @@ class ValidateOpenAPIRequestBody extends AbstractRule {
     return {
       description: (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string.', node, ctx, this.config.level);
+          return createErrrorFieldTypeMismatch('string.', node, ctx, { severity: this.config.level });
         }
         return null;
       },
       content: (node, ctx) => {
         if (node && !node.content) {
-          return createErrorMissingRequiredField('content', node, ctx, this.config.level);
+          return createErrorMissingRequiredField('content', node, ctx, { severity: this.config.level });
         }
         return null;
       },
       required: (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') {
-          return createErrrorFieldTypeMismatch('boolean.', node, ctx, this.config.level);
+          return createErrrorFieldTypeMismatch('boolean.', node, ctx, { severity: this.config.level });
         }
         return null;
       },

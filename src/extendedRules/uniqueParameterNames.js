@@ -45,7 +45,7 @@ class UniqueParameterNames extends AbstractRule {
         let error;
         if (this.parametersStack.includes(node.name) && !(ctx.pathStack.length === 0 && ctx.path.includes('components'))) {
           ctx.path.push('name');
-          error = createError('Duplicate parameters are not allowed. This name already used on higher or same level.', node, ctx, 'value', this.config.level);
+          error = createError('Duplicate parameters are not allowed. This name already used on higher or same level.', node, ctx, { target: 'value', severity: this.config.level });
           ctx.path.pop();
         }
         this.parametersStack.push(node.name);

@@ -12,24 +12,24 @@ class ValidateAuthorizationCodeOpenAPIFlow extends AbstractRule {
   validators() {
     return {
       authorizationUrl: (node, ctx) => {
-        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, this.config.level);
-        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, { severity: this.config.level });
+        if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
         return null;
       },
       tokenUrl: (node, ctx) => {
-        if (!node.tokenUrl) return createErrorMissingRequiredField('tokenUrl', node, ctx, this.config.level);
-        if (typeof node.tokenUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!node.tokenUrl) return createErrorMissingRequiredField('tokenUrl', node, ctx, { severity: this.config.level });
+        if (typeof node.tokenUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
         return null;
       },
       refreshUrl: (node, ctx) => {
-        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createError('The refreshUrl must be a string in the Open API Flow Object', node, ctx);
+        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createError('The refreshUrl must be a string in the Open API Flow Object', node, ctx, { severity: this.config.severity });
         return null;
       },
       scopes: (node, ctx) => {
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx);
+        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx, { severity: this.config.severity });
         return null;
       },
     };
