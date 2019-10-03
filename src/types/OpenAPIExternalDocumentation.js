@@ -1,10 +1,10 @@
 const OpenAPIExternalDocumentation = {
   name: 'OpenAPIExternalDocumentation',
   isIdempotent: true,
-  allowedFields: [
-    'description',
-    'url',
-  ],
+  properties: {
+    description: null,
+    url: null,
+  },
 };
 
 export default OpenAPIExternalDocumentation;

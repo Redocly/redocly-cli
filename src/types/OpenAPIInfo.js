@@ -1,32 +1,30 @@
 export const OpenAPILicense = {
   name: 'OpenAPILicense',
   isIdempotent: true,
-  allowedFields: [
-    'name',
-    'url',
-  ],
+  properties: {
+    name: null,
+    url: null,
+  },
 };
 
 export const OpenAPIContact = {
   name: 'OpenAPIContact',
   isIdempotent: true,
-  allowedFields: [
-    'name',
-    'url',
-    'email',
-  ],
+  properties: {
+    name: null,
+    url: null,
+    email: null,
+  },
 };
 
 export const OpenAPIInfo = {
   name: 'OpenAPIInfo',
   isIdempotent: true,
-  allowedFields: [
-    'title',
-    'version',
-    'description',
-    'termsOfService',
-  ],
   properties: {
+    title: null,
+    version: null,
+    description: null,
+    termsOfService: null,
     license: OpenAPILicense,
     contact: OpenAPIContact,
   },

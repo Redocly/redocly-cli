@@ -9,13 +9,9 @@ import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 export default {
   name: 'OpenAPIRoot',
   isIdempotent: true,
-  allowedFields: [
-    'openapi',
-    'info',
-    'paths',
-    'security',
-  ],
   properties: {
+    openapi: null,
+    security: null,
     info: OpenAPIInfo,
     paths: OpenAPIPaths,
     servers: OpenAPIServer,

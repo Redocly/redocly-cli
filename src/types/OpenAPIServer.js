@@ -1,11 +1,11 @@
 const OpenAPIServerVariable = {
   name: 'OpenAPIServerVariable',
   isIdempotent: true,
-  allowedFields: [
-    'default',
-    'description',
-    'enum',
-  ],
+  properties: {
+    default: null,
+    description: null,
+    enum: null,
+  },
 };
 
 const OpenAPIServerVariableMap = {
@@ -22,11 +22,9 @@ const OpenAPIServerVariableMap = {
 const OpenAPIServer = {
   name: 'OpenAPIServer',
   isIdempotent: true,
-  allowedFields: [
-    'url',
-    'description',
-  ],
   properties: {
+    url: null,
+    description: null,
     variables() {
       return OpenAPIServerVariableMap;
     },

@@ -3,12 +3,9 @@ import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
 export const OpenAPIRequestBody = {
   name: 'OpenAPIRequestBody',
   isIdempotent: true,
-  allowedFields: [
-    'description',
-    'content',
-    'required',
-  ],
   properties: {
+    description: null,
+    required: null,
     content: OpenAPIMediaTypeObject,
   },
 };

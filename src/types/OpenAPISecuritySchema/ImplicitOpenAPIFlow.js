@@ -1,8 +1,8 @@
 export default {
   name: 'ImplicitOpenAPIFlow',
-  allowedFields: [
-    'authorizationUrl',
-    'refreshUrl',
-    'scopes',
-  ],
+  properties: {
+    authorizationUrl: null,
+    refreshUrl: null,
+    scopes: null,
+  },
 };

@@ -25,7 +25,6 @@ class NoExtraFields extends AbstractRule {
                 // do-nothing
           }
         }
-        if (definition.allowedFields) allowedChildren.push(...definition.allowedFields);
 
         Object.keys(node).forEach((field) => {
           ctx.path.push(field);
