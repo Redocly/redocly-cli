@@ -126,7 +126,7 @@ class ValidateOpenAPISchema extends AbstractRule {
         const errors = [];
         if (node.type && !['string', 'object', 'array', 'integer', 'number', 'boolean'].includes(node.type)) {
           const possibleAlternate = getClosestString(node.type, ['string', 'object', 'array', 'integer', 'number', 'boolean']);
-          errors.push(createError('Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean"', node, ctx, { target: 'value', severity: this.config.level, possibleAlternate }));
+          errors.push(createError('Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean".', node, ctx, { target: 'value', severity: this.config.level, possibleAlternate }));
         }
         return errors;
       },

@@ -56,23 +56,46 @@ export function matchesJsonSchemaType(value, type) {
 }
 
 /**
-* Computes the lexical distance between strings A and B.
-*
-* The "distance" between two strings is given by counting the minimum number
-* of edits needed to transform string A into string B. An edit can be an
-* insertion, deletion, or substitution of a single character, or a swap of two
-* adjacent characters.
-*
-* Includes a custom alteration from Damerau-Levenshtein to treat case changes
-* as a single edit which helps identify mis-cased values with an edit distance
-* of 1.
-*
-* This distance can be useful for detecting typos in input or sorting
-*
-* @param {string} aStr
-* @param {string} bStr
-* @return {number} distance in number of edits
-*/
+  *
+  * MIT License
+  *
+  * Copyright (c) 2019 GraphQL Contributors
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+  * in the Software without restriction, including without limitation the rights
+  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  * copies of the Software, and to permit persons to whom the Software is
+  * furnished to do so, subject to the following conditions:
+  *
+  * The above copyright notice and this permission notice shall be included in all
+  * copies or substantial portions of the Software.
+  *
+  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  *
+  * Computes the lexical distance between strings A and B.
+  *
+  * The "distance" between two strings is given by counting the minimum number
+  * of edits needed to transform string A into string B. An edit can be an
+  * insertion, deletion, or substitution of a single character, or a swap of two
+  * adjacent characters.
+  *
+  * Includes a custom alteration from Damerau-Levenshtein to treat case changes
+  * as a single edit which helps identify mis-cased values with an edit distance
+  * of 1.
+  *
+  * This distance can be useful for detecting typos in input or sorting
+  *
+  * @param {string} aStr
+  * @param {string} bStr
+  * @return {number} distance in number of edits
+  */
 export function lexicalDistance(aStr, bStr) {
   if (aStr === bStr) {
     return 0;
@@ -130,6 +153,6 @@ export function getClosestString(given, others) {
     } : bestMatch;
   }
 
-  if (bestMatch.distance <= bestMatch.string.length / 2) return bestMatch.string;
+  if (bestMatch.distance <= 4) return bestMatch.string;
   return null;
 }

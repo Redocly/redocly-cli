@@ -13,7 +13,7 @@ class ValidateOpenAPILicense extends AbstractRule {
   validators() {
     return {
       name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx, { severity: this.config.level }) : null),
-      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL', node, ctx, { target: 'value', severity: this.config.level }) : null),
+      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL.', node, ctx, { target: 'value', severity: this.config.level }) : null),
     };
   }
 

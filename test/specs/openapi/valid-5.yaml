@@ -60,8 +60,8 @@ paths:
           description: sd
           content:
             application/json:
-              # schema:
-              #   $ref: '#/components/schemas/wrong'
+              schema:
+                $ref: '#/components/schemas/wrong'
         '200':
           description: asdasds
           content:
