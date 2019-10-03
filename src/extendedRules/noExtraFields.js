@@ -1,5 +1,6 @@
 import { createErrorFieldNotAllowed } from '../error';
 import AbstractRule from './utils/AbstractRule';
+import { getClosestString } from '../utils';
 
 class NoExtraFields extends AbstractRule {
   static get ruleName() {
@@ -30,7 +31,8 @@ class NoExtraFields extends AbstractRule {
           ctx.path.push(field);
 
           if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
-            errors.push(createErrorFieldNotAllowed(field, node, ctx, this.config.level));
+            const possibleAlternate = getClosestString(field, allowedChildren);
+            errors.push(createErrorFieldNotAllowed(field, node, ctx, { severity: this.config.level, possibleAlternate }));
           }
 
           ctx.path.pop();

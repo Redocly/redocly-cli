@@ -12,12 +12,12 @@ class ValidateOpenAPIServer extends AbstractRule {
   validators() {
     return {
       url: (node, ctx) => {
-        if (!node || !node.url || typeof node.url !== 'string') return createErrorMissingRequiredField('url', node, ctx, this.config.level);
-        if (typeof node.url !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, this.config.level);
+        if (!node || !node.url || typeof node.url !== 'string') return createErrorMissingRequiredField('url', node, ctx, { severity: this.config.level });
+        if (typeof node.url !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
         return null;
       },
       description: (node, ctx) => (node && node.description && typeof node.description !== 'string'
-        ? createErrrorFieldTypeMismatch('string', node, ctx, this.config.level) : null),
+        ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
     };
   }
 

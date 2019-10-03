@@ -15,9 +15,14 @@ const getLocationForPath = (fName, path, target) => {
   return location.startLine;
 };
 
-const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => {
+const createError = (msg, node, ctx, options) => {
+  const { 
+    target, severity = messageLevels.ERROR, possibleAlternate, fromRule,
+  } = options;
+
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
+
   return {
     message: msg,
     path: Array.from(ctx.path),
@@ -42,6 +47,8 @@ const createError = (msg, node, ctx, target, severity = messageLevels.ERROR) => 
     file: ctx.filePath,
     severity,
     enableCodeframe: ctx.enableCodeframe,
+    possibleAlternate,
+    fromRule,
     target,
   };
 };

@@ -67,7 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/exampleSchema'
+                $ref: '#/components/schemas/exampleSchemaa'
         '202':
           description: asdasds
           content:
@@ -85,6 +85,7 @@ components:
           type: string
         property:
           type: object
+          desciption: bla bla bla
           properties:
             name:
               type: string

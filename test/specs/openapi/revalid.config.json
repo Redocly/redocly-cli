@@ -4,10 +4,10 @@
     "rules": {
         "noExtraFields": "on",
         "checkPathParamExists": {
-            "level": "info"
+            "level": "warning"
         },
         "validateOpenAPISchema": {
-            "level": "info"
+            "level": "warning"
         },
         "noUnusedComponents": {
             "level": "warning"

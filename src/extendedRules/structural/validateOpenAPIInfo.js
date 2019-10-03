@@ -11,8 +11,8 @@ class ValidateOpenAPIInfo extends AbstractRule {
 
   validators() {
     return {
-      title: (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx, this.config.level) : null),
-      version: (node, ctx) => (!node || !node.version ? createErrorMissingRequiredField('version', node, ctx, this.config.level) : null),
+      title: (node, ctx) => (!node || !node.title ? createErrorMissingRequiredField('title', node, ctx, { severity: this.config.level }) : null),
+      version: (node, ctx) => (!node || !node.version ? createErrorMissingRequiredField('version', node, ctx, { severity: this.config.level }) : null),
       description: () => null,
       termsOfService: () => null,
     };

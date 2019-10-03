@@ -30,7 +30,8 @@ const renderReferencedFrom = (pathStacks) => {
 const prettyPrint = (error) => {
   const message = `${colorizeMessageHeader(error)} ${outputGrey(`at #/${pathImproveReadability(error.path).join(outputGrey('/'))}`)}`
   + `\n${error.message}\n`
-  + `${error.enableCodeframe ? `\n${error.codeFrame}\n` : ''}`
+  + `${error.possibleAlternate ? `\nDid you mean: ${outputLightBlue(error.possibleAlternate)}?\n` : ''}`
+  + `${error.enableCodeframe ? `\n${error.codeFrame}\n\n` : ''}`
   + `${renderReferencedFrom(error.pathStacks)}`
   + '\n\n';
   return message;
@@ -40,7 +41,8 @@ const errorBelongsToGroup = (error, group) => error.msg === group.msg
     && error.path.join('/') === group.path.join('/')
     && error.severity === group.severity
     && error.location.startIndex === group.location.startIndex
-    && error.location.endIndex === group.location.endIndex;
+    && error.location.endIndex === group.location.endIndex
+    && error.location.possibleAlternate === group.location.possibleAlternate;
 
 const groupFromError = (error) => ({
   message: error.message,
@@ -52,6 +54,7 @@ const groupFromError = (error) => ({
   severity: error.severity,
   enableCodeframe: error.enableCodeframe,
   target: error.target,
+  possibleAlternate: error.possibleAlternate,
   pathStacks: error.pathStack.length !== 0 ? [error.pathStack] : [],
 });
 
@@ -99,16 +102,14 @@ const cli = () => {
       const totalWarnings = errorsGrouped.filter(
         (msg) => msg.severity === messageLevels.WARNING,
       ).length;
-      const totalInfo = errorsGrouped.filter(
-        (msg) => msg.severity === messageLevels.INFO,
-      ).length;
 
       process.stdout.write('\n\n');
 
+      errorsGrouped
+        .sort((a, b) => a.severity < b.severity)
+        .forEach((entry) => process.stdout.write(prettyPrint(entry)));
 
-      errorsGrouped.forEach((entry) => process.stdout.write(prettyPrint(entry)));
-
-      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}, information: ${totalInfo}\n`);
+      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
       process.exit(totalErrors ? -1 : 0);
     });
 

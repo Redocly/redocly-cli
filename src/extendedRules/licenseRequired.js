@@ -11,7 +11,7 @@ class LicenseRequired extends AbstractRule {
     return {
       onEnter: (node, definition, ctx) => {
         if (!node.license) {
-          return [createErrorMissingRequiredField('license', node, ctx, 'value', this.config.level)];
+          return [createErrorMissingRequiredField('license', node, ctx, { target: 'value', severity: this.config.level })];
         }
         return null;
       },
