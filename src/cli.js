@@ -1,25 +1,54 @@
 import program from 'commander';
+import path from 'path';
 import {
-  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue,
+  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue, outputYellow, outputUnderline,
 } from './utils';
 import { validateFromFile } from './validate';
 import { messageLevels } from './error/default';
 
-const colorizeMessageHeader = (msg) => {
-  const msgHeader = `${msg.file}:${msg.location.startLine}:${msg.location.startCol}`;
+const colorizeMessageHeader = (msg, longestPath) => {
+  const msgHeader = `${path.relative(process.cwd(), msg.file)}:${msg.location.startLine}:${msg.location.startCol}`;
   switch (msg.severity) {
     case messageLevels.ERROR:
-      return outputBgRed(msgHeader);
+      return outputBgRed(outputBgRed(msgHeader.padEnd(longestPath + 2 - 20)));
     case messageLevels.WARNING:
-      return outputRed(outputBgYellow(msgHeader));
+      return outputBgYellow(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
     case messageLevels.INFO:
-      return outputBgLightBlue(msgHeader);
+      return outputBgLightBlue(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
     default:
       return msgHeader;
   }
 };
 
-const pathImproveReadability = (path) => path.map((el) => (el[0] === '/' ? outputGrey('[\'') + outputLightBlue(el) + outputGrey('\']') : outputGrey(el)));
+const colorizeMessageHeaderShort = (msg, longestPath) => {
+  const msgHeader = `${msg.location.startLine}:${msg.location.startCol}`;
+  switch (msg.severity) {
+    case messageLevels.ERROR:
+      return outputRed(msgHeader.padEnd(longestPath + 2 - 20));
+    case messageLevels.WARNING:
+      return outputYellow(msgHeader.padEnd(longestPath + 2 - 20));
+    case messageLevels.INFO:
+      return outputBgLightBlue(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
+    default:
+      return msgHeader;
+  }
+};
+
+const colorizeRuleName = (error, severity) => {
+  switch (severity) {
+    case messageLevels.ERROR:
+      return outputRed(error);
+    case messageLevels.WARNING:
+      return outputYellow(error);
+    case messageLevels.INFO:
+      return outputBgLightBlue(error);
+    default:
+      return error;
+  }
+};
+
+
+const pathImproveReadability = (msgPath) => msgPath.map((el) => (el[0] === '/' ? outputGrey('[\'') + outputLightBlue(el) + outputGrey('\']') : outputGrey(el)));
 const prettifyPathStackRow = (row) => `${outputLightBlue(`${row.file}:${row.startLine}`)} ${outputGrey(`#/${pathImproveReadability(row.path).join(outputGrey('/'))}`)}`;
 
 const renderReferencedFrom = (pathStacks) => {
@@ -34,6 +63,11 @@ const prettyPrint = (i, error) => {
   + `${error.enableCodeframe ? `\n${error.codeFrame}\n\n` : ''}`
   + `${renderReferencedFrom(error.pathStacks)}`
   + '\n\n';
+  return message;
+};
+
+const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
+  const message = `${error.location.startLine}:${error.location.startCol} ${colorizeRuleName(error.fromRule.padEnd(longestRuleName + 2), error.severity)} ${error.message}\n`;
   return message;
 };
 
@@ -55,6 +89,7 @@ const groupFromError = (error) => ({
   enableCodeframe: error.enableCodeframe,
   target: error.target,
   possibleAlternate: error.possibleAlternate,
+  fromRule: error.fromRule,
   pathStacks: error.pathStack.length !== 0 ? [error.pathStack] : [],
 });
 
@@ -79,22 +114,34 @@ const groupErrors = (errors) => {
   return groups;
 };
 
+const groupByFiles = (result) => {
+  const fileGroups = {};
+  result.forEach((row) => {
+    if (fileGroups[row.file]) {
+      fileGroups[row.file].push(row);
+    } else {
+      fileGroups[row.file] = [row];
+    }
+  });
+  return fileGroups;
+};
+
 const cli = () => {
   program
-    .arguments('<path>')
+    .arguments('<filePath>')
     .option('-f, --frame', 'Print no codeframes with errors.')
     .option('-c, --custom-ruleset <path>', 'Path to additional custom ruleset')
-    .action((path) => {
-      process.stdout.write(`Will validate the ${path}\n`);
+    .option('-s, --short', 'Reduce output to required minimun')
+    .action((filePath) => {
       const options = {};
 
       if (program.frame) options.enableCodeframe = program.frame;
       if (program.customRuleset) options.enbaleCustomRuleset = program.customRuleset;
 
-      const result = validateFromFile(path, options);
-      process.stdout.write('Following results received:\n');
+      const result = validateFromFile(filePath, options);
 
       const errorsGrouped = groupErrors(result);
+      const groupedByFile = groupByFiles(errorsGrouped);
 
       const totalErrors = errorsGrouped.filter(
         (msg) => msg.severity === messageLevels.ERROR,
@@ -103,13 +150,34 @@ const cli = () => {
         (msg) => msg.severity === messageLevels.WARNING,
       ).length;
 
-      process.stdout.write('\n\n');
+      if (program.short) {
+        const posLength = errorsGrouped
+          .map((msg) => `${msg.location.startLine}:${msg.location.startCol}`)
+          .sort((e, o) => e.length > o.length)
+          .pop();
 
-      errorsGrouped
-        .sort((a, b) => a.severity < b.severity)
-        .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
+        const longestRuleName = errorsGrouped
+          .map((msg) => msg.fromRule)
+          .sort((e, o) => e.length > o.length)
+          .pop()
+          .length;
 
-      process.stdout.write(`Errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
+
+        Object.keys(groupedByFile).forEach((fileName) => {
+          process.stdout.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
+          groupedByFile[fileName]
+            .sort((a, b) => a.severity < b.severity)
+            .forEach((entry, id) => process.stdout.write(prettyPrintShort(id + 1, entry, posLength + 2, longestRuleName)));
+          process.stdout.write('\n');
+        });
+      } else {
+        process.stdout.write('\n\n'); errorsGrouped
+          .sort((a, b) => a.severity < b.severity)
+          .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
+      }
+
+
+      process.stdout.write(`Total: errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
       process.exit(totalErrors ? -1 : 0);
     });
 

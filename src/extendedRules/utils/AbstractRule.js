@@ -1,4 +1,5 @@
 import { messageLevels } from '../../error/default';
+import ruleTypes from './rulesTypes';
 
 class AbstractRule {
   constructor(config) {
@@ -20,6 +21,14 @@ class AbstractRule {
         this.config.level = messageLevels.ERROR;
         break;
     }
+  }
+
+  get getRuleName() {
+    return this.ruleName;
+  }
+
+  get rule() {
+    return `${ruleTypes.schema}/${this.constructor.ruleName}`;
   }
 }
 

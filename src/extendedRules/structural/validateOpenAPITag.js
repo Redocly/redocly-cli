@@ -6,21 +6,21 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPITag extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPITag';
+    return 'tag';
   }
 
   validators() {
     return {
       name: (node, ctx) => {
-        if (!node.name) return createErrorMissingRequiredField('name', node, ctx, { severity: this.config.level });
+        if (!node.name) return createErrorMissingRequiredField('name', node, ctx, { fromRule: this.rule, severity: this.config.level });
         if (node && node.name && typeof node.name !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       description: (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },

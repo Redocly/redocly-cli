@@ -7,13 +7,13 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPILicense extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPILicense';
+    return 'license';
   }
 
   validators() {
     return {
-      name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx, { severity: this.config.level }) : null),
-      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL.', node, ctx, { target: 'value', severity: this.config.level }) : null),
+      name: (node, ctx) => (!node || !node.name ? createErrorMissingRequiredField('name', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
+      url: (node, ctx) => (node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }) : null),
     };
   }
 

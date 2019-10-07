@@ -7,15 +7,15 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIExternalDocumentation extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIExternalDocumentation';
+    return 'documentation';
   }
 
   validators() {
     return {
-      description: (node, ctx) => (node && node.description && typeof node.description !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
+      description: (node, ctx) => (node && node.description && typeof node.description !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
       url: (node, ctx) => {
-        if (node && !node.url) return createErrorMissingRequiredField('url', node, ctx, { severity: this.config.level });
-        if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx, { target: 'value', severity: this.config.level });
+        if (node && !node.url) return createErrorMissingRequiredField('url', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (!isUrl(node.url)) return createError('url must be a valid URL', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
         return null;
       },
     };

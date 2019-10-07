@@ -2,21 +2,21 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
-        "noExtraFields": "on",
-        "checkPathParamExists": {
+        "no-extra-fields": {
             "level": "warning"
         },
-        "validateOpenAPISchema": {
-            "level": "warning"
-        },
-        "noUnusedComponents": {
-            "level": "warning"
-        },
-        "validateOpenAPILicense": {
-            "level": "warning"
-        },
-        "licenseRequired": {
-            "level": "warning"
+        "path-param-exists": "off",
+        "noUnusedComponents": "off",
+        "licenseRequired": "on",
+        "oas3-schema": {
+            "level": "warning",
+
+            "schema": {
+                "level": "error"
+            },
+            "license": {
+                "level": "error"
+            }
         }
     }
 }

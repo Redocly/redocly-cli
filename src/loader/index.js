@@ -1,6 +1,48 @@
 import path from 'path';
 import fs from 'fs';
 
+/**
+ * Converts a string path to a value that is existing in a json object.
+ *
+ * @param {Object} jsonData Json data to use for searching the value.
+ * @param {Object} path the path to use to find the value.
+ * @returns {valueOfThePath|undefined}
+ */
+function jsonPathToValue(jsonData, JSONPath) {
+  if (!(jsonData instanceof Object) || typeof (path) === 'undefined') {
+    return null;
+  }
+  let data = jsonData;
+  let expandedPath = JSONPath.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+  expandedPath = JSONPath.replace(/^\./, ''); // strip a leading dot
+  const pathArray = expandedPath.split('.');
+  for (let i = 0, n = pathArray.length; i < n; ++i) {
+    const key = pathArray[i];
+    if (key in data) {
+      if (data[key] !== null) {
+        data = data[key];
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+  return data;
+}
+
+function getObjByPathOrParent(json, JSONPath) {
+  let result = null;
+  const elementPath = JSONPath;
+  result = jsonPathToValue(json, JSONPath);
+  while (!result) {
+    const pathArray = elementPath.split('.');
+    pathArray.pop();
+    result = jsonPathToValue(json, pathArray.join('.'));
+  }
+  return result;
+}
+
 function loadRuleset(config) {
   const ruleSet = [];
   const configCopy = {
@@ -20,9 +62,12 @@ function loadRuleset(config) {
 
   files.forEach((file) => {
     const Rule = require(file);
+    const ruleInstanceInit = new Rule();
+    // console.log(ruleInstanceInit.rule);
+    const ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
     if (configCopy && configCopy.rules) {
-      if (configCopy.rules[Rule.ruleName] !== 'off') {
-        const ruleInstance = new Rule(configCopy.rules[Rule.ruleName]);
+      if (ruleConfig !== 'off') {
+        const ruleInstance = new Rule(ruleConfig);
         ruleSet.push(ruleInstance);
       }
     } else {
@@ -38,6 +83,7 @@ function loadRuleset(config) {
     });
     ruleSet.push(...nestedRules);
   });
+
   return ruleSet;
 }
 

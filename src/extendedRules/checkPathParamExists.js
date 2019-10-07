@@ -2,9 +2,13 @@
 import createError from '../error';
 import AbstractRule from './utils/AbstractRule';
 
-class LicenseRequired extends AbstractRule {
+class CheckPathParamExists extends AbstractRule {
   static get ruleName() {
     return 'checkPathParamExists';
+  }
+
+  get rule() {
+    return 'path-param-exists';
   }
 
   OpenAPIParameter() {
@@ -19,7 +23,7 @@ class LicenseRequired extends AbstractRule {
               && (ctx.path.indexOf('components') === -1 || visitedNodes.indexOf('paths') !== -1);
           if (missingNameInPath) {
             ctx.path.push('name');
-            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, { target: 'value', severity: this.config.level }));
+            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
             ctx.path.pop();
           }
         }
@@ -29,4 +33,4 @@ class LicenseRequired extends AbstractRule {
   }
 }
 
-module.exports = LicenseRequired;
+module.exports = CheckPathParamExists;
