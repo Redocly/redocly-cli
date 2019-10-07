@@ -13,6 +13,7 @@ As for now, Revalid supports such features:
 - [x] Configurable message levels for each rule. You can tailor your experience with Revalid as you wish.
 - [x] Lightning fast validation. Check 1 Mb file less than in one second.
 - [x] Human readable error messages. Now with stacktrace and codeframes.
+- [x] Intuitive suggestions for misspelled type names or references.
 - [x] Easy to implement custom rules. Need something? Ask us or do it yourself.
 
 All of them are also provided inside our [VS Code extension](https://redoc.ly).
@@ -80,12 +81,3 @@ export default ExampleRule;
 ```
 
 Then, put the rule into your local copy of `extendedRules` directory or provide path to the directory with your rule set via `--custom-ruleset <path>` command line argument.
-
-## TO-DOs
-
-- [ ] Add fix proposals (e.g. "Did you mean "type: number" instead of "type: nmber"?)
-- [ ] Create tests for validators
-
-## License
-
-WIP
