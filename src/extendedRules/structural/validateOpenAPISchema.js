@@ -115,7 +115,7 @@ class ValidateOpenAPISchema extends AbstractRule {
 
             typeMimsatch.forEach((val) => {
               ctx.path.push(node.enum.indexOf(val));
-              errors.push(createError('All values of "enum" field must be of the same type as the "type" field', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
+              errors.push(createError('All values of "enum" field must be of the same type as the "type" field.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
               ctx.path.pop();
             });
           }
