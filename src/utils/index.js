@@ -10,13 +10,14 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 
 export const isUrl = (string) => urlPattern.test(string);
-export const outputRed = (str) => `\u001b[31m${str}\u001b[39m`;
+export const outputRed = (str) => `\u001b[31m${str}\u001b[0m`;
 export const outputUnderline = (str) => `\u001b[4m${str}\u001b[24m`;
-export const outputBgLightBlue = (str) => `[44m${str}[49m`;
-export const outputLightBlue = (str) => `[94m${str}[39m`;
-export const outputGrey = (str) => `[90m${str}[39m`;
-export const outputBgRed = (str) => `\u001b[41m${str}\u001b[49m`;
-export const outputBgYellow = (str) => `\x1b[43m${str}\x1b[0m`;
+export const outputBgLightBlue = (str) => `\u001b[44m${str}\u001b[0m`;
+export const outputLightBlue = (str) => `\u001b[94m${str}\u001b[0m`;
+export const outputGrey = (str) => `\u001b[90m${str}\u001b[39m`;
+export const outputBgRed = (str) => `\u001b[41m${str}\u001b[0m`;
+export const outputBgYellow = (str) => `\u001b[43m${str}\u001b[0m`;
+export const outputYellow = (str) => `\u001b[33m${str}\u001b[0m`;
 export const getLineNumberFromId = (source, charId) => {
   let lineNum = 1;
   let posNum = 0;

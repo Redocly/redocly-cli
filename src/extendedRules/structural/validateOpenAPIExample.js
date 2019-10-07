@@ -6,35 +6,35 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIExample extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIExample';
+    return 'example';
   }
 
   validators() {
     return {
       value: (node, ctx) => {
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { severity: this.config.level });
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       externalValue: (node, ctx) => {
         if (node.externalValue && typeof node.externalValue !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { severity: this.config.level });
+          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       description: (node, ctx) => {
         if (node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       summary: (node, ctx) => {
         if (node.summary && typeof node.summary !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },

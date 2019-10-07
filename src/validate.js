@@ -35,10 +35,10 @@ export const validate = (yamlData, filePath, options = {}) => {
   if (!document.openapi) return [];
 
   const config = getConfig(options);
+
   const ctx = createContext(document, yamlData, filePath, config);
 
   // ctx.result.push(ctx);
-  // console.log(config);
 
   traverseNode(document, OpenAPIRoot, ctx);
   // console.log(ctx.cache);

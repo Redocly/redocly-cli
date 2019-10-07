@@ -6,26 +6,26 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIRequestBody extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIRequestBody';
+    return 'request-body';
   }
 
   validators() {
     return {
       description: (node, ctx) => {
         if (node && node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string.', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('string.', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       content: (node, ctx) => {
         if (node && !node.content) {
-          return createErrorMissingRequiredField('content', node, ctx, { severity: this.config.level });
+          return createErrorMissingRequiredField('content', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },
       required: (node, ctx) => {
         if (node && node.required && typeof node.required !== 'boolean') {
-          return createErrrorFieldTypeMismatch('boolean.', node, ctx, { severity: this.config.level });
+          return createErrrorFieldTypeMismatch('boolean.', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
         return null;
       },

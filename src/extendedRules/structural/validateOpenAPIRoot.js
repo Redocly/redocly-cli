@@ -6,21 +6,21 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIRoot extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIRoot';
+    return 'root';
   }
 
   validators() {
     return {
       openapi: (node, ctx) => {
-        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, { severity: this.config.level });
+        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },
       info: (node, ctx) => {
-        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, { severity: this.config.level });
+        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },
       paths: (node, ctx) => {
-        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, { severity: this.config.level });
+        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },
       security: () => null,

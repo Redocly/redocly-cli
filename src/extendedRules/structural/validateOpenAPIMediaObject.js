@@ -6,13 +6,13 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIMediaObject extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIMediaObject';
+    return 'media-object';
   }
 
   validators() {
     return {
-      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { severity: this.config.level }) : null),
-      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { severity: this.config.level }) : null),
+      example: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
+      examples: (node, ctx) => (node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
     };
   }
 

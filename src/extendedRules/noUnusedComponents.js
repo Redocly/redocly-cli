@@ -21,7 +21,7 @@ class NoUnusedComponents extends AbstractRule {
           .filter((schemaName) => this.components[schemaName] === false)
           .forEach((schemaName) => {
             ctx.path.push(schemaName);
-            messages.push(createError(`The schema "${schemaName}" is never used.`, node, ctx, { target: 'key', severity: this.config.level }));
+            messages.push(createError(`The schema "${schemaName}" is never used.`, node, ctx, { fromRule: this.rule, target: 'key', severity: this.config.level }));
             ctx.path.pop();
           });
         ctx.path.pop();

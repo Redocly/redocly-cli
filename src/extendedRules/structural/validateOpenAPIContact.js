@@ -6,14 +6,14 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIContact extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIContact';
+    return 'contact';
   }
 
   validators() {
     return {
-      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
-      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
-      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { severity: this.config.level }) : null),
+      name: (node, ctx) => ((node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
+      url: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
+      email: (node, ctx) => ((node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
 
     };
   }

@@ -31,9 +31,9 @@ paths:
           schema:
             type: boolean
             enum:
-              - false
+              - falsea
               - true
-        - $ref: '#/components/parameters/name'
+        - $ref: '#/components/parameters/otherName'
       responses:
         '200':
           description: Success

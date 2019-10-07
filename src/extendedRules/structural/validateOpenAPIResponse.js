@@ -6,12 +6,12 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIResponse extends AbstractRule {
   static get ruleName() {
-    return 'validateOpenAPIResponse';
+    return 'response';
   }
 
   validators() {
     return {
-      description: (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx, { severity: this.config.level }) : null),
+      description: (node, ctx) => (!node.description ? createErrorMissingRequiredField('description', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
     };
   }
 
