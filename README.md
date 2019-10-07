@@ -70,7 +70,7 @@ class ExampleRule extends AbstractRule {
   any() {
     return {
       onEnter: (node, definition, ctx, unresolvedNode) => {
-        if (node.name && node.name === 'badName') return createError('"badName" is invalid value for "name" field', node, ctx, { target: 'value', severity: this.config.level});
+        if (node.name && node.name === 'badName') return createError('"badName" is invalid value for "name" field', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level});
       }
     }
   }
