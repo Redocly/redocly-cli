@@ -1,7 +1,7 @@
 import program from 'commander';
 import path from 'path';
 import {
-  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue, outputYellow,
+  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue, outputYellow, outputUnderline,
 } from './utils';
 import { validateFromFile } from './validate';
 import { messageLevels } from './error/default';
@@ -34,6 +34,19 @@ const colorizeMessageHeaderShort = (msg, longestPath) => {
   }
 };
 
+const colorizeRuleName = (error, severity) => {
+  switch (severity) {
+    case messageLevels.ERROR:
+      return outputRed(error);
+    case messageLevels.WARNING:
+      return outputYellow(error);
+    case messageLevels.INFO:
+      return outputBgLightBlue(error);
+    default:
+      return error;
+  }
+};
+
 
 const pathImproveReadability = (msgPath) => msgPath.map((el) => (el[0] === '/' ? outputGrey('[\'') + outputLightBlue(el) + outputGrey('\']') : outputGrey(el)));
 const prettifyPathStackRow = (row) => `${outputLightBlue(`${row.file}:${row.startLine}`)} ${outputGrey(`#/${pathImproveReadability(row.path).join(outputGrey('/'))}`)}`;
@@ -54,7 +67,7 @@ const prettyPrint = (i, error) => {
 };
 
 const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
-  const message = `${colorizeMessageHeaderShort(error, longestPath)} ${error.fromRule.padEnd(longestRuleName + 2)} ${error.message}\n`;
+  const message = `${error.location.startLine}:${error.location.startCol} ${colorizeRuleName(error.fromRule.padEnd(longestRuleName + 2), error.severity)} ${error.message}\n`;
   return message;
 };
 
@@ -143,12 +156,6 @@ const cli = () => {
           .sort((e, o) => e.length > o.length)
           .pop();
 
-        // const longestPath = errorsGrouped
-        //   .map((msg) => colorizeMessageHeader(msg))
-        //   .sort((e, o) => e.length > o.length)
-        //   .pop()
-        //   .length;
-
         const longestRuleName = errorsGrouped
           .map((msg) => msg.fromRule)
           .sort((e, o) => e.length > o.length)
@@ -157,7 +164,7 @@ const cli = () => {
 
 
         Object.keys(groupedByFile).forEach((fileName) => {
-          process.stdout.write(`${path.relative(process.cwd(), fileName)}:\n`);
+          process.stdout.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
           groupedByFile[fileName]
             .sort((a, b) => a.severity < b.severity)
             .forEach((entry, id) => process.stdout.write(prettyPrintShort(id + 1, entry, posLength + 2, longestRuleName)));
