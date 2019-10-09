@@ -1,7 +1,15 @@
 import program from 'commander';
 import path from 'path';
+
 import {
-  outputLightBlue, outputBgRed, outputGrey, outputBgYellow, outputRed, outputBgLightBlue, outputYellow, outputUnderline,
+  outputLightBlue,
+  outputBgRed,
+  outputGrey,
+  outputBgYellow,
+  outputRed,
+  outputBgLightBlue,
+  outputYellow,
+  outputUnderline,
 } from './utils';
 import { validateFromFile } from './validate';
 import { messageLevels } from './error/default';
@@ -13,20 +21,6 @@ const colorizeMessageHeader = (msg, longestPath) => {
       return outputBgRed(outputBgRed(msgHeader.padEnd(longestPath + 2 - 20)));
     case messageLevels.WARNING:
       return outputBgYellow(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
-    case messageLevels.INFO:
-      return outputBgLightBlue(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
-    default:
-      return msgHeader;
-  }
-};
-
-const colorizeMessageHeaderShort = (msg, longestPath) => {
-  const msgHeader = `${msg.location.startLine}:${msg.location.startCol}`;
-  switch (msg.severity) {
-    case messageLevels.ERROR:
-      return outputRed(msgHeader.padEnd(longestPath + 2 - 20));
-    case messageLevels.WARNING:
-      return outputYellow(msgHeader.padEnd(longestPath + 2 - 20));
     case messageLevels.INFO:
       return outputBgLightBlue(outputRed(msgHeader.padEnd(longestPath + 2 - 20)));
     default:
@@ -167,7 +161,11 @@ const cli = () => {
           process.stdout.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
           groupedByFile[fileName]
             .sort((a, b) => a.severity < b.severity)
-            .forEach((entry, id) => process.stdout.write(prettyPrintShort(id + 1, entry, posLength + 2, longestRuleName)));
+            .forEach(
+              (entry, id) => process.stdout.write(
+                prettyPrintShort(id + 1, entry, posLength + 2, longestRuleName),
+              ),
+            );
           process.stdout.write('\n');
         });
       } else {

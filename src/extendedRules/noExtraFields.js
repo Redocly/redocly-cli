@@ -36,7 +36,13 @@ class NoExtraFields extends AbstractRule {
 
           if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
             const possibleAlternate = getClosestString(field, allowedChildren);
-            errors.push(createErrorFieldNotAllowed(field, node, ctx, { fromRule: this.rule, severity: this.config.level, possibleAlternate }));
+            errors.push(
+              createErrorFieldNotAllowed(
+                field, node, ctx, {
+                  fromRule: this.rule, severity: this.config.level, possibleAlternate,
+                },
+              ),
+            );
           }
 
           ctx.path.pop();

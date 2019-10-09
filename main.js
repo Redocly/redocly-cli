@@ -12,11 +12,8 @@ const test = (fNmae, name) => {
   console.log(123);
   const results = validateFromFile(fNmae, options);
   const end = Date.now();
-  // results.forEach((res) => {
-  //   console.log(res.prettyPrint());
-  // });
   console.log(results ? results.length : `good with ${name}`);
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };
 
-test('test/specs/openapi/with-file-ref.yaml', 'revalid');
+test('test/specs/openapi/rebilly-full.yaml', 'revalid');

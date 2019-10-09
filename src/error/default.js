@@ -16,7 +16,7 @@ const getLocationForPath = (fName, path, target) => {
 };
 
 const createError = (msg, node, ctx, options) => {
-  const { 
+  const {
     target, severity = messageLevels.ERROR, possibleAlternate, fromRule,
   } = options;
 

@@ -129,7 +129,9 @@ function traverseNode(node, definition, ctx, visited = []) {
       // console.log(`Will traverse ${currentPath}`);
       if (!ctx.visited.includes(currentPath)) ctx.visited.push(currentPath);
 
-      const errorsChildren = traverseChildren(nodeContext.resolvedNode, definition, ctx, localVisited);
+      const errorsChildren = traverseChildren(
+        nodeContext.resolvedNode, definition, ctx, localVisited,
+      );
       errors.push(...errorsChildren);
     } else {
       // Will use cached result if we have already traversed this nodes children
@@ -151,7 +153,8 @@ function traverseNode(node, definition, ctx, visited = []) {
 
 function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
-    const errorsOnEnterForType = ctx.customRules[i][definition.name] && ctx.customRules[i][definition.name]()[ruleName]
+    const errorsOnEnterForType = ctx.customRules[i][definition.name]
+                                 && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
         nodeContext.resolvedNode, definition, ctx, node,
       ) : [];
