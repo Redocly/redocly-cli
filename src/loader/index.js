@@ -16,7 +16,7 @@ function jsonPathToValue(jsonData, JSONPath) {
   let expandedPath = JSONPath.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
   expandedPath = JSONPath.replace(/^\./, ''); // strip a leading dot
   const pathArray = expandedPath.split('.');
-  for (let i = 0, n = pathArray.length; i < n; ++i) {
+  for (let i = 0, n = pathArray.length; i < n && !(pathArray.length === 1 && pathArray[0] === ''); ++i) {
     const key = pathArray[i];
     if (key in data) {
       if (data[key] !== null) {
@@ -59,7 +59,6 @@ function loadRuleset(config) {
 
   const dirs = ruleSetDirContents
     .filter((fName) => !fs.lstatSync(fName).isFile() && fName.indexOf('utils') === -1);
-
   files.forEach((file) => {
     const Rule = require(file);
     const ruleInstanceInit = new Rule();
