@@ -6,6 +6,10 @@ class UniqueParameterNames extends AbstractRule {
     return 'uniqueParameterNames';
   }
 
+  get rule() {
+    return 'unique-parameter-names';
+  }
+
   constructor(config) {
     super(config);
     this.parametersStack = [];

@@ -8,7 +8,11 @@ class NoUnusedComponents extends AbstractRule {
   }
 
   static get ruleName() {
-    return 'noUnusedComponents';
+    return 'no-unused-schemas';
+  }
+
+  get rule() {
+    return 'no-unused-schemas';
   }
 
   OpenAPIRoot() {

@@ -27,24 +27,23 @@ Example of the configuration file is quite self-explanatory:
 ```json
 {
     "enableCodeframe": true,
-    "enbaleCustomRuleset": true,
     "rules": {
-    	"noExtraFields": "off",
-      "validateOpenAPILicense": {
+    	"no-extra-fields": "off",
+      "license": {
         "url": "on"
-        },
-        "licenseRequired": {
-          "level": "warning"
-        },
-        "uniqueParameterNames": {
-          "msg": "Found error with duplicating parameters."
-        },
-        "noUnusedComponents": {
-            "level": "info"
-        }
+      },
+      "license-required": {
+        "level": "warning"
+      },
+      "unique-parameter-names": {
+        "level": "error",
+      },
+      "no-unused-schemas": "off"
     }
 }
 ```
+
+More detailed guide about configuring the validator can be found [here](RULES.md).
 
 ## Contributing
 

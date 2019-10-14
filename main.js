@@ -9,9 +9,10 @@ const test = (fNmae, name) => {
     enableCodeframe: true,
     enbaleCustomRuleset: true,
   };
-  console.log(123);
+
   const results = validateFromFile(fNmae, options);
   const end = Date.now();
+
   console.log(results ? results.length : `good with ${name}`);
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };

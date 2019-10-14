@@ -4,9 +4,13 @@ info:
   version: fafafa
   license:
     $ref: license-fragment.yaml#/license
+  contact:
+    name: Sergey
+    email: knidarkness@gmail.com
 paths:
-  /user/{userId}/{nam}:
+  /user/{userId}/{nam}/{a}:
     post:
+      operationId: blabla
       parameters:
         - name: userId
           required: true
@@ -14,7 +18,17 @@ paths:
       responses:
         '200':
           description: bla
+    put:
+      operationId: blabla
+      parameters:
+        - name: userId
+          required: true
+          in: path
+      responses:
+        '400':
+          description: bla
     get:
+      operationId: blabla
       summary: Get a list of all users
       description: Also gives their status
       parameters:
@@ -52,6 +66,11 @@ components:
       name: name
       required: true
   schemas:
+    unused:
+      type: object
+      properties:
+        - name:
+            type: string
     contact:
       type: object
       required:

@@ -163,12 +163,12 @@ function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors) 
       ? ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node) : [];
 
 
-    if (errorsOnEnterForType) {
+    if (Array.isArray(errorsOnEnterForType)) {
       ctx.result.push(...errorsOnEnterForType);
       errors.push(...errorsOnEnterForType);
     }
 
-    if (errorsOnEnterGeneric) {
+    if (Array.isArray(errorsOnEnterGeneric)) {
       ctx.result.push(...errorsOnEnterGeneric);
       errors.push(...errorsOnEnterGeneric);
     }

@@ -23,10 +23,6 @@ class AbstractRule {
     }
   }
 
-  get getRuleName() {
-    return this.ruleName;
-  }
-
   get rule() {
     return `${ruleTypes.schema}/${this.constructor.ruleName}`;
   }
