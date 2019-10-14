@@ -11,7 +11,7 @@ Below is the basic structure of this file:
 {
     "enableCodeframe": true,
     "rules": {
-    	"no-extra-fields": "off",
+      "no-extra-fields": "off",
       "license": {
         "url": "on"
       },
