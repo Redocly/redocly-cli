@@ -6,10 +6,11 @@
             "level": "warning"
         },
         "path-param-exists": "off",
-        "no-unused-components": {
+        "no-unused-schemas": {
             "level": "warning"
         },
-        "licenseRequired": "on",
+        "operation-description": "off",
+        "license-required": "off",
         "oas3-schema": {
             "level": "warning",
 
