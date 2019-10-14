@@ -20,7 +20,8 @@ function createContext(node, sourceFile, filePath, config) {
     pathStack: [],
     source: sourceFile,
     enableCodeframe: config && config.enableCodeframe ? config.enableCodeframe : false,
-    customRules: config && config.enbaleCustomRuleset ? loadRuleset(config) : [],
+    // customRules: config && config.enbaleCustomRuleset ? loadRuleset(config) : [],
+    customRules: loadRuleset(config),
     config,
   };
 }

@@ -4,7 +4,11 @@ import AbstractRule from './utils/AbstractRule';
 
 class LicenseRequired extends AbstractRule {
   static get ruleName() {
-    return 'licenseRequired';
+    return 'license-required';
+  }
+
+  get rule() {
+    return 'license-required';
   }
 
   OpenAPIInfo() {

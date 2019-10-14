@@ -6,6 +6,10 @@ class SuggestPossibleRefs extends AbstractRule {
     return 'suggestPossibleRefs';
   }
 
+  get rule() {
+    return 'suggest-possible-refs';
+  }
+
   OpenAPIRoot() {
     return {
       onExit: (node, definition, ctx) => {

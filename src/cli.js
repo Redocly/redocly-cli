@@ -61,7 +61,7 @@ const prettyPrint = (i, error) => {
 };
 
 const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
-  const message = `${error.location.startLine}:${error.location.startCol} ${colorizeRuleName(error.fromRule.padEnd(longestRuleName + 2), error.severity)} ${error.message}\n`;
+  const message = `${(`${error.location.startLine}:${error.location.startCol}`).padEnd(longestPath)} ${colorizeRuleName(error.fromRule.padEnd(longestRuleName + 2), error.severity)} ${error.message}\n`;
   return message;
 };
 
@@ -148,7 +148,8 @@ const cli = () => {
         const posLength = errorsGrouped
           .map((msg) => `${msg.location.startLine}:${msg.location.startCol}`)
           .sort((e, o) => e.length > o.length)
-          .pop();
+          .pop()
+          .length;
 
         const longestRuleName = errorsGrouped
           .map((msg) => msg.fromRule)
@@ -156,14 +157,13 @@ const cli = () => {
           .pop()
           .length;
 
-
         Object.keys(groupedByFile).forEach((fileName) => {
           process.stdout.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
           groupedByFile[fileName]
             .sort((a, b) => a.severity < b.severity)
             .forEach(
               (entry, id) => process.stdout.write(
-                prettyPrintShort(id + 1, entry, posLength + 2, longestRuleName),
+                prettyPrintShort(id + 1, entry, posLength, longestRuleName),
               ),
             );
           process.stdout.write('\n');

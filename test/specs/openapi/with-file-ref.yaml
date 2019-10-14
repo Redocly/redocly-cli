@@ -66,6 +66,11 @@ components:
       name: name
       required: true
   schemas:
+    unused:
+      type: object
+      properties:
+        - name:
+            type: string
     contact:
       type: object
       required:

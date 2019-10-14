@@ -4,7 +4,7 @@ import AbstractRule from './utils/AbstractRule';
 
 class OperationIdUnique extends AbstractRule {
   static get ruleName() {
-    return 'operationIdUnique';
+    return 'operation-operationId-unique';
   }
 
   get rule() {
@@ -22,7 +22,7 @@ class OperationIdUnique extends AbstractRule {
         if (node.operationId) {
           if (this.operationIds[node.operationId]) {
             this.operationIds[node.operationId] += 1;
-            return [createError('The "operationId" fields must be unique', node, ctx, { target: 'value', severity: this.config.level, fromRule: this.rule })];
+            return [createError('The "operationId" fields must be unique.', node, ctx, { target: 'value', severity: this.config.level, fromRule: this.rule })];
           }
           this.operationIds[node.operationId] = 1;
         }

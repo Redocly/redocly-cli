@@ -6,7 +6,9 @@
             "level": "warning"
         },
         "path-param-exists": "off",
-        "noUnusedComponents": "off",
+        "no-unused-components": {
+            "level": "warning"
+        },
         "licenseRequired": "on",
         "oas3-schema": {
             "level": "warning",

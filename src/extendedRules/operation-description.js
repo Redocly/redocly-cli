@@ -4,7 +4,7 @@ import AbstractRule from './utils/AbstractRule';
 
 class OperationDescription extends AbstractRule {
   static get ruleName() {
-    return 'operationDescription';
+    return 'operation-description';
   }
 
   get rule() {
