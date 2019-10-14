@@ -1,6 +1,6 @@
 {
-  "name": "revalid",
-  "version": "0.0.1",
+  "name": "@redocly/openapi-cli",
+  "version": "0.1.0",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -47,7 +47,6 @@
   "dependencies": {
     "commander": "^3.0.1",
     "js-yaml": "^3.13.1",
-    "lodash.clonedeep": "^4.5.0",
     "yaml-ast-parser": "0.0.43"
   }
 }
