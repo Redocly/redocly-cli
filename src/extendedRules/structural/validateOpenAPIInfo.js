@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { createErrorMissingRequiredField } from '../../error';
 
-import { isRuleEnabled } from '../utils';
+import isRuleEnabled from '../utils';
 import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIInfo extends AbstractRule {

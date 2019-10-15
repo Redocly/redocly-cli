@@ -2,7 +2,7 @@
 import createError, { createErrrorFieldTypeMismatch } from '../../error';
 
 import { matchesJsonSchemaType, getClosestString } from '../../utils';
-import { isRuleEnabled } from '../utils';
+import isRuleEnabled from '../utils';
 import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPISchema extends AbstractRule {

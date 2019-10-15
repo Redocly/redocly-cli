@@ -2,7 +2,7 @@
 import createError, { createErrorMissingRequiredField } from '../../error';
 
 import { isUrl } from '../../utils';
-import { isRuleEnabled } from '../utils';
+import isRuleEnabled from '../utils';
 import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPILicense extends AbstractRule {

@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { createErrorMutuallyExclusiveFields } from '../../error';
 
-import { isRuleEnabled } from '../utils';
+import isRuleEnabled from '../utils';
 import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIMediaObject extends AbstractRule {

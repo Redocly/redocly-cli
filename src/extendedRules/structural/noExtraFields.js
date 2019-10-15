@@ -1,14 +1,10 @@
-import AbstractRule from './utils/AbstractRule';
+import AbstractRule from '../utils/AbstractRule';
 
-import { createErrorFieldNotAllowed } from '../error';
-import { getClosestString } from '../utils';
+import { createErrorFieldNotAllowed } from '../../error';
+import { getClosestString } from '../../utils';
 
 class NoExtraFields extends AbstractRule {
   static get ruleName() {
-    return 'no-extra-fields';
-  }
-
-  get rule() {
     return 'no-extra-fields';
   }
 
