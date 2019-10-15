@@ -1,6 +1,6 @@
 description: test desc
 parameters:
-  - name: userIdA
+  - name: userId
     required: true
     in: path
 responses:

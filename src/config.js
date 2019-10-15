@@ -5,6 +5,8 @@ function getConfig(options) {
   let { configPath } = options;
   if (!configPath) configPath = `${process.cwd()}/revalid.config.json`;
 
+  const defaultConfigRaw = fs.readFileSync(`${__dirname}/revalid.default.config.json`, 'utf-8');
+  const defaultConfig = JSON.parse(defaultConfigRaw);
 
   if (fs.existsSync(configPath)) {
     const configRaw = fs.readFileSync(configPath, 'utf-8');
@@ -12,8 +14,7 @@ function getConfig(options) {
   }
 
   return {
-    enableCodeframe: true,
-    enbaleCustomRuleset: true,
+    ...defaultConfig,
     ...config,
     ...options,
   };

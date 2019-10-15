@@ -28,7 +28,14 @@ const getNodeByPath = (tree, path, target = 'value') => {
   } else if ((tree.value && tree.value.items) || tree.items) {
     next = getSequenceElement(tree, nextKey);
   }
+  if (!next) return tree;
   return getNodeByPath(next, path, target);
+};
+
+const endOfFirstLine = (text) => {
+  let i = 0;
+  while (text[i] !== '\n' && i <= text.length) i += 1;
+  return i;
 };
 
 export const getLocationByPath = (path, ctx, target) => {
@@ -39,15 +46,27 @@ export const getLocationByPath = (path, ctx, target) => {
   const frame = ctx.source.substring(node.startPosition, node.endPosition + 1);
   const offset = frame.length - frame.trimRight().length;
 
+  let endIndex = node.endPosition;
   const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
   const endPosition = getLineNumberFromId(ctx.source, node.endPosition - offset);
+
+  // we need this peace of code for case when the found code frame is the whole
+  // document.
+  // in such case, we want to output just the first line of it.
+  // refactoring would be appreciated here.
+  if (node.startPosition === 0 && node.endPosition === ctx.source.length) {
+    endPosition.lineNum = positionStart.lineNum;
+    endPosition.posNum = endOfFirstLine(ctx.source);
+    endIndex = endOfFirstLine(ctx.source);
+  }
+
   return {
     startLine: positionStart.lineNum,
     startCol: positionStart.posNum,
     endLine: endPosition.lineNum,
     endCol: endPosition.posNum,
     startIndex: node.startPosition,
-    endIndex: node.endPosition,
+    endIndex,
   };
 };
 
@@ -84,7 +103,7 @@ export const getCodeFrameForLocation = (
   const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
   let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
 
-  const lines = codeFrameString.split('\n').slice(1);
+  const lines = codeFrameString.split('\n'); // .slice(1);
 
   const maxLineNum = lines.length + startLine;
 
@@ -101,7 +120,7 @@ export const getCodeFrameForLocation = (
   });
 
   lines.forEach((_, id) => {
-    const lineNum = String(`0${startLine - actualLinesBefore + id + 1}`).slice(-maxLineNum.toString().length);
+    const lineNum = String(`0${startLine - actualLinesBefore + id}`).slice(-maxLineNum.toString().length);
     const line = minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id];
     if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
       lines[id] = outputGrey(`${lineNum}| ${line}`);

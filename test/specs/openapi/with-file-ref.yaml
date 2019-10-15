@@ -16,7 +16,7 @@ paths:
       summary: Get a list of all users
       description: Also gives their status
       parameters:
-        - name: userId
+        - name: name
           in: path
           required: true
           description: Id of a user
@@ -29,9 +29,9 @@ paths:
           schema:
             type: boolean
             enum:
-              - false
+              - falsea
               - true
-        - $ref: '#/components/parameters/otherName'
+        # - $ref: '#/components/parameters/otherName'
       responses:
         '200':
           description: Success
@@ -76,3 +76,5 @@ components:
             $ref: '#/components/schemas/contactExampleItem'
         example:
           $ref: '#/components/schemas/contactPhone'
+externalDocs:
+  description: bla
