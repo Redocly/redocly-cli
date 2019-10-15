@@ -39,6 +39,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/contact'
+externalDocs:
+  description: bla
 components:
   parameters:
     name:
@@ -66,7 +68,7 @@ components:
           type: string
     contactPhone:
       type: object
-      decription: AstroPay settings object
+      description: AstroPay settings object
       allOf: 
         - $ref: '#/components/schemas/contact'
       properties:
@@ -76,5 +78,3 @@ components:
             $ref: '#/components/schemas/contactExampleItem'
         example:
           $ref: '#/components/schemas/contactPhone'
-externalDocs:
-  description: bla

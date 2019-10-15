@@ -24,13 +24,15 @@ const getNodeByPath = (tree, path, target = 'value') => {
     return target === 'key' && tree.key ? tree.key : tree;
   }
   const nextKey = path.pop();
+
   let next;
   if ((tree.value && tree.value.mappings) || tree.mappings) {
     next = getMappingChild(tree, nextKey);
   } else if ((tree.value && tree.value.items) || tree.items) {
     next = getSequenceElement(tree, nextKey);
   }
-  if (!next) return tree;
+
+  if (!next) return target === 'key' && tree.key ? tree.key : tree;
   return getNodeByPath(next, path, target);
 };
 
@@ -44,7 +46,6 @@ export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
   if (!node) {
-    // console.log(node, 'no node');
     return null;
   }
 
@@ -64,6 +65,8 @@ export const getLocationByPath = (path, ctx, target) => {
     endPosition.posNum = endOfFirstLine(ctx.source);
     endIndex = endOfFirstLine(ctx.source);
   }
+
+  // console.log(ctx.source.substring(node.startPosition, node.endPosition));
 
   return {
     startLine: positionStart.lineNum,
@@ -92,7 +95,15 @@ export const getCodeFrameForLocation = (
     if (source[frameStart - 1] === '\n') actualLinesBefore += 1;
   }
 
-  for (; actualLinesAfter !== linesAfter && frameEnd !== source.length; frameEnd += 1) {
+  const codeFrameEndsLine = source[end] === '\n' || source[end + 1] === '\n' || source[end + 2] === '\n';
+
+  // we need this complex condition, so that if the end of codeframe
+  // doesn't belong to the end of line
+  // we considered it and added additional line to the codeframe
+  for (; (
+    (codeFrameEndsLine && actualLinesAfter !== linesAfter)
+    || (!codeFrameEndsLine && actualLinesAfter - 1 !== linesAfter)
+  ) && frameEnd !== source.length; frameEnd += 1) {
     if (source[frameEnd + 2] === '\n') actualLinesAfter += 1;
   }
 
@@ -108,7 +119,7 @@ export const getCodeFrameForLocation = (
   const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
   let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
 
-  const lines = codeFrameString.split('\n'); // .slice(1);
+  const lines = start !== 0 ? codeFrameString.split('\n').slice(1) : codeFrameString.split('\n');
 
   const maxLineNum = lines.length + startLine;
 
@@ -125,7 +136,7 @@ export const getCodeFrameForLocation = (
   });
 
   lines.forEach((_, id) => {
-    const lineNum = String(`0${startLine - actualLinesBefore + id}`).slice(-maxLineNum.toString().length);
+    const lineNum = String(`0${startLine - actualLinesBefore + id + 1}`).slice(-maxLineNum.toString().length);
     const line = minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id];
     if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
       lines[id] = outputGrey(`${lineNum}| ${line}`);

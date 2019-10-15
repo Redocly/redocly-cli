@@ -7,7 +7,7 @@ import AbstractRule from '../utils/AbstractRule';
 
 class ValidateOpenAPIExternalDocumentation extends AbstractRule {
   static get ruleName() {
-    return 'documentation';
+    return 'external-docs';
   }
 
   validators() {

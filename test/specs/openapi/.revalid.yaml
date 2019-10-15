@@ -4,4 +4,4 @@ rules:
     level: warning   
     no-extra-fields:
       level: error 
-    documentation: on
+    external-docs: on
