@@ -1,0 +1,30 @@
+{
+    "enableCodeframe": true,
+    "enbaleCustomRuleset": true,
+    "rules": {
+	"api-servers": "off",
+	"operation-operationId-unique": "off",
+        "no-extra-fields": {
+            "level": "warning"
+        },
+        "path-param-exists": "on",
+        "no-unused-schemas": {
+            "level": "warning"
+        },
+        "operation-description": "off",
+        "license-required": "off",
+        "oas3-schema": {
+            "level": "warning",
+
+            "schema": {
+                "level": "error"
+            },
+            "license": {
+                "level": "error"
+            },
+            "documentation": {
+                "level": "warning"
+            }
+        }
+    }
+}

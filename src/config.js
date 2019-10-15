@@ -1,4 +1,5 @@
 import fs from 'fs';
+import merge from 'merge-deep';
 
 function getConfig(options) {
   let config = {};
@@ -13,11 +14,8 @@ function getConfig(options) {
     config = JSON.parse(configRaw);
   }
 
-  return {
-    ...defaultConfig,
-    ...config,
-    ...options,
-  };
+  const resolvedConfig = merge(defaultConfig, config);
+  return resolvedConfig;
 }
 
 export default getConfig;

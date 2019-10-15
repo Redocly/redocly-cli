@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -47,6 +47,7 @@
   "dependencies": {
     "commander": "^3.0.1",
     "js-yaml": "^3.13.1",
+    "merge-deep": "^3.0.2",
     "yaml-ast-parser": "0.0.43"
   }
 }
