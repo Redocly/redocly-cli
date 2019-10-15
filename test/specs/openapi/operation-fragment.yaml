@@ -1,4 +1,4 @@
-decription: test desc
+description: test desc
 parameters:
   - name: userId
     required: true

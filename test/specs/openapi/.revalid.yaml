@@ -2,3 +2,5 @@ rules:
   oas3-schema:
     external-docs:
       url: off
+    no-$ref-siblings:
+      level: warning
