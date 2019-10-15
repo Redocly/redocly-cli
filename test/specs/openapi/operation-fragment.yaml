@@ -1,4 +1,3 @@
-operationId: blaasas
 description: test desc
 parameters:
   - name: userIdA

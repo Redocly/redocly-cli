@@ -7,7 +7,7 @@
         "no-extra-fields": {
             "level": "warning"
         },
-        "path-param-exists": "off",
+        "path-param-exists": "on",
         "no-unused-schemas": {
             "level": "warning"
         },
