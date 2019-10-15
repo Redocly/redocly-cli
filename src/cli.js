@@ -126,11 +126,13 @@ const cli = () => {
     .option('-f, --frame', 'Print no codeframes with errors.')
     .option('-c, --custom-ruleset <path>', 'Path to additional custom ruleset')
     .option('-s, --short', 'Reduce output to required minimun')
+    .option('--config <path>', 'Specify custom yaml or json config')
     .action((filePath) => {
       const options = {};
 
       if (program.frame) options.enableCodeframe = program.frame;
       if (program.customRuleset) options.enbaleCustomRuleset = program.customRuleset;
+      if (program.config) options.configPath = program.config;
 
       const result = validateFromFile(filePath, options);
 
@@ -144,7 +146,7 @@ const cli = () => {
         (msg) => msg.severity === messageLevels.WARNING,
       ).length;
 
-      if (program.short) {
+      if (program.short && errorsGrouped.length !== 0) {
         const posLength = errorsGrouped
           .map((msg) => `${msg.location.startLine}:${msg.location.startCol}`)
           .sort((e, o) => e.length > o.length)

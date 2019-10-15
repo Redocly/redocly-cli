@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "test": "jest --coverage"
   },
   "bin": {
-    "revalid": "dist/index.js"
+    "openapi-cli": "dist/index.js"
   },
   "jest": {
     "testPathIgnorePatterns": [

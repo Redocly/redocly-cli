@@ -61,12 +61,32 @@ function loadRuleset(config) {
 
   const dirs = ruleSetDirContents
     .filter((fName) => !fs.lstatSync(fName).isFile() && fName.indexOf('utils') === -1);
+
   files.forEach((file) => {
     const Rule = require(file);
     const ruleInstanceInit = new Rule();
-    const ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
     if (configCopy && configCopy.rules) {
       if (ruleConfig !== 'off') {
+        const s = ruleInstanceInit.rule.split('/')[0];
+        // console.log(ruleInstanceInit.rule, ruleConfig);
+
+        if (!ruleConfig) {
+          ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+
+          if (typeof ruleConfig === 'object') {
+            const allowed = ['level'];
+
+            ruleConfig = Object.keys(ruleConfig)
+              .filter((key) => allowed.includes(key))
+              .reduce((obj, key) => {
+                obj[key] = ruleConfig[key];
+                return obj;
+              }, {});
+          }
+
+          // console.log(ruleConfig);
+        }
         const ruleInstance = new Rule(ruleConfig);
         ruleSet.push(ruleInstance);
       }
@@ -75,6 +95,7 @@ function loadRuleset(config) {
       ruleSet.push(ruleInstance);
     }
   });
+
   dirs.forEach((dir) => {
     const nestedRules = loadRuleset({
       ...configCopy,

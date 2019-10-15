@@ -44,7 +44,7 @@ export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
   if (!node) {
-    console.log(node, 'no node');
+    // console.log(node, 'no node');
     return null;
   }
 

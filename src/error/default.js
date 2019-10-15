@@ -12,9 +12,9 @@ const getLocationForPath = (fName, path, target) => {
   const fContent = fs.readFileSync(fName, 'utf-8');
   const tempCtx = { source: fContent };
   const location = getLocationByPath(Array.from(path), tempCtx, target);
-  if (!location) {
-    console.log(path);
-  }
+  // if (!location) {
+  //   console.log(path);
+  // }
   return location.startLine;
 };
 

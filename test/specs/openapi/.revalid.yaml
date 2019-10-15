@@ -1,0 +1,6 @@
+rules:
+  no-extra-fields: on
+  oas3-schema:
+    level: warning    
+    documentation:
+      level: error
