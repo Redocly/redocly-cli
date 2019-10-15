@@ -1,7 +1,4 @@
 rules:
-  no-extra-fields: on
   oas3-schema:
-    level: warning   
-    no-extra-fields:
-      level: error 
-    external-docs: on
+    external-docs:
+      url: off

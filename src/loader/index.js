@@ -74,7 +74,7 @@ function loadRuleset(config) {
         if (!ruleConfig) {
           ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 
-          if (typeof ruleConfig === 'object') {
+          if (ruleConfig && typeof ruleConfig === 'object') {
             const allowed = ['level'];
 
             ruleConfig = Object.keys(ruleConfig)
