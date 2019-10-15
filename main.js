@@ -17,4 +17,4 @@ const test = (fNmae, name) => {
   console.log(`Evaluation took: ${end - start} ms with ${name}`);
 };
 
-test('test/specs/openapi/rebilly-full.yaml', 'revalid');
+test('test/specs/openapi/with-file-ref.yaml', 'revalid');

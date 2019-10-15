@@ -2,10 +2,12 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
+	"api-servers": "off",
+	"operation-operationId-unique": "off",
         "no-extra-fields": {
             "level": "warning"
         },
-        "path-param-exists": "off",
+        "path-param-exists": "on",
         "no-unused-schemas": {
             "level": "warning"
         },

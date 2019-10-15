@@ -1,0 +1,8 @@
+description: test desc
+parameters:
+  - name: userIdA
+    required: true
+    in: path
+responses:
+  '200':
+    description: bla

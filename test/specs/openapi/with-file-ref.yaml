@@ -8,27 +8,11 @@ info:
     name: Sergey
     email: knidarkness@gmail.com
 paths:
-  /user/{userId}/{nam}/{a}:
+  /user/{userId}/{name}:
     post:
-      operationId: blabla
-      parameters:
-        - name: userId
-          required: true
-          in: path
-      responses:
-        '200':
-          description: bla
-    put:
-      operationId: blabla
-      parameters:
-        - name: userId
-          required: true
-          in: path
-      responses:
-        '400':
-          description: bla
+      $ref: 'operation-fragment.yaml#/'
     get:
-      operationId: blabla
+      operationId: blabla2
       summary: Get a list of all users
       description: Also gives their status
       parameters:
@@ -45,7 +29,7 @@ paths:
           schema:
             type: boolean
             enum:
-              - falsea
+              - false
               - true
         - $ref: '#/components/parameters/otherName'
       responses:
@@ -66,11 +50,6 @@ components:
       name: name
       required: true
   schemas:
-    unused:
-      type: object
-      properties:
-        - name:
-            type: string
     contact:
       type: object
       required:

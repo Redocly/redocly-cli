@@ -9,7 +9,7 @@ import fs from 'fs';
  * @returns {valueOfThePath|undefined}
  */
 function jsonPathToValue(jsonData, JSONPath) {
-  if (!(jsonData instanceof Object) || typeof (path) === 'undefined') {
+  if (!(jsonData instanceof Object) || typeof (JSONPath) === 'undefined') {
     return null;
   }
   let data = jsonData;
@@ -32,9 +32,11 @@ function jsonPathToValue(jsonData, JSONPath) {
 }
 
 function getObjByPathOrParent(json, JSONPath) {
+  if (!json) return null;
   let result = null;
   const elementPath = JSONPath;
   result = jsonPathToValue(json, JSONPath);
+  if (!result) return null;
   while (!result) {
     const pathArray = elementPath.split('.');
     pathArray.pop();
@@ -62,7 +64,6 @@ function loadRuleset(config) {
   files.forEach((file) => {
     const Rule = require(file);
     const ruleInstanceInit = new Rule();
-    // console.log(ruleInstanceInit.rule);
     const ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
     if (configCopy && configCopy.rules) {
       if (ruleConfig !== 'off') {
@@ -74,7 +75,6 @@ function loadRuleset(config) {
       ruleSet.push(ruleInstance);
     }
   });
-
   dirs.forEach((dir) => {
     const nestedRules = loadRuleset({
       ...configCopy,

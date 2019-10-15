@@ -2,10 +2,13 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
+        "api-servers": "off",
         "no-extra-fields": {
             "level": "warning"
         },
-        "path-param-exists": "off",
+        "path-param-exists": {
+            "level": "error"
+        },
         "noUnusedComponents": "off",
         "licenseRequired": "on",
         "oas3-schema": {

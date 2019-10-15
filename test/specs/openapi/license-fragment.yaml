@@ -1,6 +1,6 @@
 license:
-  xname: ad
-  uarl: asdasda.com
+  name: ad
+  url: asdasda.com
 schemas:
   Pet:
     type: "object"

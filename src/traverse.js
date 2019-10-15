@@ -97,8 +97,7 @@ function onNodeExit(nodeContext, ctx) {
 }
 
 const nestedIncludes = (c, s) => {
-  const res = s.find((el) => el.filter((v, id) => c[id] === v).length === c.length) !== undefined;
-  // console.log(c, s, res);
+  const res = s.find((el) => el === s) !== undefined;
   return res;
 };
 
@@ -112,7 +111,7 @@ function traverseNode(node, definition, ctx, visited = []) {
   const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
 
   const localVisited = Array.from(visited);
-  localVisited.push(Array.from(ctx.path));
+  localVisited.push(currentPath);
 
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
@@ -126,7 +125,6 @@ function traverseNode(node, definition, ctx, visited = []) {
     runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors);
 
     if (!isRecursive && (!definition.isIdempotent || !ctx.visited.includes(currentPath))) {
-      // console.log(`Will traverse ${currentPath}`);
       if (!ctx.visited.includes(currentPath)) ctx.visited.push(currentPath);
 
       const errorsChildren = traverseChildren(
