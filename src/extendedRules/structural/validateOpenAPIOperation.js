@@ -12,13 +12,23 @@ class ValidateOpenAPIOperation extends AbstractRule {
   validators() {
     return {
       tags: (node, ctx) => {
+        if (!node || !node.tags) return null;
+
+        const errors = [];
+
         if (node && node.tags && !Array.isArray(node.tags)) {
           return createErrrorFieldTypeMismatch('array.', node, ctx, { fromRule: this.rule, severity: this.config.level });
         }
-        if (node && node.tags && node.tags.filter((item) => typeof item !== 'string').length > 0) {
-          return createError('Items of the tags array must be strings in the Open API Operation object.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
+
+        for (let i = 0; i < node.tags.length; i++) {
+          if (typeof node.tags[i] !== 'string') {
+            ctx.path.push(i);
+            errors.push(createError('Items of the tags array must be strings in the Open API Operation object.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
+            ctx.path.pop();
+          }
         }
-        return null;
+
+        return errors;
       },
       summary: (node, ctx) => {
         if (node && node.summary && typeof node.summary !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
@@ -48,11 +58,13 @@ class ValidateOpenAPIOperation extends AbstractRule {
         const vals = Object.keys(validators);
         for (let i = 0; i < vals.length; i += 1) {
           if (isRuleEnabled(this, vals[i])) {
+            ctx.path.push(vals[i]);
             const res = validators[vals[i]](node, ctx, this.config);
             if (res) {
               if (Array.isArray(res)) result.push(...res);
               else result.push(res);
             }
+            ctx.path.pop();
           }
         }
         return result;
