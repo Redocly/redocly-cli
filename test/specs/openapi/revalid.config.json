@@ -2,6 +2,8 @@
     "enableCodeframe": true,
     "enbaleCustomRuleset": true,
     "rules": {
+	"api-servers": "off",
+	"operation-operationId-unique": "off",
         "no-extra-fields": {
             "level": "warning"
         },

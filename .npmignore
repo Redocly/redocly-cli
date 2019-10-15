@@ -1,0 +1,6 @@
+node_modules/
+src/
+media/
+coverage/
+test/
+dist/__tests__
