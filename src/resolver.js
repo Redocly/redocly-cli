@@ -21,8 +21,12 @@ const resolve = (link, ctx) => {
   if (filePath) {
     const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
     fullFileName = path ? `${path}/${filePath}` : filePath;
-    fData = fs.readFileSync(fullFileName, 'utf-8');
-    target = yaml.safeLoad(fData);
+    if (fs.existsSync(fullFileName)) {
+      fData = fs.readFileSync(fullFileName, 'utf-8');
+      target = yaml.safeLoad(fData);
+    } else {
+      return null;
+    }
   } else {
     target = ctx.document;
   }
@@ -51,11 +55,13 @@ const resolveNode = (node, ctx) => {
   Object.keys(node).forEach((p) => {
     if (p === '$ref') {
       resolved = resolve(node[p], ctx);
-      nextPath = resolved.docPath;
-      if (!resolved.node) {
+      if (resolved && resolved.node) {
+        nextPath = resolved.docPath;
+      } else {
         ctx.path.push('$ref');
         ctx.result.push(createError('Reference does not exist.', node, ctx, { fromRule: 'resolve-ref' }));
         ctx.path.pop();
+        resolved = {};
         resolved.node = node;
         nextPath = null;
         resolved.updatedSource = null;
