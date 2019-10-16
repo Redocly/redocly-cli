@@ -8,3 +8,4 @@ test/specs/openapi/rebilly-full (1).yaml
 yarn.lock
 package-lock.json
 dist/
+test/

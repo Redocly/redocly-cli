@@ -39,9 +39,6 @@ Each path parameter in the `parameters` section must be present in the path stri
 ### license-url
 License, if provided within `info` section must provide `url` field.
 
-### no-extra-fields
-By default, custom fields, not defined within OpenAPI specification can be included only using `x-` prefix. This rule enforces such policy.
-
 ### no-unused-schemas
 It might be a bad sign if some of the schemas from the `components` section are not used anywhere. This checks for such scenarios.
 
@@ -138,6 +135,9 @@ Below, you can find the table of available sub-rules you can update:
 | server-variable | [OpenAPI Server Variable Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#serverVariableObject) |
 | tag | [OpenAPI Tag Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#tagObject) |
 | xml | [OpenAPI XML Obejct](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#xmlObject) |
+
+#### no-extra-fields
+By default, custom fields, not defined within OpenAPI specification can be included only using `x-` prefix. This rule enforces such policy.
 
 
 ## Linting rules

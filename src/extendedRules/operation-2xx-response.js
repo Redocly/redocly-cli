@@ -11,8 +11,8 @@ class Operation2xxResponse extends AbstractRule {
     return 'operation-2xx-response';
   }
 
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
     this.responseCodes = [];
   }
 

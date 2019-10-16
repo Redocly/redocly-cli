@@ -36,6 +36,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   if (!document.openapi) return [];
 
   const config = getConfig(options);
+  // console.log(config);
   const ctx = createContext(document, yamlData, filePath, config);
   // ctx.result.push(ctx);
 

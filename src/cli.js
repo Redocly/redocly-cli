@@ -72,6 +72,8 @@ const errorBelongsToGroup = (error, group) => error.msg === group.msg
     && error.location.endIndex === group.location.endIndex
     && error.location.possibleAlternate === group.location.possibleAlternate;
 
+const errorAlreadyInGroup = (error, group) => group.pathStacks.filter((stack) => JSON.stringify(stack) === JSON.stringify(error.pathStack)).length > 0;
+
 const groupFromError = (error) => ({
   message: error.message,
   location: error.location,
@@ -88,7 +90,9 @@ const groupFromError = (error) => ({
 });
 
 const addErrorToGroup = (error, group) => {
-  if (error.pathStack.length !== 0) group.pathStacks.push(error.pathStack);
+  if (error.pathStack.length !== 0 && !errorAlreadyInGroup(error, group)) {
+    group.pathStacks.push(error.pathStack);
+  }
   return true;
 };
 

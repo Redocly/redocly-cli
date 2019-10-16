@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import jp from 'jsonpath';
 
 /**
  * Converts a string path to a value that is existing in a json object.
@@ -32,17 +33,19 @@ function jsonPathToValue(jsonData, JSONPath) {
 }
 
 function getObjByPathOrParent(json, JSONPath) {
-  if (!json) return null;
-  let result = null;
-  const elementPath = JSONPath;
-  result = jsonPathToValue(json, JSONPath);
-  if (!result) return null;
-  while (!result) {
-    const pathArray = elementPath.split('.');
-    pathArray.pop();
-    result = jsonPathToValue(json, pathArray.join('.'));
-  }
-  return result;
+  const get = (p, o) => p.reduce((xs, x) => ((xs && xs[x]) ? xs[x] : null), o);
+  return get(JSONPath.split('.'), json);
+  // if (!json) return null;
+  // let result = null;
+  // const elementPath = JSONPath;
+  // result = jsonPathToValue(json, JSONPath);
+  // if (!result) return null;
+  // while (!result) {
+  //   const pathArray = elementPath.split('.');
+  //   pathArray.pop();
+  //   result = jsonPathToValue(json, pathArray.join('.'));
+  // }
+  // return result;
 }
 
 function loadRuleset(config) {
@@ -70,7 +73,6 @@ function loadRuleset(config) {
       if (ruleConfig !== 'off') {
         const s = ruleInstanceInit.rule.split('/')[0];
         // console.log(ruleInstanceInit.rule, ruleConfig);
-
         if (!ruleConfig) {
           ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 
