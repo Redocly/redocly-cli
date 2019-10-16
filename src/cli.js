@@ -126,17 +126,16 @@ const groupByFiles = (result) => {
 
 const cli = () => {
   program
-    .arguments('<filePath>')
-    .option('-f, --frame', 'Print no codeframes with errors.')
-    .option('-c, --custom-ruleset <path>', 'Path to additional custom ruleset')
+    .command('validate <filePath>')
+    .description('Validate given Open API 3 definition file.')
     .option('-s, --short', 'Reduce output to required minimun')
+    .option('-f, --no-frame', 'Print no codeframes with errors.')
     .option('--config <path>', 'Specify custom yaml or json config')
-    .action((filePath) => {
+    .action((filePath, cmdObj) => {
       const options = {};
 
-      if (program.frame) options.enableCodeframe = program.frame;
-      if (program.customRuleset) options.enbaleCustomRuleset = program.customRuleset;
-      if (program.config) options.configPath = program.config;
+      options.enableCodeframe = cmdObj.frame;
+      if (cmdObj.config) options.configPath = cmdObj.config;
 
       const result = validateFromFile(filePath, options);
 
@@ -150,7 +149,7 @@ const cli = () => {
         (msg) => msg.severity === messageLevels.WARNING,
       ).length;
 
-      if (program.short && errorsGrouped.length !== 0) {
+      if (cmdObj.short && errorsGrouped.length !== 0) {
         const posLength = errorsGrouped
           .map((msg) => `${msg.location.startLine}:${msg.location.startCol}`)
           .sort((e, o) => e.length > o.length)
@@ -175,7 +174,8 @@ const cli = () => {
           process.stdout.write('\n');
         });
       } else {
-        process.stdout.write('\n\n'); errorsGrouped
+        process.stdout.write('\n\n');
+        errorsGrouped
           .sort((a, b) => a.severity < b.severity)
           .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
       }

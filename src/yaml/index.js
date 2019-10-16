@@ -119,8 +119,8 @@ export const getCodeFrameForLocation = (
   const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
   let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
 
-  const lines = start !== 0 ? codeFrameString.split('\n').slice(1) : codeFrameString.split('\n');
-
+  const fromStart = start === 0;
+  const lines = !fromStart ? codeFrameString.split('\n').slice(1) : codeFrameString.split('\n');
   const maxLineNum = lines.length + startLine;
 
 
@@ -136,7 +136,7 @@ export const getCodeFrameForLocation = (
   });
 
   lines.forEach((_, id) => {
-    const lineNum = String(`0${startLine - actualLinesBefore + id + 1}`).slice(-maxLineNum.toString().length);
+    const lineNum = String(`0${startLine - actualLinesBefore + id + (fromStart ? 0 : 1)}`).slice(-maxLineNum.toString().length);
     const line = minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id];
     if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
       lines[id] = outputGrey(`${lineNum}| ${line}`);

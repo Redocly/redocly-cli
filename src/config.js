@@ -15,7 +15,7 @@ function getConfig(options) {
     config = yaml.safeLoad(configRaw);
   }
 
-  const resolvedConfig = merge(defaultConfig, config);
+  const resolvedConfig = merge(defaultConfig, config, options);
   // console.log(resolvedConfig);
   return resolvedConfig;
 }

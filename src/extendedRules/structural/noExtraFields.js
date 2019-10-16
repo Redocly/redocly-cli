@@ -1,6 +1,6 @@
 import AbstractRule from '../utils/AbstractRule';
 
-import { createErrorFieldNotAllowed } from '../../error';
+import { createErrorFieldNotAllowed, createErrrorFieldTypeMismatch } from '../../error';
 import { getClosestString } from '../../utils';
 
 class NoExtraFields extends AbstractRule {
@@ -25,6 +25,15 @@ class NoExtraFields extends AbstractRule {
             default:
                 // do-nothing
           }
+        }
+
+        if (allowedChildren.length > 0 && typeof node !== 'object') {
+          errors.push(
+            createErrrorFieldTypeMismatch(definition.name, node, ctx, {
+              fromRule: this.rule, severity: this.config.level,
+            }),
+          );
+          return errors;
         }
 
         Object.keys(node).forEach((field) => {
