@@ -1,51 +1,9 @@
 import path from 'path';
 import fs from 'fs';
-import jp from 'jsonpath';
-
-/**
- * Converts a string path to a value that is existing in a json object.
- *
- * @param {Object} jsonData Json data to use for searching the value.
- * @param {Object} path the path to use to find the value.
- * @returns {valueOfThePath|undefined}
- */
-function jsonPathToValue(jsonData, JSONPath) {
-  if (!(jsonData instanceof Object) || typeof (JSONPath) === 'undefined') {
-    return null;
-  }
-  let data = jsonData;
-  let expandedPath = JSONPath.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-  expandedPath = JSONPath.replace(/^\./, ''); // strip a leading dot
-  const pathArray = expandedPath.split('.');
-  for (let i = 0, n = pathArray.length; i < n && !(pathArray.length === 1 && pathArray[0] === ''); ++i) {
-    const key = pathArray[i];
-    if (key in data) {
-      if (data[key] !== null) {
-        data = data[key];
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-  return data;
-}
 
 function getObjByPathOrParent(json, JSONPath) {
   const get = (p, o) => p.reduce((xs, x) => ((xs && xs[x]) ? xs[x] : null), o);
   return get(JSONPath.split('.'), json);
-  // if (!json) return null;
-  // let result = null;
-  // const elementPath = JSONPath;
-  // result = jsonPathToValue(json, JSONPath);
-  // if (!result) return null;
-  // while (!result) {
-  //   const pathArray = elementPath.split('.');
-  //   pathArray.pop();
-  //   result = jsonPathToValue(json, pathArray.join('.'));
-  // }
-  // return result;
 }
 
 function loadRuleset(config) {

@@ -13,9 +13,7 @@ class ValidateOpenAPIParameter extends AbstractRule {
     return {
       name: (node, ctx) => {
         if (!node) return null;
-        if (Object.keys(node).indexOf('name') === -1) console.log('ALAAAARM');
         if (!node.name) return createErrorMissingRequiredField('name', node, ctx, { fromRule: this.rule, severity: this.config.level });
-        if (Object.keys(node).indexOf('name') === -1) console.log('BLBLBLB');
         if (typeof node.name !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },

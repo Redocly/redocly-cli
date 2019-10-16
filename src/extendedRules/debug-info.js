@@ -26,8 +26,12 @@ class DebugInfo extends AbstractRule {
 
   OpenAPIRoot() {
     return {
-      onExit: () => {
+      onEnter: (node, def, ctx) => {
+        console.log(ctx.config);
+      },
+      onExit: (node, definition, ctx) => {
         console.log(this.count);
+        console.log(ctx.result.length);
       },
     };
   }
