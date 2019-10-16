@@ -1,0 +1,54 @@
+{
+  "name": "@redocly/openapi-cli",
+  "version": "0.1.15",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "profile": "npx babel-node --prof main.js",
+    "babel-node": "babel-node",
+    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js",
+    "lint": "eslint ./src",
+    "prepublishOnly": "npm run build",
+    "postinstall": "chmod +x ./dist/index.js",
+    "start": "npx babel-node main.js",
+    "test": "jest --coverage"
+  },
+  "bin": {
+    "openapi-cli": "dist/index.js"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
+  },
+  "author": "Serhii Dubovyk",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/node": "^7.6.1",
+    "@babel/preset-env": "^7.6.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "jest": "^24.9.0",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
+  },
+  "dependencies": {
+    "commander": "^3.0.1",
+    "js-yaml": "^3.13.1",
+    "jsonpath": "^1.0.2",
+    "merge-deep": "^3.0.2",
+    "yaml-ast-parser": "0.0.43"
+  }
+}

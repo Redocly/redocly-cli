@@ -1,0 +1,8 @@
+{
+    "rules": {
+        "no-extra-fields": "on",
+        "operation-2xx-response": {
+            "level": "warning"
+        }
+    }
+}

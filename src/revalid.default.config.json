@@ -1,0 +1,30 @@
+{
+    "enableCodeframe": true,
+    "enbaleCustomRuleset": true,
+    "rules": {
+        "api-servers": "off",
+        "path-param-exists": "off",
+        "license-url": "off",
+        "no-extra-fields": "off",
+        "no-unused-schemas": "off",
+        "operation-2xx-response": "off",
+        "operation-description": "off",
+        "operation-operationId": "off",
+        "operation-operationId-unique": "off",
+        "operation-tags": "off",
+        "path-declarations-must-exist": "off",
+        "provide-contact": "off",
+        "servers-no-trailing-slash": "off",
+        "unique-parameter-names": "off",
+        "oas3-schema": {
+            "level": "warning",
+
+            "schema": {
+                "level": "error"
+            },
+            "license": {
+                "level": "error"
+            }
+        }
+    }
+}
