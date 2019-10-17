@@ -1,0 +1,22 @@
+
+codeframes: on
+rules:
+  bundler: off
+  debug-info: off
+
+  oas3-schema: on
+  path-param-exists: on
+  operation-2xx-response: on
+  unique-parameter-names: on
+  no-unused-schemas: on
+  operation-operationId-unique: on
+  path-declarations-must-exist: on
+
+  api-servers: off
+  license-url: off
+  no-extra-fields: off
+  operation-description: off
+  operation-operationId: off
+  operation-tags: off
+  provide-contact: off
+  servers-no-trailing-slash: off

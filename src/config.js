@@ -5,9 +5,9 @@ import yaml from 'js-yaml';
 function getConfig(options) {
   let config = {};
   let { configPath } = options;
-  if (!configPath) configPath = `${process.cwd()}/.redocly.yml`;
+  if (!configPath) configPath = `${process.cwd()}/.openapi-cli.yaml`;
 
-  const defaultConfigRaw = fs.readFileSync(`${__dirname}/.redocly.yml`, 'utf-8');
+  const defaultConfigRaw = fs.readFileSync(`${__dirname}/.openapi-cli.yaml`, 'utf-8');
   const defaultConfig = yaml.safeLoad(defaultConfigRaw);
 
   if (fs.existsSync(configPath)) {

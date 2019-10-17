@@ -1,42 +1,6 @@
-# @redocly/openapi-cli ruleset configuration
+# Ruleset
 
-## Disabling and configuring rules
-All of the following rules are configurable in terms of disabling or changing their severity. In order to update given rule, you should modify (or create) the `.openapi.yml` file in the directory from which you are going to run the validator.
-
-Also, you can provide path to configuration file name other than `.openapi.yml` by using `--config` option when running the @redocly/openapi-cli.
-
-If you are creating it from scratch, you might also want to enable/disable codeframe for the full output.
-
-Below is the config, which is used by default:
-
-```yaml
-enableCodeframe: true
-enbaleCustomRuleset: true
-rules:
-  bundler: off
-  debug-info: off
-
-  oas3-schema: on
-  path-param-exists: on
-  operation-2xx-response: on
-  unique-parameter-names: on
-  no-unused-schemas: on
-  operation-operationId-unique: on
-  path-declarations-must-exist: on
-
-  api-servers: off
-  license-url: off
-  no-extra-fields: off
-  operation-description: off
-  operation-operationId: off
-  operation-tags: off
-  provide-contact: off
-  servers-no-trailing-slash: off
-```
-
-## Ruleset overview
-
-Below you can find a list of the all currently supported rules. To change your settings for given rule, just add or modify corresponding item in the `rules` section of the `.openapi.yml` in your working directory.
+Below you can find a list of the all currently supported rules. To change your settings for given rule, just add or modify corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
 
 ### api-servers
 OpenAPI servers must be present and be a non-empty array.
@@ -85,7 +49,7 @@ It depends on tooling are `example.com` and `example.com/` are treated in the sa
 Parameters in `operation` objects must be `unique` definition wide.
 
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change message level for each specific type of the OpenAPI Objects. For example, if you have custom structure of the `servers` object, what you can do to prevent error messages regarding it is to update your `.redocly.yml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change message level for each specific type of the OpenAPI Objects. For example, if you have custom structure of the `servers` object, what you can do to prevent error messages regarding it is to update your `.openapi-cli.yaml` to the following pattern:
 
 ```yaml
 ... your configuration
@@ -144,17 +108,3 @@ By default, custom fields, not defined within OpenAPI specification can be inclu
 It is not totally uncommon to have a bad `$ref` in your definition. For example, instead of `#components/schemas/User` one might type `#components/schemas/Use`.
 
 With this rule enabled, @redocly/openapi-cli will try to find the closest possible valid `$ref` address in the definition.
-
-## Bundling
-
-Also, you can enable bundling feature, which will bundle your Open API 3 definition into a single file. To do so, modify you config file so that `bundler` object in `rules` would look like following:
-
-```yaml
-rules:
-  bundler:
-    output: your-desired-filename.yml
-```
-
-Supported extensions for bundle files are `.json`, `.yml` and `.yaml`.
-
-If the file specified as the bundlers output already exists, it will be overwritten.
