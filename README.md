@@ -1,6 +1,8 @@
 # OpenAPI 3 CLI toolset
 
-![@redocly/openapi-cli output screenshot](/media/openapi.gif)
+OpenAPI 3 CLI toolbox with rich validation and bundling features.
+
+![OpenAPI 3 CLI toolset](https://user-images.githubusercontent.com/24596796/67019141-dc517580-f104-11e9-811a-46135e8f2048.gif)
 
 ## Features
 
