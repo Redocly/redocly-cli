@@ -30,7 +30,7 @@ If using `npx`, enter the following:
 
 Otherwise, install the `@redocly/openapi-cli` with: 
 
-```npm i -g @redocly/openapi-cli```
+```npm install -g @redocly/openapi-cli```
 
 or:
 
@@ -40,11 +40,15 @@ Run `openapi -h` to confirm the installation was successful (you'll see the usag
 
 ## Usage
 
-Currently, `@redocly/openapi-cli` supports only one command: `validate [options] <filePath>`. Given this command, it will load the given ruleset and traverse the definition via the `filePath` parameter.
+Currently, `@redocly/openapi-cli` supports only one command:
+
+```validate [options] <filePath>```
+
+ Given this command, it will load the given ruleset and traverse the definition via the `filePath` parameter.
 
 Also, it accepts `[options]` which can be:
-- `-s, --short` Reduce output to required minimum.
-- `-f, --no-frame` Print no codeframes with errors.
+- `-s, --short` Reduce output to minimum.
+- `--no-frame` Print no codeframes with errors.
 - `--config <path>`  Specify custom yaml or json config.
 
 In the section below, you can learn how to provide settings for the `@redocly/openapi-cli`.
@@ -112,3 +116,7 @@ rules:
 Supported extensions for bundle files are `.json`, `.yml` and `.yaml`.
 
 Beware, if the file specified as the bundler's output already exists, it will be overwritten.
+
+## Credits
+
+Thanks to Swagger, Spectral, and Speccy for inspiring ruleset.
