@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.1.15",
+  "version": "0.2.0",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -14,7 +14,11 @@
     "test": "jest --coverage"
   },
   "bin": {
-    "openapi-cli": "dist/index.js"
+    "openapi": "dist/index.js"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Redocly/openapi-cli.git"
   },
   "jest": {
     "testPathIgnorePatterns": [
@@ -26,8 +30,8 @@
       "/dist/"
     ]
   },
-  "author": "Serhii Dubovyk",
-  "license": "ISC",
+  "author": "Serhii Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+  "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
