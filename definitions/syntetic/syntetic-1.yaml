@@ -1,0 +1,38 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+  contact:
+    name: John Doe
+  license:
+    name: example
+    url: example.org
+
+paths:
+  user:
+    parameters:
+      - $ref: '#/components/parameters/example'
+    get:
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
+  project:
+    get:
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  parameters:
+    example:
+      name: example
+      in: query
+      required: false
+  

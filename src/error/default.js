@@ -62,6 +62,9 @@ export const fromError = (error, ctx) => {
   return {
     ...error,
     ...ctx,
+    AST: null,
+    document: null,
+    source: null,
     path: error.path,
     pathStack: ctx.pathStack.map((el) => {
       const startLine = getLocationForPath(el.file, el.path, error.target);

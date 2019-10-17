@@ -7,3 +7,5 @@ dist/__tests__
 dist/error/__tests__
 RULES.md
 README.md
+definitions/
+*/__tests__/*

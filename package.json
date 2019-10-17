@@ -16,8 +16,8 @@
     "openapi": "dist/index.js"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Redocly/openapi-cli.git"
+    "type": "git",
+    "url": "https://github.com/Redocly/openapi-cli.git"
   },
   "jest": {
     "testPathIgnorePatterns": [

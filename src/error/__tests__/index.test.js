@@ -1,175 +1,199 @@
 import yaml from "js-yaml";
 import fs from "fs";
+
 import {
-  createErrorMissingRequiredField,
   createErrorFieldNotAllowed,
+  createErrorMissingRequiredField,
   createErrrorFieldTypeMismatch,
   createErrorMutuallyExclusiveFields
-} from "..";
+} from "../index";
+import { messageLevels } from "../default";
 
-const getSource = () =>
-  fs.readFileSync("./test/specs/openapi/test-1.yaml", "utf-8");
-
-const createContext = () => ({
-  document: yaml.safeLoad(getSource()),
-  path: ["paths", "/user/{userId}/{name}", "get", "parameters"],
+const createCtx = () => ({
+  document: yaml.safeLoad(
+    fs.readFileSync("./definitions/syntetic/syntetic-1.yaml", "utf-8")
+  ),
+  filePath: "./definitions/syntetic/syntetic-1.yaml",
+  path: [],
+  cache: {},
+  visited: [],
+  definitionStack: [],
   pathStack: [],
-  source: getSource(),
+  source: fs.readFileSync("./definitions/syntetic/syntetic-1.yaml", "utf-8"),
   enableCodeframe: true
 });
 
-describe("createErrorFieldNotAllowed", () => {
-  test("", () => {
-    const ctx = createContext();
-    const node = { required: 123 };
-    const error = createErrorFieldNotAllowed("wrong", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+describe("Error templates", () => {
+  test("createErrorFieldNotAllowed", () => {
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get", "responses"]
+    };
+    expect(
+      createErrorFieldNotAllowed("200", {}, ctx, {
+        severity: messageLevels.ERROR
+      })
+    ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13| [39m
-      [90m14|       summary: Get a list of all users[39m
-      [90m15|       description: Also gives their status[39m
-      [90m16|[39m[31m       [4m[31mparameters[39m[24m:[39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m",
-        "file": undefined,
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[0m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
+        "enableCodeframe": true,
+        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
         "location": Object {
-          "endCol": 17,
-          "endIndex": 275,
+          "endCol": 16,
+          "endIndex": 266,
           "endLine": 16,
           "startCol": 7,
-          "startIndex": 265,
+          "startIndex": 257,
           "startLine": 16,
         },
-        "message": "The field 'wrong' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m",
+        "message": "The field '200' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
+        "path": Array [
+          "paths",
+          "user",
+          "get",
+          "responses",
+        ],
         "pathStack": Array [],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "target": "key",
+        "value": Object {},
       }
     `);
   });
-});
-
-describe("createErrorMissingRequiredField", () => {
-  test("", () => {
-    const ctx = createContext();
-    const node = { required: 123 };
-    const error = createErrorMissingRequiredField("name", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+  test("createErrorMissingRequiredField", () => {
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get"]
+    };
+    expect(
+      createErrorMissingRequiredField("responses", {}, ctx, {
+        severity: messageLevels.ERROR
+      })
+    ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13| [39m
-      [90m14|       summary: Get a list of all users[39m
-      [90m15|       description: Also gives their status[39m
-      [90m16|[39m[31m       [4m[31mparameters[39m[24m:[39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m",
-        "file": undefined,
+        "codeFrame": "[90m13|     parameters:[39m
+      [90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     [4m[31mget[0m[24m:[39m
+      [90m16|       responses:[39m
+      [90m17|         '200':[39m",
+        "enableCodeframe": true,
+        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
         "location": Object {
-          "endCol": 17,
-          "endIndex": 275,
+          "endCol": 8,
+          "endIndex": 249,
+          "endLine": 15,
+          "startCol": 5,
+          "startIndex": 246,
+          "startLine": 15,
+        },
+        "message": "The field 'responses' must be present on this level.",
+        "path": Array [
+          "paths",
+          "user",
+          "get",
+        ],
+        "pathStack": Array [],
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "target": "key",
+        "value": Object {},
+      }
+    `);
+  });
+  test("createErrrorFieldTypeMismatch", () => {
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get", "responses"]
+    };
+    expect(
+      createErrrorFieldTypeMismatch("object", {}, ctx, {
+        severity: messageLevels.ERROR
+      })
+    ).toMatchInlineSnapshot(`
+      Object {
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[0m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
+        "enableCodeframe": true,
+        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
+        "location": Object {
+          "endCol": 16,
+          "endIndex": 266,
           "endLine": 16,
           "startCol": 7,
-          "startIndex": 265,
+          "startIndex": 257,
           "startLine": 16,
         },
-        "message": "The field 'name' must be present on this level.",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m",
+        "message": "This field must be of object type.",
+        "path": Array [
+          "paths",
+          "user",
+          "get",
+          "responses",
+        ],
         "pathStack": Array [],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "target": "key",
+        "value": Object {},
       }
     `);
   });
-});
-
-describe("createErrrorFieldTypeMismatch", () => {
-  test("", () => {
-    const ctx = createContext();
-    ctx.path = [
-      "paths",
-      "/user/{userId}/{name}",
-      "get",
-      "parameters",
-      0,
-      "required"
-    ];
-    const node = { required: 123 };
-    const error = createErrrorFieldTypeMismatch("boolean", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+  test("createErrorMutuallyExclusiveFields", () => {
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get", "responses"]
+    };
+    expect(
+      createErrorMutuallyExclusiveFields(
+        ["responses", "description"],
+        {},
+        ctx,
+        {
+          severity: messageLevels.ERROR
+        }
+      )
+    ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| [39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m
-      [90m19|           [4m[31mrequired[39m[24m: true[39m
-      [90m20|           description: Id of a user[39m",
-        "file": undefined,
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[0m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
+        "enableCodeframe": true,
+        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
         "location": Object {
-          "endCol": 19,
-          "endIndex": 337,
-          "endLine": 19,
-          "startCol": 11,
-          "startIndex": 329,
-          "startLine": 19,
+          "endCol": 16,
+          "endIndex": 266,
+          "endLine": 16,
+          "startCol": 7,
+          "startIndex": 257,
+          "startLine": 16,
         },
-        "message": "This field must be of boolean type.",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
+        "message": "Fields 'responses', 'description' are mutually exclusive.",
+        "path": Array [
+          "paths",
+          "user",
+          "get",
+          "responses",
+        ],
         "pathStack": Array [],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "target": "key",
+        "value": Object {},
       }
     `);
   });
-});
-
-describe("createErrorMutuallyExclusiveFields", () => {
-  const ctx = createContext();
-  ctx.path = [
-    "paths",
-    "/user/{userId}/{name}",
-    "get",
-    "parameters",
-    0,
-    "required"
-  ];
-  const node = { required: 123 };
-  const error = createErrorMutuallyExclusiveFields(
-    ["example", "examples"],
-    node,
-    ctx
-  );
-  expect(error).toMatchInlineSnapshot(`
-    Object {
-      "codeFrame": "[90m16| [39m
-    [90m17|         - name: userId[39m
-    [90m18|           in: path[39m
-    [90m19|           [4m[31mrequired[39m[24m: true[39m
-    [90m20|           description: Id of a user[39m",
-      "file": undefined,
-      "location": Object {
-        "endCol": 19,
-        "endIndex": 337,
-        "endLine": 19,
-        "startCol": 11,
-        "startIndex": 329,
-        "startLine": 19,
-      },
-      "message": "Fields 'example', 'examples' are mutually exclusive.",
-      "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
-      "pathStack": Array [],
-      "prettyPrint": [Function],
-      "severity": "ERROR",
-      "value": Object {
-        "required": 123,
-      },
-    }
-  `);
 });
