@@ -1,6 +1,6 @@
 # Ruleset
 
-Below you can find a list of the all currently supported rules. To change your settings for given rule, just add or modify corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
+All supported rules are listed below. To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
 
 ### api-servers
 OpenAPI servers must be present and be a non-empty array.
@@ -9,47 +9,47 @@ OpenAPI servers must be present and be a non-empty array.
 Each path parameter in the `parameters` section must be present in the path string.
 
 ### license-url
-License, if provided within `info` section must provide `url` field.
+License, if provided within the `info` section, must provide the `url` field.
 
 ### no-unused-schemas
-It might be a bad sign if some of the schemas from the `components` section are not used anywhere. This checks for such scenarios.
+Unused schemas defined in `components` may indicate a mistake. This rule checks for that scenario.
 
 ### operation-2xx-response
-When designing an API it's usually expected to do something succesfully, although it might fail. So, this rule validates, that there is at least one response in the operation with a 2xx status code.
+When designing an API it's usually expected to do something successfully, although it might fail. So, this rule validates, that there is at least one response in the operation with a 2xx status code.
 
 ### operation-description
-This rule enforces to provide `description` field in `operation`s as within large definition it becomes really easy to lose track of things.
+This rule enforces that a `description` field is included in `operation`s definitions.
 
 ### operation-operationId
-Enforce presence of the `operationId` field in each `operation`.
+Enforce presence of the `operationId` field in each `operation`.  This is a highly recommended practice.
 
 ### operation-operationId-unique
-`operationId`s are expected to be unique to really identify operations. This rule checks this principle.
+The `operationId`s are expected to be unique to really identify operations. This rule checks this principle.
 
 ### operation-tags
 The `tags` field must be present and be a non-empty array in each `operation`.
 
 ### path-declarations-must-exist
-Within the `operation` path definition you can define path parametrs. If you do so, each declaration of the parameter name within path must be a non-null string. For example, `/api/user/{userId}/profie` is a valid definition with `userId` parameter, but `/api/user/{}/profile` is not.
+Define path parameters within the `operation` path definition. Each declaration of the parameter name within path must be a non-empty string. For example, `/api/user/{userId}/profie` is a valid definition with the `userId` parameter, but `/api/user/{}/profile` is not.
 
 ### path-keys-no-trailing-slash
-Generally, it is considered less confusing if you do not have trailing slashes in your paths.  Also, it depends on tooling are `example.com/api/users` and `example.com/api/users/` are treated in the same way, so we suggest you to be consistent on this page.
+Endpoints are less confusing without trailing slashes in the path.  Also, tooling may treat `example.com/api/users` and `example.com/api/users/` in the same way, so we suggest you be consistent in your API definition.
 
 ### provide-contact
-Info object must contain `contact` field.
+Info object must contain the `contact` field.
 
-Most of the APIs are not perfect, so there is something useful for your users to know, who can help in case of problems.
+APIs are not perfect, and the contact field lets users know who can help.
 
 ### servers-no-trailing-slash
-Server URL must not have a trailing slash.
+The server URL must not have a trailing slash.
 
-It depends on tooling are `example.com` and `example.com/` are treated in the same way. In the worst case, the latter option when conjuncted with operations paths migth result into `example.com//api/users`.
+Tooling may treat `example.com` and `example.com/` in the same way. In the worst case, the latter option when joined with the operations paths might result in `example.com//api/users`.
 
 ### unique-parameter-names
 Parameters in `operation` objects must be `unique` definition wide.
 
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change message level for each specific type of the OpenAPI Objects. For example, if you have custom structure of the `servers` object, what you can do to prevent error messages regarding it is to update your `.openapi-cli.yaml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects. For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
 
 ```yaml
 ... your configuration
@@ -105,6 +105,6 @@ By default, custom fields, not defined within OpenAPI specification can be inclu
 
 ## Linting rules
 ### suggest-possible-refs
-It is not totally uncommon to have a bad `$ref` in your definition. For example, instead of `#components/schemas/User` one might type `#components/schemas/Use`.
+It is not uncommon to have a bad `$ref` in your definition. For example, instead of `#components/schemas/User` one might type `#components/schemas/Use`.
 
 With this rule enabled, @redocly/openapi-cli will try to find the closest possible valid `$ref` address in the definition.
