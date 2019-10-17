@@ -9,7 +9,6 @@
     "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build",
-    "postinstall": "chmod +x ./dist/index.js",
     "start": "npx babel-node main.js",
     "test": "jest --coverage"
   },
@@ -32,6 +31,14 @@
   },
   "author": "Serhii Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
   "license": "MIT",
+  "keywords": [
+    "linter",
+    "OpenAPI",
+    "Swagger",
+    "OpenAPI linter",
+    "Swagger linter",
+    "oas"
+  ],
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
