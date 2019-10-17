@@ -10,11 +10,11 @@ function loadRuleset(config) {
   const ruleSet = [];
   const configCopy = {
     ...config,
-    rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../extendedRules`,
+    rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
   };
   let rulesDirectory = path.resolve(configCopy.rulesPath);
   if (!fs.existsSync(rulesDirectory)) {
-    rulesDirectory = `${__dirname}/../extendedRules`;
+    rulesDirectory = `${__dirname}/../visitors`;
   }
   const ruleSetDirContents = fs.readdirSync(rulesDirectory)
     .map((fName) => `${rulesDirectory}/${fName}`);
