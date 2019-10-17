@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 
 export const messageLevels = {
@@ -8,10 +9,10 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, path, target) => {
+const getLocationForPath = (fName, nodePath, target) => {
   const fContent = fs.readFileSync(fName, 'utf-8');
   const tempCtx = { source: fContent };
-  const location = getLocationByPath(Array.from(path), tempCtx, target);
+  const location = getLocationByPath(Array.from(nodePath), tempCtx, target);
   // if (!location) {
   //   console.log(path);
   // }
@@ -32,7 +33,7 @@ const createError = (msg, node, ctx, options) => {
     pathStack: ctx.pathStack.map((el) => {
       const startLine = getLocationForPath(el.file, el.path, target);
       return {
-        file: el.file,
+        file: path.relative(process.cwd(), el.file),
         startLine,
         path: Array.from(el.path),
       };
@@ -47,7 +48,7 @@ const createError = (msg, node, ctx, options) => {
       )
       : null,
     value: node,
-    file: ctx.filePath,
+    file: path.relative(process.cwd(), ctx.filePath),
     severity,
     enableCodeframe: ctx.enableCodeframe,
     possibleAlternate,
@@ -69,7 +70,7 @@ export const fromError = (error, ctx) => {
     pathStack: ctx.pathStack.map((el) => {
       const startLine = getLocationForPath(el.file, el.path, error.target);
       return {
-        file: el.file,
+        file: path.relative(process.cwd(), el.file),
         startLine,
         path: Array.from(el.path),
       };

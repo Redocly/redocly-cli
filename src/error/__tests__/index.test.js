@@ -41,7 +41,7 @@ describe("Error templates", () => {
       [90m17|         '200':[39m
       [90m18|           description: example description[39m",
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
@@ -83,7 +83,7 @@ describe("Error templates", () => {
       [90m16|       responses:[39m
       [90m17|         '200':[39m",
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 8,
@@ -124,7 +124,7 @@ describe("Error templates", () => {
       [90m17|         '200':[39m
       [90m18|           description: example description[39m",
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
@@ -171,7 +171,7 @@ describe("Error templates", () => {
       [90m17|         '200':[39m
       [90m18|           description: example description[39m",
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,

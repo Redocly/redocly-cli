@@ -41,7 +41,7 @@ describe("createError", () => {
       [90m23|   project:[39m
       [90m24|     get:[39m",
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 28,
@@ -84,7 +84,7 @@ describe("createError", () => {
       Object {
         "codeFrame": null,
         "enableCodeframe": false,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": "testing",
         "location": Object {
           "endCol": 14,
@@ -140,7 +140,7 @@ describe("fromError", () => {
         "definitionStack": Array [],
         "document": null,
         "enableCodeframe": true,
-        "file": "./definitions/syntetic/syntetic-1.yaml",
+        "file": "definitions/syntetic/syntetic-1.yaml",
         "filePath": "./definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
@@ -160,7 +160,7 @@ describe("fromError", () => {
         ],
         "pathStack": Array [
           Object {
-            "file": "./definitions/syntetic/syntetic-1.yaml",
+            "file": "definitions/syntetic/syntetic-1.yaml",
             "path": Array [
               "paths",
               "user",

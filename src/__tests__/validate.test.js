@@ -25,7 +25,7 @@ describe("Traverse files", () => {
       [90m10|     noRef:[39m
       [90m11|       [4m[31m$ref: 'bad.yaml#/does/not/exist'[0m[24m[39m",
           "enableCodeframe": true,
-          "file": "/Users/knidarkness/tmp/openapi-cli/definitions/syntetic/to_bundle/./operations/api/../../components/parameters/parameter.name.yml",
+          "file": "definitions/syntetic/to_bundle/components/parameters/parameter.name.yml",
           "fromRule": "resolve-ref",
           "location": Object {
             "endCol": 39,
@@ -44,7 +44,7 @@ describe("Traverse files", () => {
           ],
           "pathStack": Array [
             Object {
-              "file": "/Users/knidarkness/tmp/openapi-cli/definitions/syntetic/to_bundle/main.yaml",
+              "file": "definitions/syntetic/to_bundle/main.yaml",
               "path": Array [
                 "paths",
                 "/api",
@@ -53,7 +53,7 @@ describe("Traverse files", () => {
               "startLine": 12,
             },
             Object {
-              "file": "/Users/knidarkness/tmp/openapi-cli/definitions/syntetic/to_bundle/./operations/api/api-get.yaml",
+              "file": "definitions/syntetic/to_bundle/operations/api/api-get.yaml",
               "path": Array [
                 "parameters",
                 0,
