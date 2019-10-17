@@ -119,4 +119,4 @@ Beware, if the file specified as the bundler's output already exists, it will be
 
 ## Credits
 
-Thanks to Swagger, Spectral, and Speccy for inspiring ruleset.
+Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to Swagger, Spectral, and Speccy for inspiring the ruleset.
