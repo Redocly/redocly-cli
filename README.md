@@ -89,9 +89,9 @@ rules:
 Here is an example of a modified use `.openapi-cli.yaml` file:
 
 ```yaml
-codeframes: on,
+codeframes: on
 rules:
-  no-extra-fields: off,
+  no-extra-fields: off
   external-docs:
     url: off
   license-required:

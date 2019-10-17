@@ -54,7 +54,7 @@ This rule enforces the structural validation of the OpenAPI definitions accordin
 ```yaml
 ... your configuration
 rules: 
-  ...other rules,
+  ...other rules
   oas3-schema: 
     servers:
       level: warning    
@@ -63,7 +63,7 @@ or even totally disable:
 ```yaml
 ... your configuration
 rules: 
-  ...other rules,
+  ...other rules
   oas3-schema: 
     servers: off
 ```
