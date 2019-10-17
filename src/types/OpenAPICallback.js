@@ -2,6 +2,7 @@
 import { OpenAPIPathItem } from './OpenAPIPaths';
 
 export const OpenAPICallback = {
+  name: 'OpenAPICallback',
   isIdempotent: true,
   properties(node) {
     const props = {};
@@ -14,6 +15,7 @@ export const OpenAPICallback = {
 
 
 export const OpenAPICallbackMap = {
+  name: 'OpenAPICallbackMap',
   isIdempotent: true,
   properties(node) {
     const props = {};
