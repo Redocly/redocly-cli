@@ -1,5 +1,5 @@
 
-enableCodeframes: on
+codeframes: on
 rules:
   bundler: off
   debug-info: off

@@ -139,7 +139,7 @@ const cli = () => {
     .action((filePath, cmdObj) => {
       const options = {};
 
-      options.enableCodeframes = cmdObj.frame;
+      options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
 
       const result = validateFromFile(filePath, options);
