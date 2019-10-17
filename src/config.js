@@ -5,9 +5,9 @@ import yaml from 'js-yaml';
 function getConfig(options) {
   let config = {};
   let { configPath } = options;
-  if (!configPath) configPath = `${process.cwd()}/revalid.config.json`;
+  if (!configPath) configPath = `${process.cwd()}/.redocly.yml`;
 
-  const defaultConfigRaw = fs.readFileSync(`${__dirname}/revalid.default.config.json`, 'utf-8');
+  const defaultConfigRaw = fs.readFileSync(`${__dirname}/.redocly.yml`, 'utf-8');
   const defaultConfig = yaml.safeLoad(defaultConfigRaw);
 
   if (fs.existsSync(configPath)) {
