@@ -89,7 +89,7 @@ rules:
   servers-no-trailing-slash: off
 ```
 
-Here is an example of a modified use `.openapi.yml` file:
+Here is an example of a modified use `.openapi-cli.yaml` file:
 
 ```yaml
 enableCodeframe: true,

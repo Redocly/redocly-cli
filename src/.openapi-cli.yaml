@@ -1,6 +1,5 @@
 
-enableCodeframe: true
-enbaleCustomRuleset: true
+enableCodeframes: on
 rules:
   bundler: off
   debug-info: off

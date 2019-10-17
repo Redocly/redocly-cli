@@ -1,6 +1,6 @@
 # Ruleset
 
-Below you can find a list of the all currently supported rules. To change your settings for given rule, just add or modify corresponding item in the `rules` section of the `.openapi.yml` in your working directory.
+Below you can find a list of the all currently supported rules. To change your settings for given rule, just add or modify corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
 
 ### api-servers
 OpenAPI servers must be present and be a non-empty array.
@@ -49,7 +49,7 @@ It depends on tooling are `example.com` and `example.com/` are treated in the sa
 Parameters in `operation` objects must be `unique` definition wide.
 
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change message level for each specific type of the OpenAPI Objects. For example, if you have custom structure of the `servers` object, what you can do to prevent error messages regarding it is to update your `.redocly.yml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change message level for each specific type of the OpenAPI Objects. For example, if you have custom structure of the `servers` object, what you can do to prevent error messages regarding it is to update your `.openapi-cli.yaml` to the following pattern:
 
 ```yaml
 ... your configuration
