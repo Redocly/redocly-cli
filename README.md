@@ -56,9 +56,9 @@ In the section below, you can check about how one can provide settings for the `
 
 ## Configuration
 
-All of the following rules are configurable in terms of disabling or changing their severity. In order to update given rule, you should modify (or create) the `.openapi.yml` file in the directory from which you are going to run the validator.
+All of the following rules are configurable in terms of disabling or changing their severity. In order to update given rule, you should modify (or create) the `.openapi-cli.yaml` file in the directory from which you are going to run the validator.
 
-Also, you can provide path to configuration file name other than `.openapi.yml` by using `--config` option when running the @redocly/openapi-cli.
+Also, you can provide path to configuration file name other than `.openapi-cli.yaml` by using `--config` option when running the @redocly/openapi-cli.
 
 If you are creating it from scratch, you might also want to enable/disable codeframe for the full output.
 
@@ -88,7 +88,7 @@ rules:
   servers-no-trailing-slash: off
 ```
 
-Here is an example of a modified use `.openapi.yml` file:
+Here is an example of a modified use `.openapi-cli.yaml` file:
 
 ```yaml
 enableCodeframe: true,
