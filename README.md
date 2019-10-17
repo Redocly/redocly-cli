@@ -49,7 +49,7 @@ More detailed guide about configuring the validator can be found [here](RULES.md
 
 ### Custom validation rules
 
-To create a custom validation rule you should only define a class which extends `AbstractRule`. Inside this class, you can define methods for each type of the OpenAPI Nodes, which returns two methods: `onEnter` and `onExit`. Also, you can use `any()` descriptor to call the rule for all the nodes in your document. These methods will receive four arguments:
+To create a custom validation rule you should only define a class which extends `AbstractVisitor`. Inside this class, you can define methods for each type of the OpenAPI Nodes, which returns two methods: `onEnter` and `onExit`. Also, you can use `any()` descriptor to call the rule for all the nodes in your document. These methods will receive four arguments:
 - node
 - type object
 - context
@@ -62,7 +62,7 @@ So, the simplest rule example is following:
 ```js
 import createError from '../error'; // later it will be a separete package: @revalid/rules
 
-class ExampleRule extends AbstractRule {
+class ExampleRule extends AbstractVisitor {
   static get ruleName() {
     return 'exampleRule';
   }

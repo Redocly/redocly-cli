@@ -3,9 +3,9 @@ import createError, { createErrorMissingRequiredField } from '../../../error';
 
 import { isUrl } from '../../../utils';
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPILicense extends AbstractRule {
+class ValidateOpenAPILicense extends AbstractVisitor {
   static get ruleName() {
     return 'license';
   }

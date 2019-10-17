@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 import createError from '../../../error';
 
-class PathDeclarationsMustExist extends AbstractRule {
+class PathDeclarationsMustExist extends AbstractVisitor {
   static get ruleName() {
     return 'pathDeclarationsMustExist';
   }

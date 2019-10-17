@@ -2,9 +2,9 @@
 import { createErrorMutuallyExclusiveFields } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPIMediaObject extends AbstractRule {
+class ValidateOpenAPIMediaObject extends AbstractVisitor {
   static get ruleName() {
     return 'media-object';
   }

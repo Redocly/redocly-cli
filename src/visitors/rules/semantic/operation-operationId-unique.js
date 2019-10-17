@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import createError from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class OperationIdUnique extends AbstractRule {
+class OperationIdUnique extends AbstractVisitor {
   static get ruleName() {
     return 'operation-operationId-unique';
   }

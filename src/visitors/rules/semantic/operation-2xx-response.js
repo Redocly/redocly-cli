@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import createError from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class Operation2xxResponse extends AbstractRule {
+class Operation2xxResponse extends AbstractVisitor {
   static get ruleName() {
     return 'operation2xxResponse';
   }

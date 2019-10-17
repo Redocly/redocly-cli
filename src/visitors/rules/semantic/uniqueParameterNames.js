@@ -1,7 +1,7 @@
 import createError from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class UniqueParameterNames extends AbstractRule {
+class UniqueParameterNames extends AbstractVisitor {
   static get ruleName() {
     return 'uniqueParameterNames';
   }

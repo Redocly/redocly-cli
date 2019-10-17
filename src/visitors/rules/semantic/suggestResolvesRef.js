@@ -1,7 +1,7 @@
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 import { getClosestString } from '../../../utils';
 
-class SuggestPossibleRefs extends AbstractRule {
+class SuggestPossibleRefs extends AbstractVisitor {
   static get ruleName() {
     return 'suggestPossibleRefs';
   }

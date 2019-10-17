@@ -2,9 +2,9 @@
 import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPIParameter extends AbstractRule {
+class ValidateOpenAPIParameter extends AbstractVisitor {
   static get ruleName() {
     return 'parameter';
   }

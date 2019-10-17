@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { createErrorMissingRequiredField } from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class OperationDescription extends AbstractRule {
+class OperationDescription extends AbstractVisitor {
   static get ruleName() {
     return 'operation-description';
   }

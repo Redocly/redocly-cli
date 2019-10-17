@@ -3,9 +3,9 @@ import createError, { createErrrorFieldTypeMismatch, createErrorMissingRequiredF
 
 import { isUrl } from '../../../utils';
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPIExternalDocumentation extends AbstractRule {
+class ValidateOpenAPIExternalDocumentation extends AbstractVisitor {
   static get ruleName() {
     return 'external-docs';
   }

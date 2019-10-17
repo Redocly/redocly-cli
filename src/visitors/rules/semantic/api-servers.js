@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 import { createErrorMissingRequiredField } from '../../../error';
 
-class ApiServers extends AbstractRule {
+class ApiServers extends AbstractVisitor {
   static get ruleName() {
     return 'apiServers';
   }

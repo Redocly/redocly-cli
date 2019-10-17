@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import AbstractRule from './utils/AbstractRule';
+import AbstractVisitor from './utils/AbstractVisitor';
 
-class DebugInfo extends AbstractRule {
+class DebugInfo extends AbstractVisitor {
   constructor() {
     super();
     this.count = 0;

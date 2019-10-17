@@ -2,9 +2,9 @@
 import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPISecuritySchema extends AbstractRule {
+class ValidateOpenAPISecuritySchema extends AbstractVisitor {
   static get ruleName() {
     return 'secuirty-schema';
   }

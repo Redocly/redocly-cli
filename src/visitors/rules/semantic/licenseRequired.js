@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { createErrorMissingRequiredField } from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class LicenseRequired extends AbstractRule {
+class LicenseRequired extends AbstractVisitor {
   static get ruleName() {
     return 'license-required';
   }

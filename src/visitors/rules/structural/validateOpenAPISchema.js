@@ -3,9 +3,9 @@ import createError, { createErrrorFieldTypeMismatch } from '../../../error';
 
 import { matchesJsonSchemaType, getClosestString } from '../../../utils';
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPISchema extends AbstractRule {
+class ValidateOpenAPISchema extends AbstractVisitor {
   static get ruleName() {
     return 'schema';
   }

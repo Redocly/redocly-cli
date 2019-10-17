@@ -1,7 +1,7 @@
 import createError from '../../../error';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class NoUnusedComponents extends AbstractRule {
+class NoUnusedComponents extends AbstractVisitor {
   constructor(config) {
     super(config);
     this.components = {};

@@ -1,9 +1,9 @@
 import fs from 'fs';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
 import createError from '../../../error';
 
-class NoRefSiblings extends AbstractRule {
+class NoRefSiblings extends AbstractVisitor {
   static get ruleName() {
     return 'no-$ref-siblings';
   }

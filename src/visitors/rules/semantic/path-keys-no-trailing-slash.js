@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 import createError from '../../../error';
 
-class PathKeysNoTrailingSlash extends AbstractRule {
+class PathKeysNoTrailingSlash extends AbstractVisitor {
   static get ruleName() {
     return 'pathKeysNoTrailingSlash';
   }

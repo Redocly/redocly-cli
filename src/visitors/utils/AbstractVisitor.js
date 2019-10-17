@@ -1,7 +1,7 @@
 import { messageLevels } from '../../error/default';
 import ruleTypes from './rulesTypes';
 
-class AbstractRule {
+class AbstractVisitor {
   constructor(config) {
     this.config = { ...config };
     switch (this.config.level) {
@@ -28,4 +28,4 @@ class AbstractRule {
   }
 }
 
-export default AbstractRule;
+export default AbstractVisitor;

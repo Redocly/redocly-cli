@@ -2,9 +2,9 @@
 import { createErrrorFieldTypeMismatch } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPIContact extends AbstractRule {
+class ValidateOpenAPIContact extends AbstractVisitor {
   static get ruleName() {
     return 'contact';
   }

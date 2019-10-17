@@ -1,9 +1,9 @@
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
 import { createErrorFieldNotAllowed, createErrrorFieldTypeMismatch } from '../../../error';
 import { getClosestString } from '../../../utils';
 
-class NoExtraFields extends AbstractRule {
+class NoExtraFields extends AbstractVisitor {
   static get ruleName() {
     return 'no-extra-fields';
   }

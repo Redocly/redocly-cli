@@ -2,9 +2,9 @@
 import { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPIDiscriminator extends AbstractRule {
+class ValidateOpenAPIDiscriminator extends AbstractVisitor {
   static get ruleName() {
     return 'discriminator';
   }

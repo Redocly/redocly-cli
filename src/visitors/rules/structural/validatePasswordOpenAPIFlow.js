@@ -2,9 +2,9 @@
 import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
 
 import isRuleEnabled from '../../utils';
-import AbstractRule from '../../utils/AbstractRule';
+import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidatePasswordOpenAPIFlow extends AbstractRule {
+class ValidatePasswordOpenAPIFlow extends AbstractVisitor {
   static get ruleName() {
     return 'password-flow';
   }
