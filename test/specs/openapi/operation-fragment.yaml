@@ -1,8 +1,0 @@
-description: test desc
-parameters:
-  - name: userId
-    required: true
-    in: path
-responses:
-  '200':
-    description: bla

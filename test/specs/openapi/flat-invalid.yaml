@@ -1,9 +1,0 @@
-version: 3.0.0
-info:
-  title: Simple spec
-  contact:
-    email: serhii@redoc.ly
-  license:
-    name: MIT
-    url: 'https://example.org'
-  version: 1.0.0
