@@ -1,4 +1,4 @@
-![@redocly/openapi-cli output screenshot](/media/openapi-cli.gif)
+![@redocly/openapi-cli output screenshot](/media/openapi.gif)
 
 # OpenAPI 3 CLI toolset
 
