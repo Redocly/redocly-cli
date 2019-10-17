@@ -124,7 +124,9 @@ function traverseNode(node, definition, ctx, visited = []) {
   } else {
     runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors);
 
-    if (!isRecursive && (!definition.isIdempotent || !ctx.visited.includes(currentPath))) {
+    const newNode = !isRecursive
+      && (!definition.isIdempotent || !ctx.visited.includes(currentPath));
+    if (newNode) {
       if (!ctx.visited.includes(currentPath)) ctx.visited.push(currentPath);
 
       const errorsChildren = traverseChildren(
@@ -137,13 +139,10 @@ function traverseNode(node, definition, ctx, visited = []) {
         ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
 
       ctx.result.push(...cachedResult);
-      onNodeExit(nodeContext, ctx);
-      return errors;
     }
 
     runRuleOnRuleset(nodeContext, 'onExit', ctx, definition, node, errors);
-
-    ctx.cache[currentPath] = errors;
+    if (newNode) ctx.cache[currentPath] = errors;
   }
   onNodeExit(nodeContext, ctx);
   return errors;

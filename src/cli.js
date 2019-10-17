@@ -65,14 +65,18 @@ const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
   return message;
 };
 
-const errorBelongsToGroup = (error, group) => error.msg === group.msg
+const errorBelongsToGroup = (error, group) => error.message === group.message
     && error.path.join('/') === group.path.join('/')
     && error.severity === group.severity
     && error.location.startIndex === group.location.startIndex
     && error.location.endIndex === group.location.endIndex
     && error.location.possibleAlternate === group.location.possibleAlternate;
 
-const errorAlreadyInGroup = (error, group) => group.pathStacks.filter((stack) => JSON.stringify(stack) === JSON.stringify(error.pathStack)).length > 0;
+const errorAlreadyInGroup = (error, group) => group
+  .pathStacks
+  .filter(
+    (stack) => JSON.stringify(stack) === JSON.stringify(error.pathStack),
+  ).length > 0;
 
 const groupFromError = (error) => ({
   message: error.message,
@@ -179,7 +183,6 @@ const cli = () => {
           .sort((a, b) => a.severity < b.severity)
           .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
       }
-
 
       process.stdout.write(`Total: errors: ${totalErrors}, warnings: ${totalWarnings}\n`);
       process.exit(totalErrors ? -1 : 0);
