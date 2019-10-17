@@ -19,7 +19,7 @@ function createContext(node, sourceFile, filePath, config) {
     definitionStack: [],
     pathStack: [],
     source: sourceFile,
-    enableCodeframe: config && config.enableCodeframe ? config.enableCodeframe : false,
+    enableCodeframe: !!(config && (config.enableCodeframes === 'on' || config.enableCodeframes === true)),
     // customRules: config && config.enbaleCustomRuleset ? loadRuleset(config) : [],
     customRules: loadRuleset(config),
     config,
