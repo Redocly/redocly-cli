@@ -1,6 +1,0 @@
-openapi: 3.0.1
-info:
-  taitle: 123
-  license:
-    name: Test license
-  version: 0.0.1
