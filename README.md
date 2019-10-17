@@ -1,5 +1,3 @@
-![@redocly/openapi-cli output screenshot](/media/openapi.gif)
-
 # OpenAPI 3 CLI toolset
 
 - [OpenAPI 3 CLI toolset](#openapi-3-cli-toolset)
@@ -9,6 +7,8 @@
   - [Usage](#usage)
   - [Configuration](#configuration)
   - [Bundling](#bundling)
+
+![@redocly/openapi-cli output screenshot](/media/openapi.gif)
 
 ## Features
 
