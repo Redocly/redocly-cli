@@ -135,8 +135,7 @@ function traverseNode(node, definition, ctx, visited = []) {
       errors.push(...errorsChildren);
     } else {
       // Will use cached result if we have already traversed this nodes children
-      const cachedResult = ctx.cache[currentPath]
-        ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
+      const cachedResult = ctx.cache[currentPath] ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
 
       ctx.result.push(...cachedResult);
     }

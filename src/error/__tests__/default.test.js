@@ -1,190 +1,182 @@
-import fs from "fs";
 import yaml from "js-yaml";
-import createError from "../default";
+import fs from "fs";
 
-const getSource = () =>
-  fs.readFileSync("./test/specs/openapi/test-1.yaml", "utf-8");
+import createError, { messageLevels, fromError } from "../default";
 
-const createContext = () => ({
-  document: yaml.safeLoad(getSource()),
-  path: ["paths", "/user/{userId}/{name}", "get", "parameters", 0, "required"],
+const createCtx = () => ({
+  document: yaml.safeLoad(
+    fs.readFileSync("./definitions/syntetic/syntetic-1.yaml", "utf-8")
+  ),
+  filePath: "./definitions/syntetic/syntetic-1.yaml",
+  path: [],
+  cache: {},
+  visited: [],
+  definitionStack: [],
   pathStack: [],
-  source: getSource(),
+  source: fs.readFileSync("./definitions/syntetic/syntetic-1.yaml", "utf-8"),
   enableCodeframe: true
 });
 
 describe("createError", () => {
   test("", () => {
-    const ctx = createContext();
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get", "responses"]
+    };
+    expect(
+      createError("This is a test error", {}, ctx, {
+        severity: messageLevels.ERROR
+      })
+    ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| [39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m
-      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
-      [90m20|           description: Id of a user[39m
-      [90m21|           schema:[39m",
-        "file": undefined,
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses:[39m
+      [90m17|[39m[31m         '200':[0m
+      [90m18|[39m[31m           description: example description[0m
+      [90m19|[39m[31m           content:[0m
+      [90m20|[39m[31m             application/json:[0m
+      [90m21|[39m[31m               schema:[0m
+      [90m22|[39m[31m                 type: object[0m[24m[0m
+      [90m23|   project:[39m
+      [90m24|     get:[39m",
+        "enableCodeframe": true,
+        "file": "definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
         "location": Object {
-          "endCol": 24,
-          "endIndex": 343,
-          "endLine": 19,
-          "startCol": 11,
-          "startIndex": 329,
-          "startLine": 19,
+          "endCol": 28,
+          "endIndex": 425,
+          "endLine": 22,
+          "startCol": 7,
+          "startIndex": 257,
+          "startLine": 16,
         },
-        "message": "test error msg",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
+        "message": "This is a test error",
+        "path": Array [
+          "paths",
+          "user",
+          "get",
+          "responses",
+        ],
         "pathStack": Array [],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "target": undefined,
+        "value": Object {},
       }
     `);
   });
 
-  test("create error with no codeframe", () => {
-    const ctx = createContext();
-    ctx.enableCodeframe = false;
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+  test("", () => {
+    const ctx = {
+      ...createCtx(),
+      path: [],
+      enableCodeframe: false
+    };
+    expect(
+      createError("This is a test error", {}, ctx, {
+        severity: messageLevels.ERROR,
+        target: "key",
+        possibleAlternate: "example",
+        fromRule: "testing"
+      })
+    ).toMatchInlineSnapshot(`
       Object {
         "codeFrame": null,
-        "file": undefined,
+        "enableCodeframe": false,
+        "file": "definitions/syntetic/syntetic-1.yaml",
+        "fromRule": "testing",
         "location": Object {
-          "endCol": 24,
-          "endIndex": 343,
-          "endLine": 19,
-          "startCol": 11,
-          "startIndex": 329,
-          "startLine": 19,
+          "endCol": 14,
+          "endIndex": 14,
+          "endLine": 1,
+          "startCol": 0,
+          "startIndex": 0,
+          "startLine": 1,
         },
-        "message": "test error msg",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
+        "message": "This is a test error",
+        "path": Array [],
         "pathStack": Array [],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
+        "possibleAlternate": "example",
+        "severity": 4,
+        "target": "key",
+        "value": Object {},
       }
     `);
   });
+});
 
-  test("pretty print error", () => {
-    const ctx = createContext();
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
-
-      test error msg
-
-      [90m16| [39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m
-      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
-      [90m20|           description: Id of a user[39m
-      [90m21|           schema:[39m
-
-
-      "
-    `);
-  });
-
-  test("pretty print error without codeframe", () => {
-    const ctx = createContext();
-    ctx.enableCodeframe = false;
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
-
-      test error msg
-
-
-      "
-    `);
-  });
-
-  test("create error with path stack", () => {
-    const ctx = createContext();
-    ctx.pathStack = [
-      {
-        path: ["paths"],
-        file: "test/specs/openapi/test-1.yaml"
-      }
-    ];
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error).toMatchInlineSnapshot(`
+describe("fromError", () => {
+  test("", () => {
+    const ctx = {
+      ...createCtx(),
+      path: ["paths", "user", "get", "responses"],
+      pathStack: [
+        {
+          file: createCtx().filePath,
+          path: ["paths", "user", "get", "responses"]
+        }
+      ]
+    };
+    const baseError = createError("This is a test error", {}, ctx, {
+      severity: messageLevels.ERROR
+    });
+    ctx.path = ["paths", "project", "get", "responses"];
+    expect(fromError(baseError, ctx)).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m16| [39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m
-      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
-      [90m20|           description: Id of a user[39m
-      [90m21|           schema:[39m",
-        "file": undefined,
+        "AST": null,
+        "cache": Object {},
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses:[39m
+      [90m17|[39m[31m         '200':[0m
+      [90m18|[39m[31m           description: example description[0m
+      [90m19|[39m[31m           content:[0m
+      [90m20|[39m[31m             application/json:[0m
+      [90m21|[39m[31m               schema:[0m
+      [90m22|[39m[31m                 type: object[0m[24m[0m
+      [90m23|   project:[39m
+      [90m24|     get:[39m",
+        "definitionStack": Array [],
+        "document": null,
+        "enableCodeframe": true,
+        "file": "definitions/syntetic/syntetic-1.yaml",
+        "filePath": "./definitions/syntetic/syntetic-1.yaml",
+        "fromRule": undefined,
         "location": Object {
-          "endCol": 24,
-          "endIndex": 343,
-          "endLine": 19,
-          "startCol": 11,
-          "startIndex": 329,
-          "startLine": 19,
+          "endCol": 28,
+          "endIndex": 425,
+          "endLine": 22,
+          "startCol": 7,
+          "startIndex": 257,
+          "startLine": 16,
         },
-        "message": "test error msg",
-        "path": "[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m",
-        "pathStack": Array [
-          "[94mtest/specs/openapi/test-1.yaml:11[39m [90m#/paths[39m",
-        ],
-        "prettyPrint": [Function],
-        "severity": "ERROR",
-        "value": Object {
-          "required": 123,
-        },
-      }
-    `);
-  });
-
-  test("pretty print error with path stack", () => {
-    const ctx = createContext();
-    ctx.pathStack = [
-      {
-        path: [
+        "message": "This is a test error",
+        "path": Array [
           "paths",
-          "/user/{userId}/{name}",
+          "user",
           "get",
-          "parameters",
-          0,
-          "required"
+          "responses",
         ],
-        file: "test/specs/openapi/test-1.yaml"
+        "pathStack": Array [
+          Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "get",
+              "responses",
+            ],
+            "startLine": 16,
+          },
+        ],
+        "possibleAlternate": undefined,
+        "severity": 4,
+        "source": null,
+        "target": undefined,
+        "value": Object {},
+        "visited": Array [],
       }
-    ];
-    const node = { required: 123 };
-    const error = createError("test error msg", node, ctx);
-    expect(error.prettyPrint()).toMatchInlineSnapshot(`
-      "[41mundefined:19:11[49m [90mat #/[90mpaths[39m[90m/[39m[90m['[39m[94m/user/{userId}/{name}[39m[90m'][39m[90m/[39m[90mget[39m[90m/[39m[90mparameters[39m[90m/[39m[90m0[39m[90m/[39m[90mrequired[39m[39m
-        from [94mtest/specs/openapi/test-1.yaml:19[39m [90m#/paths//user/{userId}/{name}/get/parameters/0/required[39m
-
-      test error msg
-
-      [90m16| [39m
-      [90m17|         - name: userId[39m
-      [90m18|           in: path[39m
-      [90m19|[39m[31m           [4m[31mrequired: true[39m[24m[39m
-      [90m20|           description: Id of a user[39m
-      [90m21|           schema:[39m
-
-
-      "
     `);
   });
 });

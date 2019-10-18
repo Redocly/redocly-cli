@@ -1,4 +1,4 @@
-import { matchesJsonSchemaType, isUrl } from '../index';
+import { matchesJsonSchemaType, isUrl, getClosestString } from '../index';
 
 describe('isUrl', () => {
   test('https valid url', () => {
@@ -66,4 +66,18 @@ describe('matchesJsonSchemaType', () => {
     expect(matchesJsonSchemaType(null, 'array')).toEqual(false);
     expect(matchesJsonSchemaType('string', 'array')).toEqual(false);
   });
+});
+
+describe('getClosestString', () => {
+  const names = [
+    'apple',
+    'banana',
+    'apple inc',
+  ];
+
+  expect(getClosestString('apple nc', names)).toEqual('apple inc');
+  expect(getClosestString('apple', names)).toEqual('apple');
+  expect(getClosestString('Apple', names)).toEqual('apple');
+  expect(getClosestString('firefox', names)).toEqual(null);
+  expect(getClosestString('firefox', [])).toEqual(null);
 });

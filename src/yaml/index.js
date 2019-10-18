@@ -45,9 +45,10 @@ const endOfFirstLine = (text) => {
 export const getLocationByPath = (path, ctx, target) => {
   const AST = parseAST(ctx);
   const node = getNodeByPath(AST, path.reverse(), target);
-  if (!node) {
-    return null;
-  }
+  // TODO: regression test
+  // if (!node) {
+  //   return null;
+  // }
 
   const frame = ctx.source.substring(node.startPosition, node.endPosition + 1);
   const offset = frame.length - frame.trimRight().length;
@@ -76,11 +77,6 @@ export const getLocationByPath = (path, ctx, target) => {
     startIndex: node.startPosition,
     endIndex,
   };
-};
-
-export const getLocationByPathURI = (path, ctx, target) => {
-  const pathArray = path.replace('#/', '').split('/');
-  return getLocationByPath(pathArray, ctx, target);
 };
 
 export const getCodeFrameForLocation = (
