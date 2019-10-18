@@ -15,7 +15,7 @@ class PathKeysNoTrailingSlash extends AbstractVisitor {
     return {
       onEnter: (node, _, ctx) => {
         const pathLen = ctx.path.length;
-        return ctx.path[pathLen - 1][ctx.path[pathLen - 1].length] !== '/'
+        return pathLen === 0 || ctx.path[pathLen - 1][ctx.path[pathLen - 1].length] !== '/'
           ? null
           : [createError(
             'Trailing spaces in path are not recommended.', node, ctx, {
