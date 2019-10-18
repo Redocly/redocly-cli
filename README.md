@@ -3,6 +3,8 @@
 OpenAPI 3 CLI toolbox with rich validation and bundling features.
 
 ![Travis (.org)](https://img.shields.io/travis/Redocly/openapi-cli)
+![npm (scoped)](https://img.shields.io/npm/v/@redocly/openapi-cli)
+![NPM](https://img.shields.io/npm/l/@redocly/openapi-cli)
 
 ![OpenAPI 3 CLI toolset](https://user-images.githubusercontent.com/24596796/67019141-dc517580-f104-11e9-811a-46135e8f2048.gif)
 
