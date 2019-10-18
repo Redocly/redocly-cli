@@ -14,7 +14,7 @@ class PathDeclarationsMustExist extends AbstractVisitor {
 
   OpenAPIPath() {
     return {
-      onEnter: (node, _, ctx) => (ctx.path[ctx.path.length - 1].indexOf('{}') === -1
+      onEnter: (node, _, ctx) => (ctx.path.length === 0 || ctx.path[ctx.path.length - 1].indexOf('{}') === -1
         ? null
         : createError(
           'Path parameter declarations must be non-empty. {} is invalid.', node, ctx, {
