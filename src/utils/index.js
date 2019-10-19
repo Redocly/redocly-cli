@@ -1,6 +1,8 @@
 // @ts-check
 /** @typedef {'string'|'number'|'integer'|'boolean'|'null'|'object'|'array'} JSONSchemaType */
 
+import chalk from 'chalk';
+
 /* eslint-disable import/prefer-default-export */
 const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name
@@ -10,14 +12,16 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 
 export const isUrl = (string) => urlPattern.test(string);
-export const outputRed = (str) => `\u001b[31m${str}\u001b[0m`;
-export const outputUnderline = (str) => `\u001b[4m${str}\u001b[24m`;
-export const outputBgLightBlue = (str) => `\u001b[44m${str}\u001b[0m`;
-export const outputLightBlue = (str) => `\u001b[94m${str}\u001b[0m`;
-export const outputGrey = (str) => `\u001b[90m${str}\u001b[39m`;
-export const outputBgRed = (str) => `\u001b[41m${str}\u001b[0m`;
-export const outputBgYellow = (str) => `\u001b[43m${str}\u001b[0m`;
-export const outputYellow = (str) => `\u001b[33m${str}\u001b[0m`;
+
+export const outputRed = (str) => chalk.red(str);
+export const outputUnderline = (str) => chalk.underline(str);
+export const outputBgLightBlue = (str) => chalk.bgBlueBright(str);
+
+export const outputLightBlue = (str) => chalk.blueBright(str);
+export const outputGrey = (str) => chalk.grey(str);
+export const outputBgRed = (str) => chalk.bgRed(str);
+export const outputBgYellow = (str) => chalk.bgYellow(str);
+export const outputYellow = (str) => chalk.yellow(str);
 export const getLineNumberFromId = (source, charId) => {
   let lineNum = 1;
   let posNum = 0;
