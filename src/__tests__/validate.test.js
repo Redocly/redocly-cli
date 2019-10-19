@@ -61,7 +61,7 @@ describe("Traverse files", () => {
               "startLine": 2,
             },
           ],
-          "possibleAlternate": null,
+          "possibleAlternate": undefined,
           "severity": 4,
           "target": undefined,
           "value": Object {

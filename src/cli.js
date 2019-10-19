@@ -12,7 +12,7 @@ import {
   outputYellow,
   outputUnderline,
 } from './utils';
-import { validateFromFile } from './validate';
+import { validateFromFile, bundle } from './validate';
 import { messageLevels } from './error/default';
 
 const colorizeMessageHeader = (msg, longestPath) => {
@@ -131,10 +131,19 @@ const groupByFiles = (result) => {
 
 const cli = () => {
   program
+    .command('bundle <startingPoint> <outputName>')
+    .description('Create a bundle using <startingPoint> as a root document.')
+    .action((startingPoint, outputName) => {
+      bundle(startingPoint, outputName);
+      process.stdout.write(`Created a bundle for ${startingPoint} at ${outputName}.`);
+      process.exit(0);
+    });
+
+  program
     .command('validate <filePath>')
     .description('Validate given Open API 3 definition file.')
-    .option('-s, --short', 'Reduce output to required minimun')
-    .option('-f, --no-frame', 'Print no codeframes with errors.')
+    .option('--short', 'Reduce output to required minimun')
+    .option('--no-frame', 'Print no codeframes with errors.')
     .option('--config <path>', 'Specify custom yaml or json config')
     .action((filePath, cmdObj) => {
       const options = {};
