@@ -27,26 +27,24 @@ function loadRuleset(config) {
     const Rule = require(file);
     const ruleInstanceInit = new Rule();
     let ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
+    const s = ruleInstanceInit.rule.split('/')[0];
+    if (!ruleConfig) {
+      ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+
+      if (ruleConfig && typeof ruleConfig === 'object') {
+        const allowed = ['level'];
+
+        ruleConfig = Object.keys(ruleConfig)
+          .filter((key) => allowed.includes(key))
+          .reduce((obj, key) => {
+            obj[key] = ruleConfig[key];
+            return obj;
+          }, {});
+      }
+    }
+
     if (configCopy && configCopy.rules) {
-      if (ruleConfig !== 'off') {
-        const s = ruleInstanceInit.rule.split('/')[0];
-        // console.log(ruleInstanceInit.rule, ruleConfig);
-        if (!ruleConfig) {
-          ruleConfig = getObjByPathOrParent(configCopy.rules, s);
-
-          if (ruleConfig && typeof ruleConfig === 'object') {
-            const allowed = ['level'];
-
-            ruleConfig = Object.keys(ruleConfig)
-              .filter((key) => allowed.includes(key))
-              .reduce((obj, key) => {
-                obj[key] = ruleConfig[key];
-                return obj;
-              }, {});
-          }
-
-          // console.log(ruleConfig);
-        }
+      if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
         const ruleInstance = new Rule(ruleConfig);
         ruleSet.push(ruleInstance);
       }

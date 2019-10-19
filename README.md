@@ -44,14 +44,30 @@ Run `openapi -h` to confirm the installation was successful (you'll see the usag
 
 ## Usage
 
-Currently, `@redocly/openapi-cli` supports only one command:
+Currently, `@redocly/openapi-cli` provides two commands `validate` and `bundle`.
 
-```validate [options] <filePath>```
+### Bundling
+
+You can bundle your OpenAPI 3 definition into a single file (this may be important for certain tools that lack multifile support). To bundle your OpenAPI 3 definition run following command:
+
+```
+openapi bundle <startingPoint> <outputName>
+```
+
+`<startingPoint>` is the name of your root document and `<outputName>` is desired output filename.
+
+Supported extensions for `outputName` are `.json`, `.yml` and `.yaml`.
+
+Beware, if the file specified as the bundler's output already exists, it will be overwritten.
+
+### Validation
+
+```openapi validate [options] <filePath>```
 
  Given this command, it will load the given ruleset and traverse the definition via the `filePath` parameter.
 
 Also, it accepts `[options]` which can be:
-- `-s, --short` Reduce output to minimum.
+- `--short` Reduce output to minimum.
 - `--no-frame` Print no codeframes with errors.
 - `--config <path>`  Specify custom yaml or json config.
 
@@ -70,8 +86,6 @@ Below is the config, which is used by default:
 ```yaml
 codeframes: on
 rules:
-  bundler: off
-
   oas3-schema: on
   path-param-exists: on
   operation-2xx-response: on
@@ -106,20 +120,6 @@ rules:
 ```
 
 Check all the built-in rules [here](RULES.md).
-
-## Bundling
-
-You can bundle your OpenAPI 3 definition into a single file (this may be important for certain tools that lack multifile support).  To enable bundling, modify your config file so that the `bundler` object in `rules` would look like following:
-
-```yaml
-rules:
-  bundler:
-    output: your-desired-filename.yml
-```
-
-Supported extensions for bundle files are `.json`, `.yml` and `.yaml`.
-
-Beware, if the file specified as the bundler's output already exists, it will be overwritten.
 
 ## Credits
 
