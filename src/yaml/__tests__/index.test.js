@@ -115,11 +115,11 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(276, 281, source)).toMatchInlineSnapshot(`
-      "[90m1|     get:[39m
-      [90m0|       responses:[39m
-      [90m1|         [4m[31m'200'[0m[24m:[39m
-      [90m2|           description: example description[39m
-      [90m3|           content:[39m"
+      "[90m1|     get:[39m
+      [90m0|       responses:[39m
+      [90m1|         [4m[31m'200'[90m[24m:[39m
+      [90m2|           description: example description[39m
+      [90m3|           content:[39m"
     `);
   });
 
@@ -129,16 +129,16 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(276, 425, source)).toMatchInlineSnapshot(`
-      "[90m-1|     get:[39m
-      [90m00|       responses:[39m
-      [90m01|         [4m[31m'200':[39m
-      [90m02|[39m[31m           description: example description[0m
-      [90m03|[39m[31m           content:[0m
-      [90m04|[39m[31m             application/json:[0m
-      [90m05|[39m[31m               schema:[0m
-      [90m06|[39m[31m                 type: object[0m[24m[0m
-      [90m07|   project:[39m
-      [90m08|     get:[39m"
+      "[90m-1|     get:[39m
+      [90m00|       responses:[39m
+      [90m01|         [4m[31m'200':[90m[24m[39m
+      [90m02|[39m[31m [4m[31m          description: example description[31m[24m[39m
+      [90m03|[39m[31m [4m[31m          content:[31m[24m[39m
+      [90m04|[39m[31m [4m[31m            application/json:[31m[24m[39m
+      [90m05|[39m[31m [4m[31m              schema:[31m[24m[39m
+      [90m06|[39m[31m [4m[31m                type: object[31m[24m[39m
+      [90m07|   project:[39m
+      [90m08|     get:[39m"
     `);
   });
 
@@ -148,9 +148,9 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(0, 7, source)).toMatchInlineSnapshot(`
-      "[90m1| [4m[31mopenapi[0m[24m: 3.0.2[39m
-      [90m2| info:[39m
-      [90m3|   title: Example OpenAPI 3 definition. Valid.[39m"
+      "[90m1| [4m[31mopenapi[90m[24m: 3.0.2[39m
+      [90m2| info:[39m
+      [90m3|   title: Example OpenAPI 3 definition. Valid.[39m"
     `);
   });
 
@@ -160,9 +160,9 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(0, 14, source)).toMatchInlineSnapshot(`
-      "[90m1|[39m[31m [4m[31mopenapi: 3.0.2[0m[24m[0m
-      [90m2| info:[39m
-      [90m3|   title: Example OpenAPI 3 definition. Valid.[39m"
+      "[90m1|[39m[31m [4m[31mopenapi: 3.0.2[31m[24m[39m
+      [90m2| info:[39m
+      [90m3|   title: Example OpenAPI 3 definition. Valid.[39m"
     `);
   });
 });

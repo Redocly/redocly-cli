@@ -35,11 +35,11 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[0m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[90m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
@@ -77,11 +77,11 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13|     parameters:[39m
-      [90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     [4m[31mget[0m[24m:[39m
-      [90m16|       responses:[39m
-      [90m17|         '200':[39m",
+        "codeFrame": "[90m13|     parameters:[39m
+      [90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     [4m[31mget[90m[24m:[39m
+      [90m16|       responses:[39m
+      [90m17|         '200':[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
@@ -118,11 +118,11 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[0m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[90m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
@@ -165,11 +165,11 @@ describe("Error templates", () => {
       )
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[0m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
+      [90m15|     get:[39m
+      [90m16|       [4m[31mresponses[90m[24m:[39m
+      [90m17|         '200':[39m
+      [90m18|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,

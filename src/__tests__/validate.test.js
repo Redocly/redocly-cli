@@ -21,9 +21,9 @@ describe("Traverse files", () => {
       .toMatchInlineSnapshot(`
       Array [
         Object {
-          "codeFrame": "[90m09|       type: string[39m
-      [90m10|     noRef:[39m
-      [90m11|       [4m[31m$ref: 'bad.yaml#/does/not/exist'[0m[24m[39m",
+          "codeFrame": "[90m09|       type: string[39m
+      [90m10|     noRef:[39m
+      [90m11|       [4m[31m$ref: 'bad.yaml#/does/not/exist'[90m[24m[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/to_bundle/components/parameters/parameter.name.yml",
           "fromRule": "resolve-ref",
