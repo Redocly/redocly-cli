@@ -1,10 +1,10 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.2.7",
+  "version": "0.2.9",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js",
+    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build",
     "test": "jest --coverage"
