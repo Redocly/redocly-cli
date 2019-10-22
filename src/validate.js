@@ -80,6 +80,7 @@ export const bundle = (fName, outputFile) => {
   if (!document.openapi) return [];
 
   const config = {
+    codeframes: true,
     rules: {
       bundler: {
         output: outputFile,
