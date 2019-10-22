@@ -114,9 +114,11 @@ rules:
     url: off
   license-required:
     level: warning
-  unique-parameter-names:
+  unique-parameter-names: off
+  no-unused-schemas:
     level: warning
-  no-unused-schemas: off
+    excludePaths:
+      - 'openapi.yaml#/components/schemas/Unused'
 ```
 
 Check all the built-in rules [here](RULES.md).

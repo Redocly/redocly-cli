@@ -1,0 +1,6 @@
+rules:
+  no-unused-schemas:
+    level: warning
+    excludePaths:
+      - 'rebilly-full.yaml#/components/schemas/Unused'
+  debug-info: on
