@@ -75,9 +75,9 @@ In the section below, you can learn how to provide settings for the `@redocly/op
 
 ## Configuration
 
-All of the following rules are configurable in terms of disabling or changing their severity. To update a given rule, you should modify (or create) the `.openapi-cli.yml` file in the directory from which you are going to run the validator.
+All of the following rules are configurable in terms of disabling or changing their severity. To update a given rule, you should modify (or create) the `.openapi-cli.yaml` file in the directory from which you are going to run the validator.
 
-Also, you can provide the path to the configuration file name other than `.openapi-cli.yml` by using `--config` option when running the @redocly/openapi-cli.
+Also, you can provide the path to the configuration file name other than `.openapi-cli.yaml` by using `--config` option when running the @redocly/openapi-cli.
 
 If you are creating it from scratch, you might also want to enable/disable codeframes for the full output.
 
