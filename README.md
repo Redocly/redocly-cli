@@ -51,7 +51,7 @@ Currently, `@redocly/openapi-cli` provides two commands `validate` and `bundle`.
 You can bundle your OpenAPI 3 definition into a single file (this may be important for certain tools that lack multifile support). To bundle your OpenAPI 3 definition run following command:
 
 ```
-openapi bundle <startingPoint> <outputName>
+openapi bundle --output <outputName> <startingPoint>
 ```
 
 `<startingPoint>` is the name of your root document and `<outputName>` is desired output filename.
