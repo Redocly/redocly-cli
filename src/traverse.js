@@ -1,5 +1,7 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-use-before-define */
+import path from 'path';
+
 import resolveNode from './resolver';
 import { fromError } from './error/default';
 
@@ -108,7 +110,7 @@ function traverseNode(node, definition, ctx, visited = []) {
   const isRecursive = nestedIncludes(ctx.path, visited);
 
   const errors = [];
-  const currentPath = `${ctx.filePath}::${ctx.path.join('/')}`;
+  const currentPath = `${path.relative(process.cwd(), ctx.filePath)}::${ctx.path.join('/')}`;
 
   const localVisited = Array.from(visited);
   localVisited.push(currentPath);
@@ -150,7 +152,7 @@ function traverseNode(node, definition, ctx, visited = []) {
 function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
-                                 && ctx.customRules[i][definition.name]()[ruleName]
+      && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
         nodeContext.resolvedNode, definition, ctx, node,
       ) : [];

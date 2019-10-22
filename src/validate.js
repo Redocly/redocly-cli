@@ -31,6 +31,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   try {
     document = yaml.safeLoad(yamlData);
   } catch (ex) {
+    console.log(ex);
     throw new Error("Can't load yaml file");
   }
   if (!document.openapi) return [];
@@ -41,7 +42,21 @@ export const validate = (yamlData, filePath, options = {}) => {
   // ctx.result.push(ctx);
 
   traverseNode(document, OpenAPIRoot, ctx);
-  return ctx.result;
+
+  const filtered = ctx.result.filter((msg) => {
+    for (let j = 0; j < ctx.customRules.length; j++) {
+      if (msg.fromRule === ctx.customRules[j].rule) {
+        if (ctx.customRules[j].config.excludePaths) {
+          const fullPath = `${msg.file}#/${msg.path.join('/')}`;
+          return ctx.customRules[j].config.excludePaths.indexOf(fullPath) === -1;
+        }
+        return true;
+      }
+    }
+    return true;
+  });
+
+  return filtered;
 };
 
 export const validateFromFile = (fName, options) => {
