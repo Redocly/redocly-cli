@@ -1,15 +1,12 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "profile": "npx babel-node --prof main.js",
-    "babel-node": "babel-node",
     "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build",
-    "start": "npx babel-node main.js",
     "test": "jest --coverage"
   },
   "bin": {
@@ -29,7 +26,7 @@
       "/dist/"
     ]
   },
-  "author": "Serhii Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+  "author": "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
   "license": "MIT",
   "keywords": [
     "linter",
