@@ -77,31 +77,46 @@ class Bundler extends AbstractVisitor {
           node.components = {};
         }
 
+        if (ctx.result.length > 0) {
+          return null;
+        }
+
         Object.keys(this.components).forEach((component) => {
           node.components[component] = node.components[component] ? node.components[component] : {};
           Object.assign(node.components[component], this.components[component]);
         });
 
-        let outputFile = 'bundle.yaml';
+        let outputFile;
 
         if (this.config.output) {
           outputFile = this.config.output;
-        }
+          const nameParts = outputFile.split('.');
+          const ext = nameParts[nameParts.length - 1];
 
-        const nameParts = outputFile.split('.');
-        const ext = nameParts[nameParts.length - 1];
+          const outputPath = `${process.cwd()}/${outputFile}`;
 
-        switch (ext) {
-          case 'json':
-            fs.writeFileSync(`${path.dirname(ctx.filePath)}/${outputFile}`, JSON.stringify(node, null, 2));
-            break;
-          case 'yaml':
-          case 'yml':
-          default:
-            const yamlDoc = yaml.safeDump(node);
-            fs.writeFileSync(`${path.dirname(ctx.filePath)}/${outputFile}`, yamlDoc);
-            break;
+          const outputDir = path.dirname(outputPath);
+          fs.mkdirSync(outputDir, { recursive: true });
+
+          let fileData = null;
+
+          switch (ext) {
+            case 'json':
+              fileData = JSON.stringify(node, null, 2);
+              break;
+            case 'yaml':
+            case 'yml':
+            default:
+              fileData = yaml.safeDump(node);
+              break;
+          }
+          fs.writeFileSync(`${outputPath}`, fileData);
+        } else {
+          // default output to stdout, if smbd wants to pipe it
+          process.stdout.write(yaml.safeDump(node));
+          process.stdout.write('\n');
         }
+        return null;
       },
     };
   }
