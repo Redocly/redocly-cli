@@ -125,4 +125,4 @@ Check all the built-in rules [here](RULES.md).
 
 ## Credits
 
-Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to Swagger, Spectral, and Speccy for inspiring the ruleset.
+Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to [Swagger](https://github.com/swagger-api/swagger-editor), [Spectral](https://github.com/stoplightio/spectral), and [Speccy](https://github.com/wework/speccy) for inspiring the ruleset.
