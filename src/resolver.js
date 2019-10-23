@@ -1,6 +1,8 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
+import { XMLHttpRequest } from 'xmlhttprequest';
 import createError from './error';
+import { isUrl } from './utils';
 
 /**
  *
@@ -21,9 +23,26 @@ const resolve = (link, ctx) => {
   if (filePath) {
     const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
     fullFileName = path ? `${path}/${filePath}` : filePath;
+
     if (fs.existsSync(fullFileName)) {
       fData = fs.readFileSync(fullFileName, 'utf-8');
       target = yaml.safeLoad(fData);
+    } else if (isUrl(filePath) && !fs.existsSync(fullFileName)) {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', filePath, false);
+        xhr.send();
+
+        if (xhr.status !== 200) {
+          return null;
+        }
+
+        fData = xhr.responseText;
+        target = yaml.safeLoad(fData);
+        fullFileName = filePath;
+      } catch (e) {
+        return null;
+      }
     } else {
       return null;
     }
