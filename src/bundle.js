@@ -18,7 +18,7 @@ export const bundle = (fName, outputFile) => {
     throw new Error("Can't load yaml file");
   }
 
-  if (!document.openapi) return [];
+  if (!document.openapi) { return []; }
 
   const config = {
     codeframes: true,

@@ -63,16 +63,8 @@ export const prettyPrint = (i, error) => {
   return message;
 };
 
-export const printValidationHeader = (filePath) => {
-  const filePathString = `*   Will validate ${chalk.blueBright(filePath)} now   * `;
-  const offset = filePathString.length - 10;
-  process.stdout.write(`
-${'*'.padEnd(offset - 1, '*')}
-${'*  '.padEnd(offset - 2, ' ')}*
-${filePathString}
-${'*  '.padEnd(offset - 2, ' ')}*
-${'*'.padEnd(offset - 1, '*')}
-`);
+export const printValidationHeader = (_filePath) => {
+  // nope for now
 };
 
 export const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
