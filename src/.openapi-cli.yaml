@@ -11,6 +11,7 @@ rules:
   operation-operationId-unique: on
   path-declarations-must-exist: on
 
+  camel-case-names: off
   api-servers: off
   license-url: off
   no-extra-fields: off
