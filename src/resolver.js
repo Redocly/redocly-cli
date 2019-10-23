@@ -37,7 +37,8 @@ const resolve = (link, ctx) => {
           return null;
         }
 
-        target = yaml.safeLoad(xhr.responseText);
+        fData = xhr.responseText;
+        target = yaml.safeLoad(fData);
         fullFileName = filePath;
       } catch (e) {
         return null;
