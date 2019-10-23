@@ -1,7 +1,6 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
-import request from 'sync-request';
-
+import { XMLHttpRequest } from 'xmlhttprequest';
 import createError from './error';
 import { isUrl } from './utils';
 
@@ -22,20 +21,29 @@ const resolve = (link, ctx) => {
   let target;
   let fData;
   if (filePath) {
-    if (isUrl(filePath)) {
-      const data = request('GET', filePath);
-      fData = data.getBody('utf-8');
+    const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
+    fullFileName = path ? `${path}/${filePath}` : filePath;
+
+    if (fs.existsSync(fullFileName)) {
+      fData = fs.readFileSync(fullFileName, 'utf-8');
       target = yaml.safeLoad(fData);
-      fullFileName = filePath;
-    } else {
-      const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
-      fullFileName = path ? `${path}/${filePath}` : filePath;
-      if (fs.existsSync(fullFileName)) {
-        fData = fs.readFileSync(fullFileName, 'utf-8');
-        target = yaml.safeLoad(fData);
-      } else {
+    } else if (isUrl(filePath) && !fs.existsSync(fullFileName)) {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', filePath, false);
+        xhr.send();
+
+        if (xhr.status !== 200) {
+          return null;
+        }
+
+        target = yaml.safeLoad(xhr.responseText);
+        fullFileName = filePath;
+      } catch (e) {
         return null;
       }
+    } else {
+      return null;
     }
   } else {
     target = ctx.document;

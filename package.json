@@ -57,7 +57,7 @@
     "commander": "^3.0.1",
     "js-yaml": "^3.13.1",
     "merge-deep": "^3.0.2",
-    "sync-request": "^6.1.0",
+    "xmlhttprequest": "^1.8.0",
     "yaml-ast-parser": "0.0.43"
   }
 }
