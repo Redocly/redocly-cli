@@ -73,7 +73,7 @@ const cli = () => {
       if (filePaths.length > 1) {
         process.stdout.write(`Total results. Errors: ${results.errors}, warnings: ${results.warnings}\n`);
       }
-      process.exit(results.errors.length > 0 ? -1 : 0);
+      process.exit(results.errors.length > 0 ? 1 : 0);
     });
 
   if (process.argv.length === 2) process.argv.push('-h');
