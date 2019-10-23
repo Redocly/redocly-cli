@@ -1,23 +1,25 @@
-import yaml from 'js-yaml';
 import fs from 'fs';
+import yaml from 'js-yaml';
 
-import OpenAPIRoot from './types';
-import { createContext } from './validate';
 
 import traverseNode from './traverse';
+import createContext from './context';
+
+import OpenAPIRoot from './types';
 
 export const bundle = (fName, outputFile) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
+
   try {
     document = yaml.safeLoad(doc);
-  }
-  catch (ex) {
+  } catch (ex) {
     throw new Error("Can't load yaml file");
   }
-  if (!document.openapi)
-    return [];
+
+  if (!document.openapi) { return []; }
+
   const config = {
     codeframes: true,
     rules: {
@@ -26,7 +28,11 @@ export const bundle = (fName, outputFile) => {
       },
     },
   };
+
   const ctx = createContext(document, doc, resolvedFileName, config);
+
   traverseNode(document, OpenAPIRoot, ctx);
   return ctx.result;
 };
+
+export default bundle;

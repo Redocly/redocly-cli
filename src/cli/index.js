@@ -2,8 +2,11 @@
 
 import chalk from 'chalk';
 import program from 'commander';
+import fs from 'fs';
 
-import { validateFromFile, bundle } from '../validate';
+import { validateFromFile } from '../validate';
+import { bundle } from '../bundle';
+
 import { outputMessages, printValidationHeader } from './outputMessages';
 
 const validateFile = (filePath, options, cmdObj) => {
@@ -18,6 +21,12 @@ const validateFile = (filePath, options, cmdObj) => {
 };
 
 const cli = () => {
+  const f = fs.readFileSync(`${__dirname}/../package.json`, 'utf-8');
+  const { version } = JSON.parse(f);
+
+  program
+    .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
+
   program
     .command('bundle <startingPoint>')
     .description('Create a bundle using <startingPoint> as a root document.')
@@ -64,7 +73,7 @@ const cli = () => {
       if (filePaths.length > 1) {
         process.stdout.write(`Total results. Errors: ${results.errors}, warnings: ${results.warnings}\n`);
       }
-      process.exit(results.errors.length > 0 ? -1 : 0);
+      process.exit(results.errors > 0 ? 1 : 0);
     });
 
   if (process.argv.length === 2) process.argv.push('-h');

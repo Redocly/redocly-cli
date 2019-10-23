@@ -1,30 +1,11 @@
-import yaml from 'js-yaml';
 import fs from 'fs';
-import path from 'path';
+import yaml from 'js-yaml';
 
-import loadRuleset from './loader';
-import getConfig from './config';
 import OpenAPIRoot from './types';
 
+import getConfig from './config';
 import traverseNode from './traverse';
-
-export function createContext(node, sourceFile, filePath, config) {
-  return {
-    document: node,
-    filePath: path.resolve(filePath),
-    path: [],
-    cache: {},
-    visited: [],
-    result: [],
-    definitionStack: [],
-    pathStack: [],
-    source: sourceFile,
-    enableCodeframe: !!(config && (config.codeframes === 'on' || config.codeframes === true)),
-    // customRules: config && config.enbaleCustomRuleset ? loadRuleset(config) : [],
-    customRules: loadRuleset(config),
-    config,
-  };
-}
+import createContext from './context';
 
 export const validate = (yamlData, filePath, options = {}) => {
   let document;
@@ -37,9 +18,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   if (!document.openapi) return [];
 
   const config = getConfig(options);
-  // console.log(config);
   const ctx = createContext(document, yamlData, filePath, config);
-  // ctx.result.push(ctx);
 
   traverseNode(document, OpenAPIRoot, ctx);
 
