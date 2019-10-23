@@ -6,7 +6,7 @@ OpenAPI 3 CLI toolbox with rich validation and bundling features.
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/openapi-cli)
 ![NPM](https://img.shields.io/npm/l/@redocly/openapi-cli)
 
-![OpenAPI 3 CLI toolset](https://user-images.githubusercontent.com/24596796/67019141-dc517580-f104-11e9-811a-46135e8f2048.gif)
+![OpenAPI 3 CLI toolset](./media/openapi-cli.gif)
 
 ## Features
 
@@ -32,7 +32,7 @@ If using `npx`, enter the following:
 
 `npx @redocly/openapi-cli <command> [options]`
 
-Otherwise, install the `@redocly/openapi-cli` with: 
+Otherwise, install the `@redocly/openapi-cli` with:
 
 ```npm install -g @redocly/openapi-cli```
 

@@ -63,16 +63,9 @@ export const prettyPrint = (i, error) => {
   return message;
 };
 
-export const printValidationHeader = (filePath) => {
-  const filePathString = `*   Will validate ${chalk.blueBright(filePath)} now   * `;
-  const offset = filePathString.length - 10;
-  process.stdout.write(`
-${'*'.padEnd(offset - 1, '*')}
-${'*  '.padEnd(offset - 2, ' ')}*
-${filePathString}
-${'*  '.padEnd(offset - 2, ' ')}*
-${'*'.padEnd(offset - 1, '*')}
-`);
+export const printValidationHeader = (_filePath) => {
+  // nope for now [Roman]
+  // well, at least I've tried. Not a designer, for sure [Sergey]
 };
 
 export const prettyPrintShort = (i, error, longestPath, longestRuleName) => {
@@ -116,7 +109,7 @@ export const outputMessages = (result, cmdObj) => {
       process.stdout.write('\n');
     });
   } else {
-    process.stdout.write('\n\n');
+    if (errorsGrouped.length > 0) process.stdout.write('\n\n');
     errorsGrouped
       .sort((a, b) => a.severity < b.severity)
       .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
