@@ -3,6 +3,8 @@
 import path from 'path';
 
 import resolveNode from './resolver';
+import resolveDefinition from './typesExtention';
+
 import { fromError } from './error/default';
 
 function traverseChildren(resolvedNode, definition, ctx, visited) {
@@ -105,6 +107,8 @@ const nestedIncludes = (c, s) => {
 
 function traverseNode(node, definition, ctx, visited = []) {
   if (!node || !definition) return [];
+
+  definition = resolveDefinition(definition, ctx);
 
   const nodeContext = onNodeEnter(node, ctx);
   const isRecursive = nestedIncludes(ctx.path, visited);

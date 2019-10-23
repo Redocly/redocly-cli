@@ -7,7 +7,7 @@ info:
   license:
     name: example
     url: example.org
-
+blabla: 12
 paths:
   user:
     parameters:

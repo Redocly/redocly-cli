@@ -16,6 +16,7 @@ export const OpenAPIMediaObject = {
 };
 
 export const OpenAPIMediaTypeObject = {
+  name: 'OpenAPIMediaTypeObject',
   isIdempotent: true,
   properties(node) {
     const props = {};

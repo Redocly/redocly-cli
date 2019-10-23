@@ -26,6 +26,14 @@ function getConfig(options) {
   }
 
   const resolvedConfig = merge(defaultConfig, config, options);
+
+  if (!resolvedConfig.typeExtension) {
+    resolvedConfig.typeExtension = `${__dirname}/typeExtensionDefault.js`;
+  }
+
+  const { extension } = require(resolvedConfig.typeExtension);
+  resolvedConfig.typeExtension = extension;
+
   return resolvedConfig;
 }
 
