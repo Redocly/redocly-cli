@@ -6,6 +6,11 @@ function getObjByPathOrParent(json, JSONPath) {
   return get(JSONPath.split('.'), json);
 }
 
+function getRuleRedefinePath(config) {
+  if (config.rulesRedefine) return `${process.cwd()}/${config.rulesRedefine}`;
+  return `${__dirname}/../ruleRedefineDefault.js`;
+}
+
 function loadRuleset(config) {
   const ruleSet = [];
   const configCopy = {
@@ -47,12 +52,35 @@ function loadRuleset(config) {
       if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
         const ruleInstance = new Rule(ruleConfig);
         ruleSet.push(ruleInstance);
+        // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
       }
     } else {
-      const ruleInstance = new Rule();
+      const ruleInstance = new Rule({});
       ruleSet.push(ruleInstance);
+      // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
     }
   });
+
+  const ruleRedefinitiojnsPath = getRuleRedefinePath(config);
+  const ruleRedefs = require(ruleRedefinitiojnsPath);
+
+  // Here we load the modified validators() methods
+  // for structural validation.
+  ruleSet
+    .filter((r) => r.rule.indexOf('oas3-schema/') === 0)
+    .forEach((rule) => {
+      Object.keys(ruleRedefs).forEach((redefName) => {
+        if (rule[redefName]) {
+          const definitions = ruleRedefs[redefName];
+
+          Object.keys(definitions).forEach((def) => {
+            if (rule[def]) {
+              rule[def] = definitions[def](rule[def]());
+            }
+          });
+        }
+      });
+    });
 
   dirs.forEach((dir) => {
     const nestedRules = loadRuleset({

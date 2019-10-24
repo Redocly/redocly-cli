@@ -32,9 +32,15 @@ paths:
 components:
   parameters:
     example:
+      allOf:
+        - $ref: '#/components/parameters/genericExample'
+        - description: Concrete example
+    genericExample:
       name: example
       in: query
-      required: false
+      required: true
+      schema:
+        type: string
 blabla: 313
 customerSupport:
   id: 12

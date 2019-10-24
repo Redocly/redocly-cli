@@ -29,6 +29,8 @@ function getConfig(options) {
 
   if (!resolvedConfig.typeExtension) {
     resolvedConfig.typeExtension = `${__dirname}/typeExtensionDefault.js`;
+  } else {
+    resolvedConfig.typeExtension = `${process.cwd()}/${resolvedConfig.typeExtension}`;
   }
 
   const { extension } = require(resolvedConfig.typeExtension);
