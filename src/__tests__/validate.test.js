@@ -80,21 +80,21 @@ describe("Traverse files", () => {
       .toMatchInlineSnapshot(`
       Array [
         Object {
-          "codeFrame": "[90m42|       schema:[39m
-      [90m43|         type: string[39m
-      [90m44| [4m[31mblabla[90m[24m: 313[39m
-      [90m45| customerSupport:[39m
-      [90m46|   id: 12[39m",
+          "codeFrame": "[90m46|       schema:[39m
+      [90m47|         type: string[39m
+      [90m48| [4m[31mblabla[90m[24m: 313[39m
+      [90m49| customerSupport:[39m
+      [90m50|   id: 12[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 7,
-            "endIndex": 888,
-            "endLine": 44,
+            "endIndex": 942,
+            "endLine": 48,
             "startCol": 1,
-            "startIndex": 882,
-            "startLine": 44,
+            "startIndex": 936,
+            "startLine": 48,
           },
           "message": "The field 'blabla' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -111,7 +111,12 @@ describe("Traverse files", () => {
                 "example": Object {
                   "allOf": Array [
                     Object {
-                      "$ref": "#/components/parameters/genericExample",
+                      "in": "querya",
+                      "name": "bla",
+                      "required": false,
+                      "schema": Object {
+                        "type": "stringa",
+                      },
                     },
                     Object {
                       "description": "Concrete example",
@@ -191,21 +196,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m43|         type: string[39m
-      [90m44| blabla: 313[39m
-      [90m45| [4m[31mcustomerSupport[90m[24m:[39m
-      [90m46|   id: 12[39m
-      [90m47|   contact:[39m",
+          "codeFrame": "[90m47|         type: string[39m
+      [90m48| blabla: 313[39m
+      [90m49| [4m[31mcustomerSupport[90m[24m:[39m
+      [90m50|   id: 12[39m
+      [90m51|   contact:[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 16,
-            "endIndex": 909,
-            "endLine": 45,
+            "endIndex": 963,
+            "endLine": 49,
             "startCol": 1,
-            "startIndex": 894,
-            "startLine": 45,
+            "startIndex": 948,
+            "startLine": 49,
           },
           "message": "The field 'customerSupport' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -222,7 +227,12 @@ describe("Traverse files", () => {
                 "example": Object {
                   "allOf": Array [
                     Object {
-                      "$ref": "#/components/parameters/genericExample",
+                      "in": "querya",
+                      "name": "bla",
+                      "required": false,
+                      "schema": Object {
+                        "type": "stringa",
+                      },
                     },
                     Object {
                       "description": "Concrete example",
@@ -302,20 +312,20 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m47|   contact:[39m
-      [90m48|     name: Ivan Goncharov[39m
-      [90m49| [4m[31mdefaultParameterSchema[90m[24m:[39m
-      [90m50|[39m[31m   type: string[39m",
+          "codeFrame": "[90m51|   contact:[39m
+      [90m52|     name: Ivan Goncharov[39m
+      [90m53| [4m[31mdefaultParameterSchema[90m[24m:[39m
+      [90m54|[39m[31m   type: string[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 23,
-            "endIndex": 978,
-            "endLine": 49,
+            "endIndex": 1032,
+            "endLine": 53,
             "startCol": 1,
-            "startIndex": 956,
-            "startLine": 49,
+            "startIndex": 1010,
+            "startLine": 53,
           },
           "message": "The field 'defaultParameterSchema' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -332,7 +342,12 @@ describe("Traverse files", () => {
                 "example": Object {
                   "allOf": Array [
                     Object {
-                      "$ref": "#/components/parameters/genericExample",
+                      "in": "querya",
+                      "name": "bla",
+                      "required": false,
+                      "schema": Object {
+                        "type": "stringa",
+                      },
                     },
                     Object {
                       "description": "Concrete example",
@@ -415,8 +430,8 @@ describe("Traverse files", () => {
           "codeFrame": "[90m33|   parameters:[39m
       [90m34|     example:[39m
       [90m35|       [4m[31mallOf[90m[24m:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m
-      [90m37|         - description: Concrete example[39m",
+      [90m36|         - name: bla[39m
+      [90m37|           in: querya[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
@@ -453,7 +468,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
@@ -466,7 +486,7 @@ describe("Traverse files", () => {
       [90m33|   parameters:[39m
       [90m34|     [4m[31mexample[90m[24m:[39m
       [90m35|       allOf:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m",
+      [90m36|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
@@ -503,7 +523,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
@@ -516,7 +541,7 @@ describe("Traverse files", () => {
       [90m33|   parameters:[39m
       [90m34|     [4m[31mexample[90m[24m:[39m
       [90m35|       allOf:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m",
+      [90m36|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
@@ -553,7 +578,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
@@ -565,8 +595,8 @@ describe("Traverse files", () => {
           "codeFrame": "[90m33|   parameters:[39m
       [90m34|     example:[39m
       [90m35|       [4m[31mallOf[90m[24m:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m
-      [90m37|         - description: Concrete example[39m",
+      [90m36|         - name: bla[39m
+      [90m37|           in: querya[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
@@ -592,7 +622,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
@@ -605,7 +640,7 @@ describe("Traverse files", () => {
       [90m33|   parameters:[39m
       [90m34|     [4m[31mexample[90m[24m:[39m
       [90m35|       allOf:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m",
+      [90m36|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
@@ -631,7 +666,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
@@ -644,7 +684,7 @@ describe("Traverse files", () => {
       [90m33|   parameters:[39m
       [90m34|     [4m[31mexample[90m[24m:[39m
       [90m35|       allOf:[39m
-      [90m36|         - $ref: '#/components/parameters/genericExample'[39m",
+      [90m36|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
@@ -670,7 +710,12 @@ describe("Traverse files", () => {
           "value": Object {
             "allOf": Array [
               Object {
-                "$ref": "#/components/parameters/genericExample",
+                "in": "querya",
+                "name": "bla",
+                "required": false,
+                "schema": Object {
+                  "type": "stringa",
+                },
               },
               Object {
                 "description": "Concrete example",
