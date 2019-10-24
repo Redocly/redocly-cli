@@ -1,6 +1,6 @@
-import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
-import { OpenAPIHeaderMap } from './OpenAPIHeader';
-import { OpenAPILinkMap } from './OpenAPILink';
+import { OpenAPIMediaTypeObject } from './OpenAPIMediaTypeObject';
+import { OpenAPIHeaderMap } from './OpenAPIHeaderMap';
+import { OpenAPILinkMap } from './OpenAPILinkMap';
 
 export const OpenAPIResponse = {
   name: 'OpenAPIResponse',
@@ -14,14 +14,4 @@ export const OpenAPIResponse = {
   },
 };
 
-export const OpenAPIResponseMap = {
-  name: 'OpenAPIResponseMap',
-  isIdempotent: true,
-  properties(node) {
-    const props = {};
-    Object.keys(node).forEach((k) => {
-      props[k] = OpenAPIResponse;
-    });
-    return props;
-  },
-};
+export default OpenAPIResponse;

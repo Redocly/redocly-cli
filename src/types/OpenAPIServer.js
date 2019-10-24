@@ -1,23 +1,4 @@
-const OpenAPIServerVariable = {
-  name: 'OpenAPIServerVariable',
-  isIdempotent: true,
-  properties: {
-    default: null,
-    description: null,
-    enum: null,
-  },
-};
-
-const OpenAPIServerVariableMap = {
-  isIdempotent: true,
-  properties(node) {
-    const props = {};
-    Object.keys(node).forEach((k) => {
-      props[k] = OpenAPIServerVariable;
-    });
-    return props;
-  },
-};
+import OpenAPIServerVariableMap from './OpenAPIServerVariableMap';
 
 const OpenAPIServer = {
   name: 'OpenAPIServer',

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-cycle
-import { OpenAPIHeaderMap } from './OpenAPIHeader';
+import { OpenAPIHeaderMap } from './OpenAPIHeaderMap';
 
 export default {
   name: 'OpenAPIEncoding',

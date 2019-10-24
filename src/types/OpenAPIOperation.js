@@ -1,10 +1,10 @@
 /* eslint-disable import/no-cycle */
 
-import { OpenAPIResponseMap } from './OpenAPIResponse';
+import { OpenAPIResponseMap } from './OpenAPIResponseMap';
 import { OpenAPIParameter } from './OpenAPIParameter';
 import OpenAPIServer from './OpenAPIServer';
 import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
-import { OpenAPICallbackMap } from './OpenAPICallback';
+import { OpenAPICallbackMap } from './OpenAPICallbackMap';
 import { OpenAPIRequestBody } from './OpenAPIRequestBody';
 
 export default {

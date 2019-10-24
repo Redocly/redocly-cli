@@ -1,6 +1,6 @@
 import OpenAPISchemaObject from './OpenAPISchema';
-import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
-import { OpenAPIExampleMap } from './OpenAPIExample';
+import { OpenAPIMediaTypeObject } from './OpenAPIMediaTypeObject';
+import { OpenAPIExampleMap } from './OpenAPIExampleMap';
 
 export const OpenAPIParameter = {
   name: 'OpenAPIParameter',

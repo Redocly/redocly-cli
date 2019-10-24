@@ -6,7 +6,7 @@ import OpenAPIServer from './OpenAPIServer';
 import OpenAPITag from './OpenAPITag';
 import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 
-export default {
+export const OpenAPIRoot = {
   name: 'OpenAPIRoot',
   isIdempotent: true,
   properties: {
@@ -21,3 +21,6 @@ export default {
     externalDocs: OpenAPIExternalDocumentation,
   },
 };
+
+
+export default OpenAPIRoot;

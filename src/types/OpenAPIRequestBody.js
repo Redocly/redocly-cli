@@ -1,4 +1,4 @@
-import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
+import { OpenAPIMediaTypeObject } from './OpenAPIMediaTypeObject';
 
 export const OpenAPIRequestBody = {
   name: 'OpenAPIRequestBody',
@@ -10,13 +10,4 @@ export const OpenAPIRequestBody = {
   },
 };
 
-export const OpenAPIRequestBodyMap = {
-  isIdempotent: true,
-  properties(node) {
-    const props = {};
-    Object.keys(node).forEach((k) => {
-      props[k] = OpenAPIRequestBody;
-    });
-    return props;
-  },
-};
+export default OpenAPIRequestBody;
