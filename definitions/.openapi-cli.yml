@@ -3,8 +3,10 @@ rulesRedefine: rulesRedefine.js
 codeframes: on
 rules:
   bundler: off
-  debug-info: on
+  debug-info: off
 
+  parameterAllOf: on
+  
   oas3-schema: on
   path-param-exists: on
   operation-2xx-response: on

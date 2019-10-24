@@ -1,11 +1,14 @@
 import { existsSync } from 'fs';
 
 export default (definition, ctx) => {
-  if (!ctx.config.typeExtension) return definition;
+  if (!ctx.config.typeExtension && typeof definition !== 'string') return definition;
 
   const definitionName = typeof definition === 'string' ? definition : definition.name;
+
   const extension = ctx.config.typeExtension[definitionName];
-  if (!extension) return definition;
+  if (!extension) {
+    return definition;
+  }
   const alteredFields = Object.keys(extension.properties);
 
   for (let i = 0; i < alteredFields.length; i++) {

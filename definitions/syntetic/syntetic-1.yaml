@@ -33,7 +33,11 @@ components:
   parameters:
     example:
       allOf:
-        - $ref: '#/components/parameters/genericExample'
+        - name: bla
+          in: querya
+          required: false
+          schema:
+            type: stringa
         - description: Concrete example
     genericExample:
       name: example

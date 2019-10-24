@@ -128,7 +128,7 @@ function traverseNode(node, definition, ctx, visited = []) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
-    runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors);
+    runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors, localVisited);
 
     const newNode = !isRecursive
       && (!definition.isIdempotent || !ctx.visited.includes(currentPath));
@@ -153,12 +153,12 @@ function traverseNode(node, definition, ctx, visited = []) {
   return errors;
 }
 
-function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors) {
+function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
-        nodeContext.resolvedNode, definition, ctx, node,
+        nodeContext.resolvedNode, definition, ctx, node, traverseNode, visited,
       ) : [];
 
     const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]

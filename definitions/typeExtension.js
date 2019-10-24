@@ -10,7 +10,7 @@ module.exports = {
 
     OpenAPIParameter: {
       properties: {
-        allOf: null,
+        allOf: 'OpenAPIParameter',
       },
     },
 
