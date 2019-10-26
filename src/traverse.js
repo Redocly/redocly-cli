@@ -4,6 +4,7 @@ import path from 'path';
 
 import resolveNode from './resolver';
 import resolveDefinition from './typesExtention';
+import resolveType from './resolveType';
 
 import { fromError } from './error/default';
 
@@ -158,7 +159,7 @@ function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, 
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
-        nodeContext.resolvedNode, definition, ctx, node, traverseNode, visited,
+        nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
       ) : [];
 
     const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]

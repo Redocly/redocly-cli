@@ -1,10 +1,17 @@
 /* eslint-disable class-methods-use-this */
-import AbstractVisitor from '../../utils/AbstractVisitor';
-import { OpenAPIParameter } from '../../../types/OpenAPIParameter';
 
-class parameterAllOf extends AbstractVisitor {
-  static get ruleName() {
-    return 'parameterAllOf';
+class parameterAllOf {
+  constructor(config) {
+    this.config = { ...config };
+    switch (this.config.level) {
+      case 'warning':
+        this.config.level = 3;
+        break;
+      case 'error':
+      default:
+        this.config.level = 4;
+        break;
+    }
   }
 
   get rule() {
@@ -13,14 +20,15 @@ class parameterAllOf extends AbstractVisitor {
 
   OpenAPIParameter() {
     return {
-      onEnter: (node, _, ctx, unresolved, traverseNode, visited) => {
+      onEnter: (node, _, ctx, unresolved, traverseTools) => {
+        const { traverseNode, visited, resolveType } = traverseTools;
         if (Object.keys(node).indexOf('allOf') !== -1) {
           const allOfVals = node.allOf;
           ctx.path.push('allOf');
           for (let i = 0; i < allOfVals.length; i++) {
             if (allOfVals[i].description) continue;
             ctx.path.push(i);
-            traverseNode(allOfVals[i], OpenAPIParameter, ctx, visited, true);
+            traverseNode(allOfVals[i], resolveType('OpenAPIParameter'), ctx, visited, true);
             ctx.path.pop();
           }
           ctx.path.pop();

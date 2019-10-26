@@ -3,16 +3,22 @@ info:
   title: Example OpenAPI 3 definition. Valid.
   version: 1.0
   contact:
-    name: John Doe
+    name: Ivan Goncharov
+    email: ivan@redoc.ly
   license:
     name: example
     url: example.org
+
+servers:
+  - url: 'http://example.org'
 
 paths:
   user:
     parameters:
       - $ref: '#/components/parameters/example'
     get:
+      operationId: userGet
+      description: Get user
       responses:
         '200':
           description: example description
@@ -22,6 +28,8 @@ paths:
                 type: object
   project:
     get:
+      operationId: projectGet
+      description: Get project
       responses:
         '200':
           description: example description
@@ -50,5 +58,6 @@ customerSupport:
   id: 12
   contact:
     name: Ivan Goncharov
+    email: ivan@redoc.ly
 defaultParameterSchema:
   type: string

@@ -15,11 +15,11 @@ rules:
   operation-operationId-unique: on
   path-declarations-must-exist: on
 
-  api-servers: off
-  license-url: off
-  no-extra-fields: off
-  operation-description: off
-  operation-operationId: off
-  operation-tags: off
-  provide-contact: off
-  servers-no-trailing-slash: off
+  api-servers: on
+  license-url: on
+  no-extra-fields: on
+  operation-description: on
+  operation-operationId: on
+  operation-tags: on
+  provide-contact: on
+  servers-no-trailing-slash: on

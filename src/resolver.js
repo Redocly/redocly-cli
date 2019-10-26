@@ -10,6 +10,9 @@ import { isUrl } from './utils';
  * for it. If failed (e.g. because of undefined value) -- return null, to indicate that such
  * reference does not exist.
  *
+ * TODO: we might need a feature to support validation of "URL" based definitions if future, so
+ * would be nice to have opportunity to call resolve() with empty ctx.
+ *
  * @param {string} link A path in the yaml document which is to be resolved
  * @param {*} ctx JSON Object with the document field which represents the YAML structure
  */
@@ -65,6 +68,18 @@ const resolve = (link, ctx) => {
   };
 };
 
+
+/*
+ * This function is used to resolve $ref fields inside the node. Currently supports links:
+ * - inside the file
+ * - to the another file in local file system
+ * - http(s) links to other files
+ *
+ * $ref field value must be a valid OpenAPI link (e.g. another/dir/file.yaml#/components/schemas/Example)
+ *
+ * @param {*} node
+ * @param {*} ctx
+ */
 const resolveNode = (node, ctx) => {
   if (!node || typeof node !== 'object') return { node, nextPath: null };
   let nextPath;
