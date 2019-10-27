@@ -9,10 +9,10 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, nodePath, target) => {
-  const fContent = fs.readFileSync(fName, 'utf-8');
-  const tempCtx = { source: fContent };
-  const location = getLocationByPath(Array.from(nodePath), tempCtx, target);
+const getLocationForPath = (fName, nodePath, target, ctx) => {
+  // const fContent = fs.readFileSync(fName, 'utf-8');
+  // const tempCtx = { source: fContent };
+  const location = getLocationByPath(Array.from(nodePath), ctx, target);
   // if (!location) {
   //   console.log(path);
   // }
@@ -31,7 +31,7 @@ const createError = (msg, node, ctx, options) => {
     message: msg,
     path: Array.from(ctx.path),
     pathStack: ctx.pathStack.map((el) => {
-      const startLine = getLocationForPath(el.file, el.path, target);
+      const startLine = getLocationForPath(el.file, el.path, target, ctx);
       return {
         file: path.relative(process.cwd(), el.file),
         startLine,
@@ -68,7 +68,7 @@ export const fromError = (error, ctx) => {
     source: null,
     path: error.path,
     pathStack: ctx.pathStack.map((el) => {
-      const startLine = getLocationForPath(el.file, el.path, error.target);
+      const startLine = getLocationForPath(el.file, el.path, error.target, ctx);
       return {
         file: path.relative(process.cwd(), el.file),
         startLine,
