@@ -6,7 +6,8 @@ rules:
   suggest-possible-refs: on
   oas3-schema: on
   path-param-exists: on
-  operation-2xx-response: on
+  operation-2xx-response:
+    level: warning
   unique-parameter-names: on
   no-unused-schemas: on
   operation-operationId-unique: on

@@ -53,7 +53,7 @@ const renderReferencedFrom = (pathStacks) => {
 };
 
 export const prettyPrint = (i, error) => {
-  const message = `[${i}] ${colorizeMessageHeader(error)} ${outputGrey(`at #/${pathImproveReadability(error.path).join(outputGrey('/'))}`)}`
+  const message = `[${i}] ${colorizeMessageHeader(error)} ${outputGrey(`at #/${outputGrey(pathImproveReadability(error.path).join(outputGrey('/')))}`)}`
   + `\n${error.message}\n`
   + `${error.possibleAlternate ? `\nDid you mean: ${outputLightBlue(error.possibleAlternate)} ?\n` : ''}`
   + `${error.enableCodeframe ? `\n${error.codeFrame}\n\n` : ''}`
