@@ -3,6 +3,7 @@ rules:
   bundler: off
   debug-info: off
 
+  suggest-possible-refs: on
   oas3-schema: on
   path-param-exists: on
   operation-2xx-response: on
@@ -11,6 +12,7 @@ rules:
   operation-operationId-unique: on
   path-declarations-must-exist: on
 
+  camel-case-names: off
   api-servers: off
   license-url: off
   no-extra-fields: off

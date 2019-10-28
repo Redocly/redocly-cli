@@ -3,6 +3,8 @@ import yaml from 'js-yaml';
 
 import OpenAPIRoot from './types';
 
+import { getFileSync } from './utils';
+
 import getConfig from './config';
 import traverseNode from './traverse';
 import createContext from './context';
@@ -15,7 +17,7 @@ export const validate = (yamlData, filePath, options = {}) => {
     console.log(ex);
     throw new Error("Can't load yaml file");
   }
-  if (!document.openapi) return [];
+  if (!document.openapi && !document.$ref) return [];
 
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
@@ -36,6 +38,13 @@ export const validate = (yamlData, filePath, options = {}) => {
   });
 
   return filtered;
+};
+
+export const validateFromUrl = (link, options) => {
+  const doc = getFileSync(link);
+  options.sourceUrl = true;
+  const validationResult = validate(doc, link, options);
+  return validationResult;
 };
 
 export const validateFromFile = (fName, options) => {

@@ -5,6 +5,9 @@ All supported rules are listed below. To change your settings for any given rule
 ### api-servers
 OpenAPI servers must be present and be a non-empty array.
 
+### camel-case-names
+Schemas and parameters names should be in camelCase. This rule does a lot of string comparison and matching operations, so it may increase time of validation significantly.
+
 ### path-param-exists
 Each path parameter in the `parameters` section must be present in the path string.
 

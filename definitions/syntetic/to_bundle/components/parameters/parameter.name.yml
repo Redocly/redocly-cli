@@ -7,5 +7,3 @@ schema:
   properties:
     name:
       type: string
-    noRef:
-      $ref: 'bad.yaml#/does/not/exist'

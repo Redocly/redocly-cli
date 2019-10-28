@@ -41,7 +41,6 @@ class ValidateOpenAPISecuritySchema extends AbstractVisitor {
       },
       bearerFormat: (node, ctx) => {
         if (node.bearerFormat && node.type !== 'http') return createError('The bearerFormat field is applicable only for http', node, ctx, { fromRule: this.rule, target: 'key', severity: this.config.level });
-        if (!node.bearerFormat && node.type === 'http') return createErrorMissingRequiredField('bearerFormat', node, ctx, { fromRule: this.rule, severity: this.config.level });
         if (node.bearerFormat && typeof node.bearerFormat !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },

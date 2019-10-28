@@ -1,6 +1,7 @@
 // @ts-check
 /** @typedef {'string'|'number'|'integer'|'boolean'|'null'|'object'|'array'} JSONSchemaType */
 
+import { XMLHttpRequest } from 'xmlhttprequest';
 import chalk from 'chalk';
 
 /* eslint-disable import/prefer-default-export */
@@ -161,3 +162,14 @@ export function getClosestString(given, others) {
   if (bestMatch.distance <= 4) return bestMatch.string;
   return null;
 }
+
+export const getFileSync = (link) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', link, false);
+  xhr.send();
+  
+  if (xhr.status !== 200) {
+    return null;
+  }
+  return xhr.responseText; 
+};

@@ -94,6 +94,7 @@ rules:
   operation-operationId-unique: on
   path-declarations-must-exist: on
 
+  camel-case-names: off
   api-servers: off
   license-url: off
   no-extra-fields: off
@@ -102,6 +103,9 @@ rules:
   operation-tags: off
   provide-contact: off
   servers-no-trailing-slash: off
+
+  bundler: off
+  debug-info: off
 ```
 
 Here is an example of a modified use `.openapi-cli.yaml` file:

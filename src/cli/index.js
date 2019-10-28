@@ -4,16 +4,25 @@ import chalk from 'chalk';
 import program from 'commander';
 import fs from 'fs';
 
-import { validateFromFile } from '../validate';
+import { validateFromFile, validateFromUrl } from '../validate';
 import { bundle } from '../bundle';
+
+import { isUrl } from '../utils';
 
 import { outputMessages, printValidationHeader } from './outputMessages';
 
 const validateFile = (filePath, options, cmdObj) => {
-  const result = validateFromFile(filePath, options);
+  let result;
+  
+  if (isUrl(filePath)) {
+    console.log('Will validate from URL');
+    result = validateFromUrl(filePath, options);
+  } else {
+    result = validateFromFile(filePath, options);
+  }
   const resultStats = outputMessages(result, cmdObj);
-
   process.stdout.write(`${chalk.blueBright(filePath)} results. Errors: ${resultStats.totalErrors}, warnings: ${resultStats.totalWarnings}\n`);
+
   return {
     errors: resultStats.totalErrors,
     warnings: resultStats.totalWarnings,
@@ -59,7 +68,7 @@ const cli = () => {
         errors: 0,
         warnings: 0,
       };
-
+      
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
 
