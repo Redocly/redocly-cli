@@ -3,6 +3,7 @@ rules:
   bundler: off
   debug-info: off
 
+  suggest-possible-refs: on
   oas3-schema: on
   path-param-exists: on
   operation-2xx-response: on

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
-import { XMLHttpRequest } from 'xmlhttprequest';
 import createError from './error';
+import { XMLHttpRequest } from 'xmlhttprequest';
 import { isUrl } from './utils';
 
 /**
