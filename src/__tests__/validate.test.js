@@ -80,21 +80,21 @@ describe("Traverse files", () => {
       .toMatchInlineSnapshot(`
       Array [
         Object {
-          "codeFrame": "[90m46|       schema:[39m
-      [90m47|         type: string[39m
-      [90m48| [4m[31mblabla[90m[24m: 313[39m
-      [90m49| customerSupport:[39m
-      [90m50|   id: 12[39m",
+          "codeFrame": "[90m54|       schema:[39m
+      [90m55|         type: string[39m
+      [90m56| [4m[31mblabla[90m[24m: 313[39m
+      [90m57| customerSupport:[39m
+      [90m58|   id: 12[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 7,
-            "endIndex": 942,
-            "endLine": 48,
+            "endIndex": 1129,
+            "endLine": 56,
             "startCol": 1,
-            "startIndex": 936,
-            "startLine": 48,
+            "startIndex": 1123,
+            "startLine": 56,
           },
           "message": "The field 'blabla' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -135,6 +135,7 @@ describe("Traverse files", () => {
             },
             "customerSupport": Object {
               "contact": Object {
+                "email": "ivan@redoc.ly",
                 "name": "Ivan Goncharov",
               },
               "id": 12,
@@ -144,7 +145,8 @@ describe("Traverse files", () => {
             },
             "info": Object {
               "contact": Object {
-                "name": "John Doe",
+                "email": "ivan@redoc.ly",
+                "name": "Ivan Goncharov",
               },
               "license": Object {
                 "name": "example",
@@ -157,6 +159,8 @@ describe("Traverse files", () => {
             "paths": Object {
               "project": Object {
                 "get": Object {
+                  "description": "Get project",
+                  "operationId": "projectGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -173,6 +177,8 @@ describe("Traverse files", () => {
               },
               "user": Object {
                 "get": Object {
+                  "description": "Get user",
+                  "operationId": "userGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -193,24 +199,29 @@ describe("Traverse files", () => {
                 ],
               },
             },
+            "servers": Array [
+              Object {
+                "url": "http://example.org",
+              },
+            ],
           },
         },
         Object {
-          "codeFrame": "[90m47|         type: string[39m
-      [90m48| blabla: 313[39m
-      [90m49| [4m[31mcustomerSupport[90m[24m:[39m
-      [90m50|   id: 12[39m
-      [90m51|   contact:[39m",
+          "codeFrame": "[90m55|         type: string[39m
+      [90m56| blabla: 313[39m
+      [90m57| [4m[31mcustomerSupport[90m[24m:[39m
+      [90m58|   id: 12[39m
+      [90m59|   contact:[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 16,
-            "endIndex": 963,
-            "endLine": 49,
+            "endIndex": 1150,
+            "endLine": 57,
             "startCol": 1,
-            "startIndex": 948,
-            "startLine": 49,
+            "startIndex": 1135,
+            "startLine": 57,
           },
           "message": "The field 'customerSupport' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -251,6 +262,7 @@ describe("Traverse files", () => {
             },
             "customerSupport": Object {
               "contact": Object {
+                "email": "ivan@redoc.ly",
                 "name": "Ivan Goncharov",
               },
               "id": 12,
@@ -260,7 +272,8 @@ describe("Traverse files", () => {
             },
             "info": Object {
               "contact": Object {
-                "name": "John Doe",
+                "email": "ivan@redoc.ly",
+                "name": "Ivan Goncharov",
               },
               "license": Object {
                 "name": "example",
@@ -273,6 +286,8 @@ describe("Traverse files", () => {
             "paths": Object {
               "project": Object {
                 "get": Object {
+                  "description": "Get project",
+                  "operationId": "projectGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -289,6 +304,8 @@ describe("Traverse files", () => {
               },
               "user": Object {
                 "get": Object {
+                  "description": "Get user",
+                  "operationId": "userGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -309,23 +326,28 @@ describe("Traverse files", () => {
                 ],
               },
             },
+            "servers": Array [
+              Object {
+                "url": "http://example.org",
+              },
+            ],
           },
         },
         Object {
-          "codeFrame": "[90m51|   contact:[39m
-      [90m52|     name: Ivan Goncharov[39m
-      [90m53| [4m[31mdefaultParameterSchema[90m[24m:[39m
-      [90m54|[39m[31m   type: string[39m",
+          "codeFrame": "[90m60|     name: Ivan Goncharov[39m
+      [90m61|     email: ivan@redoc.ly[39m
+      [90m62| [4m[31mdefaultParameterSchema[90m[24m:[39m
+      [90m63|[39m[31m   type: string[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 23,
-            "endIndex": 1032,
-            "endLine": 53,
+            "endIndex": 1244,
+            "endLine": 62,
             "startCol": 1,
-            "startIndex": 1010,
-            "startLine": 53,
+            "startIndex": 1222,
+            "startLine": 62,
           },
           "message": "The field 'defaultParameterSchema' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -366,6 +388,7 @@ describe("Traverse files", () => {
             },
             "customerSupport": Object {
               "contact": Object {
+                "email": "ivan@redoc.ly",
                 "name": "Ivan Goncharov",
               },
               "id": 12,
@@ -375,7 +398,8 @@ describe("Traverse files", () => {
             },
             "info": Object {
               "contact": Object {
-                "name": "John Doe",
+                "email": "ivan@redoc.ly",
+                "name": "Ivan Goncharov",
               },
               "license": Object {
                 "name": "example",
@@ -388,6 +412,8 @@ describe("Traverse files", () => {
             "paths": Object {
               "project": Object {
                 "get": Object {
+                  "description": "Get project",
+                  "operationId": "projectGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -404,6 +430,8 @@ describe("Traverse files", () => {
               },
               "user": Object {
                 "get": Object {
+                  "description": "Get user",
+                  "operationId": "userGet",
                   "responses": Object {
                     "200": Object {
                       "content": Object {
@@ -424,24 +452,29 @@ describe("Traverse files", () => {
                 ],
               },
             },
+            "servers": Array [
+              Object {
+                "url": "http://example.org",
+              },
+            ],
           },
         },
         Object {
-          "codeFrame": "[90m33|   parameters:[39m
-      [90m34|     example:[39m
-      [90m35|       [4m[31mallOf[90m[24m:[39m
-      [90m36|         - name: bla[39m
-      [90m37|           in: querya[39m",
+          "codeFrame": "[90m41|   parameters:[39m
+      [90m42|     example:[39m
+      [90m43|       [4m[31mallOf[90m[24m:[39m
+      [90m44|         - name: bla[39m
+      [90m45|           in: querya[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 671,
-            "endLine": 35,
+            "endIndex": 858,
+            "endLine": 43,
             "startCol": 7,
-            "startIndex": 666,
-            "startLine": 35,
+            "startIndex": 853,
+            "startLine": 43,
           },
           "message": "The field 'allOf' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -459,7 +492,7 @@ describe("Traverse files", () => {
                 "parameters",
                 0,
               ],
-              "startLine": 14,
+              "startLine": 18,
             },
           ],
           "possibleAlternate": null,
@@ -482,21 +515,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m32| components:[39m
-      [90m33|   parameters:[39m
-      [90m34|     [4m[31mexample[90m[24m:[39m
-      [90m35|       allOf:[39m
-      [90m36|         - name: bla[39m",
+          "codeFrame": "[90m40| components:[39m
+      [90m41|   parameters:[39m
+      [90m42|     [4m[31mexample[90m[24m:[39m
+      [90m43|       allOf:[39m
+      [90m44|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 658,
-            "endLine": 34,
+            "endIndex": 845,
+            "endLine": 42,
             "startCol": 5,
-            "startIndex": 651,
-            "startLine": 34,
+            "startIndex": 838,
+            "startLine": 42,
           },
           "message": "The field 'name' must be present on this level.",
           "path": Array [
@@ -514,7 +547,7 @@ describe("Traverse files", () => {
                 "parameters",
                 0,
               ],
-              "startLine": 14,
+              "startLine": 18,
             },
           ],
           "possibleAlternate": undefined,
@@ -537,21 +570,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m32| components:[39m
-      [90m33|   parameters:[39m
-      [90m34|     [4m[31mexample[90m[24m:[39m
-      [90m35|       allOf:[39m
-      [90m36|         - name: bla[39m",
+          "codeFrame": "[90m40| components:[39m
+      [90m41|   parameters:[39m
+      [90m42|     [4m[31mexample[90m[24m:[39m
+      [90m43|       allOf:[39m
+      [90m44|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 658,
-            "endLine": 34,
+            "endIndex": 845,
+            "endLine": 42,
             "startCol": 5,
-            "startIndex": 651,
-            "startLine": 34,
+            "startIndex": 838,
+            "startLine": 42,
           },
           "message": "The field 'in' must be present on this level.",
           "path": Array [
@@ -569,7 +602,7 @@ describe("Traverse files", () => {
                 "parameters",
                 0,
               ],
-              "startLine": 14,
+              "startLine": 18,
             },
           ],
           "possibleAlternate": undefined,
@@ -592,21 +625,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m33|   parameters:[39m
-      [90m34|     example:[39m
-      [90m35|       [4m[31mallOf[90m[24m:[39m
-      [90m36|         - name: bla[39m
-      [90m37|           in: querya[39m",
+          "codeFrame": "[90m41|   parameters:[39m
+      [90m42|     example:[39m
+      [90m43|       [4m[31mallOf[90m[24m:[39m
+      [90m44|         - name: bla[39m
+      [90m45|           in: querya[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 671,
-            "endLine": 35,
+            "endIndex": 858,
+            "endLine": 43,
             "startCol": 7,
-            "startIndex": 666,
-            "startLine": 35,
+            "startIndex": 853,
+            "startLine": 43,
           },
           "message": "The field 'allOf' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
           "path": Array [
@@ -636,21 +669,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m32| components:[39m
-      [90m33|   parameters:[39m
-      [90m34|     [4m[31mexample[90m[24m:[39m
-      [90m35|       allOf:[39m
-      [90m36|         - name: bla[39m",
+          "codeFrame": "[90m40| components:[39m
+      [90m41|   parameters:[39m
+      [90m42|     [4m[31mexample[90m[24m:[39m
+      [90m43|       allOf:[39m
+      [90m44|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 658,
-            "endLine": 34,
+            "endIndex": 845,
+            "endLine": 42,
             "startCol": 5,
-            "startIndex": 651,
-            "startLine": 34,
+            "startIndex": 838,
+            "startLine": 42,
           },
           "message": "The field 'name' must be present on this level.",
           "path": Array [
@@ -680,21 +713,21 @@ describe("Traverse files", () => {
           },
         },
         Object {
-          "codeFrame": "[90m32| components:[39m
-      [90m33|   parameters:[39m
-      [90m34|     [4m[31mexample[90m[24m:[39m
-      [90m35|       allOf:[39m
-      [90m36|         - name: bla[39m",
+          "codeFrame": "[90m40| components:[39m
+      [90m41|   parameters:[39m
+      [90m42|     [4m[31mexample[90m[24m:[39m
+      [90m43|       allOf:[39m
+      [90m44|         - name: bla[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 658,
-            "endLine": 34,
+            "endIndex": 845,
+            "endLine": 42,
             "startCol": 5,
-            "startIndex": 651,
-            "startLine": 34,
+            "startIndex": 838,
+            "startLine": 42,
           },
           "message": "The field 'in' must be present on this level.",
           "path": Array [
