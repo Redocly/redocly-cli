@@ -1,4 +1,4 @@
-# Ruleset
+# Rules
 
 All supported rules are listed below. To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
 
@@ -52,19 +52,19 @@ Tooling may treat `example.com` and `example.com/` in the same way. In the worst
 Parameters in `operation` objects must be `unique` definition wide.
 
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects. For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects (we call those sub-rules). For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
 
 ```yaml
-... your configuration
+codeframes: off
 rules: 
   ...other rules
   oas3-schema: 
     servers:
       level: warning    
 ```
-or even totally disable:
+Or even totally disabled:
 ```yaml
-... your configuration
+codeframes: off
 rules: 
   ...other rules
   oas3-schema: 
