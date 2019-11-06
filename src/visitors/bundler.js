@@ -78,6 +78,7 @@ class Bundler extends AbstractVisitor {
         }
 
         if (ctx.result.length > 0) {
+          ctx.bundlingResult = null;
           return null;
         }
 
@@ -111,6 +112,8 @@ class Bundler extends AbstractVisitor {
               break;
           }
           fs.writeFileSync(`${outputPath}`, fileData);
+        } else if (this.config.outputObject) {
+          ctx.bundlingResult = node;
         } else {
           // default output to stdout, if smbd wants to pipe it
           process.stdout.write(yaml.safeDump(node));

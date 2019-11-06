@@ -3,7 +3,7 @@ import { validateFromFile } from './validate';
 import cli from './cli';
 
 export { validate, validateFromFile } from './validate';
-export { bundle } from './bundle';
+export { bundle, bundleToFile } from './bundle';
 
 export default validateFromFile;
 
