@@ -5,7 +5,7 @@ import program from 'commander';
 import fs from 'fs';
 
 import { validateFromFile, validateFromUrl } from '../validate';
-import { bundle } from '../bundle';
+import bundle from '../bundle';
 
 import { isUrl } from '../utils';
 
