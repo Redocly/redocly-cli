@@ -16,9 +16,11 @@ rules:
   path-declarations-must-exist: on
 
   camel-case-names: off
+  server-not-example: off
   api-servers: off
   license-url: off
   no-extra-fields: off
+  model-description: off
   operation-description: off
   operation-operationId: off
   operation-tags: off
