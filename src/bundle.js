@@ -7,7 +7,7 @@ import createContext from './context';
 
 import OpenAPIRoot from './types';
 
-export const bundleFromFile = (fName, outputFile) => {
+export const bundleToFile = (fName, outputFile) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -64,4 +64,4 @@ export const bundle = (fName) => {
   return ctx.bundlingResult;
 };
 
-export default bundleFromFile;
+export default bundleToFile;
