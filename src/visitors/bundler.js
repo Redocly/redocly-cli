@@ -55,7 +55,15 @@ class Bundler extends AbstractVisitor {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else {
-            const itemName = `${unresolvedNode.$ref.split('/')[unresolvedNode.$ref.split('/').length - 1]}`;
+            let itemName = `${unresolvedNode.$ref.split('/')[unresolvedNode.$ref.split('/').length - 1]}`;
+            if (itemName.endsWith('.yaml')) {
+              itemName = itemName.substring(0, itemName.length - 5);
+            }
+
+            if (itemName.endsWith('.yml')) {
+              itemName = itemName.substring(0, itemName.length - 4);
+            }
+
             const newRef = `#/components/${componentType}/${itemName}`;
 
             if (!this.components[componentType]) {
