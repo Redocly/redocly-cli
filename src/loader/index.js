@@ -62,7 +62,7 @@ function loadRuleset(config) {
   });
 
   const ruleRedefinitiojnsPath = getRuleRedefinePath(config);
-  const ruleRedefs = require(ruleRedefinitiojnsPath);
+  const ruleRedefs = require(ruleRedefinitionsPath);
 
   // Here we load the modified validators() methods
   // for structural validation.
