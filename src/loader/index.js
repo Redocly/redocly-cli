@@ -61,7 +61,7 @@ function loadRuleset(config) {
     }
   });
 
-  const ruleRedefinitiojnsPath = getRuleRedefinePath(config);
+  const ruleRedefinitionsPath = getRuleRedefinePath(config);
   const ruleRedefs = require(ruleRedefinitionsPath);
 
   // Here we load the modified validators() methods
