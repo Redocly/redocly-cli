@@ -10,7 +10,7 @@ import { isUrl } from './utils';
  * for it. If failed (e.g. because of undefined value) -- return null, to indicate that such
  * reference does not exist.
  *
- * TODO: we might need a feature to support validation of "URL" based definitions if future, so
+ * TODO: we might need a feature to support validation of "URL" based definitions in the future, so
  * would be nice to have opportunity to call resolve() with empty ctx.
  *
  * @param {string} link A path in the yaml document which is to be resolved
