@@ -52,10 +52,10 @@ components:
     example:
       allOf:
         - name: bla
-          in: querya
+          in: query
           required: false
           schema:
-            type: stringa
+            type: string
         - description: Concrete example
     genericExample:
       name: example
