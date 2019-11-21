@@ -33,8 +33,26 @@ function getConfig(options) {
     resolvedConfig.typeExtension = `${process.cwd()}/${resolvedConfig.typeExtension}`;
   }
 
-  const { extension } = require(resolvedConfig.typeExtension);
-  resolvedConfig.typeExtension = extension;
+  const { extend, define } = require(resolvedConfig.typeExtension);
+
+  for (let i = 0; i < Object.keys(extend).length; i++) {
+    const pathToDefaultType = `${__dirname}/types/${Object.keys(extend)[i]}.js`;
+    if (!fs.existsSync(pathToDefaultType)) {
+      throw new Error(`${Object.keys(extend)[i]} is not a default type. Use "define" section instead.`);
+    }
+  }
+
+  for (let i = 0; i < Object.keys(define).length; i++) {
+    const pathToDefaultType = `${__dirname}/types/${Object.keys(define)[i]}.js`;
+    if (fs.existsSync(pathToDefaultType)) {
+      throw new Error(`${Object.keys(define)[i]} is a default type. Use "extend" section instead.`);
+    }
+  }
+
+  resolvedConfig.typeExtension = {
+    ...extend,
+    ...define,
+  };
 
   return resolvedConfig;
 }

@@ -1,4 +1,7 @@
 module.exports = {
-  extension: {
+  define: {
+
+  },
+  extend: {
   },
 };

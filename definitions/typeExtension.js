@@ -1,5 +1,15 @@
 module.exports = {
-  extension: {
+  define: {
+    OpenAPICustomField: {
+      name: 'OpenAPICustomField',
+      isIdempotent: true,
+      properties: {
+        id: null,
+        contact: 'OpenAPIContact',
+      },
+    },
+  },
+  extend: {
     OpenAPIRoot: {
       properties: {
         blabla: null,
@@ -7,19 +17,9 @@ module.exports = {
         customerSupport: 'OpenAPICustomField',
       },
     },
-
     OpenAPIParameter: {
       properties: {
         allOf: 'OpenAPIParameter',
-      },
-    },
-
-    OpenAPICustomField: {
-      name: 'OpenAPICustomField',
-      isIdempotent: true,
-      properties: {
-        id: null,
-        contact: 'OpenAPIContact',
       },
     },
   },
