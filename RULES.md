@@ -1,4 +1,4 @@
-# Ruleset
+# Rules
 
 All supported rules are listed below. To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
 
@@ -32,6 +32,9 @@ The `operationId`s are expected to be unique to really identify operations. This
 ### operation-tags
 The `tags` field must be present and be a non-empty array in each `operation`.
 
+### parameter-description
+The "parameter" object should contain "description" field.
+
 ### path-declarations-must-exist
 Define path parameters within the `operation` path definition. Each declaration of the parameter name within path must be a non-empty string. For example, `/api/user/{userId}/profie` is a valid definition with the `userId` parameter, but `/api/user/{}/profile` is not.
 
@@ -43,28 +46,37 @@ Info object must contain the `contact` field.
 
 APIs are not perfect, and the contact field lets users know who can help.
 
+### server-not-example
+The "server" object should not point to "example.com" domain.
+
 ### servers-no-trailing-slash
 The server URL must not have a trailing slash.
 
 Tooling may treat `example.com` and `example.com/` in the same way. In the worst case, the latter option when joined with the operations paths might result in `example.com//api/users`.
 
+### model-description
+The "model" object should contain "description" field.
+
 ### unique-parameter-names
 Parameters in `operation` objects must be `unique` definition wide.
 
+### operations-tags-alpabetical
+Items in `tags` object of `operation`s should be sorted alphabetically.
+
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects. For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects (we call those sub-rules). For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
 
 ```yaml
-... your configuration
+codeframes: off
 rules: 
   ...other rules
   oas3-schema: 
     servers:
       level: warning    
 ```
-or even totally disable:
+Or even totally disabled:
 ```yaml
-... your configuration
+codeframes: off
 rules: 
   ...other rules
   oas3-schema: 
