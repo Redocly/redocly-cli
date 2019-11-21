@@ -42,6 +42,7 @@ function loadRuleset(config) {
         ruleConfig = Object.keys(ruleConfig)
           .filter((key) => allowed.includes(key))
           .reduce((obj, key) => {
+            // eslint-disable-next-line no-param-reassign
             obj[key] = ruleConfig[key];
             return obj;
           }, {});
@@ -75,6 +76,7 @@ function loadRuleset(config) {
 
           Object.keys(definitions).forEach((def) => {
             if (rule[def]) {
+              // eslint-disable-next-line no-param-reassign
               rule[def] = definitions[def](rule[def]());
             }
           });

@@ -26,6 +26,7 @@ class parameterAllOf {
           const allOfVals = node.allOf;
           ctx.path.push('allOf');
           for (let i = 0; i < allOfVals.length; i++) {
+            // eslint-disable-next-line no-continue
             if (allOfVals[i].description) continue;
             ctx.path.push(i);
             traverseNode(allOfVals[i], resolveType('OpenAPIParameter'), ctx, visited, true);
