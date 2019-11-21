@@ -6,7 +6,7 @@ const loadDefaultDefinition = (name) => {
 };
 
 export default (definition, ctx, node) => {
-  if (!ctx.config.typeExtension && typeof definition !== 'string') return definition;
+  if (!ctx.config.definitionResolver && typeof definition !== 'string') return definition;
 
   const definitionName = typeof definition === 'string' ? definition : definition.name;
   const defaultDefinition = loadDefaultDefinition(definitionName);
@@ -21,19 +21,5 @@ export default (definition, ctx, node) => {
     ? ctx.config.definitionResolver(resolvedDefinition.resolveType(node), resolvedDefinition)
     : resolvedDefinition;
 
-  // if (resolvedDefinition.name === 'OpenAPIParameterWithAllOf') {
-  //   console.log('111111');
-  //   console.log(definition);
-  //   console.log(defaultDefinition);
-  //   console.log(resolvedDefinition);
-  //   console.log('22222');
-  // }
-
-  // if (!resolvedDefinition) {
-  //   console.log(resolvedDefinition);
-  //   console.log(definition);
-  //   console.log(defaultDefinition);
-  //   console.log(`${__dirname}/../types/${definition.name}.js`);
-  // }
   return resolvedDefinition;
 };

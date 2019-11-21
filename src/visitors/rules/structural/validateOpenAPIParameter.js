@@ -84,7 +84,8 @@ class ValidateOpenAPIParameter extends AbstractVisitor {
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];
-        const validators = this.validators();
+        console.log(definition.name);
+        const validators = ctx.config.validatorsMidldeware('OpenAPIParameter', node, this.validators());
         const vals = Object.keys(validators);
         for (let i = 0; i < vals.length; i += 1) {
           if (isRuleEnabled(this.config, vals[i])) {

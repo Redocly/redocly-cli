@@ -1,16 +1,16 @@
-module.exports = (validators) => ({
-  ...validators,
-  OpenAPIParameterWithAllOf: {
-    validators: {
-      ...validators.OpenAPIParameter,
-      in: (node, ctx) => {
-        if (node.allOf) return null;
-        return v.in(node, ctx);
-      },
-      name: (node, ctx) => {
-        if (node.allOf) return null;
-        return v.name(node, ctx);
-      },
-    },
-  },
-});
+module.exports = (definitionName, node, validators) => {
+  switch (definitionName) {
+    case 'OpenAPIParameter':
+      if (node && Object.keys(node).length === 1 && node.description) {
+        return Object.keys(validators)
+          .filter((key) => !['in', 'name'].includes(key))
+          .reduce((obj, key) => {
+            obj[key] = validators[key];
+            return obj;
+          }, {});
+      }
+      return validators;
+    default:
+      return validators;
+  }
+};

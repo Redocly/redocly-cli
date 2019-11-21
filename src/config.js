@@ -37,6 +37,16 @@ function getConfig(options) {
 
   resolvedConfig.definitionResolver = definitionResolver;
 
+  if (!resolvedConfig.validatorsExtensions) {
+    resolvedConfig.validatorsExtensions = `${__dirname}/validatorsMidldewareDefault.js`;
+  } else {
+    resolvedConfig.validatorsExtensions = `${process.cwd()}/${resolvedConfig.validatorsExtensions}`;
+  }
+
+  const validatorsMidldeware = require(resolvedConfig.validatorsExtensions);
+
+  resolvedConfig.validatorsMidldeware = validatorsMidldeware;
+
   return resolvedConfig;
 }
 

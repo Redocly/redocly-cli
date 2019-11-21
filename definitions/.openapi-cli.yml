@@ -1,5 +1,5 @@
 typeExtension: typeExtension.js
-rulesRedefine: rulesRedefine.js
+validatorsExtensions: rulesRedefine.js
 codeframes: on
 rules:
   bundler: off

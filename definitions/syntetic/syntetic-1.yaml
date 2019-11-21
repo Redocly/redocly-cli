@@ -14,8 +14,8 @@ servers:
 
 paths:
   user:
-    # parameters:
-    #   - $ref: '#/components/parameters/example'
+    parameters:
+      - $ref: '#/components/parameters/example'
     get:
       operationId: userGet
       description: Get user
@@ -26,17 +26,17 @@ paths:
             application/json:
               schema:
                 type: object
-  # project:
-  #   get:
-  #     operationId: projectGet
-  #     description: Get project
-  #     responses:
-  #       '200':
-  #         description: example description
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
+  project:
+    get:
+      operationId: projectGet
+      description: Get project
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
 components:
   securitySchemes:
     JWT:
@@ -48,26 +48,26 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-#   parameters:
-#     example:
-#       allOf:
-#         - name: bla
-#           in: querya
-#           required: false
-#           schema:
-#             type: stringa
-#         - description: Concrete example
-#     genericExample:
-#       name: example
-#       in: query
-#       required: true
-#       schema:
-#         type: string
-# blabla: 313
-# customerSupport:
-#   id: 12
-#   contact:
-#     name: Ivan Goncharov
-#     email: ivan@redoc.ly
-# defaultParameterSchema:
-#   type: string
+  parameters:
+    example:
+      allOf:
+        - name: bla
+          in: querya
+          required: false
+          schema:
+            type: stringa
+        - description: Concrete example
+    genericExample:
+      name: example
+      in: query
+      required: true
+      schema:
+        type: string
+blabla: 313
+customerSupport:
+  id: 12
+  contact:
+    name: Ivan Goncharov
+    email: ivan@redoc.ly
+defaultParameterSchema:
+  type: string
