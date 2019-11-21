@@ -45,10 +45,10 @@ describe("Error templates", () => {
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 396,
+          "endIndex": 392,
           "endLine": 22,
           "startCol": 7,
-          "startIndex": 387,
+          "startIndex": 383,
           "startLine": 22,
         },
         "message": "The field '200' is not allowed in testName. Use \\"x-\\" prefix to override this behavior.",
@@ -77,8 +77,8 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m17|     # parameters:[39m
-      [90m18|     #   - $ref: '#/components/parameters/example'[39m
+        "codeFrame": "[90m17|     parameters:[39m
+      [90m18|       - $ref: '#/components/parameters/example'[39m
       [90m19|     [4m[31mget[90m[24m:[39m
       [90m20|       operationId: userGet[39m
       [90m21|       description: Get user[39m",
@@ -87,10 +87,10 @@ describe("Error templates", () => {
         "fromRule": undefined,
         "location": Object {
           "endCol": 8,
-          "endIndex": 324,
+          "endIndex": 320,
           "endLine": 19,
           "startCol": 5,
-          "startIndex": 321,
+          "startIndex": 317,
           "startLine": 19,
         },
         "message": "The field 'responses' must be present on this level.",
@@ -128,10 +128,10 @@ describe("Error templates", () => {
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 396,
+          "endIndex": 392,
           "endLine": 22,
           "startCol": 7,
-          "startIndex": 387,
+          "startIndex": 383,
           "startLine": 22,
         },
         "message": "This field must be of object type.",
@@ -175,10 +175,10 @@ describe("Error templates", () => {
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 396,
+          "endIndex": 392,
           "endLine": 22,
           "startCol": 7,
-          "startIndex": 387,
+          "startIndex": 383,
           "startLine": 22,
         },
         "message": "Fields 'responses', 'description' are mutually exclusive.",
