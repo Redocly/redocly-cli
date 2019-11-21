@@ -1,5 +1,5 @@
 import OpenAPISchemaMap from './OpenAPISchemaMap';
-import OpenAPISecuritySchemaMap from './OpenAPISecuritySchema';
+import OpenAPISecuritySchemaMap from './OpenAPISecuritySchemaMap';
 import { OpenAPIExampleMap } from './OpenAPIExampleMap';
 import { OpenAPIParameterMap } from './OpenAPIParameterMap';
 import { OpenAPIResponseMap } from './OpenAPIResponseMap';

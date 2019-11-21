@@ -1,7 +1,8 @@
-module.exports = {
-  OpenAPIParameter: {
-    validators: (v) => () => ({
-      ...v,
+module.exports = (validators) => ({
+  ...validators,
+  OpenAPIParameterWithAllOf: {
+    validators: {
+      ...validators.OpenAPIParameter,
       in: (node, ctx) => {
         if (node.allOf) return null;
         return v.in(node, ctx);
@@ -10,6 +11,6 @@ module.exports = {
         if (node.allOf) return null;
         return v.name(node, ctx);
       },
-    }),
+    },
   },
-};
+});

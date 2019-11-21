@@ -1,6 +1,7 @@
-import OpenAPIHeader from './OpenAPIHeader';
+import { OpenAPIHeader } from './OpenAPIHeader';
 
 export const OpenAPIHeaderMap = {
+  name: 'OpenAPIHeaderMap',
   isIdempotent: true,
   properties(node) {
     const props = {};

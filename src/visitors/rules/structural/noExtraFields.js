@@ -27,6 +27,9 @@ class NoExtraFields extends AbstractVisitor {
           }
         }
 
+        // console.log('asdsad', definition.name);
+        // console.log('xxxxxx', definition);
+
         if (allowedChildren.length > 0 && typeof node !== 'object') {
           errors.push(
             createErrrorFieldTypeMismatch(definition.name, node, ctx, {
@@ -43,7 +46,7 @@ class NoExtraFields extends AbstractVisitor {
             const possibleAlternate = getClosestString(field, allowedChildren);
             errors.push(
               createErrorFieldNotAllowed(
-                field, node, ctx, {
+                field, definition.name, node, ctx, {
                   fromRule: this.rule, severity: this.config.level, possibleAlternate,
                 },
               ),

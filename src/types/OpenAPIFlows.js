@@ -4,6 +4,7 @@ import ClientCredentialsOpenAPIFlow from './ClientCredentialsOpenAPIFlow';
 import AuthorizationCodeOpenAPIFlow from './AuthorizationCodeOpenAPIFlow';
 
 export default {
+  name: 'OpenAPIFlows',
   properties: {
     implicit() {
       return ImplicitOpenAPIFlow;

@@ -1,6 +1,7 @@
 import OpenAPIServerVariable from './OpenAPIServerVariable';
 
 export default {
+  name: 'OpenAPIServerVariableMap',
   isIdempotent: true,
   properties(node) {
     const props = {};

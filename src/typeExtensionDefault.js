@@ -1,7 +1,1 @@
-module.exports = {
-  define: {
-
-  },
-  extend: {
-  },
-};
+module.exports = (definitionName, defaultDefinition) => defaultDefinition;

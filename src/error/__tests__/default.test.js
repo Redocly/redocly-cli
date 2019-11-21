@@ -38,17 +38,17 @@ describe("createError", () => {
       [90m26|[39m[31m [4m[31m            application/json:[31m[24m[39m
       [90m27|[39m[31m [4m[31m              schema:[31m[24m[39m
       [90m28|[39m[31m [4m[31m                type: object[31m[24m[39m
-      [90m29|   project:[39m
-      [90m30|     get:[39m",
+      [90m29|   # project:[39m
+      [90m30|   #   get:[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 28,
-          "endIndex": 551,
+          "endIndex": 555,
           "endLine": 28,
           "startCol": 7,
-          "startIndex": 383,
+          "startIndex": 387,
           "startLine": 22,
         },
         "message": "This is a test error",
@@ -135,8 +135,8 @@ describe("fromError", () => {
       [90m26|[39m[31m [4m[31m            application/json:[31m[24m[39m
       [90m27|[39m[31m [4m[31m              schema:[31m[24m[39m
       [90m28|[39m[31m [4m[31m                type: object[31m[24m[39m
-      [90m29|   project:[39m
-      [90m30|     get:[39m",
+      [90m29|   # project:[39m
+      [90m30|   #   get:[39m",
         "definitionStack": Array [],
         "document": null,
         "enableCodeframe": true,
@@ -145,10 +145,10 @@ describe("fromError", () => {
         "fromRule": undefined,
         "location": Object {
           "endCol": 28,
-          "endIndex": 551,
+          "endIndex": 555,
           "endLine": 28,
           "startCol": 7,
-          "startIndex": 383,
+          "startIndex": 387,
           "startLine": 22,
         },
         "message": "This is a test error",

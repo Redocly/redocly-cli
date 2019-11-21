@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint-disable class-methods-use-this */
 
 class parameterAllOf {
@@ -15,26 +16,7 @@ class parameterAllOf {
   }
 
   get rule() {
-    return 'parameterAllOf';
-  }
-
-  OpenAPIParameter() {
-    return {
-      onEnter: (node, _, ctx, unresolved, traverseTools) => {
-        const { traverseNode, visited, resolveType } = traverseTools;
-        if (Object.keys(node).indexOf('allOf') !== -1) {
-          const allOfVals = node.allOf;
-          ctx.path.push('allOf');
-          for (let i = 0; i < allOfVals.length; i++) {
-            if (allOfVals[i].description) continue;
-            ctx.path.push(i);
-            traverseNode(allOfVals[i], resolveType('OpenAPIParameter'), ctx, visited, true);
-            ctx.path.pop();
-          }
-          ctx.path.pop();
-        }
-      },
-    };
+    return 'parameterAllOfas';
   }
 }
 

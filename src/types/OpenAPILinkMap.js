@@ -1,6 +1,7 @@
 import { OpenAPILink } from './OpenAPILink';
 
 export const OpenAPILinkMap = {
+  name: 'OpenAPILinkMap',
   isIdempotent: true,
   properties(node) {
     const props = {};

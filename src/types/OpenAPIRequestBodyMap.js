@@ -1,6 +1,7 @@
 import { OpenAPIRequestBody } from './OpenAPIRequestBody';
 
 export const OpenAPIRequestBodyMap = {
+  name: 'OpenAPIRequestBodyMap',
   isIdempotent: true,
   properties(node) {
     const props = {};

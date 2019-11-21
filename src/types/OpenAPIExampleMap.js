@@ -1,6 +1,7 @@
 import OpenAPIExample from './OpenAPIExample';
 
 export const OpenAPIExampleMap = {
+  name: 'OpenAPIExampleMap',
   isIdempotent: true,
   properties(node) {
     const props = {};

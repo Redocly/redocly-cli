@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { OpenAPIPathItem } from './OpenAPIPaths';
+import { OpenAPIPathItem } from './OpenAPIPath';
 
 export const OpenAPICallback = {
   name: 'OpenAPICallback',

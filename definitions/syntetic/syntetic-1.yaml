@@ -14,8 +14,8 @@ servers:
 
 paths:
   user:
-    parameters:
-      - $ref: '#/components/parameters/example'
+    # parameters:
+    #   - $ref: '#/components/parameters/example'
     get:
       operationId: userGet
       description: Get user
@@ -26,38 +26,48 @@ paths:
             application/json:
               schema:
                 type: object
-  project:
-    get:
-      operationId: projectGet
-      description: Get project
-      responses:
-        '200':
-          description: example description
-          content:
-            application/json:
-              schema:
-                type: object
+  # project:
+  #   get:
+  #     operationId: projectGet
+  #     description: Get project
+  #     responses:
+  #       '200':
+  #         description: example description
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
 components:
-  parameters:
-    example:
-      allOf:
-        - name: bla
-          in: querya
-          required: false
-          schema:
-            type: stringa
-        - description: Concrete example
-    genericExample:
-      name: example
-      in: query
-      required: true
-      schema:
-        type: string
-blabla: 313
-customerSupport:
-  id: 12
-  contact:
-    name: Ivan Goncharov
-    email: ivan@redoc.ly
-defaultParameterSchema:
-  type: string
+  securitySchemes:
+    JWT:
+      description: >
+        You can create a JSON Web Token (JWT) via our [JWT Session
+        resource](https://rebilly.github.io/RebillyUserAPI/#tag/JWT-Session/paths/~1signin/post).
+
+        Usage format: `Bearer <JWT>`
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+#   parameters:
+#     example:
+#       allOf:
+#         - name: bla
+#           in: querya
+#           required: false
+#           schema:
+#             type: stringa
+#         - description: Concrete example
+#     genericExample:
+#       name: example
+#       in: query
+#       required: true
+#       schema:
+#         type: string
+# blabla: 313
+# customerSupport:
+#   id: 12
+#   contact:
+#     name: Ivan Goncharov
+#     email: ivan@redoc.ly
+# defaultParameterSchema:
+#   type: string

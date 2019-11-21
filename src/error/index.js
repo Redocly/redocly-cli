@@ -1,8 +1,8 @@
 import createError from './default';
 
-export const createErrorFieldNotAllowed = (fieldName, node, ctx,
+export const createErrorFieldNotAllowed = (fieldName, definitionName, node, ctx,
   options) => createError(
-  `The field '${fieldName}' is not allowed here. Use "x-" prefix to override this behavior.`, node, ctx, { target: 'key', ...options },
+  `The field '${fieldName}' is not allowed in ${definitionName}. Use "x-" prefix to override this behavior.`, node, ctx, { target: 'key', ...options },
 );
 
 export const createErrorMissingRequiredField = (fieldName, node, ctx,

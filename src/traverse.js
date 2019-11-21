@@ -3,7 +3,7 @@
 import path from 'path';
 
 import resolveNode from './resolver';
-import resolveDefinition from './typesExtention';
+import resolveDefinition from './resolveDefinition';
 import resolveType from './resolveType';
 
 import { fromError } from './error/default';
@@ -109,8 +109,6 @@ const nestedIncludes = (c, s) => {
 function traverseNode(node, definition, ctx, visited = []) {
   if (!node || !definition) return [];
 
-  definition = resolveDefinition(definition, ctx);
-
   const nodeContext = onNodeEnter(node, ctx);
   const isRecursive = nestedIncludes(ctx.path, visited);
 
@@ -119,6 +117,8 @@ function traverseNode(node, definition, ctx, visited = []) {
 
   const localVisited = Array.from(visited);
   localVisited.push(currentPath);
+
+  definition = resolveDefinition(definition, ctx, nodeContext.resolvedNode);
 
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
@@ -142,7 +142,9 @@ function traverseNode(node, definition, ctx, visited = []) {
       errors.push(...errorsChildren);
     } else {
       // Will use cached result if we have already traversed this nodes children
-      const cachedResult = ctx.cache[currentPath] ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
+      const cachedResult = ctx.cache[currentPath]
+        ? ctx.cache[currentPath].map((r) => fromError(r, ctx))
+        : [];
 
       ctx.result.push(...cachedResult);
     }

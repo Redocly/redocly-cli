@@ -47,12 +47,14 @@ class UniqueParameterNames extends AbstractVisitor {
     return {
       onEnter: (node, definition, ctx) => {
         let error;
-        if (this.parametersStack.includes(node.name) && !(ctx.pathStack.length === 0 && ctx.path.includes('components'))) {
+        if (node.name && this.parametersStack.includes(node.name) && !(ctx.pathStack.length === 0 && ctx.path.includes('components'))) {
           ctx.path.push('name');
           error = createError('Duplicate parameters are not allowed. This name already used on higher or same level.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
           ctx.path.pop();
         }
-        this.parametersStack.push(node.name);
+        if (node.name) {
+          this.parametersStack.push(node.name);
+        }
         return error ? [error] : [];
       },
     };
