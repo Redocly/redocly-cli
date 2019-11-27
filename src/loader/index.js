@@ -8,6 +8,8 @@ function getObjByPathOrParent(json, JSONPath) {
 
 function loadRuleset(config) {
   const ruleSet = [];
+  const allRules = [];
+
   const configCopy = {
     ...config,
     rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
@@ -45,27 +47,38 @@ function loadRuleset(config) {
     }
 
     if (configCopy && configCopy.rules) {
+      const ruleInstance = new Rule(ruleConfig);
       if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
-        const ruleInstance = new Rule(ruleConfig);
         ruleSet.push(ruleInstance);
         // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
       }
+      allRules.push(ruleInstance);
     } else {
       const ruleInstance = new Rule({});
       ruleSet.push(ruleInstance);
+      allRules.push(ruleInstance);
       // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
     }
   });
 
   dirs.forEach((dir) => {
-    const nestedRules = loadRuleset({
+    const [nestedRules, allNestedRules] = loadRuleset({
       ...configCopy,
       rulesPath: dir,
     });
     ruleSet.push(...nestedRules);
+    allRules.push(...allNestedRules);
   });
 
-  return ruleSet;
+  return [ruleSet, allRules];
+}
+
+export function loadRulesetExtension(config) {
+  const additionalRules = [];
+  config.rulesExtensions.forEach((Rule) => {
+    additionalRules.push(new Rule());
+  });
+  return additionalRules;
 }
 
 export default loadRuleset;

@@ -1,37 +1,33 @@
-module.exports = (name, defaultDefinition) => {
-  switch (name) {
-    case 'OpenAPIParameter':
-      return {
-        ...defaultDefinition,
-        resolveType: (node) => (node.allOf ? 'OpenAPIParameterWithAllOf' : 'OpenAPIParameter'),
-      };
-    case 'OpenAPIParameterWithAllOf':
-      return {
-        name: 'OpenAPIParameterWithAllOf',
-        properties: {
-          allOf: 'OpenAPIParameter',
-        },
-      };
-    case 'OpenAPIRoot':
-      return {
-        ...defaultDefinition,
-        properties: {
-          ...defaultDefinition.properties,
-          blabla: null,
-          defaultParameterSchema: 'OpenAPISchema',
-          customerSupport: 'OpenAPICustomField',
-        },
-      };
-    case 'OpenAPICustomField':
-      return {
-        name: 'OpenAPICustomField',
-        isIdempotent: true,
-        properties: {
-          id: null,
-          contact: 'OpenAPIContact',
-        },
-      };
-    default:
-      return defaultDefinition;
-  }
-};
+module.exports = (types) => ({
+  ...types,
+  OpenAPIParameter: {
+    ...(types.OpenAPIParameter && types.OpenAPIParameter),
+    properties: {
+      ...(types.OpenAPIParameter && types.OpenAPIParameter.properties),
+      allOf: null,
+    },
+    resolveType: (node) => (node.allOf ? 'OpenAPIParameterWithAllOf' : 'OpenAPIParameter'),
+  },
+  OpenAPIParameterWithAllOf: {
+    name: 'OpenAPIParameterWithAllOf',
+    properties: {
+      allOf: 'OpenAPIParameter',
+    },
+  },
+  OpenAPIRoot: {
+    ...(types.OpenAPIRoot && types.OpenAPIRoot),
+    properties: {
+      ...(types.OpenAPIRoot && types.OpenAPIRoot.properties),
+      blabla: null,
+      defaultParameterSchema: 'OpenAPISchema',
+      customerSupport: 'OpenAPICustomField',
+    },
+  },
+  OpenAPICustomField: {
+    name: 'OpenAPICustomField',
+    properties: {
+      id: null,
+      contact: 'OpenAPIContact',
+    },
+  },
+});

@@ -129,6 +129,9 @@ function traverseNode(node, definition, ctx, visited = []) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
+    ctx.validateFields = ctx.validateFieldsRaw.bind(
+      ctx.validateFieldsRaw, nodeContext.resolvedNode, ctx,
+    );
     runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors, localVisited);
 
     const newNode = !isRecursive

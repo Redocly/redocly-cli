@@ -56,7 +56,7 @@ components:
           required: false
           schema:
             type: string
-        - description: Concrete example
+        - description: 12
     genericExample:
       name: example
       in: query

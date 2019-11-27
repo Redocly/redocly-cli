@@ -1,1 +1,1 @@
-module.exports = (definitionName, defaultDefinition) => defaultDefinition;
+module.exports = (types) => ({ ...types });

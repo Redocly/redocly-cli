@@ -11,14 +11,23 @@ export default (definition, ctx, node) => {
   const definitionName = typeof definition === 'string' ? definition : definition.name;
   const defaultDefinition = loadDefaultDefinition(definitionName);
 
-  let resolvedDefinition = ctx.config.definitionResolver(definitionName, defaultDefinition);
+  const IR = {
+    [definitionName || 'default']: defaultDefinition,
+  };
+
+  // console.log(IR);
+  const mapped = ctx.config.definitionResolver(IR);
+  let resolvedDefinition = mapped[definitionName || 'default'];
+  // console.log('===============');
+  // console.log(resolvedDefinition);
+  // console.log('++++++++++++++++++++');
 
   resolvedDefinition = (
     resolvedDefinition
     && resolvedDefinition.resolveType
     && resolvedDefinition.resolveType(node) !== resolvedDefinition.name
   )
-    ? ctx.config.definitionResolver(resolvedDefinition.resolveType(node), resolvedDefinition)
+    ? ctx.config.definitionResolver(mapped)[resolvedDefinition.resolveType(node)]
     : resolvedDefinition;
 
   return resolvedDefinition;

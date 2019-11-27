@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
 
-import isRuleEnabled from '../../utils';
 import AbstractVisitor from '../../utils/AbstractVisitor';
 
 class ValidateAuthorizationCodeOpenAPIFlow extends AbstractVisitor {
@@ -9,23 +8,23 @@ class ValidateAuthorizationCodeOpenAPIFlow extends AbstractVisitor {
     return 'auth-code-flow';
   }
 
-  validators() {
+  get validators() {
     return {
-      authorizationUrl: (node, ctx) => {
+      authorizationUrl(node, ctx) {
         if (!node.authorizationUrl) return createErrorMissingRequiredField('authorizationUrl', node, ctx, { fromRule: this.rule, severity: this.config.level });
         if (typeof node.authorizationUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },
-      tokenUrl: (node, ctx) => {
+      tokenUrl(node, ctx) {
         if (!node.tokenUrl) return createErrorMissingRequiredField('tokenUrl', node, ctx, { fromRule: this.rule, severity: this.config.level });
         if (typeof node.tokenUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
         return null;
       },
-      refreshUrl: (node, ctx) => {
+      refreshUrl(node, ctx) {
         if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createError('The refreshUrl must be a string in the Open API Flow Object', node, ctx, { fromRule: this.rule, severity: this.config.severity });
         return null;
       },
-      scopes: (node, ctx) => {
+      scopes(node, ctx) {
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
@@ -37,23 +36,9 @@ class ValidateAuthorizationCodeOpenAPIFlow extends AbstractVisitor {
 
   AuthorizationCodeOpenAPIFlow() {
     return {
-      onEnter: (node, definition, ctx) => {
-        const result = [];
-        const validators = this.validators();
-        const vals = Object.keys(validators);
-        for (let i = 0; i < vals.length; i += 1) {
-          if (isRuleEnabled(this, vals[i])) {
-            ctx.path.push(vals[i]);
-            const res = validators[vals[i]](node, ctx, this.config);
-            if (res) {
-              if (Array.isArray(res)) result.push(...res);
-              else result.push(res);
-            }
-            ctx.path.pop();
-          }
-        }
-        return result;
-      },
+      onEnter: (node, definition, ctx) => ctx.validateFields(
+        this.config, this.validators, this.rule,
+      ),
     };
   }
 }

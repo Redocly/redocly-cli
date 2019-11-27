@@ -43,9 +43,8 @@ function getConfig(options) {
     resolvedConfig.validatorsExtensions = `${process.cwd()}/${resolvedConfig.validatorsExtensions}`;
   }
 
-  const validatorsMidldeware = require(resolvedConfig.validatorsExtensions);
-
-  resolvedConfig.validatorsMidldeware = validatorsMidldeware;
+  const rulesExtensions = require(resolvedConfig.validatorsExtensions);
+  resolvedConfig.rulesExtensions = rulesExtensions;
 
   return resolvedConfig;
 }

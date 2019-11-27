@@ -27,9 +27,6 @@ class NoExtraFields extends AbstractVisitor {
           }
         }
 
-        // console.log('asdsad', definition.name);
-        // console.log('xxxxxx', definition);
-
         if (allowedChildren.length > 0 && typeof node !== 'object') {
           errors.push(
             createErrrorFieldTypeMismatch(definition.name, node, ctx, {

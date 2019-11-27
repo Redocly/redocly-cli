@@ -1,1 +1,3 @@
-module.exports = (definitionName, node, validators) => validators;
+module.exports = [
+
+];

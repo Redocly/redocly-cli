@@ -13,9 +13,8 @@ import { outputMessages, printValidationHeader } from './outputMessages';
 
 const validateFile = (filePath, options, cmdObj) => {
   let result;
-  
+
   if (isUrl(filePath)) {
-    console.log('Will validate from URL');
     result = validateFromUrl(filePath, options);
   } else {
     result = validateFromFile(filePath, options);
@@ -68,7 +67,7 @@ const cli = () => {
         errors: 0,
         warnings: 0,
       };
-      
+
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
 

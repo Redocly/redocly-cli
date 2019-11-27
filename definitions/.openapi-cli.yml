@@ -7,7 +7,8 @@ rules:
 
   parameterAllOf: on
   
-  oas3-schema: on
+  oas3-schema: 
+    parameter: off
   path-param-exists: on
   operation-2xx-response: on
   unique-parameter-names: on

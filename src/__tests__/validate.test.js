@@ -15,15 +15,15 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m57|           schema:[39m
       [90m58|             type: string[39m
-      [90m59|         - [4m[31mdescription: Concrete example[90m[24m[39m
+      [90m59|         - [4m[31mdescription: 12[90m[24m[39m
       [90m60|     genericExample:[39m
       [90m61|       name: example[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
-            "endCol": 39,
-            "endIndex": 1322,
+            "endCol": 25,
+            "endIndex": 1308,
             "endLine": 59,
             "startCol": 11,
             "startIndex": 1293,
@@ -54,21 +54,21 @@ describe("Traverse files", () => {
           "severity": 4,
           "target": "key",
           "value": Object {
-            "description": "Concrete example",
+            "description": 12,
           },
         },
         Object {
           "codeFrame": "[90m57|           schema:[39m
       [90m58|             type: string[39m
-      [90m59|         - [4m[31mdescription: Concrete example[90m[24m[39m
+      [90m59|         - [4m[31mdescription: 12[90m[24m[39m
       [90m60|     genericExample:[39m
       [90m61|       name: example[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
-            "endCol": 39,
-            "endIndex": 1322,
+            "endCol": 25,
+            "endIndex": 1308,
             "endLine": 59,
             "startCol": 11,
             "startIndex": 1293,
@@ -99,21 +99,66 @@ describe("Traverse files", () => {
           "severity": 4,
           "target": "key",
           "value": Object {
-            "description": "Concrete example",
+            "description": 12,
           },
         },
         Object {
           "codeFrame": "[90m57|           schema:[39m
       [90m58|             type: string[39m
-      [90m59|         - [4m[31mdescription: Concrete example[90m[24m[39m
+      [90m59|         - [4m[31mdescription[90m[24m: 12[39m
       [90m60|     genericExample:[39m
       [90m61|       name: example[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
-            "endCol": 39,
-            "endIndex": 1322,
+            "endCol": 22,
+            "endIndex": 1304,
+            "endLine": 59,
+            "startCol": 11,
+            "startIndex": 1293,
+            "startLine": 59,
+          },
+          "message": "This field must be of string type.",
+          "path": Array [
+            "components",
+            "parameters",
+            "example",
+            "allOf",
+            1,
+            "description",
+          ],
+          "pathStack": Array [
+            Object {
+              "file": "definitions/syntetic/syntetic-1.yaml",
+              "path": Array [
+                "paths",
+                "user",
+                "parameters",
+                0,
+              ],
+              "startLine": 18,
+            },
+          ],
+          "possibleAlternate": undefined,
+          "severity": 4,
+          "target": "key",
+          "value": Object {
+            "description": 12,
+          },
+        },
+        Object {
+          "codeFrame": "[90m57|           schema:[39m
+      [90m58|             type: string[39m
+      [90m59|         - [4m[31mdescription: 12[90m[24m[39m
+      [90m60|     genericExample:[39m
+      [90m61|       name: example[39m",
+          "enableCodeframe": true,
+          "file": "definitions/syntetic/syntetic-1.yaml",
+          "fromRule": "oas3-schema/parameter",
+          "location": Object {
+            "endCol": 25,
+            "endIndex": 1308,
             "endLine": 59,
             "startCol": 11,
             "startIndex": 1293,
@@ -133,21 +178,21 @@ describe("Traverse files", () => {
           "severity": 4,
           "target": "key",
           "value": Object {
-            "description": "Concrete example",
+            "description": 12,
           },
         },
         Object {
           "codeFrame": "[90m57|           schema:[39m
       [90m58|             type: string[39m
-      [90m59|         - [4m[31mdescription: Concrete example[90m[24m[39m
+      [90m59|         - [4m[31mdescription: 12[90m[24m[39m
       [90m60|     genericExample:[39m
       [90m61|       name: example[39m",
           "enableCodeframe": true,
           "file": "definitions/syntetic/syntetic-1.yaml",
           "fromRule": "oas3-schema/parameter",
           "location": Object {
-            "endCol": 39,
-            "endIndex": 1322,
+            "endCol": 25,
+            "endIndex": 1308,
             "endLine": 59,
             "startCol": 11,
             "startIndex": 1293,
@@ -167,7 +212,41 @@ describe("Traverse files", () => {
           "severity": 4,
           "target": "key",
           "value": Object {
-            "description": "Concrete example",
+            "description": 12,
+          },
+        },
+        Object {
+          "codeFrame": "[90m57|           schema:[39m
+      [90m58|             type: string[39m
+      [90m59|         - [4m[31mdescription[90m[24m: 12[39m
+      [90m60|     genericExample:[39m
+      [90m61|       name: example[39m",
+          "enableCodeframe": true,
+          "file": "definitions/syntetic/syntetic-1.yaml",
+          "fromRule": "oas3-schema/parameter",
+          "location": Object {
+            "endCol": 22,
+            "endIndex": 1304,
+            "endLine": 59,
+            "startCol": 11,
+            "startIndex": 1293,
+            "startLine": 59,
+          },
+          "message": "This field must be of string type.",
+          "path": Array [
+            "components",
+            "parameters",
+            "example",
+            "allOf",
+            1,
+            "description",
+          ],
+          "pathStack": Array [],
+          "possibleAlternate": undefined,
+          "severity": 4,
+          "target": "key",
+          "value": Object {
+            "description": 12,
           },
         },
       ]
@@ -201,10 +280,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 7,
-            "endIndex": 1441,
+            "endIndex": 1427,
             "endLine": 66,
             "startCol": 1,
-            "startIndex": 1435,
+            "startIndex": 1421,
             "startLine": 66,
           },
           "message": "The field 'blabla' is not allowed in OpenAPIRoot. Use \\"x-\\" prefix to override this behavior.",
@@ -230,7 +309,7 @@ describe("Traverse files", () => {
                       },
                     },
                     Object {
-                      "description": "Concrete example",
+                      "description": 12,
                     },
                   ],
                 },
@@ -338,10 +417,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 16,
-            "endIndex": 1462,
+            "endIndex": 1448,
             "endLine": 67,
             "startCol": 1,
-            "startIndex": 1447,
+            "startIndex": 1433,
             "startLine": 67,
           },
           "message": "The field 'customerSupport' is not allowed in OpenAPIRoot. Use \\"x-\\" prefix to override this behavior.",
@@ -367,7 +446,7 @@ describe("Traverse files", () => {
                       },
                     },
                     Object {
-                      "description": "Concrete example",
+                      "description": 12,
                     },
                   ],
                 },
@@ -474,10 +553,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/no-extra-fields",
           "location": Object {
             "endCol": 23,
-            "endIndex": 1556,
+            "endIndex": 1542,
             "endLine": 72,
             "startCol": 1,
-            "startIndex": 1534,
+            "startIndex": 1520,
             "startLine": 72,
           },
           "message": "The field 'defaultParameterSchema' is not allowed in OpenAPIRoot. Use \\"x-\\" prefix to override this behavior.",
@@ -503,7 +582,7 @@ describe("Traverse files", () => {
                       },
                     },
                     Object {
-                      "description": "Concrete example",
+                      "description": 12,
                     },
                   ],
                 },
@@ -650,7 +729,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
@@ -705,7 +784,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
@@ -760,7 +839,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
@@ -804,7 +883,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
@@ -848,7 +927,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
@@ -892,7 +971,7 @@ describe("Traverse files", () => {
                 },
               },
               Object {
-                "description": "Concrete example",
+                "description": 12,
               },
             ],
           },
