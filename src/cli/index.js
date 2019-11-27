@@ -5,7 +5,7 @@ import program from 'commander';
 import fs from 'fs';
 
 import { validateFromFile, validateFromUrl } from '../validate';
-import { bundle } from '../bundle';
+import bundle from '../bundle';
 
 import { isUrl } from '../utils';
 
@@ -14,7 +14,8 @@ import { outputMessages, printValidationHeader } from './outputMessages';
 const validateFile = (filePath, options, cmdObj) => {
   let result;
 
-  if (isUrl(filePath)) {
+  if (!fs.existsSync(filePath) && isUrl(filePath)) {
+    process.stdout.write('Will validate from URL\n');
     result = validateFromUrl(filePath, options);
   } else {
     result = validateFromFile(filePath, options);

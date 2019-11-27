@@ -75,13 +75,34 @@ In the section below, you can learn how to provide settings for the `@redocly/op
 
 ## Configuration
 
-All of the following rules are configurable in terms of disabling or changing their severity. To update a given rule, you should modify (or create) the `.openapi-cli.yaml` file in the directory from which you are going to run the validator.
+### Configuration file
 
-Also, you can provide the path to the configuration file name other than `.openapi-cli.yaml` by using `--config` option when running the @redocly/openapi-cli.
+You may supply a configuration file, in YAML format, to control various options.
 
-If you are creating it from scratch, you might also want to enable/disable codeframes for the full output.
+You can modify (or create) the `.openapi-cli.yaml` file in the directory from which you are going to run the validator. Also, you can provide the path to the configuration file name other than `.openapi-cli.yaml` by using `--config` option when running the @redocly/openapi-cli.
 
-Below is the config, which is used by default:
+From a high-level, there are two configurable features: codeframes and rules.
+```yaml
+codeframes: on
+rules:
+  ...
+```
+
+### Codeframes
+
+Codeframes are enabled by default.  You may disable them by setting the value to `off`.
+
+```yaml
+codeframes: off
+rules:
+  ...
+```
+
+### Rules
+
+Rules control validations used on the API definition.  You may customize them (and even extend them), or you may utilize the default configuration.
+
+Below is the default config:
 
 ```yaml
 codeframes: on
@@ -108,6 +129,8 @@ rules:
   debug-info: off
 ```
 
+All of the rules are configurable in terms of disabling or changing their severity, or even defining pinpoint exclusions. 
+
 Here is an example of a modified use `.openapi-cli.yaml` file:
 
 ```yaml
@@ -121,11 +144,74 @@ rules:
   unique-parameter-names: off
   no-unused-schemas:
     level: warning
-    excludePaths:
+    excludedPaths:
       - 'openapi.yaml#/components/schemas/Unused'
 ```
 
-Check all the built-in rules [here](RULES.md).
+Each rule can be turned `on` or `off`.  In addition, you can control the log-level severity, between `info`, `warning`, and `error`.  You may also define specific exclusions to the rule, and you can do that by combination of file and bath to the object to be excluded.  
+
+Enabling a rule:
+```yaml
+rules:
+  <rule-name>: on
+``` 
+
+Disabling a rule:
+```yaml
+rules:
+  <rule-name>: off
+``` 
+
+#### Rules Severity Levels
+
+Changing the severity of a rule:
+
+```yaml
+rules:
+  <rule-name>: 
+    level: warning
+``` 
+
+Possible values are:
+
+* info
+* warning
+* error
+
+#### Rules Path Exclusions
+
+Excluding a specific path:
+
+```yaml
+rules:
+  <rule-name>: 
+    excludedPaths: 
+      - '<path to file>#</path/to/object>'
+``` 
+
+The `excludedPaths` key can accept an array of exclusions.  The format includes the path to the file, a `#` mark, and the path to the object within the file.  For example:
+
+```yaml
+rules:
+  <rule-name>: 
+    excludedPaths: 
+      - 'openapi.yaml#/components/schemas/Pet'
+``` 
+
+Some rules may have sub-rules.  The same configurations still apply:
+
+```yaml
+rules:
+  <rule-name>: 
+    <sub-rule-name>:
+      level: info
+      excludedPaths: 
+        - 'openapi.yaml#/components/schemas/Pet'
+``` 
+
+#### Built-in Rules
+
+[Read the docs](RULES.md) for the built-in rules.
 
 ## Credits
 

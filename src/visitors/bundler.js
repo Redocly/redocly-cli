@@ -55,7 +55,15 @@ class Bundler extends AbstractVisitor {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else {
-            const itemName = `${unresolvedNode.$ref.split('/')[unresolvedNode.$ref.split('/').length - 1]}`;
+            let itemName = `${unresolvedNode.$ref.split('/')[unresolvedNode.$ref.split('/').length - 1]}`;
+            if (itemName.endsWith('.yaml')) {
+              itemName = itemName.substring(0, itemName.length - 5);
+            }
+
+            if (itemName.endsWith('.yml')) {
+              itemName = itemName.substring(0, itemName.length - 4);
+            }
+
             const newRef = `#/components/${componentType}/${itemName}`;
 
             if (!this.components[componentType]) {
@@ -78,6 +86,7 @@ class Bundler extends AbstractVisitor {
         }
 
         if (ctx.result.length > 0) {
+          ctx.bundlingResult = null;
           return null;
         }
 
@@ -111,6 +120,8 @@ class Bundler extends AbstractVisitor {
               break;
           }
           fs.writeFileSync(`${outputPath}`, fileData);
+        } else if (this.config.outputObject) {
+          ctx.bundlingResult = node;
         } else {
           // default output to stdout, if smbd wants to pipe it
           process.stdout.write(yaml.safeDump(node));
