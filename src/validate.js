@@ -14,13 +14,15 @@ export const validate = (yamlData, filePath, options = {}) => {
   try {
     document = yaml.safeLoad(yamlData);
   } catch (ex) {
-    console.log(ex);
+    process.stderr.write(ex);
     throw new Error("Can't load yaml file");
   }
   if (!document.openapi && !document.$ref) return [];
 
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
+
+  ctx.getRule = ctx.getRule.bind(null, ctx);
 
   traverseNode(document, OpenAPIRoot, ctx);
 

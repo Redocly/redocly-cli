@@ -11,11 +11,11 @@ class ValidateOpenAPIParameter {
 
         if (Object.keys(node).length === 1) {
           validators = {
-            description: ctx.allRules.filter((r) => r.rule === 'oas3-schema/parameter')[0].validators.description,
+            description: ctx.getRule('oas3-schema/parameter').validators.description,
           };
         } else {
           validators = {
-            ...ctx.allRules.filter((r) => r.rule === 'oas3-schema/parameter')[0].validators,
+            ...ctx.getRule('oas3-schema/parameter').validators,
             description: null,
           };
         }

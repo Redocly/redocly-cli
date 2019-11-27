@@ -24,6 +24,11 @@ const validateFieldsRaw = (node, ctx, config, validators, ruleName) => {
   return result;
 };
 
+const getRule = (ctx, ruleName) => {
+  const result = ctx.allRules.filter((r) => r.rule === ruleName);
+  return result ? result[0] : null;
+};
+
 function createContext(node, sourceFile, filePath, config) {
   const [enabledRules, allRules] = loadRuleset(config);
   return {
@@ -41,6 +46,7 @@ function createContext(node, sourceFile, filePath, config) {
     allRules,
     config,
     validateFieldsRaw,
+    getRule,
   };
 }
 
