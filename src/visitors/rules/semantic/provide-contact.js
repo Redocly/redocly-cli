@@ -13,8 +13,8 @@ class ProvideContact extends AbstractVisitor {
 
   constructor() {
     super();
-    this.contactFields = [];
     this.requiredFields = ['name', 'email'];
+    this.contactFields = [];
   }
 
   OpenAPIInfo() {
@@ -24,8 +24,17 @@ class ProvideContact extends AbstractVisitor {
         if (!node.contact) {
           return [createErrorMissingRequiredField('contact', node, ctx, { severity: this.config.level, fromRule: this.rule })];
         }
+        return errors;
+      },
+    };
+  }
+
+  OpenAPIContact() {
+    return {
+      onEnter: (node, _, ctx) => {
+        const errors = [];
         this.requiredFields.forEach((fName) => {
-          if (this.contactFields.indexOf(fName) === -1) {
+          if (Object.keys(node).indexOf(fName) === -1) {
             errors.push(
               createErrorMissingRequiredField(
                 fName, node, ctx, { severity: this.config.level, fromRule: this.rule },
@@ -34,14 +43,6 @@ class ProvideContact extends AbstractVisitor {
           }
         });
         return errors;
-      },
-    };
-  }
-
-  OpenAPIContact() {
-    return {
-      onEnter: (node) => {
-        this.contactFields.push(...Object.keys(node));
       },
     };
   }

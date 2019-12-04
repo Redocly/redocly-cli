@@ -3,6 +3,9 @@
 import path from 'path';
 
 import resolveNode from './resolver';
+import resolveDefinition from './resolveDefinition';
+import resolveType from './resolveType';
+
 import { fromError } from './error/default';
 
 function traverseChildren(resolvedNode, definition, ctx, visited) {
@@ -115,6 +118,8 @@ function traverseNode(node, definition, ctx, visited = []) {
   const localVisited = Array.from(visited);
   localVisited.push(currentPath);
 
+  definition = resolveDefinition(definition, ctx, nodeContext.resolvedNode);
+
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
       ctx.path.push(i);
@@ -124,7 +129,10 @@ function traverseNode(node, definition, ctx, visited = []) {
     });
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
-    runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors);
+    ctx.validateFields = ctx.validateFieldsRaw.bind(
+      null, nodeContext.resolvedNode, ctx,
+    );
+    runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors, localVisited);
 
     const newNode = !isRecursive
       && (!definition.isIdempotent || !ctx.visited.includes(currentPath));
@@ -137,7 +145,9 @@ function traverseNode(node, definition, ctx, visited = []) {
       errors.push(...errorsChildren);
     } else {
       // Will use cached result if we have already traversed this nodes children
-      const cachedResult = ctx.cache[currentPath] ? ctx.cache[currentPath].map((r) => fromError(r, ctx)) : [];
+      const cachedResult = ctx.cache[currentPath]
+        ? ctx.cache[currentPath].map((r) => fromError(r, ctx))
+        : [];
 
       ctx.result.push(...cachedResult);
     }
@@ -149,12 +159,14 @@ function traverseNode(node, definition, ctx, visited = []) {
   return errors;
 }
 
-function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors) {
+function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
+    // TODO: add check here if working with user extended rule. IF not, we don't need all this binding thing.
+    ctx.validateFieldsHelper = ctx.validateFields.bind(null, ctx.customRules[i]._config, ctx.customRules[i].constructor.rule);
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
-        nodeContext.resolvedNode, definition, ctx, node,
+        nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
       ) : [];
 
     const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]

@@ -8,6 +8,8 @@ function getObjByPathOrParent(json, JSONPath) {
 
 function loadRuleset(config) {
   const ruleSet = [];
+  const allRules = [];
+
   const configCopy = {
     ...config,
     rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
@@ -37,6 +39,7 @@ function loadRuleset(config) {
         ruleConfig = Object.keys(ruleConfig)
           .filter((key) => allowed.includes(key))
           .reduce((obj, key) => {
+            // eslint-disable-next-line no-param-reassign
             obj[key] = ruleConfig[key];
             return obj;
           }, {});
@@ -44,25 +47,76 @@ function loadRuleset(config) {
     }
 
     if (configCopy && configCopy.rules) {
-      if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
-        const ruleInstance = new Rule(ruleConfig);
+      let ruleInstance = new Rule(ruleConfig);
+      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
+          ruleInstance = new Rule({ level: ruleConfig });
+          ruleInstance._config = { level: ruleConfig };
+        } else {
+          ruleInstance = new Rule(ruleConfig);
+        }
         ruleSet.push(ruleInstance);
       }
+      allRules.push(ruleInstance);
     } else {
-      const ruleInstance = new Rule();
+      const ruleInstance = new Rule({});
       ruleSet.push(ruleInstance);
+      allRules.push(ruleInstance);
     }
   });
 
   dirs.forEach((dir) => {
-    const nestedRules = loadRuleset({
+    const [nestedRules, allNestedRules] = loadRuleset({
       ...configCopy,
       rulesPath: dir,
     });
     ruleSet.push(...nestedRules);
+    allRules.push(...allNestedRules);
   });
 
-  return ruleSet;
+  return [ruleSet, allRules];
+}
+
+export function loadRulesetExtension(config) {
+  const additionalRules = [];
+
+  const configCopy = {
+    ...config,
+    rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
+  };
+
+  config.rulesExtensions.forEach((Rule) => {
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule.replace('/', '.'));
+    const s = Rule.rule.split('/')[0];
+    if (!ruleConfig) {
+      ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+
+      if (ruleConfig && typeof ruleConfig === 'object') {
+        const allowed = ['level'];
+
+        ruleConfig = Object.keys(ruleConfig)
+          .filter((key) => allowed.includes(key))
+          .reduce((obj, key) => {
+            // eslint-disable-next-line no-param-reassign
+            obj[key] = ruleConfig[key];
+            return obj;
+          }, {});
+      }
+    }
+
+    if (configCopy && configCopy.rules) {
+      const ruleInstance = new Rule(ruleConfig);
+      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
+          ruleInstance._config = { level: ruleConfig };
+        }
+        additionalRules.push(ruleInstance);
+      }
+    } else {
+      additionalRules.push(new Rule());
+    }
+  });
+  return additionalRules;
 }
 
 export default loadRuleset;

@@ -16,11 +16,11 @@ describe("getLocationByPath", () => {
     ).toMatchInlineSnapshot(`
       Object {
         "endCol": 14,
-        "endIndex": 281,
-        "endLine": 17,
+        "endIndex": 407,
+        "endLine": 23,
         "startCol": 9,
-        "startIndex": 276,
-        "startLine": 17,
+        "startIndex": 402,
+        "startLine": 23,
       }
     `);
   });
@@ -52,11 +52,11 @@ describe("getLocationByPath", () => {
     ).toMatchInlineSnapshot(`
       Object {
         "endCol": 47,
-        "endIndex": 241,
-        "endLine": 14,
+        "endIndex": 312,
+        "endLine": 18,
         "startCol": 9,
-        "startIndex": 202,
-        "startLine": 14,
+        "startIndex": 273,
+        "startLine": 18,
       }
     `);
   });
@@ -75,11 +75,11 @@ describe("getLocationByPath", () => {
     ).toMatchInlineSnapshot(`
       Object {
         "endCol": 47,
-        "endIndex": 241,
-        "endLine": 14,
+        "endIndex": 312,
+        "endLine": 18,
         "startCol": 9,
-        "startIndex": 202,
-        "startLine": 14,
+        "startIndex": 273,
+        "startLine": 18,
       }
     `);
   });
@@ -98,11 +98,11 @@ describe("getLocationByPath", () => {
     ).toMatchInlineSnapshot(`
       Object {
         "endCol": 28,
-        "endIndex": 425,
-        "endLine": 22,
+        "endIndex": 551,
+        "endLine": 28,
         "startCol": 9,
-        "startIndex": 276,
-        "startLine": 17,
+        "startIndex": 402,
+        "startLine": 23,
       }
     `);
   });
@@ -115,11 +115,11 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(276, 281, source)).toMatchInlineSnapshot(`
-      "[90m1|     get:[39m
-      [90m0|       responses:[39m
-      [90m1|         [4m[31m'200'[90m[24m:[39m
-      [90m2|           description: example description[39m
-      [90m3|           content:[39m"
+      "[90m1|   user:[39m
+      [90m0|     parameters:[39m
+      [90m1|       - $re[4m[31mf: '#[90m[24m/components/parameters/example'[39m
+      [90m2|     get:[39m
+      [90m3|       operationId: userGet[39m"
     `);
   });
 
@@ -129,16 +129,17 @@ describe("getCodeFrameForLocation", () => {
       "utf-8"
     );
     expect(getCodeFrameForLocation(276, 425, source)).toMatchInlineSnapshot(`
-      "[90m-1|     get:[39m
-      [90m00|       responses:[39m
-      [90m01|         [4m[31m'200':[90m[24m[39m
-      [90m02|[39m[31m [4m[31m          description: example description[31m[24m[39m
-      [90m03|[39m[31m [4m[31m          content:[31m[24m[39m
-      [90m04|[39m[31m [4m[31m            application/json:[31m[24m[39m
-      [90m05|[39m[31m [4m[31m              schema:[31m[24m[39m
-      [90m06|[39m[31m [4m[31m                type: object[31m[24m[39m
-      [90m07|   project:[39m
-      [90m08|     get:[39m"
+      "[90m-1|   user:[39m
+      [90m00|     parameters:[39m
+      [90m01|       - $re[4m[31mf: '#/components/parameters/example'[90m[24m[39m
+      [90m02|[39m[31m [4m[31m    get:[31m[24m[39m
+      [90m03|[39m[31m [4m[31m      operationId: userGet[31m[24m[39m
+      [90m04|[39m[31m [4m[31m      description: Get user[31m[24m[39m
+      [90m05|[39m[31m [4m[31m      responses:[31m[24m[39m
+      [90m06|[39m[31m [4m[31m        '200':[31m[24m[39m
+      [90m07| [4m[31m          descri[90m[24mption: example description[39m
+      [90m08|           content:[39m
+      [90m09|             application/json:[39m"
     `);
   });
 

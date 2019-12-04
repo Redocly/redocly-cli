@@ -1,21 +1,6 @@
-export const OpenAPILicense = {
-  name: 'OpenAPILicense',
-  isIdempotent: true,
-  properties: {
-    name: null,
-    url: null,
-  },
-};
+import OpenAPIContact from './OpenAPIContact';
+import OpenAPILicense from './OpenAPILicense';
 
-export const OpenAPIContact = {
-  name: 'OpenAPIContact',
-  isIdempotent: true,
-  properties: {
-    name: null,
-    url: null,
-    email: null,
-  },
-};
 
 export const OpenAPIInfo = {
   name: 'OpenAPIInfo',
@@ -29,3 +14,5 @@ export const OpenAPIInfo = {
     contact: OpenAPIContact,
   },
 };
+
+export default OpenAPIInfo;

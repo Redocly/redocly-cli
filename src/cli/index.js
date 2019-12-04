@@ -15,7 +15,7 @@ const validateFile = (filePath, options, cmdObj) => {
   let result;
 
   if (!fs.existsSync(filePath) && isUrl(filePath)) {
-    console.log('Will validate from URL');
+    process.stdout.write('Will validate from URL\n');
     result = validateFromUrl(filePath, options);
   } else {
     result = validateFromFile(filePath, options);

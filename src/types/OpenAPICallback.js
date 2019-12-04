@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { OpenAPIPathItem } from './OpenAPIPaths';
+import { OpenAPIPathItem } from './OpenAPIPath';
 
 export const OpenAPICallback = {
   name: 'OpenAPICallback',
@@ -13,15 +13,4 @@ export const OpenAPICallback = {
   },
 };
 
-
-export const OpenAPICallbackMap = {
-  name: 'OpenAPICallbackMap',
-  isIdempotent: true,
-  properties(node) {
-    const props = {};
-    Object.keys(node).forEach((k) => {
-      props[k] = OpenAPICallback;
-    });
-    return props;
-  },
-};
+export default OpenAPICallback;

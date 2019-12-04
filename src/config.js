@@ -26,6 +26,26 @@ function getConfig(options) {
   }
 
   const resolvedConfig = merge(defaultConfig, config, options);
+
+  if (!resolvedConfig.typeExtension) {
+    resolvedConfig.typeExtension = `${__dirname}/typeExtensionDefault.js`;
+  } else {
+    resolvedConfig.typeExtension = `${process.cwd()}/${resolvedConfig.typeExtension}`;
+  }
+
+  const definitionResolver = require(resolvedConfig.typeExtension);
+
+  resolvedConfig.definitionResolver = definitionResolver;
+
+  if (!resolvedConfig.customRules) {
+    resolvedConfig.customRules = `${__dirname}/customRulesDefault.js`;
+  } else {
+    resolvedConfig.customRules = `${process.cwd()}/${resolvedConfig.customRules}`;
+  }
+
+  const rulesExtensions = require(resolvedConfig.customRules);
+  resolvedConfig.rulesExtensions = rulesExtensions;
+
   return resolvedConfig;
 }
 

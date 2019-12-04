@@ -9,20 +9,32 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, nodePath, target, ctx) => {
-  // const fContent = fs.readFileSync(fName, 'utf-8');
-  // const tempCtx = { source: fContent };
-  const location = getLocationByPath(Array.from(nodePath), ctx, target);
-  // if (!location) {
-  //   console.log(path);
-  // }
-  return location.startLine;
+const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(Array.from(nodePath), ctx, target).startLine;
+
+const getMsgLevelFromString = (severityString) => {
+  switch (severityString.toLowerCase()) {
+    case 'debug':
+      return 1;
+    case 'info':
+      return 2;
+    case 'warning':
+      return 3;
+    case 'error':
+    default:
+      return 4;
+  }
 };
 
 const createError = (msg, node, ctx, options) => {
   const {
-    target, severity = messageLevels.ERROR, possibleAlternate, fromRule,
+    target, possibleAlternate, fromRule,
   } = options;
+
+  let { severity = messageLevels.ERROR } = options;
+
+  if (typeof severity === 'string') {
+    severity = getMsgLevelFromString(severity);
+  }
 
   let location = getLocationByPath(Array.from(ctx.path), ctx, target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);

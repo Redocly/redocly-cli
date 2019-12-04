@@ -1,0 +1,26 @@
+typeExtension: typeExtension.js
+customRules: customRules.js
+codeframes: on
+rules:
+  bundler: off
+  debug-info: off
+
+  parameterWithAllOf: warning
+  
+  oas3-schema:
+    parameter: off
+  path-param-exists: on
+  operation-2xx-response: on
+  unique-parameter-names: on
+  no-unused-schemas: on
+  operation-operationId-unique: on
+  path-declarations-must-exist: on
+
+  api-servers: on
+  license-url: on
+  no-extra-fields: on
+  operation-description: on
+  operation-operationId: on
+  operation-tags: on
+  provide-contact: on
+  servers-no-trailing-slash: on

@@ -43,7 +43,7 @@ class NoExtraFields extends AbstractVisitor {
             const possibleAlternate = getClosestString(field, allowedChildren);
             errors.push(
               createErrorFieldNotAllowed(
-                field, node, ctx, {
+                field, definition.name, node, ctx, {
                   fromRule: this.rule, severity: this.config.level, possibleAlternate,
                 },
               ),

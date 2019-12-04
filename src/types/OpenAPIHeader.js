@@ -1,6 +1,6 @@
-import { OpenAPIExampleMap } from './OpenAPIExample';
+import { OpenAPIExampleMap } from './OpenAPIExampleMap';
 // eslint-disable-next-line import/no-cycle
-import { OpenAPIMediaTypeObject } from './OpenAPIMediaObject';
+import { OpenAPIMediaTypeObject } from './OpenAPIMediaTypeObject';
 import OpenAPISchemaObject from './OpenAPISchema';
 
 export const OpenAPIHeader = {
@@ -20,13 +20,4 @@ export const OpenAPIHeader = {
   },
 };
 
-export const OpenAPIHeaderMap = {
-  isIdempotent: true,
-  properties(node) {
-    const props = {};
-    Object.keys(node).forEach((k) => {
-      props[k] = OpenAPIHeader;
-    });
-    return props;
-  },
-};
+export default OpenAPIHeader;

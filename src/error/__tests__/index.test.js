@@ -30,28 +30,28 @@ describe("Error templates", () => {
       path: ["paths", "user", "get", "responses"]
     };
     expect(
-      createErrorFieldNotAllowed("200", {}, ctx, {
+      createErrorFieldNotAllowed("200", "testName", {}, ctx, {
         severity: messageLevels.ERROR
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[90m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m20|       operationId: userGet[39m
+      [90m21|       description: Get user[39m
+      [90m22|       [4m[31mresponses[90m[24m:[39m
+      [90m23|         '200':[39m
+      [90m24|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 266,
-          "endLine": 16,
+          "endIndex": 392,
+          "endLine": 22,
           "startCol": 7,
-          "startIndex": 257,
-          "startLine": 16,
+          "startIndex": 383,
+          "startLine": 22,
         },
-        "message": "The field '200' is not allowed here. Use \\"x-\\" prefix to override this behavior.",
+        "message": "The field '200' is not allowed in testName. Use \\"x-\\" prefix to override this behavior.",
         "path": Array [
           "paths",
           "user",
@@ -77,21 +77,21 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m13|     parameters:[39m
-      [90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     [4m[31mget[90m[24m:[39m
-      [90m16|       responses:[39m
-      [90m17|         '200':[39m",
+        "codeFrame": "[90m17|     parameters:[39m
+      [90m18|       - $ref: '#/components/parameters/example'[39m
+      [90m19|     [4m[31mget[90m[24m:[39m
+      [90m20|       operationId: userGet[39m
+      [90m21|       description: Get user[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 8,
-          "endIndex": 249,
-          "endLine": 15,
+          "endIndex": 320,
+          "endLine": 19,
           "startCol": 5,
-          "startIndex": 246,
-          "startLine": 15,
+          "startIndex": 317,
+          "startLine": 19,
         },
         "message": "The field 'responses' must be present on this level.",
         "path": Array [
@@ -118,21 +118,21 @@ describe("Error templates", () => {
       })
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[90m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m20|       operationId: userGet[39m
+      [90m21|       description: Get user[39m
+      [90m22|       [4m[31mresponses[90m[24m:[39m
+      [90m23|         '200':[39m
+      [90m24|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 266,
-          "endLine": 16,
+          "endIndex": 392,
+          "endLine": 22,
           "startCol": 7,
-          "startIndex": 257,
-          "startLine": 16,
+          "startIndex": 383,
+          "startLine": 22,
         },
         "message": "This field must be of object type.",
         "path": Array [
@@ -165,21 +165,21 @@ describe("Error templates", () => {
       )
     ).toMatchInlineSnapshot(`
       Object {
-        "codeFrame": "[90m14|       - $ref: '#/components/parameters/example'[39m
-      [90m15|     get:[39m
-      [90m16|       [4m[31mresponses[90m[24m:[39m
-      [90m17|         '200':[39m
-      [90m18|           description: example description[39m",
+        "codeFrame": "[90m20|       operationId: userGet[39m
+      [90m21|       description: Get user[39m
+      [90m22|       [4m[31mresponses[90m[24m:[39m
+      [90m23|         '200':[39m
+      [90m24|           description: example description[39m",
         "enableCodeframe": true,
         "file": "definitions/syntetic/syntetic-1.yaml",
         "fromRule": undefined,
         "location": Object {
           "endCol": 16,
-          "endIndex": 266,
-          "endLine": 16,
+          "endIndex": 392,
+          "endLine": 22,
           "startCol": 7,
-          "startIndex": 257,
-          "startLine": 16,
+          "startIndex": 383,
+          "startLine": 22,
         },
         "message": "Fields 'responses', 'description' are mutually exclusive.",
         "path": Array [

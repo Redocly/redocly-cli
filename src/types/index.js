@@ -1,3 +1,3 @@
-import OpenAPIRoot from './OpenAPI3Root';
+import { OpenAPIRoot } from './OpenAPIRoot';
 
 export default OpenAPIRoot;

@@ -1,12 +1,12 @@
 import OpenAPISchemaMap from './OpenAPISchemaMap';
-import OpenAPISecuritySchemaMap from './OpenAPISecuritySchema';
-import { OpenAPIExampleMap } from './OpenAPIExample';
-import { OpenAPIParameterMap } from './OpenAPIParameter';
-import { OpenAPIResponseMap } from './OpenAPIResponse';
-import { OpenAPIHeaderMap } from './OpenAPIHeader';
-import { OpenAPILinkMap } from './OpenAPILink';
-import { OpenAPICallbackMap } from './OpenAPICallback';
-import { OpenAPIRequestBodyMap } from './OpenAPIRequestBody';
+import OpenAPISecuritySchemaMap from './OpenAPISecuritySchemaMap';
+import { OpenAPIExampleMap } from './OpenAPIExampleMap';
+import { OpenAPIParameterMap } from './OpenAPIParameterMap';
+import { OpenAPIResponseMap } from './OpenAPIResponseMap';
+import { OpenAPIHeaderMap } from './OpenAPIHeaderMap';
+import { OpenAPILinkMap } from './OpenAPILinkMap';
+import { OpenAPICallbackMap } from './OpenAPICallbackMap';
+import { OpenAPIRequestBodyMap } from './OpenAPIRequestBodyMap';
 
 export default {
   name: 'OpenAPIComponents',

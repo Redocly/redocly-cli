@@ -14,7 +14,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   try {
     document = yaml.safeLoad(yamlData);
   } catch (ex) {
-    console.log(ex);
+    process.stderr.write(ex);
     throw new Error("Can't load yaml file");
   }
   if (!document.openapi && !document.$ref) return [];
@@ -22,11 +22,13 @@ export const validate = (yamlData, filePath, options = {}) => {
   const config = getConfig(options);
   const ctx = createContext(document, yamlData, filePath, config);
 
+  ctx.getRule = ctx.getRule.bind(null, ctx);
+
   traverseNode(document, OpenAPIRoot, ctx);
 
   const filtered = ctx.result.filter((msg) => {
     for (let j = 0; j < ctx.customRules.length; j++) {
-      if (msg.fromRule === ctx.customRules[j].rule) {
+      if (msg.fromRule === ctx.customRules[j]) {
         if (ctx.customRules[j].config.excludePaths) {
           const fullPath = `${msg.file}#/${msg.path.join('/')}`;
           return ctx.customRules[j].config.excludePaths.indexOf(fullPath) === -1;
