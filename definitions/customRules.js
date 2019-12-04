@@ -20,7 +20,7 @@ class ValidateOpenAPIParameter {
           };
         }
 
-        const fieldMessages = ctx.validateFields({ level: 'error' }, validators, 'parameterWithAllOf');
+        const fieldMessages = ctx.validateFieldsHelper(validators);
         result.push(...fieldMessages);
 
         return result;

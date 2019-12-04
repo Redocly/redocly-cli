@@ -31,8 +31,6 @@ class DebugInfo extends AbstractVisitor {
       },
       onExit: () => {
         console.log(this.count);
-        // console.log(ctx.result.length);
-        // console.log(ctx.result);
       },
     };
   }

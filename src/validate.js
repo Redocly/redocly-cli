@@ -28,7 +28,7 @@ export const validate = (yamlData, filePath, options = {}) => {
 
   const filtered = ctx.result.filter((msg) => {
     for (let j = 0; j < ctx.customRules.length; j++) {
-      if (msg.fromRule === ctx.customRules[j].rule) {
+      if (msg.fromRule === ctx.customRules[j]) {
         if (ctx.customRules[j].config.excludePaths) {
           const fullPath = `${msg.file}#/${msg.path.join('/')}`;
           return ctx.customRules[j].config.excludePaths.indexOf(fullPath) === -1;

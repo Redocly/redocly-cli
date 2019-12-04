@@ -1,11 +1,14 @@
 typeExtension: typeExtension.js
-validatorsExtensions: rulesRedefine.js
+customRules: customRules.js
 codeframes: on
 rules:
   bundler: off
   debug-info: off
 
-  parameterAllOf: on
+  customRule: off
+
+  parameterWithAllOf:
+    level: warning
   
   oas3-schema: 
     parameter: off

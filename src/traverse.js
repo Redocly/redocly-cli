@@ -130,7 +130,7 @@ function traverseNode(node, definition, ctx, visited = []) {
     if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
     ctx.validateFields = ctx.validateFieldsRaw.bind(
-      ctx.validateFieldsRaw, nodeContext.resolvedNode, ctx,
+      null, nodeContext.resolvedNode, ctx,
     );
     runRuleOnRuleset(nodeContext, 'onEnter', ctx, definition, node, errors, localVisited);
 
@@ -161,6 +161,7 @@ function traverseNode(node, definition, ctx, visited = []) {
 
 function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
+    ctx.validateFieldsHelper = ctx.validateFields.bind(null, { level: 'warning' }, ctx.customRules[i].name);
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](

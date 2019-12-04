@@ -9,15 +9,7 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, nodePath, target, ctx) => {
-  // const fContent = fs.readFileSync(fName, 'utf-8');
-  // const tempCtx = { source: fContent };
-  const location = getLocationByPath(Array.from(nodePath), ctx, target);
-  // if (!location) {
-  //   console.log(path);
-  // }
-  return location.startLine;
-};
+const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(Array.from(nodePath), ctx, target).startLine;
 
 const getMsgLevelFromString = (severityString) => {
   switch (severityString.toLowerCase()) {

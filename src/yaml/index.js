@@ -67,8 +67,6 @@ export const getLocationByPath = (path, ctx, target) => {
     endIndex = endOfFirstLine(ctx.source);
   }
 
-  // console.log(ctx.source.substring(node.startPosition, node.endPosition));
-
   return {
     startLine: positionStart.lineNum,
     startCol: positionStart.posNum,

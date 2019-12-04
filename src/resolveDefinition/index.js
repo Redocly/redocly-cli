@@ -15,12 +15,8 @@ export default (definition, ctx, node) => {
     [definitionName || 'default']: defaultDefinition,
   };
 
-  // console.log(IR);
   const mapped = ctx.config.definitionResolver(IR);
   let resolvedDefinition = mapped[definitionName || 'default'];
-  // console.log('===============');
-  // console.log(resolvedDefinition);
-  // console.log('++++++++++++++++++++');
 
   resolvedDefinition = (
     resolvedDefinition

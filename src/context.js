@@ -3,7 +3,7 @@ import path from 'path';
 import loadRuleset, { loadRulesetExtension } from './loader';
 import isRuleEnabled from './visitors/utils';
 
-const validateFieldsRaw = (node, ctx, config, validators, ruleName) => {
+const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
 
   const vals = Object.keys(validators);

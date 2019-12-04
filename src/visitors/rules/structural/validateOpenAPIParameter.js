@@ -82,7 +82,7 @@ class ValidateOpenAPIParameter extends AbstractVisitor {
   OpenAPIParameter() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.validators, this.rule,
+        this.config, this.rule, this.validators,
       ),
     };
   }

@@ -42,7 +42,7 @@ class ValidateOpenAPILink extends AbstractVisitor {
   OpenAPILink() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.validators, this.rule,
+        this.config, this.rule, this.validators,
       ),
     };
   }

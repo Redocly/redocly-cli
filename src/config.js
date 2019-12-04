@@ -37,13 +37,13 @@ function getConfig(options) {
 
   resolvedConfig.definitionResolver = definitionResolver;
 
-  if (!resolvedConfig.validatorsExtensions) {
-    resolvedConfig.validatorsExtensions = `${__dirname}/validatorsMidldewareDefault.js`;
+  if (!resolvedConfig.customRules) {
+    resolvedConfig.customRules = `${__dirname}/customRulesDefault.js`;
   } else {
-    resolvedConfig.validatorsExtensions = `${process.cwd()}/${resolvedConfig.validatorsExtensions}`;
+    resolvedConfig.customRules = `${process.cwd()}/${resolvedConfig.customRules}`;
   }
 
-  const rulesExtensions = require(resolvedConfig.validatorsExtensions);
+  const rulesExtensions = require(resolvedConfig.customRules);
   resolvedConfig.rulesExtensions = rulesExtensions;
 
   return resolvedConfig;

@@ -50,14 +50,12 @@ function loadRuleset(config) {
       const ruleInstance = new Rule(ruleConfig);
       if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
         ruleSet.push(ruleInstance);
-        // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
       }
       allRules.push(ruleInstance);
     } else {
       const ruleInstance = new Rule({});
       ruleSet.push(ruleInstance);
       allRules.push(ruleInstance);
-      // console.log(ruleInstance.validators ? ruleInstance.validators() : null);
     }
   });
 
@@ -75,8 +73,39 @@ function loadRuleset(config) {
 
 export function loadRulesetExtension(config) {
   const additionalRules = [];
+
+  const configCopy = {
+    ...config,
+    rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
+  };
+
   config.rulesExtensions.forEach((Rule) => {
-    additionalRules.push(new Rule());
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule.replace('/', '.'));
+    const s = Rule.rule.split('/')[0];
+    if (!ruleConfig) {
+      ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+
+      if (ruleConfig && typeof ruleConfig === 'object') {
+        const allowed = ['level'];
+
+        ruleConfig = Object.keys(ruleConfig)
+          .filter((key) => allowed.includes(key))
+          .reduce((obj, key) => {
+            // eslint-disable-next-line no-param-reassign
+            obj[key] = ruleConfig[key];
+            return obj;
+          }, {});
+      }
+    }
+
+    if (configCopy && configCopy.rules) {
+      const ruleInstance = new Rule(ruleConfig);
+      if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+        additionalRules.push(ruleInstance);
+      }
+    } else {
+      additionalRules.push(new Rule());
+    }
   });
   return additionalRules;
 }
