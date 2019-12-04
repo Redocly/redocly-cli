@@ -1,4 +1,4 @@
-class ValidateOpenAPIParameter {
+class ValidateOpenAPIParameterWithAllOf {
   static get rule() {
     return 'parameterWithAllOf';
   }
@@ -30,5 +30,5 @@ class ValidateOpenAPIParameter {
 }
 
 module.exports = [
-  ValidateOpenAPIParameter,
+  ValidateOpenAPIParameterWithAllOf,
 ];

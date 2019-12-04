@@ -5,12 +5,9 @@ rules:
   bundler: off
   debug-info: off
 
-  customRule: off
-
-  parameterWithAllOf:
-    level: warning
+  parameterWithAllOf: warning
   
-  oas3-schema: 
+  oas3-schema:
     parameter: off
   path-param-exists: on
   operation-2xx-response: on

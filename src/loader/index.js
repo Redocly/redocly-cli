@@ -47,8 +47,14 @@ function loadRuleset(config) {
     }
 
     if (configCopy && configCopy.rules) {
-      const ruleInstance = new Rule(ruleConfig);
-      if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+      let ruleInstance = new Rule(ruleConfig);
+      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
+          ruleInstance = new Rule({ level: ruleConfig });
+          ruleInstance._config = { level: ruleConfig };
+        } else {
+          ruleInstance = new Rule(ruleConfig);
+        }
         ruleSet.push(ruleInstance);
       }
       allRules.push(ruleInstance);
@@ -100,7 +106,10 @@ export function loadRulesetExtension(config) {
 
     if (configCopy && configCopy.rules) {
       const ruleInstance = new Rule(ruleConfig);
-      if (ruleConfig === 'on' || ruleConfig === true || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
+        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
+          ruleInstance._config = { level: ruleConfig };
+        }
         additionalRules.push(ruleInstance);
       }
     } else {
