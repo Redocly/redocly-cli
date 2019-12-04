@@ -139,8 +139,7 @@ rules:
   no-extra-fields: off
   external-docs:
     url: off
-  license-required:
-    level: warning
+  license-required: warning
   unique-parameter-names: off
   no-unused-schemas:
     level: warning
@@ -171,6 +170,13 @@ rules:
   <rule-name>: 
     level: warning
 ``` 
+
+or
+
+```yaml
+rules:
+  <rule-name>: <value>
+```
 
 Possible values are:
 
