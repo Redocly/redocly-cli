@@ -161,6 +161,7 @@ function traverseNode(node, definition, ctx, visited = []) {
 
 function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
+    // TODO: add check here if working with user extended rule. IF not, we don't need all this binding thing.
     ctx.validateFieldsHelper = ctx.validateFields.bind(null, ctx.customRules[i]._config, ctx.customRules[i].constructor.rule);
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
