@@ -2,8 +2,8 @@
 import AbstractVisitor from './utils/AbstractVisitor';
 
 class DebugInfo extends AbstractVisitor {
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
     this.count = 0;
   }
 

@@ -11,8 +11,8 @@ class ProvideContact extends AbstractVisitor {
     return 'provide-contact';
   }
 
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
     this.requiredFields = ['name', 'email'];
     this.contactFields = [];
   }

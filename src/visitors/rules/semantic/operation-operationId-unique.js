@@ -11,8 +11,8 @@ class OperationIdUnique extends AbstractVisitor {
     return 'operation-operationId-unique';
   }
 
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
     this.operationIds = {};
   }
 
