@@ -1,9 +1,5 @@
-/* eslint-disable class-methods-use-this */
-import AbstractVisitor from '../../utils/AbstractVisitor';
-import createError from '../../../error';
-
-class ModelDescription extends AbstractVisitor {
-  get rule() {
+class ModelDescription {
+  static get rule() {
     return 'model-description';
   }
 
@@ -11,7 +7,7 @@ class ModelDescription extends AbstractVisitor {
     return {
       onEnter: (node, _, ctx) => {
         if (!node.description) {
-          return [createError('The "model" object should contain "description" field.', node, ctx, { severity: this.config.level, fromRule: this.rule, target: 'key' })];
+          return [ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key')];
         }
         return [];
       },

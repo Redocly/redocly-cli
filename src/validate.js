@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import fs from 'fs';
 import yaml from 'js-yaml';
 

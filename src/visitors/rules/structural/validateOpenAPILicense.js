@@ -1,21 +1,18 @@
-/* eslint-disable class-methods-use-this */
-import createError, { createErrorMissingRequiredField } from '../../../error';
-
 import { isUrl } from '../../../utils';
-import AbstractVisitor from '../../utils/AbstractVisitor';
 
-class ValidateOpenAPILicense extends AbstractVisitor {
-  static get ruleName() {
-    return 'license';
+
+class ValidateOpenAPILicense {
+  static get rule() {
+    return 'oas3-schema/license';
   }
 
   get validators() {
     return {
       name(node, ctx) {
-        return !node || !node.name ? createErrorMissingRequiredField('name', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return !node || !node.name ? ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key') : null;
       },
       url(node, ctx) {
-        return node && node.url && !isUrl(node.url) ? createError('The url field must be a valid URL.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }) : null;
+        return node && node.url && !isUrl(node.url) ? ctx.createError('The url field must be a valid URL.', 'value') : null;
       },
     };
   }

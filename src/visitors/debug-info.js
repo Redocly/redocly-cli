@@ -1,17 +1,10 @@
-/* eslint-disable class-methods-use-this */
-import AbstractVisitor from './utils/AbstractVisitor';
-
-class DebugInfo extends AbstractVisitor {
+class DebugInfo {
   constructor(config) {
-    super(config);
+    this.config = config;
     this.count = 0;
   }
 
-  static get ruleName() {
-    return 'debugInfo';
-  }
-
-  get rule() {
+  static get rule() {
     return 'debug-info';
   }
 
@@ -19,7 +12,7 @@ class DebugInfo extends AbstractVisitor {
     return {
       onEnter: () => {
         this.count += 1;
-        if (this.count % 1000 === 0) console.log('Processed:', this.count);
+        if (this.count % 1000 === 0) process.stdout.write(`Processed: ${this.count}\n`);
       },
     };
   }
@@ -27,10 +20,10 @@ class DebugInfo extends AbstractVisitor {
   OpenAPIRoot() {
     return {
       onEnter: (node, def, ctx) => {
-        console.log(ctx.config);
+        process.stdout.write(`${ctx.config}\n`);
       },
       onExit: () => {
-        console.log(this.count);
+        process.stdout.write(`${this.count}`);
       },
     };
   }

@@ -1,13 +1,5 @@
-/* eslint-disable class-methods-use-this */
-import createError from '../../../error';
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class CheckPathParamExists extends AbstractVisitor {
-  static get ruleName() {
-    return 'checkPathParamExists';
-  }
-
-  get rule() {
+class CheckPathParamExists {
+  static get rule() {
     return 'path-param-exists';
   }
 
@@ -23,7 +15,7 @@ class CheckPathParamExists extends AbstractVisitor {
               && (ctx.path.indexOf('components') === -1 || visitedNodes.indexOf('paths') !== -1);
           if (missingNameInPath) {
             ctx.path.push('name');
-            errors.push(createError('The "name" field value is not in the current parameter path.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
+            errors.push(ctx.createError('The "name" field value is not in the current parameter path.', 'value'));
             ctx.path.pop();
           }
         }

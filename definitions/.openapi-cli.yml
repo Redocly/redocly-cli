@@ -8,8 +8,8 @@ rules:
   parameterPartial: warning
   parameterWithAllOf: off
 
-  oas3-schema:
-    parameter: off
+  oas3-schema/parameter: off
+
   path-param-exists: on
   operation-2xx-response: on
   unique-parameter-names: on
@@ -22,6 +22,6 @@ rules:
   no-extra-fields: on
   operation-description: on
   operation-operationId: on
-  operation-tags: on
+  operation-tags: warning
   provide-contact: on
   servers-no-trailing-slash: on

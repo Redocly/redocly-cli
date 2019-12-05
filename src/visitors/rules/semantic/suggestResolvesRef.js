@@ -1,12 +1,7 @@
-import AbstractVisitor from '../../utils/AbstractVisitor';
 import { getClosestString } from '../../../utils';
 
-class SuggestPossibleRefs extends AbstractVisitor {
-  static get ruleName() {
-    return 'suggestPossibleRefs';
-  }
-
-  get rule() {
+class SuggestPossibleRefs {
+  static get rule() {
     return 'suggest-possible-refs';
   }
 

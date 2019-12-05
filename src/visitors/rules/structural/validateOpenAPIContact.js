@@ -1,23 +1,18 @@
-/* eslint-disable class-methods-use-this */
-import { createErrrorFieldTypeMismatch } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIContact extends AbstractVisitor {
-  static get ruleName() {
-    return 'contact';
+class ValidateOpenAPIContact {
+  static get rule() {
+    return 'oas3-schema/contact';
   }
 
   get validators() {
     return {
       name(node, ctx) {
-        return (node && node.name) && typeof node.name !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return (node && node.name) && typeof node.name !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       url(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       email(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string' ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
 
     };

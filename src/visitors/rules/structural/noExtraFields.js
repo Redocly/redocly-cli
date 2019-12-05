@@ -1,10 +1,7 @@
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-import { createErrorFieldNotAllowed, createErrrorFieldTypeMismatch } from '../../../error';
 import { getClosestString } from '../../../utils';
 
-class NoExtraFields extends AbstractVisitor {
-  static get ruleName() {
+class NoExtraFields {
+  static get rule() {
     return 'no-extra-fields';
   }
 
@@ -29,9 +26,7 @@ class NoExtraFields extends AbstractVisitor {
 
         if (allowedChildren.length > 0 && typeof node !== 'object') {
           errors.push(
-            createErrrorFieldTypeMismatch(definition.name, node, ctx, {
-              fromRule: this.rule, severity: this.config.level,
-            }),
+            ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper(definition.name), 'value'),
           );
           return errors;
         }
@@ -42,11 +37,7 @@ class NoExtraFields extends AbstractVisitor {
           if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
             const possibleAlternate = getClosestString(field, allowedChildren);
             errors.push(
-              createErrorFieldNotAllowed(
-                field, definition.name, node, ctx, {
-                  fromRule: this.rule, severity: this.config.level, possibleAlternate,
-                },
-              ),
+              ctx.createError(ctx.messageHelpers.fieldNotAllowedMessageHelper(field, definition.name), 'key', { possibleAlternate }),
             );
           }
 

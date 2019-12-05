@@ -1,17 +1,10 @@
-import createError from '../../../error';
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class NoUnusedComponents extends AbstractVisitor {
+class NoUnusedComponents {
   constructor(config) {
-    super(config);
+    this.config = config;
     this.components = {};
   }
 
-  static get ruleName() {
-    return 'no-unused-schemas';
-  }
-
-  get rule() {
+  static get rule() {
     return 'no-unused-schemas';
   }
 
@@ -25,7 +18,7 @@ class NoUnusedComponents extends AbstractVisitor {
           .filter((schemaName) => this.components[schemaName] === false)
           .forEach((schemaName) => {
             ctx.path.push(schemaName);
-            messages.push(createError(`The schema "${schemaName}" is never used.`, node, ctx, { fromRule: this.rule, target: 'key', severity: this.config.level }));
+            messages.push(ctx.createError(`The schema "${schemaName}" is never used.`, 'key'));
             ctx.path.pop();
           });
         ctx.path.pop();

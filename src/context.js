@@ -3,6 +3,7 @@ import path from 'path';
 import loadRuleset, { loadRulesetExtension } from './loader';
 import isRuleEnabled from './visitors/utils';
 import { loadDefinitions } from './resolveDefinition';
+import { messageHelpers } from './error';
 
 const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
@@ -26,7 +27,7 @@ const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
 };
 
 const getRule = (ctx, ruleName) => {
-  const result = ctx.allRules.filter((r) => r.rule === ruleName);
+  const result = ctx.allRules.filter((r) => r.constructor.rule === ruleName);
   return result ? result[0] : null;
 };
 
@@ -47,6 +48,7 @@ function createContext(node, sourceFile, filePath, config) {
     customRules: [...enabledRules, ...loadRulesetExtension(config)],
     allRules,
     config,
+    messageHelpers,
     validateFieldsRaw,
     getRule,
   };

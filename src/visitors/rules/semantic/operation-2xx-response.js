@@ -1,18 +1,10 @@
-/* eslint-disable class-methods-use-this */
-import createError from '../../../error';
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class Operation2xxResponse extends AbstractVisitor {
-  static get ruleName() {
-    return 'operation2xxResponse';
-  }
-
-  get rule() {
+class Operation2xxResponse {
+  static get rule() {
     return 'operation-2xx-response';
   }
 
   constructor(config) {
-    super(config);
+    this.config = config;
     this.responseCodes = [];
   }
 
@@ -21,7 +13,7 @@ class Operation2xxResponse extends AbstractVisitor {
       onExit: (node, definition, ctx) => {
         const errors = [];
         if (!this.responseCodes.find((code) => code[0] === '2')) {
-          errors.push(createError('Operation must have at least one 2xx response.', node, ctx, { target: 'key', severity: this.config.level, fromRule: this.rule }));
+          errors.push(ctx.createError('Operation must have at least one 2xx response.', 'key'));
         }
         this.responseCodes = [];
         return errors;

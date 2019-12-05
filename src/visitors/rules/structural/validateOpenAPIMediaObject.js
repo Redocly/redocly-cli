@@ -1,20 +1,15 @@
-/* eslint-disable class-methods-use-this */
-import { createErrorMutuallyExclusiveFields } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIMediaObject extends AbstractVisitor {
-  static get ruleName() {
-    return 'media-object';
+class ValidateOpenAPIMediaObject {
+  static get rule() {
+    return 'oas3-schema/media-object';
   }
 
   get validators() {
     return {
       example(node, ctx) {
-        return node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return node.example && node.examples ? ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['example', 'examples']), 'key') : null;
       },
       examples(node, ctx) {
-        return node.example && node.examples ? createErrorMutuallyExclusiveFields(['example', 'examples'], node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return node.example && node.examples ? ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['examples', 'example']), 'key') : null;
       },
     };
   }

@@ -1,28 +1,23 @@
-/* eslint-disable class-methods-use-this */
-import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIServerVariable extends AbstractVisitor {
-  static get ruleName() {
-    return 'server-variable';
+class ValidateOpenAPIServerVariable {
+  static get rule() {
+    return 'oas3-schema/server-variable';
   }
 
   get validators() {
     return {
       default(node, ctx) {
-        if (!node || !node.default) return createErrorMissingRequiredField('default', node, ctx, { fromRule: this.rule, severity: this.config.level });
-        if (typeof node.default !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (!node || !node.default) return ctx.createError(ctx.messageHelpers.missingRequiredField('default'), 'key');
+        if (typeof node.default !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       description(node, ctx) {
         return node && node.description && typeof node.description !== 'string'
-          ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       enum(node, ctx) {
         if (node && node.enum) {
-          if (!Array.isArray(node.enum)) return createErrrorFieldTypeMismatch('array', node, ctx);
-          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return createError('All values of "enum" field must be strings', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
+          if (!Array.isArray(node.enum)) return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
+          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return ctx.createError('All values of "enum" field must be strings', 'value');
         }
         return null;
       },

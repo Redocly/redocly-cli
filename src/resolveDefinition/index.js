@@ -25,7 +25,7 @@ export const loadDefinitions = (config) => {
 };
 
 
-export const resolveDefinition = (definition, ctx, node) => {
+const resolveDefinition = (definition, ctx, node) => {
   if (!ctx.config.definitionResolver && typeof definition !== 'string') return definition;
   const definitionName = typeof definition === 'string' ? definition : definition.name;
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import path from 'path';
 import fs from 'fs';
 
@@ -27,9 +28,8 @@ function loadRuleset(config) {
 
   files.forEach((file) => {
     const Rule = require(file);
-    const ruleInstanceInit = new Rule();
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
-    const s = ruleInstanceInit.rule.split('/')[0];
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
+    const s = Rule.rule;
     if (!ruleConfig) {
       ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 
@@ -86,8 +86,8 @@ export function loadRulesetExtension(config) {
   };
 
   config.rulesExtensions.forEach((Rule) => {
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule.replace('/', '.'));
-    const s = Rule.rule.split('/')[0];
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
+    const s = Rule.rule;
     if (!ruleConfig) {
       ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 

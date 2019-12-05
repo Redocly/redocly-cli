@@ -1,39 +1,34 @@
-/* eslint-disable class-methods-use-this */
-import { createErrrorFieldTypeMismatch, createErrorMutuallyExclusiveFields } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIExample extends AbstractVisitor {
-  static get ruleName() {
-    return 'example';
+class ValidateOpenAPIExample {
+  static get rule() {
+    return 'oas3-schema/example';
   }
 
   get validators() {
     return {
       value(node, ctx) {
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key');
         }
         return null;
       },
       externalValue(node, ctx) {
         if (node.externalValue && typeof node.externalValue !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         }
         if (node.value && node.externalValue) {
-          return createErrorMutuallyExclusiveFields(['value', 'externalValue'], node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key');
         }
         return null;
       },
       description(node, ctx) {
         if (node.description && typeof node.description !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         }
         return null;
       },
       summary(node, ctx) {
         if (node.summary && typeof node.summary !== 'string') {
-          return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         }
         return null;
       },

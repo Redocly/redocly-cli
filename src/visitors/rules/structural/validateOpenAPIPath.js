@@ -1,34 +1,29 @@
-/* eslint-disable class-methods-use-this */
-import createError, { createErrrorFieldTypeMismatch } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIPath extends AbstractVisitor {
-  static get ruleName() {
-    return 'path';
+class ValidateOpenAPIPath {
+  static get rule() {
+    return 'oas3-schema/path';
   }
 
   get validators() {
     return {
       summary(node, ctx) {
         return node && node.summary && typeof node.summary !== 'string'
-          ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       description(node, ctx) {
         return node && node.description && typeof node.description !== 'string'
-          ? createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       servers(node, ctx) {
         return node && node.servers && !Array.isArray(node.servers)
-          ? createErrrorFieldTypeMismatch('array', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value') : null;
       },
       parameters(node, ctx) {
         if (!node || !node.parameters) return null;
         if (!Array.isArray(node.parameters)) {
-          return createErrrorFieldTypeMismatch('array', node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
         }
         if ((new Set(node.parameters)).size !== node.parameters.length) {
-          return createError('parameters must be unique in the Path Item object', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
+          return ctx.createError('parameters must be unique in the Path Item object', 'value');
         }
         return null;
       },
