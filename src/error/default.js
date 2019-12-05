@@ -69,6 +69,10 @@ const createError = (msg, node, ctx, options) => {
   };
 };
 
+export const createErrorFlat = (
+  node, ctx, fromRule, severity, msg, target,
+) => createError(msg, node, ctx, { target, fromRule, severity });
+
 export const fromError = (error, ctx) => {
   let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);
   if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);

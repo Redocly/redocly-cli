@@ -63,11 +63,3 @@ components:
       required: true
       schema:
         type: string
-blabla: 313
-customerSupport:
-  id: 12
-  contact:
-    name: Ivan Goncharov
-    email: ivan@redoc.ly
-defaultParameterSchema:
-  type: string

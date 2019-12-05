@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'fs';
 
-export const loadDefaultDefinitions = () => {
+const loadDefaultDefinitions = () => {
   const defaultDefinitionsMap = {};
 
   readdirSync(`${__dirname}/../types`)
@@ -13,7 +13,7 @@ export const loadDefaultDefinitions = () => {
   return defaultDefinitionsMap;
 };
 
-export const applyMutations = (defaultDefinitionsMap, definitionReducer) => {
+const applyMutations = (defaultDefinitionsMap, definitionReducer) => {
   const mutatedDefinitionsMap = definitionReducer(defaultDefinitionsMap);
   return mutatedDefinitionsMap;
 };

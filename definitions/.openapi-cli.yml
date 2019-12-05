@@ -5,7 +5,7 @@ rules:
   bundler: off
   debug-info: off
 
-  parameterWithAllOf: warning
+  parameterPartial: warning
   
   oas3-schema:
     parameter: off
