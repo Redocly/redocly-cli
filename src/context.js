@@ -2,6 +2,7 @@ import path from 'path';
 
 import loadRuleset, { loadRulesetExtension } from './loader';
 import isRuleEnabled from './visitors/utils';
+import { loadDefinitions } from './resolveDefinition';
 
 const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
@@ -39,6 +40,7 @@ function createContext(node, sourceFile, filePath, config) {
     visited: [],
     result: [],
     definitionStack: [],
+    definitions: loadDefinitions(config),
     pathStack: [],
     source: sourceFile,
     enableCodeframe: !!(config && (config.codeframes === 'on' || config.codeframes === true)),
