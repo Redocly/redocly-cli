@@ -38,10 +38,13 @@ class Other {
   OpenAPIParameterWithAllOf() {
     return {
       onEnter: (node, definition, ctx) => {
+        const result = [];
         if (node.allOf.length > 2) {
-          return [ctx.createError('Do not use more that 2 items in allOf for OpenAPI Parameter' /* whaterver else */)];
+          ctx.path.push('allOf');
+          result.push(ctx.createError('Do not use more that 2 items in allOf for OpenAPI Parameter', 'key' /* whaterver else */));
+          ctx.path.pop();
         }
-        return [];
+        return result;
       },
     };
   }

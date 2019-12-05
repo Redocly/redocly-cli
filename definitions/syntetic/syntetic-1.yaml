@@ -56,7 +56,8 @@ components:
           required: false
           schema:
             type: string
-        - description: 12
+        - description: blo
+        - description: bla
     genericExample:
       name: example
       in: query
