@@ -5,6 +5,7 @@ class ValidateOpenAPIParameterPartial {
   }
 
   OpenAPIParameterPartial() {
+
     return {
       onEnter: (node, definition, ctx) => {
         const result = [];

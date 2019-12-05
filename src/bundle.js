@@ -22,6 +22,7 @@ export const bundleToFile = (fName, outputFile) => {
 
   const config = {
     codeframes: true,
+    rulesExtensions: [],
     rules: {
       bundler: {
         output: outputFile,
@@ -50,6 +51,7 @@ export const bundle = (fName) => {
 
   const config = {
     codeframes: true,
+    rulesExtensions: [],
     rules: {
       bundler: {
         outputObject: true,

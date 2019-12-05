@@ -163,9 +163,7 @@ function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, 
   for (let i = 0; i < ctx.customRules.length; i += 1) {
     // TODO: add check here if working with user extended rule. IF not, we don't need all this binding thing.
     ctx.validateFieldsHelper = ctx.validateFields.bind(null, ctx.customRules[i]._config, ctx.customRules[i].constructor.rule);
-
     ctx.createError = createErrorFlat.bind(null, nodeContext.resolvedNode, ctx, ctx.customRules[i].constructor.rule, ctx.customRules[i].config ? ctx.customRules[i].config.level : ctx.customRules[i]._config.level);
-
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
       ? ctx.customRules[i][definition.name]()[ruleName](
