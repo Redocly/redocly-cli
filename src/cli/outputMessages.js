@@ -64,7 +64,6 @@ const getMsgSeverity = (msg) => {
 
 export const prettyPrint = (i, error) => {
   const { possibleAlternate } = error;
-  console.log(possibleAlternate)
   const message = `[${i}] ${colorizeMessageHeader(error)} ${outputGrey(`at #/${outputGrey(pathImproveReadability(error.path).join(outputGrey('/')))}`)}`
   + `\n${error.message}\n`
   + `${possibleAlternate && possibleAlternate.possibleAlternate ? `\nDid you mean: ${outputLightBlue(possibleAlternate.possibleAlternate)} ?\n` : ''}`

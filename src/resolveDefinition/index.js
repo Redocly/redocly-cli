@@ -19,8 +19,18 @@ const applyMutations = (defaultDefinitionsMap, definitionReducer) => {
 };
 
 export const loadDefinitions = (config) => {
+  const customTypesNames = [];
+  const t = applyMutations({}, config.definitionResolver);
+  Object.keys(t).forEach((typeDefName) => {
+    if (!t[typeDefName].name) {
+      customTypesNames.push(typeDefName);
+    }
+  });
   const defaultDefinitionsMap = loadDefaultDefinitions();
   const mutatedDefinitionsMap = applyMutations(defaultDefinitionsMap, config.definitionResolver);
+  customTypesNames.forEach((typeDefName) => {
+    mutatedDefinitionsMap[typeDefName].name = typeDefName;
+  });
   return mutatedDefinitionsMap;
 };
 

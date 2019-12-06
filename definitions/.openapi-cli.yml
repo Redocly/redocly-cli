@@ -6,7 +6,7 @@ rules:
   debug-info: off
 
   parameterPartial: warning
-  parameterWithAllOf: off
+  parameterWithAllOf: error
 
   oas3-schema/parameter: off
 
