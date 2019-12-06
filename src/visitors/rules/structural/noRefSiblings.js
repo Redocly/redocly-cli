@@ -1,10 +1,7 @@
 import fs from 'fs';
-import AbstractVisitor from '../../utils/AbstractVisitor';
 
-import createError from '../../../error';
-
-class NoRefSiblings extends AbstractVisitor {
-  static get ruleName() {
+class NoRefSiblings {
+  static get rule() {
     return 'no-$ref-siblings';
   }
 
@@ -34,13 +31,9 @@ class NoRefSiblings extends AbstractVisitor {
           for (let i = 0; i < nodeKeys.length; i++) {
             if (nodeKeys[i] !== '$ref') {
               ctx.path.push(nodeKeys[i]);
-              const e = createError(
+              const e = ctx.createError(
                 'No siblings are allowed inside object with $ref property.',
-                unresolvedNode,
-                ctx,
-                {
-                  severity: this.config.level, fromRule: this.rule, taget: 'key',
-                },
+                'key',
               );
               errors.push(e);
               ctx.path.pop();

@@ -1,17 +1,12 @@
-/* eslint-disable class-methods-use-this */
-import { createErrorMissingRequiredField } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIResponse extends AbstractVisitor {
-  static get ruleName() {
-    return 'response';
+class ValidateOpenAPIResponse {
+  static get rule() {
+    return 'oas3-schema/response';
   }
 
   get validators() {
     return {
       description(node, ctx) {
-        return !node.description ? createErrorMissingRequiredField('description', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null;
+        return !node.description ? ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key') : null;
       },
     };
   }

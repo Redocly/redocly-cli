@@ -1,11 +1,6 @@
-/* eslint-disable class-methods-use-this */
-import createError, { createErrrorFieldTypeMismatch, createErrorMissingRequiredField } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIOperation extends AbstractVisitor {
-  static get ruleName() {
-    return 'operation';
+class ValidateOpenAPIOperation {
+  static get rule() {
+    return 'oas3-schema/operation';
   }
 
   get validators() {
@@ -16,13 +11,13 @@ class ValidateOpenAPIOperation extends AbstractVisitor {
         const errors = [];
 
         if (node && node.tags && !Array.isArray(node.tags)) {
-          return createErrrorFieldTypeMismatch('array.', node, ctx, { fromRule: this.rule, severity: this.config.level });
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
         }
 
         for (let i = 0; i < node.tags.length; i++) {
           if (typeof node.tags[i] !== 'string') {
             ctx.path.push(i);
-            errors.push(createError('Items of the tags array must be strings in the Open API Operation object.', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level }));
+            errors.push(ctx.createError('Items of the tags array must be strings in the Open API Operation object.', 'value'));
             ctx.path.pop();
           }
         }
@@ -30,20 +25,20 @@ class ValidateOpenAPIOperation extends AbstractVisitor {
         return errors;
       },
       summary(node, ctx) {
-        if (node && node.summary && typeof node.summary !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && node.summary && typeof node.summary !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       description(node, ctx) {
-        if (node && node.description && typeof node.description !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && node.description && typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       operationId(node, ctx) {
-        if (node && node.operationId && typeof node.operationId !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && node.operationId && typeof node.operationId !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
-      responses: (node, ctx) => (!node.responses ? createErrorMissingRequiredField('responses', node, ctx, { fromRule: this.rule, severity: this.config.level }) : null),
+      responses: (node, ctx) => (!node.responses ? ctx.createError(ctx.messageHelpers.missingRequiredField('responses'), 'key') : null),
       deprecated(node, ctx) {
-        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && node.deprecated && typeof node.deprecated !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
     };

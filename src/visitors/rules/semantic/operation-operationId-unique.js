@@ -1,18 +1,10 @@
-/* eslint-disable class-methods-use-this */
-import createError from '../../../error';
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class OperationIdUnique extends AbstractVisitor {
-  static get ruleName() {
+class OperationIdUnique {
+  static get rule() {
     return 'operation-operationId-unique';
   }
 
-  get rule() {
-    return 'operation-operationId-unique';
-  }
-
-  constructor() {
-    super();
+  constructor(config) {
+    this.config = config;
     this.operationIds = {};
   }
 
@@ -22,7 +14,7 @@ class OperationIdUnique extends AbstractVisitor {
         if (node.operationId) {
           if (this.operationIds[node.operationId]) {
             this.operationIds[node.operationId] += 1;
-            return [createError('The "operationId" fields must be unique.', node, ctx, { target: 'value', severity: this.config.level, fromRule: this.rule })];
+            return [ctx.createError('The "operationId" fields must be unique.', 'value')];
           }
           this.operationIds[node.operationId] = 1;
         }

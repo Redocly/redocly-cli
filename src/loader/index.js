@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import path from 'path';
 import fs from 'fs';
 
@@ -27,9 +28,8 @@ function loadRuleset(config) {
 
   files.forEach((file) => {
     const Rule = require(file);
-    const ruleInstanceInit = new Rule();
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, ruleInstanceInit.rule.replace('/', '.'));
-    const s = ruleInstanceInit.rule.split('/')[0];
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
+    const s = Rule.rule;
     if (!ruleConfig) {
       ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 
@@ -47,14 +47,23 @@ function loadRuleset(config) {
     }
 
     if (configCopy && configCopy.rules) {
-      let ruleInstance = new Rule(ruleConfig);
+      const ruleInstance = new Rule(ruleConfig);
       if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
-        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
-          ruleInstance = new Rule({ level: ruleConfig });
-          ruleInstance._config = { level: ruleConfig };
-        } else {
-          ruleInstance = new Rule(ruleConfig);
+        if (ruleConfig && typeof ruleConfig !== 'string' && !ruleConfig.level) {
+          ruleConfig.level = 4;
         }
+        if (!ruleInstance.config) {
+          if (typeof ruleConfig === 'object') {
+            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
+          } else {
+            ruleInstance.config = { level: ruleConfig };
+          }
+        }
+
+        if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || !ruleConfig) {
+          ruleInstance._config = { level: ruleConfig || 4 };
+        }
+
         ruleSet.push(ruleInstance);
       }
       allRules.push(ruleInstance);
@@ -86,8 +95,8 @@ export function loadRulesetExtension(config) {
   };
 
   config.rulesExtensions.forEach((Rule) => {
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule.replace('/', '.'));
-    const s = Rule.rule.split('/')[0];
+    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
+    const s = Rule.rule;
     if (!ruleConfig) {
       ruleConfig = getObjByPathOrParent(configCopy.rules, s);
 
@@ -105,11 +114,23 @@ export function loadRulesetExtension(config) {
     }
 
     if (configCopy && configCopy.rules) {
-      const ruleInstance = new Rule(ruleConfig);
-      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
-        if (typeof ruleConfig === 'string' && ruleConfig !== 'off') {
-          ruleInstance._config = { level: ruleConfig };
+      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null) || !ruleConfig) {
+        const ruleInstance = new Rule(ruleConfig);
+        if (ruleConfig && typeof ruleConfig !== 'string' && !ruleConfig.level) {
+          ruleConfig.level = 4;
         }
+        if (!ruleInstance.config) {
+          if (typeof ruleConfig === 'object') {
+            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
+          } else {
+            ruleInstance.config = { level: ruleConfig };
+          }
+        }
+
+        if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || !ruleConfig) {
+          ruleInstance._config = { level: ruleConfig || 4 };
+        }
+        console.log(ruleInstance);
         additionalRules.push(ruleInstance);
       }
     } else {

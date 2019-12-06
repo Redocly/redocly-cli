@@ -37,6 +37,9 @@ paths:
             application/json:
               schema:
                 type: object
+externalDocs:
+  description: 12
+  url: googlecom
 components:
   securitySchemes:
     JWT:
@@ -56,18 +59,11 @@ components:
           required: false
           schema:
             type: string
-        - description: 12
+        - description: blo
+        - description: bla
     genericExample:
       name: example
       in: query
       required: true
       schema:
         type: string
-blabla: 313
-customerSupport:
-  id: 12
-  contact:
-    name: Ivan Goncharov
-    email: ivan@redoc.ly
-defaultParameterSchema:
-  type: string

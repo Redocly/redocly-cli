@@ -1,29 +1,24 @@
-/* eslint-disable class-methods-use-this */
-import createError, { createErrorMissingRequiredField, createErrrorFieldTypeMismatch } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidatePasswordOpenAPIFlow extends AbstractVisitor {
-  static get ruleName() {
-    return 'password-flow';
+class ValidatePasswordOpenAPIFlow {
+  static get rule() {
+    return 'oas3-schema/password-flow';
   }
 
   get validators() {
     return {
       tokenUrl(node, ctx) {
-        if (!node.tokenUrl) return createErrorMissingRequiredField('tokenUrl', node, ctx, { fromRule: this.rule, severity: this.config.level });
-        if (typeof node.tokenUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (!node.tokenUrl) return ctx.createError(ctx.messageHelpers.missingRequiredField('tokenUrl'), 'key');
+        if (typeof node.tokenUrl !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       refreshUrl(node, ctx) {
-        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return createErrrorFieldTypeMismatch('string', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       scopes(node, ctx) {
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return createError('The scopes field must be a Map[string, string] in the Open API Flow Object', node, ctx, { fromRule: this.rule, target: 'value', severity: this.config.level });
+        if (wrongFormatMap) return ctx.createError('The scopes field must be a Map[string, string] in the Open API Flow Object', 'value');
         return null;
       },
     };

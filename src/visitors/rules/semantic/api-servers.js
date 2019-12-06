@@ -1,13 +1,5 @@
-/* eslint-disable class-methods-use-this */
-import AbstractVisitor from '../../utils/AbstractVisitor';
-import { createErrorMissingRequiredField } from '../../../error';
-
-class ApiServers extends AbstractVisitor {
-  static get ruleName() {
-    return 'apiServers';
-  }
-
-  get rule() {
+class ApiServers {
+  static get rule() {
     return 'api-servers';
   }
 
@@ -17,9 +9,7 @@ class ApiServers extends AbstractVisitor {
         (node.servers && Array.isArray(node.servers) && node.servers.length > 0)
           ? null
           : [
-            createErrorMissingRequiredField('servers', node, ctx, {
-              target: 'key', severity: this.config.level, fromRule: this.rule,
-            }),
+            ctx.createError(ctx.messageHelpers.missingRequiredField('servers'), 'key'),
           ]),
     };
   }

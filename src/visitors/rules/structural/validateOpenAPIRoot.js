@@ -1,25 +1,20 @@
-/* eslint-disable class-methods-use-this */
-import { createErrorMissingRequiredField } from '../../../error';
-
-import AbstractVisitor from '../../utils/AbstractVisitor';
-
-class ValidateOpenAPIRoot extends AbstractVisitor {
-  static get ruleName() {
-    return 'root';
+class ValidateOpenAPIRoot {
+  static get rule() {
+    return 'oas3-schema/root';
   }
 
   get validators() {
     return {
       openapi(node, ctx) {
-        if (node && !node.openapi) return createErrorMissingRequiredField('openapi', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && !node.openapi) return ctx.createError(ctx.messageHelpers.missingRequiredField('openapi'), 'key');
         return null;
       },
       info(node, ctx) {
-        if (node && !node.info) return createErrorMissingRequiredField('info', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && !node.info) return ctx.createError(ctx.messageHelpers.missingRequiredField('info'), 'key');
         return null;
       },
       paths(node, ctx) {
-        if (node && !node.paths) return createErrorMissingRequiredField('paths', node, ctx, { fromRule: this.rule, severity: this.config.level });
+        if (node && !node.paths) return ctx.createError(ctx.messageHelpers.missingRequiredField('paths'), 'key');
         return null;
       },
       security: () => null,

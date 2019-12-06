@@ -1,9 +1,5 @@
-/* eslint-disable class-methods-use-this */
-import AbstractVisitor from '../../utils/AbstractVisitor';
-import createError from '../../../error';
-
-class OperationsTagsAlpabetical extends AbstractVisitor {
-  get rule() {
+class OperationsTagsAlpabetical {
+  static get rule() {
     return 'operations-tags-alpabetical';
   }
 
@@ -17,7 +13,7 @@ class OperationsTagsAlpabetical extends AbstractVisitor {
         ctx.path.push('tags');
         for (let i = 0; i < node.tags.length - 1; i++) {
           if (node.tags[i] > node.tags[i + 1]) {
-            errors.push(createError('The operations\' tags array should be in alphabetical order', node, ctx, { target: 'key', severity: this.config.level, fromRule: this.rule }));
+            errors.push(ctx.createError('The operations\' tags array should be in alphabetical order', 'key'));
           }
         }
         ctx.path.pop();

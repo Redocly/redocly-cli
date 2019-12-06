@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 
@@ -9,7 +8,11 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(Array.from(nodePath), ctx, target).startLine;
+const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(
+  Array.from(nodePath),
+  ctx,
+  target,
+).startLine;
 
 const getMsgLevelFromString = (severityString) => {
   switch (severityString.toLowerCase()) {
@@ -68,6 +71,12 @@ const createError = (msg, node, ctx, options) => {
     target,
   };
 };
+
+export const createErrorFlat = (
+  node, ctx, fromRule, severity, msg, target, possibleAlternate,
+) => createError(msg, node, ctx, {
+  target, fromRule, severity, possibleAlternate,
+});
 
 export const fromError = (error, ctx) => {
   let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);

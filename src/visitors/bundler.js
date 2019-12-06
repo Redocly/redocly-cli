@@ -4,19 +4,14 @@
 import yaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
-import AbstractVisitor from './utils/AbstractVisitor';
 
-class Bundler extends AbstractVisitor {
+class Bundler {
   constructor(config) {
-    super(config);
+    this.config = config;
     this.components = {};
   }
 
-  static get ruleName() {
-    return 'bundler';
-  }
-
-  get rule() {
+  static get rule() {
     return 'bundler';
   }
 

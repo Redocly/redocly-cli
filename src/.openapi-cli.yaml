@@ -5,11 +5,9 @@ rules:
 
   suggest-possible-refs: on
   oas3-schema: on
-  operations-tags-alpabetical:
-    level: warning
+  operations-tags-alpabetical: warning
   path-param-exists: on
-  operation-2xx-response:
-    level: warning
+  operation-2xx-response: warning
   unique-parameter-names: on
   no-unused-schemas: on
   operation-operationId-unique: on

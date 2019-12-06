@@ -14,7 +14,7 @@ class parameterAllOf {
     }
   }
 
-  get rule() {
+  static get rule() {
     return 'parameterAllOf';
   }
 }

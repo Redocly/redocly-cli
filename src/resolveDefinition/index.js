@@ -1,30 +1,51 @@
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 
-const loadDefaultDefinition = (name) => {
-  const pathToDefaultType = `${__dirname}/../types/${name}.js`;
-  return existsSync(pathToDefaultType) ? require(pathToDefaultType).default : {};
+const loadDefaultDefinitions = () => {
+  const defaultDefinitionsMap = {};
+
+  readdirSync(`${__dirname}/../types`)
+    .map((fName) => `${__dirname}/../types/${fName}`)
+    .forEach((fName) => {
+      const definition = existsSync(fName) ? require(fName).default : {};
+      defaultDefinitionsMap[definition.name] = definition;
+    });
+
+  return defaultDefinitionsMap;
 };
 
-export default (definition, ctx, node) => {
+const applyMutations = (defaultDefinitionsMap, definitionReducer) => {
+  const mutatedDefinitionsMap = definitionReducer(defaultDefinitionsMap);
+  return mutatedDefinitionsMap;
+};
+
+export const loadDefinitions = (config) => {
+  const customTypesNames = [];
+  const t = applyMutations({}, config.definitionResolver);
+  Object.keys(t).forEach((typeDefName) => {
+    if (!t[typeDefName].name) {
+      customTypesNames.push(typeDefName);
+    }
+  });
+  const defaultDefinitionsMap = loadDefaultDefinitions();
+  const mutatedDefinitionsMap = applyMutations(defaultDefinitionsMap, config.definitionResolver);
+  customTypesNames.forEach((typeDefName) => {
+    mutatedDefinitionsMap[typeDefName].name = typeDefName;
+  });
+  return mutatedDefinitionsMap;
+};
+
+
+const resolveDefinition = (definition, ctx, node) => {
   if (!ctx.config.definitionResolver && typeof definition !== 'string') return definition;
-
   const definitionName = typeof definition === 'string' ? definition : definition.name;
-  const defaultDefinition = loadDefaultDefinition(definitionName);
 
-  const IR = {
-    [definitionName || 'default']: defaultDefinition,
-  };
-
-  const mapped = ctx.config.definitionResolver(IR);
-  let resolvedDefinition = mapped[definitionName || 'default'];
-
-  resolvedDefinition = (
-    resolvedDefinition
-    && resolvedDefinition.resolveType
-    && resolvedDefinition.resolveType(node) !== resolvedDefinition.name
-  )
-    ? ctx.config.definitionResolver(mapped)[resolvedDefinition.resolveType(node)]
-    : resolvedDefinition;
+  const resolvedDefinition = ctx.definitions[definitionName]
+      && ctx.definitions[definitionName].resolveType
+      && ctx.definitions[definitionName].resolveType(node) !== ctx.definitions[definitionName].name
+    ? ctx.definitions[ctx.definitions[definitionName].resolveType(node)]
+    : ctx.definitions[definitionName];
 
   return resolvedDefinition;
 };
+
+export default resolveDefinition;
