@@ -37,6 +37,9 @@ paths:
             application/json:
               schema:
                 type: object
+externalDocs:
+  description: 12
+  url: googlecom
 components:
   securitySchemes:
     JWT:

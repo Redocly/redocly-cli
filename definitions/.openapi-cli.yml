@@ -6,9 +6,12 @@ rules:
   debug-info: off
 
   parameterPartial: warning
-  parameterWithAllOf: error
+  parameterWithAllOf: warning
 
   oas3-schema/parameter: off
+  oas3-schema/external-docs:
+    url: off
+
 
   path-param-exists: on
   operation-2xx-response: on
@@ -22,6 +25,6 @@ rules:
   no-extra-fields: on
   operation-description: on
   operation-operationId: on
-  operation-tags: warning
+  operation-tags: off
   provide-contact: on
   servers-no-trailing-slash: on
