@@ -130,7 +130,6 @@ export function loadRulesetExtension(config) {
         if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || !ruleConfig) {
           ruleInstance._config = { level: ruleConfig || 4 };
         }
-        console.log(ruleInstance);
         additionalRules.push(ruleInstance);
       }
     } else {
