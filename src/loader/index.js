@@ -54,7 +54,7 @@ function loadRuleset(config) {
         }
         if (!ruleInstance.config) {
           if (typeof ruleConfig === 'object') {
-            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
+            ruleInstance.config = ruleConfig;
           } else {
             ruleInstance.config = { level: ruleConfig };
           }
@@ -86,7 +86,7 @@ function loadRuleset(config) {
   return [ruleSet, allRules];
 }
 
-export function loadRulesetExtension(config) {
+export function loadRulesetExtension(config, rulesetName) {
   const additionalRules = [];
 
   const configCopy = {
@@ -94,7 +94,7 @@ export function loadRulesetExtension(config) {
     rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
   };
 
-  config.rulesExtensions.forEach((Rule) => {
+  config[rulesetName].forEach((Rule) => {
     let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
     const s = Rule.rule;
     if (!ruleConfig) {
@@ -121,7 +121,7 @@ export function loadRulesetExtension(config) {
         }
         if (!ruleInstance.config) {
           if (typeof ruleConfig === 'object') {
-            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
+            ruleInstance.config = ruleConfig;
           } else {
             ruleInstance.config = { level: ruleConfig };
           }

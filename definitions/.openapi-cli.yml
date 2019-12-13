@@ -1,5 +1,6 @@
 typeExtension: typeExtension.js
-customRules: customRules.js
+# customRules: customRules.js
+customRulesEarly: customRules.js
 codeframes: on
 rules:
   bundler: off

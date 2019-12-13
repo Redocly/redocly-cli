@@ -37,14 +37,15 @@ function getConfig(options) {
 
   resolvedConfig.definitionResolver = definitionResolver;
 
-  if (!resolvedConfig.customRules) {
-    resolvedConfig.customRules = `${__dirname}/customRulesDefault.js`;
-  } else {
-    resolvedConfig.customRules = `${process.cwd()}/${resolvedConfig.customRules}`;
-  }
-
+  resolvedConfig.customRules = resolvedConfig.customRules
+    ? `${process.cwd()}/${resolvedConfig.customRules}` : `${__dirname}/customRulesDefault.js`;
   const rulesExtensions = require(resolvedConfig.customRules);
   resolvedConfig.rulesExtensions = rulesExtensions;
+
+  resolvedConfig.customRulesEarly = resolvedConfig.customRulesEarly
+    ? `${process.cwd()}/${resolvedConfig.customRulesEarly}` : `${__dirname}/customRulesDefault.js`;
+  const rulesExtensionsEarly = require(resolvedConfig.customRulesEarly);
+  resolvedConfig.rulesExtensionsEarly = rulesExtensionsEarly;
 
   return resolvedConfig;
 }
