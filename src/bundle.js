@@ -2,6 +2,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 
 
+import getConfig from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -20,13 +21,11 @@ export const bundleToFile = (fName, outputFile) => {
 
   if (!document.openapi) { return []; }
 
-  const config = {
-    codeframes: true,
-    rulesExtensions: [],
-    rules: {
-      bundler: {
-        output: outputFile,
-      },
+  const config = getConfig({});
+  config.customRules = [];
+  config.rules = {
+    bundler: {
+      output: outputFile,
     },
   };
 

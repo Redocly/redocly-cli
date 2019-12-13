@@ -5,6 +5,34 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
 
+const getComponentName = (refString, components, componentType, node) => {
+  const pathParts = refString.split('/');
+
+  let itemNameBase = `${pathParts[pathParts.length - 1]}`;
+
+  if (itemNameBase.endsWith('.yaml')) {
+    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 5);
+  }
+
+  if (itemNameBase.endsWith('.yml')) {
+    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 4);
+  }
+
+  let itemName = itemNameBase;
+
+  let i = pathParts.length - 2;
+  let namePrefix = '';
+  while (components[componentType]
+      && components[componentType][itemName]
+      && JSON.stringify(components[componentType][itemName]) !== JSON.stringify(node)) {
+    namePrefix = `${pathParts[i]}_${namePrefix}`;
+    itemName = `${namePrefix}${itemNameBase}`;
+    i--;
+  }
+
+  return itemName;
+};
+
 class Bundler {
   constructor(config) {
     this.config = config;
@@ -50,15 +78,9 @@ class Bundler {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else {
-            let itemName = `${unresolvedNode.$ref.split('/')[unresolvedNode.$ref.split('/').length - 1]}`;
-            if (itemName.endsWith('.yaml')) {
-              itemName = itemName.substring(0, itemName.length - 5);
-            }
-
-            if (itemName.endsWith('.yml')) {
-              itemName = itemName.substring(0, itemName.length - 4);
-            }
-
+            const itemName = getComponentName(
+              unresolvedNode.$ref, this.components, componentType, node,
+            );
             const newRef = `#/components/${componentType}/${itemName}`;
 
             if (!this.components[componentType]) {

@@ -43,7 +43,7 @@ class ParameterWithAllOfRule {
   }
 
   constructor(config) { // config can be passed via rules.parameterWithAllOf in config file
-    this.maxItems = config.maxItems || 2;
+    this.maxItems = (config && config.maxItems) || 2;
   }
 
   OpenAPIParameterWithAllOf() {
