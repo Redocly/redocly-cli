@@ -13,3 +13,8 @@ paths:
       $ref: ./operations/api/api-get.yaml
     post:
       $ref: ./operations/api/api-post.yaml
+  /anotherApi:
+    get:
+      $ref: ./operations/anotherApi/api-get.yaml
+    post:
+      $ref: ./operations/anotherApi/api-post.yaml
