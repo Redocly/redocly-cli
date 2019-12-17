@@ -42,10 +42,10 @@ function getConfig(options) {
   const rulesExtensions = require(resolvedConfig.customRules);
   resolvedConfig.rulesExtensions = rulesExtensions;
 
-  resolvedConfig.customRulesEarly = resolvedConfig.customRulesEarly
-    ? `${process.cwd()}/${resolvedConfig.customRulesEarly}` : `${__dirname}/customRulesDefault.js`;
-  const rulesExtensionsEarly = require(resolvedConfig.customRulesEarly);
-  resolvedConfig.rulesExtensionsEarly = rulesExtensionsEarly;
+  resolvedConfig.transformers = resolvedConfig.transformers
+    ? `${process.cwd()}/${resolvedConfig.transformers}` : `${__dirname}/customRulesDefault.js`;
+  const transformingVisitors = require(resolvedConfig.transformers);
+  resolvedConfig.transformingVisitors = transformingVisitors;
 
   return resolvedConfig;
 }
