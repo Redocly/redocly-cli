@@ -49,13 +49,11 @@ export const bundle = (fName) => {
 
   if (!document.openapi) { return []; }
 
-  const config = {
-    codeframes: true,
-    rulesExtensions: [],
-    rules: {
-      bundler: {
-        outputObject: true,
-      },
+  const config = getConfig({});
+  config.rules = {
+    ...config.rules,
+    bundler: {
+      outputObject: true,
     },
   };
 
