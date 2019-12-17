@@ -3,9 +3,12 @@
 import chalk from 'chalk';
 import program from 'commander';
 import fs from 'fs';
+import {
+  join, basename, dirname, extname,
+} from 'path';
 
 import { validateFromFile, validateFromUrl } from '../validate';
-import bundle from '../bundle';
+import { bundleToFile } from '../bundle';
 
 import { isUrl } from '../utils';
 
@@ -37,23 +40,49 @@ const cli = () => {
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
 
   program
-    .command('bundle <startingPoint>')
-    .description('Create a bundle using <startingPoint> as a root document.')
-    .option('-o, --output <outputName>', 'Filename for the bundle.')
+    .command('bundle <entryPoints...>')
+    .description('Create a bundle using <entryPoint> as a root document.')
+    .option('-o, --output <outputName>', 'Filename or folder for the bundle.')
     .option('--short', 'Reduce output in case of bundling errors.')
-    .action((startingPoint, cmdObj) => {
-      const bundlingStatus = bundle(startingPoint, cmdObj.output);
-      if (bundlingStatus.length === 0) {
-        // we do not want to output anything to stdout if it's being piped.
-        if (cmdObj.output) {
-          process.stdout.write(`Created a bundle for ${startingPoint} at ${cmdObj.output}.\n`);
-        }
-        process.exit(0);
-      } else {
-        process.stdout.write(`Errors encountered while bundling ${startingPoint}.\n`);
-        outputMessages(bundlingStatus, cmdObj);
+    .option('--ext <ext>', 'Output extension: json, yaml or yml')
+    .action((entryPoints, cmdObj) => {
+      if (cmdObj.ext && ['yaml', 'yml', 'json'].indexOf(cmdObj.ext) === -1) {
+        process.stdout.write(
+          'Unsupported value for --ext option. Supported values are: yaml, yml or json',
+        );
         process.exit(1);
       }
+
+      const isOutputDir = !extname(cmdObj.output);
+      const ext = cmdObj.ext || extname(cmdObj.output) || 'yaml';
+      const dir = isOutputDir ? cmdObj.output : dirname(cmdObj.output);
+
+      const results = {
+        errors: 0,
+        warnings: 0,
+      };
+
+      entryPoints.forEach((entryPoint) => {
+        const fileName = isOutputDir
+          ? basename(entryPoint, extname(entryPoint))
+          : basename(cmdObj.output, ext);
+        const output = join(dir, `${fileName}.${ext}`);
+
+
+        const bundlingStatus = bundleToFile(entryPoint, output);
+        if (bundlingStatus.length === 0) {
+          // we do not want to output anything to stdout if it's being piped.
+          if (output) {
+            process.stdout.write(`Created a bundle for ${entryPoint} at ${output}.\n`);
+          }
+        } else {
+          process.stdout.write(`Errors encountered while bundling ${entryPoint}.\n`);
+          const resultStats = outputMessages(bundlingStatus, cmdObj);
+          results.errors += resultStats.errors;
+          results.warnings += resultStats.warnings;
+        }
+      });
+      process.exit(results.errors > 0 ? 1 : 0);
     });
 
   program
