@@ -1,5 +1,4 @@
 # Custom visitors
-This PR introduces a concept of extending and redefining types and rules.
 
 ### Concepts
 
