@@ -1,6 +1,6 @@
 class OperationOperationId {
   static get rule() {
-    return 'operationOperationId';
+    return 'operation-operationId';
   }
 
   OpenAPIOperation() {

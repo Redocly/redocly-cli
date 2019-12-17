@@ -22,8 +22,9 @@ export const bundleToFile = (fName, outputFile) => {
   if (!document.openapi) { return []; }
 
   const config = getConfig({});
-  config.customRules = [];
+  // config.customRules = [];
   config.rules = {
+    ...config.rules,
     bundler: {
       output: outputFile,
     },
