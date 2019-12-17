@@ -129,7 +129,7 @@ rules:
   debug-info: off
 ```
 
-All of the rules are configurable in terms of disabling or changing their severity, or even defining pinpoint exclusions. 
+All of the rules are configurable in terms of disabling or changing their severity, or even defining pinpoint exclusions.
 
 Here is an example of a modified use `.openapi-cli.yaml` file:
 
@@ -147,19 +147,19 @@ rules:
       - 'openapi.yaml#/components/schemas/Unused'
 ```
 
-Each rule can be turned `on` or `off`.  In addition, you can control the log-level severity, between `info`, `warning`, and `error`.  You may also define specific exclusions to the rule, and you can do that by combination of file and bath to the object to be excluded.  
+Each rule can be turned `on` or `off`.  In addition, you can control the log-level severity, between `info`, `warning`, and `error`.  You may also define specific exclusions to the rule, and you can do that by combination of file and bath to the object to be excluded.
 
 Enabling a rule:
 ```yaml
 rules:
   <rule-name>: on
-``` 
+```
 
 Disabling a rule:
 ```yaml
 rules:
   <rule-name>: off
-``` 
+```
 
 #### Rules Severity Levels
 
@@ -167,9 +167,9 @@ Changing the severity of a rule:
 
 ```yaml
 rules:
-  <rule-name>: 
+  <rule-name>:
     level: warning
-``` 
+```
 
 or
 
@@ -190,34 +190,40 @@ Excluding a specific path:
 
 ```yaml
 rules:
-  <rule-name>: 
-    excludedPaths: 
+  <rule-name>:
+    excludedPaths:
       - '<path to file>#</path/to/object>'
-``` 
+```
 
 The `excludedPaths` key can accept an array of exclusions.  The format includes the path to the file, a `#` mark, and the path to the object within the file.  For example:
 
 ```yaml
 rules:
-  <rule-name>: 
-    excludedPaths: 
+  <rule-name>:
+    excludedPaths:
       - 'openapi.yaml#/components/schemas/Pet'
-``` 
+```
 
 Some rules may have sub-rules.  The same configurations still apply:
 
 ```yaml
 rules:
-  <rule-name>: 
+  <rule-name>:
     <sub-rule-name>:
       level: info
-      excludedPaths: 
+      excludedPaths:
         - 'openapi.yaml#/components/schemas/Pet'
-``` 
+```
 
 #### Built-in Rules
 
 [Read the docs](RULES.md) for the built-in rules.
+
+### Advanced
+
+[Custom visitors](docs/CUSTOM_VISITORS.md)
+
+[Transformers](docs/TRANSFORMERS.md)
 
 ## Credits
 

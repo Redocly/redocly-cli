@@ -1,65 +1,48 @@
 /* eslint-disable max-classes-per-file */
-class ValidateOpenAPIParameterPartial {
+const fs = require('fs');
+const path = require('path');
+
+class OverlaysMerger {
   static get rule() {
-    return 'parameterPartial';
+    return 'writeCheck';
   }
 
-  // register visitor on a new type OpenAPIParameterPartial
-  OpenAPIParameterPartial() {
+  any() {
     return {
       onEnter: (node, type, ctx) => {
-        const result = [];
-        let validators = {};
-        if (Object.keys(node).length === 1 && node.description) {
-          // reuse existing code for fields for structural rules code by name
-          validators = {
-            description: ctx.getRule('oas3-schema/parameter').validators.description,
-          };
-        } else {
-          // reuse existing code for fields for structural rules code by name
-          validators = {
-            ...ctx.getRule('oas3-schema/parameter').validators,
-          };
-        }
+        if (node['x-redocly-overlay']) {
+          const definitionDir = path.dirname(ctx.filePath);
+          const overlayPath = path.resolve(definitionDir, node['x-redocly-overlay'].path);
 
-        const fieldMessages = ctx.validateFieldsHelper(validators);
-        result.push(...fieldMessages);
+          if (fs.existsSync(overlayPath)) {
+            const patch = JSON.parse(fs.readFileSync(overlayPath));
 
-        // example of some custom validations (just as an example)
-        if (node.in && node.in !== 'header') {
-          ctx.path.push('in');
-          result.push(ctx.createError('Only header parameters can be extended with allOf', 'key'));
-          ctx.path.pop();
+            Object.keys(patch).forEach((k) => {
+              node[k] = patch[k];
+            });
+
+            delete node['x-redocly-overlay'];
+          }
         }
-        return result;
       },
     };
   }
 }
 
-class ParameterWithAllOfRule {
+class MergeChecker {
   static get rule() {
-    return 'parameterWithAllOf';
+    return 'mergerCheck';
   }
 
-  constructor(config) { // config can be passed via rules.parameterWithAllOf in config file
-    this.maxItems = (config && config.maxItems) || 2;
-  }
-
-  OpenAPIParameterWithAllOf() {
+  OpenAPIInfo() {
     return {
-      onEnter: (node, definition, ctx) => {
-        const result = [];
-        if (node.allOf.length > this.maxItems) {
-          ctx.path.push('allOf');
-          result.push(ctx.createError(`Do not use more that ${this.maxItems} items in allOf for OpenAPI Parameter`, 'key'));
-          ctx.path.pop();
-        }
-        return result;
+      onEnter: (node, type, ctx) => {
+        console.log(node);
       },
     };
   }
 }
+
 module.exports = [
-  ValidateOpenAPIParameterPartial, ParameterWithAllOfRule,
+  OverlaysMerger, MergeChecker,
 ];

@@ -37,14 +37,15 @@ function getConfig(options) {
 
   resolvedConfig.definitionResolver = definitionResolver;
 
-  if (!resolvedConfig.customRules) {
-    resolvedConfig.customRules = `${__dirname}/customRulesDefault.js`;
-  } else {
-    resolvedConfig.customRules = `${process.cwd()}/${resolvedConfig.customRules}`;
-  }
-
+  resolvedConfig.customRules = resolvedConfig.customRules
+    ? `${process.cwd()}/${resolvedConfig.customRules}` : `${__dirname}/customRulesDefault.js`;
   const rulesExtensions = require(resolvedConfig.customRules);
   resolvedConfig.rulesExtensions = rulesExtensions;
+
+  resolvedConfig.transformers = resolvedConfig.transformers
+    ? `${process.cwd()}/${resolvedConfig.transformers}` : `${__dirname}/customRulesDefault.js`;
+  const transformingVisitors = require(resolvedConfig.transformers);
+  resolvedConfig.transformingVisitors = transformingVisitors;
 
   return resolvedConfig;
 }

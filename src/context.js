@@ -45,7 +45,7 @@ function createContext(node, sourceFile, filePath, config) {
     pathStack: [],
     source: sourceFile,
     enableCodeframe: !!(config && (config.codeframes === 'on' || config.codeframes === true)),
-    customRules: [...enabledRules, ...loadRulesetExtension(config)],
+    customRules: [...loadRulesetExtension(config, 'transformingVisitors'), ...enabledRules, ...loadRulesetExtension(config, 'rulesExtensions')],
     allRules,
     config,
     messageHelpers,

@@ -2,9 +2,23 @@
 import path from 'path';
 import fs from 'fs';
 
+const get = (p, o) => p.reduce((xs, x) => ((xs && xs[x]) ? xs[x] : null), o);
+
 function getObjByPathOrParent(json, JSONPath) {
-  const get = (p, o) => p.reduce((xs, x) => ((xs && xs[x]) ? xs[x] : null), o);
-  return get(JSONPath.split('.'), json);
+  const value = get(JSONPath.split('.'), json);
+  switch (typeof value) {
+    case 'string':
+      return {
+        level: value,
+        executionOrder: 'default',
+      };
+    case 'object':
+    default:
+      return {
+        level: 4,
+        ...value,
+      };
+  }
 }
 
 function loadRuleset(config) {
@@ -28,50 +42,17 @@ function loadRuleset(config) {
 
   files.forEach((file) => {
     const Rule = require(file);
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
-    const s = Rule.rule;
-    if (!ruleConfig) {
-      ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4, executionOrder: 'default' };
 
-      if (ruleConfig && typeof ruleConfig === 'object') {
-        const allowed = ['level'];
-
-        ruleConfig = Object.keys(ruleConfig)
-          .filter((key) => allowed.includes(key))
-          .reduce((obj, key) => {
-            // eslint-disable-next-line no-param-reassign
-            obj[key] = ruleConfig[key];
-            return obj;
-          }, {});
+    const ruleInstance = new Rule(ruleConfig);
+    if (ruleConfig.level !== 'off') {
+      if (!ruleInstance.config) {
+        ruleInstance.config = ruleConfig;
       }
-    }
-
-    if (configCopy && configCopy.rules) {
-      const ruleInstance = new Rule(ruleConfig);
-      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null)) {
-        if (ruleConfig && typeof ruleConfig !== 'string' && !ruleConfig.level) {
-          ruleConfig.level = 4;
-        }
-        if (!ruleInstance.config) {
-          if (typeof ruleConfig === 'object') {
-            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
-          } else {
-            ruleInstance.config = { level: ruleConfig };
-          }
-        }
-
-        if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || !ruleConfig) {
-          ruleInstance._config = { level: ruleConfig || 4 };
-        }
-
-        ruleSet.push(ruleInstance);
-      }
-      allRules.push(ruleInstance);
-    } else {
-      const ruleInstance = new Rule({});
+      ruleInstance._config = ruleConfig;
       ruleSet.push(ruleInstance);
-      allRules.push(ruleInstance);
     }
+    allRules.push(ruleInstance);
   });
 
   dirs.forEach((dir) => {
@@ -86,7 +67,7 @@ function loadRuleset(config) {
   return [ruleSet, allRules];
 }
 
-export function loadRulesetExtension(config) {
+export function loadRulesetExtension(config, rulesetName) {
   const additionalRules = [];
 
   const configCopy = {
@@ -94,46 +75,16 @@ export function loadRulesetExtension(config) {
     rulesPath: config.rulesPath ? config.rulesPath : `${__dirname}/../visitors`,
   };
 
-  config.rulesExtensions.forEach((Rule) => {
-    let ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule);
-    const s = Rule.rule;
-    if (!ruleConfig) {
-      ruleConfig = getObjByPathOrParent(configCopy.rules, s);
+  config[rulesetName].forEach((Rule) => {
+    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4, executionOrder: 'default' };
 
-      if (ruleConfig && typeof ruleConfig === 'object') {
-        const allowed = ['level'];
-
-        ruleConfig = Object.keys(ruleConfig)
-          .filter((key) => allowed.includes(key))
-          .reduce((obj, key) => {
-            // eslint-disable-next-line no-param-reassign
-            obj[key] = ruleConfig[key];
-            return obj;
-          }, {});
+    if (ruleConfig.level !== 'off') {
+      const ruleInstance = new Rule(ruleConfig);
+      if (!ruleInstance.config) {
+        ruleInstance.config = ruleConfig;
       }
-    }
-
-    if (configCopy && configCopy.rules) {
-      if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || (typeof ruleConfig === 'object' && ruleConfig !== null) || !ruleConfig) {
-        const ruleInstance = new Rule(ruleConfig);
-        if (ruleConfig && typeof ruleConfig !== 'string' && !ruleConfig.level) {
-          ruleConfig.level = 4;
-        }
-        if (!ruleInstance.config) {
-          if (typeof ruleConfig === 'object') {
-            ruleInstance.config = ruleConfig; // TODO: think if we are OK with changing internals of the config
-          } else {
-            ruleInstance.config = { level: ruleConfig };
-          }
-        }
-
-        if ((typeof ruleConfig === 'string' && ruleConfig !== 'off') || !ruleConfig) {
-          ruleInstance._config = { level: ruleConfig || 4 };
-        }
-        additionalRules.push(ruleInstance);
-      }
-    } else {
-      additionalRules.push(new Rule());
+      ruleInstance._config = ruleConfig;
+      additionalRules.push(ruleInstance);
     }
   });
   return additionalRules;
