@@ -1,7 +1,8 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
-import createError from './error';
 import { XMLHttpRequest } from 'xmlhttprequest';
+
+import createError from './error';
 import { isUrl } from './utils';
 
 /**
@@ -12,6 +13,8 @@ import { isUrl } from './utils';
  *
  * TODO: we might need a feature to support validation of "URL" based definitions in the future, so
  * would be nice to have opportunity to call resolve() with empty ctx.
+ *
+ * TODO: add per-file/per-url cache
  *
  * @param {string} link A path in the yaml document which is to be resolved
  * @param {*} ctx JSON Object with the document field which represents the YAML structure
