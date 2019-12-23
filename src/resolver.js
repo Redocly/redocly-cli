@@ -1,5 +1,6 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
+import { resolve as resolveFile, dirname } from 'path';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 import createError from './error';
@@ -21,19 +22,26 @@ import { isUrl } from './utils';
  */
 const resolve = (link, ctx) => {
   const linkSplitted = link.split('#/');
+  if (linkSplitted[0] === '') linkSplitted[0] = ctx.filePath;
   const [filePath, docPath] = linkSplitted;
-  let fullFileName;
+  let resolvedFilePath = resolveFile(dirname(ctx.filePath), filePath);
 
-  let target;
-  let fData;
-  if (filePath) {
-    const path = ctx.filePath.substring(0, Math.max(ctx.filePath.lastIndexOf('/'), ctx.filePath.lastIndexOf('\\')));
-    fullFileName = path ? `${path}/${filePath}` : filePath;
+  if (isUrl(filePath) && !fs.existsSync(resolvedFilePath)) {
+    resolvedFilePath = filePath;
+  }
 
-    if (fs.existsSync(fullFileName)) {
-      fData = fs.readFileSync(fullFileName, 'utf-8');
-      target = yaml.safeLoad(fData);
-    } else if (isUrl(filePath) && !fs.existsSync(fullFileName)) {
+  let document;
+  let source;
+
+  const isCurrentDocument = resolvedFilePath === ctx.filePath;
+  if (!isCurrentDocument) {
+    if (ctx.resolveCache[resolvedFilePath]) {
+      ({ source, document } = ctx.resolveCache[resolvedFilePath]);
+    } else if (fs.existsSync(resolvedFilePath)) {
+      source = fs.readFileSync(resolvedFilePath, 'utf-8');
+      document = yaml.safeLoad(source);
+      // FIXME: lost yaml parsing and file read errors here
+    } else if (isUrl(resolvedFilePath)) {
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', filePath, false);
@@ -43,19 +51,23 @@ const resolve = (link, ctx) => {
           return null;
         }
 
-        fData = xhr.responseText;
-        target = yaml.safeLoad(fData);
-        fullFileName = filePath;
+        source = xhr.responseText;
+        document = yaml.safeLoad(source);
+        resolvedFilePath = filePath;
       } catch (e) {
+        // FIXME: lost yaml parsing errors and network errors here
         return null;
       }
     } else {
       return null;
     }
   } else {
-    target = ctx.document;
+    document = ctx.document;
   }
 
+  if (source) ctx.resolveCache[resolvedFilePath] = { source, document };
+
+  let target = document;
   if (docPath) {
     const steps = docPath.split('/').filter((el) => el !== '');
     Object.keys(steps).forEach((step) => {
@@ -65,9 +77,10 @@ const resolve = (link, ctx) => {
 
   return {
     node: target,
-    updatedSource: filePath ? fData : null,
+    updatedSource: !isCurrentDocument ? source : null,
+    updatedDocument: !isCurrentDocument ? document : null,
     docPath: docPath ? docPath.split('/') : [],
-    filePath: fullFileName || null,
+    filePath: resolvedFilePath || null,
   };
 };
 
@@ -110,6 +123,7 @@ const resolveNode = (node, ctx) => {
     node: resolved.node,
     nextPath,
     updatedSource: resolved.updatedSource,
+    updatedDocument: resolved.updatedDocument,
     filePath: resolved.filePath,
   };
 };

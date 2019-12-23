@@ -56,49 +56,40 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
 }
 
 function onNodeEnter(node, ctx) {
-  let nextPath;
-  let prevPath;
-  let resolvedNode;
-  let updatedSource;
-  let prevSource;
-  let filePath;
-  let prevFilePath;
-  ({
-    // eslint-disable-next-line prefer-const
-    node: resolvedNode, nextPath, updatedSource, filePath,
-  } = resolveNode(node, ctx));
+  const {
+    node: resolvedNode, nextPath, updatedSource, updatedDocument, filePath,
+  } = resolveNode(node, ctx);
 
   if (nextPath) {
-    ctx.pathStack.push({ path: ctx.path, file: ctx.filePath });
-    prevPath = ctx.path;
-    ctx.path = nextPath;
-  }
+    ctx.pathStack.push({
+      path: ctx.path, file: ctx.filePath, document: ctx.document, source: ctx.source,
+    });
 
-  if (updatedSource) {
-    ctx.AST = null;
-    prevFilePath = ctx.filePath;
+    ctx.path = nextPath;
     ctx.filePath = filePath;
-    prevSource = ctx.source;
-    ctx.source = updatedSource;
+    if (updatedSource) {
+      ctx.AST = null;
+      ctx.source = updatedSource;
+      ctx.document = updatedDocument;
+    }
   }
 
   return {
     resolvedNode,
-    prevPath,
-    prevFilePath,
-    prevSource,
+    nextPath,
   };
 }
 
 function onNodeExit(nodeContext, ctx) {
-  if (nodeContext.prevPath) {
+  if (nodeContext.nextPath) {
     const fromStack = ctx.pathStack.pop();
     ctx.path = fromStack.path;
-  }
-  if (nodeContext.prevFilePath) {
-    ctx.AST = null;
-    ctx.source = nodeContext.prevSource;
-    ctx.filePath = nodeContext.prevFilePath;
+    if (fromStack.document) {
+      ctx.AST = null;
+      ctx.document = fromStack.document;
+      ctx.source = fromStack.source;
+      ctx.filePath = fromStack.file;
+    }
   }
 }
 

@@ -51,6 +51,8 @@ function createContext(node, sourceFile, filePath, config) {
     messageHelpers,
     validateFieldsRaw,
     getRule,
+
+    resolveCache: {},
   };
 }
 
