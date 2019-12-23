@@ -4,6 +4,7 @@ import loadRuleset, { loadRulesetExtension } from './loader';
 import isRuleEnabled from './visitors/utils';
 import { loadDefinitions } from './resolveDefinition';
 import { messageHelpers } from './error';
+import resolveNode from './resolver';
 
 const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
@@ -51,6 +52,7 @@ function createContext(node, sourceFile, filePath, config) {
     messageHelpers,
     validateFieldsRaw,
     getRule,
+    resolveNode,
 
     resolveCache: {},
   };
