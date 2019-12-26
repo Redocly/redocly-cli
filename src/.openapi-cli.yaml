@@ -14,6 +14,7 @@ rules:
   path-declarations-must-exist: on
 
   camel-case-names: off
+  parameter-description: off
   server-not-example: off
   api-servers: off
   license-url: off
