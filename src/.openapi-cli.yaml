@@ -17,7 +17,7 @@ rules:
   server-not-example: off
   api-servers: off
   license-url: off
-  no-extra-fields: off
+  no-extra-fields: on
   model-description: off
   operation-description: off
   operation-operationId: off
