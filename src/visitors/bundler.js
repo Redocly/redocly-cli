@@ -4,38 +4,54 @@
 import yaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
+import isEqual from 'lodash.isequal';
 
-const getComponentName = (refString, components, componentType, node) => {
-  const pathParts = refString.split('/');
+import { getMsgLevelFromString } from '../error/default';
 
-  let itemNameBase = `${pathParts[pathParts.length - 1]}`;
+const getComponentName = (refString, components, componentType, node, ctx) => {
+  const errors = [];
 
-  if (itemNameBase.endsWith('.yaml')) {
-    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 5);
-  }
+  refString = refString.replace('#/', '/');
+  const itemNameBase = path.basename(refString, path.extname(refString));
+  const pathParts = path.dirname(refString).split('/');
 
-  if (itemNameBase.endsWith('.yml')) {
-    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 4);
-  }
+  const componentsGroup = components[componentType];
+  if (!componentsGroup) return { name: itemNameBase, errors };
 
-  let itemName = itemNameBase;
+  let name = itemNameBase;
+  let i = pathParts.length - 1;
 
-  let i = pathParts.length - 2;
-  let namePrefix = '';
-  while (components[componentType]
-      && components[componentType][itemName]
-      && JSON.stringify(components[componentType][itemName]) !== JSON.stringify(node)) {
-    namePrefix = `${pathParts[i]}_${namePrefix}`;
-    itemName = `${namePrefix}${itemNameBase}`;
+  while (componentsGroup[name] && !isEqual(componentsGroup[name], node) && i >= 0) {
+    const prevName = name;
+    name = `${pathParts[i]}_${itemNameBase}`;
+
+    errors.push(
+      ctx.createError(
+        `Two schemas with the same name but different content are referneced. Renamed ${prevName} to ${name}`,
+        'key',
+      ),
+    );
     i--;
   }
 
-  return itemName;
+  if (i >= 0) return { name, errors };
+
+  let serialId = 0;
+  while (componentsGroup[name] && !isEqual(componentsGroup[name], node)) {
+    serialId++;
+    name = `${name}-${serialId}`;
+  }
+
+  return { name, errors };
 };
 
 class Bundler {
   constructor(config) {
     this.config = config;
+    this.nameConflictsEnabled = this.config.nameConflicts !== 'off';
+    if (this.nameConflictsEnabled) {
+      this.nameConflictsSeverity = getMsgLevelFromString(this.config.nameConflicts || '');
+    }
     this.components = {};
   }
 
@@ -71,6 +87,8 @@ class Bundler {
   any() {
     return {
       onExit: (node, definition, ctx, unresolvedNode) => {
+        let errors = [];
+
         if (Object.keys(unresolvedNode).indexOf('$ref') !== -1) {
           const componentType = this.defNameToType(definition.name);
 
@@ -78,19 +96,33 @@ class Bundler {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else {
-            const itemName = getComponentName(
-              unresolvedNode.$ref, this.components, componentType, node,
+            // eslint-disable-next-line prefer-const
+            const { name, errors: nameErrors } = getComponentName(
+              unresolvedNode.$ref, this.components, componentType, node, ctx,
             );
-            const newRef = `#/components/${componentType}/${itemName}`;
+
+            errors.push(...nameErrors);
+
+            const newRef = `#/components/${componentType}/${name}`;
 
             if (!this.components[componentType]) {
               this.components[componentType] = {};
             }
 
-            this.components[componentType][itemName] = node;
+            this.components[componentType][name] = node;
             unresolvedNode.$ref = newRef;
           }
         }
+
+        errors.forEach((e) => {
+          e.severity = this.nameConflictsSeverity;
+        });
+
+        if (!this.nameConflictsEnabled) {
+          errors = [];
+        }
+
+        return errors;
       },
     };
   }

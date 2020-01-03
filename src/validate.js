@@ -21,6 +21,8 @@ export const validate = (yamlData, filePath, options = {}) => {
   if (!document.openapi && !document.$ref) return [];
 
   const config = getConfig(options);
+  config.rules.bundler = 'off';
+
   const ctx = createContext(document, yamlData, filePath, config);
 
   ctx.getRule = ctx.getRule.bind(null, ctx);

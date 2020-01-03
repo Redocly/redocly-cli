@@ -26,6 +26,7 @@ export const bundleToFile = (fName, outputFile) => {
   config.rules = {
     ...config.rules,
     bundler: {
+      ...(config.rules && typeof config.rules.bundler === 'object' ? config.rules.bundler : null),
       output: outputFile,
     },
   };
@@ -53,6 +54,7 @@ export const bundle = (fName) => {
   config.rules = {
     ...config.rules,
     bundler: {
+      ...(config.rules && typeof config.rules.bundler === 'object' ? config.rules.bundler : null),
       outputObject: true,
     },
   };

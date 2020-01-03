@@ -14,7 +14,7 @@ const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(
   target,
 ).startLine;
 
-const getMsgLevelFromString = (severityString) => {
+export const getMsgLevelFromString = (severityString) => {
   switch (severityString.toLowerCase()) {
     case 'debug':
       return 1;

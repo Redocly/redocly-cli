@@ -1,6 +1,7 @@
 codeframes: on
 rules:
-  bundler: off
+  bundler:
+    nameConflicts: warning
   debug-info: off
 
   suggest-possible-refs: on
