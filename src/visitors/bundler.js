@@ -6,7 +6,8 @@ import fs from 'fs';
 import path from 'path';
 import isEqual from 'lodash.isequal';
 
-import { getMsgLevelFromString } from '../error/default';
+import { getMsgLevelFromString, messageLevels } from '../error/default';
+import OpenAPISchemaObject from '../types/OpenAPISchema';
 
 const getComponentName = (refString, components, componentType, node, ctx) => {
   const errors = [];
@@ -84,10 +85,52 @@ class Bundler {
     }
   }
 
+  includeImplicitDiscriminator(pointer, schemas, ctx, { traverseNode, visited }) {
+    const $ref = `#/${pointer.join('/')}`;
+    const errors = [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [name, schema] of Object.entries(schemas)) {
+      if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
+        const existingSchema = this.components.schemas && this.components.schemas[name];
+        if (existingSchema && !isEqual(existingSchema, schema)) {
+          errors.push(ctx.createError(
+            `Implicitly mapped discriminator schema "${name}" conflicts with existing schema. Skipping.`, 'key',
+          ));
+        }
+
+        this.components.schemas = this.components.schemas || {};
+        this.components.schemas[name] = schema;
+
+        ctx.pathStack.push({
+          path: ctx.path,
+          file: ctx.filePath,
+          document: ctx.document,
+          source: ctx.source,
+        });
+
+        ctx.path = ['components', 'schemas', name];
+        traverseNode(schema, OpenAPISchemaObject, ctx, visited);
+        ctx.path = ctx.pathStack.pop().path;
+      }
+    }
+
+    return errors;
+  }
+
   any() {
     return {
-      onExit: (node, definition, ctx, unresolvedNode) => {
+      onExit: (node, definition, ctx, unresolvedNode, { traverseNode, visited }) => {
         let errors = [];
+
+        if (node.discriminator && !node.oneOf && !node.anyOf) {
+          errors = this.includeImplicitDiscriminator(
+            ctx.path,
+            ctx.document.components && ctx.document.components.schemas,
+            ctx,
+            { traverseNode, visited },
+          );
+        }
 
         if (Object.keys(unresolvedNode).indexOf('$ref') !== -1) {
           const componentType = this.defNameToType(definition.name);

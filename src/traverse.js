@@ -175,7 +175,9 @@ function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, 
       ) : [];
 
     const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]
-      ? ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node) : [];
+      ? ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node, {
+        traverseNode, visited, resolveType,
+      }) : [];
 
 
     if (Array.isArray(errorsOnEnterForType)) {
