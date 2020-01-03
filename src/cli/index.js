@@ -53,8 +53,8 @@ const cli = () => {
         process.exit(1);
       }
 
-      const isOutputDir = !extname(cmdObj.output);
-      const ext = cmdObj.ext || extname(cmdObj.output) || 'yaml';
+      const isOutputDir = cmdObj.output && !extname(cmdObj.output);
+      const ext = cmdObj.ext || extname(cmdObj.output || '').substring(1) || 'yaml';
       const dir = isOutputDir ? cmdObj.output : dirname(cmdObj.output);
 
       const results = {
@@ -65,21 +65,21 @@ const cli = () => {
       entryPoints.forEach((entryPoint) => {
         const fileName = isOutputDir
           ? basename(entryPoint, extname(entryPoint))
-          : basename(cmdObj.output, ext);
+          : basename(cmdObj.output, `.${ext}`);
         const output = join(dir, `${fileName}.${ext}`);
 
-
         const bundlingStatus = bundleToFile(entryPoint, output);
-        if (bundlingStatus.length === 0) {
+        const resultStats = outputMessages(bundlingStatus, cmdObj);
+
+        if (resultStats.totalErrors === 0) {
           // we do not want to output anything to stdout if it's being piped.
           if (output) {
             process.stdout.write(`Created a bundle for ${entryPoint} at ${output}.\n`);
           }
         } else {
           process.stdout.write(`Errors encountered while bundling ${entryPoint}.\n`);
-          const resultStats = outputMessages(bundlingStatus, cmdObj);
-          results.errors += resultStats.errors;
-          results.warnings += resultStats.warnings;
+          results.errors += resultStats.totalErrors;
+          results.warnings += resultStats.totalWarnings;
         }
       });
       process.exit(results.errors > 0 ? 1 : 0);
