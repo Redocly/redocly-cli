@@ -8,9 +8,9 @@ export const messageLevels = {
   DEBUG: 1,
 };
 
-const getLocationForPath = (fName, nodePath, target, ctx) => getLocationByPath(
+const getLocationForPath = (fName, nodePath, target, { filePath, source }) => getLocationByPath(
   Array.from(nodePath),
-  ctx,
+  { filePath, source },
   target,
 ).startLine;
 
@@ -26,6 +26,20 @@ export const getMsgLevelFromString = (severityString) => {
     default:
       return 4;
   }
+};
+
+const getReferencedFrom = (ctx) => {
+  const lastRef = ctx.pathStack[ctx.pathStack.length - 1];
+  return {
+    file: path.relative(process.cwd(), lastRef.file),
+    startLine: getLocationForPath(
+      lastRef.file,
+      [...lastRef.path, '$ref'],
+      'key',
+      { source: lastRef.source, filePath: lastRef.file },
+    ),
+    path: Array.from(lastRef.path),
+  };
 };
 
 const createError = (msg, node, ctx, options) => {
@@ -45,14 +59,7 @@ const createError = (msg, node, ctx, options) => {
   return {
     message: msg,
     path: Array.from(ctx.path),
-    pathStack: ctx.pathStack.map((el) => {
-      const startLine = getLocationForPath(el.file, el.path, target, ctx);
-      return {
-        file: path.relative(process.cwd(), el.file),
-        startLine,
-        path: Array.from(el.path),
-      };
-    }),
+    referencedFrom: getReferencedFrom(ctx),
     location,
     codeFrame: ctx.enableCodeframe && location
       ? getCodeFrameForLocation(
@@ -78,25 +85,17 @@ export const createErrorFlat = (
   target, fromRule, severity, possibleAlternate,
 });
 
-export const fromError = (error, ctx) => {
-  let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);
-  if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
-  return {
+export const fromError = (error, ctx) => (
+  // let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);
+  // if (!location) location = getLocationByPath(Array.from(ctx.path), ctx);
+  {
     ...error,
     ...ctx,
-    AST: null,
     document: null,
     source: null,
     path: error.path,
-    pathStack: ctx.pathStack.map((el) => {
-      const startLine = getLocationForPath(el.file, el.path, error.target, ctx);
-      return {
-        file: path.relative(process.cwd(), el.file),
-        startLine,
-        path: Array.from(el.path),
-      };
-    }),
-  };
-};
+    referencedFrom: getReferencedFrom(ctx),
+  }
+);
 
 export default createError;
