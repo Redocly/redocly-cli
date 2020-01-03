@@ -177,7 +177,7 @@ class Bundler {
           node.components = {};
         }
 
-        if (ctx.result.length > 0) {
+        if (ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
           ctx.bundlingResult = null;
           return null;
         }
