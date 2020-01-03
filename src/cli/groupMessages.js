@@ -9,7 +9,7 @@ const errorBelongsToGroup = (error, group) => error.message === group.message
 
 const errorAlreadyInGroup = (error, group) => group.referencedFromPlaces.some(
   (place) => isEqual(place, error.referencedFrom),
-)
+);
 
 const groupFromError = (error) => ({
   message: error.message,
