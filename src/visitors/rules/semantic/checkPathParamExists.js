@@ -12,7 +12,7 @@ class CheckPathParamExists {
 
         if (isPathParameter) {
           const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...(val.path)], []);
-          const isInPath = visitedNodes.includes('paths');
+          const isInPath = visitedNodes.length > 0 && visitedNodes[0] === 'paths';
 
           if (isInPath) {
             const missingNameInPath = [...ctx.path, ...visitedNodes]
