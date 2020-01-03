@@ -30,6 +30,7 @@ export const getMsgLevelFromString = (severityString) => {
 
 const getReferencedFrom = (ctx) => {
   const lastRef = ctx.pathStack[ctx.pathStack.length - 1];
+  if (!lastRef) return null;
   return {
     file: path.relative(process.cwd(), lastRef.file),
     startLine: getLocationForPath(
