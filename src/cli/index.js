@@ -115,9 +115,9 @@ const cli = () => {
     });
 
   program.on('command:*', () => {
-  	process.stdout.write(`\nUnknown command ${program.args.join(' ')}\n\n`)
-  	program.outputHelp()
-  })  
+  	process.stdout.write(`\nUnknown command ${program.args.join(' ')}\n\n`);
+  	program.outputHelp();
+  });
 
   if (process.argv.length === 2) process.argv.push('-h');
 
