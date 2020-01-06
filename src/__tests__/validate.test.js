@@ -32,20 +32,18 @@ describe("Traverse files", () => {
             "example",
             "allOf",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": Object {
             "possibleAlternate": null,
+          },
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
           },
           "severity": 4,
           "target": "key",
@@ -92,19 +90,17 @@ describe("Traverse files", () => {
             "example",
             "name",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": undefined,
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
+          },
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -150,19 +146,17 @@ describe("Traverse files", () => {
             "example",
             "in",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": undefined,
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
+          },
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -208,10 +202,10 @@ describe("Traverse files", () => {
             "example",
             "allOf",
           ],
-          "pathStack": Array [],
           "possibleAlternate": Object {
             "possibleAlternate": null,
           },
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -257,8 +251,8 @@ describe("Traverse files", () => {
             "example",
             "name",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -304,8 +298,8 @@ describe("Traverse files", () => {
             "example",
             "in",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -349,8 +343,8 @@ describe("Traverse files", () => {
             "externalDocs",
             "url",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "value",
           "value": Object {
@@ -402,20 +396,18 @@ describe("Traverse files", () => {
             "example",
             "allOf",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": Object {
             "possibleAlternate": null,
+          },
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
           },
           "severity": 4,
           "target": "key",
@@ -462,19 +454,17 @@ describe("Traverse files", () => {
             "example",
             "name",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": undefined,
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
+          },
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -520,19 +510,17 @@ describe("Traverse files", () => {
             "example",
             "in",
           ],
-          "pathStack": Array [
-            Object {
-              "file": "definitions/syntetic/syntetic-1.yaml",
-              "path": Array [
-                "paths",
-                "user",
-                "parameters",
-                0,
-              ],
-              "startLine": 20,
-            },
-          ],
           "possibleAlternate": undefined,
+          "referencedFrom": Object {
+            "file": "definitions/syntetic/syntetic-1.yaml",
+            "path": Array [
+              "paths",
+              "user",
+              "parameters",
+              0,
+            ],
+            "startLine": 20,
+          },
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -578,10 +566,10 @@ describe("Traverse files", () => {
             "example",
             "allOf",
           ],
-          "pathStack": Array [],
           "possibleAlternate": Object {
             "possibleAlternate": null,
           },
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -627,8 +615,8 @@ describe("Traverse files", () => {
             "example",
             "name",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -674,8 +662,8 @@ describe("Traverse files", () => {
             "example",
             "in",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "key",
           "value": Object {
@@ -719,8 +707,8 @@ describe("Traverse files", () => {
             "externalDocs",
             "url",
           ],
-          "pathStack": Array [],
           "possibleAlternate": undefined,
+          "referencedFrom": null,
           "severity": 4,
           "target": "value",
           "value": Object {

@@ -4,10 +4,13 @@ import {
   outputRed, outputUnderline, getLineNumberFromId, outputGrey,
 } from '../utils';
 
-const parseAST = (ctx) => {
-  if (ctx.AST) return ctx.AST;
-  ctx.AST = safeLoad(ctx.source);
-  return ctx.AST;
+const astCache = {};
+
+const parseAST = ({ filePath, source }) => {
+  if (!astCache[filePath]) {
+    astCache[filePath] = safeLoad(source);
+  }
+  return astCache[filePath];
 };
 
 const getMappingChild = (mapping, childName) => {
@@ -42,29 +45,29 @@ const endOfFirstLine = (text) => {
   return i;
 };
 
-export const getLocationByPath = (path, ctx, target) => {
-  const AST = parseAST(ctx);
+export const getLocationByPath = (path, { filePath, source }, target) => {
+  const AST = parseAST({ filePath, source });
   const node = getNodeByPath(AST, path.reverse(), target);
   // TODO: regression test
   // if (!node) {
   //   return null;
   // }
 
-  const frame = ctx.source.substring(node.startPosition, node.endPosition + 1);
+  const frame = source.substring(node.startPosition, node.endPosition + 1);
   const offset = frame.length - frame.trimRight().length;
 
   let endIndex = node.endPosition;
-  const positionStart = getLineNumberFromId(ctx.source, node.startPosition);
-  const endPosition = getLineNumberFromId(ctx.source, node.endPosition - offset);
+  const positionStart = getLineNumberFromId(source, node.startPosition);
+  const endPosition = getLineNumberFromId(source, node.endPosition - offset);
 
   // we need this peace of code for case when the found code frame is the whole
   // document.
   // in such case, we want to output just the first line of it.
   // refactoring would be appreciated here.
-  if (node.startPosition === 0 && node.endPosition === ctx.source.length) {
+  if (node.startPosition === 0 && node.endPosition === source.length) {
     endPosition.lineNum = positionStart.lineNum;
-    endPosition.posNum = endOfFirstLine(ctx.source);
-    endIndex = endOfFirstLine(ctx.source);
+    endPosition.posNum = endOfFirstLine(source);
+    endIndex = endOfFirstLine(source);
   }
 
   return {

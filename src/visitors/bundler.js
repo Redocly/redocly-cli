@@ -4,38 +4,55 @@
 import yaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
+import isEqual from 'lodash.isequal';
 
-const getComponentName = (refString, components, componentType, node) => {
-  const pathParts = refString.split('/');
+import { getMsgLevelFromString, messageLevels } from '../error/default';
+import OpenAPISchemaObject from '../types/OpenAPISchema';
 
-  let itemNameBase = `${pathParts[pathParts.length - 1]}`;
+const getComponentName = (refString, components, componentType, node, ctx) => {
+  const errors = [];
 
-  if (itemNameBase.endsWith('.yaml')) {
-    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 5);
-  }
+  refString = refString.replace('#/', '/');
+  const itemNameBase = path.basename(refString, path.extname(refString));
+  const pathParts = path.dirname(refString).split('/');
 
-  if (itemNameBase.endsWith('.yml')) {
-    itemNameBase = itemNameBase.substring(0, itemNameBase.length - 4);
-  }
+  const componentsGroup = components[componentType];
+  if (!componentsGroup) return { name: itemNameBase, errors };
 
-  let itemName = itemNameBase;
+  let name = itemNameBase;
+  let i = pathParts.length - 1;
 
-  let i = pathParts.length - 2;
-  let namePrefix = '';
-  while (components[componentType]
-      && components[componentType][itemName]
-      && JSON.stringify(components[componentType][itemName]) !== JSON.stringify(node)) {
-    namePrefix = `${pathParts[i]}_${namePrefix}`;
-    itemName = `${namePrefix}${itemNameBase}`;
+  while (componentsGroup[name] && !isEqual(componentsGroup[name], node) && i >= 0) {
+    const prevName = name;
+    name = `${pathParts[i]}_${itemNameBase}`;
+
+    errors.push(
+      ctx.createError(
+        `Two schemas with the same name but different content are referneced. Renamed ${prevName} to ${name}`,
+        'key',
+      ),
+    );
     i--;
   }
 
-  return itemName;
+  if (i >= 0) return { name, errors };
+
+  let serialId = 0;
+  while (componentsGroup[name] && !isEqual(componentsGroup[name], node)) {
+    serialId++;
+    name = `${name}-${serialId}`;
+  }
+
+  return { name, errors };
 };
 
 class Bundler {
   constructor(config) {
     this.config = config;
+    this.nameConflictsEnabled = this.config.nameConflicts !== 'off';
+    if (this.nameConflictsEnabled) {
+      this.nameConflictsSeverity = getMsgLevelFromString(this.config.nameConflicts || '');
+    }
     this.components = {};
   }
 
@@ -68,9 +85,53 @@ class Bundler {
     }
   }
 
+  includeImplicitDiscriminator(pointer, schemas, ctx, { traverseNode, visited }) {
+    const $ref = `#/${pointer.join('/')}`;
+    const errors = [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [name, schema] of Object.entries(schemas)) {
+      if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
+        const existingSchema = this.components.schemas && this.components.schemas[name];
+        if (existingSchema && !isEqual(existingSchema, schema)) {
+          errors.push(ctx.createError(
+            `Implicitly mapped discriminator schema "${name}" conflicts with existing schema. Skipping.`, 'key',
+          ));
+        }
+
+        this.components.schemas = this.components.schemas || {};
+        this.components.schemas[name] = schema;
+
+        ctx.pathStack.push({
+          path: ctx.path,
+          file: ctx.filePath,
+          document: ctx.document,
+          source: ctx.source,
+        });
+
+        ctx.path = ['components', 'schemas', name];
+        traverseNode(schema, OpenAPISchemaObject, ctx, visited);
+        ctx.path = ctx.pathStack.pop().path;
+      }
+    }
+
+    return errors;
+  }
+
   any() {
     return {
-      onExit: (node, definition, ctx, unresolvedNode) => {
+      onExit: (node, definition, ctx, unresolvedNode, { traverseNode, visited }) => {
+        let errors = [];
+
+        if (node.discriminator && !node.oneOf && !node.anyOf) {
+          errors = this.includeImplicitDiscriminator(
+            ctx.path,
+            ctx.document.components && ctx.document.components.schemas,
+            ctx,
+            { traverseNode, visited },
+          );
+        }
+
         if (Object.keys(unresolvedNode).indexOf('$ref') !== -1) {
           const componentType = this.defNameToType(definition.name);
 
@@ -78,19 +139,33 @@ class Bundler {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else {
-            const itemName = getComponentName(
-              unresolvedNode.$ref, this.components, componentType, node,
+            // eslint-disable-next-line prefer-const
+            const { name, errors: nameErrors } = getComponentName(
+              unresolvedNode.$ref, this.components, componentType, node, ctx,
             );
-            const newRef = `#/components/${componentType}/${itemName}`;
+
+            errors.push(...nameErrors);
+
+            const newRef = `#/components/${componentType}/${name}`;
 
             if (!this.components[componentType]) {
               this.components[componentType] = {};
             }
 
-            this.components[componentType][itemName] = node;
+            this.components[componentType][name] = node;
             unresolvedNode.$ref = newRef;
           }
         }
+
+        errors.forEach((e) => {
+          e.severity = this.nameConflictsSeverity;
+        });
+
+        if (!this.nameConflictsEnabled) {
+          errors = [];
+        }
+
+        return errors;
       },
     };
   }
@@ -102,7 +177,7 @@ class Bundler {
           node.components = {};
         }
 
-        if (ctx.result.length > 0) {
+        if (ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
           ctx.bundlingResult = null;
           return null;
         }

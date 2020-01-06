@@ -12,4 +12,4 @@ export const OpenAPICallbackMap = {
   },
 };
 
-export default OpenAPICallback;
+export default OpenAPICallbackMap;

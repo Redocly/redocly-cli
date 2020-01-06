@@ -1,3 +1,5 @@
+import isEqual from 'lodash.isequal';
+
 const errorBelongsToGroup = (error, group) => error.message === group.message
     && error.path.join('/') === group.path.join('/')
     && error.severity === group.severity
@@ -5,11 +7,9 @@ const errorBelongsToGroup = (error, group) => error.message === group.message
     && error.location.endIndex === group.location.endIndex
     && error.location.possibleAlternate === group.location.possibleAlternate;
 
-const errorAlreadyInGroup = (error, group) => group
-  .pathStacks
-  .filter(
-    (stack) => JSON.stringify(stack) === JSON.stringify(error.pathStack),
-  ).length > 0;
+const errorAlreadyInGroup = (error, group) => group.referencedFromPlaces.some(
+  (place) => isEqual(place, error.referencedFrom),
+);
 
 const groupFromError = (error) => ({
   message: error.message,
@@ -23,12 +23,12 @@ const groupFromError = (error) => ({
   target: error.target,
   possibleAlternate: error.possibleAlternate,
   fromRule: error.fromRule,
-  pathStacks: error.pathStack.length !== 0 ? [error.pathStack] : [],
+  referencedFromPlaces: error.referencedFrom ? [error.referencedFrom] : [],
 });
 
 const addErrorToGroup = (error, group) => {
-  if (error.pathStack.length !== 0 && !errorAlreadyInGroup(error, group)) {
-    group.pathStacks.push(error.pathStack);
+  if (error.referencedFrom && !errorAlreadyInGroup(error, group)) {
+    group.referencedFromPlaces.push(error.referencedFrom);
   }
   return true;
 };
