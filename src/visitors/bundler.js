@@ -89,7 +89,6 @@ class Bundler {
     const $ref = `#/${pointer.join('/')}`;
     const errors = [];
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const [name, schema] of Object.entries(schemas)) {
       if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
         const existingSchema = this.components.schemas && this.components.schemas[name];

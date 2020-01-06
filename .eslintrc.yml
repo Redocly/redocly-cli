@@ -11,9 +11,10 @@ globals:
 parserOptions:
   ecmaVersion: 2018
   sourceType: module
-rules: 
+rules:
   class-methods-use-this: off
   global-require: off
   import/no-dynamic-require: off
   no-plusplus: off
+  no-restricted-syntax: off
 
