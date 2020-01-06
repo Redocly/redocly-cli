@@ -1,10 +1,11 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 import { resolve as resolveFile, dirname } from 'path';
+import { resolve as resolveUrl } from 'url';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 import createError, { getReferencedFrom } from './error';
-import { isUrl } from './utils';
+import { isGlobalUrl } from './utils';
 
 function pushPath(ctx, filePath, docPath) {
   ctx.pathStack.push({
@@ -41,11 +42,10 @@ function resolve(link, ctx, visited = []) {
   const linkSplitted = link.split('#/');
   if (linkSplitted[0] === '') linkSplitted[0] = ctx.filePath;
   const [filePath, docPath] = linkSplitted;
-  let resolvedFilePath = resolveFile(dirname(ctx.filePath), filePath);
 
-  if (isUrl(filePath) && !fs.existsSync(resolvedFilePath)) {
-    resolvedFilePath = filePath;
-  }
+  const resolvedFilePath = (isGlobalUrl(ctx.filePath) || isGlobalUrl(filePath))
+    ? resolveUrl(ctx.filePath, filePath)
+    : resolveFile(dirname(ctx.filePath), filePath);
 
   let document;
   let source;
@@ -64,7 +64,7 @@ function resolve(link, ctx, visited = []) {
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
       document = yaml.safeLoad(source);
       // FIXME: lost yaml parsing and file read errors here
-    } else if (isUrl(resolvedFilePath)) {
+    } else if (isGlobalUrl(resolvedFilePath)) {
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', filePath, false);

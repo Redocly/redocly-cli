@@ -10,14 +10,14 @@ import {
 import { validateFromFile, validateFromUrl } from '../validate';
 import { bundleToFile } from '../bundle';
 
-import { isUrl } from '../utils';
+import { isGlobalUrl } from '../utils';
 
 import { outputMessages, printValidationHeader } from './outputMessages';
 
 const validateFile = (filePath, options, cmdObj) => {
   let result;
 
-  if (!fs.existsSync(filePath) && isUrl(filePath)) {
+  if (!fs.existsSync(filePath) && isGlobalUrl(filePath)) {
     process.stdout.write('Will validate from URL\n');
     result = validateFromUrl(filePath, options);
   } else {

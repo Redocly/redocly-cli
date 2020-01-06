@@ -1,24 +1,34 @@
-import { matchesJsonSchemaType, isUrl, getClosestString } from '../index';
+import { matchesJsonSchemaType, isUrl, isGlobalUrl, getClosestString } from '../index';
 
 describe('isUrl', () => {
   test('https valid url', () => {
     expect(isUrl('https://redoc.ly')).toEqual(true);
+    expect(isGlobalUrl('https://redoc.ly')).toEqual(true);
   });
 
   test('http valid url', () => {
     expect(isUrl('http://redoc.ly')).toEqual(true);
+    expect(isGlobalUrl('http://redoc.ly')).toEqual(true);
   });
 
   test('https valid url with query params', () => {
     expect(isUrl('https://redoc.ly/index.php?some_param=21313&other=false')).toEqual(true);
+    expect(isGlobalUrl('https://redoc.ly/index.php?some_param=21313&other=false')).toEqual(true);
   });
 
   test('https valid url with custom port', () => {
     expect(isUrl('https://redoc.ly:443')).toEqual(true);
+    expect(isGlobalUrl('https://redoc.ly:443')).toEqual(true);
   });
 
   test('invalid url', () => {
     expect(isUrl('not-a-valid-site:21')).toEqual(false);
+    expect(isGlobalUrl('not-a-valid-site:21')).toEqual(false);
+  });
+
+  test('url without protocol', () => {
+    expect(isUrl('site.com')).toEqual(true);
+    expect(isGlobalUrl('site.com')).toEqual(true);
   });
 });
 
@@ -69,11 +79,7 @@ describe('matchesJsonSchemaType', () => {
 });
 
 describe('getClosestString', () => {
-  const names = [
-    'apple',
-    'banana',
-    'apple inc',
-  ];
+  const names = ['apple', 'banana', 'apple inc'];
 
   expect(getClosestString('apple nc', names)).toEqual('apple inc');
   expect(getClosestString('apple', names)).toEqual('apple');
