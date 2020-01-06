@@ -10,7 +10,6 @@ function getObjByPathOrParent(json, JSONPath) {
     case 'string':
       return {
         level: value,
-        executionOrder: 'default',
       };
     case 'object':
     default:
@@ -42,7 +41,7 @@ function loadRuleset(config) {
 
   files.forEach((file) => {
     const Rule = require(file);
-    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4, executionOrder: 'default' };
+    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4 };
 
     const ruleInstance = new Rule(ruleConfig);
     if (ruleConfig.level !== 'off') {
@@ -76,7 +75,7 @@ export function loadRulesetExtension(config, rulesetName) {
   };
 
   config[rulesetName].forEach((Rule) => {
-    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4, executionOrder: 'default' };
+    const ruleConfig = getObjByPathOrParent(configCopy.rules, Rule.rule) || { level: 4 };
 
     if (ruleConfig.level !== 'off') {
       const ruleInstance = new Rule(ruleConfig);

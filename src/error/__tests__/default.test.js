@@ -18,7 +18,7 @@ const createCtx = () => ({
 });
 
 describe("createError", () => {
-  test("", () => {
+  test("should create valid error", () => {
     const ctx = {
       ...createCtx(),
       path: ["paths", "user", "get", "responses"]
@@ -58,8 +58,8 @@ describe("createError", () => {
           "get",
           "responses",
         ],
-        "pathStack": Array [],
         "possibleAlternate": undefined,
+        "referencedFrom": null,
         "severity": 4,
         "target": undefined,
         "value": Object {},
@@ -67,7 +67,7 @@ describe("createError", () => {
     `);
   });
 
-  test("", () => {
+  test("should create error with alternative and from rule", () => {
     const ctx = {
       ...createCtx(),
       path: [],
@@ -96,8 +96,8 @@ describe("createError", () => {
         },
         "message": "This is a test error",
         "path": Array [],
-        "pathStack": Array [],
         "possibleAlternate": "example",
+        "referencedFrom": null,
         "severity": 4,
         "target": "key",
         "value": Object {},
@@ -107,7 +107,7 @@ describe("createError", () => {
 });
 
 describe("fromError", () => {
-  test("", () => {
+  test("basic test", () => {
     const ctx = {
       ...createCtx(),
       path: ["paths", "user", "get", "responses"],
@@ -118,13 +118,16 @@ describe("fromError", () => {
         }
       ]
     };
+
+    ctx.pathStack[0].source = ctx.source;
+    ctx.pathStack[0].document = ctx.document;
+
     const baseError = createError("This is a test error", {}, ctx, {
       severity: messageLevels.ERROR
     });
     ctx.path = ["paths", "project", "get", "responses"];
     expect(fromError(baseError, ctx)).toMatchInlineSnapshot(`
       Object {
-        "AST": null,
         "cache": Object {},
         "codeFrame": "[90m22|       operationId: userGet[39m
       [90m23|       description: Get user[39m
@@ -160,17 +163,207 @@ describe("fromError", () => {
         ],
         "pathStack": Array [
           Object {
-            "file": "definitions/syntetic/syntetic-1.yaml",
+            "document": Object {
+              "components": Object {
+                "parameters": Object {
+                  "example": Object {
+                    "allOf": Array [
+                      Object {
+                        "in": "query",
+                        "name": "bla",
+                        "required": false,
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                      Object {
+                        "description": "blo",
+                      },
+                      Object {
+                        "description": "bla",
+                      },
+                    ],
+                  },
+                  "genericExample": Object {
+                    "in": "query",
+                    "name": "example",
+                    "required": true,
+                    "schema": Object {
+                      "type": "string",
+                    },
+                  },
+                },
+                "securitySchemes": Object {
+                  "JWT": Object {
+                    "bearerFormat": "JWT",
+                    "description": "You can create a JSON Web Token (JWT) via our [JWT Session resource](https://rebilly.github.io/RebillyUserAPI/#tag/JWT-Session/paths/~1signin/post).
+      Usage format: \`Bearer <JWT>\`
+      ",
+                    "scheme": "bearer",
+                    "type": "http",
+                  },
+                },
+              },
+              "externalDocs": Object {
+                "description": "asdasd",
+                "url": "googlecom",
+              },
+              "info": Object {
+                "contact": Object {
+                  "email": "ivan@redoc.ly",
+                  "name": "Ivan Goncharov",
+                },
+                "license": Object {
+                  "name": "example",
+                  "url": "example.org",
+                },
+                "title": "Example OpenAPI 3 definition. Valid.",
+                "version": 1,
+                "x-redocly-overlay": Object {
+                  "path": "overlay-info.yaml",
+                },
+              },
+              "openapi": "3.0.2",
+              "paths": Object {
+                "project": Object {
+                  "get": Object {
+                    "description": "Get project",
+                    "operationId": "projectGet",
+                    "responses": Object {
+                      "200": Object {
+                        "content": Object {
+                          "application/json": Object {
+                            "schema": Object {
+                              "type": "object",
+                            },
+                          },
+                        },
+                        "description": "example description",
+                      },
+                    },
+                  },
+                },
+                "user": Object {
+                  "get": Object {
+                    "description": "Get user",
+                    "operationId": "userGet",
+                    "responses": Object {
+                      "200": Object {
+                        "content": Object {
+                          "application/json": Object {
+                            "schema": Object {
+                              "type": "object",
+                            },
+                          },
+                        },
+                        "description": "example description",
+                      },
+                    },
+                  },
+                  "parameters": Array [
+                    Object {
+                      "$ref": "#/components/parameters/example",
+                    },
+                  ],
+                },
+              },
+              "servers": Array [
+                Object {
+                  "url": "http://example.org",
+                },
+              ],
+            },
+            "file": "./definitions/syntetic/syntetic-1.yaml",
             "path": Array [
               "paths",
               "user",
               "get",
               "responses",
             ],
-            "startLine": 24,
+            "source": "openapi: 3.0.2
+      info:
+        x-redocly-overlay:
+          path: overlay-info.yaml
+        title: Example OpenAPI 3 definition. Valid.
+        version: 1.0
+        contact:
+          name: Ivan Goncharov
+          email: ivan@redoc.ly
+        license:
+          name: example
+          url: example.org
+
+      servers:
+        - url: 'http://example.org'
+
+      paths:
+        user:
+          parameters:
+            - $ref: '#/components/parameters/example'
+          get:
+            operationId: userGet
+            description: Get user
+            responses:
+              '200':
+                description: example description
+                content:
+                  application/json:
+                    schema:
+                      type: object
+        project:
+          get:
+            operationId: projectGet
+            description: Get project
+            responses:
+              '200':
+                description: example description
+                content:
+                  application/json:
+                    schema:
+                      type: object
+      externalDocs:
+        description: asdasd
+        url: googlecom
+      components:
+        securitySchemes:
+          JWT:
+            description: >
+              You can create a JSON Web Token (JWT) via our [JWT Session
+              resource](https://rebilly.github.io/RebillyUserAPI/#tag/JWT-Session/paths/~1signin/post).
+
+              Usage format: \`Bearer <JWT>\`
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+        parameters:
+          example:
+            allOf:
+              - name: bla
+                in: query
+                required: false
+                schema:
+                  type: string
+              - description: blo
+              - description: bla
+          genericExample:
+            name: example
+            in: query
+            required: true
+            schema:
+              type: string",
           },
         ],
         "possibleAlternate": undefined,
+        "referencedFrom": Object {
+          "file": "definitions/syntetic/syntetic-1.yaml",
+          "path": Array [
+            "paths",
+            "user",
+            "get",
+            "responses",
+          ],
+          "startLine": 24,
+        },
         "severity": 4,
         "source": null,
         "target": undefined,
