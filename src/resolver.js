@@ -111,7 +111,6 @@ function resolve(link, ctx, visited = []) {
     if (target && target.$ref) {
       // handle transitive $ref's
       const resolved = resolve(target.$ref, ctx, visited);
-      target = resolved.node;
       transitiveError = resolved.transitiveError;
       if (resolved.node === undefined && !transitiveError) {
         // We want to show only the error for the first $ref that can't be resolved.
@@ -121,8 +120,10 @@ function resolve(link, ctx, visited = []) {
         const message = resolved.circular ? 'Circular reference.' : 'Reference does not exist.';
         transitiveError = createError(message, target, ctx, { fromRule: 'resolve-ref' });
         ctx.path.pop();
+        target = undefined;
         break;
       }
+      target = resolved.node;
       transitiveResolvesOnStack++;
     }
 
