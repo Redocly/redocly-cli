@@ -8,6 +8,7 @@ import isEqual from 'lodash.isequal';
 
 import { getMsgLevelFromString, messageLevels } from '../error/default';
 import OpenAPISchemaObject from '../types/OpenAPISchema';
+import { isRef } from '../utils';
 
 const getComponentName = (refString, components, componentType, node, ctx) => {
   const errors = [];
@@ -131,7 +132,7 @@ class Bundler {
           );
         }
 
-        if (Object.keys(unresolvedNode).indexOf('$ref') !== -1) {
+        if (unresolvedNode && node !== unresolvedNode && isRef(unresolvedNode)) {
           const componentType = this.defNameToType(definition.name);
 
           if (!componentType) {

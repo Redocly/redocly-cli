@@ -167,9 +167,13 @@ export const getFileSync = (link) => {
   const xhr = new XMLHttpRequest();
   xhr.open('GET', link, false);
   xhr.send();
-  
+
   if (xhr.status !== 200) {
     return null;
   }
-  return xhr.responseText; 
+  return xhr.responseText;
 };
+
+export function isRef(node) {
+  return node && Object.prototype.hasOwnProperty.call(node, '$ref');
+}
