@@ -3,8 +3,25 @@ import yaml from 'js-yaml';
 import { resolve as resolveFile, dirname } from 'path';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
-import createError from './error';
+import createError, { getReferencedFrom } from './error';
 import { isUrl } from './utils';
+
+function pushPath(ctx, filePath, docPath) {
+  ctx.pathStack.push({
+    path: ctx.path, file: ctx.filePath, document: ctx.document, source: ctx.source,
+  });
+
+  ctx.path = docPath;
+  ctx.filePath = filePath;
+}
+
+export function popPath(ctx) {
+  const topPath = ctx.pathStack.pop();
+  ctx.path = topPath.path;
+  ctx.filePath = topPath.file;
+  ctx.source = topPath.source;
+  ctx.document = topPath.document;
+}
 
 /**
  *
@@ -20,7 +37,7 @@ import { isUrl } from './utils';
  * @param {string} link A path in the yaml document which is to be resolved
  * @param {*} ctx JSON Object with the document field which represents the YAML structure
  */
-const resolve = (link, ctx) => {
+function resolve(link, ctx, visited = []) {
   const linkSplitted = link.split('#/');
   if (linkSplitted[0] === '') linkSplitted[0] = ctx.filePath;
   const [filePath, docPath] = linkSplitted;
@@ -34,10 +51,16 @@ const resolve = (link, ctx) => {
   let source;
 
   const isCurrentDocument = resolvedFilePath === ctx.filePath;
+
+  pushPath(ctx, resolvedFilePath, []);
+
+  const resolvedLink = `${resolvedFilePath}#/${docPath}`;
+
   if (!isCurrentDocument) {
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
     } else if (fs.existsSync(resolvedFilePath)) {
+      // FIXME: if refernced e.g. md file, no need to parse
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
       document = yaml.safeLoad(source);
       // FIXME: lost yaml parsing and file read errors here
@@ -48,41 +71,84 @@ const resolve = (link, ctx) => {
         xhr.send();
 
         if (xhr.status !== 200) {
-          return null;
+          return { node: undefined };
         }
 
         source = xhr.responseText;
         document = yaml.safeLoad(source);
-        resolvedFilePath = filePath;
       } catch (e) {
         // FIXME: lost yaml parsing errors and network errors here
-        return null;
+        return { node: undefined };
       }
     } else {
-      return null;
+      return { node: undefined };
     }
   } else {
     document = ctx.document;
+    source = ctx.source;
   }
 
   if (source) ctx.resolveCache[resolvedFilePath] = { source, document };
 
+  ctx.source = source;
+  ctx.document = document;
+
+  const docPathSteps = docPath ? docPath.split('/').filter((el) => el !== '').reverse() : [];
+
   let target = document;
-  if (docPath) {
-    const steps = docPath.split('/').filter((el) => el !== '');
-    Object.keys(steps).forEach((step) => {
-      target = target && steps[step] && target[steps[step]] ? target[steps[step]] : null;
-    });
+  let circular;
+  let transitiveResolvesOnStack = 0;
+  let transitiveError;
+
+  if (visited.indexOf(resolvedLink) > -1) {
+    target = undefined;
+    circular = true;
+  }
+
+  visited.push(resolvedLink);
+
+  while (target !== undefined) {
+    if (target && target.$ref) {
+      // handle transitive $ref's
+      const resolved = resolve(target.$ref, ctx, visited);
+      target = resolved.node;
+      transitiveError = resolved.transitiveError;
+      if (resolved.node === undefined && !transitiveError) {
+        // We want to show only the error for the first $ref that can't be resolved.
+        // So we create it on the current stack and propagate it out as a transitiveError
+        popPath(ctx);
+        ctx.path.push('$ref');
+        const message = resolved.circular ? 'Circular reference.' : 'Reference does not exist.';
+        transitiveError = createError(message, target, ctx, { fromRule: 'resolve-ref' });
+        ctx.path.pop();
+        break;
+      }
+      transitiveResolvesOnStack++;
+    }
+
+    const step = docPathSteps.pop();
+    if (!step) break;
+
+    target = target && target[step] !== undefined ? target[step] : undefined;
+    ctx.path.push(step);
+  }
+
+  for (let i = 0; i < transitiveResolvesOnStack; ++i) {
+    // keep current file context and remove indirection records
+    ctx.pathStack.pop();
+  }
+
+  if (transitiveError) {
+    // recalc referencedFrom after exiting transitive ref stack to show original $ref in the error
+    transitiveError.referencedFrom = getReferencedFrom(ctx);
   }
 
   return {
     node: target,
-    updatedSource: !isCurrentDocument ? source : null,
-    updatedDocument: !isCurrentDocument ? document : null,
-    docPath: docPath ? docPath.split('/') : [],
-    filePath: resolvedFilePath || null,
+    transitiveError,
+    circular,
   };
-};
+}
 
 
 /*
@@ -91,41 +157,41 @@ const resolve = (link, ctx) => {
  * - to the another file in local file system
  * - http(s) links to other files
  *
- * $ref field value must be a valid OpenAPI link (e.g. another/dir/file.yaml#/components/schemas/Example)
+ * $ref field value must be a valid OpenAPI link
+ * (e.g. another/dir/file.yaml#/components/schemas/Example)
  *
  * @param {*} node
  * @param {*} ctx
  */
-const resolveNode = (node, ctx) => {
-  if (!node || typeof node !== 'object') return { node, nextPath: null };
-  let nextPath;
-  let resolved = {
-    node,
-  };
-  Object.keys(node).forEach((p) => {
-    if (p === '$ref') {
-      resolved = resolve(node[p], ctx);
-      if (resolved && resolved.node) {
-        nextPath = resolved.docPath;
-      } else {
-        ctx.path.push('$ref');
-        ctx.result.push(createError('Reference does not exist.', node, ctx, { fromRule: 'resolve-ref' }));
-        ctx.path.pop();
-        resolved = {};
-        resolved.node = node;
-        nextPath = null;
-        resolved.updatedSource = null;
-        resolved.filePath = null;
-      }
+function resolveNode(node, ctx) {
+  if (!node || typeof node !== 'object') return { node };
+
+  if (node.$ref) {
+    const resolved = resolve(node.$ref, ctx);
+    if (resolved.node === undefined) { // can't resolve
+      popPath(ctx);
+
+      ctx.path.push('$ref');
+      const error = resolved.transitiveError
+        ? resolved.transitiveError
+        : createError('Reference does not exist.', node, ctx, { fromRule: 'resolve-ref' });
+      ctx.path.pop();
+
+      ctx.result.push(error);
+
+      return { node };
     }
-  });
-  return {
-    node: resolved.node,
-    nextPath,
-    updatedSource: resolved.updatedSource,
-    updatedDocument: resolved.updatedDocument,
-    filePath: resolved.filePath,
-  };
-};
+
+    return { node: resolved.node, onStack: true };
+  }
+
+  return { node };
+}
+
+// to be used in mutators
+export function resolveNodeNoSideEffects(node, ctx) {
+  const ctxCopy = { ...ctx, pathStack: ctx.pathStack.slice() };
+  return resolveNode(node, ctxCopy);
+}
 
 export default resolveNode;

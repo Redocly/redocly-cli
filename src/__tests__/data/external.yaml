@@ -1,0 +1,13 @@
+transitiveLocal:
+  $ref: '#/components'
+
+transitiveLocalBad:
+  $ref: '#/oops'
+
+recursive:
+  b:
+    $ref: '#/recursive/b'
+
+components:
+  a:
+    type: string

@@ -1,0 +1,34 @@
+local:
+  test1:
+    $ref: '#/transitiveLocal/a'
+  test2:
+    $ref: '#/transitiveLocal/b'
+  test3:
+    $ref: '#/transitiveLocalBad/b'
+  test4:
+    $ref: '#/recursive/b'
+external:
+  test1:
+    $ref: 'external.yaml#/transitiveLocal/a'
+  test2:
+    $ref: 'external.yaml#/transitiveLocal/b'
+  test3:
+    $ref: 'external.yaml#/transitiveLocalBad/b'
+  test4:
+    $ref: 'external.yaml#/recursive/b'
+
+
+
+transitiveLocal:
+  $ref: '#/components'
+
+transitiveLocalBad:
+  $ref: '#/oops'
+
+recursive:
+  b:
+    $ref: '#/recursive/b'
+
+components:
+  a:
+    type: string

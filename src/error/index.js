@@ -13,3 +13,4 @@ export const messageHelpers = {
 };
 
 export default createError;
+export { getReferencedFrom } from './default';

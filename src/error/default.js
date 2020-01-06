@@ -28,7 +28,7 @@ export const getMsgLevelFromString = (severityString) => {
   }
 };
 
-const getReferencedFrom = (ctx) => {
+export const getReferencedFrom = (ctx) => {
   const lastRef = ctx.pathStack[ctx.pathStack.length - 1];
   if (!lastRef) return null;
   return {
