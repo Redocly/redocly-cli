@@ -109,21 +109,21 @@ export const outputMessages = (result, cmdObj) => {
       .length;
 
     Object.keys(groupedByFile).forEach((fileName) => {
-      process.stdout.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
+      process.stderr.write(`${outputUnderline(`${path.relative(process.cwd(), fileName)}:\n`)}`);
       groupedByFile[fileName]
         .sort((a, b) => a.severity < b.severity)
         .forEach(
-          (entry, id) => process.stdout.write(
+          (entry, id) => process.stderr.write(
             prettyPrintShort(id + 1, entry, posLength, longestRuleName),
           ),
         );
-      process.stdout.write('\n');
+      process.stderr.write('\n');
     });
   } else {
-    if (errorsGrouped.length > 0) process.stdout.write('\n\n');
+    if (errorsGrouped.length > 0) process.stderr.write('\n\n');
     errorsGrouped
       .sort((a, b) => a.severity < b.severity)
-      .forEach((entry, id) => process.stdout.write(prettyPrint(id + 1, entry)));
+      .forEach((entry, id) => process.stderr.write(prettyPrint(id + 1, entry)));
   }
 
   return {

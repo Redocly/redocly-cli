@@ -55,7 +55,7 @@ const cli = () => {
 
       const isOutputDir = cmdObj.output && !extname(cmdObj.output);
       const ext = cmdObj.ext || extname(cmdObj.output || '').substring(1) || 'yaml';
-      const dir = isOutputDir ? cmdObj.output : dirname(cmdObj.output);
+      const dir = isOutputDir ? cmdObj.output : dirname(cmdObj.output || '');
 
       const results = {
         errors: 0,
@@ -63,10 +63,13 @@ const cli = () => {
       };
 
       entryPoints.forEach((entryPoint) => {
-        const fileName = isOutputDir
-          ? basename(entryPoint, extname(entryPoint))
-          : basename(cmdObj.output, `.${ext}`);
-        const output = join(dir, `${fileName}.${ext}`);
+        let output;
+        if (cmdObj.output) {
+          const fileName = isOutputDir
+            ? basename(entryPoint, extname(entryPoint))
+            : basename(cmdObj.output, `.${ext}`);
+          output = join(dir, `${fileName}.${ext}`);
+        }
 
         const bundlingStatus = bundleToFile(entryPoint, output);
         const resultStats = outputMessages(bundlingStatus, cmdObj);
@@ -77,7 +80,7 @@ const cli = () => {
             process.stdout.write(`Created a bundle for ${entryPoint} at ${output}.\n`);
           }
         } else {
-          process.stdout.write(`Errors encountered while bundling ${entryPoint}.\n`);
+          process.stderr.write(`Errors encountered while bundling ${entryPoint}.\n`);
           results.errors += resultStats.totalErrors;
           results.warnings += resultStats.totalWarnings;
         }
