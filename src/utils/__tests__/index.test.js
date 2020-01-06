@@ -28,7 +28,7 @@ describe('isUrl', () => {
 
   test('url without protocol', () => {
     expect(isUrl('site.com')).toEqual(true);
-    expect(isGlobalUrl('site.com')).toEqual(true);
+    expect(isGlobalUrl('site.com')).toEqual(false);
   });
 });
 
