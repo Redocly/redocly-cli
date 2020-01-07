@@ -20,6 +20,9 @@ export const OpenAPIPathItem = {
     trace: OpenAPIOperation,
     servers: OpenAPIServer,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 

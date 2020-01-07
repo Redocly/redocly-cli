@@ -13,6 +13,9 @@ export const OpenAPIInfo = {
     license: OpenAPILicense,
     contact: OpenAPIContact,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIInfo;

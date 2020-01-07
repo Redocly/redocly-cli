@@ -11,6 +11,9 @@ export const OpenAPILink = {
     requestBody: null,
     server: OpenAPIServer,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPILink;

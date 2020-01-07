@@ -12,4 +12,7 @@ export default {
     openIdConnectUrl: null,
     flows: OpenAPIFlows,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };

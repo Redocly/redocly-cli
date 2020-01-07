@@ -18,6 +18,9 @@ export const OpenAPIHeader = {
     content: OpenAPIMediaTypeObject,
     examples: OpenAPIExampleMap,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIHeader;

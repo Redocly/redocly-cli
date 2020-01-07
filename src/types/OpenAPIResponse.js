@@ -12,6 +12,9 @@ export const OpenAPIResponse = {
     headers: OpenAPIHeaderMap,
     links: OpenAPILinkMap,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIResponse;

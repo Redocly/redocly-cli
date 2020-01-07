@@ -5,6 +5,9 @@ const OpenAPIExternalDocumentation = {
     description: null,
     url: null,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIExternalDocumentation;

@@ -8,4 +8,7 @@ export default {
     description: null,
     externalDocs: OpenAPIExternalDocumentation,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };

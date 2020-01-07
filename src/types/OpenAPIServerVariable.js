@@ -6,4 +6,7 @@ export default {
     description: null,
     enum: null,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };

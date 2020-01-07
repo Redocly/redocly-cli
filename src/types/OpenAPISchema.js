@@ -57,6 +57,9 @@ const OpenAPISchemaObject = {
     example: null,
     default: null,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPISchemaObject;

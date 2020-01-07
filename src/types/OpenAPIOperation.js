@@ -26,4 +26,7 @@ export default {
     // security() {},
     servers: OpenAPIServer,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };

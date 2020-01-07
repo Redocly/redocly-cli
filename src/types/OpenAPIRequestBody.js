@@ -8,6 +8,9 @@ export const OpenAPIRequestBody = {
     required: null,
     content: OpenAPIMediaTypeObject,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIRequestBody;
