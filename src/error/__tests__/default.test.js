@@ -206,7 +206,7 @@ describe("fromError", () => {
               },
               "externalDocs": Object {
                 "description": Object {
-                  "$ref": "README.md",
+                  "$ref": "inc/docs-description.md",
                 },
                 "url": "googlecom",
               },
@@ -325,7 +325,7 @@ describe("fromError", () => {
                       type: object
       externalDocs:
         description:
-          $ref: README.md
+          $ref: inc/docs-description.md
         url: googlecom
       components:
         securitySchemes:

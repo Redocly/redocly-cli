@@ -19,10 +19,10 @@ describe("Traverse files", () => {
           "fromRule": "no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1287,
+            "endIndex": 1301,
             "endLine": 59,
             "startCol": 7,
-            "startIndex": 1282,
+            "startIndex": 1296,
             "startLine": 59,
           },
           "message": "The field 'allOf' is not allowed in OpenAPIParameter. Use \\"x-\\" prefix or custom types to override this behavior.",
@@ -77,10 +77,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'name' must be present on this level.",
@@ -133,10 +133,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'in' must be present on this level.",
@@ -189,10 +189,10 @@ describe("Traverse files", () => {
           "fromRule": "no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1287,
+            "endIndex": 1301,
             "endLine": 59,
             "startCol": 7,
-            "startIndex": 1282,
+            "startIndex": 1296,
             "startLine": 59,
           },
           "message": "The field 'allOf' is not allowed in OpenAPIParameter. Use \\"x-\\" prefix or custom types to override this behavior.",
@@ -238,10 +238,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'name' must be present on this level.",
@@ -285,10 +285,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'in' must be present on this level.",
@@ -323,7 +323,7 @@ describe("Traverse files", () => {
         },
         Object {
           "codeFrame": "[90m43|   description:[39m
-      [90m44|     $ref: README.md[39m
+      [90m44|     $ref: inc/docs-description.md[39m
       [90m45|   [4m[31murl: googlecom[90m[24m[39m
       [90m46| components:[39m
       [90m47|   securitySchemes:[39m",
@@ -332,10 +332,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/external-docs",
           "location": Object {
             "endCol": 16,
-            "endIndex": 922,
+            "endIndex": 936,
             "endLine": 45,
             "startCol": 3,
-            "startIndex": 908,
+            "startIndex": 922,
             "startLine": 45,
           },
           "message": "url must be a valid URL",
@@ -383,10 +383,10 @@ describe("Traverse files", () => {
           "fromRule": "no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1287,
+            "endIndex": 1301,
             "endLine": 59,
             "startCol": 7,
-            "startIndex": 1282,
+            "startIndex": 1296,
             "startLine": 59,
           },
           "message": "The field 'allOf' is not allowed in OpenAPIParameter. Use \\"x-\\" prefix or custom types to override this behavior.",
@@ -441,10 +441,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'name' must be present on this level.",
@@ -497,10 +497,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'in' must be present on this level.",
@@ -553,10 +553,10 @@ describe("Traverse files", () => {
           "fromRule": "no-extra-fields",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1287,
+            "endIndex": 1301,
             "endLine": 59,
             "startCol": 7,
-            "startIndex": 1282,
+            "startIndex": 1296,
             "startLine": 59,
           },
           "message": "The field 'allOf' is not allowed in OpenAPIParameter. Use \\"x-\\" prefix or custom types to override this behavior.",
@@ -602,10 +602,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'name' must be present on this level.",
@@ -649,10 +649,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/parameter",
           "location": Object {
             "endCol": 12,
-            "endIndex": 1274,
+            "endIndex": 1288,
             "endLine": 58,
             "startCol": 5,
-            "startIndex": 1267,
+            "startIndex": 1281,
             "startLine": 58,
           },
           "message": "The field 'in' must be present on this level.",
@@ -687,7 +687,7 @@ describe("Traverse files", () => {
         },
         Object {
           "codeFrame": "[90m43|   description:[39m
-      [90m44|     $ref: README.md[39m
+      [90m44|     $ref: inc/docs-description.md[39m
       [90m45|   [4m[31murl: googlecom[90m[24m[39m
       [90m46| components:[39m
       [90m47|   securitySchemes:[39m",
@@ -696,10 +696,10 @@ describe("Traverse files", () => {
           "fromRule": "oas3-schema/external-docs",
           "location": Object {
             "endCol": 16,
-            "endIndex": 922,
+            "endIndex": 936,
             "endLine": 45,
             "startCol": 3,
-            "startIndex": 908,
+            "startIndex": 922,
             "startLine": 45,
           },
           "message": "url must be a valid URL",
