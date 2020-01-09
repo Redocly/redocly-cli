@@ -88,20 +88,23 @@ export const getCodeFrameForLocation = (
   let actualLinesBefore = 0;
   let actualLinesAfter = 0;
 
-  for (; actualLinesBefore !== linesBefore && frameStart >= 0; frameStart -= 1) {
+  while (actualLinesBefore !== linesBefore && frameStart >= 0) {
     if (source[frameStart - 1] === '\n') actualLinesBefore += 1;
+    frameStart -= 1;
   }
 
+  // fixme: fix this hardcode +1/+2, also what about windows-style endings
   const codeFrameEndsLine = source[end] === '\n' || source[end + 1] === '\n' || source[end + 2] === '\n';
 
   // we need this complex condition, so that if the end of codeframe
   // doesn't belong to the end of line
   // we considered it and added additional line to the codeframe
-  for (; (
+  while ((
     (codeFrameEndsLine && actualLinesAfter !== linesAfter)
     || (!codeFrameEndsLine && actualLinesAfter - 1 !== linesAfter)
-  ) && frameEnd !== source.length; frameEnd += 1) {
+  ) && frameEnd < source.length) {
     if (source[frameEnd + 2] === '\n') actualLinesAfter += 1;
+    frameEnd += 1;
   }
 
   const codeFrame = source.substring(frameStart, frameEnd + 1);

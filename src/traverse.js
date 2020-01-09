@@ -3,7 +3,7 @@
 /* eslint-disable no-use-before-define */
 import path from 'path';
 
-import resolveNode from './resolver';
+import resolveNode, { popPath } from './resolver';
 import resolveDefinition from './resolveDefinition';
 import resolveType from './resolveType';
 
@@ -57,37 +57,18 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
 
 function onNodeEnter(node, ctx) {
   const {
-    node: resolvedNode, nextPath, updatedSource, updatedDocument, filePath,
+    node: resolvedNode, onStack,
   } = resolveNode(node, ctx);
-
-  if (nextPath) {
-    ctx.pathStack.push({
-      path: ctx.path, file: ctx.filePath, document: ctx.document, source: ctx.source,
-    });
-
-    ctx.path = nextPath;
-    ctx.filePath = filePath;
-    if (updatedSource) {
-      ctx.source = updatedSource;
-      ctx.document = updatedDocument;
-    }
-  }
 
   return {
     resolvedNode,
-    nextPath,
+    onStack,
   };
 }
 
 function onNodeExit(nodeContext, ctx) {
-  if (nodeContext.nextPath) {
-    const fromStack = ctx.pathStack.pop();
-    ctx.path = fromStack.path;
-    if (fromStack.document) {
-      ctx.document = fromStack.document;
-      ctx.source = fromStack.source;
-      ctx.filePath = fromStack.file;
-    }
+  if (nodeContext.onStack) {
+    popPath(ctx);
   }
 }
 
@@ -117,7 +98,6 @@ function traverseNode(node, definition, ctx, visited = []) {
       if (arrayResult) errors.push(...arrayResult);
       ctx.path.pop();
     });
-    if (nodeContext.nextPath) ctx.path = nodeContext.prevPath;
   } else {
     ctx.validateFields = ctx.validateFieldsRaw.bind(
       null, nodeContext.resolvedNode, ctx,

@@ -8,6 +8,7 @@ import isEqual from 'lodash.isequal';
 
 import { getMsgLevelFromString, messageLevels } from '../error/default';
 import OpenAPISchemaObject from '../types/OpenAPISchema';
+import { isRef } from '../utils';
 
 const getComponentName = (refString, components, componentType, node, ctx) => {
   const errors = [];
@@ -89,7 +90,6 @@ class Bundler {
     const $ref = `#/${pointer.join('/')}`;
     const errors = [];
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const [name, schema] of Object.entries(schemas)) {
       if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
         const existingSchema = this.components.schemas && this.components.schemas[name];
@@ -132,7 +132,7 @@ class Bundler {
           );
         }
 
-        if (Object.keys(unresolvedNode).indexOf('$ref') !== -1) {
+        if (unresolvedNode && node !== unresolvedNode && isRef(unresolvedNode)) {
           const componentType = this.defNameToType(definition.name);
 
           if (!componentType) {
