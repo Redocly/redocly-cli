@@ -10,6 +10,9 @@ const OpenAPIServer = {
       return OpenAPIServerVariableMap;
     },
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIServer;

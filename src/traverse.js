@@ -6,6 +6,7 @@ import path from 'path';
 import resolveNode, { popPath } from './resolver';
 import resolveDefinition from './resolveDefinition';
 import resolveType from './resolveType';
+import resolveScalars from './scalarsResolver';
 
 import { fromError, createErrorFlat } from './error/default';
 
@@ -77,12 +78,12 @@ const nestedIncludes = (c, s) => {
   return res;
 };
 
+
 function traverseNode(node, definition, ctx, visited = []) {
   if (!node || !definition) return [];
 
   const nodeContext = onNodeEnter(node, ctx);
   const isRecursive = nestedIncludes(ctx.path, visited);
-
   const errors = [];
   const currentPath = `${path.relative(process.cwd(), ctx.filePath)}::${ctx.path.join('/')}`;
 
@@ -90,7 +91,7 @@ function traverseNode(node, definition, ctx, visited = []) {
   localVisited.push(currentPath);
 
   const resolvedDefinition = resolveDefinition(definition, ctx, nodeContext.resolvedNode);
-
+  resolveScalars(nodeContext.resolvedNode, definition, ctx);
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
       ctx.path.push(i);

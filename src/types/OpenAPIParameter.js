@@ -20,6 +20,9 @@ export const OpenAPIParameter = {
     content: OpenAPIMediaTypeObject,
     examples: OpenAPIExampleMap,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIParameter;

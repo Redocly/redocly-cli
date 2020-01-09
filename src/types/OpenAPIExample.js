@@ -7,6 +7,9 @@ export const OpenAPIExample = {
     description: null,
     summary: null,
   },
+  resolvableScalars: [
+    'description',
+  ],
 };
 
 export default OpenAPIExample;
