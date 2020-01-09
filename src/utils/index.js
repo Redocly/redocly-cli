@@ -12,7 +12,7 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
 + '(\\?[;&a-z\\d%_.~+=-]*)?' // query string
 + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 /* eslint-disable import/prefer-default-export */
-const globalUrlPattern = new RegExp('^(https?:\\/\\/)' // protocol
+const fullyQualifiedUrlPattern = new RegExp('^(https?:\\/\\/)' // protocol
 + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name
 + '((\\d{1,3}\\.){3}\\d{1,3}))' // OR ip (v4) address
 + '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' // port and path
@@ -20,7 +20,7 @@ const globalUrlPattern = new RegExp('^(https?:\\/\\/)' // protocol
 + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
 
 export const isUrl = (string) => urlPattern.test(string);
-export const isGlobalUrl = (string) => globalUrlPattern.test(string);
+export const isFullyQualifiedUrl = (string) => fullyQualifiedUrlPattern.test(string);
 
 export const outputRed = (str) => chalk.red(str);
 export const outputUnderline = (str) => chalk.underline(str);

@@ -5,7 +5,7 @@ import { resolve as resolveUrl } from 'url';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 import createError, { getReferencedFrom } from './error';
-import { isGlobalUrl } from './utils';
+import { isFullyQualifiedUrl } from './utils';
 
 function pushPath(ctx, filePath, docPath) {
   ctx.pathStack.push({
@@ -43,7 +43,7 @@ function resolve(link, ctx, visited = []) {
   if (linkSplitted[0] === '') linkSplitted[0] = ctx.filePath;
   const [filePath, docPath] = linkSplitted;
 
-  const resolvedFilePath = (isGlobalUrl(ctx.filePath) || isGlobalUrl(filePath))
+  const resolvedFilePath = (isFullyQualifiedUrl(ctx.filePath) || isFullyQualifiedUrl(filePath))
     ? resolveUrl(ctx.filePath, filePath)
     : resolveFile(dirname(ctx.filePath), filePath);
 
@@ -64,7 +64,7 @@ function resolve(link, ctx, visited = []) {
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
       document = yaml.safeLoad(source);
       // FIXME: lost yaml parsing and file read errors here
-    } else if (isGlobalUrl(resolvedFilePath)) {
+    } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', filePath, false);
