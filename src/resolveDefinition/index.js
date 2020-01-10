@@ -1,20 +1,8 @@
-import { existsSync, readdirSync } from 'fs';
+import * as defaultDefinitionsMap from '../types';
 
-const loadDefaultDefinitions = () => {
-  const defaultDefinitionsMap = {};
 
-  readdirSync(`${__dirname}/../types`)
-    .map((fName) => `${__dirname}/../types/${fName}`)
-    .forEach((fName) => {
-      const definition = existsSync(fName) ? require(fName).default : {};
-      defaultDefinitionsMap[definition.name] = definition;
-    });
-
-  return defaultDefinitionsMap;
-};
-
-const applyMutations = (defaultDefinitionsMap, definitionReducer) => {
-  const mutatedDefinitionsMap = definitionReducer(defaultDefinitionsMap);
+const applyMutations = (defaultDefs, definitionReducer) => {
+  const mutatedDefinitionsMap = definitionReducer(defaultDefs);
   return mutatedDefinitionsMap;
 };
 
@@ -26,8 +14,10 @@ export const loadDefinitions = (config) => {
       customTypesNames.push(typeDefName);
     }
   });
-  const defaultDefinitionsMap = loadDefaultDefinitions();
-  const mutatedDefinitionsMap = applyMutations(defaultDefinitionsMap, config.definitionResolver);
+
+  const mutatedDefinitionsMap = applyMutations(
+    { ...defaultDefinitionsMap }, config.definitionResolver,
+  );
   customTypesNames.forEach((typeDefName) => {
     mutatedDefinitionsMap[typeDefName].name = typeDefName;
   });
