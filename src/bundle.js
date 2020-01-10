@@ -6,7 +6,7 @@ import getConfig from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
-import OpenAPIRoot from './types';
+import { OpenAPIRoot } from './types';
 
 export const bundleToFile = (fName, outputFile) => {
   const resolvedFileName = fName; // path.resolve(fName);
