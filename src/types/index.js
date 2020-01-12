@@ -41,3 +41,5 @@ export { default as OpenAPIServerVariableMap } from './OpenAPIServerVariableMap'
 export { default as OpenAPITag } from './OpenAPITag';
 export { default as OpenAPIXML } from './OpenAPIXML';
 export { default as PasswordOpenAPIFlow } from './PasswordOpenAPIFlow';
+
+export { default as XRedocCodeSample } from './vendor/XRedocCodeSample';
