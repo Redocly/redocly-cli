@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 
 import resolveNode from '../resolver';
 import createContext from '../context';
-import getConfig from '../config';
+import { getLintConfig } from '../config';
 
 tests('local', 'index.yaml');
 tests('external', 'external.yaml');
@@ -19,7 +19,7 @@ function tests(type, resolvedFileName) {
       const source = readFileSync(file, 'utf-8');
       const document = yaml.safeLoad(source);
 
-      ctx = createContext(document, source, file, getConfig({}));
+      ctx = createContext(document, source, file, getLintConfig({}));
       ctx.path = [type];
       doc = document[type];
     });

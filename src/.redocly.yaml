@@ -1,0 +1,29 @@
+lint:
+  codeframes: on
+  rules:
+    bundler:
+      nameConflicts: warning
+    debug-info: off
+
+    suggest-possible-refs: on
+    oas3-schema: on
+    operations-tags-alpabetical: warning
+    path-param-exists: on
+    operation-2xx-response: warning
+    unique-parameter-names: on
+    no-unused-schemas: on
+    operation-operationId-unique: on
+    path-declarations-must-exist: on
+
+    camel-case-names: off
+    parameter-description: off
+    server-not-example: off
+    api-servers: off
+    license-url: off
+    no-extra-fields: on
+    model-description: off
+    operation-description: off
+    operation-operationId: off
+    operation-tags: off
+    provide-contact: off
+    servers-no-trailing-slash: off
