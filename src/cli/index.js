@@ -12,7 +12,7 @@ import * as chokidar from 'chokidar';
 import { validateFromFile, validateFromUrl } from '../validate';
 import { bundleToFile } from '../bundle';
 
-import { isFullyQualifiedUrl } from '../utils';
+import { isFullyQualifiedUrl, debounce } from '../utils';
 
 import { outputMessages, printValidationHeader } from './outputMessages';
 import { getFallbackEntryPointsOrExit, getConfig } from '../config';
@@ -75,20 +75,22 @@ const cli = () => {
         bundle();
         process.exit(results.errors === 0 || cmdObj.force ? 0 : 1);
       } else {
-        process.stdout.write(`${chalk.green('watch:started')} watching definition...\n`);
         // eslint-disable-next-line no-param-reassign
         cmdObj.short = true;
         deps = new Set();
         bundle();
+
+        process.stdout.write(`${chalk.green('watch:started')} watching definition...\n`);
         const watcher = chokidar.watch([...deps], {
           disableGlobbing: true,
         });
 
+        const debouncedBundle = debounce(bundle, 1500);
         watcher.on('change', (path) => {
-          watcher.unwatch([...deps]);
+          // watcher.unwatch([...deps]);
           deps = new Set();
           process.stdout.write(`${chalk.green('watch:update')} ${chalk.blue(path)} updating bundle\n`);
-          bundle();
+          debouncedBundle();
           watcher.add([...deps]);
         });
       }
