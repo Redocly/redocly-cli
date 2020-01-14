@@ -1,7 +1,6 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 
-
 import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
@@ -38,7 +37,7 @@ export const bundleToFile = (fName, outputFile, force) => {
   return ctx.result;
 };
 
-export const bundle = (fName, force) => {
+export const bundle = (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -51,7 +50,7 @@ export const bundle = (fName, force) => {
 
   if (!document.openapi) { return []; }
 
-  const config = getLintConfig({});
+  const config = getLintConfig(options);
   config.rules = {
     ...config.rules,
     bundler: {
@@ -65,7 +64,7 @@ export const bundle = (fName, force) => {
 
   traverseNode(document, OpenAPIRoot, ctx);
 
-  return ctx.bundlingResult;
+  return { bundle: ctx.bundlingResult, result: ctx.result, fileDependencies: ctx.fileDependencies };
 };
 
 export default bundleToFile;

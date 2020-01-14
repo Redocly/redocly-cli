@@ -11,6 +11,7 @@ export default function resolveScalars(resolvedNode, definition, ctx) {
     .filter((k) => resolvedNode[k].$ref)
     .forEach((k) => {
       const resolvedFilePath = path.resolve(path.dirname(ctx.filePath), resolvedNode[k].$ref);
+      ctx.fileDependencies.add(resolvedFilePath);
       if (fs.existsSync(resolvedFilePath)) {
         resolvedNode[k] = fs.readFileSync(resolvedFilePath, 'utf-8');
       } else {

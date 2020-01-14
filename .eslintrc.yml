@@ -18,4 +18,6 @@ rules:
   import/no-dynamic-require: off
   no-plusplus: off
   no-restricted-syntax: off
+  no-console: off
+  no-use-before-define: off
 

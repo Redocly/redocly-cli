@@ -6,14 +6,17 @@ import fs from 'fs';
 import {
   join, basename, dirname, extname,
 } from 'path';
+import * as chockidar from 'chokidar';
 
 import { validateFromFile, validateFromUrl } from '../validate';
-import { bundleToFile } from '../bundle';
+import { bundle, bundleToFile } from '../bundle';
 
-import { isFullyQualifiedUrl } from '../utils';
+import { isFullyQualifiedUrl, debounce } from '../utils';
 
 import { outputMessages, printValidationHeader } from './outputMessages';
 import { getFallbackEntryPointsOrExit, getConfig } from '../config';
+
+import startPreviewServer from '../preview-docs';
 
 const validateFile = (filePath, options, cmdObj) => {
   let result;
@@ -60,7 +63,6 @@ const cli = () => {
       const config = getConfig({});
       // eslint-disable-next-line no-param-reassign
       entryPoints = getFallbackEntryPointsOrExit(entryPoints, config);
-
 
       const isOutputDir = cmdObj.output && !extname(cmdObj.output);
       const ext = cmdObj.ext || extname(cmdObj.output || '').substring(1) || 'yaml';
@@ -136,6 +138,89 @@ const cli = () => {
         process.stdout.write(`Total results. Errors: ${results.errors}, warnings: ${results.warnings}\n`);
       }
       process.exit(results.errors > 0 ? 1 : 0);
+    });
+
+  function myParseInt(value) {
+    return parseInt(value, 10);
+  }
+
+  program
+    .command('preview-docs [entryPoint]')
+    .description('Preview API Reference docs for the specified entrypoint OAS definition')
+    .option('-p, --port <value>', 'Preview port', myParseInt, 8080)
+    .action(async (entryPoint, cmdObj) => {
+      const output = 'dist/openapi.yaml';
+
+      let config = getConfig({});
+      if (!entryPoint) {
+        // eslint-disable-next-line no-param-reassign, prefer-destructuring
+        entryPoint = getFallbackEntryPointsOrExit([], config)[0];
+      }
+
+      let cachedBundle;
+      const deps = new Set();
+
+      async function getBundle() {
+        return cachedBundle;
+      }
+
+      function updateBundle() {
+        cachedBundle = new Promise((resolve) => {
+          setImmediate(() => {
+            process.stdout.write('\nBundling...\n\n');
+            const { bundle: openapiBundle, result, fileDependencies } = bundle(entryPoint, output, {
+              lint: {
+                codeframes: false,
+              },
+            });
+
+            const removed = [...deps].filter((x) => !fileDependencies.has(x));
+            watcher.unwatch(removed);
+            watcher.add([...fileDependencies]);
+            deps.clear();
+            fileDependencies.forEach(deps.add, deps);
+
+            const resultStats = outputMessages(result, { short: true });
+
+            if (resultStats.totalErrors === 0) {
+              process.stdout.write(
+                resultStats.totalErrors === 0
+                  ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0 ? 'with warnings' : 'successfully'}\n`
+                  : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
+              );
+            }
+
+            resolve(openapiBundle);
+          });
+        });
+      }
+
+      updateBundle(); // initial cache
+
+      const hotClients = await startPreviewServer(cmdObj.port, {
+        getBundle,
+        getOptions: () => config.referenceDocs,
+      });
+
+      const watcher = chockidar.watch([entryPoint, config.configPath], {
+        disableGlobbing: true,
+      });
+
+      const debouncedUpdatedeBundle = debounce(updateBundle, 2000);
+      watcher.on('change', async (file) => {
+        process.stdout.write(`${chalk.green('watch')} updated ${chalk.blue(file)}\n`);
+        if (file === config.configPath) {
+          config = getConfig({ configPath: file });
+          hotClients.broadcast(JSON.stringify({ type: 'reload' }));
+          return;
+        }
+
+        debouncedUpdatedeBundle();
+        await cachedBundle;
+        hotClients.broadcast('{"type": "reload", "bundle": true}');
+      });
+
+      process.stdout.write(`\n  👀  Watching ${chalk.blue(entryPoint)} and all related resources for changes\n`);
     });
 
   program.on('command:*', () => {

@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-use-before-define */
 import path from 'path';
 
 import resolveNode, { popPath } from './resolver';
