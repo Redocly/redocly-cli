@@ -6,7 +6,7 @@ import { OpenAPIRoot } from './types';
 
 import { getFileSync } from './utils';
 
-import getConfig from './config';
+import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -20,7 +20,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   }
   if (!document.openapi && !document.$ref) return [];
 
-  const config = getConfig(options);
+  const config = getLintConfig(options);
   config.rules.bundler = 'off';
 
   const ctx = createContext(document, yamlData, filePath, config);

@@ -4,9 +4,9 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json  && cp src/.openapi-cli.yaml dist/.openapi-cli.yaml",
+    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json  && cp src/.redocly.yaml dist/.redocly.yaml",
     "lint": "eslint ./src",
-    "prepublishOnly": "npm run build && cp src/.openapi-cli.yaml dist/.openapi-cli.yaml",
+    "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
     "test": "jest --coverage"
   },
   "bin": {

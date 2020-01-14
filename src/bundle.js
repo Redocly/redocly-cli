@@ -2,7 +2,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 
 
-import getConfig from './config';
+import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -21,18 +21,18 @@ export const bundleToFile = (fName, outputFile, force) => {
 
   if (!document.openapi) { return []; }
 
-  const config = getConfig({});
+  const lintConfig = getLintConfig({});
   // config.customRules = [];
-  config.rules = {
-    ...config.rules,
+  lintConfig.rules = {
+    ...lintConfig.rules,
     bundler: {
-      ...(config.rules && typeof config.rules.bundler === 'object' ? config.rules.bundler : null),
+      ...(lintConfig.rules && typeof lintConfig.rules.bundler === 'object' ? lintConfig.rules.bundler : null),
       output: outputFile,
       ignoreErrors: force,
     },
   };
 
-  const ctx = createContext(document, doc, resolvedFileName, config);
+  const ctx = createContext(document, doc, resolvedFileName, lintConfig);
 
   traverseNode(document, OpenAPIRoot, ctx);
   return ctx.result;
@@ -51,7 +51,7 @@ export const bundle = (fName, force) => {
 
   if (!document.openapi) { return []; }
 
-  const config = getConfig({});
+  const config = getLintConfig({});
   config.rules = {
     ...config.rules,
     bundler: {

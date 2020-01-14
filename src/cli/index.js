@@ -13,6 +13,7 @@ import { bundleToFile } from '../bundle';
 import { isFullyQualifiedUrl } from '../utils';
 
 import { outputMessages, printValidationHeader } from './outputMessages';
+import { getFallbackEntryPointsOrExit, getConfig } from '../config';
 
 const validateFile = (filePath, options, cmdObj) => {
   let result;
@@ -42,7 +43,7 @@ const cli = () => {
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
 
   program
-    .command('bundle <entryPoints...>')
+    .command('bundle [entryPoints...]')
     .description('Create a bundle using <entryPoint> as a root document.')
     .option('-o, --output <outputName>', 'Filename or folder for the bundle.')
     .option('--short', 'Reduce output in case of bundling errors.')
@@ -55,6 +56,11 @@ const cli = () => {
         );
         process.exit(1);
       }
+
+      const config = getConfig({});
+      // eslint-disable-next-line no-param-reassign
+      entryPoints = getFallbackEntryPointsOrExit(entryPoints, config);
+
 
       const isOutputDir = cmdObj.output && !extname(cmdObj.output);
       const ext = cmdObj.ext || extname(cmdObj.output || '').substring(1) || 'yaml';
@@ -100,7 +106,7 @@ const cli = () => {
     });
 
   program
-    .command('validate <entryPoints...>')
+    .command('validate [entryPoints...]')
     .description('Validate given Open API 3 definition file.')
     .option('--short', 'Reduce output to required minimun')
     .option('--no-frame', 'Print no codeframes with errors.')
@@ -111,6 +117,10 @@ const cli = () => {
         errors: 0,
         warnings: 0,
       };
+
+      const config = getConfig({});
+      // eslint-disable-next-line no-param-reassign
+      entryPoints = getFallbackEntryPointsOrExit(entryPoints, config);
 
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
@@ -129,7 +139,7 @@ const cli = () => {
     });
 
   program.on('command:*', () => {
-    process.stdout.write(`\nUnknown command ${program.args.join(' ')}\n\n`);
+    process.stderr.write(`\nUnknown command ${program.args.join(' ')}\n\n`);
     program.outputHelp();
   });
 
