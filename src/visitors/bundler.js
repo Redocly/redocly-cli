@@ -8,6 +8,7 @@ import isEqual from 'lodash.isequal';
 
 import { getMsgLevelFromString, messageLevels } from '../error/default';
 import OpenAPISchemaObject from '../types/OpenAPISchema';
+import { MAPPING_DATA_KEY } from '../types/OpenAPIDiscriminator';
 import { isRef } from '../utils';
 
 const getComponentName = (refString, components, componentType, node, ctx) => {
@@ -90,7 +91,7 @@ class Bundler {
     const $ref = `#/${pointer.join('/')}`;
     const errors = [];
 
-    for (const [name, schema] of Object.entries(schemas)) {
+    for (const [name, schema] of Object.entries(schemas || {})) {
       if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
         const existingSchema = this.components.schemas && this.components.schemas[name];
         if (existingSchema && !isEqual(existingSchema, schema)) {
@@ -123,7 +124,7 @@ class Bundler {
       onExit: (node, definition, ctx, unresolvedNode, { traverseNode, visited }) => {
         let errors = [];
 
-        if (node.discriminator && !node.oneOf && !node.anyOf) {
+        if (node.discriminator && !node.oneOf && !node.anyOf && !node.mapping) {
           errors = this.includeImplicitDiscriminator(
             ctx.path,
             ctx.document.components && ctx.document.components.schemas,
@@ -153,7 +154,13 @@ class Bundler {
             }
 
             this.components[componentType][name] = node;
-            unresolvedNode.$ref = newRef;
+
+            if (unresolvedNode[MAPPING_DATA_KEY]) { // FIXME: too hack
+              const { mapping, key } = unresolvedNode[MAPPING_DATA_KEY];
+              mapping[key] = newRef;
+            } else {
+              unresolvedNode.$ref = newRef;
+            }
           }
         }
 

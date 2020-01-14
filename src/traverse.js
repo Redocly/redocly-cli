@@ -92,6 +92,11 @@ function traverseNode(node, definition, ctx, visited = []) {
 
   const resolvedDefinition = resolveDefinition(definition, ctx, nodeContext.resolvedNode);
   resolveScalars(nodeContext.resolvedNode, definition, ctx);
+
+  if (definition.customResolveFields) {
+    definition.customResolveFields(nodeContext.resolvedNode, ctx, visited);
+  }
+
   if (Array.isArray(nodeContext.resolvedNode)) {
     nodeContext.resolvedNode.forEach((nodeChild, i) => {
       ctx.path.push(i);
