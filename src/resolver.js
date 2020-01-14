@@ -63,6 +63,7 @@ function resolve(link, ctx, visited = []) {
       // FIXME: if refernced e.g. md file, no need to parse
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
       document = yaml.safeLoad(source);
+      ctx.fileDependencies.add(resolvedFilePath);
       // FIXME: lost yaml parsing and file read errors here
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {

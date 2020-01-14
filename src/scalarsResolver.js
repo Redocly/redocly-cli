@@ -13,6 +13,7 @@ export default function resolveScalars(resolvedNode, definition, ctx) {
       const resolvedFilePath = path.resolve(path.dirname(ctx.filePath), resolvedNode[k].$ref);
       if (fs.existsSync(resolvedFilePath)) {
         resolvedNode[k] = fs.readFileSync(resolvedFilePath, 'utf-8');
+        ctx.fileDependencies.add(resolvedFilePath);
       } else {
         ctx.path.push(k);
         ctx.path.push('$ref');

@@ -7,6 +7,8 @@ import {
   join, basename, dirname, extname,
 } from 'path';
 
+import * as chokidar from 'chokidar';
+
 import { validateFromFile, validateFromUrl } from '../validate';
 import { bundleToFile } from '../bundle';
 
@@ -49,6 +51,7 @@ const cli = () => {
     .option('--short', 'Reduce output in case of bundling errors.')
     .option('--ext <ext>', 'Output extension: json, yaml or yml')
     .option('-f, --force', 'Produce bundle output file even if validation errors were encountered')
+    .option('--watch', 'Watch files and produce a new bundle on each change')
     .action((entryPoints, cmdObj) => {
       if (cmdObj.ext && ['yaml', 'yml', 'json'].indexOf(cmdObj.ext) === -1) {
         process.stdout.write(
@@ -65,44 +68,74 @@ const cli = () => {
       const isOutputDir = cmdObj.output && !extname(cmdObj.output);
       const ext = cmdObj.ext || extname(cmdObj.output || '').substring(1) || 'yaml';
       const dir = isOutputDir ? cmdObj.output : dirname(cmdObj.output || '');
+      let results;
+      let deps = new Set();
 
-      const results = {
-        errors: 0,
-        warnings: 0,
-      };
+      if (!cmdObj.watch) {
+        bundle();
+        process.exit(results.errors === 0 || cmdObj.force ? 0 : 1);
+      } else {
+        process.stdout.write(`${chalk.green('watch:started')} watching definition...\n`);
+        // eslint-disable-next-line no-param-reassign
+        cmdObj.short = true;
+        deps = new Set();
+        bundle();
+        const watcher = chokidar.watch([...deps], {
+          disableGlobbing: true,
+        });
 
-      entryPoints.forEach((entryPoint) => {
-        let output;
-        if (cmdObj.output) {
-          const fileName = isOutputDir
-            ? basename(entryPoint, extname(entryPoint))
-            : basename(cmdObj.output, `.${ext}`);
-          output = join(dir, `${fileName}.${ext}`);
-        }
+        watcher.on('change', (path) => {
+          watcher.unwatch([...deps]);
+          deps = new Set();
+          process.stdout.write(`${chalk.green('watch:update')} ${chalk.blue(path)} updating bundle\n`);
+          bundle();
+          watcher.add([...deps]);
+        });
+      }
 
-        const bundlingStatus = bundleToFile(entryPoint, output, cmdObj.force);
-        const resultStats = outputMessages(bundlingStatus, cmdObj);
+      function bundle() {
+        results = {
+          errors: 0,
+          warnings: 0,
+        };
 
-        if (resultStats.totalErrors === 0) {
-          // we do not want to output anything to stdout if it's being piped.
-          if (output) {
-            process.stdout.write(`Created a bundle for ${entryPoint} at ${output}\n`);
+        entryPoints.forEach((entryPoint) => {
+          let output;
+          if (cmdObj.output) {
+            const fileName = isOutputDir
+              ? basename(entryPoint, extname(entryPoint))
+              : basename(cmdObj.output, `.${ext}`);
+            output = join(dir, `${fileName}.${ext}`);
           }
-        } else {
-          if (cmdObj.force) {
-            process.stderr.write(
-              `Created a bundle for ${entryPoint} at ${output}. Errors ignored because of --force\n`,
-            );
+
+          const { result: bundlingStatus, fileDependencies } = bundleToFile(entryPoint, output, cmdObj.force);
+          if (cmdObj.watch) {
+            deps.add(entryPoint);
+            fileDependencies.forEach(deps.add, deps);
+          }
+
+          const resultStats = outputMessages(bundlingStatus, cmdObj);
+
+          if (resultStats.totalErrors === 0) {
+            // we do not want to output anything to stdout if it's being piped.
+            if (output) {
+              process.stdout.write(`Created a bundle for ${entryPoint} at ${output}\n`);
+            }
           } else {
-            process.stderr.write(
-              `Errors encountered while bundling ${entryPoint}: bundle not created (use --force to ignore errors)\n`,
-            );
+            if (cmdObj.force) {
+              process.stderr.write(
+                `Created a bundle for ${entryPoint} at ${output}. Errors ignored because of --force\n`,
+              );
+            } else {
+              process.stderr.write(
+                `Errors encountered while bundling ${entryPoint}: bundle not created (use --force to ignore errors)\n`,
+              );
+            }
+            results.errors += resultStats.totalErrors;
+            results.warnings += resultStats.totalWarnings;
           }
-          results.errors += resultStats.totalErrors;
-          results.warnings += resultStats.totalWarnings;
-        }
-      });
-      process.exit(results.errors === 0 || cmdObj.force ? 0 : 1);
+        });
+      }
     });
 
   program

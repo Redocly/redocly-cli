@@ -35,7 +35,7 @@ export const bundleToFile = (fName, outputFile, force) => {
   const ctx = createContext(document, doc, resolvedFileName, lintConfig);
 
   traverseNode(document, OpenAPIRoot, ctx);
-  return ctx.result;
+  return ctx;
 };
 
 export const bundle = (fName, force) => {
