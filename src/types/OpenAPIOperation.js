@@ -6,6 +6,7 @@ import OpenAPIServer from './OpenAPIServer';
 import OpenAPIExternalDocumentation from './OpenAPIExternalDocumentation';
 import { OpenAPICallbackMap } from './OpenAPICallbackMap';
 import { OpenAPIRequestBody } from './OpenAPIRequestBody';
+import { XRedocCodeSample } from './vendor/XRedocCodeSample';
 
 export default {
   name: 'OpenAPIOperation',
@@ -25,6 +26,8 @@ export default {
     // TODO:
     // security() {},
     servers: OpenAPIServer,
+
+    'x-code-samples': XRedocCodeSample,
   },
   resolvableScalars: [
     'description',

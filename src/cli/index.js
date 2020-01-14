@@ -25,7 +25,9 @@ const validateFile = (filePath, options, cmdObj) => {
     result = validateFromFile(filePath, options);
   }
   const resultStats = outputMessages(result, cmdObj);
-  process.stdout.write(`${chalk.blueBright(filePath)} results. Errors: ${resultStats.totalErrors}, warnings: ${resultStats.totalWarnings}\n`);
+  process.stdout.write(
+    `${chalk.blueBright(filePath)} results. Errors: ${resultStats.totalErrors}, warnings: ${resultStats.totalWarnings}\n`,
+  );
 
   return {
     errors: resultStats.totalErrors,
@@ -46,6 +48,7 @@ const cli = () => {
     .option('-o, --output <outputName>', 'Filename or folder for the bundle.')
     .option('--short', 'Reduce output in case of bundling errors.')
     .option('--ext <ext>', 'Output extension: json, yaml or yml')
+    .option('-f, --force', 'Produce bundle output file even if validation errors were encountered')
     .action((entryPoints, cmdObj) => {
       if (cmdObj.ext && ['yaml', 'yml', 'json'].indexOf(cmdObj.ext) === -1) {
         process.stdout.write(
@@ -77,21 +80,29 @@ const cli = () => {
           output = join(dir, `${fileName}.${ext}`);
         }
 
-        const bundlingStatus = bundleToFile(entryPoint, output);
+        const bundlingStatus = bundleToFile(entryPoint, output, cmdObj.force);
         const resultStats = outputMessages(bundlingStatus, cmdObj);
 
         if (resultStats.totalErrors === 0) {
           // we do not want to output anything to stdout if it's being piped.
           if (output) {
-            process.stdout.write(`Created a bundle for ${entryPoint} at ${output}.\n`);
+            process.stdout.write(`Created a bundle for ${entryPoint} at ${output}\n`);
           }
         } else {
-          process.stderr.write(`Errors encountered while bundling ${entryPoint}.\n`);
+          if (cmdObj.force) {
+            process.stderr.write(
+              `Created a bundle for ${entryPoint} at ${output}. Errors ignored because of --force\n`,
+            );
+          } else {
+            process.stderr.write(
+              `Errors encountered while bundling ${entryPoint}: bundle not created (use --force to ignore errors)\n`,
+            );
+          }
           results.errors += resultStats.totalErrors;
           results.warnings += resultStats.totalWarnings;
         }
       });
-      process.exit(results.errors > 0 ? 1 : 0);
+      process.exit(results.errors === 0 || cmdObj.force ? 0 : 1);
     });
 
   program

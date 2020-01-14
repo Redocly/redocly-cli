@@ -2,7 +2,7 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 
-import OpenAPIRoot from './types';
+import { OpenAPIRoot } from './types';
 
 import { getFileSync } from './utils';
 

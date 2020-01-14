@@ -6,9 +6,9 @@ import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
-import OpenAPIRoot from './types';
+import { OpenAPIRoot } from './types';
 
-export const bundleToFile = (fName, outputFile) => {
+export const bundleToFile = (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -28,6 +28,7 @@ export const bundleToFile = (fName, outputFile) => {
     bundler: {
       ...(lintConfig.rules && typeof lintConfig.rules.bundler === 'object' ? lintConfig.rules.bundler : null),
       output: outputFile,
+      ignoreErrors: force,
     },
   };
 
@@ -37,7 +38,7 @@ export const bundleToFile = (fName, outputFile) => {
   return ctx.result;
 };
 
-export const bundle = (fName) => {
+export const bundle = (fName, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -56,6 +57,7 @@ export const bundle = (fName) => {
     bundler: {
       ...(config.rules && typeof config.rules.bundler === 'object' ? config.rules.bundler : null),
       outputObject: true,
+      ignoreErrors: force,
     },
   };
 

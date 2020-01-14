@@ -177,7 +177,7 @@ class Bundler {
           node.components = {};
         }
 
-        if (ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
+        if (!this.config.ignoreErrors && ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
           ctx.bundlingResult = null;
           return null;
         }
@@ -194,7 +194,7 @@ class Bundler {
           const nameParts = outputFile.split('.');
           const ext = nameParts[nameParts.length - 1];
 
-          const outputPath = `${process.cwd()}/${outputFile}`;
+          const outputPath = path.resolve(outputFile);
 
           const outputDir = path.dirname(outputPath);
           fs.mkdirSync(outputDir, { recursive: true });
