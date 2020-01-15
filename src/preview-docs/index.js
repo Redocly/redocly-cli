@@ -77,7 +77,7 @@ export default async function startPreviewServer(port, {
 
   const server = startHttpServer(port, handler);
   server.on('listening', () => {
-    process.stdout.write(`  🔎  Preview server running at ${chalk.blue(`http://127.0.0.1:${port}\n`)}`);
+    process.stdout.write(`\n  🔎  Preview server running at ${chalk.blue(`http://127.0.0.1:${port}\n`)}`);
   });
 
   return startWsServer(wsPort);

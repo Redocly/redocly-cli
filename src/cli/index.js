@@ -166,36 +166,34 @@ const cli = () => {
 
       function updateBundle() {
         cachedBundle = new Promise((resolve) => {
-          setImmediate(() => {
-            process.stdout.write('\nBundling...\n\n');
-            const { bundle: openapiBundle, result, fileDependencies } = bundle(entryPoint, output, {
-              lint: {
-                codeframes: false,
-              },
-            });
-
-            const removed = [...deps].filter((x) => !fileDependencies.has(x));
-            watcher.unwatch(removed);
-            watcher.add([...fileDependencies]);
-            deps.clear();
-            fileDependencies.forEach(deps.add, deps);
-
-            const resultStats = outputMessages(result, { short: true });
-
-            if (resultStats.totalErrors === 0) {
-              process.stdout.write(
-                resultStats.totalErrors === 0
-                  ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0 ? 'with warnings' : 'successfully'}\n`
-                  : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
-              );
-            }
-
-            resolve(openapiBundle);
+          process.stdout.write('\nBundling...\n\n');
+          const { bundle: openapiBundle, result, fileDependencies } = bundle(entryPoint, output, {
+            lint: {
+              codeframes: false,
+            },
           });
+
+          const removed = [...deps].filter((x) => !fileDependencies.has(x));
+          watcher.unwatch(removed);
+          watcher.add([...fileDependencies]);
+          deps.clear();
+          fileDependencies.forEach(deps.add, deps);
+
+          const resultStats = outputMessages(result, { short: true });
+
+          if (resultStats.totalErrors === 0) {
+            process.stdout.write(
+              resultStats.totalErrors === 0
+                ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0 ? 'with warnings' : 'successfully'}\n`
+                : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
+            );
+          }
+
+          resolve(openapiBundle);
         });
       }
 
-      updateBundle(); // initial cache
+      setImmediate(() => updateBundle()); // initial cache
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
@@ -204,11 +202,17 @@ const cli = () => {
 
       const watcher = chockidar.watch([entryPoint, config.configPath], {
         disableGlobbing: true,
+        ignoreInitial: true,
       });
 
-      const debouncedUpdatedeBundle = debounce(updateBundle, 2000);
-      watcher.on('change', async (file) => {
-        process.stdout.write(`${chalk.green('watch')} updated ${chalk.blue(file)}\n`);
+      const debouncedUpdatedeBundle = debounce(async () => {
+        updateBundle();
+        await cachedBundle;
+        hotClients.broadcast('{"type": "reload", "bundle": true}');
+      }, 2000);
+
+      const changeHandler = async (type, file) => {
+        process.stdout.write(`${chalk.green('watch')} ${type} ${chalk.blue(file)}\n`);
         if (file === config.configPath) {
           config = getConfig({ configPath: file });
           hotClients.broadcast(JSON.stringify({ type: 'reload' }));
@@ -216,11 +220,15 @@ const cli = () => {
         }
 
         debouncedUpdatedeBundle();
-        await cachedBundle;
-        hotClients.broadcast('{"type": "reload", "bundle": true}');
-      });
+      };
 
-      process.stdout.write(`\n  👀  Watching ${chalk.blue(entryPoint)} and all related resources for changes\n`);
+      watcher.on('change', changeHandler.bind(undefined, 'changed'));
+      watcher.on('add', changeHandler.bind(undefined, 'added'));
+      watcher.on('unlink', changeHandler.bind(undefined, 'removed'));
+
+      watcher.on('ready', () => {
+        process.stdout.write(`\n  👀  Watching ${chalk.blue(entryPoint)} and all related resources for changes\n`);
+      });
     });
 
   program.on('command:*', () => {
