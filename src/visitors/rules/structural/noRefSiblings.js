@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { MAPPING_DATA_KEY } from '../../../types/OpenAPIDiscriminator';
 
 class NoRefSiblings {
   static get rule() {
@@ -29,7 +30,7 @@ class NoRefSiblings {
           ctx.source = fs.readFileSync(prevPathItem.file, 'utf-8');
 
           for (let i = 0; i < nodeKeys.length; i++) {
-            if (nodeKeys[i] !== '$ref') {
+            if (nodeKeys[i] !== '$ref' && nodeKeys[i] !== MAPPING_DATA_KEY) {
               ctx.path.push(nodeKeys[i]);
               const e = ctx.createError(
                 'No siblings are allowed inside object with $ref property.',
