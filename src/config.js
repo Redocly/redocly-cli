@@ -46,6 +46,7 @@ export function getConfig(options) {
   }
 
   const resolvedConfig = merge(defaultConfig, config, options);
+  resolvedConfig.configPath = configPath;
 
   const lintConfig = resolvedConfig.lint;
 

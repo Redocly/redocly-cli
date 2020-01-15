@@ -4,7 +4,7 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json  && cp src/.redocly.yaml dist/.redocly.yaml",
+    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
     "test": "jest --coverage"
@@ -54,10 +54,14 @@
   },
   "dependencies": {
     "chalk": "^2.4.2",
+    "chokidar": "^3.3.1",
     "commander": "^3.0.1",
+    "handlebars": "^4.7.2",
     "js-yaml": "^3.13.1",
     "lodash.isequal": "^4.5.0",
     "merge-deep": "^3.0.2",
+    "portfinder": "^1.0.25",
+    "simple-websocket": "^8.1.1",
     "xmlhttprequest": "^1.8.0",
     "yaml-ast-parser": "0.0.43"
   }

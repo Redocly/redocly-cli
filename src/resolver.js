@@ -60,6 +60,7 @@ function resolve(link, ctx, visited = []) {
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
     } else if (fs.existsSync(resolvedFilePath)) {
+      ctx.fileDependencies.add(resolvedFilePath);
       // FIXME: if refernced e.g. md file, no need to parse
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
       document = yaml.safeLoad(source);

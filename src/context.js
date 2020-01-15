@@ -54,6 +54,8 @@ function createContext(node, sourceFile, filePath, config) {
     getRule,
     resolveNode: resolveNodeNoSideEffects,
 
+    fileDependencies: new Set(),
+
     resolveCache: {},
   };
 }
