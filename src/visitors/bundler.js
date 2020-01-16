@@ -30,7 +30,7 @@ const getComponentName = (refString, components, componentType, node, ctx) => {
 
     errors.push(
       ctx.createError(
-        `Two schemas with the same name but different content are referenced. Renamed ${prevName} to ${name}`,
+        `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
         'key',
       ),
     );
