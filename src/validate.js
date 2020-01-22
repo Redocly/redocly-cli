@@ -4,6 +4,8 @@ import yaml from 'js-yaml';
 
 import { OpenAPIRoot } from './types';
 
+import { createYAMLParseError } from './error';
+
 import { getFileSync } from './utils';
 
 import { getLintConfig } from './config';
@@ -15,8 +17,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   try {
     document = yaml.safeLoad(yamlData);
   } catch (ex) {
-    process.stderr.write(ex);
-    throw new Error("Can't load yaml file");
+    return [createYAMLParseError(ex, {}, filePath, yamlData, true)];
   }
   if (!document.openapi && !document.$ref) return [];
 

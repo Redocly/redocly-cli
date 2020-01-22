@@ -81,6 +81,8 @@ export const getLocationByPath = (path, { filePath, source }, target) => {
 };
 
 export const getCodeFrameForLocation = (
+  // FIXME: we should not requre 'startLine' parameter, as it can be calculated implicitly
+  // using 'start' parameter
   start, end, source, startLine = 1, linesBefore = 3, linesAfter = 2,
 ) => {
   let frameStart = start;
