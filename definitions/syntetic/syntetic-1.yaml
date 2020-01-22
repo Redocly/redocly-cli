@@ -39,6 +39,24 @@ paths:
             application/json:
               schema:
                 type: object
+  '/user/{id}':
+    get:
+      parameters:
+        - in: path
+          name: test
+          description: User id
+          required: true
+          schema:
+            type: string
+      operationId: withPathParam
+      description: Get user by id
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
 externalDocs:
   description:
     $ref: inc/docs-description.md

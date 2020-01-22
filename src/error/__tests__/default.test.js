@@ -227,6 +227,35 @@ describe("fromError", () => {
               },
               "openapi": "3.0.2",
               "paths": Object {
+                "/user/{id}": Object {
+                  "get": Object {
+                    "description": "Get user by id",
+                    "operationId": "withPathParam",
+                    "parameters": Array [
+                      Object {
+                        "description": "User id",
+                        "in": "path",
+                        "name": "test",
+                        "required": true,
+                        "schema": Object {
+                          "type": "string",
+                        },
+                      },
+                    ],
+                    "responses": Object {
+                      "200": Object {
+                        "content": Object {
+                          "application/json": Object {
+                            "schema": Object {
+                              "type": "object",
+                            },
+                          },
+                        },
+                        "description": "example description",
+                      },
+                    },
+                  },
+                },
                 "project": Object {
                   "get": Object {
                     "description": "Get project",
@@ -316,6 +345,24 @@ describe("fromError", () => {
           get:
             operationId: projectGet
             description: Get project
+            responses:
+              '200':
+                description: example description
+                content:
+                  application/json:
+                    schema:
+                      type: object
+        '/user/{id}':
+          get:
+            parameters:
+              - in: path
+                name: test
+                description: User id
+                required: true
+                schema:
+                  type: string
+            operationId: withPathParam
+            description: Get user by id
             responses:
               '200':
                 description: example description
