@@ -1,10 +1,11 @@
 import fs from 'fs';
+
 import yaml from 'js-yaml';
 import { resolve as resolveFile, dirname } from 'path';
 import { resolve as resolveUrl } from 'url';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
-import createError, { getReferencedFrom } from './error';
+import createError, { getReferencedFrom, createYAMLParseError } from './error';
 import { isFullyQualifiedUrl } from './utils';
 
 function pushPath(ctx, filePath, docPath) {
@@ -57,13 +58,20 @@ function resolve(link, ctx, visited = []) {
   const resolvedLink = `${resolvedFilePath}#/${docPath}`;
 
   if (!isCurrentDocument) {
+    console.log('asdasd');
+    console.log(resolvedFilePath);
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
     } else if (fs.existsSync(resolvedFilePath)) {
       ctx.fileDependencies.add(resolvedFilePath);
       // FIXME: if refernced e.g. md file, no need to parse
       source = fs.readFileSync(resolvedFilePath, 'utf-8');
-      document = yaml.safeLoad(source);
+      try {
+        document = yaml.safeLoad(source);
+      } catch (e) {
+        ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
+        return { node: undefined };
+      }
       // FIXME: lost yaml parsing and file read errors here
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
