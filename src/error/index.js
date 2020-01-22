@@ -18,7 +18,7 @@ export default createError;
 export { getReferencedFrom } from './default';
 
 export const createYAMLParseError = (e, ctx, resolvedPath, source, root = false) => ({
-  message: `${e.name} : ${e.reason}`,
+  message: `${e.name}: ${e.reason}`,
   path: root ? [] : Array.from(ctx.path),
   referencedFrom: root ? null : getReferencedFrom(ctx),
   location: {
