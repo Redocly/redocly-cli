@@ -18,7 +18,7 @@ class ValidateClientCredentialsOpenAPIFlow {
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return ctx.createError('The scopes field must be a Map[string, string] in the Open API Flow Object', 'value');
+        if (wrongFormatMap) return ctx.createError('The scopes field must be a Map[string, string] in the OpenAPI Flow Object', 'value');
         return null;
       },
     };
