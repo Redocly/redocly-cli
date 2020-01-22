@@ -5,26 +5,31 @@ class CheckPathParamExists {
 
   OpenAPIParameter() {
     return {
-      onEnter: (node, definition, ctx) => {
+      onEnter: (node, _definition, ctx) => {
+        // if not path parameter
+        if (node.in && node.in !== 'path') {
+          return [];
+        }
+
+         const fullPath = [
+           ...ctx.pathStack.reduce((acc, val) => [...acc, ...(val.path)], []),
+           ...ctx.path
+        ];
+
+        // not referenced from path
+        if (!fullPath.length || fullPath[0] !== 'paths') {
+          return [];
+        }
+
         const errors = [];
 
-        const isPathParameter = node.in && node.in === 'path';
+        const isNameInPath = fullPath
+          .some((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1);
 
-        if (isPathParameter) {
-          const visitedNodes = ctx.pathStack.reduce((acc, val) => [...acc, ...(val.path)], []);
-          const isInPath = visitedNodes.length > 0 && visitedNodes[0] === 'paths';
-
-          if (isInPath) {
-            const missingNameInPath = [...ctx.path, ...visitedNodes]
-              .filter((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1)
-              .length === 0;
-
-            if (missingNameInPath) {
-              ctx.path.push('name');
-              errors.push(ctx.createError('The "name" field value is not in the current parameter path.', 'value'));
-              ctx.path.pop();
-            }
-          }
+        if (!isNameInPath) {
+          ctx.path.push('name');
+          errors.push(ctx.createError('The "name" field value is not in the current path.', 'value'));
+          ctx.path.pop();
         }
         return errors;
       },
