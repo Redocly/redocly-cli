@@ -1,5 +1,6 @@
 import { relative } from 'path';
 import createError, { getReferencedFrom } from './default';
+import { getCodeFrameForLocation } from '../yaml';
 
 const mutuallyExclusiveFieldsMessageHelper = (fieldNames) => `Fields ${fieldNames.map((el) => `'${el}'`).join(', ')} are mutually exclusive.`;
 const fieldTypeMismatchMessageHelper = (desiredType) => `This field must be of ${desiredType} type.`;
@@ -16,18 +17,17 @@ export const messageHelpers = {
 export default createError;
 export { getReferencedFrom } from './default';
 
-export const createYAMLParseError = (e, ctx, resolvedPath, root = false) => ({
-  message: `Error: ${e.name} : ${e.reason}`,
+export const createYAMLParseError = (e, ctx, resolvedPath, source, root = false) => ({
+  message: `${e.name} : ${e.reason}`,
   path: root ? [] : Array.from(ctx.path),
   referencedFrom: root ? null : getReferencedFrom(ctx),
   location: {
-    startLine: e.mark.line,
+    startLine: e.mark.line + 1,
     startCol: e.mark.column,
   },
-  codeFrame: '',
+  codeFrame: getCodeFrameForLocation(e.mark.position - 1, e.mark.position, source, e.mark.line + 1),
   value: null,
   file: relative(process.cwd(), resolvedPath),
   severity: 4,
-  enableCodeframe: ctx.enableCodeframe,
-  fromRule: 'load-yaml-file',
+  enableCodeframe: ctx.enableCodeframe !== undefined ? ctx.enableCodeframe : true,
 });

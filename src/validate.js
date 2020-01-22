@@ -17,8 +17,7 @@ export const validate = (yamlData, filePath, options = {}) => {
   try {
     document = yaml.safeLoad(yamlData);
   } catch (ex) {
-    const err = createYAMLParseError(ex, {}, filePath, true);
-    return [err];
+    return [createYAMLParseError(ex, {}, filePath, yamlData, true)];
   }
   if (!document.openapi && !document.$ref) return [];
 
