@@ -17,7 +17,7 @@ class ValidateOpenAPIOperation {
         for (let i = 0; i < node.tags.length; i++) {
           if (typeof node.tags[i] !== 'string') {
             ctx.path.push(i);
-            errors.push(ctx.createError('Items of the tags array must be strings in the Open API Operation object.', 'value'));
+            errors.push(ctx.createError('Items of the tags array must be strings in the OpenAPI Operation object.', 'value'));
             ctx.path.pop();
           }
         }

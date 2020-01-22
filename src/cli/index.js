@@ -109,7 +109,7 @@ const cli = () => {
 
   program
     .command('validate [entryPoints...]')
-    .description('Validate given Open API 3 definition file.')
+    .description('Validate given OpenAPI 3 definition file.')
     .option('--short', 'Reduce output to required minimun')
     .option('--no-frame', 'Print no codeframes with errors.')
     .option('--config <path>', 'Specify custom yaml or json config')
