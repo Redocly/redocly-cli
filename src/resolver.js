@@ -59,7 +59,6 @@ function resolve(link, ctx, visited = []) {
 
   if (!isCurrentDocument) {
     console.log('asdasd');
-    console.log(resolvedFilePath);
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
     } else if (fs.existsSync(resolvedFilePath)) {
