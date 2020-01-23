@@ -162,12 +162,13 @@ module.exports = [
 
 ```
 
-User can provide configuration file `.openapi-cli.yaml` in current working dir.
+User can provide configuration file `.redocly.yaml` in current working dir.
 
 ```yaml
-typeExtension: typeExtension.js # relative path to the extended types
-customRules: customRules.js # relative path to the custom visitors
-rules:
-  parameterPartial: warning # allowed values are 'error', 'warning' and 'off'
-  parameterWithAllOf: off # by default custom rules are 'on' and set to 'error' severity
+lint:
+  typeExtension: typeExtension.js # relative path to the extended types
+  customRules: customRules.js # relative path to the custom visitors
+  rules:
+    parameterPartial: warning # allowed values are 'error', 'warning' and 'off'
+    parameterWithAllOf: off # by default custom rules are 'on' and set to 'error' severity
 ```
