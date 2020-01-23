@@ -19,6 +19,7 @@ Currently, @redocly/openapi-cli supports these features:
 - [x] Intuitive suggestions for misspelled types or references.
 - [x] Easy to implement custom rules. Need something? Ask us or do it yourself.
 - [x] Bundle a multifile definition into a single file.
+- [x] Preview reference docs for local development.
 
 ## Approach
 
@@ -72,6 +73,12 @@ Also, it accepts `[options]` which can be:
 - `--config <path>`  Specify custom yaml or json config.
 
 In the section below, you can learn how to provide settings for the `@redocly/openapi-cli`.
+
+### Preview Docs
+
+```openapi preview-docs [options] [entryPoint]```
+
+Given this command, it will start a local development server and display the address to access the preview of the reference docs.  This works with both community-edition Redoc and the premium Redocly API Reference (with a valid license key).
 
 ## Configuration
 

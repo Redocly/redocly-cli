@@ -1,6 +1,6 @@
 # Rules
 
-All supported rules are listed below. To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.openapi-cli.yaml` in your working directory.
+All supported rules are listed below. To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.redocly.yaml` in your working directory.
 
 ### api-servers
 OpenAPI servers must be present and be a non-empty array.
@@ -64,23 +64,25 @@ Parameters in `operation` objects must be `unique` definition wide.
 Items in `tags` object of `operation`s should be sorted alphabetically.
 
 ### oas3-schema
-This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects (we call those sub-rules). For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.openapi-cli.yaml` to the following pattern:
+This rule enforces the structural validation of the OpenAPI definitions according to the OpenAPI Specification 3.0.2. It can be fine-tuned to disable or change the message level for each specific type of OpenAPI Objects (we call those sub-rules). For example, if you have a custom structure of the `servers` object, you prevent related error messages by updating your `.redocly.yaml` to the following pattern:
 
 ```yaml
-codeframes: off
-rules: 
-  ...other rules
-  oas3-schema: 
-    servers:
-      level: warning    
+lint:
+  codeframes: off
+  rules: 
+    ...other rules
+    oas3-schema: 
+      servers:
+        level: warning    
 ```
 Or even totally disabled:
 ```yaml
-codeframes: off
-rules: 
-  ...other rules
-  oas3-schema: 
-    servers: off
+lint:
+  codeframes: off
+  rules: 
+    ...other rules
+    oas3-schema: 
+      servers: off
 ```
 
 Below, you can find the table of available sub-rules you can update:
