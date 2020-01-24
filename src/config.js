@@ -85,6 +85,11 @@ export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig
     && Object.keys(config.apiDefinitions).length > 0
   ) {
     res = Object.values(config.apiDefinitions);
+  } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
+    const aliases = Object.keys(config.apiDefinitions);
+    for (let i = 0; i < argsEntrypoints.length; i++) {
+      res[i] = aliases.indexOf(argsEntrypoints[i]) !== -1 ? config.apiDefinitions[res[i]] : res[i];
+    }
   }
 
   if (!res || !res.length) {

@@ -1,31 +1,33 @@
-typeExtension: typeExtension.js
-# customRules: customRules.js
-transformers: customRules.js
-codeframes: on
-rules:
-  bundler: off
-  debug-info: off
+apiDefinitions:
+  simpleDefinition: ./syntetic/syntetic.yaml
+  anotherWithError: ./syntetic/syntetic-2.yaml
 
-  parameterPartial: warning
-  parameterWithAllOf: warning
+lint:
+  codeframes: on
+  rules:
+    bundler: off
+    debug-info: off
 
-  oas3-schema/parameter: off
-  oas3-schema/external-docs:
-    url: off
+    parameterPartial: warning
+    parameterWithAllOf: warning
+
+    oas3-schema/parameter: off
+    oas3-schema/external-docs:
+      url: off
 
 
-  path-param-exists: on
-  operation-2xx-response: on
-  unique-parameter-names: on
-  no-unused-schemas: on
-  operation-operationId-unique: on
-  path-declarations-must-exist: on
+    path-param-exists: on
+    operation-2xx-response: on
+    unique-parameter-names: on
+    no-unused-schemas: on
+    operation-operationId-unique: on
+    path-declarations-must-exist: on
 
-  api-servers: on
-  license-url: on
-  no-extra-fields: on
-  operation-description: on
-  operation-operationId: on
-  operation-tags: off
-  provide-contact: on
-  servers-no-trailing-slash: on
+    api-servers: on
+    license-url: on
+    no-extra-fields: on
+    operation-description: on
+    operation-operationId: on
+    operation-tags: off
+    provide-contact: on
+    servers-no-trailing-slash: on
