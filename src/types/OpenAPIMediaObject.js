@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import OpenAPISchema from './OpenAPISchema';
 import { OpenAPIExampleMap } from './OpenAPIExampleMap';
-import OpenAPIEncoding from './OpenAPIEncoding';
+import OpenAPIEncodingsMap from './OpenAPIEncodingsMap';
 
 
 export const OpenAPIMediaObject = {
@@ -11,7 +11,7 @@ export const OpenAPIMediaObject = {
     example: null,
     schema: OpenAPISchema,
     examples: OpenAPIExampleMap,
-    encoding: OpenAPIEncoding,
+    encoding: OpenAPIEncodingsMap,
   },
 };
 
