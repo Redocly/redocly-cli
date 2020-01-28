@@ -7,6 +7,7 @@ export { default as OpenAPIComponents } from './OpenAPIComponents';
 export { default as OpenAPIContact } from './OpenAPIContact';
 export { default as OpenAPIDiscriminator } from './OpenAPIDiscriminator';
 export { default as OpenAPIEncoding } from './OpenAPIEncoding';
+export { default as OpenAPIEncodingsMap } from './OpenAPIEncodingsMap';
 export { default as OpenAPIExample } from './OpenAPIExample';
 export { default as OpenAPIExampleMap } from './OpenAPIExampleMap';
 export { default as OpenAPIExternalDocumentation } from './OpenAPIExternalDocumentation';
