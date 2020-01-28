@@ -1,3 +1,6 @@
+import OpenAPIOperation from '../../../types/OpenAPIOperation';
+import OpenAPIPath from '../../../types/OpenAPIPath';
+
 class UniqueParameterNames {
   static get rule() {
     return 'unique-parameter-names';
@@ -5,48 +8,57 @@ class UniqueParameterNames {
 
   constructor(config) {
     this.config = config;
-    this.parametersStack = [];
-  }
-
-  exitNode(node) {
-    if (node.parameters) {
-      if (Array.isArray(node.parameters)) {
-        node.parameters.forEach(() => this.parametersStack.pop());
-      } else if (typeof node.parameters === 'object') {
-        Object.keys(node.parameters).forEach(() => this.parametersStack.pop());
-      }
-    }
+    this.currentOperationParameters = [];
+    this.currentPathParameters = [];
   }
 
   OpenAPIComponents() {
     return {
-      onExit: this.exitNode.bind(this),
+      onExit: () => {
+        this.currentOperationParameters = [];
+        this.currentPathParameters = [];
+      }
     };
   }
 
   OpenAPIOperation() {
     return {
-      onExit: this.exitNode.bind(this),
+      onExit: () => {
+        this.currentOperationParameters = [];
+      }
     };
   }
 
   OpenAPIPath() {
     return {
-      onExit: this.exitNode.bind(this),
+      onExit: () => {
+        this.currentPathParameters = [];
+      }
     };
   }
 
   OpenAPIParameter() {
     return {
-      onEnter: (node, definition, ctx) => {
+      onEnter: (node, _, ctx) => {
         let error;
-        if (node.name && this.parametersStack.includes(node.name) && !(ctx.pathStack.length === 0 && ctx.path.includes('components'))) {
+
+        let paramsList = [];
+
+        if (ctx.definitionStack.includes(OpenAPIOperation)) {
+          paramsList = this.currentOperationParameters;
+        } else if (ctx.definitionStack.includes(OpenAPIPath)) {
+          paramsList = this.currentPathParameters;
+        } else {
+          return [];
+        }
+
+        if (node.name && paramsList.includes(node.name)) {
           ctx.path.push('name');
-          error = ctx.createError('Duplicate parameters are not allowed. This name already used on higher or same level.', 'value');
+          error = ctx.createError('Duplicate parameters are not allowed. This name is already used on this level.', 'value');
           ctx.path.pop();
         }
         if (node.name) {
-          this.parametersStack.push(node.name);
+          paramsList.push(node.name);
         }
         return error ? [error] : [];
       },
