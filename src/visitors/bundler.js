@@ -56,6 +56,8 @@ class Bundler {
       this.nameConflictsSeverity = getMsgLevelFromString(this.config.nameConflicts || '');
     }
     this.components = {};
+
+    this.newRefNodes = new Map();
   }
 
   static get rule() {
@@ -139,7 +141,7 @@ class Bundler {
           if (!componentType) {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
-          } else {
+          } else if (!this.newRefNodes.has(unresolvedNode)) {
             // eslint-disable-next-line prefer-const
             const { name, errors: nameErrors } = getComponentName(
               unresolvedNode.$ref, this.components, componentType, node, ctx,
@@ -154,13 +156,10 @@ class Bundler {
             }
 
             this.components[componentType][name] = node;
-
-            if (unresolvedNode[MAPPING_DATA_KEY]) { // FIXME: too hack
-              const { mapping, key } = unresolvedNode[MAPPING_DATA_KEY];
-              mapping[key] = newRef;
-            } else {
-              unresolvedNode.$ref = newRef;
-            }
+            // we can't replace nodes in-place as non-idempotent
+            // nodes will be visited again and will fail bundling
+            // so we save it and replace at the end
+            this.newRefNodes.set(unresolvedNode, newRef);
           }
         }
 
@@ -187,6 +186,15 @@ class Bundler {
         if (!this.config.ignoreErrors && ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
           ctx.bundlingResult = null;
           return null;
+        }
+
+        for (const [unresolvedNode, newRef] of this.newRefNodes.entries()) {
+          if (unresolvedNode[MAPPING_DATA_KEY]) { // FIXME: too hack
+            const { mapping, key } = unresolvedNode[MAPPING_DATA_KEY];
+            mapping[key] = newRef;
+          } else {
+            unresolvedNode.$ref = newRef;
+          }
         }
 
         Object.keys(this.components).forEach((component) => {
