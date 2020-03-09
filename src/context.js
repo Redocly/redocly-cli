@@ -32,8 +32,19 @@ const getRule = (ctx, ruleName) => {
   return result ? result[0] : null;
 };
 
-function createContext(node, sourceFile, filePath, config) {
+function createContext(node, sourceFile, filePath, config, redoclyClient) {
   const [enabledRules, allRules] = loadRuleset(config);
+  config.headers = config.headers || [];
+  if (redoclyClient) {
+    config.headers = [...(config.headers || []), {
+      regexp: 'api.redoc.ly/registry/.*',
+      name: 'Authorization',
+      value: redoclyClient.getAuthorizationHeader(),
+    }];
+  }
+
+  config.headers = config.headers.map((header) => ({ ...header, regexp: new RegExp(header.regexp) }));
+
   return {
     document: node,
     filePath: path.resolve(filePath),
@@ -41,6 +52,7 @@ function createContext(node, sourceFile, filePath, config) {
     cache: {},
     visited: [],
     result: [],
+    dependencies: [],
     definitionStack: [],
     definitions: loadDefinitions(config),
     pathStack: [],
@@ -49,7 +61,9 @@ function createContext(node, sourceFile, filePath, config) {
     customRules: [...loadRulesetExtension(config, 'transformingVisitors'), ...enabledRules, ...loadRulesetExtension(config, 'rulesExtensions')],
     allRules,
     config,
+    headers: config.headers,
     messageHelpers,
+    redoclyClient,
     validateFieldsRaw,
     getRule,
     resolveNode: resolveNodeNoSideEffects,

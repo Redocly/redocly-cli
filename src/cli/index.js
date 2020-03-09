@@ -2,11 +2,15 @@
 
 import chalk from 'chalk';
 import program from 'commander';
+
 import fs from 'fs';
 import {
   join, basename, dirname, extname,
 } from 'path';
 import * as chockidar from 'chokidar';
+
+import { promptUser } from './utils';
+import RedoclyClient from '../redocly';
 
 import { validateFromFile, validateFromUrl } from '../validate';
 import { bundle, bundleToFile } from '../bundle';
@@ -18,7 +22,7 @@ import { getFallbackEntryPointsOrExit, getConfig } from '../config';
 
 import startPreviewServer from '../preview-docs';
 
-const validateFile = (filePath, options, cmdObj) => {
+const validateFile = async (filePath, options, cmdObj) => {
   let result;
 
   if (!fs.existsSync(filePath) && isFullyQualifiedUrl(filePath)) {
@@ -44,6 +48,45 @@ const cli = () => {
 
   program
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
+
+  program
+    .command('login')
+    .description('Login to the Redoc.ly API Registry with access token')
+    .option('-p, --prompt', 'Ask for credentials instead of looking them in the .env or enviroment variables')
+    .action(async (cmdObj) => {
+      let clientId;
+      let clientSecret;
+
+      const client = new RedoclyClient(clientId, clientSecret);
+
+      if (cmdObj.prompt) {
+        clientId = await promptUser('Entery your API Client ID');
+        clientSecret = await promptUser('Entery your API Client Secret');
+        client.authorize(clientId, clientSecret);
+      }
+
+      const authorizedUser = await client.isLoggedIn();
+
+      // console.log(!!authorizedUser);
+    });
+
+  program
+    .command('logout')
+    .description('Clear stored credentials for Redoc.ly API Registry')
+    .action(async () => {
+      const client = new RedoclyClient();
+      client.logout();
+    });
+
+  program
+    .command('ls')
+    .description('Get a list of available definitions')
+    .action(async () => {
+      const client = new RedoclyClient();
+      await client.authorize('aaa', 'bbb');
+      const a = await client.listDefinitions();
+      console.log(a);
+    });
 
   program
     .command('bundle [entryPoints...]')
@@ -110,10 +153,12 @@ const cli = () => {
   program
     .command('validate [entryPoints...]')
     .description('Validate given OpenAPI 3 definition file.')
-    .option('--short', 'Reduce output to required minimun')
+    .option('--short', 'Reduce output to required minimun.')
     .option('--no-frame', 'Print no codeframes with errors.')
-    .option('--config <path>', 'Specify custom yaml or json config')
-    .action((entryPoints, cmdObj) => {
+    .option('--config <path>', 'Specify custom yaml or json config.')
+    .option('--registry-link <link>', 'Link to a definition version in the Redocly API Registry.')
+    .option('--registry <link>', 'Link to a Redocly API Registry to be used with.')
+    .action(async (entryPoints, cmdObj) => {
       const options = {};
       const results = {
         errors: 0,
@@ -126,11 +171,12 @@ const cli = () => {
 
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
+      if (cmdObj.registryLink) options.registryLink = cmdObj.registryLink;
 
       for (let i = 0; i < entryPoints.length; i++) {
         printValidationHeader(entryPoints[i]);
 
-        const msgs = validateFile(entryPoints[i], options, cmdObj);
+        const msgs = await validateFile(entryPoints[i], options, cmdObj);
         results.errors += msgs.errors;
         results.warnings += msgs.warnings;
       }

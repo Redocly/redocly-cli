@@ -56,7 +56,7 @@ function resolve(link, ctx, visited = []) {
   pushPath(ctx, resolvedFilePath, []);
 
   const resolvedLink = `${resolvedFilePath}#/${docPath}`;
-
+  // console.log(linkSplitted);
   if (!isCurrentDocument) {
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
@@ -75,6 +75,12 @@ function resolve(link, ctx, visited = []) {
       try {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', filePath, false);
+
+        for (let i = 0; i < ctx.headers.length; i++) {
+          if (ctx.headers[i].regexp.test(resolvedFilePath)) {
+            xhr.setRequestHeader(ctx.headers[i].name, ctx.headers[i].value);
+          }
+        }
         xhr.send();
 
         if (xhr.status !== 200) {

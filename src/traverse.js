@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-case-declarations */
 import path from 'path';

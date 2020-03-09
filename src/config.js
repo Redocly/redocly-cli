@@ -5,7 +5,7 @@ import * as path from 'path';
 
 let warningShown = false;
 
-export function getConfig(options) {
+export function getConfig(options, remoteConfig = {}) {
   let config = {};
   let { configPath } = options;
   if (!configPath) {
@@ -40,12 +40,29 @@ export function getConfig(options) {
       }
 
       warningShown = true;
-
       config = { lint: config };
     }
   }
 
-  const resolvedConfig = merge(defaultConfig, config, options);
+  let passedRegistryConfig = {};
+
+  if (options.registryLink) {
+    const registryLinkComponents = options.registryLink
+      .replace('https://', '')
+      .replace('https://', '')
+      .replace('api.redoc.ly/registry/', '')
+      .split('/');
+
+    passedRegistryConfig = {
+      registry: {
+        organization: registryLinkComponents[0],
+        definition: registryLinkComponents[1],
+        definitionVersion: registryLinkComponents[2],
+      },
+    };
+  }
+
+  const resolvedConfig = merge(defaultConfig, remoteConfig, config, options, passedRegistryConfig);
   resolvedConfig.configPath = configPath;
 
   const lintConfig = resolvedConfig.lint;
@@ -70,11 +87,23 @@ export function getConfig(options) {
   const transformingVisitors = require(lintConfig.transformers);
   lintConfig.transformingVisitors = transformingVisitors;
 
+
+  resolvedConfig.lint.headers = resolvedConfig.lint.headers.map((header) => ({
+    ...header,
+    value: header.envVariable ? process.env[header.envVariable] : header.value,
+  }));
+
+  // console.log(resolvedConfig.lint.headers);
+
   return resolvedConfig;
 }
 
-export function getLintConfig(options) {
-  return getConfig(options).lint;
+export function getLintConfig(options, remoteConfig = {}) {
+  return getConfig(options, remoteConfig).lint;
+}
+
+export function getRegistryConfig(options) {
+  return getConfig(options).registry;
 }
 
 export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig({})) {
@@ -86,7 +115,7 @@ export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig
   ) {
     res = Object.values(config.apiDefinitions);
   } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
-    res = res.map(aliasOrPath => config.apiDefinitions[aliasOrPath] || aliasOrPath);
+    res = res.map((aliasOrPath) => config.apiDefinitions[aliasOrPath] || aliasOrPath);
   }
 
   if (!res || !res.length) {
