@@ -74,7 +74,7 @@ function resolve(link, ctx, visited = []) {
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', filePath, false);
+        xhr.open('GET', resolvedFilePath, false);
         xhr.send();
 
         if (xhr.status !== 200) {
