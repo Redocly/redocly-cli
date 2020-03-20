@@ -91,6 +91,8 @@ function traverseNode(node, definition, ctx, visited = []) {
   localVisited.push(currentPath);
 
   const resolvedDefinition = resolveDefinition(definition, ctx, nodeContext.resolvedNode);
+
+  ctx.definitionStack.push(resolvedDefinition);
   resolveScalars(nodeContext.resolvedNode, definition, ctx);
 
   if (definition.customResolveFields) {
@@ -132,6 +134,7 @@ function traverseNode(node, definition, ctx, visited = []) {
     if (newNode) ctx.cache[currentPath] = errors;
   }
   onNodeExit(nodeContext, ctx);
+  ctx.definitionStack.pop();
   return errors;
 }
 

@@ -27,7 +27,7 @@ class NoRefSiblings {
 
           ctx.path = prevPathItem.path;
           ctx.filePath = prevPathItem.file;
-          ctx.source = fs.readFileSync(prevPathItem.file, 'utf-8');
+          ctx.source = prevPathItem.source;
 
           for (let i = 0; i < nodeKeys.length; i++) {
             if (nodeKeys[i] !== '$ref' && nodeKeys[i] !== MAPPING_DATA_KEY) {

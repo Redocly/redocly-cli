@@ -74,7 +74,7 @@ function resolve(link, ctx, visited = []) {
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', filePath, false);
+        xhr.open('GET', resolvedFilePath, false);
 
         for (let i = 0; i < ctx.headers.length; i++) {
           if (ctx.headers[i].regexp.test(resolvedFilePath)) {
