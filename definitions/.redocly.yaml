@@ -37,6 +37,7 @@ lint:
           on: OpenAPIServer.url
           not: true
           startsWith: https://api-sandbox
+          level: error
           message: 'Example servers should not be in api sandbox. God knows why.'
         ParameterNameStartCapital:
           on: OpenAPIParameter.name

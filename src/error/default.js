@@ -43,12 +43,14 @@ export const getReferencedFrom = (ctx) => {
   };
 };
 
-const createError = (msg, node, ctx, options) => {
+const createError = (msg, node, ctx, options, overrideSeverity) => {
   const {
     target, possibleAlternate, fromRule,
   } = options;
 
   let { severity = messageLevels.ERROR } = options;
+
+  if (overrideSeverity) severity = overrideSeverity;
 
   if (typeof severity === 'string') {
     severity = getMsgLevelFromString(severity);
@@ -81,10 +83,10 @@ const createError = (msg, node, ctx, options) => {
 };
 
 export const createErrorFlat = (
-  node, ctx, fromRule, severity, msg, target, possibleAlternate,
+  node, ctx, fromRule, severity, msg, target, possibleAlternate, overrideSeverity,
 ) => createError(msg, node, ctx, {
   target, fromRule, severity, possibleAlternate,
-});
+}, overrideSeverity);
 
 export const fromError = (error, ctx) => (
   // let location = getLocationByPath(Array.from(ctx.path), ctx, error.target);
