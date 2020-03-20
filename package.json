@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "oas"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
+    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.6.0",
     "@babel/node": "^7.6.1",
     "@babel/preset-env": "^7.6.0",
@@ -46,11 +46,11 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
-    "jest": "^24.9.0",
-    "nyc": "^14.1.1",
+    "jest": "^25.1.0",
+    "nyc": "^15.0.0",
     "prettier": "^1.18.2",
     "webpack": "^4.41.0",
-    "webpack-cli": "^3.3.9"
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "chalk": "^2.4.2",
