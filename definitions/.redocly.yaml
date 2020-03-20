@@ -1,0 +1,47 @@
+apiDefinitions:
+  # new: ./syntetic/syntetic-1.yaml
+  # anotherWithError: ./syntetic/syntetic-2.yaml
+  # sample: ./syntetic/to_bundle/bundle.yaml
+  simpleDefinition: ./syntetic/syntetic.yaml
+
+registry:
+  organization: ggg
+  definition: hello
+  definitionVersion: bla
+
+lint:
+  codeframes: on
+  headers:
+    - name: Client-Header
+      value: sometestvalue
+      regexp: api.redoc.ly/.*
+    - name: Custom
+      envVariable: TEST_VAR
+      regexp: api.redoc.ly/.*
+  rules:
+    bundler: off
+    debug-info: off
+
+    parameterPartial: warning
+    parameterWithAllOf: warning
+
+    oas3-schema/parameter: off
+    oas3-schema/external-docs:
+      url: off
+
+
+    path-param-exists: on
+    operation-2xx-response: on
+    unique-parameter-names: on
+    no-unused-schemas: on
+    operation-operationId-unique: on
+    path-declarations-must-exist: on
+
+    api-servers: on
+    license-url: on
+    no-extra-fields: off
+    operation-description: off
+    operation-operationId: off
+    operation-tags: off
+    provide-contact: off
+    servers-no-trailing-slash: off

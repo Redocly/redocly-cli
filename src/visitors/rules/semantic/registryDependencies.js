@@ -1,6 +1,6 @@
 class RegsitryDependencies {
   static get rule() {
-    return 'regostry-dependencies';
+    return 'registry-dependencies';
   }
 
   OpenAPIRoot() {
