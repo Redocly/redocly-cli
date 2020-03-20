@@ -13,7 +13,9 @@ export default class RedoclyClient {
       if (existsSync(credentialsPath)) {
         credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
       }
+      // eslint-disable-next-line no-param-reassign
       clientId = process.env.REDOCLY_CLIENT_ID || credentials.clientId;
+      // eslint-disable-next-line no-param-reassign
       clientSecret = process.env.REDOCLY_CLIENT_SECRET || credentials.clientSecret;
     }
     this.accessToken = `${clientId}:${clientSecret}`;

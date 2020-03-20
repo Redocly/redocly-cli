@@ -8,7 +8,8 @@ class ValidateOpenAPIExternalDocumentation {
   get validators() {
     return {
       description(node, ctx) {
-        return node && node.description && typeof node.description !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        return node && node.description && typeof node.description !== 'string'
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       url(node, ctx) {
         if (node && !node.url) return ctx.createError(ctx.messageHelpers.missingRequiredField('url'), 'key');

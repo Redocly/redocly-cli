@@ -32,8 +32,10 @@ const validateFile = async (filePath, options, cmdObj) => {
     result = validateFromFile(filePath, options);
   }
   const resultStats = outputMessages(result, cmdObj);
+
+  const { totalErrors, totalWarnings } = resultStats;
   process.stdout.write(
-    `${chalk.blueBright(filePath)} results. Errors: ${resultStats.totalErrors}, warnings: ${resultStats.totalWarnings}\n`,
+    `${chalk.blueBright(filePath)} results. Errors: ${totalErrors}, warnings: ${totalWarnings}\n`,
   );
 
   return {
@@ -176,6 +178,7 @@ const cli = () => {
       for (let i = 0; i < entryPoints.length; i++) {
         printValidationHeader(entryPoints[i]);
 
+        // eslint-disable-next-line no-await-in-loop
         const msgs = await validateFile(entryPoints[i], options, cmdObj);
         results.errors += msgs.errors;
         results.warnings += msgs.warnings;
@@ -230,7 +233,8 @@ const cli = () => {
           if (resultStats.totalErrors === 0) {
             process.stdout.write(
               resultStats.totalErrors === 0
-                ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0 ? 'with warnings' : 'successfully'}\n`
+                ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0
+                  ? 'with warnings' : 'successfully'}\n`
                 : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
             );
           }
