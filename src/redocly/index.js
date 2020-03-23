@@ -35,7 +35,7 @@ export default class RedoclyClient {
   query(queryString, parameters = {}, headers = {}) {
     return query(queryString, parameters,
       {
-        authorization: this.accessToken,
+        Authorization: this.accessToken,
         ...headers,
       });
   }
@@ -97,19 +97,38 @@ export default class RedoclyClient {
     return result.definitions;
   }
 
-  updateDependencies(dependencies, registrySettings) {
+  updateDependencies(dependencies, authorizationToken) {
     return this.query(`
-    mutation UpdateBranchDependencies ($dependencies: JSON!, $organization: String, $definitionName: String!, $versionName: String!, $branchName: String) {
+    mutation UpdateBranchDependencies ($dependencies: JSON!, $definitionId: String!, $versionId: String!, $branchId: String) {
       updateBranchDependencies
     }
     `,
     {
       dependencies,
-      organization: registrySettings.organization,
-      definitionName: registrySettings.definition,
-      versionName: registrySettings.version,
-      branchName: registrySettings.branch,
+      definitionId: process.env.DEFINITION,
+      versionId: process.env.VERSION,
+      branchId: process.env.BRANCH,
+    }, {
+      Authorization: authorizationToken,
     });
+  }
+
+  processRegistryDependency(link, ctx) {
+    if (link.indexOf('https://api.redocly-dev.win/registry/') !== 0) return;
+    const registryPath = link.replace('https://api.redocly-dev.win/registry/', '');
+
+    const pathParts = registryPath.split('/');
+    const [organizationId, definitionName, definitionVersionName, _, branchName, jobUUID] = pathParts;
+
+    if (jobUUID) return;
+    const requirementInfo = {
+      organizationId,
+      definitionName,
+      definitionVersionName,
+      branchName,
+    };
+
+    ctx.dependencies.push(requirementInfo);
   }
 
   getLintConfig(organization, definitionName, versionName) {

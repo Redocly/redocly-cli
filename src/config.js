@@ -87,11 +87,14 @@ export function getConfig(options, remoteConfig = {}) {
   const transformingVisitors = require(lintConfig.transformers);
   lintConfig.transformingVisitors = transformingVisitors;
 
+  if (!resolvedConfig.lint) {
+    resolvedConfig.lint = {};
+  }
 
-  resolvedConfig.lint.headers = resolvedConfig.lint.headers.map((header) => ({
+  resolvedConfig.lint.headers = (resolvedConfig.lint && resolvedConfig.lint.headers) ? (resolvedConfig.lint.headers.map((header) => ({
     ...header,
     value: header.envVariable ? process.env[header.envVariable] : header.value,
-  }));
+  }))) : [];
 
   // console.log(resolvedConfig.lint.headers);
 

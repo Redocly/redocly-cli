@@ -6,27 +6,15 @@ class RegsitryDependencies {
   OpenAPIRoot() {
     return {
       onExit: (_node, _definition, ctx) => {
-        if (ctx.dependencies.length) {
-          const { redoclyClient, registrySettings } = ctx;
-          const dependencies = ctx.dependencies
-            .map(
-              (dependency) => dependency
-                .replace('https://', '')
-                .replace('http://', '')
-                .replace('api.redoc.ly/registry/', '')
-                .split('/'),
-            ).map((dependencyArray) => ({
-              organization: dependencyArray[0],
-              definition: dependencyArray[1],
-              version: dependencyArray[2],
-              branch: dependencyArray[4],
-              build: dependencyArray[5],
-            }));
+        console.log('will update dependencies');
+        const { redoclyClient, registrySettings } = ctx;
+        console.log(ctx.dependencies);
 
-          // console.log(registrySettings);
-          if (redoclyClient.isLoggedIn()) {
-            redoclyClient.updateDependencies(dependencies, registrySettings);
-          }
+        console.log(registrySettings);
+        console.log('flflf');
+        console.log(process.env.REDOCLY_AUTHORIZATION);
+        if (process.env.REDOCLY_AUTHORIZATION) {
+          redoclyClient.updateDependencies(ctx.dependencies, process.env.REDOCLY_AUTHORIZATION);
         }
       },
     };
