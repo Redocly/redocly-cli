@@ -77,7 +77,6 @@ function resolve(link, ctx, visited = []) {
         xhr.open('GET', resolvedFilePath, false);
 
         ctx.redoclyClient.processRegistryDependency(resolvedFilePath, ctx);
-
         for (let i = 0; i < ctx.headers.length; i++) {
           if (ctx.headers[i].regexp.test(resolvedFilePath)) {
             xhr.setRequestHeader(ctx.headers[i].name, ctx.headers[i].value);

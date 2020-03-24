@@ -56,20 +56,10 @@ const cli = () => {
     .description('Login to the Redoc.ly API Registry with access token')
     .option('-p, --prompt', 'Ask for credentials instead of looking them in the .env or enviroment variables')
     .action(async (cmdObj) => {
-      let clientId;
-      let clientSecret;
-
-      const client = new RedoclyClient(clientId, clientSecret);
-
-      if (cmdObj.prompt) {
-        clientId = await promptUser('Entery your API Client ID');
-        clientSecret = await promptUser('Entery your API Client Secret');
-        client.authorize(clientId, clientSecret);
-      }
-
-      const authorizedUser = await client.isLoggedIn();
-
-      // console.log(!!authorizedUser);
+      const clientToken = await promptUser(`Copy your access token from https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile and paste it below`);
+      const clientOrganization = await promptUser('Enter your organization name:');
+      const client = new RedoclyClient();
+      client.login(clientToken, clientOrganization);
     });
 
   program
@@ -89,7 +79,6 @@ const cli = () => {
       const a = await client.listDefinitions();
       console.log(a);
     });
-
   program
     .command('bundle [entryPoints...]')
     .description('Create a bundle using <entryPoint> as a root document.')

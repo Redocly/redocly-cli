@@ -1,32 +1,64 @@
 import {
   existsSync, readFileSync, writeFileSync, unlinkSync,
 } from 'fs';
+import yaml from 'js-yaml';
 import { resolve } from 'path';
+import { homedir } from 'os';
 
 import query from './query';
 
 export default class RedoclyClient {
-  constructor(clientId, clientSecret) {
-    if (!(clientId && clientSecret)) {
-      const credentialsPath = resolve(__dirname, '../credentials.json');
-      let credentials = {};
-      if (existsSync(credentialsPath)) {
-        credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
-      }
-      // eslint-disable-next-line no-param-reassign
-      clientId = process.env.REDOCLY_CLIENT_ID || credentials.clientId;
-      // eslint-disable-next-line no-param-reassign
-      clientSecret = process.env.REDOCLY_CLIENT_SECRET || credentials.clientSecret;
+  constructor() {
+    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    let credentials = {};
+    if (existsSync(credentialsPath)) {
+      credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
     }
-    this.accessToken = `${clientId}:${clientSecret}`;
+    const authDetails = RedoclyClient.authorize(credentials.token);
+    if (authDetails) {
+      this.accessToken = credentials.token;
+    }
   }
 
   getAuthorizationHeader() {
     return this.accessToken;
   }
 
+  login(accessToken, organizationId) {
+    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    const authDetails = RedoclyClient.authorize(accessToken);
+    if (authDetails) {
+      this.accessToken = accessToken;
+      const credentials = {
+        token: accessToken,
+      };
+      writeFileSync(credentialsPath, JSON.stringify(credentials));
+      process.stdout.write('Authorization confirmed.\n');
+    } else {
+      process.stdout.write('Authorization failed. Please check if you entered a valid token.\n');
+      return;
+    }
+    const redoclyConfigPath = resolve('.redocly.yaml');
+    if (existsSync(redoclyConfigPath)) {
+      const config = yaml.safeLoad(readFileSync(redoclyConfigPath, 'utf-8'));
+      config.registry = {
+        ...(config.registry || {}),
+        organization: organizationId,
+      };
+      writeFileSync(redoclyConfigPath, yaml.safeDump(config));
+    } else {
+      const snippetMsg = `Please, update you ".redocly.yaml" and insert this snippet into its root level:
+==================
+registry:
+  organization: ${organizationId}
+==================
+It will allow the openapi-cli to use your organization's settings.\n`;
+      process.stdout.write(snippetMsg);
+    }
+  }
+
   logout() {
-    const credentialsPath = resolve(__dirname, '../credentials.json');
+    const credentialsPath = resolve(homedir(), '.redocly.token.json');
     if (existsSync(credentialsPath)) {
       unlinkSync(credentialsPath);
     }
@@ -40,26 +72,22 @@ export default class RedoclyClient {
       });
   }
 
-  authorize(clientId, clientSecret) {
+  static authorize(accessToken, verbose = false) {
     try {
-      const result = this.query(`
+      const result = query(`
       {
-        viewer {
+        definitions {
           id
-          email
         }
       }
       `,
       {},
       {
-        authorization: `${clientId}:${clientSecret}`,
+        Authorization: accessToken,
       });
-      this.accessToken = `${clientId}:${clientSecret}`;
-      const credentialsPath = resolve(__dirname, '../credentials.json');
-      writeFileSync(credentialsPath, JSON.stringify({ clientId, clientSecret }));
       return result;
     } catch (e) {
-      console.log(e);
+      if (verbose) process.stderr.write(e);
       return null;
     }
   }
@@ -98,19 +126,22 @@ export default class RedoclyClient {
   }
 
   updateDependencies(dependencies, authorizationToken) {
-    return this.query(`
-    mutation UpdateBranchDependencies ($dependencies: JSON!, $definitionId: String!, $versionId: String!, $branchId: String) {
-      updateBranchDependencies
+    const r = this.query(`
+    mutation UpdateBranchDependencies ($dependencies: [BranchDependencyInput!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
+      updateBranchDependencies(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
+        branchName
+      }
     }
     `,
     {
-      dependencies,
-      definitionId: process.env.DEFINITION,
-      versionId: process.env.VERSION,
-      branchId: process.env.BRANCH,
+      dependencies: dependencies || [],
+      definitionId: parseInt(process.env.DEFINITION, 10),
+      versionId: parseInt(process.env.VERSION, 10),
+      branchId: parseInt(process.env.BRANCH, 10),
     }, {
       Authorization: authorizationToken,
     });
+    return r;
   }
 
   processRegistryDependency(link, ctx) {

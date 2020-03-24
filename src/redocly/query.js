@@ -1,6 +1,6 @@
 import { XMLHttpRequest } from 'xmlhttprequest';
 
-const GRAPHQL_ENDPOINT = 'http://localhost:3100/graphql';
+const GRAPHQL_ENDPOINT = process.env.REDOCLY_GRAPHQL_ENDPOINT || 'https://5ueznpgw24.execute-api.us-east-1.amazonaws.com/dev/graphql';
 
 export default function query(queryString, variables = {}, headers = {}, debugInfo = '') {
   const xhr = new XMLHttpRequest();
