@@ -145,8 +145,9 @@ It will allow the openapi-cli to use your organization's settings.\n`;
   }
 
   processRegistryDependency(link, ctx) {
-    if (link.indexOf('https://api.redocly-dev.win/registry/') !== 0) return;
-    const registryPath = link.replace('https://api.redocly-dev.win/registry/', '');
+    const domain = process.env.REDOCLY_DOMAIN || 'redocly-dev.win';
+    if (link.indexOf(`https://api.${domain}/registry/`) !== 0) return;
+    const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
     const pathParts = registryPath.split('/');
     const [organizationId, definitionName, definitionVersionName, _, branchName, jobUUID] = pathParts;
