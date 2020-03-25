@@ -4,8 +4,8 @@ import traverse from "../traverse";
 import { validateFromFile } from "../validate";
 
 describe("Traverse files", () => {
-  test("syntetic/syntetic-1.yaml", () => {
-    expect(validateFromFile("./definitions/syntetic/syntetic-1.yaml"))
+  test("syntetic/syntetic-1.yaml", async () => {
+    expect(await validateFromFile("./definitions/syntetic/syntetic-1.yaml"))
       .toMatchInlineSnapshot(`
       Array [
         Object {
@@ -470,20 +470,20 @@ describe("Traverse files", () => {
     `);
   });
 
-  test("syntetic/syntetic-1.yaml", () => {
+  test("syntetic/syntetic-1.yaml", async () => {
     expect(
-      validateFromFile("./definitions/openapi-directory/rebilly-full.yaml", {})
+      await validateFromFile("./definitions/openapi-directory/rebilly-full.yaml", {})
     ).toMatchInlineSnapshot(`Array []`);
   });
 
-  test("syntetic/syntetic-1.yaml", () => {
+  test("syntetic/syntetic-1.yaml", async () => {
     expect(
-      validateFromFile("./definitions/syntetic/to_bundle/main.yaml", {})
+      await validateFromFile("./definitions/syntetic/to_bundle/main.yaml", {})
     ).toMatchInlineSnapshot(`Array []`);
   });
 
-  test("syntetic/syntetic-1.yaml", () => {
-    expect(validateFromFile("./definitions/syntetic/syntetic-1.yaml", {}))
+  test("syntetic/syntetic-1.yaml", async () => {
+    expect(await validateFromFile("./definitions/syntetic/syntetic-1.yaml", {}))
       .toMatchInlineSnapshot(`
       Array [
         Object {

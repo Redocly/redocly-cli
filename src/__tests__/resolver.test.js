@@ -24,9 +24,9 @@ function tests(type, resolvedFileName) {
       doc = document[type];
     });
 
-    test('should successfully resolve transitive $ref', () => {
+    test('should successfully resolve transitive $ref', async () => {
       ctx.path.push('test1');
-      const res = resolveNode(doc.test1, ctx);
+      const res = await resolveNode(doc.test1, ctx);
       expect(res).toMatchInlineSnapshot(`
         Object {
           "node": Object {
@@ -38,18 +38,18 @@ function tests(type, resolvedFileName) {
       expect(ctx.result).toHaveLength(0);
     });
 
-    test('should fail to resolve incorrect transitive $ref with correct error at initial file', () => {
+    test('should fail to resolve incorrect transitive $ref with correct error at initial file', async () => {
       ctx.path.push('test2');
-      const res = resolveNode(doc.test2, ctx);
+      const res = await resolveNode(doc.test2, ctx);
       expect(res.node).toEqual(doc.test2);
       expect(ctx.result).toHaveLength(1);
       expect(ctx.result[0].file).toMatch('index.yaml');
       expect(ctx.result[0].path).toEqual([type, 'test2', '$ref']);
     });
 
-    test('should fail to resolve incorrect transitive $ref with error at first unresolved $ref', () => {
+    test('should fail to resolve incorrect transitive $ref with error at first unresolved $ref', async () => {
       ctx.path.push('test3');
-      const res = resolveNode(doc.test3, ctx);
+      const res = await resolveNode(doc.test3, ctx);
       expect(res.node).toEqual(doc.test3);
       expect(ctx.result).toHaveLength(1);
       expect(ctx.result[0].file).toMatch(resolvedFileName);
@@ -60,9 +60,9 @@ function tests(type, resolvedFileName) {
       expect(ctx.result[0].referencedFrom.path).toEqual([type, 'test3']);
     });
 
-    test('should fail to resolve circular transitive $ref', () => {
+    test('should fail to resolve circular transitive $ref', async () => {
       ctx.path.push('test4');
-      const res = resolveNode(doc.test4, ctx);
+      const res = await resolveNode(doc.test4, ctx);
       expect(res.node).toEqual(doc.test4);
       expect(ctx.result).toHaveLength(1);
       expect(ctx.result[0].file).toMatch(resolvedFileName);
