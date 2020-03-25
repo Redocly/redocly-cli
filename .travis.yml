@@ -4,6 +4,8 @@ node_js:
 cache:
   directories:
     - "node_modules"
+env:
+  - FORCE_COLOR=0
 jobs:
   include:
     - stage: test
