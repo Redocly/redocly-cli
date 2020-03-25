@@ -127,7 +127,7 @@ export default class RedoclyClient {
   }
 
   processRegistryDependency(link, ctx) {
-    const domain = process.env.REDOCLY_DOMAIN || 'redocly-dev.win';
+    const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
     if (link.indexOf(`https://api.${domain}/registry/`) !== 0) return;
     const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 

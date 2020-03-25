@@ -37,7 +37,7 @@ function createContext(node, sourceFile, filePath, config, redoclyClient) {
   const [enabledRules, allRules] = loadRuleset(config);
   config.headers = config.headers || [];
   config.headers = [...(config.headers || []), {
-    regexp: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.online'}/registry.*`,
+    regexp: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry.*`,
     name: 'Authorization',
     value: process.env.REDOCLY_AUTHORIZATION || (redoclyClient && redoclyClient.getAuthorizationHeader()),
   }];
