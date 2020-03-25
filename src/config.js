@@ -5,7 +5,7 @@ import * as path from 'path';
 
 let warningShown = false;
 
-export function getConfig(options, remoteConfig = {}) {
+export function getConfig(options) {
   let config = {};
   let { configPath } = options;
   if (!configPath) {
@@ -44,25 +44,7 @@ export function getConfig(options, remoteConfig = {}) {
     }
   }
 
-  let passedRegistryConfig = {};
-
-  if (options.registryLink) {
-    const registryLinkComponents = options.registryLink
-      .replace('https://', '')
-      .replace('https://', '')
-      .replace('api.redoc.ly/registry/', '')
-      .split('/');
-
-    passedRegistryConfig = {
-      registry: {
-        organization: registryLinkComponents[0],
-        definition: registryLinkComponents[1],
-        definitionVersion: registryLinkComponents[2],
-      },
-    };
-  }
-
-  const resolvedConfig = merge(defaultConfig, remoteConfig, config, options, passedRegistryConfig);
+  const resolvedConfig = merge(defaultConfig, config, options);
   resolvedConfig.configPath = configPath;
 
   const lintConfig = resolvedConfig.lint;
@@ -101,12 +83,8 @@ export function getConfig(options, remoteConfig = {}) {
   return resolvedConfig;
 }
 
-export function getLintConfig(options, remoteConfig = {}) {
-  return getConfig(options, remoteConfig).lint;
-}
-
-export function getRegistryConfig(options) {
-  return getConfig(options).registry;
+export function getLintConfig(options) {
+  return getConfig(options).lint;
 }
 
 export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig({})) {

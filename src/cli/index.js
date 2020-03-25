@@ -55,11 +55,10 @@ const cli = () => {
     .command('login')
     .description('Login to the Redoc.ly API Registry with access token')
     .option('-p, --prompt', 'Ask for credentials instead of looking them in the .env or enviroment variables')
-    .action(async (cmdObj) => {
+    .action(async () => {
       const clientToken = await promptUser(`Copy your access token from https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile and paste it below`);
-      const clientOrganization = await promptUser('Enter your organization name:');
       const client = new RedoclyClient();
-      client.login(clientToken, clientOrganization);
+      client.login(clientToken);
     });
 
   program
@@ -147,8 +146,6 @@ const cli = () => {
     .option('--short', 'Reduce output to required minimun.')
     .option('--no-frame', 'Print no codeframes with errors.')
     .option('--config <path>', 'Specify custom yaml or json config.')
-    .option('--registry-link <link>', 'Link to a definition version in the Redocly API Registry.')
-    .option('--registry <link>', 'Link to a Redocly API Registry to be used with.')
     .action(async (entryPoints, cmdObj) => {
       const options = {};
       const results = {
@@ -162,7 +159,6 @@ const cli = () => {
 
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
-      if (cmdObj.registryLink) options.registryLink = cmdObj.registryLink;
 
       for (let i = 0; i < entryPoints.length; i++) {
         printValidationHeader(entryPoints[i]);

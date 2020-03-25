@@ -1,7 +1,7 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 
-import { getLintConfig, getRegistryConfig } from './config';
+import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -22,26 +22,7 @@ export const bundleToFile = (fName, outputFile, force) => {
 
   if (!document.openapi) { return []; }
 
-  const registryConfig = getRegistryConfig({});
-  let derivedLintConfig = {};
-
-  const redoclyClient = new RedoclyClient();
-  if (registryConfig
-    && registryConfig.organization
-    && registryConfig.definition
-    && registryConfig.definitionVersion) {
-    if (redoclyClient.isLoggedIn()) {
-      derivedLintConfig = redoclyClient.getLintConfig(
-        registryConfig.organization,
-        registryConfig.definition,
-        registryConfig.definitionVersion,
-      );
-      derivedLintConfig = JSON.parse(derivedLintConfig);
-    }
-  }
-
-
-  const lintConfig = getLintConfig({}, { lint: derivedLintConfig });
+  const lintConfig = getLintConfig({});
   lintConfig.rules = {
     ...lintConfig.rules,
     bundler: {
@@ -51,6 +32,7 @@ export const bundleToFile = (fName, outputFile, force) => {
     },
   };
 
+  const redoclyClient = new RedoclyClient();
   const ctx = createContext(document, doc, resolvedFileName, lintConfig, redoclyClient);
 
   traverseNode(document, OpenAPIRoot, ctx);

@@ -8,7 +8,7 @@ import { createYAMLParseError } from './error';
 
 import { getFileSync } from './utils';
 
-import { getLintConfig, getRegistryConfig } from './config';
+import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -23,27 +23,10 @@ export const validate = (yamlData, filePath, options = {}) => {
   }
   if (!document.openapi && !document.$ref) return [];
 
-  const registryConfig = getRegistryConfig(options);
-  let derivedLintConfig = {};
-
-  const redoclyClient = new RedoclyClient();
-  if (registryConfig
-    && registryConfig.organization
-    && registryConfig.definition
-    && registryConfig.definitionVersion) {
-    if (redoclyClient.isLoggedIn()) {
-      derivedLintConfig = redoclyClient.getLintConfig(
-        registryConfig.organization,
-        registryConfig.definition,
-        registryConfig.definitionVersion,
-      );
-      derivedLintConfig = JSON.parse(derivedLintConfig);
-    }
-  }
-
-  const config = getLintConfig(options, { lint: derivedLintConfig });
+  const config = getLintConfig(options);
   config.rules.bundler = 'off';
 
+  const redoclyClient = new RedoclyClient();
   const ctx = createContext(document, yamlData, filePath, config, redoclyClient);
 
   ctx.getRule = ctx.getRule.bind(null, ctx);

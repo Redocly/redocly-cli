@@ -45,6 +45,7 @@ lint:
           regexp: 'q'
           message: 'Parameter names not be q'
         ExternalDocsHelpdesk:
+          level: 'error'
           on: OpenAPIExternalDocumentation.url
           startsWith: docs.redoc.ly
           message: 'External docs must be only on internal helpdesk'
