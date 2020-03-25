@@ -27,9 +27,9 @@ const validateFile = async (filePath, options, cmdObj) => {
 
   if (!fs.existsSync(filePath) && isFullyQualifiedUrl(filePath)) {
     process.stdout.write('Will validate from URL\n');
-    result = validateFromUrl(filePath, options);
+    result = await validateFromUrl(filePath, options);
   } else {
-    result = validateFromFile(filePath, options);
+    result = await validateFromFile(filePath, options);
   }
   const resultStats = outputMessages(result, cmdObj);
 
@@ -85,7 +85,7 @@ const cli = () => {
     .option('--short', 'Reduce output in case of bundling errors.')
     .option('--ext <ext>', 'Output extension: json, yaml or yml')
     .option('-f, --force', 'Produce bundle output file even if validation errors were encountered')
-    .action((entryPoints, cmdObj) => {
+    .action(async (entryPoints, cmdObj) => {
       if (cmdObj.ext && ['yaml', 'yml', 'json'].indexOf(cmdObj.ext) === -1) {
         process.stdout.write(
           'Unsupported value for --ext option. Supported values are: yaml, yml or json',
@@ -106,7 +106,7 @@ const cli = () => {
         warnings: 0,
       };
 
-      entryPoints.forEach((entryPoint) => {
+      for (const entryPoint of entryPoints) {
         let output;
         if (cmdObj.output) {
           const fileName = isOutputDir
@@ -115,7 +115,7 @@ const cli = () => {
           output = join(dir, `${fileName}.${ext}`);
         }
 
-        const bundlingStatus = bundleToFile(entryPoint, output, cmdObj.force);
+        const bundlingStatus = await bundleToFile(entryPoint, output, cmdObj.force);
         const resultStats = outputMessages(bundlingStatus, cmdObj);
 
         if (resultStats.totalErrors === 0) {
@@ -136,7 +136,7 @@ const cli = () => {
           results.errors += resultStats.totalErrors;
           results.warnings += resultStats.totalWarnings;
         }
-      });
+      }
       process.exit(results.errors === 0 || cmdObj.force ? 0 : 1);
     });
 
@@ -145,7 +145,7 @@ const cli = () => {
     .description('Validate given OpenAPI 3 definition file.')
     .option('--short', 'Reduce output to required minimun.')
     .option('--no-frame', 'Print no codeframes with errors.')
-    .option('--config <path>', 'Specify custom yaml or json config.')
+    .option('--config <path>', 'Specify custom yaml or json config')
     .action(async (entryPoints, cmdObj) => {
       const options = {};
       const results = {
@@ -163,7 +163,6 @@ const cli = () => {
       for (let i = 0; i < entryPoints.length; i++) {
         printValidationHeader(entryPoints[i]);
 
-        // eslint-disable-next-line no-await-in-loop
         const msgs = await validateFile(entryPoints[i], options, cmdObj);
         results.errors += msgs.errors;
         results.warnings += msgs.warnings;
@@ -198,37 +197,36 @@ const cli = () => {
         return cachedBundle;
       }
 
-      function updateBundle() {
-        cachedBundle = new Promise((resolve) => {
-          process.stdout.write('\nBundling...\n\n');
-          const { bundle: openapiBundle, result, fileDependencies } = bundle(entryPoint, output, {
-            lint: {
-              codeframes: false,
-            },
-          });
-
-          const removed = [...deps].filter((x) => !fileDependencies.has(x));
-          watcher.unwatch(removed);
-          watcher.add([...fileDependencies]);
-          deps.clear();
-          fileDependencies.forEach(deps.add, deps);
-
-          const resultStats = outputMessages(result, { short: true });
-
-          if (resultStats.totalErrors === 0) {
-            process.stdout.write(
-              resultStats.totalErrors === 0
-                ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0
-                  ? 'with warnings' : 'successfully'}\n`
-                : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
-            );
-          }
-
-          resolve(openapiBundle);
+      async function updateBundle() {
+        process.stdout.write('\nBundling...\n\n');
+        const { bundle: openapiBundle, result, fileDependencies } = await bundle(entryPoint, output, {
+          lint: {
+            codeframes: false,
+          },
         });
+
+        const removed = [...deps].filter((x) => !fileDependencies.has(x));
+        watcher.unwatch(removed);
+        watcher.add([...fileDependencies]);
+        deps.clear();
+        fileDependencies.forEach(deps.add, deps);
+
+        const resultStats = outputMessages(result, { short: true });
+
+        if (resultStats.totalErrors === 0) {
+          process.stdout.write(
+            resultStats.totalErrors === 0
+              ? `Created a bundle for ${entryPoint} ${resultStats.totalWarnings > 0 ? 'with warnings' : 'successfully'}\n`
+              : chalk.yellow(`Created a bundle for ${entryPoint} with errors. Docs may be broken or not accurate\n`),
+          );
+        }
+
+        return openapiBundle;
       }
 
-      setImmediate(() => updateBundle()); // initial cache
+      setImmediate(() => {
+        cachedBundle = updateBundle();
+      }); // initial cache
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
@@ -241,7 +239,7 @@ const cli = () => {
       });
 
       const debouncedUpdatedeBundle = debounce(async () => {
-        updateBundle();
+        cachedBundle = updateBundle();
         await cachedBundle;
         hotClients.broadcast('{"type": "reload", "bundle": true}');
       }, 2000);

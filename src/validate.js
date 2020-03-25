@@ -14,7 +14,7 @@ import createContext from './context';
 
 import RedoclyClient from './redocly';
 
-export const validate = (yamlData, filePath, options = {}) => {
+export const validate = async (yamlData, filePath, options = {}) => {
   let document;
   try {
     document = yaml.safeLoad(yamlData);
@@ -31,7 +31,7 @@ export const validate = (yamlData, filePath, options = {}) => {
 
   ctx.getRule = ctx.getRule.bind(null, ctx);
 
-  traverseNode(document, OpenAPIRoot, ctx);
+  await traverseNode(document, OpenAPIRoot, ctx);
 
   const filtered = ctx.result.filter((msg) => {
     for (let j = 0; j < ctx.customRules.length; j++) {
@@ -49,16 +49,15 @@ export const validate = (yamlData, filePath, options = {}) => {
   return filtered;
 };
 
-export const validateFromUrl = (link, options) => {
+export const validateFromUrl = async (link, options) => {
   const doc = getFileSync(link);
-  options.sourceUrl = true;
-  const validationResult = validate(doc, link, options);
+  const validationResult = await validate(doc, link, options);
   return validationResult;
 };
 
-export const validateFromFile = (fName, options) => {
+export const validateFromFile = async (fName, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
-  const validationResult = validate(doc, resolvedFileName, options);
+  const validationResult = await validate(doc, resolvedFileName, options);
   return validationResult;
 };

@@ -11,12 +11,12 @@ export default {
     propertyName: null,
     mapping: null,
   },
-  customResolveFields: (node, ctx, visited) => {
+  customResolveFields: async (node, ctx, visited) => {
     if (node && node.mapping && typeof node.mapping === 'object') {
       ctx.path.push('mapping');
       for (const key of Object.keys(node.mapping)) {
         ctx.path.push(key);
-        traverseNode(
+        await traverseNode(
           {
             $ref: node.mapping[key],
             [MAPPING_DATA_KEY]: { // FIXME: too hacky
