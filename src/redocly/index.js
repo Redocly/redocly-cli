@@ -24,7 +24,7 @@ export default class RedoclyClient {
     return this.accessToken;
   }
 
-  login(accessToken, organizationId) {
+  login(accessToken) {
     const credentialsPath = resolve(homedir(), '.redocly.token.json');
     const authDetails = RedoclyClient.authorize(accessToken);
     if (authDetails) {
@@ -36,24 +36,6 @@ export default class RedoclyClient {
       process.stdout.write('Authorization confirmed.\n');
     } else {
       process.stdout.write('Authorization failed. Please check if you entered a valid token.\n');
-      return;
-    }
-    const redoclyConfigPath = resolve('.redocly.yaml');
-    if (existsSync(redoclyConfigPath)) {
-      const config = yaml.safeLoad(readFileSync(redoclyConfigPath, 'utf-8'));
-      config.registry = {
-        ...(config.registry || {}),
-        organization: organizationId,
-      };
-      writeFileSync(redoclyConfigPath, yaml.safeDump(config));
-    } else {
-      const snippetMsg = `Please, update you ".redocly.yaml" and insert this snippet into its root level:
-==================
-registry:
-  organization: ${organizationId}
-==================
-It will allow the openapi-cli to use your organization's settings.\n`;
-      process.stdout.write(snippetMsg);
     }
   }
 
@@ -127,7 +109,7 @@ It will allow the openapi-cli to use your organization's settings.\n`;
 
   updateDependencies(dependencies, authorizationToken) {
     const r = this.query(`
-    mutation UpdateBranchDependencies ($dependencies: [BranchDependencyInput!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
+    mutation UpdateBranchDependencies ($dependencies: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
       updateBranchDependencies(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
         branchName
       }
@@ -150,17 +132,13 @@ It will allow the openapi-cli to use your organization's settings.\n`;
     const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
     const pathParts = registryPath.split('/');
-    const [organizationId, definitionName, definitionVersionName, _, branchName, jobUUID] = pathParts;
 
-    if (jobUUID) return;
-    const requirementInfo = {
-      organizationId,
-      definitionName,
-      definitionVersionName,
-      branchName,
-    };
+    // we can be sure, that there is job UUID present
+    // (org, definition, version, bundle, branch, job)
+    // so skip this link.
+    if (pathParts.length === 6) return;
 
-    ctx.dependencies.push(requirementInfo);
+    ctx.dependencies.push(link);
   }
 
   getLintConfig(organization, definitionName, versionName) {
