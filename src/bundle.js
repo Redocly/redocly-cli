@@ -7,7 +7,7 @@ import createContext from './context';
 
 import { OpenAPIRoot } from './types';
 
-export const bundleToFile = (fName, outputFile, force) => {
+export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -33,11 +33,11 @@ export const bundleToFile = (fName, outputFile, force) => {
 
   const ctx = createContext(document, doc, resolvedFileName, lintConfig);
 
-  traverseNode(document, OpenAPIRoot, ctx);
+  await traverseNode(document, OpenAPIRoot, ctx);
   return ctx.result;
 };
 
-export const bundle = (fName, force, options) => {
+export const bundle = async (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const doc = fs.readFileSync(resolvedFileName, 'utf-8');
   let document;
@@ -62,7 +62,7 @@ export const bundle = (fName, force, options) => {
 
   const ctx = createContext(document, doc, resolvedFileName, config);
 
-  traverseNode(document, OpenAPIRoot, ctx);
+  await traverseNode(document, OpenAPIRoot, ctx);
 
   return { bundle: ctx.bundlingResult, result: ctx.result, fileDependencies: ctx.fileDependencies };
 };
