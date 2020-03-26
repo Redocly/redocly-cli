@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import program from 'commander';
+import commander from 'commander';
 
 import fs from 'fs';
 import {
@@ -21,6 +21,8 @@ import { outputMessages, printValidationHeader } from './outputMessages';
 import { getFallbackEntryPointsOrExit, getConfig } from '../config';
 
 import startPreviewServer from '../preview-docs';
+
+const program = new commander.Command();
 
 const validateFile = async (filePath, options, cmdObj) => {
   let result;
@@ -51,7 +53,9 @@ const cli = () => {
   program
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
 
-  program
+  const registry = program.command('regitsry');
+
+  registry
     .command('login')
     .description('Login to the Redoc.ly API Registry with access token')
     .action(async () => {
@@ -60,7 +64,7 @@ const cli = () => {
       await client.login(clientToken);
     });
 
-  program
+  registry
     .command('logout')
     .description('Clear stored credentials for Redoc.ly API Registry')
     .action(async () => {
