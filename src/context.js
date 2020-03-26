@@ -6,7 +6,6 @@ import isRuleEnabled from './visitors/utils';
 import { loadDefinitions } from './resolveDefinition';
 import { messageHelpers } from './error';
 import { resolveNodeNoSideEffects } from './resolver';
-import RedoclyClient from './redocly';
 
 const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
