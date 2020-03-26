@@ -34,20 +34,10 @@ const getRule = (ctx, ruleName) => {
   return result ? result[0] : null;
 };
 
-async function createContext(node, sourceFile, filePath, config) {
+function createContext(node, sourceFile, filePath, config) {
   const [enabledRules, allRules] = loadRuleset(config);
 
-  const redoclyClient = new RedoclyClient();
-
   config.headers = config.headers || [];
-  config.headers = [...config.headers, {
-    matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
-    name: 'Authorization',
-    value: (redoclyClient && await redoclyClient.getAuthorizationHeader()) || '',
-  }];
-
-  config.headers = config.headers.map((header) => ({ ...header, regexp: new RegExp(header.regexp) }));
-
   return {
     document: node,
     filePath: path.resolve(filePath),
@@ -55,7 +45,7 @@ async function createContext(node, sourceFile, filePath, config) {
     cache: {},
     visited: [],
     result: [],
-    dependencies: [],
+    registryDependencies: [],
     definitionStack: [],
     definitions: loadDefinitions(config),
     pathStack: [],
@@ -69,7 +59,6 @@ async function createContext(node, sourceFile, filePath, config) {
     config,
     headers: config.headers,
     messageHelpers,
-    redoclyClient,
     validateFieldsRaw,
     getRule,
     resolveNode: resolveNodeNoSideEffects,

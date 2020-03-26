@@ -19,7 +19,7 @@ function tests(type, resolvedFileName) {
       const source = readFileSync(file, 'utf-8');
       const document = yaml.safeLoad(source);
 
-      ctx = await createContext(document, source, file, getLintConfig({}));
+      ctx = createContext(document, source, file, getLintConfig({}));
       ctx.path = [type];
       doc = document[type];
     });

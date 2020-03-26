@@ -24,7 +24,7 @@ export const validate = async (yamlData, filePath, options = {}) => {
   const config = getLintConfig(options);
   config.rules.bundler = 'off';
 
-  const ctx = await createContext(document, yamlData, filePath, config);
+  const ctx = createContext(document, yamlData, filePath, config);
 
   ctx.getRule = ctx.getRule.bind(null, ctx);
 

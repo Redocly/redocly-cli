@@ -30,7 +30,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
     },
   };
 
-  const ctx = await createContext(document, doc, resolvedFileName, lintConfig);
+  const ctx = createContext(document, doc, resolvedFileName, lintConfig);
 
   await traverseNode(document, OpenAPIRoot, ctx);
   return ctx.result;
@@ -59,7 +59,7 @@ export const bundle = async (fName, force, options) => {
     },
   };
 
-  const ctx = await createContext(document, doc, resolvedFileName, config);
+  const ctx = createContext(document, doc, resolvedFileName, config);
 
   await traverseNode(document, OpenAPIRoot, ctx);
 
