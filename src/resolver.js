@@ -17,6 +17,10 @@ function pushPath(ctx, filePath, docPath) {
   ctx.filePath = filePath;
 }
 
+function decodePointerComponent(component) {
+  return component.replace(/~1/, '/').replace(/~0/g, '~');
+}
+
 export function popPath(ctx) {
   const topPath = ctx.pathStack.pop();
   ctx.path = topPath.path;
@@ -144,8 +148,9 @@ async function resolve(link, ctx, visited = []) {
       transitiveResolvesOnStack++;
     }
 
-    const step = docPathSteps.pop();
+    let step = docPathSteps.pop();
     if (!step) break;
+    step = decodePointerComponent(step);
 
     target = target && target[step] !== undefined ? target[step] : undefined;
     ctx.path.push(step);
