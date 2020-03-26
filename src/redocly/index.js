@@ -8,7 +8,7 @@ import chalk from 'chalk';
 
 import query from './query';
 
-const TOKEN_FILENAME = '.redocly.token.json';
+const TOKEN_FILENAME = '.redocly-config.json';
 
 export default class RedoclyClient {
   constructor() {
@@ -46,7 +46,7 @@ export default class RedoclyClient {
   }
 
   async login(accessToken) {
-    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(chalk.grey('Logging in...\n'));
 
     const authorized = await this.verifyToken(accessToken);
@@ -60,7 +60,7 @@ export default class RedoclyClient {
       token: accessToken,
     };
 
-    writeFileSync(credentialsPath, JSON.stringify(credentials));
+    writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
     process.stdout.write(chalk.green('Authorization confirmed. ✅\n'));
   }
 
@@ -113,8 +113,6 @@ export default class RedoclyClient {
       definitionId: parseInt(process.env.DEFINITION, 10),
       versionId: parseInt(process.env.VERSION, 10),
       branchId: parseInt(process.env.BRANCH, 10),
-    }, {
-      Authorization: this.accessToken,
     });
     return r;
   }
@@ -127,9 +125,9 @@ export default class RedoclyClient {
     const pathParts = registryPath.split('/');
 
     // we can be sure, that there is job UUID present
-    // (org, definition, version, bundle, branch, job)
+    // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
     // so skip this link.
-    if (pathParts.length === 6) return false;
+    if (pathParts.length === 7) return false;
 
     return true;
   }

@@ -4,17 +4,15 @@ const GRAPHQL_ENDPOINT = process.env.REDOCLY_DOMAIN
   ? `https://api.${process.env.REDOCLY_DOMAIN}/graphql` : 'https://api.redoc.ly/graphql';
 
 export default async function query(queryString, variables = {}, headers = {}, debugInfo = '') {
-  const fetchHeaders = {
+  // eslint-disable-next-line no-param-reassign
+  headers = {
+    ...headers,
     'Content-Type': 'application/json',
   };
 
-  for (const header of Object.keys(headers)) {
-    fetchHeaders[header] = headers[header];
-  }
-
   const gQLResponse = await fetch(GRAPHQL_ENDPOINT, {
     method: 'POST',
-    headers: fetchHeaders,
+    headers,
     body: JSON.stringify({
       query: queryString,
       variables,
