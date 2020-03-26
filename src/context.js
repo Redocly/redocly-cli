@@ -36,12 +36,14 @@ const getRule = (ctx, ruleName) => {
 
 async function createContext(node, sourceFile, filePath, config) {
   const [enabledRules, allRules] = loadRuleset(config);
+
   const redoclyClient = new RedoclyClient();
+
   config.headers = config.headers || [];
   config.headers = [...config.headers, {
     matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
     name: 'Authorization',
-    value: process.env.REDOCLY_AUTHORIZATION || (redoclyClient && await redoclyClient.getAuthorizationHeader()),
+    value: (redoclyClient && await redoclyClient.getAuthorizationHeader()) || '',
   }];
 
   config.headers = config.headers.map((header) => ({ ...header, regexp: new RegExp(header.regexp) }));

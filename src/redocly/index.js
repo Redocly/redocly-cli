@@ -12,10 +12,15 @@ const TOKEN_FILENAME = '.redocly.token.json';
 
 export default class RedoclyClient {
   constructor() {
-    this.loadStoredToken();
+    this.loadToken();
   }
 
-  loadStoredToken() {
+  loadToken() {
+    if (process.env.REDOCLY_AUTHORIZATION) {
+      this.accessToken = process.env.REDOCLY_AUTHORIZATION;
+      return;
+    }
+
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     if (existsSync(credentialsPath)) {
       const credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
@@ -95,21 +100,21 @@ export default class RedoclyClient {
     }
   }
 
-  async updateDependencies(dependencies, authorizationToken) {
+  async updateDependencies(dependencies) {
     const r = await this.query(`
-    mutation UpdateBranchDependencies ($dependencies: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
-      updateBranchDependencies(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
+    mutation UpdateBranchDependenciesFromURLs ($urls: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
+      updateBranchDependenciesFromURLs(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
         branchName
       }
     }
     `,
     {
-      dependencies: dependencies || [],
+      urls: dependencies || [],
       definitionId: parseInt(process.env.DEFINITION, 10),
       versionId: parseInt(process.env.VERSION, 10),
       branchId: parseInt(process.env.BRANCH, 10),
     }, {
-      Authorization: authorizationToken,
+      Authorization: this.accessToken,
     });
     return r;
   }

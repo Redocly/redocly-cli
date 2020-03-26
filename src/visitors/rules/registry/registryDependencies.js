@@ -10,8 +10,8 @@ class RegsitryDependencies {
     return {
       onExit: async (_node, _definition, ctx) => {
         const { redoclyClient } = ctx;
-        if (process.env.UPDATE_REGISTRY && process.env.REDOCLY_AUTHORIZATION) {
-          await redoclyClient.updateDependencies(ctx.dependencies, process.env.REDOCLY_AUTHORIZATION);
+        if (process.env.UPDATE_REGISTRY) {
+          await redoclyClient.updateDependencies(ctx.dependencies);
         }
       },
     };
