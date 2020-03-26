@@ -10,14 +10,16 @@ class RegsitryDependencies {
     return {
       onEnter: async (_node, _definition, ctx) => {
         this.redoclyClient = new RedoclyClient();
-        ctx.headers = [...ctx.headers, {
-          matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
-          name: 'Authorization',
-          value: (this.redoclyClient && await this.redoclyClient.getAuthorizationHeader()) || '',
-        }];
+        if (this.redoclyClient.hasToken()) {
+          ctx.headers = [...ctx.headers, {
+            matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
+            name: 'Authorization',
+            value: (this.redoclyClient && await this.redoclyClient.getAuthorizationHeader()) || '',
+          }];
+        }
       },
       onExit: async (_node, _definition, ctx) => {
-        if (process.env.UPDATE_REGISTRY) {
+        if (process.env.UPDATE_REGISTRY && this.redoclyClient.hasToken()) {
           await this.redoclyClient.updateDependencies(ctx.registryDependencies);
         }
       },
@@ -29,10 +31,8 @@ class RegsitryDependencies {
       onEnter: (_node, _definition, ctx, unresolvedNode) => {
         if (unresolvedNode.$ref) {
           const link = unresolvedNode.$ref.split('#/')[0];
-          if (isFullyQualifiedUrl(link)) {
-            if (RedoclyClient.isRegistryURL(link)) {
-              ctx.registryDependencies.push(link);
-            }
+          if (isFullyQualifiedUrl(link) && RedoclyClient.isRegistryURL(link)) {
+            ctx.registryDependencies.push(link);
           }
         }
       },

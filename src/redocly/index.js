@@ -15,6 +15,10 @@ export default class RedoclyClient {
     this.loadToken();
   }
 
+  hasToken() {
+    return !!this.accessToken;
+  }
+
   loadToken() {
     if (process.env.REDOCLY_AUTHORIZATION) {
       this.accessToken = process.env.REDOCLY_AUTHORIZATION;
@@ -36,9 +40,10 @@ export default class RedoclyClient {
   }
 
   async getAuthorizationHeader() {
-    if (!(await this.verifyToken(this.accessToken))) {
+    // print this only if there is token but invalid
+    if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
       process.stdout.write(
-        `${chalk.yellow('Warning')}, failed to login into Redoc.ly account. Use "openapi login" to provide your access token\n`,
+        `${chalk.yellow('Warning:')} invalid Redoc.ly access token. Use "openapi login" to provide your access token\n`,
       );
       return null;
     }
