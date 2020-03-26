@@ -53,10 +53,8 @@ const cli = () => {
   program
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
 
-  const registry = program.command('regitsry');
-
-  registry
-    .command('login')
+  program
+    .command('registry:login')
     .description('Login to the Redoc.ly API Registry with access token')
     .action(async () => {
       const clientToken = await promptUser(`Copy your access token from https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile and paste it below`);
@@ -64,8 +62,8 @@ const cli = () => {
       await client.login(clientToken);
     });
 
-  registry
-    .command('logout')
+  program
+    .command('registry:logout')
     .description('Clear stored credentials for Redoc.ly API Registry')
     .action(async () => {
       const client = new RedoclyClient();
