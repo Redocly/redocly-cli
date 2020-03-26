@@ -11,16 +11,16 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m74|       bearerFormat: JWT[39m
       [90m75|   parameters:[39m
-      [90m76|     [4m[31mexample:[90m[24m[39m
-      [90m77|[39m[31m [4m[31m      allOf:[31m[24m[39m
-      [90m78|[39m[31m [4m[31m        - name: bla[31m[24m[39m
-      [90m79|[39m[31m [4m[31m          in: query[31m[24m[39m
-      [90m80|[39m[31m [4m[31m          required: false[31m[24m[39m
-      [90m81|[39m[31m [4m[31m          schema:[31m[24m[39m
-      [90m82|[39m[31m [4m[31m            type: string[31m[24m[39m
-      [90m83|[39m[31m [4m[31m        - description: blo[31m[24m[39m
-      [90m84|[39m[31m [4m[31m        - description: bla[31m[24m[39m
-      [90m85| [4m[31m    [90m[24mgenericExample:[39m
+      [90m76|     [4m[31mexample:[39m[90m[24m[39m
+      [90m77|[39m[31m [4m[31m      allOf:[39m[31m[24m[39m
+      [90m78|[39m[31m [4m[31m        - name: bla[39m[31m[24m[39m
+      [90m79|[39m[31m [4m[31m          in: query[39m[31m[24m[39m
+      [90m80|[39m[31m [4m[31m          required: false[39m[31m[24m[39m
+      [90m81|[39m[31m [4m[31m          schema:[39m[31m[24m[39m
+      [90m82|[39m[31m [4m[31m            type: string[39m[31m[24m[39m
+      [90m83|[39m[31m [4m[31m        - description: blo[39m[31m[24m[39m
+      [90m84|[39m[31m [4m[31m        - description: bla[39m[31m[24m[39m
+      [90m85| [4m[31m    [39m[90m[24mgenericExample:[39m
       [90m86|       name: example[39m
       [90m87|       in: query[39m",
           "enableCodeframe": true,
@@ -76,7 +76,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m75|   parameters:[39m
       [90m76|     example:[39m
-      [90m77|       [4m[31mallOf[90m[24m:[39m
+      [90m77|       [4m[31mallOf[39m[90m[24m:[39m
       [90m78|         - name: bla[39m
       [90m79|           in: query[39m",
           "enableCodeframe": true,
@@ -134,7 +134,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m74|       bearerFormat: JWT[39m
       [90m75|   parameters:[39m
-      [90m76|     [4m[31mexample[90m[24m:[39m
+      [90m76|     [4m[31mexample[39m[90m[24m:[39m
       [90m77|       allOf:[39m
       [90m78|         - name: bla[39m",
           "enableCodeframe": true,
@@ -190,7 +190,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m74|       bearerFormat: JWT[39m
       [90m75|   parameters:[39m
-      [90m76|     [4m[31mexample[90m[24m:[39m
+      [90m76|     [4m[31mexample[39m[90m[24m:[39m
       [90m77|       allOf:[39m
       [90m78|         - name: bla[39m",
           "enableCodeframe": true,
@@ -246,7 +246,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m44|       parameters:[39m
       [90m45|         - in: path[39m
-      [90m46|           [4m[31mname: test[90m[24m[39m
+      [90m46|           [4m[31mname: test[39m[90m[24m[39m
       [90m47|           description: User id[39m
       [90m48|           required: true[39m",
           "enableCodeframe": true,
@@ -286,7 +286,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m75|   parameters:[39m
       [90m76|     example:[39m
-      [90m77|       [4m[31mallOf[90m[24m:[39m
+      [90m77|       [4m[31mallOf[39m[90m[24m:[39m
       [90m78|         - name: bla[39m
       [90m79|           in: query[39m",
           "enableCodeframe": true,
@@ -335,7 +335,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m74|       bearerFormat: JWT[39m
       [90m75|   parameters:[39m
-      [90m76|     [4m[31mexample[90m[24m:[39m
+      [90m76|     [4m[31mexample[39m[90m[24m:[39m
       [90m77|       allOf:[39m
       [90m78|         - name: bla[39m",
           "enableCodeframe": true,
@@ -382,7 +382,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m74|       bearerFormat: JWT[39m
       [90m75|   parameters:[39m
-      [90m76|     [4m[31mexample[90m[24m:[39m
+      [90m76|     [4m[31mexample[39m[90m[24m:[39m
       [90m77|       allOf:[39m
       [90m78|         - name: bla[39m",
           "enableCodeframe": true,
@@ -429,7 +429,7 @@ describe("Traverse files", () => {
         Object {
           "codeFrame": "[90m61|   description:[39m
       [90m62|     $ref: inc/docs-description.md[39m
-      [90m63|   [4m[31murl: googlecom[90m[24m[39m
+      [90m63|   [4m[31murl: googlecom[39m[90m[24m[39m
       [90m64| components:[39m
       [90m65|   securitySchemes:[39m",
           "enableCodeframe": true,
@@ -492,16 +492,16 @@ Array [
   Object {
     "codeFrame": "[90m74|       bearerFormat: JWT[39m
 [90m75|   parameters:[39m
-[90m76|     [4m[31mexample:[90m[24m[39m
-[90m77|[39m[31m [4m[31m      allOf:[31m[24m[39m
-[90m78|[39m[31m [4m[31m        - name: bla[31m[24m[39m
-[90m79|[39m[31m [4m[31m          in: query[31m[24m[39m
-[90m80|[39m[31m [4m[31m          required: false[31m[24m[39m
-[90m81|[39m[31m [4m[31m          schema:[31m[24m[39m
-[90m82|[39m[31m [4m[31m            type: string[31m[24m[39m
-[90m83|[39m[31m [4m[31m        - description: blo[31m[24m[39m
-[90m84|[39m[31m [4m[31m        - description: bla[31m[24m[39m
-[90m85| [4m[31m    [90m[24mgenericExample:[39m
+[90m76|     [4m[31mexample:[39m[90m[24m[39m
+[90m77|[39m[31m [4m[31m      allOf:[39m[31m[24m[39m
+[90m78|[39m[31m [4m[31m        - name: bla[39m[31m[24m[39m
+[90m79|[39m[31m [4m[31m          in: query[39m[31m[24m[39m
+[90m80|[39m[31m [4m[31m          required: false[39m[31m[24m[39m
+[90m81|[39m[31m [4m[31m          schema:[39m[31m[24m[39m
+[90m82|[39m[31m [4m[31m            type: string[39m[31m[24m[39m
+[90m83|[39m[31m [4m[31m        - description: blo[39m[31m[24m[39m
+[90m84|[39m[31m [4m[31m        - description: bla[39m[31m[24m[39m
+[90m85| [4m[31m    [39m[90m[24mgenericExample:[39m
 [90m86|       name: example[39m
 [90m87|       in: query[39m",
     "enableCodeframe": true,
@@ -557,7 +557,7 @@ Array [
   Object {
     "codeFrame": "[90m75|   parameters:[39m
 [90m76|     example:[39m
-[90m77|       [4m[31mallOf[90m[24m:[39m
+[90m77|       [4m[31mallOf[39m[90m[24m:[39m
 [90m78|         - name: bla[39m
 [90m79|           in: query[39m",
     "enableCodeframe": true,
@@ -615,7 +615,7 @@ Array [
   Object {
     "codeFrame": "[90m74|       bearerFormat: JWT[39m
 [90m75|   parameters:[39m
-[90m76|     [4m[31mexample[90m[24m:[39m
+[90m76|     [4m[31mexample[39m[90m[24m:[39m
 [90m77|       allOf:[39m
 [90m78|         - name: bla[39m",
     "enableCodeframe": true,
@@ -671,7 +671,7 @@ Array [
   Object {
     "codeFrame": "[90m74|       bearerFormat: JWT[39m
 [90m75|   parameters:[39m
-[90m76|     [4m[31mexample[90m[24m:[39m
+[90m76|     [4m[31mexample[39m[90m[24m:[39m
 [90m77|       allOf:[39m
 [90m78|         - name: bla[39m",
     "enableCodeframe": true,
@@ -727,7 +727,7 @@ Array [
   Object {
     "codeFrame": "[90m44|       parameters:[39m
 [90m45|         - in: path[39m
-[90m46|           [4m[31mname: test[90m[24m[39m
+[90m46|           [4m[31mname: test[39m[90m[24m[39m
 [90m47|           description: User id[39m
 [90m48|           required: true[39m",
     "enableCodeframe": true,
@@ -767,7 +767,7 @@ Array [
   Object {
     "codeFrame": "[90m75|   parameters:[39m
 [90m76|     example:[39m
-[90m77|       [4m[31mallOf[90m[24m:[39m
+[90m77|       [4m[31mallOf[39m[90m[24m:[39m
 [90m78|         - name: bla[39m
 [90m79|           in: query[39m",
     "enableCodeframe": true,
@@ -816,7 +816,7 @@ Array [
   Object {
     "codeFrame": "[90m74|       bearerFormat: JWT[39m
 [90m75|   parameters:[39m
-[90m76|     [4m[31mexample[90m[24m:[39m
+[90m76|     [4m[31mexample[39m[90m[24m:[39m
 [90m77|       allOf:[39m
 [90m78|         - name: bla[39m",
     "enableCodeframe": true,
@@ -863,7 +863,7 @@ Array [
   Object {
     "codeFrame": "[90m74|       bearerFormat: JWT[39m
 [90m75|   parameters:[39m
-[90m76|     [4m[31mexample[90m[24m:[39m
+[90m76|     [4m[31mexample[39m[90m[24m:[39m
 [90m77|       allOf:[39m
 [90m78|         - name: bla[39m",
     "enableCodeframe": true,
@@ -910,7 +910,7 @@ Array [
   Object {
     "codeFrame": "[90m61|   description:[39m
 [90m62|     $ref: inc/docs-description.md[39m
-[90m63|   [4m[31murl: googlecom[90m[24m[39m
+[90m63|   [4m[31murl: googlecom[39m[90m[24m[39m
 [90m64| components:[39m
 [90m65|   securitySchemes:[39m",
     "enableCodeframe": true,

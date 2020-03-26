@@ -14,30 +14,30 @@ const createCtx = () => ({
   definitionStack: [],
   pathStack: [],
   source: fs.readFileSync("./definitions/syntetic/syntetic-1.yaml", "utf-8"),
-  enableCodeframe: true
+  enableCodeframe: true,
 });
 
 describe("createError", () => {
   test("should create valid error", () => {
     const ctx = {
       ...createCtx(),
-      path: ["paths", "user", "get", "responses"]
+      path: ["paths", "user", "get", "responses"],
     };
     expect(
       createError("This is a test error", {}, ctx, {
-        severity: messageLevels.ERROR
+        severity: messageLevels.ERROR,
       })
     ).toMatchInlineSnapshot(`
       Object {
         "codeFrame": "[90m22|       operationId: userGet[39m
       [90m23|       description: Get user[39m
-      [90m24|       [4m[31mresponses:[90m[24m[39m
-      [90m25|[39m[31m [4m[31m        '200':[31m[24m[39m
-      [90m26|[39m[31m [4m[31m          description: example description[31m[24m[39m
-      [90m27|[39m[31m [4m[31m          content:[31m[24m[39m
-      [90m28|[39m[31m [4m[31m            application/json:[31m[24m[39m
-      [90m29|[39m[31m [4m[31m              schema:[31m[24m[39m
-      [90m30|[39m[31m [4m[31m                type: object[31m[24m[39m
+      [90m24|       [4m[31mresponses:[39m[90m[24m[39m
+      [90m25|[39m[31m [4m[31m        '200':[39m[31m[24m[39m
+      [90m26|[39m[31m [4m[31m          description: example description[39m[31m[24m[39m
+      [90m27|[39m[31m [4m[31m          content:[39m[31m[24m[39m
+      [90m28|[39m[31m [4m[31m            application/json:[39m[31m[24m[39m
+      [90m29|[39m[31m [4m[31m              schema:[39m[31m[24m[39m
+      [90m30|[39m[31m [4m[31m                type: object[39m[31m[24m[39m
       [90m31|   project:[39m
       [90m32|     get:[39m",
         "enableCodeframe": true,
@@ -71,14 +71,14 @@ describe("createError", () => {
     const ctx = {
       ...createCtx(),
       path: [],
-      enableCodeframe: false
+      enableCodeframe: false,
     };
     expect(
       createError("This is a test error", {}, ctx, {
         severity: messageLevels.ERROR,
         target: "key",
         possibleAlternate: "example",
-        fromRule: "testing"
+        fromRule: "testing",
       })
     ).toMatchInlineSnapshot(`
       Object {
@@ -114,16 +114,16 @@ describe("fromError", () => {
       pathStack: [
         {
           file: createCtx().filePath,
-          path: ["paths", "user", "get", "responses"]
-        }
-      ]
+          path: ["paths", "user", "get", "responses"],
+        },
+      ],
     };
 
     ctx.pathStack[0].source = ctx.source;
     ctx.pathStack[0].document = ctx.document;
 
     const baseError = createError("This is a test error", {}, ctx, {
-      severity: messageLevels.ERROR
+      severity: messageLevels.ERROR,
     });
     ctx.path = ["paths", "project", "get", "responses"];
     expect(fromError(baseError, ctx)).toMatchInlineSnapshot(`
@@ -131,13 +131,13 @@ Object {
   "cache": Object {},
   "codeFrame": "[90m22|       operationId: userGet[39m
 [90m23|       description: Get user[39m
-[90m24|       [4m[31mresponses:[90m[24m[39m
-[90m25|[39m[31m [4m[31m        '200':[31m[24m[39m
-[90m26|[39m[31m [4m[31m          description: example description[31m[24m[39m
-[90m27|[39m[31m [4m[31m          content:[31m[24m[39m
-[90m28|[39m[31m [4m[31m            application/json:[31m[24m[39m
-[90m29|[39m[31m [4m[31m              schema:[31m[24m[39m
-[90m30|[39m[31m [4m[31m                type: object[31m[24m[39m
+[90m24|       [4m[31mresponses:[39m[90m[24m[39m
+[90m25|[39m[31m [4m[31m        '200':[39m[31m[24m[39m
+[90m26|[39m[31m [4m[31m          description: example description[39m[31m[24m[39m
+[90m27|[39m[31m [4m[31m          content:[39m[31m[24m[39m
+[90m28|[39m[31m [4m[31m            application/json:[39m[31m[24m[39m
+[90m29|[39m[31m [4m[31m              schema:[39m[31m[24m[39m
+[90m30|[39m[31m [4m[31m                type: object[39m[31m[24m[39m
 [90m31|   project:[39m
 [90m32|     get:[39m",
   "definitionStack": Array [],
