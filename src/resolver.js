@@ -3,10 +3,10 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import { resolve as resolveFile, dirname } from 'path';
 import { resolve as resolveUrl } from 'url';
-import { XMLHttpRequest } from 'xmlhttprequest';
+import fetch from 'node-fetch';
 
 import createError, { getReferencedFrom, createYAMLParseError } from './error';
-import { isFullyQualifiedUrl } from './utils';
+import { isFullyQualifiedUrl, match } from './utils';
 
 function pushPath(ctx, filePath, docPath) {
   ctx.pathStack.push({
@@ -39,7 +39,7 @@ export function popPath(ctx) {
  * @param {string} link A path in the yaml document which is to be resolved
  * @param {*} ctx JSON Object with the document field which represents the YAML structure
  */
-function resolve(link, ctx, visited = []) {
+async function resolve(link, ctx, visited = []) {
   const linkSplitted = link.split('#/');
   if (linkSplitted[0] === '') linkSplitted[0] = ctx.filePath;
   const [filePath, docPath] = linkSplitted;
@@ -70,19 +70,29 @@ function resolve(link, ctx, visited = []) {
         ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
         return { node: undefined };
       }
-      // FIXME: lost yaml parsing and file read errors here
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', resolvedFilePath, false);
-        xhr.send();
+        const headers = {};
+        for (let i = 0; i < ctx.headers.length; i++) {
+          if (match(resolvedFilePath, ctx.headers[i].matches)) {
+            headers[ctx.headers[i].name] = ctx.headers[i].value;
+          }
+        }
 
-        if (xhr.status !== 200) {
+        const req = await fetch(resolvedFilePath, { headers });
+
+        if (!req.ok) {
           return { node: undefined };
         }
 
-        source = xhr.responseText;
-        document = yaml.safeLoad(source);
+        const text = await req.text();
+
+        try {
+          document = yaml.safeLoad(text);
+        } catch (e) {
+          ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
+          return { node: undefined };
+        }
       } catch (e) {
         // FIXME: lost yaml parsing errors and network errors here
         return { node: undefined };
@@ -117,7 +127,7 @@ function resolve(link, ctx, visited = []) {
   while (target !== undefined) {
     if (target && target.$ref) {
       // handle transitive $ref's
-      const resolved = resolve(target.$ref, ctx, visited);
+      const resolved = await resolve(target.$ref, ctx, visited);
       transitiveError = resolved.transitiveError;
       if (resolved.node === undefined && !transitiveError) {
         // We want to show only the error for the first $ref that can't be resolved.
@@ -171,11 +181,11 @@ function resolve(link, ctx, visited = []) {
  * @param {*} node
  * @param {*} ctx
  */
-function resolveNode(node, ctx) {
+async function resolveNode(node, ctx) {
   if (!node || typeof node !== 'object') return { node };
 
   if (node.$ref) {
-    const resolved = resolve(node.$ref, ctx);
+    const resolved = await resolve(node.$ref, ctx);
     if (resolved.node === undefined) { // can't resolve
       popPath(ctx);
 
@@ -197,7 +207,7 @@ function resolveNode(node, ctx) {
 }
 
 // to be used in mutators
-export function resolveNodeNoSideEffects(node, ctx) {
+export async function resolveNodeNoSideEffects(node, ctx) {
   const ctxCopy = { ...ctx, pathStack: ctx.pathStack.slice() };
   return resolveNode(node, ctxCopy);
 }

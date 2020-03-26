@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import path from 'path';
 
 import loadRuleset, { loadRulesetExtension } from './loader';
@@ -34,6 +35,8 @@ const getRule = (ctx, ruleName) => {
 
 function createContext(node, sourceFile, filePath, config) {
   const [enabledRules, allRules] = loadRuleset(config);
+
+  config.headers = config.headers || [];
   return {
     document: node,
     filePath: path.resolve(filePath),
@@ -41,14 +44,19 @@ function createContext(node, sourceFile, filePath, config) {
     cache: {},
     visited: [],
     result: [],
+    registryDependencies: [],
     definitionStack: [],
     definitions: loadDefinitions(config),
     pathStack: [],
     source: sourceFile,
     enableCodeframe: !!(config && (config.codeframes === 'on' || config.codeframes === true)),
-    customRules: [...loadRulesetExtension(config, 'transformingVisitors'), ...enabledRules, ...loadRulesetExtension(config, 'rulesExtensions')],
+    customRules: [
+      ...loadRulesetExtension(config, 'transformingVisitors'),
+      ...enabledRules, ...loadRulesetExtension(config, 'rulesExtensions'),
+    ],
     allRules,
     config,
+    headers: config.headers,
     messageHelpers,
     validateFieldsRaw,
     getRule,

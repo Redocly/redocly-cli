@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-case-declarations */
 import path from 'path';
@@ -9,7 +10,7 @@ import resolveScalars from './scalarsResolver';
 
 import { fromError, createErrorFlat } from './error/default';
 
-function traverseChildren(resolvedNode, definition, ctx, visited) {
+async function traverseChildren(resolvedNode, definition, ctx, visited) {
   let nodeChildren;
   const errors = [];
   switch (typeof definition.properties) {
@@ -23,7 +24,7 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
         if (resolvedNodeKeys.includes(child)) {
           ctx.path.push(child);
           if (resolvedNode[child]) {
-            childResult = traverseNode(resolvedNode[child], nodeChildren[child], ctx, visited);
+            childResult = await traverseNode(resolvedNode[child], nodeChildren[child], ctx, visited);
           }
           if (childResult) errors.push(...childResult);
           ctx.path.pop();
@@ -39,10 +40,10 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
         ctx.path.push(p);
         if (typeof definition.properties[p] === 'function') {
           if (resolvedNode[p]) {
-            propResult = traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
+            propResult = await traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
           }
         } else if (resolvedNode[p]) {
-          propResult = traverseNode(resolvedNode[p], definition.properties[p], ctx, visited);
+          propResult = await traverseNode(resolvedNode[p], definition.properties[p], ctx, visited);
         }
         if (propResult) errors.push(...propResult);
         ctx.path.pop();
@@ -55,10 +56,10 @@ function traverseChildren(resolvedNode, definition, ctx, visited) {
   return errors;
 }
 
-function onNodeEnter(node, ctx) {
+async function onNodeEnter(node, ctx) {
   const {
     node: resolvedNode, onStack,
-  } = resolveNode(node, ctx);
+  } = await resolveNode(node, ctx);
 
   return {
     resolvedNode,
@@ -78,10 +79,10 @@ const nestedIncludes = (c, s) => {
 };
 
 
-function traverseNode(node, definition, ctx, visited = []) {
+async function traverseNode(node, definition, ctx, visited = []) {
   if (!node || !definition) return [];
 
-  const nodeContext = onNodeEnter(node, ctx);
+  const nodeContext = await onNodeEnter(node, ctx);
   const isRecursive = nestedIncludes(ctx.path, visited);
   const errors = [];
   const currentPath = `${path.relative(process.cwd(), ctx.filePath)}::${ctx.path.join('/')}`;
@@ -95,28 +96,28 @@ function traverseNode(node, definition, ctx, visited = []) {
   resolveScalars(nodeContext.resolvedNode, definition, ctx);
 
   if (definition.customResolveFields) {
-    definition.customResolveFields(nodeContext.resolvedNode, ctx, visited);
+    await definition.customResolveFields(nodeContext.resolvedNode, ctx, visited);
   }
 
   if (Array.isArray(nodeContext.resolvedNode)) {
-    nodeContext.resolvedNode.forEach((nodeChild, i) => {
+    for (let i = 0; i < nodeContext.resolvedNode.length; i++) {
       ctx.path.push(i);
-      const arrayResult = traverseNode(nodeChild, resolvedDefinition, ctx, localVisited);
+      const arrayResult = await traverseNode(nodeContext.resolvedNode[i], resolvedDefinition, ctx, localVisited);
       if (arrayResult) errors.push(...arrayResult);
       ctx.path.pop();
-    });
+    }
   } else {
     ctx.validateFields = ctx.validateFieldsRaw.bind(
       null, nodeContext.resolvedNode, ctx,
     );
-    runRuleOnRuleset(nodeContext, 'onEnter', ctx, resolvedDefinition, node, errors, localVisited);
+    await runRuleOnRuleset(nodeContext, 'onEnter', ctx, resolvedDefinition, node, errors, localVisited);
 
     const newNode = !isRecursive
       && (!resolvedDefinition.isIdempotent || !ctx.visited.includes(currentPath));
     if (newNode) {
       if (!ctx.visited.includes(currentPath)) ctx.visited.push(currentPath);
 
-      const errorsChildren = traverseChildren(
+      const errorsChildren = await traverseChildren(
         nodeContext.resolvedNode, resolvedDefinition, ctx, localVisited,
       );
       errors.push(...errorsChildren);
@@ -129,7 +130,7 @@ function traverseNode(node, definition, ctx, visited = []) {
       ctx.result.push(...cachedResult);
     }
 
-    runRuleOnRuleset(nodeContext, 'onExit', ctx, resolvedDefinition, node, errors);
+    await runRuleOnRuleset(nodeContext, 'onExit', ctx, resolvedDefinition, node, errors);
     if (newNode) ctx.cache[currentPath] = errors;
   }
   onNodeExit(nodeContext, ctx);
@@ -137,7 +138,7 @@ function traverseNode(node, definition, ctx, visited = []) {
   return errors;
 }
 
-function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
+async function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
   for (let i = 0; i < ctx.customRules.length; i += 1) {
     ctx.validateFieldsHelper = ctx.validateFields.bind(
       null,
@@ -156,12 +157,12 @@ function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, 
 
     const errorsOnEnterForType = ctx.customRules[i][definition.name]
       && ctx.customRules[i][definition.name]()[ruleName]
-      ? ctx.customRules[i][definition.name]()[ruleName](
+      ? await ctx.customRules[i][definition.name]()[ruleName](
         nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
       ) : [];
 
     const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]
-      ? ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node, {
+      ? await ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node, {
         traverseNode, visited, resolveType,
       }) : [];
 

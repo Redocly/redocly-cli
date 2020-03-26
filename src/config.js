@@ -40,7 +40,6 @@ export function getConfig(options) {
       }
 
       warningShown = true;
-
       config = { lint: config };
     }
   }
@@ -70,6 +69,21 @@ export function getConfig(options) {
   const transformingVisitors = require(lintConfig.transformers);
   lintConfig.transformingVisitors = transformingVisitors;
 
+  if (!resolvedConfig.lint) {
+    resolvedConfig.lint = {};
+  }
+
+  resolvedConfig.lint.headers = (
+    (
+      resolvedConfig.resolve
+      && resolvedConfig.resolve.http
+      && resolvedConfig.resolve.http.headers)
+    || []
+  ).map((header) => ({
+    ...header,
+    value: header.envVariable ? process.env[header.envVariable] : header.value,
+  }));
+
   return resolvedConfig;
 }
 
@@ -86,7 +100,7 @@ export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig
   ) {
     res = Object.values(config.apiDefinitions);
   } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
-    res = res.map(aliasOrPath => config.apiDefinitions[aliasOrPath] || aliasOrPath);
+    res = res.map((aliasOrPath) => config.apiDefinitions[aliasOrPath] || aliasOrPath);
   }
 
   if (!res || !res.length) {

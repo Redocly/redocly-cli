@@ -20,4 +20,5 @@ rules:
   no-restricted-syntax: off
   no-console: off
   no-use-before-define: off
+  no-await-in-loop: off
 
