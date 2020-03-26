@@ -107,8 +107,18 @@ export default class RedoclyClient {
 
   async updateDependencies(dependencies) {
     const r = await this.query(`
-    mutation UpdateBranchDependenciesFromURLs ($urls: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
-      updateBranchDependenciesFromURLs(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
+    mutation UpdateBranchDependenciesFromURLs(
+      $urls: [String!]!
+      $definitionId: Int!
+      $versionId: Int!
+      $branchId: Int!
+    ) {
+      updateBranchDependenciesFromURLs(
+        definitionId: $definitionId
+        versionId: $versionId
+        branchId: $branchId
+        urls: $urls
+      ) {
         branchName
       }
     }
