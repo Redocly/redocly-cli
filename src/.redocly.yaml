@@ -14,6 +14,7 @@ lint:
     no-unused-schemas: on
     operation-operationId-unique: on
     path-declarations-must-exist: on
+    string-matcher: off
 
     camel-case-names: off
     parameter-description: off
