@@ -119,6 +119,50 @@ Below, you can find the table of available sub-rules you can update:
 #### no-extra-fields
 By default, custom fields, not defined within OpenAPI specification can be included only using `x-` prefix. This rule enforces such policy.
 
+### string-matcher
+Allows you to create custom Regexp based rules. 
+
+Each sub-rule should define OpenAPI type and its property on which it should be triggered and can also have an error message and a level (same as for generic rules).
+
+Also, each entry of `rules` must have one of following fields:
+- startsWith
+- endsWith
+- regexp
+
+If `regexp` is used, the rule will match the value of the `on` type's property against the regular expression provided and if it doesn't matches throw an error.
+
+In case of `startsWith` and `endsWith` options, property's value must start or end with given values.
+
+Also, you can provide a `not: true` to invert the rule. For example, it'll mean that regexp SHOULD NOT match the value, or string SHOULD NOT start with given parameter.
+
+Usage example:
+```
+lint:
+  rules:
+    string-matcher:
+      level: warning	
+      rules:	
+        UrlsNotExample:	
+          on: OpenAPIServer.url	
+          not: true	
+          startsWith: https://api-sandbox	
+          level: error	
+          message: 'Example servers should not be in api sandbox. God knows why.'	
+        ParameterNameStartCapital:	
+          on: OpenAPIParameter.name	
+          not: true	
+          regexp: 'internal'	
+          message: 'Parameter names not contain word "internal".'	
+        ExternalDocsHelpdesk:	
+          level: 'error'	
+          on: OpenAPIExternalDocumentation.url	
+          startsWith: docs.redoc.ly	
+          message: 'External docs must be only on corporate helpdesk.'	
+        OnlyOpensourceLicense:	
+          on: OpenAPILicense.name	
+          regexp: '^Rebilly$'	
+          message: 'Only one license can be used.'
+``` 
 
 ## Linting rules
 ### suggest-possible-refs

@@ -235,7 +235,7 @@ lint:
 
 #### Built-in Rules
 
-[Read the docs](RULES.md) for the built-in rules.
+[Read the docs](RULES.md) for the built-in rules. You also can [create](RULES.md/#string-matcher) your own regular expressions' based rules for `openapi-cli`.
 
 ### Advanced
 

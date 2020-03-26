@@ -24,7 +24,6 @@ class StringMatcher {
       };
 
       const regexp = (!!rule.regexp && new RegExp(rule.regexp)) || null;
-      const endsWith = (!!rule.endsWith && new RegExp(`${rule.endsWith}$`)) || null;
 
       const startsWithHelper = (node, ctx, expr, inverse) => {
         if (!node[rule.field]) {
@@ -77,7 +76,7 @@ class StringMatcher {
           error = error || startsWithHelper(node, ctx, rule.startsWith, rule.not);
         }
         if (rule.endsWith) {
-          error = error || endsWithHelper(node, ctx, endsWith, rule.not);
+          error = error || endsWithHelper(node, ctx, rule.endsWith, rule.not);
         }
 
         return error;
