@@ -92,6 +92,7 @@ async function resolve(link, ctx, visited = []) {
         const text = await req.text();
 
         try {
+          source = text;
           document = yaml.safeLoad(text);
         } catch (e) {
           ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
