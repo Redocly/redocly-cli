@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 
-class RegRule {
+class StringMatcher {
   static get rule() {
-    return 'reg-rule';
+    return 'string-matcher';
   }
 
   constructor(config) {
@@ -108,4 +108,4 @@ class RegRule {
   }
 }
 
-module.exports = RegRule;
+module.exports = StringMatcher;

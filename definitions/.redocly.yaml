@@ -26,7 +26,7 @@ lint:
     oas3-schema/external-docs:
       url: off
 
-    reg-rule: off
+    string-matcher: off
 
     path-param-exists: on
     operation-2xx-response: on
