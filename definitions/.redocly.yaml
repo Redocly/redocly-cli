@@ -1,14 +1,7 @@
 apiDefinitions:
-  # new: ./syntetic/syntetic-1.yaml
-  # anotherWithError: ./syntetic/syntetic-2.yaml
-  # sample: ./syntetic/to_bundle/bundle.yaml
+  sample: ./syntetic/to_bundle/bundle.yaml
   simpleDefinition: ./syntetic/syntetic.yaml
   rebilly: ./openapi-directory/rebilly-full.yaml
-
-registry:
-  organization: ggg
-  definition: hello
-  definitionVersion: bla
 
 lint:
   codeframes: on

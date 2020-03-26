@@ -3,7 +3,6 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import { resolve as resolveFile, dirname } from 'path';
 import { resolve as resolveUrl } from 'url';
-// import { XMLHttpRequest } from 'xmlhttprequest';
 import fetch from 'node-fetch';
 
 import createError, { getReferencedFrom, createYAMLParseError } from './error';
