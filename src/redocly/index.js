@@ -95,22 +95,6 @@ export default class RedoclyClient {
     }
   }
 
-  async isLoggedIn() {
-    try {
-      await this.query(`
-        {
-          viewer {
-            id
-            email
-          }
-        }
-      `);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   async updateDependencies(dependencies, authorizationToken) {
     const r = await this.query(`
     mutation UpdateBranchDependencies ($dependencies: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
