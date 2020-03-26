@@ -8,35 +8,30 @@ import chalk from 'chalk';
 
 import query from './query';
 
+const TOKEN_FILENAME = '.redocly.token.json';
+
 export default class RedoclyClient {
   constructor() {
     this.loadStoredToken();
   }
 
   loadStoredToken() {
-    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     if (existsSync(credentialsPath)) {
       const credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
       this.accessToken = credentials && credentials.token;
     }
   }
 
-  async verifyToken() {
-    const credentialsPath = resolve(homedir(), '.redocly.token.json');
-    let credentials = {};
-    if (existsSync(credentialsPath)) {
-      credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
-    }
-    const authDetails = await RedoclyClient.authorize(credentials.token);
-    if (authDetails) {
-      this.accessToken = credentials.token;
-      return true;
-    }
-    return false;
+  async verifyToken(accessToken) {
+    if (!accessToken) return false;
+    const authDetails = await RedoclyClient.authorize(accessToken);
+    if (!authDetails) return false;
+    return true;
   }
 
   async getAuthorizationHeader() {
-    if (!(await this.verifyToken())) {
+    if (!(await this.verifyToken(this.accessToken))) {
       process.stdout.write(
         `${chalk.yellow('Warning')}, failed to login into Redoc.ly account. Use "openapi login" to provide your access token\n`,
       );
@@ -48,21 +43,24 @@ export default class RedoclyClient {
   async login(accessToken) {
     const credentialsPath = resolve(homedir(), '.redocly.token.json');
     process.stdout.write(chalk.grey('Logging in...\n'));
-    const authDetails = await RedoclyClient.authorize(accessToken);
-    if (authDetails) {
-      this.accessToken = accessToken;
-      const credentials = {
-        token: accessToken,
-      };
-      writeFileSync(credentialsPath, JSON.stringify(credentials));
-      process.stdout.write(chalk.green('Authorization confirmed. ✅\n'));
-    } else {
+
+    const authorized = await this.verifyToken(accessToken);
+
+    if (!authorized) {
       process.stdout.write(chalk.red('Authorization failed. Please check if you entered a valid token.\n'));
     }
+
+    this.accessToken = accessToken;
+    const credentials = {
+      token: accessToken,
+    };
+
+    writeFileSync(credentialsPath, JSON.stringify(credentials));
+    process.stdout.write(chalk.green('Authorization confirmed. ✅\n'));
   }
 
   logout() {
-    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     if (existsSync(credentialsPath)) {
       unlinkSync(credentialsPath);
     }
