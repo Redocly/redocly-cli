@@ -73,12 +73,16 @@ export function getConfig(options) {
     resolvedConfig.lint = {};
   }
 
-  resolvedConfig.lint.headers = (resolvedConfig.lint && resolvedConfig.lint.headers) ? (resolvedConfig.lint.headers.map((header) => ({
+  resolvedConfig.lint.headers = (
+    (
+      resolvedConfig.resolve
+      && resolvedConfig.resolve.http
+      && resolvedConfig.resolve.http.headers)
+    || []
+  ).map((header) => ({
     ...header,
     value: header.envVariable ? process.env[header.envVariable] : header.value,
-  }))) : [];
-
-  // console.log(resolvedConfig.lint.headers);
+  }));
 
   return resolvedConfig;
 }

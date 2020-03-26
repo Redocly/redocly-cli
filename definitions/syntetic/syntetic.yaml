@@ -8,8 +8,7 @@ info:
     name: Ivan Goncharov
     email: ivan@redoc.ly
   license:
-    name: example
-    url: example.org
+    $ref: https://api.redoc.online/registry/oleses-testing/API%20petstore/github1/bundle/Default-branch#/info/license
 
 servers:
   - url: 'http://example.org'

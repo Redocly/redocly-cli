@@ -6,6 +6,7 @@ import isRuleEnabled from './visitors/utils';
 import { loadDefinitions } from './resolveDefinition';
 import { messageHelpers } from './error';
 import { resolveNodeNoSideEffects } from './resolver';
+import RedoclyClient from './redocly';
 
 const validateFieldsRaw = (node, ctx, config, ruleName, validators) => {
   const result = [];
@@ -33,13 +34,14 @@ const getRule = (ctx, ruleName) => {
   return result ? result[0] : null;
 };
 
-function createContext(node, sourceFile, filePath, config, redoclyClient) {
+async function createContext(node, sourceFile, filePath, config) {
   const [enabledRules, allRules] = loadRuleset(config);
+  const redoclyClient = new RedoclyClient();
   config.headers = config.headers || [];
-  config.headers = [...(config.headers || []), {
-    regexp: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry.*`,
+  config.headers = [...config.headers, {
+    matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
     name: 'Authorization',
-    value: process.env.REDOCLY_AUTHORIZATION || (redoclyClient && redoclyClient.getAuthorizationHeader()),
+    value: process.env.REDOCLY_AUTHORIZATION || (redoclyClient && await redoclyClient.getAuthorizationHeader()),
   }];
 
   config.headers = config.headers.map((header) => ({ ...header, regexp: new RegExp(header.regexp) }));

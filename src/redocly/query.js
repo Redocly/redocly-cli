@@ -1,25 +1,32 @@
-import { XMLHttpRequest } from 'xmlhttprequest';
+import fetch from 'node-fetch';
 
-const GRAPHQL_ENDPOINT = process.env.REDOCLY_GRAPHQL_ENDPOINT || 'https://5ueznpgw24.execute-api.us-east-1.amazonaws.com/dev/graphql';
+const GRAPHQL_ENDPOINT = process.env.REDOCLY_DOMAIN
+  ? `https://api.${process.env.REDOCLY_DOMAIN}/graphql` : 'https://api.redoc.ly/graphql';
 
-export default function query(queryString, variables = {}, headers = {}, debugInfo = '') {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', GRAPHQL_ENDPOINT, false);
-  xhr.setRequestHeader('Content-Type', 'application/json');
+export default async function query(queryString, variables = {}, headers = {}, debugInfo = '') {
+  const fetchHeaders = {
+    'Content-Type': 'application/json',
+  };
+
   for (const header of Object.keys(headers)) {
-    xhr.setRequestHeader(header, headers[header]);
+    fetchHeaders[header] = headers[header];
   }
 
-  xhr.send(JSON.stringify({
-    query: queryString,
-    variables,
-  }));
+  const gQLResponse = await fetch(GRAPHQL_ENDPOINT, {
+    method: 'POST',
+    headers: fetchHeaders,
+    body: JSON.stringify({
+      query: queryString,
+      variables,
+    }),
+  });
 
-  if (xhr.status !== 200) {
-    throw new RequestError(`Failed to execute query: ${xhr.responseText}`, 500, debugInfo);
+
+  if (!gQLResponse.ok) {
+    throw new RequestError(`Failed to execute query: ${gQLResponse.status}`, 500, debugInfo);
   }
 
-  const response = JSON.parse(xhr.responseText);
+  const response = await gQLResponse.json();
   if (response.errors && response.errors.length) {
     throw new RequestError(`Query failed: ${response.errors[0].message}`, 500, debugInfo);
   }

@@ -14,12 +14,12 @@ function tests(type, resolvedFileName) {
     let ctx;
     let doc;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       const file = join(__dirname, 'data', 'index.yaml');
       const source = readFileSync(file, 'utf-8');
       const document = yaml.safeLoad(source);
 
-      ctx = createContext(document, source, file, getLintConfig({}));
+      ctx = await createContext(document, source, file, getLintConfig({}));
       ctx.path = [type];
       doc = document[type];
     });

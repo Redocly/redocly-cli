@@ -6,7 +6,7 @@ import { resolve as resolveUrl } from 'url';
 import fetch from 'node-fetch';
 
 import createError, { getReferencedFrom, createYAMLParseError } from './error';
-import { isFullyQualifiedUrl } from './utils';
+import { isFullyQualifiedUrl, match } from './utils';
 
 function pushPath(ctx, filePath, docPath) {
   ctx.pathStack.push({
@@ -56,7 +56,7 @@ async function resolve(link, ctx, visited = []) {
   pushPath(ctx, resolvedFilePath, []);
 
   const resolvedLink = `${resolvedFilePath}#/${docPath}`;
-  // console.log(linkSplitted);
+
   if (!isCurrentDocument) {
     if (ctx.resolveCache[resolvedFilePath]) {
       ({ source, document } = ctx.resolveCache[resolvedFilePath]);
@@ -72,11 +72,9 @@ async function resolve(link, ctx, visited = []) {
       }
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
       try {
-        ctx.redoclyClient.processRegistryDependency(resolvedFilePath, ctx);
-
         const headers = {};
         for (let i = 0; i < ctx.headers.length; i++) {
-          if (ctx.headers[i].regexp.test(resolvedFilePath)) {
+          if (match(resolvedFilePath, ctx.headers[i].matches)) {
             headers[ctx.headers[i].name] = ctx.headers[i].value;
           }
         }
@@ -84,8 +82,6 @@ async function resolve(link, ctx, visited = []) {
         const req = await fetch(resolvedFilePath, { headers });
 
         if (!req.ok) {
-          // FIXME: lost file read errors here
-          // ctx.result.push(...);
           return { node: undefined };
         }
 

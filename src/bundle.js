@@ -5,8 +5,6 @@ import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
-import RedoclyClient from './redocly';
-
 import { OpenAPIRoot } from './types';
 
 export const bundleToFile = async (fName, outputFile, force) => {
@@ -32,8 +30,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
     },
   };
 
-  const redoclyClient = new RedoclyClient();
-  const ctx = createContext(document, doc, resolvedFileName, lintConfig, redoclyClient);
+  const ctx = await createContext(document, doc, resolvedFileName, lintConfig);
 
   await traverseNode(document, OpenAPIRoot, ctx);
   return ctx.result;
@@ -62,7 +59,7 @@ export const bundle = async (fName, force, options) => {
     },
   };
 
-  const ctx = createContext(document, doc, resolvedFileName, config);
+  const ctx = await createContext(document, doc, resolvedFileName, config);
 
   await traverseNode(document, OpenAPIRoot, ctx);
 

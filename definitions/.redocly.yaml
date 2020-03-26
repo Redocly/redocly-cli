@@ -3,15 +3,18 @@ apiDefinitions:
   simpleDefinition: ./syntetic/syntetic.yaml
   rebilly: ./openapi-directory/rebilly-full.yaml
 
+resolve:
+  http:
+    headers:
+      - name: Client-Header
+        value: sometestvalue
+        matches: api.redoc.ly/.*
+      - name: Custom
+        envVariable: TEST_VAR
+        matches: api.redoc.ly/.*
+
 lint:
   codeframes: on
-  headers:
-    - name: Client-Header
-      value: sometestvalue
-      regexp: api.redoc.ly/.*
-    - name: Custom
-      envVariable: TEST_VAR
-      regexp: api.redoc.ly/.*
   rules:
     bundler: off
     debug-info: off
@@ -23,29 +26,7 @@ lint:
     oas3-schema/external-docs:
       url: off
 
-    reg-rule:
-      level: warning
-      rules:
-        UrlsNotExample:
-          on: OpenAPIServer.url
-          not: true
-          startsWith: https://api-sandbox
-          level: error
-          message: 'Example servers should not be in api sandbox. God knows why.'
-        ParameterNameStartCapital:
-          on: OpenAPIParameter.name
-          not: true
-          regexp: 'q'
-          message: 'Parameter names not be q'
-        ExternalDocsHelpdesk:
-          level: 'error'
-          on: OpenAPIExternalDocumentation.url
-          startsWith: docs.redoc.ly
-          message: 'External docs must be only on internal helpdesk'
-        OnlyOpensourceLicense:
-          on: OpenAPILicense.name
-          regexp: '^Rebilly$'
-          message: 'Only one license can be used'
+    reg-rule: off
 
     path-param-exists: on
     operation-2xx-response: on

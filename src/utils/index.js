@@ -1,8 +1,9 @@
 // @ts-check
 /** @typedef {'string'|'number'|'integer'|'boolean'|'null'|'object'|'array'} JSONSchemaType */
 
-import { XMLHttpRequest } from 'xmlhttprequest';
 import chalk from 'chalk';
+import fetch from 'node-fetch';
+import minimatch from 'minimatch';
 
 /* eslint-disable import/prefer-default-export */
 const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
@@ -171,15 +172,9 @@ export function getClosestString(given, others) {
   return null;
 }
 
-export const getFileSync = (link) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', link, false);
-  xhr.send();
-
-  if (xhr.status !== 200) {
-    return null;
-  }
-  return xhr.responseText;
+export const getFile = async (link) => {
+  const resp = await fetch(link);
+  return resp.text();
 };
 
 export function isRef(node) {
@@ -205,4 +200,12 @@ export function debounce(func, wait, immediate) {
 
     if (callNow) func.apply(context, args);
   };
+}
+
+export function match(url, pattern) {
+  if (!pattern.match(/^https?:\/\//)) {
+    // if pattern doesn't specify protocol directly, do not match against it
+    url = url.replace(/^https?:\/\//, '');
+  }
+  return minimatch(url, pattern);
 }

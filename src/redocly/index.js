@@ -1,41 +1,63 @@
+/* eslint-disable max-len */
 import {
   existsSync, readFileSync, writeFileSync, unlinkSync,
 } from 'fs';
-import yaml from 'js-yaml';
 import { resolve } from 'path';
 import { homedir } from 'os';
+import chalk from 'chalk';
 
 import query from './query';
 
 export default class RedoclyClient {
   constructor() {
+    this.loadStoredToken();
+  }
+
+  loadStoredToken() {
+    const credentialsPath = resolve(homedir(), '.redocly.token.json');
+    if (existsSync(credentialsPath)) {
+      const credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
+      this.accessToken = credentials && credentials.token;
+    }
+  }
+
+  async verifyToken() {
     const credentialsPath = resolve(homedir(), '.redocly.token.json');
     let credentials = {};
     if (existsSync(credentialsPath)) {
       credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
     }
-    const authDetails = RedoclyClient.authorize(credentials.token);
+    const authDetails = await RedoclyClient.authorize(credentials.token);
     if (authDetails) {
       this.accessToken = credentials.token;
+      return true;
     }
+    return false;
   }
 
-  getAuthorizationHeader() {
+  async getAuthorizationHeader() {
+    if (!(await this.verifyToken())) {
+      process.stdout.write(
+        `${chalk.yellow('Warning')}, failed to login into Redoc.ly account. Use "openapi login" to provide your access token\n`,
+      );
+      return null;
+    }
     return this.accessToken;
   }
 
-  login(accessToken) {
+  async login(accessToken) {
     const credentialsPath = resolve(homedir(), '.redocly.token.json');
-    const authDetails = RedoclyClient.authorize(accessToken);
+    process.stdout.write(chalk.grey('Logging in...\n'));
+    const authDetails = await RedoclyClient.authorize(accessToken);
     if (authDetails) {
       this.accessToken = accessToken;
       const credentials = {
         token: accessToken,
       };
       writeFileSync(credentialsPath, JSON.stringify(credentials));
-      process.stdout.write('Authorization confirmed.\n');
+      process.stdout.write(chalk.green('Authorization confirmed. ✅\n'));
     } else {
-      process.stdout.write('Authorization failed. Please check if you entered a valid token.\n');
+      process.stdout.write(chalk.red('Authorization failed. Please check if you entered a valid token.\n'));
     }
   }
 
@@ -44,9 +66,10 @@ export default class RedoclyClient {
     if (existsSync(credentialsPath)) {
       unlinkSync(credentialsPath);
     }
+    process.stdout.write('Logged out from the Redoc.ly account. ✋\n');
   }
 
-  query(queryString, parameters = {}, headers = {}) {
+  async query(queryString, parameters = {}, headers = {}) {
     return query(queryString, parameters,
       {
         Authorization: this.accessToken,
@@ -54,9 +77,9 @@ export default class RedoclyClient {
       });
   }
 
-  static authorize(accessToken, verbose = false) {
+  static async authorize(accessToken, verbose = false) {
     try {
-      const result = query(`
+      const result = await query(`
       {
         definitions {
           id
@@ -74,9 +97,9 @@ export default class RedoclyClient {
     }
   }
 
-  isLoggedIn() {
+  async isLoggedIn() {
     try {
-      this.query(`
+      await this.query(`
         {
           viewer {
             id
@@ -90,25 +113,8 @@ export default class RedoclyClient {
     }
   }
 
-  listDefinitions() {
-    const result = this.query(`
-    {
-      definitions{
-        id
-        definitionVersions{
-          id
-          name
-          sourceType
-        }
-      }
-    }
-    `,
-    {});
-    return result.definitions;
-  }
-
-  updateDependencies(dependencies, authorizationToken) {
-    const r = this.query(`
+  async updateDependencies(dependencies, authorizationToken) {
+    const r = await this.query(`
     mutation UpdateBranchDependencies ($dependencies: [String!]!, $definitionId: Int!, $versionId: Int!, $branchId: Int!) {
       updateBranchDependencies(definitionId:$definitionId, versionId:$versionId, branchId:$branchId, dependencies:$dependencies){
         branchName
@@ -126,9 +132,9 @@ export default class RedoclyClient {
     return r;
   }
 
-  processRegistryDependency(link, ctx) {
+  static isRegistryURL(link) {
     const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
-    if (link.indexOf(`https://api.${domain}/registry/`) !== 0) return;
+    if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
     const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
     const pathParts = registryPath.split('/');
@@ -136,26 +142,8 @@ export default class RedoclyClient {
     // we can be sure, that there is job UUID present
     // (org, definition, version, bundle, branch, job)
     // so skip this link.
-    if (pathParts.length === 6) return;
+    if (pathParts.length === 6) return false;
 
-    ctx.dependencies.push(link);
-  }
-
-  getLintConfig(organization, definitionName, versionName) {
-    // console.log(organization, definitionName, versionName);
-    const config = this.query(`
-    query GetConfig($organization: String!, $definitionName:String!, $versionName:String!){
-      version: searchDefinitionVersion(organization:$organization, definitionName:$definitionName, versionName:$versionName){
-        name
-        resolvedLintConfig
-      }
-    }
-    `,
-    {
-      organization,
-      definitionName,
-      versionName,
-    });
-    return (config.version && config.version.resolvedLintConfig) || '{}';
+    return true;
   }
 }
