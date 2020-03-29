@@ -28,7 +28,8 @@ export const loadDefinitions = (config) => {
 const resolveDefinition = (definition, ctx, node) => {
   if (!ctx.config.definitionResolver && typeof definition !== 'string') return definition;
   const definitionName = typeof definition === 'string' ? definition : definition.name;
-  const definitionMap = ctx.definitions[ctx.oas2 ? 'OAS2' : 'OAS3'];
+  const definitionMap = ctx.definitions[ctx.openapiVersion === 2 ? 'OAS2' : 'OAS3'];
+
   const resolvedDefinition = definitionMap[definitionName]
       && definitionMap[definitionName].resolveType
       && definitionMap[definitionName].resolveType(node) !== definitionMap[definitionName].name

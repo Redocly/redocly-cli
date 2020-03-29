@@ -30,7 +30,6 @@ export const validate = async (yamlData, filePath, options = {}) => {
   ctx.getRule = ctx.getRule.bind(null, ctx);
 
   const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
-
   await traverseNode(document, rootNode, ctx);
 
   const filtered = ctx.result.filter((msg) => {
