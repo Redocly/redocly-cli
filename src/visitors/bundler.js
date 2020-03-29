@@ -7,8 +7,8 @@ import path from 'path';
 import isEqual from 'lodash.isequal';
 
 import { getMsgLevelFromString, messageLevels } from '../error/default';
-import OpenAPISchemaObject from '../types/OpenAPISchema';
-import { MAPPING_DATA_KEY } from '../types/OpenAPIDiscriminator';
+import OpenAPISchemaObject from '../types/OAS3/OpenAPISchema';
+import { MAPPING_DATA_KEY } from '../types/OAS3/OpenAPIDiscriminator';
 import { isRef } from '../utils';
 
 const getComponentName = (refString, components, componentType, node, ctx) => {

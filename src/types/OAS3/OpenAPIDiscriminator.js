@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import traverseNode from '../traverse';
+import traverseNode from '../../traverse.js';
 import OpenAPISchema from './OpenAPISchema';
 
 export const MAPPING_DATA_KEY = 'x-openapiCli_resolveMappingData';

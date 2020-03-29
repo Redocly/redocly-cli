@@ -1,4 +1,4 @@
-import * as defaultDefinitionsMap from '../types';
+import defaultDefinitionsMap from '../types';
 
 
 const applyMutations = (defaultDefs, definitionReducer) => {
@@ -28,12 +28,12 @@ export const loadDefinitions = (config) => {
 const resolveDefinition = (definition, ctx, node) => {
   if (!ctx.config.definitionResolver && typeof definition !== 'string') return definition;
   const definitionName = typeof definition === 'string' ? definition : definition.name;
-
-  const resolvedDefinition = ctx.definitions[definitionName]
-      && ctx.definitions[definitionName].resolveType
-      && ctx.definitions[definitionName].resolveType(node) !== ctx.definitions[definitionName].name
-    ? ctx.definitions[ctx.definitions[definitionName].resolveType(node)]
-    : ctx.definitions[definitionName];
+  const definitionMap = ctx.definitions[ctx.oas2 ? 'OAS2' : 'OAS3'];
+  const resolvedDefinition = definitionMap[definitionName]
+      && definitionMap[definitionName].resolveType
+      && definitionMap[definitionName].resolveType(node) !== definitionMap[definitionName].name
+    ? definitionMap[definitionMap[definitionName].resolveType(node)]
+    : definitionMap[definitionName];
 
   return resolvedDefinition;
 };

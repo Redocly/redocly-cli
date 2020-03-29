@@ -38,6 +38,7 @@ function createContext(node, sourceFile, filePath, config) {
 
   config.headers = config.headers || [];
   return {
+    openapiVersion: node.openapi ? 3 : 2,
     document: node,
     filePath: path.resolve(filePath),
     path: [],

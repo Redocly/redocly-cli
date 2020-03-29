@@ -1,5 +1,4 @@
-import fs from 'fs';
-import { MAPPING_DATA_KEY } from '../../../types/OpenAPIDiscriminator';
+import { MAPPING_DATA_KEY } from '../../../types/OAS3/OpenAPIDiscriminator';
 
 class NoRefSiblings {
   static get rule() {

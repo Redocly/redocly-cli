@@ -1,5 +1,5 @@
-import OpenAPIOperation from '../../../types/OpenAPIOperation';
-import OpenAPIPath from '../../../types/OpenAPIPath';
+import OpenAPIOperation from '../../../types/OAS3/OpenAPIOperation';
+import OpenAPIPath from '../../../types/OAS3/OpenAPIPath';
 
 class UniqueParameterNames {
   static get rule() {
@@ -17,7 +17,7 @@ class UniqueParameterNames {
       onExit: () => {
         this.currentOperationParameters = [];
         this.currentPathParameters = [];
-      }
+      },
     };
   }
 
@@ -25,7 +25,7 @@ class UniqueParameterNames {
     return {
       onExit: () => {
         this.currentOperationParameters = [];
-      }
+      },
     };
   }
 
@@ -33,7 +33,7 @@ class UniqueParameterNames {
     return {
       onExit: () => {
         this.currentPathParameters = [];
-      }
+      },
     };
   }
 

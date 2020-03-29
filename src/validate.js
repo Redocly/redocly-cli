@@ -2,7 +2,8 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 
-import { OpenAPIRoot } from './types';
+import { OpenAPIRoot } from './types/OAS3';
+import { OAS2Root } from './types/OAS2';
 
 import { createYAMLParseError } from './error';
 
@@ -19,7 +20,7 @@ export const validate = async (yamlData, filePath, options = {}) => {
   } catch (ex) {
     return [createYAMLParseError(ex, {}, filePath, yamlData, true)];
   }
-  if (!document.openapi && !document.$ref) return [];
+  if (!document.openapi && !document.swagger && !document.$ref) return [];
 
   const config = getLintConfig(options);
   config.rules.bundler = 'off';
@@ -28,7 +29,9 @@ export const validate = async (yamlData, filePath, options = {}) => {
 
   ctx.getRule = ctx.getRule.bind(null, ctx);
 
-  await traverseNode(document, OpenAPIRoot, ctx);
+  const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
+
+  await traverseNode(document, rootNode, ctx);
 
   const filtered = ctx.result.filter((msg) => {
     for (let j = 0; j < ctx.customRules.length; j++) {
