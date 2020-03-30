@@ -1,3 +1,5 @@
+import { matchesJsonSchemaType, getClosestString } from '../../../utils';
+
 class ValidateOAS2Schema {
   static get rule() {
     return 'oas2-schema/schema';

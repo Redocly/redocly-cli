@@ -1,3 +1,5 @@
+import { getClosestString } from '../../../utils';
+
 class ValidateOAS2Header {
   static get rule() {
     return 'oas2-schema/header';
@@ -24,6 +26,10 @@ class ValidateOAS2Header {
       },
       collectionFormat(node, ctx) {
         if (node && node.collectionFormat && typeof node.collectionFormat !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.collectionFormat && !['csv', 'ssv', 'tsv', 'pipes', 'multi'].includes(node.collectionFormat)) {
+          const possibleAlternate = getClosestString(node.type, ['csv', 'ssv', 'tsv', 'pipes', 'multi']);
+          return ctx.createError('The value of "collectionFormat" field can be one of following only: "csv", "ssv", "tsv", "pipes", "multi".', 'value', { possibleAlternate });
+        }
         return null;
       },
       description(node, ctx) {
