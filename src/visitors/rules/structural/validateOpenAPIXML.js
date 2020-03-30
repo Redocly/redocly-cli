@@ -1,3 +1,5 @@
+import { isUrl } from '../../../utils';
+
 class ValidateOpenAPIXML {
   static get rule() {
     return 'oas3-schema/xml';
@@ -10,8 +12,8 @@ class ValidateOpenAPIXML {
         return null;
       },
       namespace(node, ctx) {
-        // TODO: add validation that format is uri
         if (node && node.namespace && typeof node.namespace !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (!isUrl(node.namespace)) return ctx.createError('The value of a"namespace" field should be a valid URL.', 'value');
         return null;
       },
       prefix(node, ctx) {

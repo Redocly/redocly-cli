@@ -12,7 +12,7 @@ class ValidateOAS2InfoContact {
         return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       email(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        return (node && node.email) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
 
     };
