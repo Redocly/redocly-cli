@@ -43,7 +43,7 @@ export default class RedoclyClient {
     // print this only if there is token but invalid
     if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
       process.stdout.write(
-        `${chalk.yellow('Warning:')} invalid Redoc.ly access token. Use "openapi login" to provide your access token\n`,
+        `${chalk.yellow('Warning:')} invalid Redoc.ly access token. Use "npx @redocly/openapi-cl registry:login" to provide your access token\n`,
       );
       return null;
     }
@@ -58,6 +58,7 @@ export default class RedoclyClient {
 
     if (!authorized) {
       process.stdout.write(chalk.red('Authorization failed. Please check if you entered a valid token.\n'));
+      process.exit(1);
     }
 
     this.accessToken = accessToken;

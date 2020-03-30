@@ -9,6 +9,8 @@ import {
 } from 'path';
 import * as chockidar from 'chokidar';
 
+import RedoclyClient from '../redocly';
+import { promptUser } from './utils';
 import { validateFromFile, validateFromUrl } from '../validate';
 import { bundle, bundleToFile } from '../bundle';
 
@@ -49,6 +51,24 @@ const cli = () => {
 
   program
     .version(version, '-v, --version', 'Output current version of the OpenAPI CLI.');
+
+  program
+    .command('registry:login')
+    .description('Login to the Redoc.ly API Registry with access token')
+    .option('-p, --prompt', 'Ask for credentials instead of looking them in the .env or enviroment variables')
+    .action(async () => {
+      const clientToken = await promptUser(`Copy your access token from https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile and paste it below`);
+      const client = new RedoclyClient();
+      client.login(clientToken);
+    });
+
+  program
+    .command('registry:logout')
+    .description('Clear stored credentials for Redoc.ly API Registry')
+    .action(async () => {
+      const client = new RedoclyClient();
+      client.logout();
+    });
 
   program
     .command('bundle [entryPoints...]')
