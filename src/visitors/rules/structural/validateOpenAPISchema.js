@@ -1,4 +1,4 @@
-import { matchesJsonSchemaType, getClosestString } from '../../../utils';
+import { getClosestString } from '../../../utils';
 
 
 class ValidateOpenAPISchema {
@@ -104,17 +104,6 @@ class ValidateOpenAPISchema {
 
         if (node && node.enum) {
           if (!Array.isArray(node.enum)) return [ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value')];
-          if (node.type && typeof node.type === 'string') {
-            const typeMimsatch = node.enum.filter(
-              (item) => !matchesJsonSchemaType(item, node.type),
-            );
-
-            typeMimsatch.forEach((val) => {
-              ctx.path.push(node.enum.indexOf(val));
-              errors.push(ctx.createError('All values of "enum" field must be of the same type as the "type" field.', 'value'));
-              ctx.path.pop();
-            });
-          }
         }
         return errors;
       },

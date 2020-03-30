@@ -18,6 +18,7 @@ lint:
     operation-operationId-unique: on
     path-declarations-must-exist: on
     string-matcher: off
+    enum-match-type: warning
 
     camel-case-names: off
     parameter-description: off
