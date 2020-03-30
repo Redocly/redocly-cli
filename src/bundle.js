@@ -5,7 +5,8 @@ import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
-import { OpenAPIRoot } from './types';
+import { OpenAPIRoot } from './types/OAS3';
+import { OAS2Root } from './types/OAS2';
 
 export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
@@ -32,7 +33,8 @@ export const bundleToFile = async (fName, outputFile, force) => {
 
   const ctx = createContext(document, doc, resolvedFileName, lintConfig);
 
-  await traverseNode(document, OpenAPIRoot, ctx);
+  const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
+  await traverseNode(document, rootNode, ctx);
   return ctx.result;
 };
 

@@ -1,9 +1,8 @@
-import { getClosestString } from '../../../utils';
+import { matchesJsonSchemaType, getClosestString } from '../../../utils';
 
-
-class ValidateOpenAPISchema {
+class ValidateOAS2Schema {
   static get rule() {
-    return 'oas3-schema/schema';
+    return 'oas2-schema/schema';
   }
 
   get validators() {
@@ -129,16 +128,8 @@ class ValidateOpenAPISchema {
         if (node && node.format && typeof node.format !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
-      nullable(node, ctx) {
-        if (node && node.nullable && typeof node.nullable !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
-        return null;
-      },
       readOnly(node, ctx) {
         if (node && node.readOnly && typeof node.readOnly !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
-        return null;
-      },
-      writeOnly(node, ctx) {
-        if (node && node.writeOnly && typeof node.writeOnly !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
         return null;
       },
       deprecated(node, ctx) {
@@ -148,7 +139,7 @@ class ValidateOpenAPISchema {
     };
   }
 
-  OpenAPISchema() {
+  OAS2Schema() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
         this.config, this.rule, this.validators,
@@ -157,4 +148,4 @@ class ValidateOpenAPISchema {
   }
 }
 
-module.exports = ValidateOpenAPISchema;
+module.exports = ValidateOAS2Schema;

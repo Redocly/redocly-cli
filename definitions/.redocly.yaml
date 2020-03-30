@@ -37,7 +37,7 @@ lint:
 
     api-servers: on
     license-url: on
-    no-extra-fields: off
+    no-extra-fields: on
     operation-description: off
     operation-operationId: off
     operation-tags: off

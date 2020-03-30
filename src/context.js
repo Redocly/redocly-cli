@@ -38,6 +38,7 @@ function createContext(node, sourceFile, filePath, config) {
 
   config.headers = config.headers || [];
   return {
+    openapiVersion: node.swagger ? 2 : 3,
     document: node,
     filePath: path.resolve(filePath),
     path: [],

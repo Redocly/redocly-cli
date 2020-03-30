@@ -1,6 +1,6 @@
-class ValidateOpenAPIResponse {
+class ValidateOAS2Response {
   static get rule() {
-    return 'oas3-schema/response';
+    return 'oas2-schema/response';
   }
 
   get validators() {
@@ -12,12 +12,12 @@ class ValidateOpenAPIResponse {
         if (typeof node.description !== 'string') {
           return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         }
-        return [];
+        return null;
       },
     };
   }
 
-  OpenAPIResponse() {
+  OAS2Response() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
         this.config, this.rule, this.validators,
@@ -26,4 +26,4 @@ class ValidateOpenAPIResponse {
   }
 }
 
-module.exports = ValidateOpenAPIResponse;
+module.exports = ValidateOAS2Response;

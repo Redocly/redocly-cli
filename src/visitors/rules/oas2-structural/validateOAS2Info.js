@@ -1,6 +1,6 @@
-class ValidateOpenAPIInfo {
+class ValidateOAS2Info {
   static get rule() {
-    return 'oas3-schema/info';
+    return 'oas2-schema/info';
   }
 
   get validators() {
@@ -20,7 +20,7 @@ class ValidateOpenAPIInfo {
     };
   }
 
-  OpenAPIInfo() {
+  OAS2Info() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
         this.config, this.rule, this.validators,
@@ -29,4 +29,4 @@ class ValidateOpenAPIInfo {
   }
 }
 
-module.exports = ValidateOpenAPIInfo;
+module.exports = ValidateOAS2Info;

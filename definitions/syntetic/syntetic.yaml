@@ -8,13 +8,14 @@ info:
     name: Ivan Goncharov
     email: ivan@redoc.ly
   license:
-    $ref: https://api.redoc.online/registry/oleses-testing/API%20petstore/github1/bundle/Default-branch#/info/license
+    $ref: https://api.redoc.online/registry/oleses-testing/API%20petstore/github1/bundle/Default-branch/openapi.yaml#/info/license
 
 servers:
   - url: 'http://example.org'
 
 paths:
   user:
+    some: test
     parameters:
       - $ref: '#/components/parameters/example'
     get:
@@ -74,7 +75,7 @@ components:
   parameters:
     example:
       name: bla
-      in: query
+      in: querya
       required: false
       schema:
         type: string

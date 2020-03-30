@@ -5,16 +5,20 @@ lint:
       nameConflicts: warning
     debug-info: off
 
+    no-extra-fields: warning
+    no-$ref-siblings: warning
+
     suggest-possible-refs: on
     oas3-schema: on
     operations-tags-alpabetical: warning
     path-param-exists: on
     operation-2xx-response: warning
     unique-parameter-names: on
-    no-unused-schemas: on
+    no-unused-schemas: warning
     operation-operationId-unique: on
     path-declarations-must-exist: on
     string-matcher: off
+    enum-match-type: warning
 
     camel-case-names: off
     parameter-description: off
@@ -22,7 +26,6 @@ lint:
     api-servers: off
     license-url: off
     license-required: off
-    no-extra-fields: on
     model-description: off
     operation-description: off
     operation-operationId: off

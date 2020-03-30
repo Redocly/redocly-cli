@@ -1,8 +1,8 @@
 import { isUrl } from '../../../utils';
 
-class ValidateOpenAPIXML {
+class ValidateOAS2XML {
   static get rule() {
-    return 'oas3-schema/xml';
+    return 'oas2-schema/xml';
   }
 
   get validators() {
@@ -31,7 +31,7 @@ class ValidateOpenAPIXML {
     };
   }
 
-  OpenAPIXML() {
+  OAS2XML() {
     return {
       onEnter: (node, definition, ctx) => ctx.validateFields(
         this.config, this.rule, this.validators,
@@ -40,4 +40,5 @@ class ValidateOpenAPIXML {
   }
 }
 
-module.exports = ValidateOpenAPIXML;
+
+module.exports = ValidateOAS2XML;
