@@ -6,7 +6,10 @@ class ModelDescription {
   OpenAPIModel() {
     return {
       onEnter: (node, _, ctx) => {
-        if (!node.description) {
+        if (typeof node.description !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
+        if (node && !node.description && node.description !== '') {
           return [ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key')];
         }
         return [];

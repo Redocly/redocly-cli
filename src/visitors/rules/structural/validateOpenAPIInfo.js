@@ -9,7 +9,7 @@ class ValidateOpenAPIInfo {
         return !node || !node.title ? ctx.createError(ctx.messageHelpers.missingRequiredField('title'), 'key') : null;
       },
       version(node, ctx) {
-        return !node || !node.version ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
+        return !node || (!node.version && node.version !== '') ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
       },
       description() {
         return null;
