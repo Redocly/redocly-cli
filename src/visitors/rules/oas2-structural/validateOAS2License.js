@@ -19,12 +19,9 @@ class ValidateOAS2License {
 
   OAS2License() {
     return {
-      onEnter: (node, definition, ctx) => {
-        console.log('aaasdasfakslfjaskfjklasf');
-        return ctx.validateFields(
-          this.config, this.rule, this.validators,
-        );
-      },
+      onEnter: (node, definition, ctx) => ctx.validateFields(
+        this.config, this.rule, this.validators,
+      ),
     };
   }
 }

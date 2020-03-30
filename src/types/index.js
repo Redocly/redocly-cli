@@ -6,4 +6,5 @@ const mergedDefinitionsMap = {
   OAS2: OAS2DefaultDefinitionMap,
 };
 
+export * from './OAS3';
 export default mergedDefinitionsMap;
