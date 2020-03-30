@@ -14,7 +14,7 @@ lint:
     path-param-exists: on
     operation-2xx-response: warning
     unique-parameter-names: on
-    no-unused-schemas: on
+    no-unused-schemas: warning
     operation-operationId-unique: on
     path-declarations-must-exist: on
     string-matcher: off

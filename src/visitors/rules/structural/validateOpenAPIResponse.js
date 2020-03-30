@@ -6,7 +6,13 @@ class ValidateOpenAPIResponse {
   get validators() {
     return {
       description(node, ctx) {
-        return !node.description ? ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key') : null;
+        if (node && !node.description && node.description !== '') {
+          return ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key');
+        }
+        if (typeof node.description !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
+        return [];
       },
     };
   }
