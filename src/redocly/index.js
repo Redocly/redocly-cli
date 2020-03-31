@@ -52,7 +52,7 @@ export default class RedoclyClient {
 
   async login(accessToken) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    process.stdout.write(chalk.grey('Logging in...\n'));
+    process.stdout.write(chalk.grey('\n  Logging in...\n'));
 
     const authorized = await this.verifyToken(accessToken);
 
@@ -67,7 +67,7 @@ export default class RedoclyClient {
     };
 
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
-    process.stdout.write(chalk.green('Authorization confirmed. ✅\n'));
+    process.stdout.write(chalk.green('  Authorization confirmed. ✅\n\n'));
   }
 
   logout() {

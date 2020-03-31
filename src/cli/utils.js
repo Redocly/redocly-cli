@@ -7,7 +7,7 @@ export async function promptUser(query) {
       output: process.stdout,
     });
 
-    rl.question(`${query}:\n`, (answer) => {
+    rl.question(`${query}:\n\n  `, (answer) => {
       rl.close();
       resolve(answer);
     });

@@ -57,7 +57,9 @@ const cli = () => {
     .description('Login to the Redoc.ly API Registry with access token')
     .option('-p, --prompt', 'Ask for credentials instead of looking them in the .env or enviroment variables')
     .action(async () => {
-      const clientToken = await promptUser(`Copy your access token from https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile and paste it below`);
+      const clientToken = await promptUser(
+        chalk.green(`\n  🔑 Copy your access token from ${chalk.blue(`https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`)} and paste it below`),
+      );
       const client = new RedoclyClient();
       client.login(clientToken);
     });
