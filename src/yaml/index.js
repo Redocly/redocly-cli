@@ -5,6 +5,7 @@ import {
 } from '../utils';
 
 const astCache = {};
+const MAX_LINE_LENGTH = 150;
 
 const parseAST = ({ filePath, source }) => {
   if (!astCache[filePath]) {
@@ -139,7 +140,9 @@ export const getCodeFrameForLocation = (
 
   lines.forEach((_, id) => {
     const lineNum = String(`0${startLine - actualLinesBefore + id + (fromStart ? 0 : 1)}`).slice(-maxLineNum.toString().length);
-    const line = minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id];
+    // Truncating line to avoid too big output
+    const line = (minSpaces >= 8 ? lines[id].slice(minSpaces) : lines[id]).substring(0, MAX_LINE_LENGTH);
+
     if (id <= actualLinesBefore - 1 || id > lines.length - actualLinesAfter - 1) {
       lines[id] = outputGrey(`${lineNum}| ${line}`);
     } else {
