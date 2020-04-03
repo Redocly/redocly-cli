@@ -209,3 +209,11 @@ export function match(url, pattern) {
   }
   return minimatch(url, pattern);
 }
+
+export function fileNotFoundError(fName, definitions) {
+  let errorMessage = `Can't find definition or file with name: ${chalk.red(fName)}.\n`;
+  if (definitions) {
+    errorMessage = `${errorMessage}\nAvailable definitions:\n- ${definitions.join('\n- ')}\n`;
+  }
+  return errorMessage;
+}

@@ -1,14 +1,13 @@
 /* eslint-disable no-param-reassign */
 import fs from 'fs';
 import yaml from 'js-yaml';
-import chalk from 'chalk';
 
 import { OpenAPIRoot } from './types/OAS3';
 import { OAS2Root } from './types/OAS2';
 
 import { createYAMLParseError } from './error';
 
-import { getFile } from './utils';
+import { getFile, fileNotFoundError } from './utils';
 
 import { getLintConfig, getDefinitionNames } from './config';
 import traverseNode from './traverse';
@@ -61,15 +60,8 @@ export const validateFromFile = async (fName, options) => {
   try {
     doc = fs.readFileSync(resolvedFileName, 'utf-8');
   } catch (error) {
-    let errorMessage = `Can't find definition or file with name: ${chalk.red(fName)}.\n`;
     const definitions = getDefinitionNames();
-    if (definitions) {
-      errorMessage = `${errorMessage}\nThese definitions are present in the .redocly.yaml file:\n`;
-      definitions.forEach((d) => {
-        errorMessage += `- ${d}\n`;
-      });
-    }
-    process.stderr.write(errorMessage);
+    process.stderr.write(fileNotFoundError(resolvedFileName, definitions));
     process.exit(1);
   }
   const validationResult = await validate(doc, resolvedFileName, options);

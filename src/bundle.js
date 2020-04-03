@@ -1,16 +1,26 @@
 import fs from 'fs';
 import yaml from 'js-yaml';
 
-import { getLintConfig } from './config';
+import { getLintConfig, getDefinitionNames } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
 import { OpenAPIRoot } from './types/OAS3';
 import { OAS2Root } from './types/OAS2';
 
+import { fileNotFoundError } from './utils';
+
 export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const doc = fs.readFileSync(resolvedFileName, 'utf-8');
+  let doc;
+  try {
+    doc = fs.readFileSync(resolvedFileName, 'utf-8');
+  } catch (error) {
+    const definitions = getDefinitionNames();
+    process.stderr.write(fileNotFoundError(resolvedFileName, definitions));
+    process.exit(1);
+  }
+
   let document;
 
   try {
@@ -40,7 +50,14 @@ export const bundleToFile = async (fName, outputFile, force) => {
 
 export const bundle = async (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const doc = fs.readFileSync(resolvedFileName, 'utf-8');
+  let doc;
+  try {
+    doc = fs.readFileSync(resolvedFileName, 'utf-8');
+  } catch (error) {
+    const definitions = getDefinitionNames();
+    process.stderr.write(fileNotFoundError(resolvedFileName, definitions));
+    process.exit(1);
+  }
   let document;
 
   try {
