@@ -4,6 +4,9 @@
 import chalk from 'chalk';
 import fetch from 'node-fetch';
 import minimatch from 'minimatch';
+import fs from 'fs';
+
+import { getDefinitionNames } from '../config';
 
 /* eslint-disable import/prefer-default-export */
 const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
@@ -208,6 +211,18 @@ export function match(url, pattern) {
     url = url.replace(/^https?:\/\//, '');
   }
   return minimatch(url, pattern);
+}
+
+export function readFile(fileName) {
+  let doc;
+  try {
+    doc = fs.readFileSync(fileName, 'utf-8');
+  } catch (error) {
+    const definitions = getDefinitionNames();
+    process.stderr.write(fileNotFoundError(fileName, definitions));
+    process.exit(1);
+  }
+  return doc;
 }
 
 export function fileNotFoundError(fName, definitions) {

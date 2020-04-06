@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-import fs from 'fs';
 import yaml from 'js-yaml';
 
 import { OpenAPIRoot } from './types/OAS3';
@@ -7,9 +6,9 @@ import { OAS2Root } from './types/OAS2';
 
 import { createYAMLParseError } from './error';
 
-import { getFile, fileNotFoundError } from './utils';
+import { getFile, readFile } from './utils';
 
-import { getLintConfig, getDefinitionNames } from './config';
+import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
@@ -56,14 +55,7 @@ export const validateFromUrl = async (link, options) => {
 
 export const validateFromFile = async (fName, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  let doc;
-  try {
-    doc = fs.readFileSync(resolvedFileName, 'utf-8');
-  } catch (error) {
-    const definitions = getDefinitionNames();
-    process.stderr.write(fileNotFoundError(resolvedFileName, definitions));
-    process.exit(1);
-  }
-  const validationResult = await validate(doc, resolvedFileName, options);
+  const yamlText = readFile(resolvedFileName);
+  const validationResult = await validate(yamlText, resolvedFileName, options);
   return validationResult;
 };
