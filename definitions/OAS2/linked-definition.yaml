@@ -1,0 +1,18 @@
+Contibutor:
+  description: Contibutor Link
+  properties:
+    publicationId:
+      description: >-
+        An ID for the publication. This can be lifted from response of
+        publications above
+      type: string
+    role:
+      description: >-
+        Role of the user identified by userId in the publication identified by
+        `publicationId`. *editor* or *writer*
+      type: string
+    userId:
+      description: A user ID of the contributor.
+      type: string
+  title: Contributor
+  type: object
