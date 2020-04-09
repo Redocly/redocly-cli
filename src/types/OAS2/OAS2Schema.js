@@ -42,6 +42,7 @@ const OAS2Schema = {
     required: null,
     enum: null,
     type: null,
+    format: null,
   },
   resolvableScalars: [
     'description',

@@ -109,7 +109,7 @@ class ValidateOAS2Schema {
       type(node, ctx) {
         const errors = [];
         if (node.type && node.type && typeof node.type !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
-        if (node.type && !['string', 'object', 'array', 'integer', 'number', 'boolean'].includes(node.type)) {
+        if (node.type && !['string', 'object', 'array', 'integer', 'number', 'boolean', 'file'].includes(node.type)) {
           const possibleAlternate = getClosestString(node.type, ['string', 'object', 'array', 'integer', 'number', 'boolean']);
           errors.push(ctx.createError('Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean".', 'value', { possibleAlternate }));
         }

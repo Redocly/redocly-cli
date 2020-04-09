@@ -1,5 +1,5 @@
 import { OAS2Operation } from './OAS2Operation';
-import { OAS2Parameters } from './OAS2Parameters';
+import { OAS2Parameter } from './OAS2Parameter';
 
 export const OAS2PathItem = {
   name: 'OAS2PathItem',
@@ -12,7 +12,7 @@ export const OAS2PathItem = {
     options: OAS2Operation,
     head: OAS2Operation,
     patch: OAS2Operation,
-    parameters: OAS2Parameters,
+    parameters: OAS2Parameter,
   },
 };
 
