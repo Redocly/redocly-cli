@@ -14,7 +14,9 @@ const OAS2Schema = {
     },
 
     // additional oas2 fields
-    additionalProperties: OAS2Schema,
+    additionalProperties() {
+      return OAS2Schema;
+    },
     xml: OAS2XML,
     externalDocs: OAS2ExternalDocumentation,
     properties: OAS2SchemaMap,
