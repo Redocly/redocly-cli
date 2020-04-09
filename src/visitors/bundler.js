@@ -54,6 +54,7 @@ class Bundler {
       this.nameConflictsSeverity = getMsgLevelFromString(this.config.nameConflicts || '');
     }
     this.components = {};
+    this.oas2components = {};
 
     this.newRefNodes = new Map();
   }
@@ -83,7 +84,11 @@ class Bundler {
       case 'OpenAPICallback':
         return 'callbacks';
       case 'OAS2Schema':
-        return '';
+        return 'definitions';
+      case 'OAS2Response':
+        return 'responses';
+      case 'OAS2Parameter':
+        return 'parameters';
       default:
         return null;
     }
@@ -121,8 +126,37 @@ class Bundler {
     return errors;
   }
 
-  saveOAS2Component() {
+  saveComponent(ctx, node, name, componentType) {
+    let ref;
+    if (ctx.openapiVersion === 3) {
+      ref = `#/components/${componentType}/${name}`;
 
+      if (!this.components[componentType]) {
+        this.components[componentType] = {};
+      }
+
+      this.components[componentType][name] = node;
+    } else {
+      switch (componentType) {
+        case 'definitions':
+          ref = `#/definitions/${name}`;
+          break;
+        case 'parameters':
+          ref = `#/parameters/${name}`;
+          break;
+        case 'responses':
+          ref = `#/responses/${name}`;
+          break;
+        default:
+          return null;
+      }
+
+      if (!this.oas2components[componentType]) {
+        this.oas2components[componentType] = {};
+      }
+      this.oas2components[componentType][name] = node;
+    }
+    return ref;
   }
 
   any() {
@@ -155,19 +189,13 @@ class Bundler {
             );
 
             errors.push(...nameErrors);
-            let newRef;
-            if (ctx.openapiVersion === 3) {
-              newRef = `#/components/${componentType}/${name}`;
 
-              if (!this.components[componentType]) {
-                this.components[componentType] = {};
-              }
-
-              this.components[componentType][name] = node;
-            } else {
-              newRef = this.saveOAS2Component();
+            const newRef = this.saveComponent(ctx, node, name, componentType);
+            if (!newRef) {
+              delete unresolvedNode.$ref;
+              Object.assign(unresolvedNode, node);
+              return errors;
             }
-
 
             // we can't replace nodes in-place as non-idempotent
             // nodes will be visited again and will fail bundling
@@ -196,6 +224,15 @@ class Bundler {
           ctx.bundlingResult = null;
           return null;
         }
+
+        for (const [unresolvedNode, newRef] of this.newRefNodes.entries()) {
+          unresolvedNode.$ref = newRef;
+        }
+
+        Object.keys(this.oas2components).forEach((component) => {
+          node[component] = node[component] ? node[component] : {};
+          Object.assign(node[component], this.oas2components[component]);
+        });
 
         ctx.bundlingResult = node;
         return null;
