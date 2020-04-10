@@ -124,7 +124,6 @@ class ValidateOpenAPISchema {
         if (node
           && node.additionalProperties
           && (['boolean', 'object'].indexOf(typeof node.additionalProperties) === -1)) {
-          console.log(typeof node.additionalProperties);
           return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean or OpenAPI Schema'), 'value');
         }
         return null;
