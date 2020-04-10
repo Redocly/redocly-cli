@@ -120,7 +120,11 @@ class ValidateOAS2Schema {
         return null;
       },
       additionalProperties: (node, ctx) => {
-        if (node && node.additionalProperties && typeof node.additionalProperties !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+        if (node
+          && node.additionalProperties
+          && (['boolean', 'object'].indexOf(typeof node.additionalProperties) === -1)) {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean or OAS2 Schema'), 'value');
+        }
         return null;
       },
       description(node, ctx) {
