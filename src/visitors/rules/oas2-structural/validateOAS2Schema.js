@@ -119,7 +119,10 @@ class ValidateOAS2Schema {
         if (node && node.items && Array.isArray(node.items)) return ctx.createError('Value of items must not be an array. It must be a Schema object', 'value');
         return null;
       },
-      additionalProperties: () => null,
+      additionalProperties: (node, ctx) => {
+        if (node && node.additionalProperties && typeof node.additionalProperties !== 'boolean') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+        return null;
+      },
       description(node, ctx) {
         if (node && node.description && typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
