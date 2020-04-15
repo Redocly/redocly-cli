@@ -25,6 +25,14 @@ const OpenAPISchemaObject = {
     items() {
       return OpenAPISchemaObject;
     },
+    additionalProperties(value) {
+      switch (typeof value) {
+        case 'boolean':
+          return null;
+        default:
+          return OpenAPISchemaObject;
+      }
+    },
     properties: OpenAPISchemaMap,
     discriminator: OpenAPIDiscriminator,
     externalDocs: OpenAPIExternalDocumentation,
@@ -48,7 +56,6 @@ const OpenAPISchemaObject = {
     required: null,
     enum: null,
     type: null,
-    additionalProperties: null,
     format: null,
     nullable: null,
     readOnly: null,
