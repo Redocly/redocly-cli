@@ -1,5 +1,3 @@
-import yaml from 'js-yaml';
-
 import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
@@ -7,18 +5,11 @@ import createContext from './context';
 import { OpenAPIRoot } from './types/OAS3';
 import { OAS2Root } from './types/OAS2';
 
-import { readFile } from './utils';
+import { readYaml } from './utils';
 
 export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const yamlText = readFile(resolvedFileName);
-  let document;
-
-  try {
-    document = yaml.safeLoad(yamlText);
-  } catch (ex) {
-    throw new Error("Can't load yaml file");
-  }
+  const { document, source } = readYaml(resolvedFileName);
 
   if (!document.openapi) { return []; }
 
@@ -32,7 +23,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
     },
   };
 
-  const ctx = createContext(document, yamlText, resolvedFileName, lintConfig);
+  const ctx = createContext(document, source, resolvedFileName, lintConfig);
 
   const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
   await traverseNode(document, rootNode, ctx);
@@ -41,14 +32,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
 
 export const bundle = async (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const yamlText = readFile(resolvedFileName);
-  let document;
-
-  try {
-    document = yaml.safeLoad(yamlText);
-  } catch (ex) {
-    throw new Error("Can't load yaml file");
-  }
+  const { document, source } = readYaml(resolvedFileName);
 
   if (!document.openapi) { return []; }
 
@@ -62,7 +46,7 @@ export const bundle = async (fName, force, options) => {
     },
   };
 
-  const ctx = createContext(document, yamlText, resolvedFileName, config);
+  const ctx = createContext(document, source, resolvedFileName, config);
 
   await traverseNode(document, OpenAPIRoot, ctx);
 

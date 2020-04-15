@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import fetch from 'node-fetch';
 import minimatch from 'minimatch';
 import fs from 'fs';
+import yaml from 'js-yaml';
 
 import { getDefinitionNames } from '../config';
 
@@ -213,16 +214,28 @@ export function match(url, pattern) {
   return minimatch(url, pattern);
 }
 
-export function readFile(fileName) {
-  let doc;
+// we ignore this as in the bad-path we end up with terminating the process.
+// eslint-disable-next-line consistent-return
+export function readYaml(filename) {
+  let source;
   try {
-    doc = fs.readFileSync(fileName, 'utf-8');
+    source = fs.readFileSync(filename, 'utf-8');
   } catch (error) {
     const definitions = getDefinitionNames();
-    process.stderr.write(fileNotFoundError(fileName, definitions));
+    process.stderr.write(fileNotFoundError(filename, definitions));
     process.exit(1);
   }
-  return doc;
+  try {
+    const document = yaml.safeLoad(source, { filename });
+    return {
+      document,
+      source,
+    };
+  } catch (ex) {
+    // console.log(ex);
+    process.stderr.write(`Can't load yaml file. Error during parsing YAML source:\n${ex.message}\n`);
+    process.exit(1);
+  }
 }
 
 export function fileNotFoundError(fName, definitions) {

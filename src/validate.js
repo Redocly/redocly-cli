@@ -6,25 +6,19 @@ import { OAS2Root } from './types/OAS2';
 
 import { createYAMLParseError } from './error';
 
-import { getFile, readFile } from './utils';
+import { getFile, readYaml } from './utils';
 
 import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
-export const validate = async (yamlData, filePath, options = {}) => {
-  let document;
-  try {
-    document = yaml.safeLoad(yamlData);
-  } catch (ex) {
-    return [createYAMLParseError(ex, {}, filePath, yamlData, true)];
-  }
+export const validate = async (document, yamlSource, filePath, options = {}) => {
   if (!document.openapi && !document.swagger && !document.$ref) return [];
 
   const config = getLintConfig(options);
   config.rules.bundler = 'off';
 
-  const ctx = createContext(document, yamlData, filePath, config);
+  const ctx = createContext(document, yamlSource, filePath, config);
 
   ctx.getRule = ctx.getRule.bind(null, ctx);
 
@@ -48,14 +42,20 @@ export const validate = async (yamlData, filePath, options = {}) => {
 };
 
 export const validateFromUrl = async (link, options) => {
-  const doc = await getFile(link);
-  const validationResult = await validate(doc, link, options);
+  const source = await getFile(link);
+  let document;
+  try {
+    document = yaml.safeLoad(source);
+  } catch (ex) {
+    return [createYAMLParseError(ex, {}, link, source, true)];
+  }
+  const validationResult = await validate(document, source, link, options);
   return validationResult;
 };
 
 export const validateFromFile = async (fName, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const yamlText = readFile(resolvedFileName);
-  const validationResult = await validate(yamlText, resolvedFileName, options);
+  const { document, source } = readYaml(resolvedFileName);
+  const validationResult = await validate(document, source, resolvedFileName, options);
   return validationResult;
 };
