@@ -20,6 +20,9 @@ lint:
     string-matcher: off
     enum-match-type: warning
 
+    operation-tags-defined: warning
+    provide-contact: warning
+
     camel-case-names: off
     parameter-description: off
     server-not-example: off
@@ -30,5 +33,4 @@ lint:
     operation-description: off
     operation-operationId: off
     operation-tags: off
-    provide-contact: off
     servers-no-trailing-slash: off
