@@ -18,7 +18,7 @@ function pushPath(ctx, filePath, docPath) {
 }
 
 function decodePointerComponent(component) {
-  return component.replace(/~1/, '/').replace(/~0/g, '~');
+  return component.replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
 export function popPath(ctx) {
