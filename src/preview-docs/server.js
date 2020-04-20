@@ -33,7 +33,7 @@ export function respondWithGzip(contents, request, response, headers = {}, code 
     compressedStream = zlib.createGzip();
   } else {
     response.writeHead(code, headers);
-    if (typeof contents === 'string') {
+    if (typeof contents === 'string' || Buffer.isBuffer(contents)) {
       response.write(contents);
       response.end();
     } else {
@@ -42,7 +42,7 @@ export function respondWithGzip(contents, request, response, headers = {}, code 
     return;
   }
 
-  if (typeof contents === 'string') {
+  if (typeof contents === 'string' || Buffer.isBuffer(contents)) {
     compressedStream.write(contents);
     compressedStream.pipe(response);
     compressedStream.end();
