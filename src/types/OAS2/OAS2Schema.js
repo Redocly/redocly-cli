@@ -14,13 +14,15 @@ const OAS2Schema = {
     },
 
     // additional oas2 fields
+    additionalProperties() {
+      return OAS2Schema;
+    },
     xml: OAS2XML,
     externalDocs: OAS2ExternalDocumentation,
     properties: OAS2SchemaMap,
     discriminator: null,
     readOnly: null,
     example: null,
-    additionalProperties: null,
 
     // default JSON schema fields
     title: null,
@@ -42,6 +44,7 @@ const OAS2Schema = {
     required: null,
     enum: null,
     type: null,
+    format: null,
   },
   resolvableScalars: [
     'description',

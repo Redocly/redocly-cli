@@ -7,11 +7,35 @@ import { OAS2Root } from './types/OAS2';
 
 import { readYaml } from './utils';
 
+function writeBundleToFile(bundleObject, outputFile) {
+  const nameParts = outputFile.split('.');
+  const ext = nameParts[nameParts.length - 1];
+
+  const outputPath = path.resolve(outputFile);
+
+  const outputDir = path.dirname(outputPath);
+  fs.mkdirSync(outputDir, { recursive: true });
+
+  let fileData = null;
+
+  switch (ext) {
+    case 'json':
+      fileData = JSON.stringify(bundleObject, null, 2);
+      break;
+    case 'yaml':
+    case 'yml':
+    default:
+      fileData = yaml.safeDump(bundleObject);
+      break;
+  }
+  fs.writeFileSync(`${outputPath}`, fileData);
+}
+
 export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const { document, source } = readYaml(resolvedFileName);
 
-  if (!document.openapi) { return []; }
+  if (!document.openapi && !document.swagger) { return []; }
 
   const lintConfig = getLintConfig({});
   lintConfig.rules = {
@@ -27,6 +51,14 @@ export const bundleToFile = async (fName, outputFile, force) => {
 
   const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
   await traverseNode(document, rootNode, ctx);
+
+  if (outputFile) {
+    writeBundleToFile(ctx.bundlingResult, outputFile);
+  } else {
+    process.stdout.write(yaml.safeDump(ctx.bundlingResult));
+    process.stdout.write('\n');
+  }
+
   return ctx.result;
 };
 
@@ -34,7 +66,7 @@ export const bundle = async (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
   const { document, source } = readYaml(resolvedFileName);
 
-  if (!document.openapi) { return []; }
+  if (!document.openapi && !document.swagger) { return []; }
 
   const config = getLintConfig(options);
   config.rules = {

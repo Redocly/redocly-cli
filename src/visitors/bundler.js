@@ -1,8 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import yaml from 'js-yaml';
-import fs from 'fs';
 import path from 'path';
 import isEqual from 'lodash.isequal';
 
@@ -56,6 +54,7 @@ class Bundler {
       this.nameConflictsSeverity = getMsgLevelFromString(this.config.nameConflicts || '');
     }
     this.components = {};
+    this.oas2components = {};
 
     this.newRefNodes = new Map();
   }
@@ -84,6 +83,12 @@ class Bundler {
         return 'links';
       case 'OpenAPICallback':
         return 'callbacks';
+      case 'OAS2Schema':
+        return 'definitions';
+      case 'OAS2Response':
+        return 'responses';
+      case 'OAS2Parameter':
+        return 'parameters';
       default:
         return null;
     }
@@ -121,12 +126,49 @@ class Bundler {
     return errors;
   }
 
+  saveComponent(ctx, node, name, componentType) {
+    let ref;
+    if (ctx.openapiVersion === 3) {
+      ref = `#/components/${componentType}/${name}`;
+
+      if (!this.components[componentType]) {
+        this.components[componentType] = {};
+      }
+
+      this.components[componentType][name] = node;
+    } else {
+      switch (componentType) {
+        case 'definitions':
+          ref = `#/definitions/${name}`;
+          break;
+        case 'parameters':
+          ref = `#/parameters/${name}`;
+          break;
+        case 'responses':
+          ref = `#/responses/${name}`;
+          break;
+        default:
+          return null;
+      }
+
+      if (!this.oas2components[componentType]) {
+        this.oas2components[componentType] = {};
+      }
+      this.oas2components[componentType][name] = node;
+    }
+    return ref;
+  }
+
   any() {
     return {
       onExit: (node, definition, ctx, unresolvedNode, { traverseNode, visited }) => {
         let errors = [];
 
-        if (node.discriminator && !node.oneOf && !node.anyOf && !node.mapping) {
+        if (ctx.openapiVersion === 3
+          && node.discriminator
+          && !node.oneOf
+          && !node.anyOf
+          && !node.mapping) {
           errors = this.includeImplicitDiscriminator(
             ctx.path,
             ctx.document.components && ctx.document.components.schemas,
@@ -142,20 +184,19 @@ class Bundler {
             delete unresolvedNode.$ref;
             Object.assign(unresolvedNode, node);
           } else if (!this.newRefNodes.has(unresolvedNode)) {
-            // eslint-disable-next-line prefer-const
             const { name, errors: nameErrors } = getComponentName(
               unresolvedNode.$ref, this.components, componentType, node, ctx,
             );
 
             errors.push(...nameErrors);
 
-            const newRef = `#/components/${componentType}/${name}`;
-
-            if (!this.components[componentType]) {
-              this.components[componentType] = {};
+            const newRef = this.saveComponent(ctx, node, name, componentType);
+            if (!newRef) {
+              delete unresolvedNode.$ref;
+              Object.assign(unresolvedNode, node);
+              return errors;
             }
 
-            this.components[componentType][name] = node;
             // we can't replace nodes in-place as non-idempotent
             // nodes will be visited again and will fail bundling
             // so we save it and replace at the end
@@ -172,6 +213,29 @@ class Bundler {
         }
 
         return errors;
+      },
+    };
+  }
+
+  OAS2Root() {
+    return {
+      onExit: (node, definition, ctx) => {
+        if (!this.config.ignoreErrors && ctx.result.some((e) => e.severity === messageLevels.ERROR)) {
+          ctx.bundlingResult = null;
+          return null;
+        }
+
+        for (const [unresolvedNode, newRef] of this.newRefNodes.entries()) {
+          unresolvedNode.$ref = newRef;
+        }
+
+        Object.keys(this.oas2components).forEach((component) => {
+          node[component] = node[component] ? node[component] : {};
+          Object.assign(node[component], this.oas2components[component]);
+        });
+
+        ctx.bundlingResult = node;
+        return null;
       },
     };
   }
@@ -202,38 +266,7 @@ class Bundler {
           Object.assign(node.components[component], this.components[component]);
         });
 
-        let outputFile;
-
-        if (this.config.output) {
-          outputFile = this.config.output;
-          const nameParts = outputFile.split('.');
-          const ext = nameParts[nameParts.length - 1];
-
-          const outputPath = path.resolve(outputFile);
-
-          const outputDir = path.dirname(outputPath);
-          fs.mkdirSync(outputDir, { recursive: true });
-
-          let fileData = null;
-
-          switch (ext) {
-            case 'json':
-              fileData = JSON.stringify(node, null, 2);
-              break;
-            case 'yaml':
-            case 'yml':
-            default:
-              fileData = yaml.safeDump(node);
-              break;
-          }
-          fs.writeFileSync(`${outputPath}`, fileData);
-        } else if (this.config.outputObject) {
-          ctx.bundlingResult = node;
-        } else {
-          // default output to stdout, if smbd wants to pipe it
-          process.stdout.write(yaml.safeDump(node));
-          process.stdout.write('\n');
-        }
+        ctx.bundlingResult = node;
         return null;
       },
     };

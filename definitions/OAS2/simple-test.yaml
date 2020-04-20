@@ -16,7 +16,7 @@ info:
     Developer Blog - [Welcome to the Medium API](https://medium.com/blog/welcome-to-the-medium-api-3418f956552)
   termsOfService: 'https://medium.com/@feerst/2b405a832a2f'
   license:
-    url: google.com
+    $ref: ./linked-tags.yaml#/license
   title: Medium.com
   version: 1.0.0
   x-apisguru-categories:
@@ -77,7 +77,7 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/UserResponse'
+            $ref: './linked-definition.yaml#/Contibutor'
         '401':
           description: The `accessToken` is invalid or has been revoked.
       security:
@@ -215,20 +215,6 @@ paths:
       tags:
         - Publications
 definitions:
-  Contibutor:
-    description: Contibutor
-    properties:
-      publicationId:
-        description: An ID for the publication. This can be lifted from response of publications above
-        type: string
-      role:
-        description: Role of the user identified by userId in the publication identified by `publicationId`. *editor* or *writer*
-        type: string
-      userId:
-        description: A user ID of the contributor.
-        type: string
-    title: Contributor
-    type: object
   ContibutorResponse:
     description: list of contributors for a given publication
     example:

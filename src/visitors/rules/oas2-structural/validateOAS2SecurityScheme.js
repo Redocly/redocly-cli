@@ -11,7 +11,7 @@ class ValidateOAS2SecurityScheme {
         return null;
       },
       description(node, ctx) {
-        if (typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node && node.description && typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
       },
       name(node, ctx) {

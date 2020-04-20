@@ -40,7 +40,7 @@ async function traverseChildren(resolvedNode, definition, ctx, visited) {
         ctx.path.push(p);
         if (typeof definition.properties[p] === 'function') {
           if (resolvedNode[p]) {
-            propResult = await traverseNode(resolvedNode[p], definition.properties[p](), ctx, visited);
+            propResult = await traverseNode(resolvedNode[p], definition.properties[p](resolvedNode[p]), ctx, visited);
           }
         } else if (resolvedNode[p]) {
           propResult = await traverseNode(resolvedNode[p], definition.properties[p], ctx, visited);

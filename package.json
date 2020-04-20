@@ -1,10 +1,12 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.11.0",
+  "version": "0.12.1",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --source-maps inline && chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
+    "build": "npm run babel && npm run copyFiles",
+    "babel": "babel src --out-dir dist --source-maps inline",
+    "copyFiles": "chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
     "test": "jest --coverage"

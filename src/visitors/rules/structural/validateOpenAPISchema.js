@@ -120,7 +120,14 @@ class ValidateOpenAPISchema {
         if (node && node.items && Array.isArray(node.items)) return ctx.createError('Value of items must not be an array. It must be a Schema object', 'value');
         return null;
       },
-      additionalProperties: () => null,
+      additionalProperties: (node, ctx) => {
+        if (node
+          && node.additionalProperties
+          && (['boolean', 'object'].indexOf(typeof node.additionalProperties) === -1)) {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean or OpenAPI Schema'), 'value');
+        }
+        return null;
+      },
       description(node, ctx) {
         if (node && node.description && typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         return null;
