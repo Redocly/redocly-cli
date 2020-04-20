@@ -1,3 +1,7 @@
+import * as path from 'path';
+import * as fs from 'fs';
+import yaml from 'js-yaml';
+
 import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
