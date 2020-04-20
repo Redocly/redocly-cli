@@ -91,6 +91,10 @@ export function getLintConfig(options) {
   return getConfig(options).lint;
 }
 
+export function getDefinitionNames(config = getConfig({})) {
+  return config.apiDefinitions ? Object.keys(config.apiDefinitions) : null;
+}
+
 export function getFallbackEntryPointsOrExit(argsEntrypoints, config = getConfig({})) {
   let res = argsEntrypoints;
   if (

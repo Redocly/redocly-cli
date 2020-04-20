@@ -1,13 +1,11 @@
-import fs from 'fs';
-import yaml from 'js-yaml';
-import path from 'path';
-
 import { getLintConfig } from './config';
 import traverseNode from './traverse';
 import createContext from './context';
 
 import { OpenAPIRoot } from './types/OAS3';
 import { OAS2Root } from './types/OAS2';
+
+import { readYaml } from './utils';
 
 function writeBundleToFile(bundleObject, outputFile) {
   const nameParts = outputFile.split('.');
@@ -35,14 +33,7 @@ function writeBundleToFile(bundleObject, outputFile) {
 
 export const bundleToFile = async (fName, outputFile, force) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const doc = fs.readFileSync(resolvedFileName, 'utf-8');
-  let document;
-
-  try {
-    document = yaml.safeLoad(doc);
-  } catch (ex) {
-    throw new Error("Can't load yaml file");
-  }
+  const { document, source } = readYaml(resolvedFileName);
 
   if (!document.openapi && !document.swagger) { return []; }
 
@@ -56,7 +47,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
     },
   };
 
-  const ctx = createContext(document, doc, resolvedFileName, lintConfig);
+  const ctx = createContext(document, source, resolvedFileName, lintConfig);
 
   const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
   await traverseNode(document, rootNode, ctx);
@@ -73,14 +64,7 @@ export const bundleToFile = async (fName, outputFile, force) => {
 
 export const bundle = async (fName, force, options) => {
   const resolvedFileName = fName; // path.resolve(fName);
-  const doc = fs.readFileSync(resolvedFileName, 'utf-8');
-  let document;
-
-  try {
-    document = yaml.safeLoad(doc);
-  } catch (ex) {
-    throw new Error("Can't load yaml file");
-  }
+  const { document, source } = readYaml(resolvedFileName);
 
   if (!document.openapi && !document.swagger) { return []; }
 
@@ -94,7 +78,7 @@ export const bundle = async (fName, force, options) => {
     },
   };
 
-  const ctx = createContext(document, doc, resolvedFileName, config);
+  const ctx = createContext(document, source, resolvedFileName, config);
 
   await traverseNode(document, OpenAPIRoot, ctx);
 

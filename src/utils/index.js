@@ -4,6 +4,10 @@
 import chalk from 'chalk';
 import fetch from 'node-fetch';
 import minimatch from 'minimatch';
+import fs from 'fs';
+import yaml from 'js-yaml';
+
+import { getDefinitionNames } from '../config';
 
 /* eslint-disable import/prefer-default-export */
 const urlPattern = new RegExp('^(https?:\\/\\/)?' // protocol
@@ -208,4 +212,36 @@ export function match(url, pattern) {
     url = url.replace(/^https?:\/\//, '');
   }
   return minimatch(url, pattern);
+}
+
+// we ignore this as in the bad-path we end up with terminating the process.
+// eslint-disable-next-line consistent-return
+export function readYaml(filename) {
+  let source;
+  try {
+    source = fs.readFileSync(filename, 'utf-8');
+  } catch (error) {
+    const definitions = getDefinitionNames();
+    process.stderr.write(fileNotFoundError(filename, definitions));
+    process.exit(1);
+  }
+  try {
+    const document = yaml.safeLoad(source, { filename });
+    return {
+      document,
+      source,
+    };
+  } catch (ex) {
+    // console.log(ex);
+    process.stderr.write(`Can't load yaml file. Error during parsing YAML source:\n${ex.message}\n`);
+    process.exit(1);
+  }
+}
+
+export function fileNotFoundError(fName, definitions) {
+  let errorMessage = `Can't find definition or file with name: ${chalk.red(fName)}.\n`;
+  if (definitions) {
+    errorMessage = `${errorMessage}\nAvailable definitions:\n- ${definitions.join('\n- ')}\n`;
+  }
+  return errorMessage;
 }
