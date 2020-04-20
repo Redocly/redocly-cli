@@ -71,7 +71,7 @@ async function resolve(link, ctx, visited = []) {
       try {
         document = yaml.safeLoad(source);
       } catch (e) {
-        ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
+        ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath, source));
         return { node: undefined };
       }
     } else if (isFullyQualifiedUrl(resolvedFilePath)) {
@@ -95,7 +95,7 @@ async function resolve(link, ctx, visited = []) {
           source = text;
           document = yaml.safeLoad(text);
         } catch (e) {
-          ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath));
+          ctx.result.push(createYAMLParseError(e, ctx, resolvedFilePath, source));
           return { node: undefined };
         }
       } catch (e) {
