@@ -179,10 +179,8 @@ const cli = () => {
       const output = 'dist/openapi.yaml';
 
       let config = getConfig({});
-      if (!entryPoint) {
-        // eslint-disable-next-line no-param-reassign, prefer-destructuring
-        entryPoint = getFallbackEntryPointsOrExit([], config)[0];
-      }
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
+      entryPoint = getFallbackEntryPointsOrExit(entryPoint ? [entryPoint] : [], config)[0];
 
       let cachedBundle;
       const deps = new Set();

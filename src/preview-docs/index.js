@@ -12,7 +12,15 @@ import {
 } from './server';
 
 function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
-  const template = compile(readFileSync(htmlTemplate, 'utf-8'));
+  let templateSrc = readFileSync(htmlTemplate, 'utf-8');
+
+  // fix template for backward compatibility
+  templateSrc = templateSrc
+    .replace('{{redocHead}}', '{{{redocHead}}}')
+    .replace('{{redocBody}}', '{{{redocHTML}}}');
+
+  const template = compile(templateSrc);
+
   return template({
     redocHead: `
   <script>
