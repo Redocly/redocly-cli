@@ -16,7 +16,7 @@ function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
 
   // fix template for backward compatibility
   templateSrc = templateSrc
-    .replace('{{redocHead}}', '{{{redocHead}}}')
+    .replace(/{?{{redocHead}}}?/, '{{{redocHead}}}')
     .replace('{{redocBody}}', '{{{redocHTML}}}');
 
   const template = compile(templateSrc);
