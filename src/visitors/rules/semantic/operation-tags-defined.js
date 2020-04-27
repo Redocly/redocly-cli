@@ -6,19 +6,24 @@ class OperationTags {
 
   constructor() {
     this.globalTagNames = [];
-    this.operationTags = []; // { name, path }
   }
 
-  _finishValidation() {
+  _readGlobalTags() {
     return {
-      onExit: (_node, _, ctx) => {
+      onEnter: (node) => {
+        this.globalTagNames = node.tags ? node.tags.map((tag) => tag.name) : [];
+      },
+    };
+  }
+
+  _processOperationTags() {
+    return {
+      onEnter: (node, _, ctx) => {
+        if (!node.tags) return [];
         const errors = [];
-        for (const tag of this.operationTags) {
+        for (const tag of node.tags) {
           if (this.globalTagNames.indexOf(tag.name) === -1) {
-            const tmpPath = ctx.path;
-            ctx.path = tag.path;
             errors.push(ctx.createError('Operation tags should be defined in the top level "tags" object.', 'value'));
-            ctx.path = tmpPath;
           }
         }
         return errors;
@@ -26,50 +31,20 @@ class OperationTags {
     };
   }
 
-  _processGlobalTag() {
-    return {
-      onEnter: (node) => {
-        this.globalTagNames.push(node.name);
-      },
-    };
-  }
-
-  _processOperationTag() {
-    return {
-      onEnter: (node, _, ctx) => {
-        if (!node.tags) return;
-        node.tags.forEach((tag, id) => {
-          this.operationTags.push({
-            name: tag,
-            path: Array.from([...ctx.path, 'tags', id]),
-          });
-        });
-      },
-    };
-  }
-
-  OpenAPITag() {
-    return this._processGlobalTag();
-  }
-
-  OAS2Tag() {
-    return this._processGlobalTag();
-  }
-
   OpenAPIOperation() {
-    return this._processOperationTag();
+    return this._processOperationTags();
   }
 
   OAS2Operation() {
-    return this._processOperationTag();
+    return this._processOperationTags();
   }
 
   OAS2Root() {
-    return this._finishValidation();
+    return this._readGlobalTags();
   }
 
   OpenAPIRoot() {
-    return this._finishValidation();
+    return this._readGlobalTags();
   }
 }
 
