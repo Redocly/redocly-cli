@@ -474,7 +474,13 @@ describe("Traverse files", () => {
     expect(
       await validateFromFile(
         "./definitions/openapi-directory/rebilly-full.yaml",
-        {}
+        {
+          lint: {
+            rules: {
+              "operation-tags-defined": "off",
+            },
+          },
+        }
       )
     ).toMatchInlineSnapshot(`Array []`);
   });

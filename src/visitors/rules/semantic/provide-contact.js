@@ -21,6 +21,18 @@ class ProvideContact {
     };
   }
 
+  OAS2Info() {
+    return {
+      onExit: (node, _, ctx) => {
+        const errors = [];
+        if (!node.contact) {
+          return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
+        }
+        return errors;
+      },
+    };
+  }
+
   OpenAPIContact() {
     return {
       onEnter: (node, _, ctx) => {
