@@ -162,7 +162,7 @@ const cli = () => {
         results.warnings += msgs.warnings;
       }
       if (entryPoints.length > 1) {
-        process.stdout.write(`Total results. Errors: ${results.errors}, warnings: ${results.warnings}\n`);
+        process.stdout.write(`Validation results:\nerrors: ${results.errors}\nwarnings: ${results.warnings}\n`);
       }
       process.exit(results.errors > 0 ? 1 : 0);
     });
