@@ -21,9 +21,13 @@ class OperationTags {
       onEnter: (node, _, ctx) => {
         if (!node.tags) return [];
         const errors = [];
-        for (const tag of node.tags) {
-          if (this.globalTagNames.indexOf(tag.name) === -1) {
-            errors.push(ctx.createError('Operation tags should be defined in the top level "tags" object.', 'value'));
+        for (let i = 0; i < node.tags.length; i++) {
+          if (this.globalTagNames.indexOf(node.tags[i].name) === -1) {
+            ctx.path.push('tags');
+            ctx.path.push(i);
+            errors.push(ctx.createError('Operation tags should be defined in the top level "tags" object.', 'key'));
+            ctx.path.pop();
+            ctx.path.pop();
           }
         }
         return errors;
