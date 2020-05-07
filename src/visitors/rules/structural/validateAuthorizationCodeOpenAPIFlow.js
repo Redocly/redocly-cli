@@ -20,7 +20,7 @@ class ValidateAuthorizationCodeOpenAPIFlow {
         return null;
       },
       scopes(node, ctx) {
-        if (node.scopes) {
+        if (!node.scopes) {
           return null;
         }
         const wrongFormatMap = Object.keys(node.scopes)
