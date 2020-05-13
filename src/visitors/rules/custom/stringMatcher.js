@@ -98,7 +98,7 @@ class StringMatcher {
     }
   }
 
-  any_exit(node, definition, ctx) {
+  leave(node, definition, ctx) {
     if (!this.ruleSets[definition.name]) return [];
     const errors = [];
     for (const rule of this.ruleSets[definition.name]) {

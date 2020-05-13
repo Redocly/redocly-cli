@@ -8,7 +8,7 @@ class DebugInfo {
     return 'debug-info';
   }
 
-  any() {
+  enter() {
     return {
       onEnter: () => {
         this.count += 1;

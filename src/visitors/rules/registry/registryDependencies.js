@@ -23,7 +23,7 @@ class RegsitryDependencies {
     }
   }
 
-  any(_node, _definition, ctx, unresolvedNode) {
+  enter(_node, _definition, ctx, unresolvedNode) {
     if (unresolvedNode.$ref) {
       const link = unresolvedNode.$ref.split('#/')[0];
       if (isFullyQualifiedUrl(link) && RedoclyClient.isRegistryURL(link)) {

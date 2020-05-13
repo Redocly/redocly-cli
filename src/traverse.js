@@ -110,7 +110,7 @@ async function traverseNode(node, definition, ctx, visited = []) {
     ctx.validateFields = ctx.validateFieldsRaw.bind(
       null, nodeContext.resolvedNode, ctx,
     );
-    await runRuleOnRuleset(nodeContext, 'onEnter', ctx, resolvedDefinition, node, errors, localVisited);
+    await runRuleOnRuleset(nodeContext, 'enter', ctx, resolvedDefinition, node, errors, localVisited);
 
     const newNode = !isRecursive
       && (!resolvedDefinition.isIdempotent || !ctx.visited.includes(currentPath));
@@ -130,7 +130,7 @@ async function traverseNode(node, definition, ctx, visited = []) {
       ctx.result.push(...cachedResult);
     }
 
-    await runRuleOnRuleset(nodeContext, 'onExit', ctx, resolvedDefinition, node, errors);
+    await runRuleOnRuleset(nodeContext, 'exit', ctx, resolvedDefinition, node, errors);
     if (newNode) ctx.cache[currentPath] = errors;
   }
   onNodeExit(nodeContext, ctx);
@@ -141,7 +141,6 @@ async function traverseNode(node, definition, ctx, visited = []) {
 async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, errors, visited) {
   // ctx.customRules = ctx.customRules.filter((r, i) => i === ctx.customRules.length - 1);
 
-  ruleSuffix = ruleSuffix === 'onEnter' ? 'enter' : 'exit';
   const fName = `${definition.name}_${ruleSuffix}`;
 
   for (let i = 0; i < ctx.customRules.length; i += 1) {
@@ -161,11 +160,10 @@ async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, 
     );
 
     let visitorName = fName;
-    let anyVisitorName = `any_${ruleSuffix}`;
+    const anyVisitorName = ruleSuffix === 'enter' ? 'enter' : 'leave';
 
     if (ruleSuffix === 'enter') {
       visitorName = ctx.customRules[i][definition.name] ? definition.name : visitorName;
-      anyVisitorName = ctx.customRules[i].any ? 'any' : anyVisitorName;
     }
 
     if (ctx.customRules[i][anyVisitorName]) {

@@ -20,7 +20,7 @@ class OverlaysMerger {
     return 'writeCheck';
   }
 
-  any() {
+  enter() {
     return {
       onEnter: (node, _type, _ctx) => {
         if (node['x-redocly-overlay']) {

@@ -5,7 +5,7 @@ class NoExtraFields {
     return 'no-extra-fields';
   }
 
-  any(node, definition, ctx) {
+  enter(node, definition, ctx) {
     const errors = [];
     const allowedChildren = [];
 

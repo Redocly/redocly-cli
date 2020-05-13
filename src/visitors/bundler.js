@@ -159,7 +159,7 @@ class Bundler {
     return ref;
   }
 
-  any() {
+  enter() {
     return {
       onExit: (node, definition, ctx, unresolvedNode, { traverseNode, visited }) => {
         let errors = [];

@@ -7,7 +7,7 @@ class OverlaysMerger {
     return 'writeCheck';
   }
 
-  any(node, type, ctx) {
+  enter(node, type, ctx) {
     if (node['x-redocly-overlay']) {
       const definitionDir = path.dirname(ctx.filePath);
       const overlayPath = path.resolve(definitionDir, node['x-redocly-overlay'].path);

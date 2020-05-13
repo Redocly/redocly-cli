@@ -5,7 +5,7 @@ class NoRefSiblings {
     return 'no-$ref-siblings';
   }
 
-  any(node, definition, ctx, unresolvedNode) {
+  enter(node, definition, ctx, unresolvedNode) {
     const errors = [];
 
     if (!unresolvedNode || typeof unresolvedNode !== 'object') return errors;
