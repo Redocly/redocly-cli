@@ -48,7 +48,7 @@ class OperationDescription {
   }
 
 
-  OpenAPIOperation(node, typeDef, ctx) {
+  OpenAPIOperation_enter(node, typeDef, ctx) {
     if (!node.description) {
       return [ctx.createError(`The field 'description' must be present on this level`), 'key')];
     }
