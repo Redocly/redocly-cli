@@ -22,16 +22,12 @@ class CamelCaseNames {
     return 'camel-case-names';
   }
 
-  OpenAPISchemaMap() {
-    return {
-      onEnter: (node, _, ctx) => validateNode(node, ctx, 'Schema'),
-    };
+  OpenAPISchemaMap(node, _, ctx) {
+    return validateNode(node, ctx, 'Schema');
   }
 
-  OpenAPIParameterMap() {
-    return {
-      onEnter: (node, _, ctx) => validateNode(node, ctx, 'Parameter'),
-    };
+  OpenAPIParameterMap(node, _, ctx) {
+    return validateNode(node, ctx, 'Parameter');
   }
 }
 

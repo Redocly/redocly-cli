@@ -14,6 +14,7 @@ resolve:
         matches: api.redoc.ly/.*
 
 lint:
+  customRules: customRules.js
   codeframes: on
   rules:
     bundler: off
@@ -27,6 +28,7 @@ lint:
       url: off
 
     string-matcher: off
+    mergerCheck: on
 
     path-param-exists: on
     operation-2xx-response: on

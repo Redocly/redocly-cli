@@ -9,22 +9,24 @@ class ValidateOAS2Tag {
         if (node && !node.name) {
           return ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key');
         }
-        if (node && node.name && typeof node.name !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node && node.name && typeof node.name !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       description(node, ctx) {
-        if (node && node.description && typeof node.description !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node && node.description && typeof node.description !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
     };
   }
 
-  OAS2Tag() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2Tag(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

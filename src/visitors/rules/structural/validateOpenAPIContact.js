@@ -6,24 +6,25 @@ class ValidateOpenAPIContact {
   get validators() {
     return {
       name(node, ctx) {
-        return (node && node.name) && typeof node.name !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        return (node && node.name) && typeof node.name !== 'string'
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       url(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        return (node && node.url) && typeof node.url !== 'string'
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
       email(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string' ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        return (node && node.url) && typeof node.url !== 'string'
+          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
       },
 
     };
   }
 
-  OpenAPIContact() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIContact(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

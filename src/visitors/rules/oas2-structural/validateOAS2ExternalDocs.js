@@ -19,12 +19,10 @@ class validateOAS2ExternalDocs {
     };
   }
 
-  OAS2ExternalDocumentation() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2ExternalDocumentation(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

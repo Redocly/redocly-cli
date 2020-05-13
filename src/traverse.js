@@ -138,7 +138,12 @@ async function traverseNode(node, definition, ctx, visited = []) {
   return errors;
 }
 
-async function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, errors, visited) {
+async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, errors, visited) {
+  // ctx.customRules = ctx.customRules.filter((r, i) => i === ctx.customRules.length - 1);
+
+  ruleSuffix = ruleSuffix === 'onEnter' ? 'enter' : 'exit';
+  const fName = `${definition.name}_${ruleSuffix}`;
+
   for (let i = 0; i < ctx.customRules.length; i += 1) {
     ctx.validateFieldsHelper = ctx.validateFields.bind(
       null,
@@ -155,26 +160,35 @@ async function runRuleOnRuleset(nodeContext, ruleName, ctx, definition, node, er
         ? ctx.customRules[i].config.level : ctx.customRules[i]._config.level,
     );
 
-    const errorsOnEnterForType = ctx.customRules[i][definition.name]
-      && ctx.customRules[i][definition.name]()[ruleName]
-      ? await ctx.customRules[i][definition.name]()[ruleName](
-        nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
-      ) : [];
+    let visitorName = fName;
+    let anyVisitorName = `any_${ruleSuffix}`;
 
-    const errorsOnEnterGeneric = ctx.customRules[i].any && ctx.customRules[i].any()[ruleName]
-      ? await ctx.customRules[i].any()[ruleName](nodeContext.resolvedNode, definition, ctx, node, {
-        traverseNode, visited, resolveType,
-      }) : [];
-
-
-    if (Array.isArray(errorsOnEnterForType)) {
-      ctx.result.push(...errorsOnEnterForType);
-      errors.push(...errorsOnEnterForType);
+    if (ruleSuffix === 'enter') {
+      visitorName = ctx.customRules[i][definition.name] ? definition.name : visitorName;
+      anyVisitorName = ctx.customRules[i].any ? 'any' : anyVisitorName;
     }
 
-    if (Array.isArray(errorsOnEnterGeneric)) {
-      ctx.result.push(...errorsOnEnterGeneric);
-      errors.push(...errorsOnEnterGeneric);
+    if (ctx.customRules[i][anyVisitorName]) {
+      const errorsOnEnterGeneric = await ctx.customRules[i][anyVisitorName](nodeContext.resolvedNode, definition, ctx, node, {
+        traverseNode, visited, resolveType,
+      });
+
+      if (Array.isArray(errorsOnEnterGeneric)) {
+        ctx.result.push(...errorsOnEnterGeneric);
+        errors.push(...errorsOnEnterGeneric);
+      }
+    }
+
+
+    if (ctx.customRules[i][visitorName]) {
+      const errorsOnEnterForType = await ctx.customRules[i][visitorName](
+        nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
+      );
+
+      if (Array.isArray(errorsOnEnterForType)) {
+        ctx.result.push(...errorsOnEnterForType);
+        errors.push(...errorsOnEnterForType);
+      }
     }
   }
 }

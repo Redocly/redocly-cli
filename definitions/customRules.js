@@ -7,25 +7,21 @@ class OverlaysMerger {
     return 'writeCheck';
   }
 
-  any() {
-    return {
-      onEnter: (node, type, ctx) => {
-        if (node['x-redocly-overlay']) {
-          const definitionDir = path.dirname(ctx.filePath);
-          const overlayPath = path.resolve(definitionDir, node['x-redocly-overlay'].path);
+  any(node, type, ctx) {
+    if (node['x-redocly-overlay']) {
+      const definitionDir = path.dirname(ctx.filePath);
+      const overlayPath = path.resolve(definitionDir, node['x-redocly-overlay'].path);
 
-          if (fs.existsSync(overlayPath)) {
-            const patch = JSON.parse(fs.readFileSync(overlayPath));
+      if (fs.existsSync(overlayPath)) {
+        const patch = JSON.parse(fs.readFileSync(overlayPath));
 
-            Object.keys(patch).forEach((k) => {
-              node[k] = patch[k];
-            });
+        Object.keys(patch).forEach((k) => {
+          node[k] = patch[k];
+        });
 
-            delete node['x-redocly-overlay'];
-          }
-        }
-      },
-    };
+        delete node['x-redocly-overlay'];
+      }
+    }
   }
 }
 
@@ -34,12 +30,20 @@ class MergeChecker {
     return 'mergerCheck';
   }
 
+  OpenAPIRoot_enter() {
+    console.log('root');
+  }
+
+  OpenAPIRoot_exit() {
+    console.log('root exit');
+  }
+
   OpenAPIInfo() {
-    return {
-      onEnter: (node, type, ctx) => {
-        console.log(node);
-      },
-    };
+    console.log('adakdjkasdjkasjdkasjdks');
+  }
+
+  OpenAPIInfo_exit(node) {
+    console.log(node);
   }
 }
 

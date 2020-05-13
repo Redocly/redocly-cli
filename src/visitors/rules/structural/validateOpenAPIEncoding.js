@@ -32,12 +32,10 @@ class ValidateOpenAPIEncoding {
     };
   }
 
-  OpenAPIEncoding() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIEncoding(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

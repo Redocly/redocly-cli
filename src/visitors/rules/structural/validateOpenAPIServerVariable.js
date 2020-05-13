@@ -7,7 +7,9 @@ class ValidateOpenAPIServerVariable {
     return {
       default(node, ctx) {
         if (!node || !node.default) return ctx.createError(ctx.messageHelpers.missingRequiredField('default'), 'key');
-        if (typeof node.default !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (typeof node.default !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       description(node, ctx) {
@@ -16,20 +18,22 @@ class ValidateOpenAPIServerVariable {
       },
       enum(node, ctx) {
         if (node && node.enum) {
-          if (!Array.isArray(node.enum)) return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
-          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) return ctx.createError('All values of "enum" field must be strings', 'value');
+          if (!Array.isArray(node.enum)) {
+            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
+          }
+          if (node.type && node.enum.filter((item) => typeof item !== 'string').length !== 0) {
+            return ctx.createError('All values of "enum" field must be strings', 'value');
+          }
         }
         return null;
       },
     };
   }
 
-  OpenAPIServerVariable() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIServerVariable(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

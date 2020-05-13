@@ -7,7 +7,9 @@ class ValidateOpenAPIExample {
     return {
       value(node, ctx) {
         if (node.value && node.externalValue) {
-          return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key');
+          return ctx.createError(
+            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key',
+          );
         }
         return null;
       },
@@ -16,7 +18,9 @@ class ValidateOpenAPIExample {
           return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
         }
         if (node.value && node.externalValue) {
-          return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key');
+          return ctx.createError(
+            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key',
+          );
         }
         return null;
       },
@@ -35,12 +39,10 @@ class ValidateOpenAPIExample {
     };
   }
 
-  OpenAPIExample() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIExample(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

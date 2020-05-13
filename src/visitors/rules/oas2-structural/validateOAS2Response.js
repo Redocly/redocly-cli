@@ -17,12 +17,10 @@ class ValidateOAS2Response {
     };
   }
 
-  OAS2Response() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2Response(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

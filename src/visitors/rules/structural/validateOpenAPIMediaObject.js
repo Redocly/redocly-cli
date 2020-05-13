@@ -6,20 +6,22 @@ class ValidateOpenAPIMediaObject {
   get validators() {
     return {
       example(node, ctx) {
-        return node.example && node.examples ? ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['example', 'examples']), 'key') : null;
+        return node.example && node.examples ? ctx.createError(
+          ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['example', 'examples']), 'key',
+        ) : null;
       },
       examples(node, ctx) {
-        return node.example && node.examples ? ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['examples', 'example']), 'key') : null;
+        return node.example && node.examples ? ctx.createError(
+          ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['examples', 'example']), 'key',
+        ) : null;
       },
     };
   }
 
-  OpenAPIMediaObject() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIMediaObject(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

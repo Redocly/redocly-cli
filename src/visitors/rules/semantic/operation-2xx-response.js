@@ -8,25 +8,17 @@ class Operation2xxResponse {
     this.responseCodes = [];
   }
 
-  OpenAPIOperation() {
-    return {
-      onExit: (node, definition, ctx) => {
-        const errors = [];
-        if (!this.responseCodes.find((code) => code[0] === '2')) {
-          errors.push(ctx.createError('Operation must have at least one 2xx response.', 'key'));
-        }
-        this.responseCodes = [];
-        return errors;
-      },
-    };
+  OpenAPIOperation_exit(node, definition, ctx) {
+    const errors = [];
+    if (!this.responseCodes.find((code) => code[0] === '2')) {
+      errors.push(ctx.createError('Operation must have at least one 2xx response.', 'key'));
+    }
+    this.responseCodes = [];
+    return errors;
   }
 
-  OpenAPIResponseMap() {
-    return {
-      onEnter: (node) => {
-        this.responseCodes.push(...Object.keys(node));
-      },
-    };
+  OpenAPIResponseMap(node) {
+    this.responseCodes.push(...Object.keys(node));
   }
 }
 

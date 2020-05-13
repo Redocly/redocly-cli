@@ -7,14 +7,26 @@ class ValidateOpenAPILink {
     return {
       operationRef(node, ctx) {
         if (!node || !node.operationRef) return null;
-        if (node.operationRef && node.operationId) return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['operationRef', 'operationId']), 'key');
-        if (typeof node.operationRef !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.operationRef && node.operationId) {
+          return ctx.createError(
+            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['operationRef', 'operationId']), 'key',
+          );
+        }
+        if (typeof node.operationRef !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       operationId(node, ctx) {
         if (!node || !node.operationId) return null;
-        if (node.operationRef && node.operationId) return ctx.createError(ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['operationId', 'operationRef']), 'key');
-        if (typeof node.operationId !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.operationRef && node.operationId) {
+          return ctx.createError(
+            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['operationId', 'operationRef']), 'key',
+          );
+        }
+        if (typeof node.operationId !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       parameters(node, ctx) {
@@ -34,12 +46,10 @@ class ValidateOpenAPILink {
     };
   }
 
-  OpenAPILink() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPILink(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

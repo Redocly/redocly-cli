@@ -9,7 +9,8 @@ class ValidateOAS2Info {
         return !node || !node.title ? ctx.createError(ctx.messageHelpers.missingRequiredField('title'), 'key') : null;
       },
       version(node, ctx) {
-        return !node || (!node.version && node.version !== '') ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
+        return !node || (!node.version && node.version !== '')
+          ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
       },
       description() {
         return null;
@@ -20,12 +21,10 @@ class ValidateOAS2Info {
     };
   }
 
-  OAS2Info() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2Info(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

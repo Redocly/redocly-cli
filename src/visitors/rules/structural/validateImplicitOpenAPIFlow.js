@@ -6,12 +6,18 @@ class ValidateImplicitOpenAPIFlow {
   get validators() {
     return {
       authorizationUrl(node, ctx) {
-        if (!node.authorizationUrl) return ctx.createError(ctx.messageHelpers.missingRequiredField('authorizationUrl'), 'key');
-        if (typeof node.authorizationUrl !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (!node.authorizationUrl) {
+          return ctx.createError(ctx.messageHelpers.missingRequiredField('authorizationUrl'), 'key');
+        }
+        if (typeof node.authorizationUrl !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       refreshUrl(node, ctx) {
-        if (node.refreshUrl && typeof node.refreshUrl !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.refreshUrl && typeof node.refreshUrl !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       scopes(node, ctx) {
@@ -19,18 +25,18 @@ class ValidateImplicitOpenAPIFlow {
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
-        if (wrongFormatMap) return ctx.createError('The scopes field must be a Map[string, string] in the OpenAPI Flow Object', 'value');
+        if (wrongFormatMap) {
+          return ctx.createError('The scopes field must be a Map[string, string] in the OpenAPI Flow Object', 'value');
+        }
         return null;
       },
     };
   }
 
-  ImplicitOpenAPIFlow() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  ImplicitOpenAPIFlow(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

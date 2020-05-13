@@ -27,10 +27,14 @@ class StringMatcher {
 
       const startsWithHelper = (node, ctx, expr, inverse) => {
         if (!node[rule.field]) {
-          return ctx.createError(`Missing ${rule.field} property required by ${rule.name} rule.`, 'key', undefined, rule.level);
+          return ctx.createError(
+            `Missing ${rule.field} property required by ${rule.name} rule.`, 'key', undefined, rule.level,
+          );
         }
 
-        if ((!inverse && node[rule.field].startsWith(expr)) || (inverse && !node[rule.field].startsWith(expr))) return null;
+        if ((!inverse && node[rule.field].startsWith(expr)) || (inverse && !node[rule.field].startsWith(expr))) {
+          return null;
+        }
 
         ctx.path.push(rule.field);
         const error = ctx.createError(rule.message
@@ -42,7 +46,9 @@ class StringMatcher {
 
       const endsWithHelper = (node, ctx, expr, inverse) => {
         if (!node[rule.field]) {
-          return ctx.createError(`Missing ${rule.field} property required by ${rule.name} rule.`, 'key', undefined, rule.level);
+          return ctx.createError(
+            `Missing ${rule.field} property required by ${rule.name} rule.`, 'key', undefined, rule.level,
+          );
         }
 
         if ((!inverse && node[rule.field].endsWith(expr)) || (inverse && !node[rule.field].endsWith(expr))) return null;
@@ -92,18 +98,14 @@ class StringMatcher {
     }
   }
 
-  any() {
-    return {
-      onExit: (node, definition, ctx) => {
-        if (!this.ruleSets[definition.name]) return [];
-        const errors = [];
-        for (const rule of this.ruleSets[definition.name]) {
-          const validationResult = rule.validate(node, ctx);
-          if (validationResult) errors.push(validationResult);
-        }
-        return errors;
-      },
-    };
+  any_exit(node, definition, ctx) {
+    if (!this.ruleSets[definition.name]) return [];
+    const errors = [];
+    for (const rule of this.ruleSets[definition.name]) {
+      const validationResult = rule.validate(node, ctx);
+      if (validationResult) errors.push(validationResult);
+    }
+    return errors;
   }
 }
 

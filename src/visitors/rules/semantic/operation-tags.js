@@ -4,10 +4,8 @@ class OperationTags {
   }
 
 
-  OpenAPIOperation() {
-    return {
-      onEnter: (node, _, ctx) => (node.tags ? null : [ctx.createError('Missing required field "tags".', 'key')]),
-    };
+  OpenAPIOperation(node, _, ctx) {
+    return node.tags ? null : [ctx.createError('Missing required field "tags".', 'key')];
   }
 }
 

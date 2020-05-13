@@ -21,12 +21,10 @@ class ValidateOpenAPIRoot {
     };
   }
 
-  OpenAPIRoot() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIRoot(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

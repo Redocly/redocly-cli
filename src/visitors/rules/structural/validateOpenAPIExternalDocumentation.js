@@ -19,12 +19,10 @@ class ValidateOpenAPIExternalDocumentation {
     };
   }
 
-  OpenAPIExternalDocumentation() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIExternalDocumentation(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

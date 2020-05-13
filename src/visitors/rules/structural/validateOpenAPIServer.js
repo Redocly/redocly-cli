@@ -6,8 +6,12 @@ class ValidateOpenAPIServer {
   get validators() {
     return {
       url(node, ctx) {
-        if (!node || !node.url || typeof node.url !== 'string') return ctx.createError(ctx.messageHelpers.missingRequiredField('url'), 'key');
-        if (typeof node.url !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (!node || !node.url || typeof node.url !== 'string') {
+          return ctx.createError(ctx.messageHelpers.missingRequiredField('url'), 'key');
+        }
+        if (typeof node.url !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       description(node, ctx) {
@@ -17,12 +21,10 @@ class ValidateOpenAPIServer {
     };
   }
 
-  OpenAPIServer() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OpenAPIServer(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

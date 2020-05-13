@@ -14,11 +14,15 @@ class ValidateOpenAPIRoot {
         return null;
       },
       host(node, ctx) {
-        if (node.host && typeof node.host !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.host && typeof node.host !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       basePath(node, ctx) {
-        if (node.basePath && typeof node.basePath !== 'string') return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        if (node.basePath && typeof node.basePath !== 'string') {
+          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+        }
         return null;
       },
       schemes(node, ctx) {
@@ -33,7 +37,9 @@ class ValidateOpenAPIRoot {
         for (let i = 0; i < node.schemes.length; i++) {
           if (typeof node.schemes[i] !== 'string') {
             ctx.path.push(i);
-            errors.push(ctx.createError('Items of the schemes array must be strings in the OAS2 Root object.', 'value'));
+            errors.push(
+              ctx.createError('Items of the schemes array must be strings in the OAS2 Root object.', 'value'),
+            );
             ctx.path.pop();
           }
         }
@@ -41,7 +47,9 @@ class ValidateOpenAPIRoot {
         for (let i = 0; i < node.schemes.length; i++) {
           if (['http', 'https', 'ws', 'wss'].indexOf(node.schemes[i]) === -1) {
             ctx.path.push(i);
-            errors.push(ctx.createError('Items of the schemes array can only be: "http", "https", "ws", "wss".', 'value'));
+            errors.push(
+              ctx.createError('Items of the schemes array can only be: "http", "https", "ws", "wss".', 'value'),
+            );
             ctx.path.pop();
           }
         }
@@ -88,12 +96,10 @@ class ValidateOpenAPIRoot {
     };
   }
 
-  OAS2Root() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2Root(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

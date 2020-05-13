@@ -12,17 +12,16 @@ class ValidateOAS2License {
         return !node || !node.name ? ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key') : null;
       },
       url(node, ctx) {
-        return node && node.url && !isUrl(node.url) ? ctx.createError('The url field must be a valid URL.', 'value') : null;
+        return node && node.url && !isUrl(node.url)
+          ? ctx.createError('The url field must be a valid URL.', 'value') : null;
       },
     };
   }
 
-  OAS2License() {
-    return {
-      onEnter: (node, definition, ctx) => ctx.validateFields(
-        this.config, this.rule, this.validators,
-      ),
-    };
+  OAS2License(node, definition, ctx) {
+    return ctx.validateFields(
+      this.config, this.rule, this.validators,
+    );
   }
 }
 

@@ -3,15 +3,11 @@ class LicenseURL {
     return 'license-url';
   }
 
-  OpenAPILicense() {
-    return {
-      onEnter: (node, _, ctx) => {
-        if (!node.url) {
-          return [ctx.createError(ctx.messageHelpers.missingRequiredField('url'))];
-        }
-        return null;
-      },
-    };
+  OpenAPILicense(node, _, ctx) {
+    if (!node.url) {
+      return [ctx.createError(ctx.messageHelpers.missingRequiredField('url'))];
+    }
+    return null;
   }
 }
 

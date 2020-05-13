@@ -9,44 +9,32 @@ class ProvideContact {
     this.contactFields = [];
   }
 
-  OpenAPIInfo() {
-    return {
-      onExit: (node, _, ctx) => {
-        const errors = [];
-        if (!node.contact) {
-          return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
-        }
-        return errors;
-      },
-    };
+  OpenAPIInfo_exit(node, _, ctx) {
+    const errors = [];
+    if (!node.contact) {
+      return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
+    }
+    return errors;
   }
 
-  OAS2Info() {
-    return {
-      onExit: (node, _, ctx) => {
-        const errors = [];
-        if (!node.contact) {
-          return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
-        }
-        return errors;
-      },
-    };
+  OAS2Info_exit(node, _, ctx) {
+    const errors = [];
+    if (!node.contact) {
+      return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
+    }
+    return errors;
   }
 
-  OpenAPIContact() {
-    return {
-      onEnter: (node, _, ctx) => {
-        const errors = [];
-        this.requiredFields.forEach((fName) => {
-          if (Object.keys(node).indexOf(fName) === -1) {
-            errors.push(
-              ctx.createError(ctx.messageHelpers.missingRequiredField(fName), 'key'),
-            );
-          }
-        });
-        return errors;
-      },
-    };
+  OpenAPIContact(node, _, ctx) {
+    const errors = [];
+    this.requiredFields.forEach((fName) => {
+      if (Object.keys(node).indexOf(fName) === -1) {
+        errors.push(
+          ctx.createError(ctx.messageHelpers.missingRequiredField(fName), 'key'),
+        );
+      }
+    });
+    return errors;
   }
 }
 
