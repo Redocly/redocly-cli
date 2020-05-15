@@ -38,7 +38,14 @@ class MergeChecker {
     console.log('root exit');
   }
 
-  OpenAPIInfo() {
+  OpenAPIInfo(node, definition, ctx) {
+    ctx.report('aaa', {
+      severity: 'ERROR',
+      locations: [{
+        path: [...ctx.path, 'license'],
+        reportOnKey: true,
+      }],
+    });
     console.log('adakdjkasdjkasjdkasjdks');
   }
 

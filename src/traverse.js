@@ -8,7 +8,7 @@ import resolveDefinition from './resolveDefinition';
 import resolveType from './resolveType';
 import resolveScalars from './scalarsResolver';
 
-import { fromError, createErrorFlat } from './error/default';
+import { fromError, createErrorFlat, reportFlat } from './error/default';
 
 async function traverseChildren(resolvedNode, definition, ctx, visited) {
   let nodeChildren;
@@ -159,6 +159,15 @@ async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, 
         ? ctx.customRules[i].config.level : ctx.customRules[i]._config.level,
     );
 
+    ctx.report = reportFlat.bind(
+      null,
+      nodeContext.resolvedNode,
+      ctx,
+      ctx.customRules[i].constructor.rule,
+      ctx.customRules[i].config
+        ? ctx.customRules[i].config.level : ctx.customRules[i]._config.level,
+    );
+
     let visitorName = fName;
     const anyVisitorName = ruleSuffix === 'enter' ? 'enter' : 'leave';
 
@@ -167,9 +176,14 @@ async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, 
     }
 
     if (ctx.customRules[i][anyVisitorName]) {
-      const errorsOnEnterGeneric = await ctx.customRules[i][anyVisitorName](nodeContext.resolvedNode, definition, ctx, node, {
-        traverseNode, visited, resolveType,
-      });
+      const errorsOnEnterGeneric = await ctx.customRules[i][anyVisitorName](
+        nodeContext.resolvedNode,
+        definition,
+        ctx,
+        node, {
+          traverseNode, visited, resolveType,
+        },
+      );
 
       if (Array.isArray(errorsOnEnterGeneric)) {
         ctx.result.push(...errorsOnEnterGeneric);

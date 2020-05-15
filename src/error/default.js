@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import path from 'path';
 import { getLocationByPath, getCodeFrameForLocation } from '../yaml';
 
@@ -100,5 +101,65 @@ export const fromError = (error, ctx) => (
     referencedFrom: getReferencedFrom(ctx),
   }
 );
+
+export const reportFlat = (node, ctx, fromRule, severity, msg, options) => {
+  const { possibleAlternate, overrideSeverity } = options;
+  let { locations: rawLocations, reportOnKey } = options;
+
+  reportOnKey = reportOnKey || false;
+
+  if (overrideSeverity) severity = overrideSeverity;
+
+  rawLocations = rawLocations.map((rL) => ({
+    path: ctx.path,
+    ...rL,
+  }));
+
+  if (!rawLocations) {
+    rawLocations = [{
+      path: ctx.path,
+      reportOnKey,
+    }];
+  }
+
+  if (typeof severity === 'string') {
+    severity = getMsgLevelFromString(severity);
+  }
+
+  const locations = [];
+
+  for (const rawLocation of rawLocations) {
+    let location = getLocationByPath(Array.from(rawLocation.path), ctx, rawLocation.reportOnKey ? 'key' : 'value');
+    if (!location) location = getLocationByPath(Array.from(rawLocation.path), ctx);
+    locations.push(location);
+  }
+
+  if (locations.length === 0) {
+    throw new Error('Location must be provided in the "report" call.');
+  }
+
+  // TODO: add support of multiple locations of the validation result
+  ctx.result.push({
+    message: msg,
+    path: Array.from(ctx.path),
+    referencedFrom: getReferencedFrom(ctx),
+    location: locations[0],
+    codeFrame: ctx.enableCodeframe && locations[0]
+      ? getCodeFrameForLocation(
+        locations[0].startIndex,
+        locations[0].endIndex,
+        ctx.source,
+        locations[0].startLine,
+      )
+      : null,
+    value: node,
+    file: path.relative(process.cwd(), ctx.filePath),
+    severity,
+    enableCodeframe: ctx.enableCodeframe,
+    possibleAlternate,
+    fromRule,
+    target: rawLocations[0].reportOnKey ? 'key' : 'value',
+  });
+};
 
 export default createError;
