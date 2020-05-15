@@ -110,17 +110,17 @@ export const reportFlat = (node, ctx, fromRule, severity, msg, options) => {
 
   if (overrideSeverity) severity = overrideSeverity;
 
-  rawLocations = rawLocations.map((rL) => ({
-    path: ctx.path,
-    ...rL,
-  }));
-
   if (!rawLocations) {
     rawLocations = [{
       path: ctx.path,
       reportOnKey,
     }];
   }
+
+  rawLocations = rawLocations.map((rL) => ({
+    path: ctx.path,
+    ...rL,
+  }));
 
   if (typeof severity === 'string') {
     severity = getMsgLevelFromString(severity);

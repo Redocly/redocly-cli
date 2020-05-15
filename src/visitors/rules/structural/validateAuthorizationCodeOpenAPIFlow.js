@@ -7,23 +7,31 @@ class ValidateAuthorizationCodeOpenAPIFlow {
     return {
       authorizationUrl(node, ctx) {
         if (!node.authorizationUrl) {
-          return ctx.createError(ctx.messageHelpers.missingRequiredField('authorizationUrl'), 'key');
+          ctx.report(ctx.messageHelpers.missingRequiredField('authorizationUrl'), {
+            reportOnKey: true,
+          });
+          return null;
         }
         if (typeof node.authorizationUrl !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'));
         }
         return null;
       },
       tokenUrl(node, ctx) {
-        if (!node.tokenUrl) return ctx.createError(ctx.messageHelpers.missingRequiredField('tokenUrl'), 'key');
+        if (!node.tokenUrl) {
+          ctx.report(ctx.messageHelpers.missingRequiredField('tokenUrl'), {
+            reportOnKey: true,
+          });
+          return null;
+        }
         if (typeof node.tokenUrl !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'));
         }
         return null;
       },
       refreshUrl(node, ctx) {
         if (node.refreshUrl && typeof node.refreshUrl !== 'string') {
-          return ctx.createError('The refreshUrl must be a string in the OpenAPI Flow Object', 'value');
+          ctx.report('The refreshUrl must be a string in the OpenAPI Flow Object');
         }
         return null;
       },
@@ -32,7 +40,7 @@ class ValidateAuthorizationCodeOpenAPIFlow {
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
         if (wrongFormatMap) {
-          return ctx.createError('The scopes field must be a Map[string, string] in the OpenAPI Flow Object', 'value');
+          ctx.report('The scopes field must be a Map[string, string] in the OpenAPI Flow Object');
         }
         return null;
       },

@@ -45,6 +45,7 @@ class MergeChecker {
         path: [...ctx.path, 'license'],
         reportOnKey: true,
       }],
+      reportOnKey: false,
     });
     console.log('adakdjkasdjkasjdkasjdks');
   }

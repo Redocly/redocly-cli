@@ -7,26 +7,34 @@ class ValidateImplicitOpenAPIFlow {
     return {
       authorizationUrl(node, ctx) {
         if (!node.authorizationUrl) {
-          return ctx.createError(ctx.messageHelpers.missingRequiredField('authorizationUrl'), 'key');
+          ctx.report(ctx.messageHelpers.missingRequiredField('authorizationUrl'), {
+            reportOnKey: true,
+          });
+          return null;
         }
         if (typeof node.authorizationUrl !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'));
         }
         return null;
       },
       refreshUrl(node, ctx) {
         if (node.refreshUrl && typeof node.refreshUrl !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'));
         }
         return null;
       },
       scopes(node, ctx) {
-        if (!node.scopes) return ctx.createError(ctx.messageHelpers.missingRequiredField('scopes'), 'key');
+        if (!node.scopes) {
+          ctx.report(ctx.messageHelpers.missingRequiredField('scopes'), {
+            reportOnKey: true,
+          });
+          return null;
+        }
         const wrongFormatMap = Object.keys(node.scopes)
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
         if (wrongFormatMap) {
-          return ctx.createError('The scopes field must be a Map[string, string] in the OpenAPI Flow Object', 'value');
+          ctx.report('The scopes field must be a Map[string, string] in the OpenAPI Flow Object');
         }
         return null;
       },
