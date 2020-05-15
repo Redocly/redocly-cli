@@ -102,8 +102,8 @@ export const fromError = (error, ctx) => (
   }
 );
 
-export const reportFlat = (node, ctx, fromRule, severity, msg, options) => {
-  const { possibleAlternate, overrideSeverity } = options;
+export const reportFlat = (node, ctx, fromRule, severity, options) => {
+  const { possibleAlternate, overrideSeverity, message } = options;
   let { locations: rawLocations, reportOnKey } = options;
 
   reportOnKey = reportOnKey || false;
@@ -140,7 +140,7 @@ export const reportFlat = (node, ctx, fromRule, severity, msg, options) => {
 
   // TODO: add support of multiple locations of the validation result
   ctx.result.push({
-    message: msg,
+    message,
     path: Array.from(ctx.path),
     referencedFrom: getReferencedFrom(ctx),
     location: locations[0],

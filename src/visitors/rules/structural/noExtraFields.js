@@ -23,7 +23,9 @@ class NoExtraFields {
     }
 
     if (allowedChildren.length > 0 && typeof node !== 'object') {
-      ctx.report(ctx.messageHelpers.fieldTypeMismatchMessageHelper(definition.name));
+      ctx.report({
+        message: ctx.messageHelpers.fieldTypeMismatchMessageHelper(definition.name),
+      });
       return errors;
     }
 
@@ -32,12 +34,11 @@ class NoExtraFields {
 
       if (!allowedChildren.includes(field) && field.indexOf('x-') !== 0 && field !== '$ref') {
         const possibleAlternate = getClosestString(field, allowedChildren);
-        ctx.report(
-          ctx.messageHelpers.fieldNotAllowedMessageHelper(field, definition.name), {
-            reportOnKey: true,
-            possibleAlternate,
-          },
-        );
+        ctx.report({
+          message: ctx.messageHelpers.fieldNotAllowedMessageHelper(field, definition.name),
+          reportOnKey: true,
+          possibleAlternate,
+        });
       }
 
       ctx.path.pop();

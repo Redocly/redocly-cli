@@ -39,7 +39,8 @@ class MergeChecker {
   }
 
   OpenAPIInfo(node, definition, ctx) {
-    ctx.report('aaa', {
+    ctx.report({
+      message: 'AAA',
       severity: 'ERROR',
       locations: [{
         path: [...ctx.path, 'license'],

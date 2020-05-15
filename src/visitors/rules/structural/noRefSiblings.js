@@ -29,7 +29,8 @@ class NoRefSiblings {
       for (let i = 0; i < nodeKeys.length; i++) {
         if (nodeKeys[i] !== '$ref' && nodeKeys[i] !== MAPPING_DATA_KEY) {
           ctx.path.push(nodeKeys[i]);
-          ctx.report('No siblings are allowed inside object with $ref property.', {
+          ctx.report({
+            message: 'No siblings are allowed inside object with $ref property.',
             reportOnKey: true,
           });
           ctx.path.pop();
