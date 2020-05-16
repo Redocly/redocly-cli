@@ -9,19 +9,20 @@ class NoUnusedComponents {
   }
 
   OpenAPIRoot_exit(node, definition, ctx) {
-    const messages = [];
     ctx.path.push('components');
     ctx.path.push('schemas');
     Object.keys(this.components)
       .filter((schemaName) => this.components[schemaName] === false)
       .forEach((schemaName) => {
         ctx.path.push(schemaName);
-        messages.push(ctx.createError(`The schema "${schemaName}" is never used.`, 'key'));
+        ctx.report({
+          message: `The schema "${schemaName}" is never used.`,
+          reportOnKey: true,
+        });
         ctx.path.pop();
       });
     ctx.path.pop();
     ctx.path.pop();
-    return messages;
   }
 
   OpenAPISchema(node, definition, ctx, unresolvedNode) {

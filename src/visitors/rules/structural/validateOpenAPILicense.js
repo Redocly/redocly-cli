@@ -9,11 +9,21 @@ class ValidateOpenAPILicense {
   get validators() {
     return {
       name(node, ctx) {
-        return !node || !node.name ? ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key') : null;
+        if (!node || !node.name) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('name'),
+            reportOnKey: true,
+          });
+        }
+        return null;
       },
       url(node, ctx) {
-        return node && node.url && !isUrl(node.url)
-          ? ctx.createError('The url field must be a valid URL.', 'value') : null;
+        if (node && node.url && !isUrl(node.url)) {
+          return ctx.report({
+            message: 'The url field must be a valid URL.',
+          });
+        }
+        return null;
       },
     };
   }

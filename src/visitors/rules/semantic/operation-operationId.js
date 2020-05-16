@@ -5,9 +5,11 @@ class OperationOperationId {
 
   OpenAPIOperation(node, _, ctx) {
     if (!node.operationId) {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('operationId'), 'key')];
+      ctx.report({
+        message: ctx.messageHelpers.missingRequiredField('operationId'),
+        reportOnKey: true,
+      });
     }
-    return [];
   }
 }
 

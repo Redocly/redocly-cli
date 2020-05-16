@@ -6,11 +6,20 @@ class ValidateOAS2Info {
   get validators() {
     return {
       title(node, ctx) {
-        return !node || !node.title ? ctx.createError(ctx.messageHelpers.missingRequiredField('title'), 'key') : null;
+        if (!node || !node.title) {
+          ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('title'),
+            reportOnKey: true,
+          });
+        }
       },
       version(node, ctx) {
-        return !node || (!node.version && node.version !== '')
-          ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
+        if (!node || (!node.version && node.version !== '')) {
+          ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('version'),
+            reportOnKey: true,
+          });
+        }
       },
       description() {
         return null;

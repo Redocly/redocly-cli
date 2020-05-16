@@ -14,22 +14,17 @@ class EnumMatchType {
   }
 
   validate(node, ctx) {
-    const errors = [];
     if (!node.enum || !Array.isArray(node.enum)) {
-      return [];
+      return;
     }
     if (node.type && typeof node.type === 'string') {
       const typeMimsatch = node.enum.filter((item) => !matchesJsonSchemaType(item, node.type));
       typeMimsatch.forEach((val) => {
         ctx.path.push(node.enum.indexOf(val));
-        errors.push(ctx.createError(
-          'All values of "enum" field must be of the same type as the "type" field.',
-          'value',
-        ));
+        ctx.report({ message: 'All values of "enum" field must be of the same type as the "type" field.' });
         ctx.path.pop();
       });
     }
-    return errors;
   }
 }
 

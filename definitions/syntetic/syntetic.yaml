@@ -30,6 +30,7 @@ paths:
                 type: object
   project:
     get:
+      some: 12
       operationId: projectGet
       description: Get project
       responses:

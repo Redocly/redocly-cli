@@ -5,12 +5,17 @@ class ParameterDescription {
 
   OpenAPIParameter(node, _, ctx) {
     if (typeof node.description !== 'string') {
-      return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+      return ctx.report({
+        message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+      });
     }
     if (node && !node.description && node.description !== '') {
-      return [ctx.createError('The "Parameter" object should contain "description" field.', 'key')];
+      return ctx.report({
+        message: 'The "Parameter" object should contain "description" field.',
+        reportOnKey: true,
+      });
     }
-    return [];
+    return null;
   }
 }
 

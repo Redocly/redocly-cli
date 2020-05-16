@@ -8,12 +8,24 @@ class validateOAS2ExternalDocs {
   get validators() {
     return {
       description(node, ctx) {
-        return node && node.description && typeof node.description !== 'string'
-          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        if (node && node.description && typeof node.description !== 'string') {
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
+        }
       },
       url(node, ctx) {
-        if (node && !node.url) return ctx.createError(ctx.messageHelpers.missingRequiredField('url'), 'key');
-        if (!isUrl(node.url)) return ctx.createError('url must be a valid URL', 'value');
+        if (node && !node.url) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('url'),
+            reportOnKey: true,
+          });
+        }
+        if (!isUrl(node.url)) {
+          return ctx.report({
+            message: 'url must be a valid URL',
+          });
+        }
         return null;
       },
     };

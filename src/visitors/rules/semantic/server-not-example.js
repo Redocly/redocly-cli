@@ -5,9 +5,11 @@ class ServerNotExample {
 
   OpenAPIServer(node, _, ctx) {
     if (node.url === 'example.com') {
-      return [ctx.createError('The "server" object should not point to "example.com" domain.', 'key')];
+      ctx.report({
+        message: 'The "server" object should not point to "example.com" domain.',
+        reportOnKey: true,
+      });
     }
-    return [];
   }
 }
 

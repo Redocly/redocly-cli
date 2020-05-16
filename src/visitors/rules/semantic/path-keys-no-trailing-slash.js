@@ -5,12 +5,14 @@ class PathKeysNoTrailingSlash {
 
   OpenAPIPath(node, _, ctx) {
     const pathLen = ctx.path.length;
-    return pathLen === 0 || ctx.path[pathLen - 1][ctx.path[pathLen - 1].length] !== '/'
-      ? null
-      : [ctx.createError(
-        'Trailing spaces in path are not recommended.', 'key',
-      )];
+    if (pathLen !== 0 && ctx.path[pathLen - 1][ctx.path[pathLen - 1].length] === '/') {
+      ctx.report({
+        message: 'Trailing slashes in path are not recommended.',
+        reportOnKey: true,
+      });
+    }
   }
 }
+
 
 module.exports = PathKeysNoTrailingSlash;

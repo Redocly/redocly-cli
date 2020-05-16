@@ -7,14 +7,13 @@ class ValidateClientCredentialsOpenAPIFlow {
     return {
       tokenUrl(node, ctx) {
         if (!node.tokenUrl) {
-          ctx.report({
+          return ctx.report({
             message: ctx.messageHelpers.missingRequiredField('tokenUrl'),
             reportOnKey: true,
           });
-          return null;
         }
         if (typeof node.tokenUrl !== 'string') {
-          ctx.report({
+          return ctx.report({
             message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
           });
         }
@@ -22,7 +21,7 @@ class ValidateClientCredentialsOpenAPIFlow {
       },
       refreshUrl(node, ctx) {
         if (node.refreshUrl && typeof node.refreshUrl !== 'string') {
-          ctx.report({
+          return ctx.report({
             message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
           });
         }
@@ -33,7 +32,7 @@ class ValidateClientCredentialsOpenAPIFlow {
           .filter((scope) => typeof scope !== 'string' || typeof node.scopes[scope] !== 'string')
           .length > 0;
         if (wrongFormatMap) {
-          ctx.report({
+          return ctx.report({
             message: 'The scopes field must be a Map[string, string] in the OpenAPI Flow Object',
           });
         }

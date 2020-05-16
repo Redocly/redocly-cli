@@ -139,8 +139,6 @@ async function traverseNode(node, definition, ctx, visited = []) {
 }
 
 async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, errors, visited) {
-  // ctx.customRules = ctx.customRules.filter((r, i) => i === ctx.customRules.length - 1);
-
   const fName = `${definition.name}_${ruleSuffix}`;
 
   for (let i = 0; i < ctx.customRules.length; i += 1) {
@@ -176,7 +174,7 @@ async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, 
     }
 
     if (ctx.customRules[i][anyVisitorName]) {
-      const errorsOnEnterGeneric = await ctx.customRules[i][anyVisitorName](
+      await ctx.customRules[i][anyVisitorName](
         nodeContext.resolvedNode,
         definition,
         ctx,
@@ -184,23 +182,12 @@ async function runRuleOnRuleset(nodeContext, ruleSuffix, ctx, definition, node, 
           traverseNode, visited, resolveType,
         },
       );
-
-      if (Array.isArray(errorsOnEnterGeneric)) {
-        ctx.result.push(...errorsOnEnterGeneric);
-        errors.push(...errorsOnEnterGeneric);
-      }
     }
 
-
     if (ctx.customRules[i][visitorName]) {
-      const errorsOnEnterForType = await ctx.customRules[i][visitorName](
+      await ctx.customRules[i][visitorName](
         nodeContext.resolvedNode, definition, ctx, node, { traverseNode, visited, resolveType },
       );
-
-      if (Array.isArray(errorsOnEnterForType)) {
-        ctx.result.push(...errorsOnEnterForType);
-        errors.push(...errorsOnEnterForType);
-      }
     }
   }
 }

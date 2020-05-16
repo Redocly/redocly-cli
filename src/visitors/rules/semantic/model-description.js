@@ -5,10 +5,10 @@ class ModelDescription {
 
   OpenAPIModel(node, _, ctx) {
     if (typeof node.description !== 'string') {
-      return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+      ctx.report({ message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string') });
     }
     if (node && !node.description && node.description !== '') {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key')];
+      ctx.report({ message: ctx.messageHelpers.missingRequiredField('description'), reportOnKey: true });
     }
     return [];
   }

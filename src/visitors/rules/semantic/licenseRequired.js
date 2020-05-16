@@ -5,7 +5,7 @@ class LicenseRequired {
 
   OpenAPIInfo(node, definition, ctx) {
     if (!node.license) {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('license'), 'value')];
+      ctx.report({ message: ctx.messageHelpers.missingRequiredField('license'), reportOnKey: true });
     }
     return null;
   }

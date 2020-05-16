@@ -7,10 +7,15 @@ class ValidateOAS2Response {
     return {
       description(node, ctx) {
         if (node && !node.description && node.description !== '') {
-          return ctx.createError(ctx.messageHelpers.missingRequiredField('description'), 'key');
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('description'),
+            reportOnKey: true,
+          });
         }
         if (typeof node.description !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },

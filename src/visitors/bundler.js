@@ -96,15 +96,15 @@ class Bundler {
 
   includeImplicitDiscriminator(pointer, schemas, ctx, { traverseNode, visited }) {
     const $ref = `#/${pointer.join('/')}`;
-    const errors = [];
 
     for (const [name, schema] of Object.entries(schemas || {})) {
       if (schema.allOf && schema.allOf.find((s) => s.$ref === $ref)) {
         const existingSchema = this.components.schemas && this.components.schemas[name];
         if (existingSchema && !isEqual(existingSchema, schema)) {
-          errors.push(ctx.createError(
-            `Implicitly mapped discriminator schema "${name}" conflicts with existing schema. Skipping.`, 'key',
-          ));
+          ctx.report({
+            message: `Implicitly mapped discriminator schema "${name}" conflicts with existing schema. Skipping.`,
+            reportOnKey: true,
+          });
         }
 
         this.components.schemas = this.components.schemas || {};
@@ -122,8 +122,6 @@ class Bundler {
         ctx.path = ctx.pathStack.pop().path;
       }
     }
-
-    return errors;
   }
 
   saveComponent(ctx, node, name, componentType) {

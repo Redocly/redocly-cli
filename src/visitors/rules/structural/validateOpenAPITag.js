@@ -6,15 +6,24 @@ class ValidateOpenAPITag {
   get validators() {
     return {
       name(node, ctx) {
-        if (!node.name) return ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key');
+        if (!node.name) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('name'),
+            reportOnKey: true,
+          });
+        }
         if (node && node.name && typeof node.name !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },
       description(node, ctx) {
         if (node && node.description && typeof node.description !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },

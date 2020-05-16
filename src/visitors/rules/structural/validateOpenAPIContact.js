@@ -6,16 +6,19 @@ class ValidateOpenAPIContact {
   get validators() {
     return {
       name(node, ctx) {
-        return (node && node.name) && typeof node.name !== 'string'
-          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        if ((node && node.name) && typeof node.name !== 'string') {
+          ctx.report({ message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string') });
+        }
       },
       url(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string'
-          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        if ((node && node.url) && typeof node.url !== 'string') {
+          ctx.report({ message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string') });
+        }
       },
       email(node, ctx) {
-        return (node && node.url) && typeof node.url !== 'string'
-          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        if ((node && node.email) && typeof node.email !== 'string') {
+          ctx.report({ message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string') });
+        }
       },
 
     };

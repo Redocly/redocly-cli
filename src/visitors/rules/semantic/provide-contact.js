@@ -10,31 +10,32 @@ class ProvideContact {
   }
 
   OpenAPIInfo_exit(node, _, ctx) {
-    const errors = [];
     if (!node.contact) {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
+      ctx.report({
+        message: ctx.messageHelpers.missingRequiredField('contact'),
+        reportOnKey: true,
+      });
     }
-    return errors;
   }
 
   OAS2Info_exit(node, _, ctx) {
-    const errors = [];
     if (!node.contact) {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('contact'), 'key')];
+      ctx.report({
+        message: ctx.messageHelpers.missingRequiredField('contact'),
+        reportOnKey: true,
+      });
     }
-    return errors;
   }
 
   OpenAPIContact(node, _, ctx) {
-    const errors = [];
     this.requiredFields.forEach((fName) => {
       if (Object.keys(node).indexOf(fName) === -1) {
-        errors.push(
-          ctx.createError(ctx.messageHelpers.missingRequiredField(fName), 'key'),
-        );
+        ctx.report({
+          message: ctx.messageHelpers.missingRequiredField(fName),
+          reportOnKey: true,
+        });
       }
     });
-    return errors;
   }
 }
 

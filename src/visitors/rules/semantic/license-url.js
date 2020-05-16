@@ -5,7 +5,7 @@ class LicenseURL {
 
   OpenAPILicense(node, _, ctx) {
     if (!node.url) {
-      return [ctx.createError(ctx.messageHelpers.missingRequiredField('url'))];
+      ctx.report({ message: ctx.messageHelpers.missingRequiredField('url'), reportOnKey: true });
     }
     return null;
   }

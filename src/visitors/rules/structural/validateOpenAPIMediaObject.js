@@ -6,14 +6,22 @@ class ValidateOpenAPIMediaObject {
   get validators() {
     return {
       example(node, ctx) {
-        return node.example && node.examples ? ctx.createError(
-          ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['example', 'examples']), 'key',
-        ) : null;
+        if (node.example && node.examples) {
+          return ctx.report({
+            message: ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['example', 'examples']),
+            reportOnKey: true,
+          });
+        }
+        return null;
       },
       examples(node, ctx) {
-        return node.example && node.examples ? ctx.createError(
-          ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['examples', 'example']), 'key',
-        ) : null;
+        if (node.example && node.examples) {
+          return ctx.report({
+            message: ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['examples', 'example']),
+            reportOnKey: true,
+          });
+        }
+        return null;
       },
     };
   }

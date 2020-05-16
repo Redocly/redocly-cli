@@ -6,11 +6,22 @@ class ValidateOpenAPIInfo {
   get validators() {
     return {
       title(node, ctx) {
-        return !node || !node.title ? ctx.createError(ctx.messageHelpers.missingRequiredField('title'), 'key') : null;
+        if (!node || !node.title) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('title'),
+            reportOnKey: true,
+          });
+        }
+        return null;
       },
       version(node, ctx) {
-        return !node || (!node.version && node.version !== '')
-          ? ctx.createError(ctx.messageHelpers.missingRequiredField('version'), 'key') : null;
+        if (!node || (!node.version && node.version !== '')) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('version'),
+            reportOnKey: true,
+          });
+        }
+        return null;
       },
       description() {
         return null;

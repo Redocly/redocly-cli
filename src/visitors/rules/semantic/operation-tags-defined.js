@@ -13,19 +13,19 @@ class OperationTags {
   }
 
   _processOperationTags(node, _, ctx) {
-    if (!node.tags) return [];
-    const errors = [];
+    if (!node.tags) return;
     for (let i = 0; i < node.tags.length; i++) {
       const tag = node.tags[i];
       if (this.globalTagNames.indexOf(tag) === -1) {
         ctx.path.push('tags');
         ctx.path.push(i);
-        errors.push(ctx.createError('Operation tags should be defined in the top level "tags" object.', 'value'));
+        ctx.report({
+          message: 'Operation tags should be defined in the top level "tags" object.',
+        });
         ctx.path.pop();
         ctx.path.pop();
       }
     }
-    return errors;
   }
 
   OpenAPIOperation(node, _, ctx) {

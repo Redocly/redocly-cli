@@ -6,15 +6,30 @@ class ValidateOpenAPIRoot {
   get validators() {
     return {
       openapi(node, ctx) {
-        if (node && !node.openapi) return ctx.createError(ctx.messageHelpers.missingRequiredField('openapi'), 'key');
+        if (node && !node.openapi) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('openapi'),
+            reportOnKey: true,
+          });
+        }
         return null;
       },
       info(node, ctx) {
-        if (node && !node.info) return ctx.createError(ctx.messageHelpers.missingRequiredField('info'), 'key');
+        if (node && !node.info) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('info'),
+            reportOnKey: true,
+          });
+        }
         return null;
       },
       paths(node, ctx) {
-        if (node && !node.paths) return ctx.createError(ctx.messageHelpers.missingRequiredField('paths'), 'key');
+        if (node && !node.paths) {
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('paths'),
+            reportOnKey: true,
+          });
+        }
         return null;
       },
       security: () => null,

@@ -4,11 +4,12 @@ class ServersNoTrailingSlash {
   }
 
   OpenAPIServer(node, _, ctx) {
-    return node.url && node.url === '/'
-      ? [ctx.createError(
-        'Trailing spaces in path are not recommended.', 'key',
-      )]
-      : null;
+    if (node.url && node.url === '/') {
+      ctx.report({
+        message: 'Trailing spaces in path are not recommended.',
+        reportOnKey: true,
+      });
+    }
   }
 }
 

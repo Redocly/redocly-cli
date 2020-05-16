@@ -4,11 +4,12 @@ class ApiServers {
   }
 
   OpenAPIRoot(node, _, ctx) {
-    return (node.servers && Array.isArray(node.servers) && node.servers.length > 0)
-      ? null
-      : [
-        ctx.createError(ctx.messageHelpers.missingRequiredField('servers'), 'key'),
-      ];
+    if (!node.servers || !Array.isArray(node.servers) || !node.servers.length > 0) {
+      ctx.report({
+        message: ctx.messageHelpers.missingRequiredField('servers'),
+        reportOnKey: true,
+      });
+    }
   }
 }
 

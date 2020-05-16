@@ -9,11 +9,19 @@ class ValidateOAS2License {
   get validators() {
     return {
       name(node, ctx) {
-        return !node || !node.name ? ctx.createError(ctx.messageHelpers.missingRequiredField('name'), 'key') : null;
+        if (!node || !node.name) {
+          ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('name'),
+            reportOnKey: true,
+          });
+        }
       },
       url(node, ctx) {
-        return node && node.url && !isUrl(node.url)
-          ? ctx.createError('The url field must be a valid URL.', 'value') : null;
+        if (node && node.url && !isUrl(node.url)) {
+          ctx.report({
+            message: 'The url field must be a valid URL.',
+          });
+        }
       },
     };
   }

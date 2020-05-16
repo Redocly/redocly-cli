@@ -5,7 +5,12 @@ class OperationTags {
 
 
   OpenAPIOperation(node, _, ctx) {
-    return node.tags ? null : [ctx.createError('Missing required field "tags".', 'key')];
+    if (!node.tags) {
+      ctx.report({
+        message: 'Missing required field "tags".',
+        reportOnKey: true,
+      });
+    }
   }
 }
 

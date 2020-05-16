@@ -1,15 +1,15 @@
 const validateNode = (node, ctx, name) => {
-  const errors = [];
   const names = Object.keys(node);
   for (let i = 0; i < names.length; i++) {
     if (names[i].indexOf('_') > 0) {
       ctx.path.push(names[i]);
-      const error = ctx.createError(`${name}'s names should be in camelCase.`, 'key');
-      errors.push(error);
+      ctx.report({
+        message: `${name}'s names should be in camelCase.`,
+        reportOnKey: true,
+      });
       ctx.path.pop();
     }
   }
-  return errors;
 };
 
 class CamelCaseNames {

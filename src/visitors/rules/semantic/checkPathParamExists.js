@@ -6,7 +6,7 @@ class CheckPathParamExists {
   OpenAPIParameter(node, _definition, ctx) {
     // if not path parameter
     if (node.in && node.in !== 'path') {
-      return [];
+      return;
     }
 
     const fullPath = [
@@ -16,20 +16,17 @@ class CheckPathParamExists {
 
     // not referenced from path
     if (!fullPath.length || fullPath[0] !== 'paths') {
-      return [];
+      return;
     }
-
-    const errors = [];
 
     const isNameInPath = fullPath
       .some((pathNode) => typeof pathNode === 'string' && pathNode.indexOf(`{${node.name}}`) !== -1);
 
     if (!isNameInPath) {
       ctx.path.push('name');
-      errors.push(ctx.createError('The "name" field value is not in the current path.', 'value'));
+      ctx.report({ message: 'The "name" field value is not in the current path.' });
       ctx.path.pop();
     }
-    return errors;
   }
 }
 module.exports = CheckPathParamExists;

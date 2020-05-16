@@ -7,32 +7,40 @@ class ValidateOpenAPIExample {
     return {
       value(node, ctx) {
         if (node.value && node.externalValue) {
-          return ctx.createError(
-            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key',
-          );
+          return ctx.report({
+            message: ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']),
+            reportOnKey: true,
+          });
         }
         return null;
       },
       externalValue(node, ctx) {
         if (node.externalValue && typeof node.externalValue !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         if (node.value && node.externalValue) {
-          return ctx.createError(
-            ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']), 'key',
-          );
+          return ctx.report({
+            message: ctx.messageHelpers.mutuallyExclusiveFieldsMessageHelper(['value', 'externalValue']),
+            reportOnKey: true,
+          });
         }
         return null;
       },
       description(node, ctx) {
         if (node.description && typeof node.description !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },
       summary(node, ctx) {
         if (node.summary && typeof node.summary !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },

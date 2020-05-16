@@ -10,7 +10,9 @@ class ValidateOAS2Schema {
       title(node, ctx) {
         if (node && node.title) {
           if (!(typeof node.title === 'string')) {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+            });
           }
         }
         return null;
@@ -18,45 +20,61 @@ class ValidateOAS2Schema {
       multipleOf(node, ctx) {
         if (node && node.multipleOf) {
           if (typeof node.multipleOf !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.multipleOf < 0) {
-            return ctx.createError('Value of multipleOf must be greater or equal to zero', 'value');
+            return ctx.report({
+              message: 'Value of multipleOf must be greater or equal to zero',
+            });
           }
         }
         return null;
       },
       maximum(node, ctx) {
         if (node && node.maximum && typeof node.maximum !== 'number') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+          });
         }
         return null;
       },
       exclusiveMaximum(node, ctx) {
         if (node && node.exclusiveMaximum && typeof node.exclusiveMaximum !== 'boolean') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'),
+          });
         }
         return null;
       },
       minimum(node, ctx) {
         if (node && node.minimum && typeof node.minimum !== 'number') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+          });
         }
         return null;
       },
       exclusiveMinimum(node, ctx) {
         if (node && node.exclusiveMinimum && typeof node.exclusiveMinimum !== 'boolean') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'),
+          });
         }
         return null;
       },
       maxLength(node, ctx) {
         if (node && node.maxLength) {
           if (typeof node.maxLength !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.maxLength < 0) {
-            return ctx.createError('Value of maxLength must be greater or equal to zero.', 'value');
+            return ctx.report({
+              message: 'Value of maxLength must be greater or equal to zero.',
+            });
           }
         }
         return null;
@@ -64,10 +82,14 @@ class ValidateOAS2Schema {
       minLength(node, ctx) {
         if (node && node.minLength) {
           if (typeof node.minLength !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.minLength < 0) {
-            return ctx.createError('Value of minLength must be greater or equal to zero.', 'value');
+            return ctx.report({
+              message: 'Value of minLength must be greater or equal to zero.',
+            });
           }
         }
         return null;
@@ -76,7 +98,9 @@ class ValidateOAS2Schema {
         if (node && node.pattern) {
           // TODO: add regexp validation.
           if (typeof node.pattern !== 'string') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+            });
           }
         }
         return null;
@@ -84,13 +108,14 @@ class ValidateOAS2Schema {
       maxItems(node, ctx) {
         if (node && node.maxItems) {
           if (typeof node.maxItems !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.maxItems < 0) {
-            return ctx.createError(
-              'Value of maxItems must be greater or equal to zero. You can`t have negative amount of something.',
-              'value',
-            );
+            return ctx.report({
+              message: 'Value of maxItems must be greater or equal to zero. You can`t have negative amount of something.',
+            });
           }
         }
         return null;
@@ -98,13 +123,14 @@ class ValidateOAS2Schema {
       minItems(node, ctx) {
         if (node && node.minItems) {
           if (typeof node.minItems !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.minItems < 0) {
-            return ctx.createError(
-              'Value of minItems must be greater or equal to zero. You can`t have negative amount of something.',
-              'value',
-            );
+            return ctx.report({
+              message: 'Value of minItems must be greater or equal to zero. You can`t have negative amount of something.',
+            });
           }
         }
         return null;
@@ -112,7 +138,9 @@ class ValidateOAS2Schema {
       uniqueItems(node, ctx) {
         if (node && node.uniqueItems) {
           if (typeof node.uniqueItems !== 'boolean') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'),
+            });
           }
         }
         return null;
@@ -120,13 +148,14 @@ class ValidateOAS2Schema {
       maxProperties(node, ctx) {
         if (node && node.maxProperties) {
           if (typeof node.maxProperties !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.maxProperties < 0) {
-            return ctx.createError(
-              'Value of maxProperties must be greater or equal to zero. You can`t have negative amount of something.',
-              'value',
-            );
+            return ctx.report({
+              message: 'Value of maxProperties must be greater or equal to zero. You can`t have negative amount of something.',
+            });
           }
         }
         return null;
@@ -134,13 +163,14 @@ class ValidateOAS2Schema {
       minProperties(node, ctx) {
         if (node && node.minProperties) {
           if (typeof node.minProperties !== 'number') {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('number'),
+            });
           }
           if (node.minProperties < 0) {
-            return ctx.createError(
-              'Value of minProperties must be greater or equal to zero. You can`t have negative amount of something.',
-              'value',
-            );
+            return ctx.report({
+              message: 'Value of minProperties must be greater or equal to zero. You can`t have negative amount of something.',
+            });
           }
         }
         return null;
@@ -148,10 +178,14 @@ class ValidateOAS2Schema {
       required(node, ctx) {
         if (node && node.required) {
           if (!Array.isArray(node.required)) {
-            return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value');
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'),
+            });
           }
           if (node.required.filter((item) => typeof item !== 'string').length !== 0) {
-            return ctx.createError('All values of "required" field must be strings', 'value');
+            return ctx.report({
+              message: 'All values of "required" field must be strings',
+            });
           }
         }
         return null;
@@ -161,65 +195,73 @@ class ValidateOAS2Schema {
 
         if (node && node.enum) {
           if (!Array.isArray(node.enum)) {
-            return [ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'), 'value')];
+            return ctx.report({
+              message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('array'),
+            });
           }
         }
         return errors;
       },
       type(node, ctx) {
-        const errors = [];
         if (node.type && node.type && typeof node.type !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         if (node.type && !['string', 'object', 'array', 'integer', 'number', 'boolean', 'file'].includes(node.type)) {
           const possibleAlternate = getClosestString(
             node.type, ['string', 'object', 'array', 'integer', 'number', 'boolean'],
           );
-          errors.push(ctx.createError(
-            'Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean".',
-            'value',
-            { possibleAlternate },
-          ));
+          ctx.report({
+            message: 'Object type can be one of following only: "string", "object", "array", "integer", "number", "boolean".',
+            possibleAlternate,
+          });
         }
-        return errors;
+        return null;
       },
       items(node, ctx) {
         if (node && node.items && Array.isArray(node.items)) {
-          return ctx.createError('Value of items must not be an array. It must be a Schema object', 'value');
+          ctx.report({
+            message: 'Value of items must not be an array. It must be a Schema object',
+          });
         }
-        return null;
       },
       additionalProperties: (node, ctx) => {
         if (node
           && node.additionalProperties
           && (['boolean', 'object'].indexOf(typeof node.additionalProperties) === -1)) {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean or OAS2 Schema'), 'value');
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean or OAS2 Schema'),
+          });
         }
-        return null;
       },
       description(node, ctx) {
         if (node && node.description && typeof node.description !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
-        return null;
       },
       format(node, ctx) {
         if (node && node.format && typeof node.format !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
-        return null;
       },
       readOnly(node, ctx) {
         if (node && node.readOnly && typeof node.readOnly !== 'boolean') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
-        return null;
       },
       deprecated(node, ctx) {
         if (node && node.deprecated && typeof node.deprecated !== 'boolean') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('boolean'), 'value');
+          ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
-        return null;
       },
     };
   }

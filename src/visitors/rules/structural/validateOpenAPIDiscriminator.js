@@ -7,20 +7,29 @@ class ValidateOpenAPIDiscriminator {
     return {
       propertyName(node, ctx) {
         if (!(node && node.propertyName)) {
-          return ctx.createError(ctx.messageHelpers.missingRequiredField('propertyName'), 'key');
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('propertyName'),
+            reportOnKey: true,
+          });
         }
         if (typeof node.propertyName !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },
       mapping(node, ctx) {
         if (node && node.mapping && typeof node.mapping !== 'object') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('Map[string, string]'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('Map[string, string]'),
+          });
         }
         if (node && node.mapping
           && Object.keys(node.mapping).filter((key) => typeof node.mapping[key] !== 'string').length !== 0) {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('Map[string, string]'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('Map[string, string]'),
+          });
         }
         return null;
       },

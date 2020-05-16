@@ -6,12 +6,10 @@ class NoRefSiblings {
   }
 
   enter(node, definition, ctx, unresolvedNode) {
-    const errors = [];
-
-    if (!unresolvedNode || typeof unresolvedNode !== 'object') return errors;
+    if (!unresolvedNode || typeof unresolvedNode !== 'object') return;
 
     const nodeKeys = Object.keys(unresolvedNode);
-    if (nodeKeys.indexOf('$ref') === -1) return errors;
+    if (nodeKeys.indexOf('$ref') === -1) return;
 
     if (nodeKeys.length > 1) {
       const tempPath = {
@@ -41,8 +39,6 @@ class NoRefSiblings {
       ctx.path = tempPath.path;
       ctx.filePath = tempPath.filePath;
     }
-
-    return errors;
   }
 }
 

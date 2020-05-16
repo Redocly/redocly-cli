@@ -26,8 +26,6 @@ class UniqueParameterNames {
   }
 
   OpenAPIParameter(node, _, ctx) {
-    let error;
-
     let paramsList = [];
 
     if (ctx.definitionStack.includes(OpenAPIOperation)) {
@@ -35,21 +33,19 @@ class UniqueParameterNames {
     } else if (ctx.definitionStack.includes(OpenAPIPath)) {
       paramsList = this.currentPathParameters;
     } else {
-      return [];
+      return;
     }
 
     if (node.name && paramsList.includes(node.name)) {
       ctx.path.push('name');
-      error = ctx.createError(
-        'Duplicate parameters are not allowed. This name is already used on this level.',
-        'value',
-      );
+      ctx.report({
+        message: 'Duplicate parameters are not allowed. This name is already used on this level.',
+      });
       ctx.path.pop();
     }
     if (node.name) {
       paramsList.push(node.name);
     }
-    return error ? [error] : [];
   }
 }
 

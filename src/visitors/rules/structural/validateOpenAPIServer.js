@@ -7,16 +7,25 @@ class ValidateOpenAPIServer {
     return {
       url(node, ctx) {
         if (!node || !node.url || typeof node.url !== 'string') {
-          return ctx.createError(ctx.messageHelpers.missingRequiredField('url'), 'key');
+          return ctx.report({
+            message: ctx.messageHelpers.missingRequiredField('url'),
+            reportOnKey: true,
+          });
         }
         if (typeof node.url !== 'string') {
-          return ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value');
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
         }
         return null;
       },
       description(node, ctx) {
-        return node && node.description && typeof node.description !== 'string'
-          ? ctx.createError(ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'), 'value') : null;
+        if (node && node.description && typeof node.description !== 'string') {
+          return ctx.report({
+            message: ctx.messageHelpers.fieldTypeMismatchMessageHelper('string'),
+          });
+        }
+        return null;
       },
     };
   }

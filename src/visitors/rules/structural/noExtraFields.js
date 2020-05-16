@@ -6,7 +6,6 @@ class NoExtraFields {
   }
 
   enter(node, definition, ctx) {
-    const errors = [];
     const allowedChildren = [];
 
     if (definition.properties) {
@@ -23,10 +22,9 @@ class NoExtraFields {
     }
 
     if (allowedChildren.length > 0 && typeof node !== 'object') {
-      ctx.report({
+      return ctx.report({
         message: ctx.messageHelpers.fieldTypeMismatchMessageHelper(definition.name),
       });
-      return errors;
     }
 
     Object.keys(node).forEach((field) => {
@@ -43,7 +41,8 @@ class NoExtraFields {
 
       ctx.path.pop();
     });
-    return errors;
+
+    return null;
   }
 }
 
