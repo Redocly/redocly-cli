@@ -217,12 +217,12 @@ const cli = () => {
         return openapiBundle;
       }
 
+      const redoclyClient = new RedoclyClient();
+      const isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
+
       setImmediate(() => {
         cachedBundle = updateBundle();
       }); // initial cache
-
-      const redoclyClient = new RedoclyClient();
-      const isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
 
       const redocOptions = {
         ...config.referenceDocs,
