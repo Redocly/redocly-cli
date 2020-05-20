@@ -21,17 +21,17 @@ function getPageHTML(htmlTemplate, redocOptions = {}, isRedoclyUser, wsPort) {
 
   const template = compile(templateSrc);
 
-  const isRedocPro = (isRedoclyUser || redocOptions.licenseKey) && !redocOptions.useCommunityEdition;
+  const useRedocPro = (isRedoclyUser || redocOptions.licenseKey) && !redocOptions.useCommunityEdition;
 
   return template({
     redocHead: `
   <script>
-    window.__REDOC_EXPORT = '${isRedocPro ? 'RedoclyAPIReference' : 'Redoc'}';
+    window.__REDOC_EXPORT = '${useRedocPro ? 'RedoclyAPIReference' : 'Redoc'}';
     window.__OPENAPI_CLI_WS_PORT = ${wsPort};
   </script>
   <script src="/simplewebsocket.min.js"></script>
   <script src="/hot.js"></script>
-  <script src="${isRedocPro
+  <script src="${useRedocPro
     ? 'https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/redocly-api-reference.min.js'
     : 'https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js'}"></script>
 `,
@@ -39,7 +39,7 @@ function getPageHTML(htmlTemplate, redocOptions = {}, isRedoclyUser, wsPort) {
   <div id="redoc"></div>
   <script>
     var container = document.getElementById('redoc');
-    ${isRedocPro ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/');" : ''}
+    ${useRedocPro ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/');" : ''}
     window[window.__REDOC_EXPORT].init("openapi.json", ${JSON.stringify(redocOptions)}, container)
   </script>`,
   });

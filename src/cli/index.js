@@ -175,7 +175,7 @@ const cli = () => {
     .command('preview-docs [entryPoint]')
     .description('Preview API Reference docs for the specified entrypoint OAS definition')
     .option('-p, --port <value>', 'Preview port', myParseInt, 8080)
-    .option('--use-community-edition', 'Use Redoc CE for docs prewview.')
+    .option('--use-community-edition', 'Use Redoc CE for docs preview.')
     .action(async (entryPoint, cmdObj) => {
       console.log(cmdObj.useCommunityEdition);
       const output = 'dist/openapi.yaml';
@@ -223,7 +223,7 @@ const cli = () => {
       }); // initial cache
 
       const redoclyClient = new RedoclyClient();
-      const isRedoclyUser = !!(await redoclyClient.getAuthorizationHeader());
+      const isRedoclyUser = redoclyClient.hasToken() && !!(await redoclyClient.getAuthorizationHeader());
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
