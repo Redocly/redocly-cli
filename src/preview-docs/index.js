@@ -11,7 +11,7 @@ import {
   startHttpServer, startWsServer, respondWithGzip, mimeTypes,
 } from './server';
 
-function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
+function getPageHTML(htmlTemplate, redocOptions = {}, useRedocPro, wsPort) {
   let templateSrc = readFileSync(htmlTemplate, 'utf-8');
 
   // fix template for backward compatibility
@@ -24,12 +24,12 @@ function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
   return template({
     redocHead: `
   <script>
-    window.__REDOC_EXPORT = '${redocOptions.licenseKey ? 'RedoclyAPIReference' : 'Redoc'}';
+    window.__REDOC_EXPORT = '${useRedocPro ? 'RedoclyAPIReference' : 'Redoc'}';
     window.__OPENAPI_CLI_WS_PORT = ${wsPort};
   </script>
   <script src="/simplewebsocket.min.js"></script>
   <script src="/hot.js"></script>
-  <script src="${redocOptions.licenseKey
+  <script src="${useRedocPro
     ? 'https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/redocly-api-reference.min.js'
     : 'https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js'}"></script>
 `,
@@ -37,7 +37,7 @@ function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
   <div id="redoc"></div>
   <script>
     var container = document.getElementById('redoc');
-    ${redocOptions.licenseKey ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/');" : ''}
+    ${useRedocPro ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/api-reference@latest/dist/');" : ''}
     window[window.__REDOC_EXPORT].init("openapi.json", ${JSON.stringify(redocOptions)}, container)
   </script>`,
   });
@@ -46,6 +46,7 @@ function getPageHTML(htmlTemplate, redocOptions = {}, wsPort) {
 export default async function startPreviewServer(port, {
   getBundle,
   getOptions,
+  useRedocPro,
 }) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request, response) => {
@@ -53,7 +54,7 @@ export default async function startPreviewServer(port, {
     const { htmlTemplate } = getOptions() || {};
 
     if (request.url === '/') {
-      respondWithGzip(getPageHTML(htmlTemplate || defaultTemplate, getOptions(), wsPort), request, response, {
+      respondWithGzip(getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort), request, response, {
         'Content-Type': 'text/html',
       });
     } else if (request.url === '/openapi.json') {

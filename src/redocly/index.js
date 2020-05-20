@@ -32,6 +32,10 @@ export default class RedoclyClient {
     }
   }
 
+  async isAuthorizedWithRedocly() {
+    return this.hasToken() && !!(await this.getAuthorizationHeader());
+  }
+
   async verifyToken(accessToken) {
     if (!accessToken) return false;
     const authDetails = await RedoclyClient.authorize(accessToken);

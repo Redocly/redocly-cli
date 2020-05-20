@@ -175,6 +175,7 @@ const cli = () => {
     .command('preview-docs [entryPoint]')
     .description('Preview API Reference docs for the specified entrypoint OAS definition')
     .option('-p, --port <value>', 'Preview port', myParseInt, 8080)
+    .option('--use-community-edition', 'Use Redoc CE for docs preview.')
     .action(async (entryPoint, cmdObj) => {
       const output = 'dist/openapi.yaml';
 
@@ -216,13 +217,23 @@ const cli = () => {
         return openapiBundle;
       }
 
+      const redoclyClient = new RedoclyClient();
+      const isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
+
       setImmediate(() => {
         cachedBundle = updateBundle();
       }); // initial cache
 
+      const redocOptions = {
+        ...config.referenceDocs,
+        useCommunityEdition: cmdObj.useCommunityEdition || config.referenceDocs.useCommunityEdition,
+        licenseKey: process.env.REDOCLY_LICENSE_KEY || config.referenceDocs.licenseKey,
+      };
+
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
-        getOptions: () => config.referenceDocs,
+        getOptions: () => redocOptions,
+        useRedocPro: (isAuthorizedWithRedocly || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
       });
 
       const watcher = chockidar.watch([entryPoint, config.configPath], {
