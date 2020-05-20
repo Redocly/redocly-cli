@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.12.9",
+  "version": "0.12.10",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
