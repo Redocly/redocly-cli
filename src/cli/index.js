@@ -223,16 +223,16 @@ const cli = () => {
       }); // initial cache
 
       const redoclyClient = new RedoclyClient();
-      const isLoggedIn = !!(await redoclyClient.getAuthorizationHeader());
+      const isRedoclyUser = !!(await redoclyClient.getAuthorizationHeader());
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
         getOptions: () => ({
           ...config.referenceDocs,
-          useCommunityEdition: cmdObj.useCommunityEdition,
-          redoclyLoggedIn: isLoggedIn,
+          useCommunityEdition: cmdObj.useCommunityEdition || config.referenceDocs.useCommunityEdition,
           licenseKey: process.env.REDOCLY_LICENSE_KEY || config.referenceDocs.licenseKey,
         }),
+        isRedoclyUser,
       });
 
       const watcher = chockidar.watch([entryPoint, config.configPath], {
