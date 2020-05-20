@@ -222,7 +222,7 @@ const cli = () => {
       }); // initial cache
 
       const redoclyClient = new RedoclyClient();
-      const isRedoclyUser = await redoclyClient.isAuthorizedWithRedocly();
+      const isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
 
       const redocOptions = {
         ...config.referenceDocs,
@@ -235,7 +235,7 @@ const cli = () => {
         getOptions: () => ({
           ...redocOptions,
         }),
-        useRedocPro: (isRedoclyUser || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
+        useRedocPro: (isAuthorizedWithRedocly || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
       });
 
       const watcher = chockidar.watch([entryPoint, config.configPath], {
