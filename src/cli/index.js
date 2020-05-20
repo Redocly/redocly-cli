@@ -177,7 +177,6 @@ const cli = () => {
     .option('-p, --port <value>', 'Preview port', myParseInt, 8080)
     .option('--use-community-edition', 'Use Redoc CE for docs preview.')
     .action(async (entryPoint, cmdObj) => {
-      console.log(cmdObj.useCommunityEdition);
       const output = 'dist/openapi.yaml';
 
       let config = getConfig({});
@@ -223,16 +222,20 @@ const cli = () => {
       }); // initial cache
 
       const redoclyClient = new RedoclyClient();
-      const isRedoclyUser = redoclyClient.hasToken() && !!(await redoclyClient.getAuthorizationHeader());
+      const isRedoclyUser = await redoclyClient.isAuthorizedWithRedocly();
+
+      const redocOptions = {
+        ...config.referenceDocs,
+        useCommunityEdition: cmdObj.useCommunityEdition || config.referenceDocs.useCommunityEdition,
+        licenseKey: process.env.REDOCLY_LICENSE_KEY || config.referenceDocs.licenseKey,
+      };
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
         getOptions: () => ({
-          ...config.referenceDocs,
-          useCommunityEdition: cmdObj.useCommunityEdition || config.referenceDocs.useCommunityEdition,
-          licenseKey: process.env.REDOCLY_LICENSE_KEY || config.referenceDocs.licenseKey,
+          ...redocOptions,
         }),
-        isRedoclyUser,
+        useRedocPro: (isRedoclyUser || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
       });
 
       const watcher = chockidar.watch([entryPoint, config.configPath], {

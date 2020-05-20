@@ -11,7 +11,7 @@ import {
   startHttpServer, startWsServer, respondWithGzip, mimeTypes,
 } from './server';
 
-function getPageHTML(htmlTemplate, redocOptions = {}, isRedoclyUser, wsPort) {
+function getPageHTML(htmlTemplate, redocOptions = {}, useRedocPro, wsPort) {
   let templateSrc = readFileSync(htmlTemplate, 'utf-8');
 
   // fix template for backward compatibility
@@ -20,8 +20,6 @@ function getPageHTML(htmlTemplate, redocOptions = {}, isRedoclyUser, wsPort) {
     .replace('{{redocBody}}', '{{{redocHTML}}}');
 
   const template = compile(templateSrc);
-
-  const useRedocPro = (isRedoclyUser || redocOptions.licenseKey) && !redocOptions.useCommunityEdition;
 
   return template({
     redocHead: `
@@ -48,7 +46,7 @@ function getPageHTML(htmlTemplate, redocOptions = {}, isRedoclyUser, wsPort) {
 export default async function startPreviewServer(port, {
   getBundle,
   getOptions,
-  isRedoclyUser,
+  useRedocPro,
 }) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request, response) => {
@@ -56,7 +54,7 @@ export default async function startPreviewServer(port, {
     const { htmlTemplate } = getOptions() || {};
 
     if (request.url === '/') {
-      respondWithGzip(getPageHTML(htmlTemplate || defaultTemplate, getOptions(), isRedoclyUser, wsPort), request, response, {
+      respondWithGzip(getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort), request, response, {
         'Content-Type': 'text/html',
       });
     } else if (request.url === '/openapi.json') {
