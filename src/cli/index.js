@@ -232,9 +232,7 @@ const cli = () => {
 
       const hotClients = await startPreviewServer(cmdObj.port, {
         getBundle,
-        getOptions: () => ({
-          ...redocOptions,
-        }),
+        getOptions: () => redocOptions,
         useRedocPro: (isAuthorizedWithRedocly || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
       });
 
