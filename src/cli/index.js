@@ -224,10 +224,12 @@ const cli = () => {
         cachedBundle = updateBundle();
       }); // initial cache
 
+      const referenceDocs = config.referenceDocs || {};
+
       const redocOptions = {
-        ...config.referenceDocs,
-        useCommunityEdition: cmdObj.useCommunityEdition || config.referenceDocs.useCommunityEdition,
-        licenseKey: process.env.REDOCLY_LICENSE_KEY || config.referenceDocs.licenseKey,
+        ...referenceDocs,
+        useCommunityEdition: cmdObj.useCommunityEdition || referenceDocs.useCommunityEdition,
+        licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs.licenseKey,
       };
 
       const hotClients = await startPreviewServer(cmdObj.port, {
