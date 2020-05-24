@@ -3,28 +3,17 @@ class Operation2xxResponse {
     return 'operation-2xx-response';
   }
 
-  constructor(config) {
-    this.config = config;
-    this.responseCodes = [];
-  }
-
-  OpenAPIOperation() {
-    return {
-      onExit: (node, definition, ctx) => {
-        const errors = [];
-        if (!this.responseCodes.find((code) => code[0] === '2')) {
-          errors.push(ctx.createError('Operation must have at least one 2xx response.', 'key'));
-        }
-        this.responseCodes = [];
-        return errors;
-      },
-    };
-  }
-
   OpenAPIResponseMap() {
     return {
-      onEnter: (node) => {
-        this.responseCodes.push(...Object.keys(node));
+      onExit: (node, _, ctx) => {
+        if (ctx.definitionStack[ctx.definitionStack.length - 1].name !== 'OpenAPIOperation') {
+          return [];
+        }
+        const codes = Object.keys(node);
+        if (!codes.find((code) => code[0] === '2' || code === 'default')) {
+          return [ctx.createError('Operation must have at least one 2xx response.', 'value')];
+        }
+        return [];
       },
     };
   }
