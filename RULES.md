@@ -17,6 +17,9 @@ License, if provided within the `info` section, must provide the `url` field.
 ### no-unused-schemas
 Unused schemas defined in `components` may indicate a mistake. This rule checks for that scenario.
 
+### no-scalar-ref
+Scalar values should not be linked via `$ref`s.
+
 ### operation-2xx-response
 When designing an API it's usually expected to do something successfully, although it might fail. So, this rule validates, that there is at least one response in the operation with a 2xx status code.
 
