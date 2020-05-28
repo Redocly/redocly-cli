@@ -15,7 +15,7 @@ function processTestCase(casePath) {
     cwd: snapshotPath,
     env: {
       ...process.env,
-      ENABLE_DEBUG_UNDERLINE: true,
+      ENABLE_DEBUG_ERROR_POINTER: true,
     },
   });
 

@@ -1,2 +1,6 @@
 apiDefinitions:
   main: openapi.yaml
+
+lint:
+  rules:
+    oas3-schema/parameter: off
