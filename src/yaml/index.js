@@ -1,5 +1,4 @@
 import { safeLoad } from 'yaml-ast-parser';
-
 import {
   outputRed, outputUnderline, getLineNumberFromId, outputGrey,
 } from '../utils';
@@ -117,10 +116,20 @@ export const getCodeFrameForLocation = (
   if (frameStart === -1) startOffset -= 1;
   if (frameStart === -1) endOffset -= 1;
 
+  const codeframeFirstBreak = codeFrame.substring(0, startOffset).split('').reverse().join()
+    .indexOf('\n');
+
   const codeFrameStart = codeFrame.substring(0, startOffset);
   const codeFrameEnd = codeFrame.substring(endOffset);
+  const specialErrorPointer = process.env.ENABLE_DEBUG_ERROR_POINTER ? `\n${' '.repeat(codeframeFirstBreak)}${'^'.repeat(endOffset - startOffset)}` : '';
   const codeFrameMain = outputUnderline(outputRed(codeFrame.substring(startOffset, endOffset)));
-  let codeFrameString = `${codeFrameStart}${codeFrameMain}${codeFrameEnd}`;
+
+  const endStartIndex = codeFrameEnd.indexOf('\n');
+
+  const endStart = codeFrameEnd.substring(0, endStartIndex);
+  const endEnd = codeFrameEnd.substring(endStartIndex);
+
+  let codeFrameString = `${codeFrameStart}${codeFrameMain}${endStart}${specialErrorPointer}${endEnd}`;
 
   const fromStart = start === 0;
   const lines = !fromStart ? codeFrameString.split('\n').slice(1) : codeFrameString.split('\n');

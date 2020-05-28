@@ -9,6 +9,7 @@
     "copyFiles": "chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
     "lint": "eslint ./src",
     "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
+    "e2e": "node ./e2e/core/index.js",
     "test": "jest --coverage"
   },
   "bin": {
