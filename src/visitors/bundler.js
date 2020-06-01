@@ -12,6 +12,11 @@ import { isRef } from '../utils';
 const getComponentName = (refString, components, componentType, node, ctx) => {
   const errors = [];
 
+  if (refString.startsWith('#/')) {
+    // local ref, no need to bundle, keep as is
+    return { name: undefined, errors };
+  }
+
   refString = refString.replace('#/', '/');
   const itemNameBase = path.basename(refString, path.extname(refString));
   const pathParts = path.dirname(refString).split('/');
