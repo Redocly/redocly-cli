@@ -482,7 +482,144 @@ describe("Traverse files", () => {
           },
         }
       )
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "codeFrame": "[90m29567|               - ochapay[39m
+      [90m29568|             description: Type of payment[39m
+      [90m29569|   [4m[31mresponses[39m[90m[24m:[39m
+      [90m29570|     AccessForbidden:[39m
+      [90m29571|       description: 'Access forbidden, invalid API-KEY was used'[39m",
+          "enableCodeframe": true,
+          "file": "definitions/openapi-directory/rebilly-full.yaml",
+          "fromRule": "operation-2xx-response",
+          "location": Object {
+            "endCol": 12,
+            "endIndex": 961012,
+            "endLine": 29569,
+            "startCol": 3,
+            "startIndex": 961003,
+            "startLine": 29569,
+          },
+          "message": "Operation must have at least one 2xx response.",
+          "path": Array [
+            "components",
+            "responses",
+          ],
+          "possibleAlternate": undefined,
+          "referencedFrom": null,
+          "severity": 3,
+          "target": "key",
+          "value": Object {
+            "AccessForbidden": Object {
+              "content": Object {
+                "application/json": Object {
+                  "schema": Object {
+                    "$ref": "#/components/schemas/Error",
+                  },
+                },
+              },
+              "description": "Access forbidden, invalid API-KEY was used",
+            },
+            "Conflict": Object {
+              "content": Object {
+                "application/json": Object {
+                  "schema": Object {
+                    "$ref": "#/components/schemas/Error",
+                  },
+                },
+              },
+              "description": "Conflict",
+            },
+            "Customer": Object {
+              "content": Object {
+                "application/json": Object {
+                  "schema": Object {
+                    "$ref": "#/components/schemas/Customer",
+                  },
+                },
+              },
+              "description": "Customer",
+              "headers": Object {
+                "Rate-Limit-Limit": Object {
+                  "$ref": "#/components/headers/Rate-Limit-Limit",
+                },
+                "Rate-Limit-Remaining": Object {
+                  "$ref": "#/components/headers/Rate-Limit-Remaining",
+                },
+                "Rate-Limit-Reset": Object {
+                  "$ref": "#/components/headers/Rate-Limit-Reset",
+                },
+              },
+            },
+            "Found": Object {
+              "description": "Resource was moved",
+              "headers": Object {
+                "Location": Object {
+                  "schema": Object {
+                    "type": "string",
+                  },
+                },
+              },
+            },
+            "InvalidDataError": Object {
+              "content": Object {
+                "application/json": Object {
+                  "schema": Object {
+                    "$ref": "#/components/schemas/InvalidError",
+                  },
+                },
+              },
+              "description": "Invalid data was sent",
+            },
+            "NoContent": Object {
+              "description": "Request was accepted, but no response body is returned",
+            },
+            "NotFound": Object {
+              "content": Object {
+                "application/json": Object {
+                  "schema": Object {
+                    "$ref": "#/components/schemas/Error",
+                  },
+                },
+              },
+              "description": "Resource was not found",
+            },
+            "SeeOther": Object {
+              "description": "See other",
+              "headers": Object {
+                "Location": Object {
+                  "description": "The location of the related resource",
+                  "schema": Object {
+                    "format": "url",
+                    "type": "string",
+                  },
+                },
+                "Rate-Limit-Limit": Object {
+                  "description": "The number of allowed requests in the current period",
+                  "schema": Object {
+                    "type": "integer",
+                  },
+                },
+                "Rate-Limit-Remaining": Object {
+                  "description": "The number of remaining requests in the current period",
+                  "schema": Object {
+                    "type": "integer",
+                  },
+                },
+                "Rate-Limit-Reset": Object {
+                  "description": "The date in format defined by [RFC 822](https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1) when the current period will reset
+      ",
+                  "schema": Object {
+                    "type": "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]
+    `);
   });
 
   test("syntetic/syntetic-1.yaml", async () => {
