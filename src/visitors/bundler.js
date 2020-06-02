@@ -193,6 +193,10 @@ class Bundler {
               unresolvedNode.$ref, this.components, componentType, node, ctx,
             );
 
+            if (!name) {
+              return errors;
+            }
+
             errors.push(...nameErrors);
 
             const newRef = this.saveComponent(ctx, node, name, componentType);
