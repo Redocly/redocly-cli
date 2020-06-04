@@ -13,16 +13,14 @@ lint:
     suggest-possible-refs: off
     oas3-schema/parameter: off
     oas3-schema/external-docs: off
-    oas3-schema/tag: off
-    oas3-schema/operation: off
     operations-tags-alpabetical: off
-    path-param-exists: off
+    path-param-exists: on #Each path parameter in the parameters section must be present in the path string.
     operation-2xx-response: off
     unique-parameter-names: off
     no-unused-schemas: off
     operation-operationId-unique: off
     path-declarations-must-exist: off
-    string-matcher: off #skip
+    string-matcher: off
     enum-match-type: off
 
     operation-tags-defined: off

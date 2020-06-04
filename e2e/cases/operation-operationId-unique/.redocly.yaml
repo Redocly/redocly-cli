@@ -20,9 +20,9 @@ lint:
     operation-2xx-response: off
     unique-parameter-names: off
     no-unused-schemas: off
-    operation-operationId-unique: off
+    operation-operationId-unique: on #The operationIds are expected to be unique to really identify operations
     path-declarations-must-exist: off
-    string-matcher: off #skip
+    string-matcher: off
     enum-match-type: off
 
     operation-tags-defined: off

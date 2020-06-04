@@ -32,7 +32,7 @@ lint:
     parameter-description: off
     server-not-example: off
     api-servers: off
-    license-url: off
+    license-url: on
     license-required: off
     model-description: off
     operation-description: off

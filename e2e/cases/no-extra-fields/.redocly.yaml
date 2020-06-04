@@ -1,3 +1,6 @@
+
+# https://swagger.io/docs/specification/openapi-extensions/
+
 apiDefinitions:
   main: openapi.yaml
 
@@ -7,14 +10,12 @@ lint:
       nameConflicts: off
     debug-info: off
 
-    no-extra-fields: off
+    no-extra-fields: on #By default, custom fields, not defined within OpenAPI specification can be included only using x- prefix. 
     no-$ref-siblings: off
 
     suggest-possible-refs: off
     oas3-schema/parameter: off
     oas3-schema/external-docs: off
-    oas3-schema/tag: off
-    oas3-schema/operation: off
     operations-tags-alpabetical: off
     path-param-exists: off
     operation-2xx-response: off
@@ -22,7 +23,7 @@ lint:
     no-unused-schemas: off
     operation-operationId-unique: off
     path-declarations-must-exist: off
-    string-matcher: off #skip
+    string-matcher: off
     enum-match-type: off
 
     operation-tags-defined: off

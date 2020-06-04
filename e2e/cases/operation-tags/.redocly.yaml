@@ -37,5 +37,5 @@ lint:
     model-description: off
     operation-description: off
     operation-operationId: off
-    operation-tags: off
+    operation-tags: on
     servers-no-trailing-slash: off

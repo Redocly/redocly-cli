@@ -24,6 +24,7 @@ lint:
     path-declarations-must-exist: off
     string-matcher: off #skip
     enum-match-type: off
+    path-keys-no-trailing-slash: on
 
     operation-tags-defined: off
     provide-contact: off
@@ -38,4 +39,4 @@ lint:
     operation-description: off
     operation-operationId: off
     operation-tags: off
-    servers-no-trailing-slash: off
+    servers-no-trailing-slash: on

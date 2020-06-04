@@ -34,7 +34,7 @@ lint:
     api-servers: off
     license-url: off
     license-required: off
-    model-description: off
+    model-description: on
     operation-description: off
     operation-operationId: off
     operation-tags: off

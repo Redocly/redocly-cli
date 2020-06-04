@@ -9,3 +9,6 @@ paths:
       responses:
         '200':
           description: example description
+externalDocs:
+  description: Find more info here
+  url: https://example.com

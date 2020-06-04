@@ -25,7 +25,7 @@ lint:
     string-matcher: off #skip
     enum-match-type: off
 
-    operation-tags-defined: off
+    operation-tags-defined: on #Items in tags object of operations should be defined in the top level tags object.
     provide-contact: off
 
     camel-case-names: off

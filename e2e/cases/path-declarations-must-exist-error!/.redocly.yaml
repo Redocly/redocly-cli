@@ -21,8 +21,8 @@ lint:
     unique-parameter-names: off
     no-unused-schemas: off
     operation-operationId-unique: off
-    path-declarations-must-exist: off
-    string-matcher: off #skip
+    path-declarations-must-exist: on #Define path parameters within the operation path definition.
+    string-matcher: off
     enum-match-type: off
 
     operation-tags-defined: off

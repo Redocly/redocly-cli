@@ -1,0 +1,30 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  '/user/{id}/{test}':
+    get:
+      parameters:
+        - in: path
+          name: test
+          description: User id
+          required: true
+          schema:
+            type: string
+      operationId: withPathParam
+      description: Get user by id
+      responses:
+        '200':
+          description: The response
+          schema: 
+            $ref: '#/components/schemas/Use' #should apply rule
+components:
+  schemas:
+    User:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string

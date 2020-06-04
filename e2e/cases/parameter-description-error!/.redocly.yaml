@@ -29,7 +29,7 @@ lint:
     provide-contact: off
 
     camel-case-names: off
-    parameter-description: off
+    parameter-description: on #The "parameter" object should contain "description" field.
     server-not-example: off
     api-servers: off
     license-url: off

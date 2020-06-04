@@ -36,6 +36,6 @@ lint:
     license-required: off
     model-description: off
     operation-description: off
-    operation-operationId: off
+    operation-operationId: on
     operation-tags: off
     servers-no-trailing-slash: off

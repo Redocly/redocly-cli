@@ -38,4 +38,4 @@ lint:
     operation-description: off
     operation-operationId: off
     operation-tags: off
-    servers-no-trailing-slash: off
+    servers-no-trailing-slash: on

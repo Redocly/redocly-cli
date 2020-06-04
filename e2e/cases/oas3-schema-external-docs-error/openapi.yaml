@@ -9,3 +9,7 @@ paths:
       responses:
         '200':
           description: example description
+externalDocs:
+  description: asdads
+  url:
+    $ref: #/infaao/license/urla

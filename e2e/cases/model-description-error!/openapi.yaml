@@ -9,3 +9,8 @@ paths:
       responses:
         '200':
           description: example description
+components:
+  schemas:
+    Ping:
+      type: object
+      #description: test

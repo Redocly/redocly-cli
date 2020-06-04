@@ -1,0 +1,8 @@
+Stdout:
+
+=====
+Stderr:
+Can't load yaml file. Error during parsing YAML source:
+duplicated mapping key in "openapi.yaml" at line 19, column -280:
+      /ping/{id}:
+      ^

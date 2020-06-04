@@ -7,5 +7,10 @@ paths:
   '/ping':
     get:
       responses:
-        '200':
+        '500':
+          description: example description
+  /pet:
+    post:
+      responses:
+        '400':
           description: example description

@@ -33,7 +33,7 @@ lint:
     server-not-example: off
     api-servers: off
     license-url: off
-    license-required: off
+    license-required: on
     model-description: off
     operation-description: off
     operation-operationId: off

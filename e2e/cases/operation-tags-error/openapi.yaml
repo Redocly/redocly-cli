@@ -1,0 +1,19 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  /pet/findByStatus:
+    get:
+      summary: Finds pets by Status
+      responses:
+        '200':
+          description: example description
+  /pet:
+    post:
+      summary: Adds a new pet to the store
+      tags:
+      responses:
+        '200':
+          description: example description

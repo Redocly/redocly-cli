@@ -1,0 +1,20 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  /items:
+    get:
+      parameters:
+        - in: query
+          name: sort
+          description: Sort order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        '200':
+          description: example description

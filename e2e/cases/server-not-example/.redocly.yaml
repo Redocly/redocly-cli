@@ -30,7 +30,7 @@ lint:
 
     camel-case-names: off
     parameter-description: off
-    server-not-example: off
+    server-not-example: on #The "server" object should not point to "example.com" domain.
     api-servers: off
     license-url: off
     license-required: off

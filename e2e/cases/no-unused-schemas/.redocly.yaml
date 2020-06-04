@@ -19,10 +19,10 @@ lint:
     path-param-exists: off
     operation-2xx-response: off
     unique-parameter-names: off
-    no-unused-schemas: off
+    no-unused-schemas: on #Unused schemas defined in components may indicate a mistake.
     operation-operationId-unique: off
     path-declarations-must-exist: off
-    string-matcher: off #skip
+    string-matcher: off
     enum-match-type: off
 
     operation-tags-defined: off

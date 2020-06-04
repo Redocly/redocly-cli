@@ -3,6 +3,9 @@ info:
   title: Example OpenAPI 3 definition. Valid.
   version: 1.0
 
+servers:
+  - url: 'http://example.org'
+
 paths:
   '/ping':
     get:

@@ -6,6 +6,13 @@ info:
 paths:
   '/ping':
     get:
+      operationId: getPingById
+      responses:
+        '200':
+          description: example description
+  '/pong':
+    get:
+      operationId: getPongById
       responses:
         '200':
           description: example description

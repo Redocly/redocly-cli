@@ -8,4 +8,4 @@ paths:
     get:
       responses:
         '200':
-          description: example description
+          #description: example description

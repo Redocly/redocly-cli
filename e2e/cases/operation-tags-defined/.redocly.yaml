@@ -25,7 +25,7 @@ lint:
     string-matcher: off #skip
     enum-match-type: off
 
-    operation-tags-defined: off
+    operation-tags-defined: on
     provide-contact: off
 
     camel-case-names: off

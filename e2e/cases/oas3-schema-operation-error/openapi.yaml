@@ -1,0 +1,10 @@
+openapi: 3.0.2
+info:
+  title: Test Spec
+  version: 0.0.0
+paths:
+  /pet/findByStatus:
+    get:
+      summary: Finds pets by Status
+      tags:
+        - zpets  

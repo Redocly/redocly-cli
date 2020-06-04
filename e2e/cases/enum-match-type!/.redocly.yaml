@@ -22,8 +22,8 @@ lint:
     no-unused-schemas: off
     operation-operationId-unique: off
     path-declarations-must-exist: off
-    string-matcher: off #skip
-    enum-match-type: off
+    string-matcher: off
+    enum-match-type: on
 
     operation-tags-defined: off
     provide-contact: off
