@@ -72,19 +72,20 @@ export const bundle = async (fName, force, options) => {
 
   if (!document.openapi && !document.swagger) { return []; }
 
-  const config = getLintConfig(options);
-  config.rules = {
-    ...config.rules,
+  const lintConfig = getLintConfig(options);
+  lintConfig.rules = {
+    ...lintConfig.rules,
     bundler: {
-      ...(config.rules && typeof config.rules.bundler === 'object' ? config.rules.bundler : null),
+      ...(lintConfig.rules && typeof lintConfig.rules.bundler === 'object' ? lintConfig.rules.bundler : null),
       outputObject: true,
       ignoreErrors: force,
     },
   };
 
-  const ctx = createContext(document, source, resolvedFileName, config);
+  const ctx = createContext(document, source, resolvedFileName, lintConfig);
 
-  await traverseNode(document, OpenAPIRoot, ctx);
+  const rootNode = ctx.openapiVersion === 3 ? OpenAPIRoot : OAS2Root;
+  await traverseNode(document, rootNode, ctx);
 
   return { bundle: ctx.bundlingResult, result: ctx.result, fileDependencies: ctx.fileDependencies };
 };
