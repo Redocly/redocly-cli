@@ -12,14 +12,10 @@ import { isRef } from '../utils';
 const getComponentName = (refString, components, componentType, node, ctx) => {
   const errors = [];
 
-  if (refString.startsWith('#/')) {
-    // local ref, no need to bundle, keep as is
-    return { name: undefined, errors };
-  }
+  const [filePath, pointer] = refString.split('#/');
 
-  refString = refString.replace('#/', '/');
-  const itemNameBase = path.basename(refString, path.extname(refString));
-  const pathParts = path.dirname(refString).split('/');
+  const itemNameBase = pointer ? path.basename(pointer) : path.basename(filePath, path.extname(filePath));
+  const pathParts = path.dirname(refString.replace('#/', '/')).split('/');
 
   const componentsGroup = components[componentType];
   if (!componentsGroup) return { name: itemNameBase, errors };
