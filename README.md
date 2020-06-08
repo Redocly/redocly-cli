@@ -63,9 +63,9 @@ Beware, if the file specified as the bundler's output already exists, it will be
 
 ### Validation
 
-```openapi validate [options] <filePath>```
+```openapi validate [options] <fileGlob>...```
 
- Given this command, it will load the given ruleset and traverse the definition via the `filePath` parameter.
+ Given this command, it will load the given ruleset and traverse the definition via the `fileGlob` parameter. Check multiple APIs at once by adding each OpenAPI document to the CLI or by using globs: ```openapi validate "**/openapi.*" ```
 
 Also, it accepts `[options]` which can be:
 - `--short` Reduce output to minimum.

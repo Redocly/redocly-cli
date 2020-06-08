@@ -8,6 +8,7 @@ import {
   join, basename, dirname, extname,
 } from 'path';
 import * as chockidar from 'chokidar';
+import * as glob from 'glob';
 
 import RedoclyClient from '../redocly';
 import { promptUser } from './utils';
@@ -136,7 +137,7 @@ const cli = () => {
 
   program
     .command('validate [entryPoints...]')
-    .description('Validate given OpenAPI 3 definition file.')
+    .description('Validate given OpenAPI 3 definition file(s).')
     .option('--short', 'Reduce output to required minimun.')
     .option('--no-frame', 'Print no codeframes with errors.')
     .option('--config <path>', 'Specify custom yaml or json config')
@@ -154,12 +155,16 @@ const cli = () => {
       options.codeframes = cmdObj.frame;
       if (cmdObj.config) options.configPath = cmdObj.config;
 
-      for (let i = 0; i < entryPoints.length; i++) {
-        printValidationHeader(entryPoints[i]);
+      for (const entryPoint of entryPoints) {
+        const globMatches = glob.sync(entryPoint);
 
-        const msgs = await validateFile(entryPoints[i], options, cmdObj);
-        results.errors += msgs.errors;
-        results.warnings += msgs.warnings;
+        for (const globMatch of globMatches) {
+          printValidationHeader(globMatch);
+
+          const msgs = await validateFile(globMatch, options, cmdObj);
+          results.errors += msgs.errors;
+          results.warnings += msgs.warnings;
+        }
       }
       if (entryPoints.length > 1) {
         process.stdout.write(`Validation results:\nerrors: ${results.errors}\nwarnings: ${results.warnings}\n`);

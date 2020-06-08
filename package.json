@@ -57,6 +57,7 @@
     "chalk": "^3.0.0",
     "chokidar": "^3.3.1",
     "commander": "^5.0.0",
+    "glob": "^7.1.6",
     "handlebars": "^4.7.3",
     "js-yaml": "^3.13.1",
     "lodash.isequal": "^4.5.0",
