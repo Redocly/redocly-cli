@@ -1,11 +1,5 @@
-node_modules/
-src/
-media/
-coverage/
-test/
-dist/__tests__
-dist/error/__tests__
-RULES.md
-README.md
-definitions/
-*/__tests__/*
+*
+!lib/*
+!package.json
+!README.md
+!LICENSE

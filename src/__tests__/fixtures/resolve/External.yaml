@@ -1,0 +1,8 @@
+type: object
+properties:
+  string:
+    type: string
+  number:
+    type: number
+  external:
+    $ref: ./External2.yaml

@@ -1,0 +1,19 @@
+name: Unit Tests
+
+on: [push]
+
+jobs:
+  build-and-unit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          npm-${{ hashFiles('package-lock.json') }}
+          npm-
+    - run: npm ci
+    - run: npm test

@@ -1,0 +1,10 @@
+lint:
+  plugins:
+    - './local-plugin.js'
+
+  extends:
+    - recommended
+    - local/all
+  rules:
+    operation-2xx-response: warning
+    operation-description: off

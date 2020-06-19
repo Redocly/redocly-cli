@@ -1,35 +1,24 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.12.16",
+  "version": "1.0.0-alpha.1",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "npm run babel && npm run copyFiles",
-    "babel": "babel src --out-dir dist --source-maps inline",
-    "copyFiles": "chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
-    "lint": "eslint ./src",
-    "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
-    "test": "jest --coverage"
+    "test": "npm run typecheck && npm run unit",
+    "unit": "jest --coverage --coverageReporters lcov text-summary",
+    "cli": "ts-node src/cli.ts",
+    "build": "rm -rf lib && tsc -p tsconfig.build.json",
+    "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
+    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "typecheck": "tsc --noEmit --skipLibCheck"
   },
   "bin": {
-    "openapi": "dist/index.js"
+    "openapi": "lib/cli.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/openapi-cli.git"
   },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ]
-  },
-  "author": "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-  "license": "MIT",
   "keywords": [
     "linter",
     "OpenAPI",
@@ -38,33 +27,38 @@
     "Swagger linter",
     "oas"
   ],
+  "contributors": [
+    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
+  ],
+  "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "^7.9.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.20.1",
-    "jest": "^25.1.0",
-    "prettier": "^2.0.1",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "@types/jest": "^25.2.3",
+    "@types/js-yaml": "^3.12.4",
+    "@types/yargs": "^15.0.5",
+    "jest": "^26.0.1",
+    "outdent": "^0.7.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.0.0",
+    "ts-node": "^8.10.1"
   },
   "dependencies": {
-    "chalk": "^3.0.0",
-    "chokidar": "^3.3.1",
-    "commander": "^5.0.0",
-    "handlebars": "^4.7.3",
+    "@types/node": "^14.0.4",
+    "colorette": "^1.2.0",
     "js-yaml": "^3.13.1",
-    "lodash.isequal": "^4.5.0",
-    "merge-deep": "^3.0.2",
-    "minimatch": "^3.0.4",
-    "node-fetch": "^2.6.0",
-    "portfinder": "^1.0.25",
-    "simple-websocket": "^8.1.1",
-    "yaml-ast-parser": "0.0.43"
+    "typescript": "^3.9.2",
+    "yaml-ast-parser": "0.0.43",
+    "yargs": "^15.3.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 100
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
   }
 }

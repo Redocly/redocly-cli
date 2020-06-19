@@ -1,9 +1,0 @@
-in: query
-required: true
-name: name
-description: A name paramteter
-schema:
-  type: object
-  properties:
-    name:
-      type: string
