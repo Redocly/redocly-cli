@@ -35,6 +35,7 @@ describe('OAS3 license-url', () => {
           "message": "License object should contain \\"url\\" field.",
           "ruleId": "info-license-url",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

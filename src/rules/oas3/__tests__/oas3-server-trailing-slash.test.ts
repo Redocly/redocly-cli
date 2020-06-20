@@ -34,6 +34,7 @@ describe('OAS3 oas3-server-trailing-slash', () => {
           "message": "Server URL should not have a trailing slash.",
           "ruleId": "server-trailing-slash",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

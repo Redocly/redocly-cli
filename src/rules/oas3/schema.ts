@@ -1,13 +1,9 @@
 import type { OAS3Rule } from '../../visitors';
 import { TypeTreeNode, PropSchema } from '../../types';
-import { joinPointer, escapePointer } from '../../ref';
+import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 
 function isNamedType(t: TypeTreeNode | PropSchema | null | undefined): t is TypeTreeNode {
   return typeof t?.name === 'string';
-}
-
-function oasTypeOf(value: unknown) {
-  return Array.isArray(value) ? 'array' : value === null ? null : typeof value;
 }
 
 export const OAS3Schema: OAS3Rule = () => {
@@ -58,7 +54,8 @@ export const OAS3Schema: OAS3Rule = () => {
         if (propSchema === undefined) {
           if (propName.startsWith('x-')) continue;
           report({
-            message: `Key '${propName}' is not expected here`,
+            message: `Property \`${propName}\` is not expected here`,
+            suggest: getSuggest(propName, Object.keys(type.properties)),
             location: [{ ...propLocation, reportOnKey: true }],
           });
           continue;
@@ -74,9 +71,10 @@ export const OAS3Schema: OAS3Rule = () => {
               message: `'${propName}' can be one of following only: ${propSchema.enum
                 .map((i) => `"${i}"`)
                 .join(', ')}`,
+              suggest: getSuggest(propValue, propSchema.enum),
             });
           }
-        } else if (propSchema.type && propSchema.type !== propValueType) {
+        } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type)) {
           report({
             message: `Expected type '${propSchema.type}' but got '${propValueType}'`,
             location: propLocation,
@@ -85,7 +83,7 @@ export const OAS3Schema: OAS3Rule = () => {
           const itemsType = propSchema.items?.type;
           for (let i = 0; i < propValue.length; i++) {
             const item = propValue[i];
-            if (oasTypeOf(item) !== itemsType) {
+            if (!matchesJsonSchemaType(item, itemsType)) {
               report({
                 message: `Expected type '${itemsType}' but got '${oasTypeOf(item)}'`,
                 location: propLocation.append([i]),

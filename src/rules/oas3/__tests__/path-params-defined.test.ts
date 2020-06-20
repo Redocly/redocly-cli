@@ -68,6 +68,7 @@ describe('OAS3 path-params-defined', () => {
           "message": "The operation does not define the path parameter \`{b}\` expected by path \`/pets/{a}/{b}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
@@ -110,6 +111,7 @@ describe('OAS3 path-params-defined', () => {
           "message": "Path parameter \`d\` is not used in the path \`/pets/{a}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -122,6 +124,7 @@ describe('OAS3 path-params-defined', () => {
           "message": "Path parameter \`c\` is not used in the path \`/pets/{a}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

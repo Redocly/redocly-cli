@@ -40,6 +40,7 @@ describe('OAS3 oas3-examples-value-or-externalValue', () => {
           "message": "Example object can have either \\"value\\" or \\"externalValue\\" fields.",
           "ruleId": "example-value-or-external-value",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

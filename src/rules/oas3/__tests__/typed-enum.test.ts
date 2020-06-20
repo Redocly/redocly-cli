@@ -75,6 +75,7 @@ describe('OAS3 typed enum', () => {
           "message": "All values of \\"enum\\" field must be of the same type as the \\"type\\" field.",
           "ruleId": "typed-enum",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

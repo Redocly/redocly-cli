@@ -41,6 +41,7 @@ describe('OAS3 operation-singular-tag', () => {
           "message": "Operation \\"tags\\" object should have only one tag.",
           "ruleId": "operation-singular-tag",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

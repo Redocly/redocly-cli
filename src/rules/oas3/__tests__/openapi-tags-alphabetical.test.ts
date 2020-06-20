@@ -36,6 +36,7 @@ describe('OAS3 openapi-tags-alphabetical', () => {
           "message": "The \\"tags\\" array should be in alphabetical order",
           "ruleId": "openapi-tags-alphabetical",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

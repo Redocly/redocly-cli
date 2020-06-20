@@ -34,6 +34,7 @@ describe('OAS3 oas3-server-not-example.com', () => {
           "message": "Server URL should not point at example.com.",
           "ruleId": "server-not-example.com",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

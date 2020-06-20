@@ -3,7 +3,7 @@ import { missingRequiredField } from '../utils';
 
 export const OperationDescription: OAS3Rule = () => {
   return {
-    Operation(operation, { report, location }) {
+    Operation(operation, { report }) {
       if (!operation.description) {
         report({
           message: missingRequiredField('Operation', 'description'),

@@ -54,6 +54,7 @@ export type MessageSeverity = 'error' | 'warning';
 
 type ReportMessage = {
   message: string;
+  suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
 };
 
@@ -62,6 +63,7 @@ export type NormalizedReportMessage = {
   ruleId: string;
   severity: MessageSeverity;
   location: LocationObject[];
+  suggest: string[];
 };
 
 export type WalkContext = {
@@ -308,6 +310,7 @@ export function walkDocument<T>(opts: {
       ctx.messages.push({
         ruleId,
         severity: severity,
+        suggest: [],
         ...opts,
         location: loc.map((loc: any) => {
           return { ...location, reportOnKey: false, ...loc };

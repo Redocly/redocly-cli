@@ -36,6 +36,7 @@ describe('OAS3 tag-description', () => {
           "message": "Tag object description must be present.",
           "ruleId": "tag-description",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

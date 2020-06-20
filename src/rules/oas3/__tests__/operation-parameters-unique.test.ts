@@ -43,6 +43,7 @@ describe('OAS3 operation-parameters-unique', () => {
       Repeats of \`in:query\` + \`name:a\`",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
@@ -119,6 +120,7 @@ describe('OAS3 operation-parameters-unique', () => {
       Repeats of \`in:query\` + \`name:a\`",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

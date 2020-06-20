@@ -36,6 +36,7 @@ describe('OAS3 path-not-include-query', () => {
           "message": "Don't put query string items in the path, they belong in parameters with in: query.",
           "ruleId": "path-not-include-query",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

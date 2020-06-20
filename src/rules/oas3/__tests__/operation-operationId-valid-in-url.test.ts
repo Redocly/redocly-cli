@@ -41,6 +41,7 @@ describe('OAS3 operation-operationId-valid-in-url', () => {
           "message": "Operation id should not have URL invalid characters.",
           "ruleId": "operation-operationId-valid-in-url",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

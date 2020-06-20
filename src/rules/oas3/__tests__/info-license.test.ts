@@ -34,6 +34,7 @@ describe('OAS3 info-license', () => {
           "message": "Info object should contain \\"license\\" field.",
           "ruleId": "info-license",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

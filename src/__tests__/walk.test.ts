@@ -993,6 +993,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: get_a",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -1005,6 +1006,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: get_b",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -1017,6 +1019,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: shared_a",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
@@ -1069,6 +1072,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: path_param",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -1081,6 +1085,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_a",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -1093,6 +1098,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_b",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -1105,6 +1111,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_c",
           "ruleId": "test/test",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

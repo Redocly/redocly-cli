@@ -38,6 +38,7 @@ describe('OAS3 operation-2xx-response', () => {
           "message": "Operation must have at least one \`2xx\` response.",
           "ruleId": "operation-2xx-response",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

@@ -36,6 +36,7 @@ describe('OAS3 operation-security-defined', () => {
           "message": "There is no \\"some\\" security scheme defined.",
           "ruleId": "operation-security-defined",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

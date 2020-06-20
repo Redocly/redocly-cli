@@ -54,6 +54,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'Tag (object)' but got 'number'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -66,6 +67,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Tag object description must be present.",
           "ruleId": "tag-description",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -78,6 +80,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'Tag (object)' but got 'string'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -90,6 +93,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Tag object description must be present.",
           "ruleId": "tag-description",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -102,6 +106,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'string' but got 'number'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -114,6 +119,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'string' but got 'array'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -126,6 +132,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'string' but got 'boolean'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -138,6 +145,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "Expected type 'License (object)' but got 'string'",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
@@ -147,7 +155,7 @@ describe('OAS3 Structural visitor basic', () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
-          unexpected: 1
+          components1: 1
           info:
             title: Test
             version: '1.0'
@@ -174,14 +182,17 @@ describe('OAS3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/unexpected",
+              "pointer": "#/components1",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Key 'unexpected' is not expected here",
+          "message": "Property \`components1\` is not expected here",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [
+            "components",
+          ],
         },
         Object {
           "location": Array [
@@ -191,9 +202,10 @@ describe('OAS3 Structural visitor basic', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Key 'test' is not expected here",
+          "message": "Property \`test\` is not expected here",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
@@ -233,6 +245,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "The field 'paths' must be present on this level.",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
         Object {
           "location": Array [
@@ -245,6 +258,7 @@ describe('OAS3 Structural visitor basic', () => {
           "message": "The field 'title' must be present on this level.",
           "ruleId": "schema",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

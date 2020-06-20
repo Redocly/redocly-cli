@@ -43,6 +43,7 @@ describe('OAS3 operation-operationId-unique', () => {
           "message": "Every operation must have a unique \`operationId\`",
           "ruleId": "operation-operationId-unique",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);

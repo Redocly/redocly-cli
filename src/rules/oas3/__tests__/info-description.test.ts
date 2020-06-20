@@ -38,6 +38,7 @@ describe('OAS3 info-description', () => {
           "message": "Info object description must be present and non-empty string.",
           "ruleId": "info-description",
           "severity": "error",
+          "suggest": Array [],
         },
       ]
     `);
