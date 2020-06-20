@@ -182,7 +182,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     normalizedVisitors[v].enter.sort((a, b) => b.depth - a.depth);
     normalizedVisitors[v].leave.sort((a, b) => a.depth - b.depth);
   }
-  // TODO:  Ref Visitor
+
   return normalizedVisitors;
 
   function addWeakNodes(

@@ -76,7 +76,7 @@ export class BaseResolver {
 
   resolveExternalRef(base: string | null, ref: string): string {
     // TODO: detect URL
-    // TODO: check if file exists and throw error
+    // FIXME test
     return path.resolve(base ? path.dirname(base) : process.cwd(), ref);
   }
 
@@ -105,7 +105,6 @@ export class BaseResolver {
     ref: string,
   ): Promise<Document | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
-    // TODO: cache promise
     const cachedDocument = this.cache.get(absoluteRef);
     if (cachedDocument) {
       return cachedDocument;

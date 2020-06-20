@@ -34,7 +34,6 @@ export async function validateDocument(opts: {
   externalRefResolver?: BaseResolver;
 }) {
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
-  // TODO: wrap safeLoad errors to our format
   switch (detectOpenAPI(document.parsed)) {
     case OASVersion.Version2:
       throw new Error('OAS2 is not supported yet');
@@ -95,7 +94,7 @@ export async function validateDocument(opts: {
 
 export function detectOpenAPI(root: any): OASVersion {
   if (typeof root !== 'object') {
-    throw new Error('Not object'); // TODO;
+    throw new Error(`Document must be JSON objcect, got ${typeof root}`);
   }
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
@@ -106,5 +105,5 @@ export function detectOpenAPI(root: any): OASVersion {
     return OASVersion.Version2;
   }
 
-  throw new Error('Unsupported OpenAPI Version');
+  throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
 }

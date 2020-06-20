@@ -60,6 +60,7 @@ export const NoUnusedComponents: OAS3Rule = () => {
         registerComponent(location, key.toString());
       },
       Header(_header, { location, key }) {
+        // FIXME: fix triggering on headers inside ReuquestyBody
         registerComponent(location, key.toString());
       },
     },

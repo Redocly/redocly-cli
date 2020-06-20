@@ -31,8 +31,8 @@ export type Plugin = {
   id: string;
   configs?: Record<string, RulesConfig>;
   rules?: {
-    oas3?: OAS3RuleSet; // FIXME
-    oas2?: any;
+    oas3?: OAS3RuleSet;
+    oas2?: any; // TODO
   };
 };
 

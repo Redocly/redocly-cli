@@ -38,7 +38,6 @@ export async function bundleDocument(opts: {
   externalRefResolver?: BaseResolver;
 }) {
   const { document, customTypes, externalRefResolver = new BaseResolver() } = opts;
-  // TODO: wrap safeLoad errors to our format
   switch (detectOpenAPI(document.parsed)) {
     case OASVersion.Version2:
       throw new Error('OAS2 is not implemented yet');
