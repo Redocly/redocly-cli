@@ -854,6 +854,47 @@ describe('walk order', () => {
     `);
   });
 
+  it('should correctly visit refs', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: jest.fn(() => {
+        return {
+          NamedSchemas: {
+            Schema(node, { key }) {
+              calls.push(`enter schema ${key}: ${node.type}`);
+            },
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      components:
+        schemas:
+          a:
+            type: string
+          b:
+            type: number
+      `,
+      'foobar.yaml',
+    );
+
+    await validateDocument({
+      document,
+      config: makeConfigForRuleset(testRuleSet),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      Array [
+        "enter schema a: string",
+        "enter schema b: number",
+      ]
+    `);
+  });
+
   it('should correctly visit any visitor', async () => {
     const calls: string[] = [];
 
@@ -890,6 +931,9 @@ describe('walk order', () => {
           parameters:
             shared_a:
               name: shared-a
+          schemas:
+            a:
+              type: object
       `,
       '',
     );
@@ -923,6 +967,10 @@ describe('walk order', () => {
         "enter Components",
         "enter NamedParameters",
         "leave NamedParameters",
+        "enter NamedSchemas",
+        "enter Schema",
+        "leave Schema",
+        "leave NamedSchemas",
         "leave Components",
         "leave DefinitionRoot",
       ]
@@ -1211,7 +1259,6 @@ describe('type extensions', () => {
       config: makeConfigForRuleset(testRuleSet, {
         typeExtension: {
           oas3(types, version) {
-
             expect(version).toEqual('oas3_0');
 
             return {

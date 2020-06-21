@@ -253,6 +253,8 @@ export function normalizeVisitors<T extends BaseVisitor>(
       }
     }
 
+    // FIXME additionalProperties
+
     for (let fromType of Array.from(possibleChildren.values())) {
       addWeakNodes(ruleConf, fromType, to, parentContext, stack);
     }
