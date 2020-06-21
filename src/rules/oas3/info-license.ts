@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 import { missingRequiredField } from '../utils';
 
-export const InfoLicense: OAS3Rule = () => {
+export const InfoLicense: Oas3Rule = () => {
   return {
     Info(info, { report }) {
       if (!info.license) {

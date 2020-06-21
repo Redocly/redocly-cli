@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const OperationIdUnique: OAS3Rule = () => {
+export const OperationIdUnique: Oas3Rule = () => {
   const seenOperations = new Set();
 
   return {

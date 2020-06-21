@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 openapi-tags-alphabetical', () => {
+describe('Oas3 openapi-tags-alphabetical', () => {
   it('should report on tags object if not sorted alphabetically', async () => {
     const document = parseYamlToDocument(
       outdent`

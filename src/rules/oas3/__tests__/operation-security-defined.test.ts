@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-security-defined', () => {
+describe('Oas3 operation-security-defined', () => {
   it('should report on securityRequirements object if security scheme is not defined in components', async () => {
     const document = parseYamlToDocument(
       outdent`

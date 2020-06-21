@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const OperationDescription: OAS3Rule = () => {
+export const OperationDescription: Oas3Rule = () => {
   return {
     DefinitionRoot(root, { report, location }) {
       if (!root.servers) {

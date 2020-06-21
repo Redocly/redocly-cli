@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 tag-description', () => {
+describe('Oas3 tag-description', () => {
   it('should report on tags with no description', async () => {
     const document = parseYamlToDocument(
       outdent`

@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../visitors';
+import { Oas3Rule } from '../visitors';
 import { YamlParseError } from '../resolve';
 
-export const NoUnresolvedRefs: OAS3Rule = () => {
+export const NoUnresolvedRefs: Oas3Rule = () => {
   return {
     ref(_, { report }, resolved) {
       if (resolved.node !== undefined) return;

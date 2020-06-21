@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 import { missingRequiredField } from '../utils';
 
-export const InfoLicenseUrl: OAS3Rule = () => {
+export const InfoLicenseUrl: Oas3Rule = () => {
   return {
     License(license, { report }) {
       if (typeof license !== 'object') return;

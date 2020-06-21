@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const BooleanParameterPrefixes: OAS3Rule = () => {
+export const BooleanParameterPrefixes: Oas3Rule = () => {
   return {
     Parameter: {
       Schema(schema, { report, parentLocations }, parents) {

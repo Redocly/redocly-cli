@@ -1,40 +1,40 @@
 import type {
-  OAS3Definition,
-  OAS3ExternalDocs,
-  OAS3Info,
-  OAS3Contact,
-  OAS3Components,
-  OAS3License,
-  OAS3Schema,
-  OAS3Header,
-  OAS3Parameter,
-  OAS3Operation,
-  OAS3PathItem,
-  OAS3ServerVariable,
-  OAS3Server,
-  OAS3MediaType,
-  OAS3Response,
-  OAS3Example,
-  OAS3RequestBody,
-  OAS3Tag,
-  OASRef,
-  OAS3SecurityScheme,
-  OAS3SecurityRequirement,
-  OAS3Encoding,
-  OAS3Link,
-  OAS3Xml,
-  OAS3Discriminator,
-  OAS3Callback,
+  Oas3Definition,
+  Oas3ExternalDocs,
+  Oas3Info,
+  Oas3Contact,
+  Oas3Components,
+  Oas3License,
+  Oas3Schema,
+  Oas3Header,
+  Oas3Parameter,
+  Oas3Operation,
+  Oas3PathItem,
+  Oas3ServerVariable,
+  Oas3Server,
+  Oas3MediaType,
+  Oas3Response,
+  Oas3Example,
+  Oas3RequestBody,
+  Oas3Tag,
+  OasRef,
+  Oas3SecurityScheme,
+  Oas3SecurityRequirement,
+  Oas3Encoding,
+  Oas3Link,
+  Oas3Xml,
+  Oas3Discriminator,
+  Oas3Callback,
 } from './typings/openapi';
 
 import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, MessageSeverity } from './walk';
-import { Location } from './ref';
+import { Location } from './ref-utils';
 
 export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any) => void;
 
-type VisitRefFunction = (node: OASRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
+type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
 type SkipFunction<T> = (node: T, key: string | number) => boolean;
 
@@ -99,68 +99,68 @@ export type BaseVisitor = {
   ref?: VisitRefFunction;
 };
 
-type OAS3FlatVisitor = {
-  DefinitionRoot?: VisitFunctionOrObject<OAS3Definition>;
-  Tag?: VisitFunctionOrObject<OAS3Tag>;
-  ExternalDocs?: VisitFunctionOrObject<OAS3ExternalDocs>;
-  Server?: VisitFunctionOrObject<OAS3Server>;
-  ServerVariable?: VisitFunctionOrObject<OAS3ServerVariable>;
-  SecurityRequirement?: VisitFunctionOrObject<OAS3SecurityRequirement>;
-  Info?: VisitFunctionOrObject<OAS3Info>;
-  Contact?: VisitFunctionOrObject<OAS3Contact>;
-  License?: VisitFunctionOrObject<OAS3License>;
-  PathMap?: VisitFunctionOrObject<Record<string, OAS3PathItem>>;
-  PathItem?: VisitFunctionOrObject<OAS3PathItem>;
-  Parameter?: VisitFunctionOrObject<OAS3Parameter>;
-  Operation?: VisitFunctionOrObject<OAS3Operation>;
-  RequestBody?: VisitFunctionOrObject<OAS3RequestBody>;
-  MediaTypeMap?: VisitFunctionOrObject<Record<string, OAS3MediaType>>;
-  MediaType?: VisitFunctionOrObject<OAS3MediaType>;
-  Example?: VisitFunctionOrObject<OAS3Example>;
-  Encoding?: VisitFunctionOrObject<OAS3Encoding>;
-  Header?: VisitFunctionOrObject<OAS3Header>;
-  ResponsesMap?: VisitFunctionOrObject<Record<string, OAS3Response>>;
-  Response?: VisitFunctionOrObject<OAS3Response>;
-  Link?: VisitFunctionOrObject<OAS3Link>;
-  Schema?: VisitFunctionOrObject<OAS3Schema>;
-  Xml?: VisitFunctionOrObject<OAS3Xml>;
-  SchemaProperties?: VisitFunctionOrObject<Record<string, OAS3Schema>>;
-  Discriminator?: VisitFunctionOrObject<OAS3Discriminator>;
-  Components?: VisitFunctionOrObject<OAS3Components>;
-  NamedSchemas?: VisitFunctionOrObject<Record<string, OAS3Schema>>;
-  NamedResponses?: VisitFunctionOrObject<Record<string, OAS3Response>>;
-  NamedParameters?: VisitFunctionOrObject<Record<string, OAS3Parameter>>;
-  NamedExamples?: VisitFunctionOrObject<Record<string, OAS3Example>>;
-  NamedRequestBodies?: VisitFunctionOrObject<Record<string, OAS3RequestBody>>;
-  NamedHeaders?: VisitFunctionOrObject<Record<string, OAS3Header>>;
-  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, OAS3SecurityScheme>>;
-  NamedLinks?: VisitFunctionOrObject<Record<string, OAS3Link>>;
-  NamedCallbacks?: VisitFunctionOrObject<Record<string, OAS3Callback>>;
-  ImplicitFlow?: VisitFunctionOrObject<OAS3SecurityScheme['flows']['implicit']>;
-  PasswordFlow?: VisitFunctionOrObject<OAS3SecurityScheme['flows']['password']>;
-  ClientCredentials?: VisitFunctionOrObject<OAS3SecurityScheme['flows']['clientCredentials']>;
-  AuthorizationCode?: VisitFunctionOrObject<OAS3SecurityScheme['flows']['authorizationCode']>;
-  SecuritySchemeFlows?: VisitFunctionOrObject<OAS3SecurityScheme['flows']>;
-  SecurityScheme?: VisitFunctionOrObject<OAS3SecurityScheme>;
+type Oas3FlatVisitor = {
+  DefinitionRoot?: VisitFunctionOrObject<Oas3Definition>;
+  Tag?: VisitFunctionOrObject<Oas3Tag>;
+  ExternalDocs?: VisitFunctionOrObject<Oas3ExternalDocs>;
+  Server?: VisitFunctionOrObject<Oas3Server>;
+  ServerVariable?: VisitFunctionOrObject<Oas3ServerVariable>;
+  SecurityRequirement?: VisitFunctionOrObject<Oas3SecurityRequirement>;
+  Info?: VisitFunctionOrObject<Oas3Info>;
+  Contact?: VisitFunctionOrObject<Oas3Contact>;
+  License?: VisitFunctionOrObject<Oas3License>;
+  PathMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  PathItem?: VisitFunctionOrObject<Oas3PathItem>;
+  Parameter?: VisitFunctionOrObject<Oas3Parameter>;
+  Operation?: VisitFunctionOrObject<Oas3Operation>;
+  RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;
+  MediaTypeMap?: VisitFunctionOrObject<Record<string, Oas3MediaType>>;
+  MediaType?: VisitFunctionOrObject<Oas3MediaType>;
+  Example?: VisitFunctionOrObject<Oas3Example>;
+  Encoding?: VisitFunctionOrObject<Oas3Encoding>;
+  Header?: VisitFunctionOrObject<Oas3Header>;
+  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas3Response>>;
+  Response?: VisitFunctionOrObject<Oas3Response>;
+  Link?: VisitFunctionOrObject<Oas3Link>;
+  Schema?: VisitFunctionOrObject<Oas3Schema>;
+  Xml?: VisitFunctionOrObject<Oas3Xml>;
+  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
+  Components?: VisitFunctionOrObject<Oas3Components>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  NamedResponses?: VisitFunctionOrObject<Record<string, Oas3Response>>;
+  NamedParameters?: VisitFunctionOrObject<Record<string, Oas3Parameter>>;
+  NamedExamples?: VisitFunctionOrObject<Record<string, Oas3Example>>;
+  NamedRequestBodies?: VisitFunctionOrObject<Record<string, Oas3RequestBody>>;
+  NamedHeaders?: VisitFunctionOrObject<Record<string, Oas3Header>>;
+  NamedSecuritySchemes?: VisitFunctionOrObject<Record<string, Oas3SecurityScheme>>;
+  NamedLinks?: VisitFunctionOrObject<Record<string, Oas3Link>>;
+  NamedCallbacks?: VisitFunctionOrObject<Record<string, Oas3Callback>>;
+  ImplicitFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['implicit']>;
+  PasswordFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['password']>;
+  ClientCredentials?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['clientCredentials']>;
+  AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
+  SecuritySchemeFlows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
+  SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
 };
 
-type OAS3NestedVisitor = {
-  [T in keyof OAS3FlatVisitor]: OAS3FlatVisitor[T] extends Function
-    ? OAS3FlatVisitor[T]
-    : OAS3FlatVisitor[T] & NestedVisitor<OAS3NestedVisitor>;
+type Oas3NestedVisitor = {
+  [T in keyof Oas3FlatVisitor]: Oas3FlatVisitor[T] extends Function
+    ? Oas3FlatVisitor[T]
+    : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
 };
 
-export type OAS3Visitor = BaseVisitor &
-  OAS3NestedVisitor &
-  Record<string, VisitFunction<any> | NestedVisitObject<any, OAS3NestedVisitor>>;
+export type Oas3Visitor = BaseVisitor &
+  Oas3NestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
 
-export type OAS3TransformVisitor = BaseVisitor &
-  OAS3FlatVisitor &
+export type Oas3TransformVisitor = BaseVisitor &
+  Oas3FlatVisitor &
   Record<string, VisitFunction<any> | VisitObject<any>>;
 
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'DefinitionRoot'>;
 
-export type NormalizedOASVisitors<T extends BaseVisitor> = {
+export type NormalizedOasVisitors<T extends BaseVisitor> = {
   [V in keyof T]-?: {
     enter: Array<NormalizeVisitor<T[V]>>;
     leave: Array<NormalizeVisitor<T[V]>>;
@@ -177,12 +177,12 @@ export type NormalizedOASVisitors<T extends BaseVisitor> = {
   };
 };
 
-export type OAS3Rule = (options?: Record<string, any>) => OAS3Visitor;
-export type OAS3Transformer = (options?: Record<string, any>) => OAS3TransformVisitor;
+export type Oas3Rule = (options?: Record<string, any>) => Oas3Visitor;
+export type Oas3Transformer = (options?: Record<string, any>) => Oas3TransformVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver
-export type OASRule = OAS3Rule;
+export type OasRule = Oas3Rule;
 
 export type RuleInstanceConfig = {
   ruleId: string;
@@ -192,8 +192,8 @@ export type RuleInstanceConfig = {
 export function normalizeVisitors<T extends BaseVisitor>(
   visitorsConfig: (RuleInstanceConfig & { visitor: NestedVisitObject<any, T> })[],
   types: Record<keyof T, NormalizedNodeType>,
-): NormalizedOASVisitors<T> {
-  const normalizedVisitors: NormalizedOASVisitors<T> = {} as any;
+): NormalizedOasVisitors<T> {
+  const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
   for (const typeName of Object.keys(types) as Array<keyof T>) {
     normalizedVisitors[typeName] = {

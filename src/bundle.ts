@@ -1,15 +1,15 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { OAS3Rule, normalizeVisitors, BaseVisitor } from './visitors';
-import { OAS3Types } from './types/oas3';
+import { Oas3Rule, normalizeVisitors, BaseVisitor } from './visitors';
+import { Oas3Types } from './types/oas3';
 import { NormalizedNodeType, normalizeTypes, NodeType } from "./types";
 import { WalkContext, walkDocument } from './walk';
-import { detectOpenAPI, OASVersion } from './validate';
-import { Location, pointerBaseName, refBaseName } from './ref';
+import { detectOpenAPI, OasVersion } from './validate';
+import { Location, pointerBaseName, refBaseName } from './ref-utils';
 import { LintConfig } from './config/config';
 import { initRules } from './config/rules';
 
-export type OAS3RuleSet = Record<string, OAS3Rule>;
+export type Oas3RuleSet = Record<string, Oas3Rule>;
 
 // TODO: fix visitors typing
 export async function bundle(opts: {
@@ -42,13 +42,13 @@ export async function bundleDocument(opts: {
 }) {
   const { document, config, customTypes, externalRefResolver = new BaseResolver() } = opts;
   switch (detectOpenAPI(document.parsed)) {
-    case OASVersion.Version2:
-      throw new Error('OAS2 is not implemented yet');
-    case OASVersion.Version3_0: {
-      const oas3Rules = config.getRulesForOASVersion(OASVersion.Version3_0);
+    case OasVersion.Version2:
+      throw new Error('Oas2 is not implemented yet');
+    case OasVersion.Version3_0: {
+      const oas3Rules = config.getRulesForOasVersion(OasVersion.Version3_0);
 
       const types = normalizeTypes(
-        config.extendTypes(customTypes ?? OAS3Types, OASVersion.Version3_0),
+        config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
       );
 
       const resolvedRefMap = await resolveDocument({
@@ -65,7 +65,7 @@ export async function bundleDocument(opts: {
           {
             severity: 'error',
             ruleId: 'bundler',
-            visitor: makeBundleVisitor(OASVersion.Version3_0),
+            visitor: makeBundleVisitor(OasVersion.Version3_0),
           },
         ],
         types,
@@ -73,7 +73,7 @@ export async function bundleDocument(opts: {
 
       const ctx: BundleContext = {
         messages: [],
-        oasVersion: OASVersion.Version3_0,
+        oasVersion: OasVersion.Version3_0,
       };
 
       walkDocument({
@@ -89,9 +89,9 @@ export async function bundleDocument(opts: {
   }
 }
 
-function mapTypeToComponent(typeName: string, version: OASVersion) {
+function mapTypeToComponent(typeName: string, version: OasVersion) {
   switch (version) {
-    case OASVersion.Version3_0:
+    case OasVersion.Version3_0:
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -121,7 +121,7 @@ function mapTypeToComponent(typeName: string, version: OASVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor<T extends BaseVisitor>(version: OASVersion) {
+function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
   let components: Record<string, Record<string, any>>;
 
   // @ts-ignore
@@ -142,7 +142,7 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OASVersion) {
         components[componentType] = components[componentType] || {};
         const name = getComponentName(target, componentType);
         components[componentType][name] = target.node;
-        if (version === OASVersion.Version3_0) {
+        if (version === OasVersion.Version3_0) {
           return `#/components/${componentType}/${name}`;
         } else {
           throw new Error('Not implemented');
@@ -183,9 +183,9 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OASVersion) {
     },
     DefinitionRoot: {
       enter(root: any) {
-        if (version === OASVersion.Version3_0) {
+        if (version === OasVersion.Version3_0) {
           components = root.components = root.components || {};
-        } else if (version === OASVersion.Version2) {
+        } else if (version === OasVersion.Version2) {
           components = root;
         }
       },

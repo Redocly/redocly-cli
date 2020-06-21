@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 oas3-server-trailing-slash', () => {
+describe('Oas3 oas3-server-trailing-slash', () => {
   it('oas3-server-trailing-slash: should report on server object with trailing slash', async () => {
     const document = parseYamlToDocument(
       outdent`

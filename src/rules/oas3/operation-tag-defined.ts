@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const OperationTagDefined: OAS3Rule = () => {
+export const OperationTagDefined: Oas3Rule = () => {
   let definedTags: Set<string>;
 
   return {

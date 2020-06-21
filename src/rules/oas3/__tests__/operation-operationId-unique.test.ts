@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-operationId-unique', () => {
+describe('Oas3 operation-operationId-unique', () => {
   it('should report on for non-unique opid', async () => {
     const document = parseYamlToDocument(
       outdent`

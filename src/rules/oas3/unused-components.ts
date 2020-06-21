@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../../visitors';
-import { Location } from '../../ref';
+import { Oas3Rule } from '../../visitors';
+import { Location } from '../../ref-utils';
 
-export const NoUnusedComponents: OAS3Rule = () => {
+export const NoUnusedComponents: Oas3Rule = () => {
   let components = new Map<string, { used: boolean; location?: Location; name: string }>();
 
   function registerComponent(location: Location, name: string): void {

@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 path-not-include-query', () => {
+describe('Oas3 path-not-include-query', () => {
   it('should report on path object if query params in pathitem', async () => {
     const document = parseYamlToDocument(
       outdent`

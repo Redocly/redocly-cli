@@ -1,11 +1,11 @@
 import { Source } from './resolve';
-import { OASRef } from './typings/openapi';
+import { OasRef } from './typings/openapi';
 
 export function joinPointer(base: string, key: string | number) {
   return base[base.length - 1] === '/' ? base + key : base + '/' + key;
 }
 
-export function isRef(node: any): node is OASRef {
+export function isRef(node: any): node is OasRef {
   return node && typeof node.$ref === 'string';
 }
 
@@ -56,4 +56,8 @@ export function pointerBaseName(pointer: string) {
 export function refBaseName(ref: string) {
   const parts = ref.split('/');
   return parts[parts.length - 1].split('.')[0];
+}
+
+export function isAbsoluteUrl(ref: string) {
+  return ref.startsWith('http://') || ref.startsWith('https://');
 }

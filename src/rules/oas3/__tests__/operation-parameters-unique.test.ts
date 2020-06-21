@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-parameters-unique', () => {
+describe('Oas3 operation-parameters-unique', () => {
   it('should report on duplicated path params', async () => {
     const document = parseYamlToDocument(
       outdent`

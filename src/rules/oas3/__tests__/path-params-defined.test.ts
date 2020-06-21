@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 path-params-defined', () => {
+describe('Oas3 path-params-defined', () => {
   it('should not report on defined params', async () => {
     const document = parseYamlToDocument(
       outdent`

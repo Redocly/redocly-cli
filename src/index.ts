@@ -1,4 +1,4 @@
-export type { OAS3Rule, OASRule } from './visitors';
+export type { Oas3Rule, OasRule } from './visitors';
 export type { NodeType } from './types/index';
 
 export { listOf, mapOf } from './types/index';

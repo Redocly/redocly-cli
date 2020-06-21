@@ -4,7 +4,7 @@ import * as path from 'path';
 import { Document, Source } from '../resolve';
 import { NormalizedReportMessage } from '../walk';
 import { RuleConfig, LintConfig, Plugin } from '../config/config';
-import { OAS3RuleSet } from '../validate';
+import { Oas3RuleSet } from '../validate';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
@@ -34,7 +34,7 @@ export const yamlSerializer = {
   },
 };
 
-export function makeConfigForRuleset(rules: OAS3RuleSet, plugin?: Partial<Plugin>) {
+export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
   Object.keys(rules).forEach((name) => {

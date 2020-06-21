@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 typed enum', () => {
+describe('Oas3 typed enum', () => {
   it('should not report on enum object if all items match type', async () => {
     const document = parseYamlToDocument(
       outdent`

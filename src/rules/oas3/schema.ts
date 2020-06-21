@@ -1,4 +1,4 @@
-import type { OAS3Rule } from '../../visitors';
+import type { Oas3Rule } from '../../visitors';
 import { NormalizedNodeType, PropertySchema } from "../../types";
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 
@@ -6,7 +6,7 @@ function isNamedType(t: NormalizedNodeType | PropertySchema | null | undefined):
   return typeof t?.name === 'string';
 }
 
-export const OAS3Schema: OAS3Rule = () => {
+export const Oas3Schema: Oas3Rule = () => {
   return {
     any(node: any, { report, type, location, key }) {
       const nodeType = oasTypeOf(node);

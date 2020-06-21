@@ -210,8 +210,8 @@ const Operation: NodeType = {
       type: 'boolean',
     },
     callbacks: 'PathMap',
-    // 'x-codeSamples'?: OAS3XCodeSample[]; // TODO: x-code-samples
-    // 'x-code-samples'?: OAS3XCodeSample[]; // deprecated
+    // 'x-codeSamples'?: Oas3XCodeSample[]; // TODO: x-code-samples
+    // 'x-code-samples'?: Oas3XCodeSample[]; // deprecated
   },
 };
 
@@ -501,7 +501,7 @@ const SecurityScheme: NodeType = {
   },
 };
 
-export const OAS3Types: Record<string, NodeType> = {
+export const Oas3Types: Record<string, NodeType> = {
   DefinitionRoot,
   Tag,
   ExternalDocs,

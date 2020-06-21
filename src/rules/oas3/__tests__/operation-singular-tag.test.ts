@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-singular-tag', () => {
+describe('Oas3 operation-singular-tag', () => {
   it('should report on operation object if more than one tag', async () => {
     const document = parseYamlToDocument(
       outdent`

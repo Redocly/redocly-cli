@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const PathNotIncludeQuery: OAS3Rule = () => {
+export const PathNotIncludeQuery: Oas3Rule = () => {
   return {
     PathItem(_operation, { report, key }) {
       if (key.toString().includes('?')) {

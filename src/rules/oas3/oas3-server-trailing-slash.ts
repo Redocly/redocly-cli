@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const ServerNoTrailingSlash: OAS3Rule = () => {
+export const ServerNoTrailingSlash: Oas3Rule = () => {
   return {
     Server(server, { report, location }) {
       if (server.url.endsWith('/')) {

@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 oas3-server-not-example.com', () => {
+describe('Oas3 oas3-server-not-example.com', () => {
   it('oas3-server-not-example.com: should report on server object with "example.com" url', async () => {
     const document = parseYamlToDocument(
       outdent`

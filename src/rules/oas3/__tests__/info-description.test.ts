@@ -4,7 +4,7 @@ import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 import { LintConfig } from '../../../config/config';
 
-describe('OAS3 info-description', () => {
+describe('Oas3 info-description', () => {
   it('should report on info with no description', async () => {
     const document = parseYamlToDocument(
       outdent`

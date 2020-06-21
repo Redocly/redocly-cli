@@ -6,7 +6,7 @@ import { LintConfig } from '../../../config/config';
 
 const allConfig = new LintConfig({ extends: ['all'] });
 
-describe('OAS3 Structural visitor basic', () => {
+describe('Oas3 Structural visitor basic', () => {
   it('should report wrong types', async () => {
     const document = parseYamlToDocument(
       outdent`

@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const OperationSingularTag: OAS3Rule = () => {
+export const OperationSingularTag: Oas3Rule = () => {
   return {
     Operation(operation, { report, location }) {
       if (operation.tags && operation.tags.length > 1) {

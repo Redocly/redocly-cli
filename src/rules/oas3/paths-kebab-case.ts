@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const PathsKebabCase: OAS3Rule = () => {
+export const PathsKebabCase: Oas3Rule = () => {
   return {
     PathItem(_path, { report, key }) {
       const segments = (key as string).substr(1).split('/');

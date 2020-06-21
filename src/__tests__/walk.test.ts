@@ -1,7 +1,7 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { validateDocument, OAS3RuleSet } from '../validate';
+import { validateDocument, Oas3RuleSet } from '../validate';
 
 import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from './utils';
 import { BaseResolver, Document } from '../resolve';
@@ -28,7 +28,7 @@ describe('walk order', () => {
       },
     };
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return visitors;
       }),
@@ -59,7 +59,7 @@ describe('walk order', () => {
   it('should run nested visitors correctly', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Operation: {
@@ -142,7 +142,7 @@ describe('walk order', () => {
   it('should resolve refs', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Operation: {
@@ -222,7 +222,7 @@ describe('walk order', () => {
   it('should visit with context same refs with gaps in visitor simple', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           PathItem: {
@@ -283,7 +283,7 @@ describe('walk order', () => {
   it('should correctly visit more specific visitor', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           PathItem: {
@@ -355,7 +355,7 @@ describe('walk order', () => {
   it('should visit with context same refs with gaps in visitor and nested rule', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           PathItem: {
@@ -426,7 +426,7 @@ describe('walk order', () => {
   it('should visit and do not recurse for circular refs top-level', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Schema: jest.fn((schema: any) => calls.push(`enter schema ${schema.id}`)),
@@ -471,7 +471,7 @@ describe('walk order', () => {
   it('should visit and do not recurse for circular refs with context', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Parameter: {
@@ -526,7 +526,7 @@ describe('walk order', () => {
   it('should correctly skip top level', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Operation: {
@@ -567,7 +567,7 @@ describe('walk order', () => {
   it('should correctly skip nested levels', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Operation: {
@@ -622,7 +622,7 @@ describe('walk order', () => {
   it('should correctly visit more specific visitor with skips', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           PathItem: {
@@ -714,7 +714,7 @@ describe('walk order', () => {
   it('should correctly visit with nested rules', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Schema: {
@@ -792,7 +792,7 @@ describe('walk order', () => {
   it('should correctly visit refs', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           ref(node, _, { node: target }) {
@@ -857,7 +857,7 @@ describe('walk order', () => {
   it('should correctly visit any visitor', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           any: {
@@ -932,7 +932,7 @@ describe('walk order', () => {
 
 describe('context.report', () => {
   it('should report errors correctly', async () => {
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Parameter: {
@@ -1027,7 +1027,7 @@ describe('context.report', () => {
   });
 
   it('should report errors correctly', async () => {
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Parameter: {
@@ -1121,7 +1121,7 @@ describe('context.report', () => {
 
 describe('context.resolve', () => {
   it('should resolve refs correctly', async () => {
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           Schema: jest.fn((schema, { resolve }) => {
@@ -1172,7 +1172,7 @@ describe('type extensions', () => {
   it('should correctly visit extended types', async () => {
     const calls: string[] = [];
 
-    const testRuleSet: OAS3RuleSet = {
+    const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
           any: {

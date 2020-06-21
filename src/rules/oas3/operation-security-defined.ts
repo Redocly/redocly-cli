@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../../visitors';
-import { Location } from '../../ref';
+import { Oas3Rule } from '../../visitors';
+import { Location } from '../../ref-utils';
 
-export const OperationSecurityDefined: OAS3Rule = () => {
+export const OperationSecurityDefined: Oas3Rule = () => {
   let referencedSchemes = new Map<
     string,
     {

@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 oas3-examples-value-or-externalValue', () => {
+describe('Oas3 oas3-examples-value-or-externalValue', () => {
   it('oas3-examples-value-or-externalValue: should report on example object with both value and external value', async () => {
     const document = parseYamlToDocument(
       outdent`

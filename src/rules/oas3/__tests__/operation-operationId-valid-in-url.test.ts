@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-operationId-valid-in-url', () => {
+describe('Oas3 operation-operationId-valid-in-url', () => {
   it('should report on invalid operationIds', async () => {
     const document = parseYamlToDocument(
       outdent`

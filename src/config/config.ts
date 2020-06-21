@@ -6,10 +6,10 @@ import { rules as builtinRules } from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
 import oas3 from '../rules/oas3';
 
-import { OASVersion, OAS3TransformersSet, OASMajorVersion } from '../validate';
+import { OasVersion, Oas3TransformersSet, OasMajorVersion } from '../validate';
 
 import { MessageSeverity } from '../walk';
-import { OAS3RuleSet } from '../validate';
+import { Oas3RuleSet } from '../validate';
 
 import recommended from './recommended';
 import { red, blue } from 'colorette';
@@ -40,24 +40,24 @@ export type RulesConfig = {
 };
 
 export type TransformersConfig = {
-  oas3?: OAS3TransformersSet;
-  oas2?: any; // TODO: implement OAS2
+  oas3?: Oas3TransformersSet;
+  oas2?: any; // TODO: implement Oas2
 };
 
 export type TypesExtensionConfig = {
-  oas3?: OAS3TransformersSet;
-  oas2?: any; // TODO: implement OAS2
+  oas3?: Oas3TransformersSet;
+  oas2?: any; // TODO: implement Oas2
 };
 
 export type TypesExtensionFn = (
   types: Record<string, NodeType>,
-  oasVersion: OASVersion,
+  oasVersion: OasVersion,
 ) => Record<string, NodeType>;
 
-export type TypeExtensionConfig = Partial<Record<OASMajorVersion, TypesExtensionFn>>;
+export type TypeExtensionConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
 export type CustomRulesConfig = {
-  oas3?: OAS3RuleSet;
-  oas2?: any; // TODO: implement OAS2
+  oas3?: Oas3RuleSet;
+  oas2?: any; // TODO: implement Oas2
 };
 
 export type Plugin = {
@@ -104,15 +104,15 @@ export class LintConfig {
     this.transformers = merged.transformers;
   }
 
-  extendTypes(types: Record<string, NodeType>, version: OASVersion) {
+  extendTypes(types: Record<string, NodeType>, version: OasVersion) {
     let extendedTypes = types;
     for(const plugin of this.plugins) {
       if (plugin.typeExtension !== undefined) {
         switch (version) {
-          case OASVersion.Version3_0:
+          case OasVersion.Version3_0:
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
-          case OASVersion.Version2:
+          case OasVersion.Version2:
             if (!plugin.typeExtension.oas2) continue;
             extendedTypes = plugin.typeExtension.oas2(extendedTypes, version);
           default:
@@ -148,10 +148,10 @@ export class LintConfig {
     }
   }
 
-  getRulesForOASVersion(version: OASVersion) {
+  getRulesForOasVersion(version: OasVersion) {
     switch (version) {
-      case OASVersion.Version3_0:
-        const oas3Rules: OAS3RuleSet[] = []; // default ruleset
+      case OasVersion.Version3_0:
+        const oas3Rules: Oas3RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.transformers?.oas3 && oas3Rules.push(p.transformers.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         return oas3Rules;

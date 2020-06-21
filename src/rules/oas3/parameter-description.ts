@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const ParameterDescription: OAS3Rule = () => {
+export const ParameterDescription: Oas3Rule = () => {
   return {
     Parameter(parameter, { report, location }) {
       if (parameter.description === undefined) {

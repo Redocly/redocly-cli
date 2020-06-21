@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const InfoDescription: OAS3Rule = () => {
+export const InfoDescription: Oas3Rule = () => {
   return {
     Info(info, { report }) {
       if (!info.description) {

@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 const { readFile } = fs.promises;
 
-import { OASRef } from './typings/openapi';
-import { isRef, joinPointer, escapePointer, parseRef } from './ref';
+import { OasRef } from './typings/openapi';
+import { isRef, joinPointer, escapePointer, parseRef } from './ref-utils';
 import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
 import { NormalizedNodeType } from './types';
 
@@ -76,8 +76,7 @@ export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
   resolveExternalRef(base: string | null, ref: string): string {
-    // TODO: detect URL
-    // FIXME test
+    // TODO: test
     return path.resolve(base ? path.dirname(base) : process.cwd(), ref);
   }
 
@@ -140,7 +139,7 @@ export type ResolvedRef =
       error?: undefined;
     };
 
-export type ResolvedRefMap = Map<OASRef, ResolvedRef>;
+export type ResolvedRefMap = Map<OasRef, ResolvedRef>;
 
 type RefFrame = {
   prev: RefFrame | null;
@@ -251,7 +250,7 @@ export async function resolveDocument(opts: {
 
     async function followRef(
       document: Document,
-      ref: OASRef,
+      ref: OasRef,
       refStack: RefFrame,
     ): Promise<ResolvedRef> {
       if (hasRef(refStack.prev, ref)) {

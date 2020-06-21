@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('OAS3 operation-2xx-response', () => {
+describe('Oas3 operation-2xx-response', () => {
   it('should report missing 2xx response', async () => {
     const document = parseYamlToDocument(
       outdent`

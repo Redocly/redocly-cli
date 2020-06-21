@@ -1,6 +1,6 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 
-export const Operation2XXResponse: OAS3Rule = () => {
+export const Operation2xxResponse: Oas3Rule = () => {
   return {
     ResponsesMap(responses, { report }) {
       const codes = Object.keys(responses);

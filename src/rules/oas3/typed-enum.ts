@@ -1,7 +1,7 @@
-import { OAS3Rule } from '../../visitors';
+import { Oas3Rule } from '../../visitors';
 import { matchesJsonSchemaType } from '../utils';
 
-export const TypedEnum: OAS3Rule = () => {
+export const TypedEnum: Oas3Rule = () => {
   return {
     Schema(schema, { report, location }) {
       if (schema.enum && schema.type) {

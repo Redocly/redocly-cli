@@ -1,6 +1,6 @@
 import oas3 from './oas3/index';
-import { OAS3RuleSet } from '../validate';
+import { Oas3RuleSet } from '../validate';
 
-export const rules: Record<string, OAS3RuleSet> = {
+export const rules: Record<string, Oas3RuleSet> = {
   oas3,
 };

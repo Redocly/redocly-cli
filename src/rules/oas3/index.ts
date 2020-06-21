@@ -1,7 +1,7 @@
-import { OAS3RuleSet } from '../../validate';
+import { Oas3RuleSet } from '../../validate';
 
-import { OAS3Schema } from './schema';
-import { Operation2XXResponse } from './operation-2xx-response';
+import { Oas3Schema } from './schema';
+import { Operation2xxResponse } from './operation-2xx-response';
 import { OperationIdUnique } from './operation-operationId-unique';
 import { OperationParametersUnique } from './operation-parameters-unique';
 import { PathParamsDefined } from './path-params-defined';
@@ -10,7 +10,7 @@ import { ExampleValueOrExternalValue } from './oas3-examples-value-or-externalVa
 import { TypedEnum } from './typed-enum';
 import { PathNoTrailingSlash } from './path-keys-no-trailing-slash';
 import { PathDeclarationMustExist } from './path-declaration-must-exist';
-import { OperationIDValidURL } from './operation-operationId-valid-in-url';
+import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
 import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
 import { ServerNotExample } from './oas3-server-not-example.com';
 import { ServerNoTrailingSlash } from './oas3-server-trailing-slash';
@@ -30,8 +30,8 @@ import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
 
 export default {
-  schema: OAS3Schema,
-  'operation-2xx-response': Operation2XXResponse,
+  schema: Oas3Schema,
+  'operation-2xx-response': Operation2xxResponse,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
@@ -40,7 +40,7 @@ export default {
   'typed-enum': TypedEnum,
   'path-no-trailing-slashes': PathNoTrailingSlash,
   'path-declaration-must-exist': PathDeclarationMustExist,
-  'operationId-valid-in-url': OperationIDValidURL,
+  'operationId-valid-in-url': OperationIdValidUrl,
   'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
   'server-not-example.com': ServerNotExample,
   'server-trailing-slash': ServerNoTrailingSlash,
@@ -49,7 +49,7 @@ export default {
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'operation-description': OperationDescription,
-  'operation-operationId-valid-in-url': OperationIDValidURL,
+  'operation-operationId-valid-in-url': OperationIdValidUrl,
   'no-unused-schemas': NoUnusedComponents,
   'path-not-include-query': PathNotIncludeQuery,
   'path-params-defined': PathParamsDefined,
@@ -60,4 +60,4 @@ export default {
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
-} as OAS3RuleSet;
+} as Oas3RuleSet;

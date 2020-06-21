@@ -1,15 +1,15 @@
 import { Referenced } from './typings/openapi';
-import { Location, isRef } from './ref';
+import { Location, isRef } from './ref-utils';
 import {
   VisitorLevelContext,
-  NormalizedOASVisitors,
+  NormalizedOasVisitors,
   VisitorSkippedLevelContext,
   VisitFunction,
 } from './visitors';
 
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
-import { OASVersion } from './validate';
+import { OasVersion } from './validate';
 import { NormalizedNodeType } from "./types";
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
@@ -27,7 +27,7 @@ export type UserContext = {
   parentLocations: Record<string, Location>;
   type: NormalizedNodeType;
   key: string | number;
-  oasVersion: OASVersion;
+  oasVersion: OasVersion;
 };
 
 export type Loc = {
@@ -67,7 +67,7 @@ export type NormalizedReportMessage = {
 
 export type WalkContext = {
   messages: NormalizedReportMessage[];
-  oasVersion: OASVersion;
+  oasVersion: OasVersion;
 };
 
 function collectParents(ctx: VisitorLevelContext) {
@@ -93,7 +93,7 @@ function collectParentsLocations(ctx: VisitorLevelContext) {
 export function walkDocument<T>(opts: {
   document: Document;
   rootType: NormalizedNodeType;
-  normalizedVisitors: NormalizedOASVisitors<T>;
+  normalizedVisitors: NormalizedOasVisitors<T>;
   resolvedRefMap: ResolvedRefMap;
   ctx: WalkContext;
 }) {

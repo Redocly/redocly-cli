@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 
 import { resolveDocument, BaseResolver } from '../../src/resolve';
 import { parseYamlToDocument } from '../../src/__tests__/utils';
-import { OAS3Types } from '../../src/types/oas3';
+import { Oas3Types } from '../../src/types/oas3';
 import { normalizeTypes } from "../../src/types";
 
 export const name = 'Resolve with no external refs';
@@ -20,6 +20,6 @@ export function measureAsync() {
   return resolveDocument({
     rootDocument: rebillyDocument,
     externalRefResolver,
-    rootType: normalizeTypes(OAS3Types).DefinitionRoot,
+    rootType: normalizeTypes(Oas3Types).DefinitionRoot,
   });
 }
