@@ -483,7 +483,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string' },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flow: 'SecuritySchemeFlows',
+    flows: 'SecuritySchemeFlows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
