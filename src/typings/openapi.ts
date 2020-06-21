@@ -16,7 +16,7 @@ export interface OAS3Definition {
   components?: OAS3Components;
   security?: OAS3SecurityRequirement[];
   tags?: OAS3Tag[];
-  externalDocs?: OAS3ExternalDocumentation;
+  externalDocs?: OAS3ExternalDocs;
 }
 
 export interface OAS3Info {
@@ -42,7 +42,7 @@ export interface OAS3ServerVariable {
 }
 
 export interface OAS3Paths {
-  [path: string]: OAS3Path;
+  [path: string]: OAS3PathItem;
 }
 export interface OASRef {
   $ref: string;
@@ -50,7 +50,7 @@ export interface OASRef {
 
 export type Referenced<T> = OASRef | T;
 
-export interface OAS3Path {
+export interface OAS3PathItem {
   summary?: string;
   description?: string;
   get?: OAS3Operation;
@@ -75,7 +75,7 @@ export interface OAS3Operation {
   tags?: string[];
   summary?: string;
   description?: string;
-  externalDocs?: OAS3ExternalDocumentation;
+  externalDocs?: OAS3ExternalDocs;
   operationId?: string;
   parameters?: Array<Referenced<OAS3Parameter>>;
   requestBody?: Referenced<OAS3RequestBody>;
@@ -111,6 +111,14 @@ export interface OAS3Example {
   externalValue?: string;
 }
 
+export interface OAS3Xml {
+  name?: string;
+  namespace?: string;
+  prefix?: string;
+  attribute?: string;
+  wrapped?: string;
+}
+
 export interface OAS3Schema {
   $ref?: string;
   type?: string;
@@ -124,7 +132,7 @@ export interface OAS3Schema {
   writeOnly?: boolean;
   deprecated?: boolean;
   format?: string;
-  externalDocs?: OAS3ExternalDocumentation;
+  externalDocs?: OAS3ExternalDocs;
   discriminator?: OAS3Discriminator;
   nullable?: boolean;
   oneOf?: OAS3Schema[];
@@ -148,6 +156,8 @@ export interface OAS3Schema {
   minProperties?: number;
   enum?: any[];
   example?: any;
+
+  xml?: OAS3Xml;
 }
 
 export interface OAS3Discriminator {
@@ -205,7 +215,7 @@ export interface OAS3Link {
 export type OAS3Header = Omit<OAS3Parameter, 'in' | 'name'>;
 
 export interface OAS3Callback {
-  [name: string]: OAS3Path;
+  [name: string]: OAS3PathItem;
 }
 
 export interface OAS3Components {
@@ -259,11 +269,11 @@ export interface OAS3SecurityScheme {
 export interface OAS3Tag {
   name: string;
   description?: string;
-  externalDocs?: OAS3ExternalDocumentation;
+  externalDocs?: OAS3ExternalDocs;
   'x-displayName'?: string;
 }
 
-export interface OAS3ExternalDocumentation {
+export interface OAS3ExternalDocs {
   description?: string;
   url: string;
 }
