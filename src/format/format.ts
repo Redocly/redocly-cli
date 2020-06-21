@@ -31,14 +31,14 @@ export function formatMessages(
   opts: {
     maxMessages?: number;
     cwd?: string;
-    format?: 'full' | 'short';
+    format?: 'short' | 'detailed';
     color?: boolean;
   },
 ) {
   const {
     maxMessages = 100,
     cwd = process.cwd(),
-    format = 'full',
+    format = 'detailed',
     color = colorOptions.enabled,
   } = opts;
 
@@ -57,7 +57,7 @@ export function formatMessages(
     process.stdout.write(`${totalMessages} messages\n`);
   }
 
-  if (format === 'full') {
+  if (format === 'detailed') {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       process.stdout.write(`${fullFormatMessage(message, i)}\n`);

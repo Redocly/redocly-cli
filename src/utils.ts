@@ -1,7 +1,8 @@
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
-import fetch from 'node-fetch';
+import * as path from 'path';
 
+import fetch from 'node-fetch';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -24,14 +25,21 @@ export function popStack<T, P extends Stack<T>>(head: P) {
   return head?.prev ?? null;
 }
 
-export function dumpYaml(obj: any) {
-  return yaml.safeDump(obj, {
-    noRefs: true,
-  });
+export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
+
+export function dumpBundle(obj: any, format: BundleOutputFormat) {
+  if (format === 'json') {
+    return JSON.stringify(obj, null, 2);
+  } else {
+    return yaml.safeDump(obj, {
+      noRefs: true,
+    });
+  }
 }
 
-export function saveYaml(filename: string, obj: any) {
-  fs.writeFileSync(filename, dumpYaml(obj));
+export function saveBundle(filename: string, obj: any, format: BundleOutputFormat) {
+  fs.mkdirSync(path.dirname(filename), { recursive: true });
+  fs.writeFileSync(filename, dumpBundle(obj, format));
 }
 
 export async function loadYaml(filename: string) {
@@ -45,7 +53,7 @@ export function notUndefined<T>(x: T | undefined): x is T {
 
 export async function readFileFromUrl(url: string) {
   const req = await fetch(url, {
-    headers: {} // TODO: port headers support
+    headers: {}, // TODO: port headers support
   });
 
   if (!req.ok) {

@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
+import { extname, basename, dirname, join } from 'path';
 
 import { validate } from './validate';
 
 import { bundle } from './bundle';
-import { dumpYaml, saveYaml } from './utils';
+import { dumpBundle, saveBundle, BundleOutputFormat } from './utils';
 import { formatMessages } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
-import { loadConfig } from './config/config';
+import { loadConfig, Config } from './config/config';
 import { NormalizedReportMessage } from './walk';
 import { red, green, yellow } from 'colorette';
+
+const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
 yargs // eslint-disable-line
   .command(
@@ -22,9 +25,10 @@ yargs // eslint-disable-line
           type: 'string',
           demandOption: true,
         })
-        .option('short', {
+        .option('format', {
           description: 'Reduce output to required minimum.',
-          type: 'boolean',
+          choices: ['short', 'detailed'] as ReadonlyArray<'detailed' | 'short'>,
+          default: 'detailed' as 'detailed' | 'short',
         })
         .option('max-messages', {
           requiresArg: true,
@@ -39,8 +43,9 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       const config = await loadConfig(argv.config);
+      const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
-      for (const entryPoint of argv.entrypoints) {
+      for (const entryPoint of entrypoints) {
         try {
           console.time(`${entryPoint} validation took`);
           const results = await validate({
@@ -51,7 +56,7 @@ yargs // eslint-disable-line
 
           console.time(`Formatting messages took`);
           formatMessages(results, {
-            format: argv.short ? 'short' : 'full',
+            format: argv.format,
             maxMessages: argv['max-messages'],
           });
 
@@ -77,39 +82,75 @@ yargs // eslint-disable-line
           type: 'string',
           demandOption: true,
         })
+        .options({
+          output: { type: 'string', alias: 'o' },
+        })
+        .option('format', {
+          description: 'Reduce output to required minimum.',
+          choices: ['short', 'detailed'] as ReadonlyArray<'detailed' | 'short'>,
+          default: 'detailed' as 'detailed' | 'short',
+        })
+        .option('max-messages', {
+          requiresArg: true,
+          description: 'Reduce output to max N messages.',
+          type: 'number',
+          default: 100,
+        })
+        .option('ext', {
+          description: 'Output extension: json, yaml or yml',
+          requiresArg: true,
+          choices: outputExtensions,
+        })
         .option('config', {
           description: 'Specify custom config file',
           type: 'string',
-        })
-        .options({
-          output: { type: 'string', alias: 'o' },
         }),
     async (argv) => {
-      for (const entryPoint of argv.entrypoints) {
-        const config = await loadConfig(argv.config);
+      const config = await loadConfig(argv.config);
+      const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
+
+      for (const entrypoint of entrypoints) {
         try {
-          console.time(`${entryPoint} bundle took`);
+          console.time(`${entrypoint} bundle took`);
 
           const { bundle: result, messages } = await bundle({
             config: config.lint,
-            ref: entryPoint,
+            ref: entrypoint,
           });
 
-          console.timeEnd(`${entryPoint} bundle took`);
+          console.timeEnd(`${entrypoint} bundle took`);
 
           if (result) {
-            const output = dumpYaml(result);
+            const output = dumpBundle(result, argv.ext || 'yaml');
             if (!argv.output) {
               process.stdout.write(output);
             } else {
-              saveYaml(argv.output, result);
+              let outputFile = argv.output;
+              let ext: BundleOutputFormat;
+              if (entrypoint.length > 1) {
+                ext = argv.ext || extname(entrypoint).substring(1) as BundleOutputFormat;
+                if (!outputExtensions.includes(ext as any)) {
+                  throw new Error(`Invalid file extension: ${ext}`);
+                }
+                outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
+              } else {
+                ext = argv.ext || extname(entrypoint).substring(1) as BundleOutputFormat;
+                if (!outputExtensions.includes(ext as any)) {
+                  throw new Error(`Invalid file extension: ${ext}`);
+                }
+                outputFile = join(argv.output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
+              }
+              saveBundle(argv.output, result, ext);
             }
           }
 
           console.log(messages.length ? 'Failed to bundle' : 'Bundled successfully');
-          formatMessages(messages, {});
+          formatMessages(messages, {
+            format: argv.format,
+            maxMessages: argv["max-messages"]
+          });
         } catch (e) {
-          handleError(e, entryPoint);
+          handleError(e, entrypoint);
         }
       }
     },
@@ -175,4 +216,24 @@ function getTotals(messages: NormalizedReportMessage[]): Totals {
 
 function pluralize(label: string, num: number) {
   return num === 1 ? `1 ${label}` : `${num} ${label}s`;
+}
+
+function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
+  let res = argsEntrypoints;
+  if (
+    (!argsEntrypoints || !argsEntrypoints.length)
+    && config.apiDefinitions
+    && Object.keys(config.apiDefinitions).length > 0
+  ) {
+    res = Object.values(config.apiDefinitions);
+  } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
+    res = res!.map((aliasOrPath) => config.apiDefinitions[aliasOrPath] || aliasOrPath);
+  }
+
+  if (!res || !res.length) {
+    process.stderr.write('error: missing required argument `entrypoints`\n');
+    process.exit(1);
+  }
+
+  return res;
 }
