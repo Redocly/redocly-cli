@@ -12,10 +12,13 @@ export function isRef(node: any): node is OASRef {
 export class Location {
   constructor(public source: Source, public pointer: string) {}
 
-  append(components: (string | number)[]) {
+  append(components: (string | number)[] | string | number) {
     return new Location(
       this.source,
-      joinPointer(this.pointer, components.map(escapePointer).join('/')),
+      joinPointer(
+        this.pointer,
+        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/'),
+      ),
     );
   }
 

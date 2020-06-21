@@ -55,7 +55,7 @@ paths:
     post:
       summary: Create a pet
       description: afasf
-      operationId: createPets
+      operationId: test
       tags:
         - pets
       responses:

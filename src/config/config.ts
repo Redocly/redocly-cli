@@ -55,14 +55,15 @@ export type TypesExtensionFn = (
 ) => Record<string, NodeType>;
 
 export type TypeExtensionConfig = Partial<Record<OASMajorVersion, TypesExtensionFn>>;
+export type CustomRulesConfig = {
+  oas3?: OAS3RuleSet;
+  oas2?: any; // TODO: implement OAS2
+};
 
 export type Plugin = {
   id: string;
   configs?: Record<string, RulesConfig>;
-  rules?: {
-    oas3?: OAS3RuleSet;
-    oas2?: any; // TODO: implement OAS2
-  };
+  rules?: CustomRulesConfig;
   transformers?: TransformersConfig;
   typeExtension?: TypeExtensionConfig;
 };

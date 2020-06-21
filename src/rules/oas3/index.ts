@@ -1,3 +1,5 @@
+import { OAS3RuleSet } from '../../validate';
+
 import { OAS3Schema } from './schema';
 import { Operation2XXResponse } from './operation-2xx-response';
 import { OperationIdUnique } from './operation-operationId-unique';
@@ -23,9 +25,9 @@ import { ParameterDescription } from './parameter-description';
 import { OperationSingularTag } from './operation-singular-tag';
 import { InfoLicenseUrl } from './license-url';
 import { OperationSecurityDefined } from './operation-security-defined';
-
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
-import { OAS3RuleSet } from '../../validate';
+import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
+import { PathsKebabCase } from './paths-kebab-case';
 
 export default {
   schema: OAS3Schema,
@@ -56,4 +58,6 @@ export default {
   'info-license-url': InfoLicenseUrl,
   'operation-security-defined': OperationSecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
+  'paths-kebab-case': PathsKebabCase,
+  'boolean-parameter-prefixes': BooleanParameterPrefixes,
 } as OAS3RuleSet;

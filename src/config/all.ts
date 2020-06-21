@@ -28,5 +28,7 @@ export default {
     'info-license-url': 'error',
     'operation-security-defined': 'error',
     'no-unresolved-refs': 'error',
+    'boolean-parameter-prefixes': 'error',
+    'paths-kebab-case': 'error'
   },
 } as RulesConfig;
