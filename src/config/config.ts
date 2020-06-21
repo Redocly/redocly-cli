@@ -5,7 +5,8 @@ import { builtInConfigs } from './builtIn';
 import { rules as builtinRules } from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
 import oas3 from '../rules/oas3';
-import { OASVersion, OAS3TransformersSet } from '../validate';
+
+import { OASVersion, OAS3TransformersSet, OASMajorVersion } from '../validate';
 
 import { MessageSeverity } from '../walk';
 import { OAS3RuleSet } from '../validate';
@@ -18,7 +19,7 @@ export type RuleConfig =
   | MessageSeverity
   | 'off'
   | {
-      severity: MessageSeverity;
+      severity?: MessageSeverity;
       options?: Record<string, any>;
     };
 
@@ -27,7 +28,7 @@ export type TransformerConfig =
   | 'off'
   | 'on'
   | {
-      severity: MessageSeverity;
+      severity?: MessageSeverity;
       options?: Record<string, any>;
     };
 
@@ -38,14 +39,22 @@ export type RulesConfig = {
   transformers?: Record<string, TransformerConfig>;
 };
 
-export type RawLintConfig = {
-  typeExtension?: string;
-};
-
 export type TransformersConfig = {
   oas3?: OAS3TransformersSet;
   oas2?: any; // TODO: implement OAS2
 };
+
+export type TypesExtensionConfig = {
+  oas3?: OAS3TransformersSet;
+  oas2?: any; // TODO: implement OAS2
+};
+
+export type TypesExtensionFn = (
+  types: Record<string, NodeType>,
+  oasVersion: OASVersion,
+) => Record<string, NodeType>;
+
+export type TypeExtensionConfig = Partial<Record<OASMajorVersion, TypesExtensionFn>>;
 
 export type Plugin = {
   id: string;
@@ -55,17 +64,12 @@ export type Plugin = {
     oas2?: any; // TODO: implement OAS2
   };
   transformers?: TransformersConfig;
+  typeExtension?: TypeExtensionConfig;
 };
 
 export type RawConfig = {
   apiDefinitions?: Record<string, string>;
-  lint?: RulesConfig & RawLintConfig;
-};
-
-export type TypesExtension = (types: Record<string, NodeType>) => Record<string, NodeType>;
-export type ExtensionModule = {
-  oas3_0: TypesExtension;
-  oas2: TypesExtension;
+  lint?: RulesConfig;
 };
 
 export class LintConfig {
@@ -73,7 +77,7 @@ export class LintConfig {
   rules: Record<string, RuleConfig>;
   transformers: Record<string, TransformerConfig>;
 
-  constructor(public rawConfig: RulesConfig & RawLintConfig, public configFile?: string) {
+  constructor(public rawConfig: RulesConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
 
     this.plugins.push({
@@ -100,20 +104,22 @@ export class LintConfig {
   }
 
   extendTypes(types: Record<string, NodeType>, version: OASVersion) {
-    if (!this.rawConfig.typeExtension || !this.configFile) return types;
-    try {
-      const fileName = path.resolve(path.dirname(this.configFile), this.rawConfig.typeExtension);
-      const extension = require(fileName) as ExtensionModule;
-      switch (version) {
-        case OASVersion.Version3_0:
-          if (!extension.oas3_0) return types;
-          return extension.oas3_0(types);
-        case OASVersion.Version2:
-          throw new Error('OAS2 is not supported yet');
+    let extendedTypes = types;
+    for(const plugin of this.plugins) {
+      if (plugin.typeExtension !== undefined) {
+        switch (version) {
+          case OASVersion.Version3_0:
+            if (!plugin.typeExtension.oas3) continue;
+            extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
+          case OASVersion.Version2:
+            if (!plugin.typeExtension.oas2) continue;
+            extendedTypes = plugin.typeExtension.oas2(extendedTypes, version);
+          default:
+            throw new Error('Not implemented');
+        }
       }
-    } catch (e) {
-      throw new Error(`Error processing typeExtension: ` + e.message);
     }
+    return extendedTypes;
   }
 
   getRuleSettings(ruleId: string) {
@@ -124,8 +130,8 @@ export class LintConfig {
         options: undefined,
       };
     } else {
-      // @ts-ignore
-      return { severity: 'error', ...settings };
+
+      return { severity: 'error' as 'error', ...settings };
     }
   }
 
@@ -133,12 +139,11 @@ export class LintConfig {
     const settings = this.transformers[ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? 'error' : settings,
+        severity: settings === 'on' ? 'error' as 'error': settings,
         options: undefined,
       };
     } else {
-      // @ts-ignore
-      return { severity: 'error', ...settings };
+      return { severity: 'error' as 'error', ...settings };
     }
   }
 
@@ -281,7 +286,7 @@ function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
 }
 
 function mergeExtends(rulesConfList: RulesConfig[]) {
-  const result: Omit<RulesConfig, 'rules' |'transformers'> &
+  const result: Omit<RulesConfig, 'rules' | 'transformers'> &
     Required<Pick<RulesConfig, 'rules' | 'transformers'>> = {
     rules: {},
     transformers: {},

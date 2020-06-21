@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import { Document, Source } from '../resolve';
 import { NormalizedReportMessage } from '../walk';
-import { RuleConfig, LintConfig, RawLintConfig } from '../config/config';
+import { RuleConfig, LintConfig, Plugin } from '../config/config';
 import { OAS3RuleSet } from '../validate';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
@@ -34,7 +34,7 @@ export const yamlSerializer = {
   },
 };
 
-export function makeConfigForRuleset(rules: OAS3RuleSet, config?: RawLintConfig, configFile?: string) {
+export function makeConfigForRuleset(rules: OAS3RuleSet, plugin?: Partial<Plugin>) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
   Object.keys(rules).forEach((name) => {
@@ -44,12 +44,12 @@ export function makeConfigForRuleset(rules: OAS3RuleSet, config?: RawLintConfig,
   return new LintConfig({
     plugins: [
       {
+        ...plugin,
         id: ruleId,
         rules: { oas3: rules },
       },
     ],
     extends: [],
     rules: rulesConf,
-    ...config
-  }, configFile);
+  });
 }

@@ -16,6 +16,7 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
         const ruleSettings = transformersOnly
           ? transformerSettings
           : config.getRuleSettings(ruleId) || transformerSettings;
+
         if (ruleSettings.severity === 'off') {
           return undefined;
         }

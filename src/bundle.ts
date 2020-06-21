@@ -87,32 +87,35 @@ export async function bundleDocument(opts: {
       return { bundle: document.parsed, messages: ctx.messages };
     }
   }
-
-  throw new Error('Not implemented');
 }
 
-function mapOAS3TypeToComponent(typeName: string) {
-  switch (typeName) {
-    case 'Schema':
-      return 'schemas';
-    case 'Parameter':
-      return 'parameters';
-    case 'Response':
-      return 'responses';
-    case 'Example':
-      return 'examples';
-    case 'RequestBody':
-      return 'requestBodies';
-    case 'Header':
-      return 'headers';
-    case 'SecuritySchema':
-      return 'securitySchemes';
-    case 'Link':
-      return 'links';
-    case 'Callback':
-      return 'callbacks';
+function mapTypeToComponent(typeName: string, version: OASVersion) {
+  switch (version) {
+    case OASVersion.Version3_0:
+      switch (typeName) {
+        case 'Schema':
+          return 'schemas';
+        case 'Parameter':
+          return 'parameters';
+        case 'Response':
+          return 'responses';
+        case 'Example':
+          return 'examples';
+        case 'RequestBody':
+          return 'requestBodies';
+        case 'Header':
+          return 'headers';
+        case 'SecuritySchema':
+          return 'securitySchemes';
+        case 'Link':
+          return 'links';
+        case 'Callback':
+          return 'callbacks';
+        default:
+          return null;
+      }
     default:
-      return null;
+      throw new Error('Not implemented');
   }
 }
 
@@ -127,8 +130,7 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OASVersion) {
       if (!resolved.location || !resolved.node) return; // error is reported by walker
 
       // TODO: discriminator
-      const componentType =
-        version === OASVersion.Version3_0 ? mapOAS3TypeToComponent(ctx.type.name) : null;
+      const componentType = mapTypeToComponent(ctx.type.name, version);
       if (!componentType) {
         delete node.$ref;
         Object.assign(node, resolved.node);

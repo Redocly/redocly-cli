@@ -5,6 +5,7 @@ import { validateDocument, OAS3RuleSet } from '../validate';
 
 import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from './utils';
 import { BaseResolver, Document } from '../resolve';
+import { listOf } from '../types';
 
 describe('walk order', () => {
   it('should run visitors', async () => {
@@ -1168,7 +1169,7 @@ describe('context.resolve', () => {
 });
 
 describe('type extensions', () => {
-  it('should correctly visit with nested rules', async () => {
+  it('should correctly visit extended types', async () => {
     const calls: string[] = [];
 
     const testRuleSet: OAS3RuleSet = {
@@ -1207,11 +1208,30 @@ describe('type extensions', () => {
 
     await validateDocument({
       document,
-      config: makeConfigForRuleset(
-        testRuleSet,
-        { typeExtension: './fixtures/extension.js' },
-        __filename,
-      ),
+      config: makeConfigForRuleset(testRuleSet, {
+        typeExtension: {
+          oas3(types, version) {
+
+            expect(version).toEqual('oas3_0');
+
+            return {
+              ...types,
+              XWebHooks: {
+                properties: {
+                  parameters: listOf('Parameter'),
+                },
+              },
+              DefinitionRoot: {
+                ...types.DefinitionRoot,
+                properties: {
+                  ...types.DefinitionRoot.properties,
+                  'x-webhooks': 'XWebHooks',
+                },
+              },
+            };
+          },
+        },
+      }),
     });
 
     expect(calls).toMatchInlineSnapshot(`
