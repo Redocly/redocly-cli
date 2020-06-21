@@ -10,7 +10,7 @@ import {
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './validate';
-import { NormalizedNodeType } from "./types";
+import { NormalizedNodeType } from './types';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
@@ -27,6 +27,7 @@ export type UserContext = {
   parentLocations: Record<string, Location>;
   type: NormalizedNodeType;
   key: string | number;
+  parent: any;
   oasVersion: OasVersion;
 };
 
@@ -102,9 +103,9 @@ export function walkDocument<T>(opts: {
   const seenNodesPerType: Record<string, Set<any>> = {};
   const seenRefs = new Set<any>();
 
-  walkNode(document.parsed, rootType, new Location(document.source, '#/'), '');
+  walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
-  function walkNode(node: any, type: NormalizedNodeType, location: Location, key: string | number) {
+  function walkNode(node: any, type: NormalizedNodeType, location: Location, parent: any, key: string | number) {
     const { node: resolvedNode, location: newLocation, error } = resolve(node);
 
     if (isRef(node)) {
@@ -119,6 +120,7 @@ export function walkDocument<T>(opts: {
               resolve,
               location,
               type,
+              parent,
               key,
               parentLocations: {},
               oasVersion: ctx.oasVersion,
@@ -129,7 +131,7 @@ export function walkDocument<T>(opts: {
       }
     }
 
-    if (!resolvedNode || !newLocation) {
+    if (!resolvedNode || !newLocation || type.name === 'scalar') {
       // error is reported by separate rule
       return;
     }
@@ -207,7 +209,7 @@ export function walkDocument<T>(opts: {
         const itemsType = type.items;
         if (itemsType !== undefined) {
           for (let i = 0; i < resolvedNode.length; i++) {
-            walkNode(resolvedNode[i], itemsType, location.append([i]), i);
+            walkNode(resolvedNode[i], itemsType, location.append([i]), resolvedNode, i);
           }
         }
       } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
@@ -220,10 +222,16 @@ export function walkDocument<T>(opts: {
           } else {
             propType = type.additionalProperties?.(value, propName);
           }
-          if (propType == undefined || !propType.name) {
+          if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
             continue;
           }
-          walkNode(value, propType, location.append([propName]), propName);
+          walkNode(
+            value,
+            propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
+            location.append([propName]),
+            resolvedNode,
+            propName,
+          );
         }
       }
     }
@@ -271,6 +279,7 @@ export function walkDocument<T>(opts: {
           resolve,
           location,
           type,
+          parent,
           key,
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,

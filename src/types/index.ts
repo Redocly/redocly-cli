@@ -1,8 +1,9 @@
-export type PropertySchema = {
+export type ScalarSchema = {
   name?: never;
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
-  items?: PropertySchema;
+  items?: ScalarSchema;
   enum?: string[];
+  referenceable?: boolean;
 };
 
 export type NodeType = {
@@ -11,7 +12,7 @@ export type NodeType = {
   items?: string;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
 };
-type PropType = string | NodeType | PropertySchema | undefined | null;
+type PropType = string | NodeType | ScalarSchema | undefined | null;
 type ResolveTypeFn = (value: any, key: string) => string | PropType;
 
 export type NormalizedNodeType = {
@@ -21,10 +22,10 @@ export type NormalizedNodeType = {
   items?: NormalizedNodeType;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
 };
-type NormalizedPropType = NormalizedNodeType | PropertySchema | undefined | null;
+type NormalizedPropType = NormalizedNodeType | ScalarSchema | undefined | null;
 type NormalizedResolveTypeFn = (
   value: any,
-  key: string) => NormalizedNodeType | PropertySchema | undefined | null;
+  key: string) => NormalizedNodeType | ScalarSchema | undefined | null;
 
 export function listOf(typeName: string) {
   return {

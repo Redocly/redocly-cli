@@ -132,8 +132,12 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
       // TODO: discriminator
       const componentType = mapTypeToComponent(ctx.type.name, version);
       if (!componentType) {
-        delete node.$ref;
-        Object.assign(node, resolved.node);
+        if (ctx.type.name === 'scalar') {
+          ctx.parent[ctx.key] = resolved.node;
+        } else {
+          delete node.$ref;
+          Object.assign(node, resolved.node);
+        }
       } else {
         node.$ref = saveComponent(componentType, resolved);
       }

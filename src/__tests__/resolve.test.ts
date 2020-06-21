@@ -4,7 +4,7 @@ import * as path from 'path';
 import { resolveDocument, BaseResolver, Document } from '../resolve';
 import { parseYamlToDocument } from './utils';
 import { Oas3Types } from '../types/oas3';
-import { normalizeTypes } from "../types";
+import { normalizeTypes } from '../types';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
@@ -167,6 +167,41 @@ describe('collect refs', () => {
   });
 
   it('should resolve external refs with circular', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const externalRefResolver = new BaseResolver();
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          description:
+            $ref: './description.md'
+      `,
+      path.join(cwd, 'foobar.yaml'),
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument: rootDocument as Document,
+      externalRefResolver: externalRefResolver,
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+    });
+
+    expect(resolvedRefs).toBeDefined();
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.$ref)).toMatchInlineSnapshot(`
+      Array [
+        "./description.md",
+      ]
+    `);
+
+    expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
+      Array [
+        "# Hello World
+
+      Lorem ipsum",
+      ]
+    `);
+  });
+
+  it('should resolve referenceable scalars', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const externalRefResolver = new BaseResolver();
     const rootDocument = await externalRefResolver.resolveDocument(null, `${cwd}/openapi.yaml`);

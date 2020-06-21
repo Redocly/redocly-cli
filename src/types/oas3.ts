@@ -19,7 +19,7 @@ const DefinitionRoot: NodeType = {
 const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
-    description: { type: 'string' },
+    description: { type: 'string', referenceable: true },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
@@ -82,6 +82,7 @@ const Info: NodeType = {
       type: 'string',
     },
     description: {
+      referenceable: true,
       type: 'string',
     },
     termsOfService: {
@@ -195,6 +196,7 @@ const Operation: NodeType = {
       type: 'string',
     },
     description: {
+      referenceable: true,
       type: 'string',
     },
     externalDocs: 'ExternalDocs',

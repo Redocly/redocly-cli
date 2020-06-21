@@ -101,6 +101,10 @@ export class BaseResolver {
   }
 
   parseDocument(source: Source): Document {
+    if (source.absoluteRef.endsWith('.md')) {
+      return { source, parsed: source.body };
+    }
+
     try {
       return {
         source,
@@ -202,7 +206,7 @@ export async function resolveDocument(opts: {
   ) {
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
 
-    walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer); // fixme
+    walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
 
     function walk(node: any, type: NormalizedNodeType, nodeAbsoluteRef: string) {
       if (typeof node !== 'object' || node === null) {
@@ -235,10 +239,15 @@ export async function resolveDocument(opts: {
           propType = type.additionalProperties?.(value, propName);
         }
 
-        if (propType == undefined || !propType.name) {
+        if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
           continue;
         }
-        walk(value, propType, joinPointer(nodeAbsoluteRef, escapePointer(propName)));
+
+        walk(
+          value,
+          propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
+          joinPointer(nodeAbsoluteRef, escapePointer(propName)),
+        );
       }
 
       if (isRef(node)) {
