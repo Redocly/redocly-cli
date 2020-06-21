@@ -22,7 +22,7 @@ function LOCAL_DIR(...paths) {
 }
 
 // Build a benchmark-friendly environment for the given revision
-// and returns path to its 'dist' directory.
+// and returns path to its 'lib' directory.
 function prepareRevision(revision) {
   console.log(`🍳  Preparing ${revision}...`);
 
@@ -53,11 +53,11 @@ function tscBuild(dir) {
 
   execSync('rm -rf dist && npx tsc', { stdio: 'inherit' });
   exec(
-    `cp ${path.join(dir, 'benchmark/benches/*.yaml')} ${path.join(dir, 'dist/benchmark/benches/')}`,
+    `cp ${path.join(dir, 'benchmark/benches/*.yaml')} ${path.join(dir, 'lib/benchmark/benches/')}`,
   );
 
   process.chdir(oldCwd);
-  return path.join(dir, 'dist/benchmark/benches');
+  return path.join(dir, 'lib/benchmark/benches');
 }
 
 async function collectSamples(modulePath) {
@@ -258,7 +258,7 @@ function exec(command, options) {
 
 // Find all benchmark tests to be run.
 function matchBenchmarks(patterns) {
-  let benchmarks = findFiles(LOCAL_DIR('dist/benchmark/benches'), '*.bench.js');
+  let benchmarks = findFiles(LOCAL_DIR('lib/benchmark/benches'), '*.bench.js');
   if (patterns.length > 0) {
     benchmarks = benchmarks.filter((benchmark) =>
       patterns.some((pattern) => path.join('benchmark/benches', benchmark).includes(pattern)),
