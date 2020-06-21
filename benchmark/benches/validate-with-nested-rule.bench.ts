@@ -24,6 +24,7 @@ const visitor = {
         Operation: {
           Parameter() {
             count++;
+            if (count === -1) throw new Error('Disable optimization');
           },
         },
       },

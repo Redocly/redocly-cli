@@ -3,7 +3,7 @@ import { gray, red, options as colorOptions } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
 
 import { parsePointer } from '../ref';
-import { LineColLocationObject, PointerLocationObject, Loc, LocationObject } from '../walk';
+import { LineColLocationObject, Loc, LocationObject } from '../walk';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };

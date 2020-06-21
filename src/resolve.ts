@@ -60,7 +60,7 @@ export class YamlParseError extends Error {
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, YamlParseError.prototype);
 
-    const [_, line, col] = this.message.match(jsYamlErrorLineColRegexp) || [];
+    const [, line, col] = this.message.match(jsYamlErrorLineColRegexp) || [];
     this.line = parseInt(line, 10);
     this.col = parseInt(col, 10);
   }

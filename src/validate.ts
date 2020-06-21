@@ -13,7 +13,7 @@ export enum OASVersion {
   Version3_0 = 'oas3_0',
 }
 
-export type RuleSet<T> = Record<string, OAS3Rule>;
+export type RuleSet<T> = Record<string, T>;
 export type OAS3RuleSet = Record<string, OAS3Rule>;
 
 export async function validate(opts: {

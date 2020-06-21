@@ -3,7 +3,7 @@ import { missingRequiredField } from '../utils';
 
 export const InfoLicenseUrl: OAS3Rule = () => {
   return {
-    License(license, { report, location }) {
+    License(license, { report }) {
       if (typeof license !== 'object') return;
       if (!license.url) {
         report({

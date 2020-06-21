@@ -13,7 +13,6 @@ import { OAS3RuleSet } from '../validate';
 import recommended from './recommended';
 import { red, blue } from 'colorette';
 import { NodeType } from "../types";
-import { type } from 'os';
 
 export type RuleConfig =
   | MessageSeverity
@@ -155,6 +154,7 @@ async function findConfig() {
   } else if (await existsAsync('.redocly.yml')) {
     return '.redocly.yml';
   }
+  return undefined;
 }
 
 function existsAsync(path: string) {

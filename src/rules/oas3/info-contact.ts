@@ -3,7 +3,7 @@ import { missingRequiredField } from '../utils';
 
 export const InfoContact: OAS3Rule = () => {
   return {
-    Info(info, { report, location }) {
+    Info(info, { report }) {
       if (!info.contact) {
         report({
           message: missingRequiredField('Info', 'contact'),

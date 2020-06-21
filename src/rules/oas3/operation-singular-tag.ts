@@ -1,5 +1,4 @@
 import { OAS3Rule } from '../../visitors';
-import { missingRequiredField } from '../utils';
 
 export const OperationSingularTag: OAS3Rule = () => {
   return {

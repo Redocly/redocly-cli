@@ -65,12 +65,12 @@ describe('walk order', () => {
             enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
             leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(
                   `enter operation ${parents.Operation.operationId} > param ${param.name}`,
                 ),
               ),
-              leave: jest.fn((param, ctx, parents) =>
+              leave: jest.fn((param, _ctx, parents) =>
                 calls.push(
                   `leave operation ${parents.Operation.operationId} > param ${param.name}`,
                 ),
@@ -148,12 +148,12 @@ describe('walk order', () => {
             enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
             leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(
                   `enter operation ${parents.Operation.operationId} > param ${param.name}`,
                 ),
               ),
-              leave: jest.fn((param, ctx, parents) =>
+              leave: jest.fn((param, _ctx, parents) =>
                 calls.push(
                   `leave operation ${parents.Operation.operationId} > param ${param.name}`,
                 ),
@@ -226,7 +226,7 @@ describe('walk order', () => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
               ),
             },
@@ -287,13 +287,13 @@ describe('walk order', () => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
               ),
             },
             Operation: {
               Parameter: {
-                enter: jest.fn((param, ctx, parents) =>
+                enter: jest.fn((param, _ctx, parents) =>
                   calls.push(
                     `enter operation ${parents.Operation.operationId} > param ${param.name}`,
                   ),
@@ -359,14 +359,14 @@ describe('walk order', () => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
               ),
-              leave: jest.fn((param, ctx, parents) =>
+              leave: jest.fn((param, _ctx, parents) =>
                 calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`),
               ),
             },
-            Operation(op, ctx, parents) {
+            Operation(op, _ctx, parents) {
               calls.push(`enter path ${parents.PathItem.id} > op ${op.operationId}`);
             },
           },
@@ -428,7 +428,7 @@ describe('walk order', () => {
     const testRuleSet: OAS3RuleSet = {
       test: jest.fn(() => {
         return {
-          Schema: jest.fn((schema: any, ctx, parents) => calls.push(`enter schema ${schema.id}`)),
+          Schema: jest.fn((schema: any) => calls.push(`enter schema ${schema.id}`)),
         };
       }),
     };
@@ -474,7 +474,7 @@ describe('walk order', () => {
       test: jest.fn(() => {
         return {
           Parameter: {
-            Schema: jest.fn((schema: any, ctx, parents) =>
+            Schema: jest.fn((schema: any, _ctx, parents) =>
               calls.push(`enter param ${parents.Parameter.name} > schema ${schema.id}`),
             ),
           },
@@ -530,8 +530,8 @@ describe('walk order', () => {
         return {
           Operation: {
             skip: (op) => op.operationId === 'put',
-            enter: jest.fn((op, ctx) => calls.push(`enter operation ${op.operationId}`)),
-            leave: jest.fn((op, ctx) => calls.push(`leave operation ${op.operationId}`)),
+            enter: jest.fn((op) => calls.push(`enter operation ${op.operationId}`)),
+            leave: jest.fn((op) => calls.push(`leave operation ${op.operationId}`)),
           },
         };
       }),
@@ -571,7 +571,7 @@ describe('walk order', () => {
         return {
           Operation: {
             skip: (op) => op.operationId === 'put',
-            Parameter: jest.fn((param, ctx, parents) =>
+            Parameter: jest.fn((param, _ctx, parents) =>
               calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`),
             ),
           },
@@ -626,22 +626,22 @@ describe('walk order', () => {
         return {
           PathItem: {
             Parameter: {
-              enter: jest.fn((param, ctx, parents) =>
+              enter: jest.fn((param, _ctx, parents) =>
                 calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
               ),
-              leave: jest.fn((param, ctx, parents) =>
+              leave: jest.fn((param, _ctx, parents) =>
                 calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`),
               ),
             },
             Operation: {
               skip: (op) => op.operationId === 'put',
               Parameter: {
-                enter: jest.fn((param, ctx, parents) =>
+                enter: jest.fn((param, _ctx, parents) =>
                   calls.push(
                     `enter operation ${parents.Operation.operationId} > param ${param.name}`,
                   ),
                 ),
-                leave: jest.fn((param, ctx, parents) =>
+                leave: jest.fn((param, _ctx, parents) =>
                   calls.push(
                     `leave operation ${parents.Operation.operationId} > param ${param.name}`,
                   ),
@@ -718,10 +718,10 @@ describe('walk order', () => {
         return {
           Schema: {
             Schema: {
-              enter: jest.fn((schema: any, ctx, parents) =>
+              enter: jest.fn((schema: any, _ctx, parents) =>
                 calls.push(`enter nested schema ${parents.Schema.id} > ${schema.id}`),
               ),
-              leave: jest.fn((schema: any, ctx, parents) =>
+              leave: jest.fn((schema: any, _ctx, parents) =>
                 calls.push(`leave nested schema ${parents.Schema.id} > ${schema.id}`),
               ),
             },
@@ -860,10 +860,10 @@ describe('walk order', () => {
       test: jest.fn(() => {
         return {
           any: {
-            enter(node: any, { type }) {
+            enter(_node: any, { type }) {
               calls.push(`enter ${type.name}`);
             },
-            leave(node, { type }) {
+            leave(_node, { type }) {
               calls.push(`leave ${type.name}`);
             },
           },
@@ -1175,10 +1175,10 @@ describe('type extensions', () => {
       test: jest.fn(() => {
         return {
           any: {
-            enter(node: any, { type }) {
+            enter(_node: any, { type }) {
               calls.push(`enter ${type.name}`);
             },
-            leave(node, { type }) {
+            leave(_node, { type }) {
               calls.push(`leave ${type.name}`);
             },
           },
