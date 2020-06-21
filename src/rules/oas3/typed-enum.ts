@@ -1,5 +1,5 @@
 import { Oas3Rule } from '../../visitors';
-import { matchesJsonSchemaType } from '../utils';
+import { matchesJsonSchemaType, oasTypeOf } from '../utils';
 
 export const TypedEnum: Oas3Rule = () => {
   return {
@@ -8,10 +8,12 @@ export const TypedEnum: Oas3Rule = () => {
         const typeMismatchedValues = schema.enum.filter(
           (item) => !matchesJsonSchemaType(item, schema.type as string),
         );
-        for (const error of typeMismatchedValues) {
+        for (const mismatchedValue of typeMismatchedValues) {
           report({
-            message: 'All values of "enum" field must be of the same type as the "type" field.',
-            location: location.append(['enum', schema.enum.indexOf(error)]),
+            message: `All values of \`enum\` field must be of the same type as the \`type\` field: expected "${
+              schema.type
+            }" but received "${oasTypeOf(mismatchedValue)}"`,
+            location: location.append(['enum', schema.enum.indexOf(mismatchedValue)]),
           });
         }
       }
