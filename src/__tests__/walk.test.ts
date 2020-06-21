@@ -1166,3 +1166,56 @@ describe('context.resolve', () => {
     });
   });
 });
+
+describe('type extensions', () => {
+  it('should correctly visit with nested rules', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: OAS3RuleSet = {
+      test: jest.fn(() => {
+        return {
+          any: {
+            enter(node: any, { type }) {
+              calls.push(`enter ${type.name}`);
+            },
+            leave(node, { type }) {
+              calls.push(`leave ${type.name}`);
+            },
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        x-webhooks:
+          parameters:
+            - name: a
+      `,
+      'foobar.yaml',
+    );
+
+    await validateDocument({
+      document,
+      config: makeConfigForRuleset(
+        testRuleSet,
+        { typeExtension: './fixtures/extension.js' },
+        __filename,
+      ),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      Array [
+        "enter DefinitionRoot",
+        "enter XWebHooks",
+        "enter Parameter_List",
+        "enter Parameter",
+        "leave Parameter",
+        "leave Parameter_List",
+        "leave XWebHooks",
+        "leave DefinitionRoot",
+      ]
+    `);
+  });
+});

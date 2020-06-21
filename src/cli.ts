@@ -86,10 +86,12 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       for (const entryPoint of argv.entrypoints) {
+        const config = await loadConfig(argv.config);
         try {
           console.time(`${entryPoint} bundle took`);
 
           const { bundle: result, messages } = await bundle({
+            config: config.lint,
             ref: entryPoint,
           });
 

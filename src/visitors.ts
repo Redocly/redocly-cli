@@ -23,7 +23,7 @@ import type {
   OAS3SecurityRequirement,
 } from './typings/openapi';
 
-import { NormalizedNodeType } from './types/oa3';
+import { NormalizedNodeType } from "./types";
 import { Stack } from './utils';
 import { UserContext, ResolveResult, MessageSeverity } from './walk';
 import { Location } from './ref';
@@ -119,7 +119,7 @@ export type OAS3Visitor = BaseVisitor & {
   SecurityScheme?: VisitFunctionOrObject<OAS3SecurityScheme, OAS3Visitor>;
   SecurityRequirement?: VisitFunctionOrObject<OAS3SecurityRequirement, OAS3Visitor>;
   // TODO
-};
+}
 
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'DefinitionRoot'>;
 

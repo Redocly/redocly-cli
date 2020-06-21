@@ -3,7 +3,8 @@ import * as path from 'path';
 
 import { resolveDocument, BaseResolver, Document } from '../resolve';
 import { parseYamlToDocument } from './utils';
-import { OAS3Types, normalizeTypes } from '../types/oa3';
+import { OAS3Types } from '../types/oas3';
+import { normalizeTypes } from "../types";
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {

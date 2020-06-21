@@ -1,105 +1,4 @@
-export type PropertySchema = {
-  name?: never;
-  type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
-  items?: PropertySchema;
-  enum?: string[];
-};
-
-export type NodeType = {
-  properties: Record<string, PropType | ResolveTypeFn>;
-  additionalProperties?: ResolveTypeFn;
-  items?: string;
-  required?: string[] | ((value: any, key: string | number | undefined) => string[]);
-};
-
-type PropType = string | NodeType | PropertySchema | undefined | null;
-type ResolveTypeFn = (value: any, key: string) => string | PropType;
-
-export type NormalizedNodeType = {
-  name: string;
-  properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  additionalProperties?: NormalizedResolveTypeFn;
-  items?: NormalizedNodeType;
-  required?: string[] | ((value: any, key: string | number | undefined) => string[]);
-};
-
-type NormalizedPropType = NormalizedNodeType | PropertySchema | undefined | null;
-type NormalizedResolveTypeFn = (
-  value: any,
-  key: string,
-) => NormalizedNodeType | PropertySchema | undefined | null;
-
-function items(typeName: string) {
-  return {
-    name: typeName + '_List',
-    properties: {},
-    items: typeName,
-  };
-}
-
-function mapOf(typeName: string) {
-  return {
-    name: typeName + '_Map',
-    properties: {},
-    additionalProperties: () => typeName,
-  };
-}
-
-export function normalizeTypes(
-  types: Record<string, NodeType>,
-): Record<string, NormalizedNodeType> {
-  const normalizedTypes: Record<string, NormalizedNodeType> = {};
-
-  for (const typeName of Object.keys(types)) {
-    normalizedTypes[typeName] = {
-      ...types[typeName],
-      name: typeName,
-    } as any;
-  }
-
-  for (const type of Object.values(normalizedTypes)) {
-    normalizeType(type);
-  }
-
-  return normalizedTypes;
-
-  function normalizeType(type: any) {
-    if (type.additionalProperties) {
-      type.additionalProperties = resolveType(type.additionalProperties);
-    }
-    if (type.items) {
-      type.items = resolveType(type.items);
-    }
-
-    if (type.properties) {
-      const mappedProps:Record<string, any> = {};
-      for (const propName of Object.keys(type.properties)) {
-        mappedProps[propName] = resolveType(type.properties[propName]);
-      }
-      type.properties = mappedProps;
-    }
-  }
-
-  // typings are painful here...
-  function resolveType(type?: any): any {
-    if (typeof type === 'string') {
-      if (!normalizedTypes[type]) {
-        throw new Error(`Unknown type name found: ${type}`);
-      }
-      return normalizedTypes[type];
-    } else if (typeof type === 'function') {
-      return (value: any, key: string) => {
-        return resolveType(type(value, key));
-      };
-    } else if (type && type.name) {
-      type = {...type};
-      normalizeType(type);
-      return type;
-    } else {
-      return type;
-    }
-  }
-}
+import { NodeType, listOf, mapOf } from ".";
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
@@ -108,9 +7,9 @@ export const OAS3Types: Record<string, NodeType> = {
     properties: {
       openapi: null,
       info: 'Info',
-      tags: items('Tag'),
-      servers: items('Server'),
-      security: items('SecurityRequirement'),
+      tags: listOf('Tag'),
+      servers: listOf('Server'),
+      security: listOf('SecurityRequirement'),
       externalDocs: 'ExternalDocs',
       paths: 'PathMap',
       components: 'Components',
@@ -220,8 +119,8 @@ export const OAS3Types: Record<string, NodeType> = {
   PathItem: {
     properties: {
       $ref: 'PathItem', // TODO verify special $ref handling for Path Item
-      servers: items('Server'),
-      parameters: items('Parameter'),
+      servers: listOf('Server'),
+      parameters: listOf('Parameter'),
       summary: {
         type: 'string',
       },
@@ -300,9 +199,9 @@ export const OAS3Types: Record<string, NodeType> = {
       operationId: {
         type: 'string',
       },
-      parameters: items('Parameter'),
-      security: items('SecurityRequirement'),
-      servers: items('Server'),
+      parameters: listOf('Parameter'),
+      security: listOf('SecurityRequirement'),
+      servers: listOf('Server'),
       requestBody: 'RequestBody',
       responses: 'ResponsesMap',
       deprecated: {
@@ -472,14 +371,14 @@ export const OAS3Types: Record<string, NodeType> = {
       type: {
         enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
       },
-      allOf: items('Schema'),
-      anyOf: items('Schema'),
-      oneOf: items('Schema'),
+      allOf: listOf('Schema'),
+      anyOf: listOf('Schema'),
+      oneOf: listOf('Schema'),
       not: 'Schema',
       properties: 'SchemaProperties',
       items: (value: any) => {
         if (Array.isArray(value)) {
-          return items('Schema');
+          return listOf('Schema');
         } else {
           return 'Schema';
         }

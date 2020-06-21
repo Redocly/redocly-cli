@@ -12,6 +12,8 @@ import { OAS3RuleSet } from '../validate';
 
 import recommended from './recommended';
 import { red, blue } from 'colorette';
+import { NodeType } from "../types";
+import { type } from 'os';
 
 export type RuleConfig =
   | MessageSeverity
@@ -25,7 +27,11 @@ export type RulesConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   rules?: Record<string, RuleConfig>;
-};
+}
+
+export type RawLintConfig = {
+  typeExtension?: string;
+}
 
 export type Plugin = {
   id: string;
@@ -38,18 +44,20 @@ export type Plugin = {
 
 export type RawConfig = {
   apiDefinitions?: Record<string, string>;
-  lint?: RulesConfig;
+  lint?: RulesConfig & RawLintConfig;
 };
+
+export type TypesExtension = ((types: Record<string, NodeType>) => Record<string, NodeType>);
+export type ExtensionModule = {
+  oas3_0: TypesExtension,
+  oas2: TypesExtension
+}
 
 export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
 
-  definedRules: { oas3: OAS3RuleSet[] } = {
-    oas3: [],
-  };
-
-  constructor(public rawConfig: RulesConfig, configFile?: string) {
+  constructor(public rawConfig: RulesConfig & RawLintConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
 
     this.plugins.push({
@@ -71,6 +79,23 @@ export class LintConfig {
     this.rules = mergeExtends(extendConfigs).rules;
   }
 
+  extendTypes(types: Record<string, NodeType>, version: OASVersion) {
+    if (!this.rawConfig.typeExtension || !this.configFile) return types;
+    try {
+      const fileName = path.resolve(path.dirname(this.configFile), this.rawConfig.typeExtension)
+      const extension = require(fileName) as ExtensionModule;
+      switch (version) {
+        case OASVersion.Version3_0:
+          if (!extension.oas3_0) return types;
+          return extension.oas3_0(types);
+        case OASVersion.Version2:
+          throw new Error('OAS2 is not supported yet');
+      }
+    } catch(e) {
+      throw new Error(`Error processing typeExtension: ` + e.message);
+    }
+  }
+
   getRuleSettings(ruleId: string) {
     const settings = this.rules[ruleId] || 'off';
     if (typeof settings === 'string') {
@@ -86,7 +111,7 @@ export class LintConfig {
 
   getRulesForOASVersion(version: OASVersion) {
     switch (version) {
-      case OASVersion.Version3_0_x:
+      case OASVersion.Version3_0:
         const oas3Rules: OAS3RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         return oas3Rules;

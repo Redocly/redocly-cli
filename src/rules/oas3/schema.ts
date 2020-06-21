@@ -1,5 +1,5 @@
 import type { OAS3Rule } from '../../visitors';
-import { NormalizedNodeType, PropertySchema, } from '../../types/oa3';
+import { NormalizedNodeType, PropertySchema } from "../../types";
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 
 function isNamedType(t: NormalizedNodeType | PropertySchema | null | undefined): t is NormalizedNodeType {

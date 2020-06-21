@@ -1,6 +1,7 @@
 import { normalizeVisitors, VisitorLevelContext } from '../visitors';
 import { OAS3RuleSet } from '../validate';
-import { OAS3Types, normalizeTypes } from '../types/oa3';
+import { OAS3Types } from '../types/oas3';
+import { normalizeTypes } from "../types";
 
 describe('Normalize visitors', () => {
   it('should work correctly for single rule', () => {

@@ -11,7 +11,7 @@ import {
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OASVersion } from './validate';
-import { NormalizedNodeType } from './types/oa3';
+import { NormalizedNodeType } from "./types";
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
