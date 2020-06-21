@@ -89,7 +89,7 @@ export function formatMessages(
   function fullFormatMessage(message: NormalizedReportMessage, idx: number) {
     const bgColor = BG_COLORS[message.severity];
 
-    const location = message.location[0]; // todo: support multiple locations
+    const location = message.location[0]; // TODO: support multiple locations
     const relativePath = path.relative(cwd, location.source.absoluteRef);
     const loc = getLineColLocation(location);
     const atPointer = location.pointer ? gray(`at ${location.pointer}`) : '';

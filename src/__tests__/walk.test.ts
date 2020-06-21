@@ -1182,6 +1182,14 @@ describe('type extensions', () => {
               calls.push(`leave ${type.name}`);
             },
           },
+          XWebHooks: {
+            enter(hook: any) {
+              calls.push(`enter hook ${hook.name}`);
+            },
+            leave(hook) {
+              calls.push(`leave hook ${hook.name}`);
+            },
+          },
         };
       }),
     };
@@ -1190,6 +1198,7 @@ describe('type extensions', () => {
       outdent`
         openapi: 3.0.0
         x-webhooks:
+          name: test
           parameters:
             - name: a
       `,
@@ -1209,11 +1218,13 @@ describe('type extensions', () => {
       Array [
         "enter DefinitionRoot",
         "enter XWebHooks",
+        "enter hook test",
         "enter Parameter_List",
         "enter Parameter",
         "leave Parameter",
         "leave Parameter_List",
         "leave XWebHooks",
+        "leave hook test",
         "leave DefinitionRoot",
       ]
     `);

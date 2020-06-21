@@ -37,7 +37,7 @@ export type Plugin = {
   configs?: Record<string, RulesConfig>;
   rules?: {
     oas3?: OAS3RuleSet;
-    oas2?: any; // TODO
+    oas2?: any; // TODO: implement OAS2
   };
 };
 
@@ -196,7 +196,7 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
 
   return plugins
     .map((p) => {
-      // todo: resolve npm packages similar to eslint
+      // TODO: resolve npm packages similar to eslint
       if (typeof p === 'string') {
         if (builtinRules[p]) return undefined;
       }

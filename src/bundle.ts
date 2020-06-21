@@ -10,7 +10,7 @@ import { LintConfig } from './config/config';
 
 export type OAS3RuleSet = Record<string, OAS3Rule>;
 
-// todo: fix visitors typing
+// TODO: fix visitors typing
 export async function bundle(opts: {
   ref: string;
   externalRefResolver?: BaseResolver;
@@ -120,7 +120,7 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OASVersion) {
     ref(node, ctx, resolved) {
       if (!resolved.location || !resolved.node) return; // error is reported by walker
 
-      // todo discriminator
+      // TODO: discriminator
       const componentType =
         version === OASVersion.Version3_0 ? mapOAS3TypeToComponent(ctx.type.name) : null;
       if (!componentType) {

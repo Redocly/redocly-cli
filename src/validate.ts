@@ -13,6 +13,11 @@ export enum OASVersion {
   Version3_0 = 'oas3_0',
 }
 
+export enum OASMajorVersion {
+  Version2 = 'oas2',
+  Version3 = 'oas3',
+}
+
 export type RuleSet<T> = Record<string, T>;
 export type OAS3RuleSet = Record<string, OAS3Rule>;
 
@@ -51,7 +56,7 @@ export async function validateDocument(opts: {
 
       const rulesVisitors = oas3Rules
         ?.flatMap((ruleset) =>
-          // TODO validate rules from config have corresponding rule defined for specific OAS version
+          // TODO: validate rules from config have corresponding rule defined for specific OAS version
           Object.keys(ruleset).map((ruleId) => {
             const rule = ruleset[ruleId];
             const ruleSettings = config.getRuleSettings(ruleId);

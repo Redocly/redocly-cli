@@ -1,13 +1,3 @@
-export type OAS3Any = OAS3Definition | OAS3Info | OAS3Server | OAS3License | OAS3Contact; // TODO;
-
-export enum OAS3NodeType {
-  Definition,
-  Info,
-  Server,
-  License,
-  Contact,
-}
-
 export interface OAS3Definition {
   openapi: string;
   info?: OAS3Info;

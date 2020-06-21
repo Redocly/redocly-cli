@@ -6,6 +6,7 @@ const { readFile } = fs.promises;
 import { OASRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef } from './ref';
 import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
+import { NormalizedNodeType } from './types';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
@@ -166,7 +167,7 @@ function hasRef(head: RefFrame | null, node: any): boolean {
 export async function resolveDocument(opts: {
   rootDocument: Document;
   externalRefResolver: BaseResolver;
-  rootType: any; // todo
+  rootType: NormalizedNodeType;
 }): Promise<ResolvedRefMap> {
   const { rootDocument, externalRefResolver, rootType } = opts;
 
@@ -193,7 +194,7 @@ export async function resolveDocument(opts: {
 
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer); // fixme
 
-    function walk(node: any, type: any, nodeAbsoluteRef: string) {
+    function walk(node: any, type: NormalizedNodeType, nodeAbsoluteRef: string) {
       if (typeof node !== 'object' || node === null) {
         return;
       }

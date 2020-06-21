@@ -4,7 +4,6 @@ import {
   VisitorLevelContext,
   NormalizedOASVisitors,
   VisitorSkippedLevelContext,
-  OAS3Visitor,
   VisitFunction,
 } from './visitors';
 
@@ -142,7 +141,7 @@ export function walkDocument<T>(opts: {
 
     const anyEnterVisitors = normalizedVisitors.any.enter;
     const currentEnterVisitors = anyEnterVisitors.concat(
-      normalizedVisitors[type.name as keyof OAS3Visitor]?.enter || [],
+      normalizedVisitors[type.name]?.enter || [],
     );
 
     const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
@@ -231,7 +230,7 @@ export function walkDocument<T>(opts: {
 
     const anyLeaveVisitors = normalizedVisitors.any.leave;
     const currentLeaveVisitors = anyLeaveVisitors.concat(
-      normalizedVisitors[type.name as keyof OAS3Visitor]?.leave || [],
+      normalizedVisitors[type.name]?.leave || [],
     );
 
     for (const context of activatedContexts.reverse()) {

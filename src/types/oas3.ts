@@ -126,7 +126,7 @@ const PathMap: NodeType = {
 
 const PathItem: NodeType = {
   properties: {
-    $ref: 'PathItem', // TODO verify special $ref handling for Path Item
+    $ref: 'PathItem', // TODO: verify special $ref handling for Path Item
     servers: listOf('Server'),
     parameters: listOf('Parameter'),
     summary: {
@@ -210,7 +210,7 @@ const Operation: NodeType = {
       type: 'boolean',
     },
     callbacks: 'PathMap',
-    // 'x-codeSamples'?: OAS3XCodeSample[]; // TODO
+    // 'x-codeSamples'?: OAS3XCodeSample[]; // TODO: x-code-samples
     // 'x-code-samples'?: OAS3XCodeSample[]; // deprecated
   },
 };
@@ -329,8 +329,8 @@ const Link: NodeType = {
   properties: {
     operationRef: { type: 'string' },
     operationId: { type: 'string' },
-    parameters: null, // TODO
-    requestBody: null, // TODO
+    parameters: null, // TODO: figure out how to describe/validate this
+    requestBody: null, // TODO: figure out how to describe/validate this
     description: { type: 'string' },
     server: 'Server',
   },
@@ -410,7 +410,7 @@ const SchemaProperties: NodeType = {
 const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
-    mapping: { type: 'object' }, // TODO,
+    mapping: { type: 'object' }, // TODO: validate mapping
   },
   required: ['propertyName'],
 };
@@ -432,7 +432,7 @@ const Components: NodeType = {
 const ImplicitFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO
+    scopes: { type: 'object' }, // TODO: validate scopes
     authorizationUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'scopes'],
@@ -441,7 +441,7 @@ const ImplicitFlow: NodeType = {
 const PasswordFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO
+    scopes: { type: 'object' }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
@@ -450,7 +450,7 @@ const PasswordFlow: NodeType = {
 const ClientCredentials: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO
+    scopes: { type: 'object' }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
@@ -460,7 +460,7 @@ const AuthorizationCode: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO
+    scopes: { type: 'object' }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
