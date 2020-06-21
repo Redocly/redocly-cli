@@ -1,5 +1,4 @@
 import { Referenced } from './typings/openapi';
-import { TypeTreeNode } from './types';
 import { Location, isRef } from './ref';
 import {
   VisitorLevelContext,
@@ -12,6 +11,7 @@ import {
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OASVersion } from './validate';
+import { NormalizedNodeType } from './types/oa3';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
@@ -26,7 +26,7 @@ export type UserContext = {
     node: Referenced<T>,
   ): { location: Location; node: T } | { location: undefined; node: undefined };
   parentLocations: Record<string, Location>;
-  type: TypeTreeNode;
+  type: NormalizedNodeType;
   key: string | number;
   oasVersion: OASVersion;
 };
@@ -93,7 +93,7 @@ function collectParentsLocations(ctx: VisitorLevelContext) {
 
 export function walkDocument<T>(opts: {
   document: Document;
-  rootType: TypeTreeNode;
+  rootType: NormalizedNodeType;
   normalizedVisitors: NormalizedOASVisitors<T>;
   resolvedRefMap: ResolvedRefMap;
   ctx: WalkContext;
@@ -105,7 +105,7 @@ export function walkDocument<T>(opts: {
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), '');
 
-  function walkNode(node: any, type: TypeTreeNode, location: Location, key: string | number) {
+  function walkNode(node: any, type: NormalizedNodeType, location: Location, key: string | number) {
     const { node: resolvedNode, location: newLocation, error } = resolve(node);
 
     if (isRef(node)) {

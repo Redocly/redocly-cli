@@ -1,7 +1,7 @@
-import { BaseResolver, resolveDocument, Document, ResolvedRefMap } from './resolve';
+import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { OAS3Rule, normalizeVisitors, BaseVisitor, OAS3Visitor } from './visitors';
-import { TypeTreeNode, OAS3Types } from './types';
+import { OAS3Rule, normalizeVisitors, BaseVisitor } from './visitors';
+import { NormalizedNodeType, OAS3Types, normalizeTypes, NodeType } from './types/oa3';
 import { WalkContext, walkDocument } from './walk';
 import { detectOpenAPI } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref';
@@ -34,7 +34,7 @@ type BundleContext = WalkContext;
 
 export async function bundleDocument(opts: {
   document: Document;
-  customTypes?: Record<string, TypeTreeNode>;
+  customTypes?: Record<string, NodeType>;
   externalRefResolver?: BaseResolver;
 }) {
   const { document, customTypes, externalRefResolver = new BaseResolver() } = opts;
@@ -42,7 +42,7 @@ export async function bundleDocument(opts: {
     case OASVersion.Version2:
       throw new Error('OAS2 is not implemented yet');
     case OASVersion.Version3_0_x: {
-      const types = customTypes ?? OAS3Types;
+      const types = normalizeTypes(customTypes ?? OAS3Types);
 
       const resolvedRefMap = await resolveDocument({
         rootDocument: document,
@@ -68,7 +68,7 @@ export async function bundleDocument(opts: {
 
       walkDocument({
         document,
-        rootType: types.DefinitionRoot as TypeTreeNode,
+        rootType: types.DefinitionRoot as NormalizedNodeType,
         normalizedVisitors,
         resolvedRefMap,
         ctx,

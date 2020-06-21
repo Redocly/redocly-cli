@@ -1,6 +1,6 @@
 import { normalizeVisitors, VisitorLevelContext } from '../visitors';
 import { OAS3RuleSet } from '../validate';
-import { OAS3Types } from '../types';
+import { OAS3Types, normalizeTypes } from '../types/oa3';
 
 describe('Normalize visitors', () => {
   it('should work correctly for single rule', () => {
@@ -24,7 +24,7 @@ describe('Normalize visitors', () => {
       })),
     );
 
-    const normalized = normalizeVisitors(visitors, OAS3Types);
+    const normalized = normalizeVisitors(visitors, normalizeTypes(OAS3Types));
     expect(normalized).toBeDefined();
     expect(normalized.Schema.enter).toHaveLength(1);
     expect(normalized.Schema.enter[0].visit).toEqual(schemaEnter);
@@ -68,7 +68,7 @@ describe('Normalize visitors', () => {
       })),
     );
 
-    const normalized = normalizeVisitors(visitors, OAS3Types);
+    const normalized = normalizeVisitors(visitors, normalizeTypes(OAS3Types));
     expect(normalized).toBeDefined();
     expect(normalized.Info.enter).toHaveLength(1);
 
@@ -106,7 +106,7 @@ describe('Normalize visitors', () => {
       })),
     );
 
-    const normalized = normalizeVisitors(visitors, OAS3Types);
+    const normalized = normalizeVisitors(visitors, normalizeTypes(OAS3Types));
     expect(normalized).toBeDefined();
     expect(normalized.PathItem.enter).toHaveLength(1);
     expect(normalized.Operation.enter).toHaveLength(1);
@@ -141,7 +141,7 @@ describe('Normalize visitors', () => {
       })),
     );
 
-    const normalized = normalizeVisitors(visitors, OAS3Types);
+    const normalized = normalizeVisitors(visitors, normalizeTypes(OAS3Types));
     expect(normalized).toBeDefined();
     expect(normalized.Parameter.enter).toHaveLength(2);
     expect(normalized.Parameter.enter[0].visit).toStrictEqual(operationParam);

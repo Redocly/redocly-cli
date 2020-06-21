@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import { resolveDocument, BaseResolver, Document } from '../resolve';
 import { parseYamlToDocument } from './utils';
-import { DefinitionRootType } from '../types';
+import { OAS3Types, normalizeTypes } from '../types/oa3';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
@@ -23,7 +23,7 @@ describe('collect refs', () => {
     const resolvedRefs = await resolveDocument({
       rootDocument,
       externalRefResolver: new BaseResolver(),
-      rootType: DefinitionRootType,
+      rootType: normalizeTypes(OAS3Types).DefinitionRoot,
     });
 
     expect(resolvedRefs).toBeDefined();
@@ -62,7 +62,7 @@ describe('collect refs', () => {
       await resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
-        rootType: DefinitionRootType,
+        rootType: normalizeTypes(OAS3Types).DefinitionRoot,
       });
     } catch (e) {
       expect(e.message).toEqual('Self-referencing circular pointer');
@@ -88,7 +88,7 @@ describe('collect refs', () => {
     const resolvedRefs = await resolveDocument({
       rootDocument,
       externalRefResolver: new BaseResolver(),
-      rootType: DefinitionRootType,
+      rootType: normalizeTypes(OAS3Types).DefinitionRoot,
     });
 
     expect(resolvedRefs).toBeDefined();
@@ -121,7 +121,7 @@ describe('collect refs', () => {
       await resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
-        rootType: DefinitionRootType,
+        rootType: normalizeTypes(OAS3Types).DefinitionRoot,
       });
     } catch (e) {
       expect(e.message).toEqual('Self-referencing circular pointer');
@@ -142,7 +142,7 @@ describe('collect refs', () => {
     const resolvedRefs = await resolveDocument({
       rootDocument,
       externalRefResolver: new BaseResolver(),
-      rootType: DefinitionRootType,
+      rootType: normalizeTypes(OAS3Types).DefinitionRoot,
     });
 
     expect(resolvedRefs).toBeDefined();
@@ -175,7 +175,7 @@ describe('collect refs', () => {
     const resolvedRefs = await resolveDocument({
       rootDocument: rootDocument as Document,
       externalRefResolver: externalRefResolver,
-      rootType: DefinitionRootType,
+      rootType: normalizeTypes(OAS3Types).DefinitionRoot,
     });
 
     expect(resolvedRefs).toBeDefined();

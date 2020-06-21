@@ -920,8 +920,8 @@ describe('walk order', () => {
         "leave PathItem",
         "leave PathMap",
         "enter Components",
-        "enter Parameter_Map",
-        "leave Parameter_Map",
+        "enter NamedParameters",
+        "leave NamedParameters",
         "leave Components",
         "leave DefinitionRoot",
       ]

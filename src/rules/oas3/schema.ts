@@ -1,8 +1,8 @@
 import type { OAS3Rule } from '../../visitors';
-import { TypeTreeNode, PropSchema } from '../../types';
+import { NormalizedNodeType, PropertySchema, } from '../../types/oa3';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 
-function isNamedType(t: TypeTreeNode | PropSchema | null | undefined): t is TypeTreeNode {
+function isNamedType(t: NormalizedNodeType | PropertySchema | null | undefined): t is NormalizedNodeType {
   return typeof t?.name === 'string';
 }
 

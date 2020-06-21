@@ -23,7 +23,7 @@ import type {
   OAS3SecurityRequirement,
 } from './typings/openapi';
 
-import { TypeTreeNode } from './types';
+import { NormalizedNodeType } from './types/oa3';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, MessageSeverity } from './walk';
 import { Location } from './ref';
@@ -61,14 +61,14 @@ type VisitorRefNode = {
 
 export type VisitorLevelContext = {
   isSkippedLevel: false;
-  type: TypeTreeNode;
+  type: NormalizedNodeType;
   parent: VisitorLevelContext | null;
 
   activatedOn: Stack<{
     node?: any;
     withParentNode?: any;
     skipped: boolean;
-    nextLevelTypeActivated: Stack<TypeTreeNode>;
+    nextLevelTypeActivated: Stack<NormalizedNodeType>;
     location?: Location;
   }>;
 };
@@ -102,7 +102,7 @@ export type OAS3Visitor = BaseVisitor & {
   Header?: VisitFunctionOrObject<OAS3Header, OAS3Visitor>;
   License?: VisitFunctionOrObject<OAS3License, OAS3Visitor>;
   Schema?: VisitFunctionOrObject<OAS3Schema, OAS3Visitor>;
-  SchemasMap?: VisitFunctionOrObject<{ [name: string]: OAS3Schema }, OAS3Visitor>;
+  SchemaProperties?: VisitFunctionOrObject<{ [name: string]: OAS3Schema }, OAS3Visitor>;
   Parameter?: VisitFunctionOrObject<OAS3Parameter, OAS3Visitor>;
   Operation?: VisitFunctionOrObject<OAS3Operation, OAS3Visitor>;
   PathItem?: VisitFunctionOrObject<OAS3Path, OAS3Visitor>;
@@ -153,7 +153,7 @@ export type OASRule = OAS3Rule;
 
 export function normalizeVisitors<T extends BaseVisitor>(
   visitorsConfig: (RuleInstanceConfig & { visitor: VisitObject<any, T> })[],
-  types: Record<keyof T, TypeTreeNode>,
+  types: Record<keyof T, NormalizedNodeType>,
 ): NormalizedOASVisitors<T> {
   const normalizedVisitors: NormalizedOASVisitors<T> = {} as any;
 
@@ -187,16 +187,16 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
   function addWeakNodes(
     ruleConf: RuleInstanceConfig,
-    from: TypeTreeNode,
-    to: TypeTreeNode,
+    from: NormalizedNodeType,
+    to: NormalizedNodeType,
     parentContext: VisitorLevelContext,
-    stack: TypeTreeNode[] = [],
+    stack: NormalizedNodeType[] = [],
   ) {
     if (stack.includes(from)) return;
 
     stack = [...stack, from];
 
-    const possibleChildren = new Set<TypeTreeNode>();
+    const possibleChildren = new Set<NormalizedNodeType>();
 
     for (let type of Object.values(from.properties)) {
       if (type === to) {
@@ -219,7 +219,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
       addWeakNodes(ruleConf, fromType, to, parentContext, stack);
     }
 
-    function addWeakFromStack(ruleConf: RuleInstanceConfig, stack: TypeTreeNode[]) {
+    function addWeakFromStack(ruleConf: RuleInstanceConfig, stack: NormalizedNodeType[]) {
       for (const interType of stack.slice(1)) {
         (normalizedVisitors as any)[interType.name] =
           normalizedVisitors[interType.name] ||

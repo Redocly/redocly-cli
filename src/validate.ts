@@ -1,10 +1,11 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
 import { OAS3Rule, normalizeVisitors } from './visitors';
-import { TypeTreeNode, OAS3Types } from './types';
+import { NodeType, OAS3Types } from './types/oa3';
 import { WalkContext, walkDocument } from './walk';
 import { LintConfig } from './config/config';
 import { notUndefined } from './utils';
+import { normalizeTypes } from './types/oa3';
 
 export enum OASVersion {
   Version2,
@@ -30,7 +31,7 @@ export async function validate(opts: {
 export async function validateDocument(opts: {
   document: Document;
   config: LintConfig;
-  customTypes?: Record<string, TypeTreeNode>;
+  customTypes?: Record<string, NodeType>;
   externalRefResolver?: BaseResolver;
 }) {
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
@@ -43,7 +44,7 @@ export async function validateDocument(opts: {
         throw new Error('DEV: must provide visitors');
       }
 
-      const types = customTypes ?? OAS3Types;
+      const types = normalizeTypes(customTypes ?? OAS3Types); // TODO: types extension
 
       const rulesVisitors = oas3Rules
         ?.flatMap((ruleset) =>
@@ -81,7 +82,7 @@ export async function validateDocument(opts: {
 
       walkDocument({
         document,
-        rootType: types.DefinitionRoot as TypeTreeNode,
+        rootType: types.DefinitionRoot,
         normalizedVisitors,
         resolvedRefMap,
         ctx,
