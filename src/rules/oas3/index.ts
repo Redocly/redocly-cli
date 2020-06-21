@@ -30,6 +30,7 @@ import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
 import { PathHttpVerbsOrder } from './path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
+import { ValidContentExamples } from './valid-content-examples';
 
 export default {
   spec: Oas3Spec,
@@ -63,5 +64,6 @@ export default {
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
-  'path-http-verbs-order': PathHttpVerbsOrder
+  'path-http-verbs-order': PathHttpVerbsOrder,
+  'valid-content-examples': ValidContentExamples,
 } as Oas3RuleSet;

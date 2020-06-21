@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@types/node": "^14.0.13",
+    "ajv": "^6.12.2",
     "colorette": "^1.2.0",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^3.14.0",
