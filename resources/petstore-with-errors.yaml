@@ -3,6 +3,7 @@ openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Swagger Petstore
+  description: Lorem Ipsum
   license:
     name: MIT
 servers:

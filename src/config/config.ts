@@ -5,14 +5,14 @@ import { builtInConfigs } from './builtIn';
 import { rules as builtinRules } from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
 import oas3 from '../rules/oas3';
-import { OASVersion } from '../validate';
+import { OASVersion, OAS3TransformersSet } from '../validate';
 
 import { MessageSeverity } from '../walk';
 import { OAS3RuleSet } from '../validate';
 
 import recommended from './recommended';
 import { red, blue } from 'colorette';
-import { NodeType } from "../types";
+import { NodeType } from '../types';
 
 export type RuleConfig =
   | MessageSeverity
@@ -22,15 +22,30 @@ export type RuleConfig =
       options?: Record<string, any>;
     };
 
+export type TransformerConfig =
+  | MessageSeverity
+  | 'off'
+  | 'on'
+  | {
+      severity: MessageSeverity;
+      options?: Record<string, any>;
+    };
+
 export type RulesConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   rules?: Record<string, RuleConfig>;
-}
+  transformers?: Record<string, TransformerConfig>;
+};
 
 export type RawLintConfig = {
   typeExtension?: string;
-}
+};
+
+export type TransformersConfig = {
+  oas3?: OAS3TransformersSet;
+  oas2?: any; // TODO: implement OAS2
+};
 
 export type Plugin = {
   id: string;
@@ -39,6 +54,7 @@ export type Plugin = {
     oas3?: OAS3RuleSet;
     oas2?: any; // TODO: implement OAS2
   };
+  transformers?: TransformersConfig;
 };
 
 export type RawConfig = {
@@ -46,15 +62,16 @@ export type RawConfig = {
   lint?: RulesConfig & RawLintConfig;
 };
 
-export type TypesExtension = ((types: Record<string, NodeType>) => Record<string, NodeType>);
+export type TypesExtension = (types: Record<string, NodeType>) => Record<string, NodeType>;
 export type ExtensionModule = {
-  oas3_0: TypesExtension,
-  oas2: TypesExtension
-}
+  oas3_0: TypesExtension;
+  oas2: TypesExtension;
+};
 
 export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
+  transformers: Record<string, TransformerConfig>;
 
   constructor(public rawConfig: RulesConfig & RawLintConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
@@ -70,18 +87,22 @@ export class LintConfig {
       ? resolvePresets(rawConfig.extends, this.plugins)
       : [recommended];
 
-    if (rawConfig.rules)
+    if (rawConfig.rules || rawConfig.transformers)
       extendConfigs.push({
         rules: rawConfig.rules,
+        transformers: rawConfig.transformers,
       });
 
-    this.rules = mergeExtends(extendConfigs).rules;
+    const merged = mergeExtends(extendConfigs);
+    this.rules = merged.rules;
+
+    this.transformers = merged.transformers;
   }
 
   extendTypes(types: Record<string, NodeType>, version: OASVersion) {
     if (!this.rawConfig.typeExtension || !this.configFile) return types;
     try {
-      const fileName = path.resolve(path.dirname(this.configFile), this.rawConfig.typeExtension)
+      const fileName = path.resolve(path.dirname(this.configFile), this.rawConfig.typeExtension);
       const extension = require(fileName) as ExtensionModule;
       switch (version) {
         case OASVersion.Version3_0:
@@ -90,7 +111,7 @@ export class LintConfig {
         case OASVersion.Version2:
           throw new Error('OAS2 is not supported yet');
       }
-    } catch(e) {
+    } catch (e) {
       throw new Error(`Error processing typeExtension: ` + e.message);
     }
   }
@@ -108,10 +129,24 @@ export class LintConfig {
     }
   }
 
+  getTransformerSettings(ruleId: string) {
+    const settings = this.transformers[ruleId] || 'off';
+    if (typeof settings === 'string') {
+      return {
+        severity: settings === 'on' ? 'error' : settings,
+        options: undefined,
+      };
+    } else {
+      // @ts-ignore
+      return { severity: 'error', ...settings };
+    }
+  }
+
   getRulesForOASVersion(version: OASVersion) {
     switch (version) {
       case OASVersion.Version3_0:
         const oas3Rules: OAS3RuleSet[] = []; // default ruleset
+        this.plugins.forEach((p) => p.transformers?.oas3 && oas3Rules.push(p.transformers.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         return oas3Rules;
       default:
@@ -219,6 +254,17 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
           plugin.rules.oas3 = prefixRules(plugin.rules.oas2, id);
         }
       }
+      if (plugin.transformers) {
+        if (!plugin.transformers.oas3 && !plugin.transformers.oas2) {
+          throw new Error(`Plugin transformers must have \`oas3\` or \`oas2\` transformers "${p}}`);
+        }
+        if (plugin.transformers.oas3) {
+          plugin.transformers.oas3 = prefixRules(plugin.transformers.oas3, id);
+        }
+        if (plugin.transformers.oas2) {
+          plugin.transformers.oas3 = prefixRules(plugin.transformers.oas2, id);
+        }
+      }
 
       return plugin;
     })
@@ -235,8 +281,10 @@ function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
 }
 
 function mergeExtends(rulesConfList: RulesConfig[]) {
-  const result: Omit<RulesConfig, 'rules'> & Required<Pick<RulesConfig, 'rules'>> = {
+  const result: Omit<RulesConfig, 'rules' |'transformers'> &
+    Required<Pick<RulesConfig, 'rules' | 'transformers'>> = {
     rules: {},
+    transformers: {},
   };
 
   for (let rulesConf of rulesConfList) {
@@ -246,6 +294,7 @@ function mergeExtends(rulesConfList: RulesConfig[]) {
       );
     }
     Object.assign(result.rules, rulesConf.rules);
+    Object.assign(result.transformers, rulesConf.transformers);
   }
 
   return result;

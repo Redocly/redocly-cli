@@ -44,7 +44,7 @@ type VisitObject<T> = {
   skip?: SkipFunction<T>;
 };
 
-type NestedVisitObject<T, P> = VisitObject<T>  & NestedVisitor<P>;
+type NestedVisitObject<T, P> = VisitObject<T> & NestedVisitor<P>;
 
 type VisitFunctionOrObject<T> = VisitFunction<T> | VisitObject<T>;
 
@@ -147,14 +147,16 @@ type OAS3FlatVisitor = {
 type OAS3NestedVisitor = {
   [T in keyof OAS3FlatVisitor]: OAS3FlatVisitor[T] extends Function
     ? OAS3FlatVisitor[T]
-    : OAS3FlatVisitor[T] & NestedVisitor<OAS3NestedVisitor>
+    : OAS3FlatVisitor[T] & NestedVisitor<OAS3NestedVisitor>;
 };
 
 export type OAS3Visitor = BaseVisitor &
   OAS3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, OAS3NestedVisitor>>;
 
-export type OAS3Transformer = BaseVisitor & OAS3FlatVisitor;
+export type OAS3TransformVisitor = BaseVisitor &
+  OAS3FlatVisitor &
+  Record<string, VisitFunction<any> | VisitObject<any>>;
 
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'DefinitionRoot'>;
 
@@ -176,15 +178,16 @@ export type NormalizedOASVisitors<T extends BaseVisitor> = {
 };
 
 export type OAS3Rule = (options?: Record<string, any>) => OAS3Visitor;
+export type OAS3Transformer = (options?: Record<string, any>) => OAS3TransformVisitor;
+
+// alias for the latest version supported
+// every time we update it - consider semver
+export type OASRule = OAS3Rule;
 
 export type RuleInstanceConfig = {
   ruleId: string;
   severity: MessageSeverity;
 };
-
-// alias for the latest version supported
-// every time we update it - consider semver
-export type OASRule = OAS3Rule;
 
 export function normalizeVisitors<T extends BaseVisitor>(
   visitorsConfig: (RuleInstanceConfig & { visitor: NestedVisitObject<any, T> })[],

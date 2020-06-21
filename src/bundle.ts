@@ -7,6 +7,7 @@ import { WalkContext, walkDocument } from './walk';
 import { detectOpenAPI, OASVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref';
 import { LintConfig } from './config/config';
+import { initRules } from './config/rules';
 
 export type OAS3RuleSet = Record<string, OAS3Rule>;
 
@@ -44,6 +45,8 @@ export async function bundleDocument(opts: {
     case OASVersion.Version2:
       throw new Error('OAS2 is not implemented yet');
     case OASVersion.Version3_0: {
+      const oas3Rules = config.getRulesForOASVersion(OASVersion.Version3_0);
+
       const types = normalizeTypes(
         config.extendTypes(customTypes ?? OAS3Types, OASVersion.Version3_0),
       );
@@ -54,8 +57,11 @@ export async function bundleDocument(opts: {
         externalRefResolver,
       });
 
+      const transformers = initRules(oas3Rules, config, true);
+
       const normalizedVisitors = normalizeVisitors(
         [
+          ...transformers,
           {
             severity: 'error',
             ruleId: 'bundler',

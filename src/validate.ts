@@ -1,12 +1,12 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { OAS3Rule, normalizeVisitors } from './visitors';
+import { OAS3Rule, normalizeVisitors, OAS3Transformer } from './visitors';
 import { OAS3Types } from './types/oas3';
-import { NodeType } from "./types";
+import { NodeType } from './types';
 import { WalkContext, walkDocument } from './walk';
 import { LintConfig } from './config/config';
-import { notUndefined } from './utils';
-import { normalizeTypes } from "./types";
+import { normalizeTypes } from './types';
+import { initRules } from './config/rules';
 
 export enum OASVersion {
   Version2 = 'oas2',
@@ -20,6 +20,7 @@ export enum OASMajorVersion {
 
 export type RuleSet<T> = Record<string, T>;
 export type OAS3RuleSet = Record<string, OAS3Rule>;
+export type OAS3TransformersSet = Record<string, OAS3Transformer>;
 
 export async function validate(opts: {
   ref: string;
@@ -46,36 +47,14 @@ export async function validateDocument(opts: {
       throw new Error('OAS2 is not supported yet');
     case OASVersion.Version3_0: {
       const oas3Rules = config.getRulesForOASVersion(OASVersion.Version3_0);
-      if (!oas3Rules) {
-        throw new Error('DEV: must provide visitors');
-      }
 
       const types = normalizeTypes(
         config.extendTypes(customTypes ?? OAS3Types, OASVersion.Version3_0),
       );
 
-      const rulesVisitors = oas3Rules
-        ?.flatMap((ruleset) =>
-          // TODO: validate rules from config have corresponding rule defined for specific OAS version
-          Object.keys(ruleset).map((ruleId) => {
-            const rule = ruleset[ruleId];
-            const ruleSettings = config.getRuleSettings(ruleId);
-            if (ruleSettings.severity === 'off') {
-              return undefined;
-            }
+      const visitors = initRules(oas3Rules, config);
 
-            const visitor = rule(ruleSettings.options);
-
-            return {
-              severity: ruleSettings.severity,
-              ruleId,
-              visitor,
-            };
-          }),
-        )
-        .filter(notUndefined);
-
-      const normalizedVisitors = normalizeVisitors(rulesVisitors, types);
+      const normalizedVisitors = normalizeVisitors(visitors, types);
 
       const resolvedRefMap = await resolveDocument({
         rootDocument: document,

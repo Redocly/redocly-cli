@@ -8,3 +8,5 @@ lint:
   rules:
     operation-2xx-response: warning
     operation-description: off
+  transformers:
+    local/duplicate-description: error

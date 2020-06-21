@@ -20,7 +20,7 @@ export const rules = {
     'boolean-parameter-prefixes': () => {
       return {
         Parameter: {
-          Schema(schema, { report, parentLocations, location }, parents) {
+          Schema(schema, { report, parentLocations }, parents) {
             if (schema.type === 'boolean' && !/^(is|has)[A-Z]/.test(parents.Parameter.name)) {
               report({
                 message: `Boolean parameter ${parents.Parameter.name} should have a \`is\` or \`has\` prefix`,
@@ -33,6 +33,21 @@ export const rules = {
     },
   },
 };
+
+/** @type {import('../src/config/config').TransformersConfig} */
+export const transformers = {
+  oas3: {
+    'duplicate-description': () => {
+      return {
+        Info(info) {
+          if (info.description) {
+            info.description = info.description + '\n' + info.description
+          }
+        }
+      }
+    }
+  }
+}
 
 export const configs = {
   all: {
