@@ -23,7 +23,7 @@ yargs // eslint-disable-line
           demandOption: true,
         })
         .option('short', {
-          description: 'Reduce output to required minimun.',
+          description: 'Reduce output to required minimum.',
           type: 'boolean',
         })
         .option('max-messages', {

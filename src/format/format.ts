@@ -63,9 +63,9 @@ export function formatMessages(
       process.stdout.write(`${fullFormatMessage(message, i)}\n`);
     }
   } else {
-    const grouppedByFile = groupByFiles(messages);
+    const groupedByFile = groupByFiles(messages);
     for (const [file, { ruleIdPad, locationPad: positionPad, fileMessages }] of Object.entries(
-      grouppedByFile,
+      groupedByFile,
     )) {
       process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
 

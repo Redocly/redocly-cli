@@ -2,7 +2,7 @@ import { OAS3Rule } from '../../visitors';
 
 const pathRegex = /\{([a-zA-Z0-9_-]+)\}+/g;
 
-export const PathParamtersDefined: OAS3Rule = () => {
+export const PathParamsDefined: OAS3Rule = () => {
   let pathTemplateParams: Set<string>;
   let definedPathParams: Set<string>;
 

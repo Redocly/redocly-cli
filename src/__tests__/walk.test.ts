@@ -422,7 +422,7 @@ describe('walk order', () => {
     `);
   });
 
-  it('should visit and do not recurse for cicrular refs top-level', async () => {
+  it('should visit and do not recurse for circular refs top-level', async () => {
     const calls: string[] = [];
 
     const testRuleSet: OAS3RuleSet = {
@@ -467,7 +467,7 @@ describe('walk order', () => {
     `);
   });
 
-  it('should visit and do not recurese for cicrular refs with context', async () => {
+  it('should visit and do not recurse for circular refs with context', async () => {
     const calls: string[] = [];
 
     const testRuleSet: OAS3RuleSet = {

@@ -165,7 +165,7 @@ export function walkDocument<T>(opts: {
           (context.parent && // if nested
             context.parent.activatedOn &&
             context.activatedOn?.value.withParentNode !== context.parent.activatedOn.value.node &&
-            // do not enter if visited by parent children (it works thanks becuase deeper visitors are sorted before)
+            // do not enter if visited by parent children (it works thanks because deeper visitors are sorted before)
             context.parent.activatedOn.value.nextLevelTypeActivated?.value !== type) ||
           (!context.parent && !isNodeSeen) // if top-level visit each node just once
         ) {

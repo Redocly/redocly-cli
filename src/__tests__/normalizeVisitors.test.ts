@@ -84,7 +84,7 @@ describe('Normalize visitors', () => {
     expect(normalized.Info.leave[0].visit).toEqual(infoLeave);
   });
 
-  it('should normalize with weak interminient types', () => {
+  it('should normalize with weak intermittent types', () => {
     const contactEnter = () => undefined;
 
     const ruleset: OAS3RuleSet[] = [

@@ -1,6 +1,6 @@
 import { OAS3Rule } from '../../visitors';
 
-export const OperationParamtersUnique: OAS3Rule = () => {
+export const OperationParametersUnique: OAS3Rule = () => {
   let seenPathParams: Set<string>;
   let seenOperationParams: Set<string>;
 

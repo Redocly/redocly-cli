@@ -178,7 +178,7 @@ function resolvePresets(presets: string[], plugins: Plugin[]) {
         throw new Error(
           `Invalid preset ${red(
             presetName,
-          )}: plugin ${pluginName} doesnt export config with name ${configName}`,
+          )}: plugin ${pluginName} doesn't export config with name ${configName}`,
         );
       }
       return preset;

@@ -13,7 +13,7 @@ export const NoUnusedComponents: OAS3Rule = () => {
   }
 
   return {
-    ref(ref, { location, type, resolve, key }) {
+    ref(ref, { type, resolve, key }) {
       if (
         ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(type.name)
       ) {
@@ -26,7 +26,7 @@ export const NoUnusedComponents: OAS3Rule = () => {
       }
     },
     DefinitionRoot: {
-      leave(root, { report, location }) {
+      leave(_, { report }) {
         components.forEach((usageInfo, absolutePointer) => {
           if (!usageInfo.used) {
             const componentName = absolutePointer.split('/').pop();
@@ -38,29 +38,35 @@ export const NoUnusedComponents: OAS3Rule = () => {
         });
       },
     },
-    NamedSchemasMap: {
+    NamedSchemas: {
       Schema(schema, { location, key }) {
-        // FIXME: find a better way to detect possible discriminator
-        if (!schema.allOf) {
+        if (!schema.allOf) { // FIXME: find a better way to detect possible discriminator
           registerComponent(location, key.toString());
         }
       },
     },
-    Components: {
+    NamedParameters: {
       Parameter(_parameter, { location, key }) {
         registerComponent(location, key.toString());
       },
+    },
+    NamedResponses: {
       Response(_response, { location, key }) {
         registerComponent(location, key.toString());
       },
+    },
+    NamedExamples: {
       Example(_example, { location, key }) {
         registerComponent(location, key.toString());
       },
+    },
+    NamedRequestBodies: {
       RequestBody(_requestBody, { location, key }) {
         registerComponent(location, key.toString());
       },
+    },
+    NamedHeaders: {
       Header(_header, { location, key }) {
-        // FIXME: fix triggering on headers inside ReuquestyBody
         registerComponent(location, key.toString());
       },
     },

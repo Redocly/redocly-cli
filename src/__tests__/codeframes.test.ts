@@ -290,7 +290,7 @@ describe('codeframes', () => {
     `);
   });
 
-  it('correctly generate code-frame for multiline-value and show only 5 lines with emtpy lines', () => {
+  it('correctly generate code-frame for multiline-value and show only 5 lines with empty lines', () => {
     const loc = {
       reportOnKey: false,
       pointer: '#/info/license',
@@ -410,7 +410,7 @@ describe('codeframes', () => {
     `);
   });
 
-  it('correctly generate code-frame for emtpy file', () => {
+  it('correctly generate code-frame for empty file', () => {
     const loc = {
       reportOnKey: false,
       pointer: '#/info/description',
@@ -431,7 +431,7 @@ describe('codeframes', () => {
     `);
   });
 
-  it('correctly generate code-frame for whole file and corectly skip newlines', () => {
+  it('correctly generate code-frame for whole file and correctly skip newlines', () => {
     const loc = {
       reportOnKey: false,
       pointer: '#/',

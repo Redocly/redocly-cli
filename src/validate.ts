@@ -98,7 +98,7 @@ export async function validateDocument(opts: {
 
 export function detectOpenAPI(root: any): OASVersion {
   if (typeof root !== 'object') {
-    throw new Error(`Document must be JSON objcect, got ${typeof root}`);
+    throw new Error(`Document must be JSON object, got ${typeof root}`);
   }
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
