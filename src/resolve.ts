@@ -1,12 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as url from 'url';
 import * as yaml from 'js-yaml';
 const { readFile } = fs.promises;
 
 import { OasRef } from './typings/openapi';
-import { isRef, joinPointer, escapePointer, parseRef } from './ref-utils';
+import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
 import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
 import { NormalizedNodeType } from './types';
+import { readFileFromUrl } from './utils';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
@@ -76,13 +78,22 @@ export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
   resolveExternalRef(base: string | null, ref: string): string {
-    // TODO: test
+    if (isAbsoluteUrl(ref)) {
+      return ref;
+    }
+
+    if (base && isAbsoluteUrl(base)) {
+      return url.resolve(base, ref);
+    }
+
     return path.resolve(base ? path.dirname(base) : process.cwd(), ref);
   }
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
     try {
-      const body = await readFile(absoluteRef, 'utf-8');
+      const body = isAbsoluteUrl(absoluteRef)
+        ? await readFileFromUrl(absoluteRef)
+        : await readFile(absoluteRef, 'utf-8');
       return new Source(absoluteRef, body);
     } catch (error) {
       throw new ResolveError(error);

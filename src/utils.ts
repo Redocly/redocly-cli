@@ -1,5 +1,7 @@
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
+import fetch from 'node-fetch';
+
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -39,4 +41,16 @@ export async function loadYaml(filename: string) {
 
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
+}
+
+export async function readFileFromUrl(url: string) {
+  const req = await fetch(url, {
+    headers: {} // TODO: port headers support
+  });
+
+  if (!req.ok) {
+    throw new Error(`Failed to load ${url}: ${req.status} ${req.statusText}`);
+  }
+
+  return req.text();
 }
