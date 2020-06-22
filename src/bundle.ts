@@ -9,6 +9,7 @@ import { Location, pointerBaseName, refBaseName } from './ref-utils';
 import { LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
+import { ignoreMessage } from './utils';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -100,7 +101,10 @@ export async function bundleDocument(opts: {
         ctx,
       });
 
-      return { bundle: document.parsed, messages: ctx.messages };
+      return {
+        bundle: document.parsed,
+        messages: ctx.messages.map((message) => ignoreMessage(config, message)),
+      };
     }
   }
 }

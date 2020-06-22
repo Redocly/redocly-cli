@@ -64,6 +64,7 @@ export type NormalizedReportMessage = {
   severity: MessageSeverity;
   location: LocationObject[];
   suggest: string[];
+  ignored?: boolean;
 };
 
 export type WalkContext = {

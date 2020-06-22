@@ -70,6 +70,7 @@ export const Oas3Schema: Oas3Rule = () => {
         if (propSchema.enum) {
           if (!propSchema.enum.includes(propValue)) {
             report({
+              location: propLocation,
               message: `'${propName}' can be one of following only: ${propSchema.enum
                 .map((i) => `"${i}"`)
                 .join(', ')}`,

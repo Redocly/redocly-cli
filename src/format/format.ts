@@ -19,7 +19,7 @@ function severityToNumber(severity: MessageSeverity) {
 }
 
 export function formatMessages(
-  messages: NormalizedReportMessage[],
+  messages: (NormalizedReportMessage & { ignored?: boolean })[],
   opts: {
     maxMessages?: number;
     cwd?: string;
@@ -37,6 +37,9 @@ export function formatMessages(
   colorOptions.enabled = color; // force colors if specified
 
   const totalMessages = messages.length;
+  messages = messages.filter(m => !m.ignored);
+  const ignoredMessages = totalMessages - messages.length;
+
   messages = messages
     .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity))
     .slice(0, maxMessages);
@@ -64,7 +67,7 @@ export function formatMessages(
     }
   }
 
-  if (totalMessages > maxMessages) {
+  if (totalMessages - ignoredMessages > maxMessages) {
     process.stdout.write(
       `< ... ${totalMessages - maxMessages} more messages hidden > ${gray(
         'increase with `--max-messages N`',

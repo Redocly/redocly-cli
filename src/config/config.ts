@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'js-yaml';
 
 import { builtInConfigs } from './builtIn';
 import { rules as builtinRules } from '../rules/builtin';
@@ -8,12 +9,15 @@ import oas3 from '../rules/oas3';
 
 import { OasVersion, Oas3TransformersSet, OasMajorVersion } from '../validate';
 
-import { MessageSeverity } from '../walk';
+import { MessageSeverity, NormalizedReportMessage } from '../walk';
 import { Oas3RuleSet } from '../validate';
 
 import recommended from './recommended';
 import { red, blue } from 'colorette';
 import { NodeType } from '../types';
+import { dirname } from 'path';
+
+const EXCEPTIONS_FILE = '.openapi-cli.exceptions.yaml';
 
 export type RuleConfig =
   | MessageSeverity
@@ -72,6 +76,7 @@ export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
   transformers: Record<string, TransformerConfig>;
+  ignore: Record<string, Record<string, Record<string, boolean>>> = {};
 
   constructor(public rawConfig: RulesConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
@@ -97,6 +102,38 @@ export class LintConfig {
     this.rules = merged.rules;
 
     this.transformers = merged.transformers;
+
+    const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
+    const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
+
+    if (fs.existsSync(ignoreFile)) {
+      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')); // TODO: parse errors
+
+      // resolve ignore paths
+      for (const fileName of Object.keys(this.ignore)) {
+        this.ignore[path.resolve(dirname(ignoreFile), fileName)] = this.ignore[fileName];
+        delete this.ignore[fileName];
+      }
+    }
+  }
+
+  saveExceptions() {
+    const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
+    const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
+    const mapped: Record<string, any> = {};
+    for (const absFileName of Object.keys(this.ignore)) {
+      mapped[path.relative(dir, absFileName)] = this.ignore[absFileName];
+    }
+    fs.writeFileSync(ignoreFile, yaml.safeDump(mapped));
+  }
+
+  addException(message: NormalizedReportMessage) {
+    const ignore = this.ignore;
+    const loc = message.location[0];
+    const filePath = loc.source.absoluteRef;
+    const fileIgnore = (ignore[filePath] = ignore[filePath] || {});
+    const ruleIgnore = (fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || {});
+    if (loc.pointer) ruleIgnore[loc.pointer] = true;
   }
 
   extendTypes(types: Record<string, NodeType>, version: OasVersion) {

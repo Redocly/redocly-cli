@@ -10,7 +10,7 @@ import { formatMessages } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config } from './config/config';
 import { NormalizedReportMessage } from './walk';
-import { red, green, yellow, blue } from 'colorette';
+import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
@@ -38,6 +38,10 @@ yargs // eslint-disable-line
           type: 'number',
           default: 100,
         })
+        .option('generate-exceptions', {
+          description: 'Generate exceptions file',
+          type: 'boolean',
+        })
         .option('config', {
           description: 'Specify custom config file',
           requiresArg: true,
@@ -47,7 +51,8 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
-      const totals: Totals = { errors: 0, warnings: 0 };
+      const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
+      let totalExceptions = 0;
       for (const entryPoint of entrypoints) {
         try {
           const startedAt = performance.now();
@@ -56,14 +61,23 @@ yargs // eslint-disable-line
             config: config.lint,
           });
 
-          formatMessages(results, {
-            format: argv.format,
-            maxMessages: argv['max-messages'],
-          });
-
           const fileTotals = getTotals(results);
           totals.errors += fileTotals.errors;
           totals.warnings += fileTotals.warnings;
+          totals.ignored += fileTotals.ignored;
+
+          if (argv['generate-exceptions']) {
+            for (let m of results) {
+              config.lint.addException(m);
+              totalExceptions++;
+            }
+          } else {
+            formatMessages(results, {
+              format: argv.format,
+              maxMessages: argv['max-messages'],
+            });
+          }
+
           const elapsed = `${Math.ceil(performance.now() - startedAt)}ms`;
           process.stderr.write(`${blue(entryPoint)}: validated in ${elapsed}\n\n`);
         } catch (e) {
@@ -72,8 +86,13 @@ yargs // eslint-disable-line
         }
       }
 
-      printLintTotals(totals, entrypoints.length);
-      process.exit(totals.errors > 0 ? 1 : 0);
+      if (argv['generate-exceptions'])  {
+        config.lint.saveExceptions();
+        process.stderr.write(`Added ${totalExceptions} ${pluralize('message', totalExceptions)} to exceptions file\n\n`);
+      } else {
+        printLintTotals(totals, entrypoints.length);
+      }
+      process.exit(totals.errors === 0 || argv['generate-exceptions'] ? 0 : 1);
     },
   )
   .command(
@@ -117,7 +136,7 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
-      const totals: Totals = { errors: 0, warnings: 0 };
+      const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       for (const entrypoint of entrypoints) {
         try {
           const startedAt = performance.now();
@@ -146,6 +165,7 @@ yargs // eslint-disable-line
 
           totals.errors += fileTotals.errors;
           totals.warnings += fileTotals.warnings;
+          totals.ignored += fileTotals.ignored;
 
           formatMessages(messages, {
             format: argv.format,
@@ -231,12 +251,14 @@ function handleError(e: Error, ref: string) {
 }
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
+  const ignored = totals.ignored ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} ignored\n`) : '';
+
   if (totals.errors > 0) {
     process.stderr.write(
       red(
         `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
           totals.warnings
-        } ${pluralize('warning', totals.warnings)}\n`,
+        } ${pluralize('warning', totals.warnings)}. ${ignored}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
@@ -244,11 +266,17 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)} ${ignored}\n`),
     );
   } else {
     process.stderr.write(
-      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
+      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉. ${ignored}\n`),
+    );
+  }
+
+  if (totals.errors > 0) {
+    process.stderr.write(
+      gray(`\nrun with \`--generate-exceptions\` to add all messages to exceptions file\n`),
     );
   }
 
@@ -258,13 +286,19 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
 type Totals = {
   errors: number;
   warnings: number;
+  ignored: number;
 };
 
-function getTotals(messages: NormalizedReportMessage[]): Totals {
+function getTotals(messages: (NormalizedReportMessage & { ignored?: boolean })[]): Totals {
   let errors = 0;
   let warnings = 0;
+  let ignored = 0;
 
   for (const m of messages) {
+    if (m.ignored) {
+      ignored++;
+      continue;
+    }
     if (m.severity === 'error') errors++;
     if (m.severity === 'warning') warnings++;
   }
@@ -272,6 +306,7 @@ function getTotals(messages: NormalizedReportMessage[]): Totals {
   return {
     errors,
     warnings,
+    ignored,
   };
 }
 

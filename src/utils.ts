@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import fetch from 'node-fetch';
+import { LintConfig } from '.';
+import { NormalizedReportMessage } from './walk';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -61,4 +63,17 @@ export async function readFileFromUrl(url: string) {
   }
 
   return req.text();
+}
+
+
+export function ignoreMessage(config: LintConfig, message: NormalizedReportMessage) {
+  const ignoredFile = config.ignore[message.location[0].source.absoluteRef] || {};
+  const ignoredRule = ignoredFile[message.ruleId] || {};
+  const ignored = ignoredRule[message.location[0].pointer!];
+  return ignored
+    ? {
+      ...message,
+      ignored,
+    }
+    : message;
 }
