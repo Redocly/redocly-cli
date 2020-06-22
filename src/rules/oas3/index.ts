@@ -14,14 +14,11 @@ import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
 import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
 import { ServerNotExample } from './oas3-server-not-example.com';
 import { ServerNoTrailingSlash } from './oas3-server-trailing-slash';
-import { InfoContact } from './info-contact';
-import { InfoLicense } from './info-license';
 import { OperationDescription } from './operation-description';
 import { NoUnusedComponents } from './unused-components';
 import { PathNotIncludeQuery } from './path-not-include-query';
 import { ParameterDescription } from './parameter-description';
 import { OperationSingularTag } from './operation-singular-tag';
-import { InfoLicenseUrl } from './license-url';
 import { OperationSecurityDefined } from './operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
@@ -43,8 +40,6 @@ export default {
   'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
   'server-not-example.com': ServerNotExample,
   'server-trailing-slash': ServerNoTrailingSlash,
-  'info-contact': InfoContact,
-  'info-license': InfoLicense,
   'operation-description': OperationDescription,
   'operation-operationId-valid-in-url': OperationIdValidUrl,
   'no-unused-schemas': NoUnusedComponents,
@@ -52,10 +47,9 @@ export default {
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
-  'info-license-url': InfoLicenseUrl,
   'operation-security-defined': OperationSecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
-  'no-empty-string': NoEmptyString,
+  'defined-and-no-empty-string': NoEmptyString,
 } as Oas3RuleSet;
