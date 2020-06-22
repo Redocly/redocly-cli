@@ -43,6 +43,8 @@ paths:
         - $ref: '#/components/parameters/param-c'
 components:
   parameters:
+    param-a:
+      name: test
     param-b:
       name: param_b
     path-param:

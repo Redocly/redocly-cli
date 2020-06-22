@@ -13,6 +13,8 @@ paths:
         - $ref: ./param-c.yaml
 components:
   parameters:
+    param-a:
+      name: test
     param-b:
       name: param_b
     path-param:
