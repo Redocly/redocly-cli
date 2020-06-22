@@ -16,16 +16,23 @@ export default {
     'openapi-tags-alphabetical': 'off',
     'no-server-example.com': 'warning',
     'no-server-trailing-slash': 'warning',
-    'info-description': 'warning',
-    'tag-description': 'warning',
     'info-contact': 'off',
     'info-license': 'off',
     'no-unused-components': 'warning',
     'path-not-include-query': 'error',
     'operation-singular-tag': 'warning',
-    'info-license-url': 'off',
     'operation-security-defined': 'error',
     'no-unresolved-refs': 'error',
     'boolean-parameter-prefixes': 'warning',
+    'no-empty-string': {
+      severity: 'warning',
+      options: {
+        'Info.description': true,
+        'Tag.description': true,
+        'Info.license': true,
+        'Info.contact': true,
+        'License.url': false,
+      }
+    },
   },
 } as RulesConfig;

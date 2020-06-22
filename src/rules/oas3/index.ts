@@ -14,22 +14,18 @@ import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
 import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
 import { NoServerExample } from './no-server-example.com';
 import { NoServerTrailingSlash } from './no-server-trailing-slash';
-import { InfoDescription } from './info-description';
-import { TagDescription } from './tag-description';
-import { InfoContact } from './info-contact';
-import { InfoLicense } from './info-license';
 import { OperationDescription } from './operation-description';
 import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from './path-not-include-query';
 import { ParameterDescription } from './parameter-description';
 import { OperationSingularTag } from './operation-singular-tag';
-import { InfoLicenseUrl } from './license-url';
 import { OperationSecurityDefined } from './operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
 import { PathHttpVerbsOrder } from './path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
+import { NoEmptyString } from './no-empty-string';
 
 export default {
   schema: Oas3Schema,
@@ -47,10 +43,6 @@ export default {
   'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
   'no-server-example.com': NoServerExample,
   'no-server-trailing-slash': NoServerTrailingSlash,
-  'info-description': InfoDescription,
-  'tag-description': TagDescription,
-  'info-contact': InfoContact,
-  'info-license': InfoLicense,
   'operation-description': OperationDescription,
   'operation-operationId-valid-in-url': OperationIdValidUrl,
   'no-unused-components': NoUnusedComponents,
@@ -58,10 +50,10 @@ export default {
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
-  'info-license-url': InfoLicenseUrl,
   'operation-security-defined': OperationSecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
-  'path-http-verbs-order': PathHttpVerbsOrder
+  'path-http-verbs-order': PathHttpVerbsOrder,
+  'no-empty-string': NoEmptyString,
 } as Oas3RuleSet;
