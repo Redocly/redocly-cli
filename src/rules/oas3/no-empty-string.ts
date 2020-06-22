@@ -20,12 +20,12 @@ const checkForProperties = (typeName: string, properties: string[]) => (node: ob
 export const NoEmptyString: Oas3Rule = (opts: any) => {
   let requiredProperties = new Map<string, string[]>();
 
-  Object.keys(opts).forEach((path: string) => {
-    if (!opts[path]) return;
+  for (const path of Object.keys(opts)) {
+    if (!opts[path]) continue;
     const [ key, property ] = path.split('.');
     if (!requiredProperties.get(key)) requiredProperties.set(key, []);
     requiredProperties.get(key)?.push(property);
-  });
+  }
 
   let visitor:any = {};
 
