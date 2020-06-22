@@ -1294,14 +1294,14 @@ describe('type extensions', () => {
     expect(calls).toMatchInlineSnapshot(`
       Array [
         "enter DefinitionRoot",
-        "enter hook test",
         "enter XWebHooks",
+        "enter hook test",
         "enter Parameter_List",
         "enter Parameter",
         "leave Parameter",
         "leave Parameter_List",
-        "leave XWebHooks",
         "leave hook test",
+        "leave XWebHooks",
         "leave DefinitionRoot",
       ]
     `);

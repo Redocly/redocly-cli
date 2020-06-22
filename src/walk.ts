@@ -151,7 +151,9 @@ export function walkDocument<T>(opts: {
     let visitedBySome = false;
 
     const anyEnterVisitors = normalizedVisitors.any.enter;
-    const currentEnterVisitors = (normalizedVisitors[type.name]?.enter || []).concat(anyEnterVisitors);
+    const currentEnterVisitors = anyEnterVisitors.concat(
+      normalizedVisitors[type.name]?.enter || [],
+    );
 
     const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 
@@ -242,9 +244,7 @@ export function walkDocument<T>(opts: {
     }
 
     const anyLeaveVisitors = normalizedVisitors.any.leave;
-    const currentLeaveVisitors = anyLeaveVisitors.concat(
-      normalizedVisitors[type.name]?.leave || [],
-    );
+    const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(anyLeaveVisitors)
 
     for (const context of activatedContexts.reverse()) {
       if (context.isSkippedLevel) {
