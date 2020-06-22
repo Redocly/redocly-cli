@@ -188,6 +188,8 @@ export type Oas3Transformer = (options?: Record<string, any>) => Oas3TransformVi
 // alias for the latest version supported
 // every time we update it - consider semver
 export type OasRule = Oas3Rule;
+export type OasTransformer = (options?: Record<string, any>) => Oas3TransformVisitor;
+
 
 export type RuleInstanceConfig = {
   ruleId: string;
