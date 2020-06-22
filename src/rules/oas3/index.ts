@@ -55,5 +55,5 @@ export default {
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
-  'no-empty-string': NoEmptyString,
+  'defined-and-no-empty-string': NoEmptyString,
 } as Oas3RuleSet;
