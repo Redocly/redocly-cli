@@ -52,7 +52,7 @@ export type LocationObject = LineColLocationObject | PointerLocationObject;
 
 export type MessageSeverity = 'error' | 'warning';
 
-type ReportMessage = {
+export type ReportMessage = {
   message: string;
   suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;

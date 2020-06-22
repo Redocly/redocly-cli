@@ -10,7 +10,8 @@ import { formatMessages } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config } from './config/config';
 import { NormalizedReportMessage } from './walk';
-import { red, green, yellow } from 'colorette';
+import { red, green, yellow, blue } from 'colorette';
+import { performance } from 'perf_hooks';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
@@ -46,31 +47,33 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
+      const totals: Totals = { errors: 0, warnings: 0 };
       for (const entryPoint of entrypoints) {
         try {
-          console.time(`${entryPoint} validation took`);
+          const startedAt = performance.now();
           const results = await validate({
             ref: entryPoint,
             config: config.lint,
           });
-          console.timeEnd(`${entryPoint} validation took`);
 
-          console.time(`Formatting messages took`);
           formatMessages(results, {
             format: argv.format,
             maxMessages: argv['max-messages'],
           });
 
-          const totals = getTotals(results);
-          printLintTotals(totals);
-
-          console.timeEnd(`Formatting messages took`);
-
-          process.exit(totals.errors > 0 ? 1 : 0);
+          const fileTotals = getTotals(results);
+          totals.errors += fileTotals.errors;
+          totals.warnings += fileTotals.warnings;
+          const elapsed = `${Math.ceil(performance.now() - startedAt)}ms`;
+          process.stderr.write(`${blue(entryPoint)}: validated in ${elapsed}\n\n`);
         } catch (e) {
+          totals.errors++;
           handleError(e, entryPoint);
         }
       }
+
+      printLintTotals(totals, entrypoints.length);
+      process.exit(totals.errors > 0 ? 1 : 0);
     },
   )
   .command(
@@ -102,6 +105,10 @@ yargs // eslint-disable-line
           requiresArg: true,
           choices: outputExtensions,
         })
+        .option('force', {
+          alias: 'f',
+          description: 'Produce bundle output file even if validation errors were encountered',
+        })
         .option('config', {
           description: 'Specify custom config file',
           type: 'string',
@@ -110,91 +117,142 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
+      const totals: Totals = { errors: 0, warnings: 0 };
       for (const entrypoint of entrypoints) {
         try {
-          console.time(`${entrypoint} bundle took`);
-
+          const startedAt = performance.now();
           const { bundle: result, messages } = await bundle({
             config: config.lint,
             ref: entrypoint,
           });
 
-          console.timeEnd(`${entrypoint} bundle took`);
+          const fileTotals = getTotals(messages);
 
-          if (result) {
+          const { outputFile, ext } = getOutputFileName(
+            entrypoint,
+            entrypoints.length,
+            argv.output,
+            argv.ext,
+          );
+
+          if (fileTotals.errors === 0 || argv.force) {
             const output = dumpBundle(result, argv.ext || 'yaml');
             if (!argv.output) {
               process.stdout.write(output);
             } else {
-              let outputFile = argv.output;
-              let ext: BundleOutputFormat;
-              if (entrypoint.length > 1) {
-                ext = argv.ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
-                if (!outputExtensions.includes(ext as any)) {
-                  throw new Error(`Invalid file extension: ${ext}`);
-                }
-                outputFile =
-                  join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
-              } else {
-                ext = argv.ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
-                if (!outputExtensions.includes(ext as any)) {
-                  throw new Error(`Invalid file extension: ${ext}`);
-                }
-                outputFile =
-                  join(argv.output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
-              }
-              saveBundle(argv.output, result, ext);
+              saveBundle(outputFile, result, ext);
             }
           }
 
-          console.log(messages.length ? 'Failed to bundle' : 'Bundled successfully');
+          totals.errors += fileTotals.errors;
+          totals.warnings += fileTotals.warnings;
+
           formatMessages(messages, {
             format: argv.format,
             maxMessages: argv['max-messages'],
           });
+
+          const elapsed = `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          if (fileTotals.errors > 0) {
+            if (argv.force) {
+              process.stderr.write(
+                `❓ Force created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
+                  elapsed,
+                )}. ${yellow('Errors ignored because of --force')}\n`,
+              );
+            } else {
+              process.stderr.write(
+                `❌ Errors encountered while bundling ${blue(
+                  entrypoint,
+                )}: bundle not created (use --force to ignore errors)\n`,
+              );
+            }
+          } else {
+            process.stdout.write(
+              `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
+                elapsed,
+              )}\n`,
+            );
+          }
         } catch (e) {
           handleError(e, entrypoint);
         }
       }
+
+      process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
   .demandCommand(1)
   .strict().argv;
 
+function getOutputFileName(
+  entrypoint: string,
+  entries: number,
+  output?: string,
+  ext?: BundleOutputFormat,
+) {
+  if (!output) {
+    return { outputFile: 'stdout', ext: ext || 'yaml' };
+  }
+
+  let outputFile = output;
+  if (entries > 1) {
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext as any)) {
+      throw new Error(`Invalid file extension: ${ext}`);
+    }
+    outputFile = join(output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
+  } else {
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext as any)) {
+      throw new Error(`Invalid file extension: ${ext}`);
+    }
+    outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
+  }
+  return { outputFile, ext };
+}
+
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
-    process.stdout.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}\n`,
+    process.stderr.write(
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n`,
     );
   } else if (e instanceof YamlParseError) {
-    process.stdout.write(`Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}\n`);
+    process.stderr.write(
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n`,
+    );
     // TODO: codeframe
   } else {
-    process.stdout.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n`);
+    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n\n`);
     throw e;
   }
 
-  process.exit(1);
+  // process.exit(1);
 }
 
-function printLintTotals(totals: Totals) {
+function printLintTotals(totals: Totals, definitionsCount: number) {
   if (totals.errors > 0) {
     process.stderr.write(
       red(
-        `❌ Validation failed with ${pluralize('error', totals.errors)} and ${pluralize(
-          'warning',
-          totals.warnings,
-        )}\n`,
+        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
+          totals.warnings
+        } ${pluralize('warning', totals.warnings)}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
-    process.stderr.write(green('Woohoo! Your OpenAPI definition is valid 🎉\n'));
-    process.stderr.write(yellow(`You have ${pluralize('warning', totals.warnings)}\n`));
+    process.stderr.write(
+      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
+    );
+    process.stderr.write(
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}\n`),
+    );
   } else {
-    process.stderr.write(green('Woohoo! Your OpenAPI definition is valid 🎉\n'));
+    process.stderr.write(
+      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
+    );
   }
 
-  console.log();
+  process.stderr.write('\n');
 }
 
 type Totals = {
@@ -218,7 +276,12 @@ function getTotals(messages: NormalizedReportMessage[]): Totals {
 }
 
 function pluralize(label: string, num: number) {
-  return num === 1 ? `1 ${label}` : `${num} ${label}s`;
+  if (label.endsWith('is')) {
+    [label] = label.split(' ');
+    return num === 1 ? `${label} is` : `${label}s are`;
+  }
+
+  return num === 1 ? `${label}` : `${label}s`;
 }
 
 function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {

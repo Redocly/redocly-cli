@@ -8,6 +8,7 @@ import { detectOpenAPI, OasVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref-utils';
 import { LintConfig } from './config/config';
 import { initRules } from './config/rules';
+import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -43,7 +44,7 @@ export async function bundleDocument(opts: {
   const { document, config, customTypes, externalRefResolver = new BaseResolver() } = opts;
   switch (detectOpenAPI(document.parsed)) {
     case OasVersion.Version2:
-      throw new Error('Oas2 is not implemented yet');
+      throw new Error('OAS2 is not implemented yet');
     case OasVersion.Version3_0: {
       const oas3Rules = config.getRulesForOasVersion(OasVersion.Version3_0);
 
@@ -127,7 +128,10 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
   // @ts-ignore
   const visitor: T = {
     ref(node, ctx, resolved) {
-      if (!resolved.location || !resolved.node) return; // error is reported by walker
+      if (!resolved.location || resolved.node === undefined) {
+        reportUnresolvedRef(resolved, ctx.report);
+        return;
+      }
 
       // TODO: discriminator
       const componentType = mapTypeToComponent(ctx.type.name, version);

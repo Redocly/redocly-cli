@@ -43,12 +43,6 @@ export function formatMessages(
 
   if (!totalMessages) return;
 
-  if (totalMessages > maxMessages) {
-    process.stdout.write(`${maxMessages} first fo total ${totalMessages} messages:\n`);
-  } else {
-    process.stdout.write(`${totalMessages} messages\n`);
-  }
-
   if (format === 'detailed') {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];

@@ -23,7 +23,6 @@ export default {
     'operation-description': 'off',
     'no-unused-schemas': 'warning',
     'path-not-include-query': 'error',
-    'parameter-description': 'warning',
     'operation-singular-tag': 'warning',
     'info-license-url': 'off',
     'operation-security-defined': 'error',

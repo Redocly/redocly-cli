@@ -44,7 +44,7 @@ export async function validateDocument(opts: {
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
   switch (detectOpenAPI(document.parsed)) {
     case OasVersion.Version2:
-      throw new Error('Oas2 is not supported yet');
+      throw new Error('OAS2 is not supported yet');
     case OasVersion.Version3_0: {
       const oas3Rules = config.getRulesForOasVersion(OasVersion.Version3_0);
 
