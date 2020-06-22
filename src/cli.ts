@@ -15,6 +15,7 @@ import { red, green, yellow } from 'colorette';
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
 yargs // eslint-disable-line
+  .version()
   .command(
     'lint [entrypoints...]',
     'Lint definition',
