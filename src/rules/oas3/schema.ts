@@ -1,8 +1,10 @@
 import type { Oas3Rule } from '../../visitors';
-import { NormalizedNodeType, ScalarSchema } from "../../types";
+import { NormalizedNodeType, ScalarSchema } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 
-function isNamedType(t: NormalizedNodeType | ScalarSchema | null | undefined): t is NormalizedNodeType {
+function isNamedType(
+  t: NormalizedNodeType | ScalarSchema | null | undefined,
+): t is NormalizedNodeType {
   return typeof t?.name === 'string';
 }
 

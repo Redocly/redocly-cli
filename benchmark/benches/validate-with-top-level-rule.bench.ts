@@ -19,7 +19,7 @@ const config = makeConfigForRuleset({
     return {
       Schema() {
         count++;
-        if (count === -1) throw new Error('Disable optimization')
+        if (count === -1) throw new Error('Disable optimization');
       },
     };
   },

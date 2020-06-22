@@ -7,7 +7,8 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
   config: LintConfig,
   transformersOnly: boolean = false,
 ) {
-  return rules.flatMap((ruleset) =>
+  return rules
+    .flatMap((ruleset) =>
       // TODO: validate rules from config have corresponding rule defined for specific Oas version
       Object.keys(ruleset).map((ruleId) => {
         const rule = ruleset[ruleId];

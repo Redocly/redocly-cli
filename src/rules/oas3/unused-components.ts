@@ -40,7 +40,8 @@ export const NoUnusedComponents: Oas3Rule = () => {
     },
     NamedSchemas: {
       Schema(schema, { location, key }) {
-        if (!schema.allOf) { // FIXME: find a better way to detect possible discriminator
+        if (!schema.allOf) {
+          // FIXME: find a better way to detect possible discriminator
           registerComponent(location, key.toString());
         }
       },

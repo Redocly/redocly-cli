@@ -2,7 +2,7 @@ import { BaseResolver, resolveDocument, Document } from './resolve';
 
 import { Oas3Rule, normalizeVisitors, BaseVisitor } from './visitors';
 import { Oas3Types } from './types/oas3';
-import { NormalizedNodeType, normalizeTypes, NodeType } from "./types";
+import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument } from './walk';
 import { detectOpenAPI, OasVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref-utils';

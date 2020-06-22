@@ -9,6 +9,6 @@ export const InfoDescription: Oas3Rule = () => {
           location: { reportOnKey: true },
         });
       }
-    }
+    },
   };
 };

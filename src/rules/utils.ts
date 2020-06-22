@@ -51,5 +51,5 @@ export function getSuggest(given: string, variants: string[]): string[] {
   distances.sort((a, b) => a.distance - b.distance);
 
   // if (bestMatch.distance <= 4) return bestMatch.string;
-  return distances.map(d => d.variant);
+  return distances.map((d) => d.variant);
 }

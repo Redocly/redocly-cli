@@ -29,6 +29,6 @@ export default {
     'operation-security-defined': 'error',
     'no-unresolved-refs': 'error',
     'boolean-parameter-prefixes': 'error',
-    'paths-kebab-case': 'error'
+    'paths-kebab-case': 'error',
   },
 } as RulesConfig;

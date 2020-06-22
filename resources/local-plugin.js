@@ -25,13 +25,13 @@ export const transformers = {
       return {
         Info(info) {
           if (info.description) {
-            info.description = info.description + '\n' + info.description
+            info.description = info.description + '\n' + info.description;
           }
-        }
-      }
-    }
-  }
-}
+        },
+      };
+    },
+  },
+};
 
 export const configs = {
   all: {

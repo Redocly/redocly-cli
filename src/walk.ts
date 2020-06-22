@@ -105,7 +105,13 @@ export function walkDocument<T>(opts: {
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
-  function walkNode(node: any, type: NormalizedNodeType, location: Location, parent: any, key: string | number) {
+  function walkNode(
+    node: any,
+    type: NormalizedNodeType,
+    location: Location,
+    parent: any,
+    key: string | number,
+  ) {
     const { node: resolvedNode, location: newLocation, error } = resolve(node);
 
     if (isRef(node)) {

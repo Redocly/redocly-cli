@@ -106,7 +106,7 @@ export class LintConfig {
 
   extendTypes(types: Record<string, NodeType>, version: OasVersion) {
     let extendedTypes = types;
-    for(const plugin of this.plugins) {
+    for (const plugin of this.plugins) {
       if (plugin.typeExtension !== undefined) {
         switch (version) {
           case OasVersion.Version3_0:
@@ -131,7 +131,6 @@ export class LintConfig {
         options: undefined,
       };
     } else {
-
       return { severity: 'error' as 'error', ...settings };
     }
   }
@@ -140,7 +139,7 @@ export class LintConfig {
     const settings = this.transformers[ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? 'error' as 'error': settings,
+        severity: settings === 'on' ? ('error' as 'error') : settings,
         options: undefined,
       };
     } else {

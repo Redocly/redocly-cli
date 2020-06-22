@@ -25,7 +25,8 @@ export type NormalizedNodeType = {
 type NormalizedPropType = NormalizedNodeType | ScalarSchema | undefined | null;
 type NormalizedResolveTypeFn = (
   value: any,
-  key: string) => NormalizedNodeType | ScalarSchema | undefined | null;
+  key: string,
+) => NormalizedNodeType | ScalarSchema | undefined | null;
 
 export function listOf(typeName: string) {
   return {
@@ -43,7 +44,8 @@ export function mapOf(typeName: string) {
 }
 
 export function normalizeTypes(
-  types: Record<string, NodeType>): Record<string, NormalizedNodeType> {
+  types: Record<string, NodeType>,
+): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
   for (const typeName of Object.keys(types)) {
@@ -83,18 +85,15 @@ export function normalizeTypes(
         throw new Error(`Unknown type name found: ${type}`);
       }
       return normalizedTypes[type];
-    }
-    else if (typeof type === 'function') {
+    } else if (typeof type === 'function') {
       return (value: any, key: string) => {
         return resolveType(type(value, key));
       };
-    }
-    else if (type && type.name) {
+    } else if (type && type.name) {
       type = { ...type };
       normalizeType(type);
       return type;
-    }
-    else {
+    } else {
       return type;
     }
   }

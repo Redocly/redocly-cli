@@ -128,17 +128,19 @@ yargs // eslint-disable-line
               let outputFile = argv.output;
               let ext: BundleOutputFormat;
               if (entrypoint.length > 1) {
-                ext = argv.ext || extname(entrypoint).substring(1) as BundleOutputFormat;
+                ext = argv.ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
                 if (!outputExtensions.includes(ext as any)) {
                   throw new Error(`Invalid file extension: ${ext}`);
                 }
-                outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
+                outputFile =
+                  join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
               } else {
-                ext = argv.ext || extname(entrypoint).substring(1) as BundleOutputFormat;
+                ext = argv.ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
                 if (!outputExtensions.includes(ext as any)) {
                   throw new Error(`Invalid file extension: ${ext}`);
                 }
-                outputFile = join(argv.output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
+                outputFile =
+                  join(argv.output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
               }
               saveBundle(argv.output, result, ext);
             }
@@ -147,7 +149,7 @@ yargs // eslint-disable-line
           console.log(messages.length ? 'Failed to bundle' : 'Bundled successfully');
           formatMessages(messages, {
             format: argv.format,
-            maxMessages: argv["max-messages"]
+            maxMessages: argv['max-messages'],
           });
         } catch (e) {
           handleError(e, entrypoint);
@@ -221,9 +223,9 @@ function pluralize(label: string, num: number) {
 function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   let res = argsEntrypoints;
   if (
-    (!argsEntrypoints || !argsEntrypoints.length)
-    && config.apiDefinitions
-    && Object.keys(config.apiDefinitions).length > 0
+    (!argsEntrypoints || !argsEntrypoints.length) &&
+    config.apiDefinitions &&
+    Object.keys(config.apiDefinitions).length > 0
   ) {
     res = Object.values(config.apiDefinitions);
   } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {

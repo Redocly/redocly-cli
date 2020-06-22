@@ -28,6 +28,6 @@ export default {
     'info-license-url': 'off',
     'operation-security-defined': 'error',
     'no-unresolved-refs': 'error',
-    'boolean-parameter-prefixes': 'warning'
+    'boolean-parameter-prefixes': 'warning',
   },
 } as RulesConfig;
