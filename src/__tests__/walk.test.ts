@@ -1284,8 +1284,8 @@ describe('type extensions', () => {
     expect(calls).toMatchInlineSnapshot(`
       Array [
         "enter DefinitionRoot",
-        "enter XWebHooks",
         "enter hook test",
+        "enter XWebHooks",
         "enter Parameter_List",
         "enter Parameter",
         "leave Parameter",

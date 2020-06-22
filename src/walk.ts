@@ -148,9 +148,7 @@ export function walkDocument<T>(opts: {
     let visitedBySome = false;
 
     const anyEnterVisitors = normalizedVisitors.any.enter;
-    const currentEnterVisitors = anyEnterVisitors.concat(
-      normalizedVisitors[type.name]?.enter || [],
-    );
+    const currentEnterVisitors = (normalizedVisitors[type.name]?.enter || []).concat(anyEnterVisitors);
 
     const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 

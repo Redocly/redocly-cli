@@ -44,17 +44,12 @@ export type TransformersConfig = {
   oas2?: any; // TODO: implement Oas2
 };
 
-export type TypesExtensionConfig = {
-  oas3?: Oas3TransformersSet;
-  oas2?: any; // TODO: implement Oas2
-};
-
 export type TypesExtensionFn = (
   types: Record<string, NodeType>,
   oasVersion: OasVersion,
 ) => Record<string, NodeType>;
 
-export type TypeExtensionConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
+export type TypeExtensionsConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
 export type CustomRulesConfig = {
   oas3?: Oas3RuleSet;
   oas2?: any; // TODO: implement Oas2
@@ -65,7 +60,7 @@ export type Plugin = {
   configs?: Record<string, RulesConfig>;
   rules?: CustomRulesConfig;
   transformers?: TransformersConfig;
-  typeExtension?: TypeExtensionConfig;
+  typeExtension?: TypeExtensionsConfig;
 };
 
 export type RawConfig = {

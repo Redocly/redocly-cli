@@ -3,7 +3,7 @@ export type { NodeType } from './types/index';
 export type {
   Config,
   TransformersConfig,
-  TypesExtensionConfig,
+  TypeExtensionsConfig,
   RulesConfig,
   Plugin,
   CustomRulesConfig,

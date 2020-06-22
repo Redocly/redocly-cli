@@ -20,7 +20,6 @@ export default {
     'tag-description': 'warning',
     'info-contact': 'off',
     'info-license': 'off',
-    'operation-description': 'off',
     'no-unused-schemas': 'warning',
     'path-not-include-query': 'error',
     'operation-singular-tag': 'warning',
