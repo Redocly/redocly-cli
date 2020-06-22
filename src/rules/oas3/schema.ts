@@ -94,6 +94,36 @@ export const Oas3Schema: Oas3Rule = () => {
             }
           }
         }
+        if(propSchema.constraints) {
+          const { maxLength, minLength, minValue, maxValue } = propSchema.constraints;
+          if (maxLength !== undefined && node[propName].length > maxLength) {
+            report({
+              message: `The length of the ${propName} field must be less or equal to ${maxLength}`,
+              location: location.append([propName]),
+            })
+          }
+
+          if (minLength !== undefined && node[propName].length < minLength) {
+            report({
+              message: `The length of the ${propName} field must be greater than or equal to ${minLength}`,
+              location: location.append([propName]),
+            })
+          }
+
+          if (maxValue !== undefined && maxValue < node[propName]) {
+            report({
+              message: `The value of the ${propName} field must be less than or equal to ${maxValue}`,
+              location: location.append([propName]),
+            })
+          }
+
+          if (minValue !== undefined && minValue > node[propName]) {
+            report({
+              message: `The value of the ${propName} field must be greater than or equal to ${minValue}`,
+              location: location.append([propName]),
+            })
+          }
+        }
       }
     },
   };

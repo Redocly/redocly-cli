@@ -3,7 +3,15 @@ export type ScalarSchema = {
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
   items?: ScalarSchema;
   enum?: string[];
+  constraints?: ScalarConstraints;
   referenceable?: boolean;
+};
+
+export type ScalarConstraints = {
+  minValue?: number;
+  maxValue?: number;
+  minLength?: number;
+  maxLength?: number;
 };
 
 export type NodeType = {
