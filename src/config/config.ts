@@ -132,8 +132,24 @@ export class LintConfig {
     const loc = message.location[0];
     const filePath = loc.source.absoluteRef;
     const fileIgnore = (ignore[filePath] = ignore[filePath] || {});
-    const ruleIgnore = (fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || {});
-    if (loc.pointer) ruleIgnore[loc.pointer] = true;
+    if (loc.pointer === undefined) return;
+
+    const pointerIgnore = fileIgnore[loc.pointer] = fileIgnore[loc.pointer] || {};
+    pointerIgnore[message.ruleId] = true;
+  }
+
+  addMessageIsIgnored(message: NormalizedReportMessage) {
+    const loc = message.location[0];
+    const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
+    if (loc.pointer === undefined) return message;
+    const pointerIgnore = fileIgnore[loc.pointer] || {};
+    const ignored = pointerIgnore[message.ruleId];
+    return ignored
+      ? {
+        ...message,
+        ignored,
+      }
+      : message;
   }
 
   extendTypes(types: Record<string, NodeType>, version: OasVersion) {

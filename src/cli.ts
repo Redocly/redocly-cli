@@ -51,6 +51,11 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
+      if (argv['generate-exceptions']) {
+        // clear ignore
+        config.lint.ignore = {};
+      }
+
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       let totalExceptions = 0;
       for (const entryPoint of entrypoints) {
@@ -251,7 +256,7 @@ function handleError(e: Error, ref: string) {
 }
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
-  const ignored = totals.ignored ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} ignored\n`) : '';
+  const ignored = totals.ignored ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored\n`) : '';
 
   if (totals.errors > 0) {
     process.stderr.write(

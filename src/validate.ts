@@ -7,7 +7,6 @@ import { WalkContext, walkDocument } from './walk';
 import { LintConfig } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
-import { ignoreMessage } from './utils';
 
 export enum OasVersion {
   Version2 = 'oas2',
@@ -93,7 +92,7 @@ export async function validateDocument(opts: {
         ctx,
       });
 
-      return ctx.messages.map((message) => ignoreMessage(config, message));
+      return ctx.messages.map((message) => config.addMessageIsIgnored(message));
     }
   }
 }
