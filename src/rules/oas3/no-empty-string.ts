@@ -8,6 +8,11 @@ const checkForProperties = (typeName: string, properties: string[]) => (node: ob
         message: `${typeName} must have ${requiredProperty} property.`,
         location: { reportOnKey: true }
       })
+    } else if (!(node as any)[requiredProperty]) {
+      context.report({
+        message: `${typeName} object ${requiredProperty} must be non-empty string.`,
+        location: context.location.append([requiredProperty]),
+      });
     }
   }
 };
@@ -16,6 +21,7 @@ export const NoEmptyString: Oas3Rule = (opts: any) => {
   let requiredProperties = new Map<string, string[]>();
 
   Object.keys(opts).forEach((path: string) => {
+    if (!opts[path]) return;
     const [ key, property ] = path.split('.');
     if (!requiredProperties.get(key)) requiredProperties.set(key, []);
     requiredProperties.get(key)?.push(property);
