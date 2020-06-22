@@ -52,8 +52,30 @@ export async function validateDocument(opts: {
         config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
       );
 
-      const visitors = initRules(oas3Rules, config);
+      const ctx: WalkContext = {
+        messages: [],
+        oasVersion: OasVersion.Version3_0,
+      };
 
+      const transformers = initRules(oas3Rules, config, true);
+
+      if (transformers.length) {
+        const transformerVisitors = normalizeVisitors(transformers, types);
+        const resolvedRefMap = await resolveDocument({
+          rootDocument: document,
+          rootType: types.DefinitionRoot,
+          externalRefResolver,
+        });
+        walkDocument({
+          document,
+          rootType: types.DefinitionRoot,
+          normalizedVisitors: transformerVisitors,
+          resolvedRefMap,
+          ctx,
+        });
+      }
+
+      const visitors = initRules(oas3Rules, config, false);
       const normalizedVisitors = normalizeVisitors(visitors, types);
 
       const resolvedRefMap = await resolveDocument({
@@ -61,11 +83,6 @@ export async function validateDocument(opts: {
         rootType: types.DefinitionRoot,
         externalRefResolver,
       });
-
-      let ctx: WalkContext = {
-        messages: [],
-        oasVersion: OasVersion.Version3_0,
-      };
 
       walkDocument({
         document,
