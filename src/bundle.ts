@@ -52,17 +52,31 @@ export async function bundleDocument(opts: {
         config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
       );
 
-      const resolvedRefMap = await resolveDocument({
-        rootDocument: document,
-        rootType: types.DefinitionRoot,
-        externalRefResolver,
-      });
-
       const transformers = initRules(oas3Rules, config, true);
 
-      const normalizedVisitors = normalizeVisitors(
+      const ctx: BundleContext = {
+        messages: [],
+        oasVersion: OasVersion.Version3_0,
+      };
+
+      if (transformers.length) {
+        const transformerVisitors = normalizeVisitors(transformers, types);
+        const resolvedRefMap = await resolveDocument({
+          rootDocument: document,
+          rootType: types.DefinitionRoot,
+          externalRefResolver,
+        });
+        walkDocument({
+          document,
+          rootType: types.DefinitionRoot as NormalizedNodeType,
+          normalizedVisitors: transformerVisitors,
+          resolvedRefMap,
+          ctx,
+        });
+      }
+
+      const bundleVisitor = normalizeVisitors(
         [
-          ...transformers,
           {
             severity: 'error',
             ruleId: 'bundler',
@@ -72,15 +86,16 @@ export async function bundleDocument(opts: {
         types,
       );
 
-      const ctx: BundleContext = {
-        messages: [],
-        oasVersion: OasVersion.Version3_0,
-      };
+      const resolvedRefMap = await resolveDocument({
+        rootDocument: document,
+        rootType: types.DefinitionRoot,
+        externalRefResolver,
+      });
 
       walkDocument({
         document,
         rootType: types.DefinitionRoot as NormalizedNodeType,
-        normalizedVisitors,
+        normalizedVisitors: bundleVisitor,
         resolvedRefMap,
         ctx,
       });
