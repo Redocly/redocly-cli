@@ -130,20 +130,21 @@ export class LintConfig {
   addException(message: NormalizedReportMessage) {
     const ignore = this.ignore;
     const loc = message.location[0];
-    const filePath = loc.source.absoluteRef;
-    const fileIgnore = (ignore[filePath] = ignore[filePath] || {});
     if (loc.pointer === undefined) return;
 
-    const pointerIgnore = fileIgnore[loc.pointer] = fileIgnore[loc.pointer] || {};
-    pointerIgnore[message.ruleId] = true;
+    const fileIgnore = (ignore[loc.source.absoluteRef] = ignore[loc.source.absoluteRef] || {});
+    const ruleIgnore = fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || {};
+
+    ruleIgnore[loc.pointer] = true;
   }
 
   addMessageIsIgnored(message: NormalizedReportMessage) {
     const loc = message.location[0];
-    const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
     if (loc.pointer === undefined) return message;
-    const pointerIgnore = fileIgnore[loc.pointer] || {};
-    const ignored = pointerIgnore[message.ruleId];
+
+    const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
+    const ruleIgnore = fileIgnore[message.ruleId] || {};
+    const ignored = ruleIgnore[loc.pointer];
     return ignored
       ? {
         ...message,
