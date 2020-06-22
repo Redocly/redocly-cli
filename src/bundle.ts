@@ -142,67 +142,72 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
 
   // @ts-ignore
   const visitor: T = {
-    ref(node, ctx, resolved) {
-      if (!resolved.location || resolved.node === undefined) {
-        reportUnresolvedRef(resolved, ctx.report);
-        return;
-      }
-
-      // TODO: discriminator
-      const componentType = mapTypeToComponent(ctx.type.name, version);
-      if (!componentType) {
-        if (ctx.type.name === 'scalar') {
-          ctx.parent[ctx.key] = resolved.node;
-        } else {
-          delete node.$ref;
-          Object.assign(node, resolved.node);
+    ref: {
+      leave(node, ctx, resolved) {
+        if (!resolved.location || resolved.node === undefined) {
+          reportUnresolvedRef(resolved, ctx.report);
+          return;
         }
-      } else {
-        node.$ref = saveComponent(componentType, resolved);
-      }
 
-      function saveComponent(componentType: string, target: { node: any; location: Location }) {
-        components[componentType] = components[componentType] || {};
-        const name = getComponentName(target, componentType);
-        components[componentType][name] = target.node;
-        if (version === OasVersion.Version3_0) {
-          return `#/components/${componentType}/${name}`;
+        // TODO: discriminator
+        const componentType = mapTypeToComponent(ctx.type.name, version);
+        if (!componentType) {
+          if (ctx.type.name === 'scalar') {
+            ctx.parent[ctx.key] = resolved.node;
+          } else {
+            delete node.$ref;
+            Object.assign(node, resolved.node);
+          }
         } else {
-          throw new Error('Not implemented');
+          node.$ref = saveComponent(componentType, resolved);
         }
-      }
 
-      function getComponentName(target: { node: any; location: Location }, componentType: string) {
-        const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
+        function saveComponent(componentType: string, target: { node: any; location: Location }) {
+          components[componentType] = components[componentType] || {};
+          const name = getComponentName(target, componentType);
+          components[componentType][name] = target.node;
+          if (version === OasVersion.Version3_0) {
+            return `#/components/${componentType}/${name}`;
+          } else {
+            throw new Error('Not implemented');
+          }
+        }
 
-        const pointerBase = pointerBaseName(pointer);
-        const refBase = refBaseName(fileRef);
+        function getComponentName(
+          target: { node: any; location: Location },
+          componentType: string,
+        ) {
+          const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
 
-        let name = pointerBase || refBase;
+          const pointerBase = pointerBaseName(pointer);
+          const refBase = refBaseName(fileRef);
 
-        const componentsGroup = components[componentType];
-        if (!componentsGroup || !componentsGroup[name] || componentsGroup[name] === target.node)
+          let name = pointerBase || refBase;
+
+          const componentsGroup = components[componentType];
+          if (!componentsGroup || !componentsGroup[name] || componentsGroup[name] === target.node)
+            return name;
+
+          if (pointerBase) {
+            name = `${refBase}/${pointerBase}`;
+            if (!componentsGroup[name] || componentsGroup[name] === target.node) return name;
+          }
+
+          const prevName = name;
+          let serialId = 2;
+          while (componentsGroup[name] && !componentsGroup[name] !== target.node) {
+            name = `${name}-${serialId}`;
+            serialId++;
+          }
+
+          ctx.report({
+            message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
+            location: { reportOnKey: true },
+          });
+
           return name;
-
-        if (pointerBase) {
-          name = `${refBase}/${pointerBase}`;
-          if (!componentsGroup[name] || componentsGroup[name] === target.node) return name;
         }
-
-        const prevName = name;
-        let serialId = 2;
-        while (componentsGroup[name] && !componentsGroup[name] !== target.node) {
-          name = `${name}-${serialId}`;
-          serialId++;
-        }
-
-        ctx.report({
-          message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
-          location: { reportOnKey: true },
-        });
-
-        return name;
-      }
+      },
     },
     DefinitionRoot: {
       enter(root: any) {

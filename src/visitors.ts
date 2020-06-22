@@ -60,7 +60,7 @@ type VisitorNode<T extends any> = {
 type VisitorRefNode = {
   ruleId: string;
   severity: MessageSeverity;
-  context: VisitorLevelContext | VisitorSkippedLevelContext;
+  context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
 };
@@ -96,7 +96,12 @@ export type BaseVisitor = {
       }
     | VisitFunction<any>;
 
-  ref?: VisitRefFunction;
+  ref?:
+    | {
+        enter?: VisitFunction<any>;
+        leave?: VisitFunction<any>;
+      }
+    | VisitRefFunction;
 };
 
 type Oas3FlatVisitor = {
@@ -313,8 +318,8 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
       const isObjectVisitor = typeof typeVisitor === 'object';
 
-      if (typeName === 'ref' && isObjectVisitor) {
-        throw new Error('ref() visitor must be a function');
+      if (typeName === 'ref' && isObjectVisitor && typeVisitor.skip) {
+        throw new Error('ref() visitor does not support skip');
       }
 
       if (typeof typeVisitor === 'function') {

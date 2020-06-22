@@ -114,10 +114,13 @@ export function walkDocument<T>(opts: {
   ) {
     const { node: resolvedNode, location: newLocation, error } = resolve(node);
 
+    const enteredContexts: Set<VisitorLevelContext> = new Set();
+
     if (isRef(node)) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
-      for (const { visit: visitor, ruleId, severity } of refEnterVisitors) {
+      for (const { visit: visitor, ruleId, severity, context } of refEnterVisitors) {
         if (!seenRefs.has(node)) {
+          enteredContexts.add(context);
           const report = reportFn.bind(undefined, ruleId, severity);
           visitor(
             node,
@@ -151,8 +154,6 @@ export function walkDocument<T>(opts: {
     const currentEnterVisitors = (normalizedVisitors[type.name]?.enter || []).concat(anyEnterVisitors);
 
     const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
-
-    const enteredContexts: Set<VisitorLevelContext> = new Set();
 
     for (const { context, visit, skip, ruleId, severity } of currentEnterVisitors) {
       if (context.isSkippedLevel) {
@@ -265,6 +266,29 @@ export function walkDocument<T>(opts: {
     for (const { context, visit, ruleId, severity } of currentLeaveVisitors) {
       if (!context.isSkippedLevel && enteredContexts.has(context)) {
         visitWithContext(visit, resolvedNode, context, ruleId, severity);
+      }
+    }
+
+    if (isRef(node)) {
+      const refLeaveVisitors = normalizedVisitors.ref.leave;
+      for (const { visit: visitor, ruleId, severity, context } of refLeaveVisitors) {
+        if (enteredContexts.has(context)) {
+          const report = reportFn.bind(undefined, ruleId, severity);
+          visitor(
+            node,
+            {
+              report,
+              resolve,
+              location,
+              type,
+              parent,
+              key,
+              parentLocations: {},
+              oasVersion: ctx.oasVersion,
+            },
+            { node: resolvedNode, location: newLocation, error },
+          );
+        }
       }
     }
 

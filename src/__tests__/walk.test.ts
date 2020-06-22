@@ -901,6 +901,14 @@ describe('walk order', () => {
     const testRuleSet: Oas3RuleSet = {
       test: jest.fn(() => {
         return {
+          ref: {
+            enter(ref: any) {
+              calls.push(`enter ref ${ref.$ref}`);
+            },
+            leave(ref) {
+              calls.push(`leave ref ${ref.$ref}`);
+            },
+          },
           any: {
             enter(_node: any, { type }) {
               calls.push(`enter ${type.name}`);
@@ -954,8 +962,10 @@ describe('walk order', () => {
         "leave Parameter_List",
         "enter Operation",
         "enter Parameter_List",
+        "enter ref #/components/parameters/shared_a",
         "enter Parameter",
         "leave Parameter",
+        "leave ref #/components/parameters/shared_a",
         "enter Parameter",
         "leave Parameter",
         "enter Parameter",
