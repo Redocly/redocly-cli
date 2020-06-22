@@ -14,8 +14,6 @@ import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
 import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
 import { ServerNotExample } from './oas3-server-not-example.com';
 import { ServerNoTrailingSlash } from './oas3-server-trailing-slash';
-import { InfoDescription } from './info-description';
-import { TagDescription } from './tag-description';
 import { InfoContact } from './info-contact';
 import { InfoLicense } from './info-license';
 import { OperationDescription } from './operation-description';
@@ -28,6 +26,7 @@ import { OperationSecurityDefined } from './operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
+import { NoEmptyString } from './no-empty-string';
 
 export default {
   schema: Oas3Schema,
@@ -44,8 +43,6 @@ export default {
   'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
   'server-not-example.com': ServerNotExample,
   'server-trailing-slash': ServerNoTrailingSlash,
-  'info-description': InfoDescription,
-  'tag-description': TagDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'operation-description': OperationDescription,
@@ -60,4 +57,5 @@ export default {
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
+  'no-empty-string': NoEmptyString,
 } as Oas3RuleSet;

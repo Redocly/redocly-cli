@@ -59,19 +59,6 @@ describe('Oas3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/tags/0",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Tag object description must be present.",
-          "ruleId": "tag-description",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
               "pointer": "#/tags/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -79,19 +66,6 @@ describe('Oas3 Structural visitor basic', () => {
           ],
           "message": "Expected type 'Tag (object)' but got 'string'",
           "ruleId": "schema",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/tags/1",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Tag object description must be present.",
-          "ruleId": "tag-description",
           "severity": "error",
           "suggest": Array [],
         },
