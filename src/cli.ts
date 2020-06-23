@@ -84,7 +84,9 @@ yargs // eslint-disable-line
           }
 
           const elapsed = `${Math.ceil(performance.now() - startedAt)}ms`;
-          process.stderr.write(`${blue(entryPoint)}: validated in ${elapsed}\n\n`);
+          if(!process.env.TEST_RUN) {
+            process.stderr.write(`${blue(entryPoint)}: validated in ${elapsed}\n\n`);
+          }
         } catch (e) {
           totals.errors++;
           handleError(e, entryPoint);

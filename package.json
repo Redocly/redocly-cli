@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "npm run typecheck && npm run unit",
-    "unit": "jest --coverage --coverageReporters lcov text-summary",
+    "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
+    "e2e": "jest ./__tests__",
     "cli": "ts-node src/cli.ts",
     "build": "rm -rf lib && tsc -p tsconfig.build.json",
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
@@ -63,7 +64,8 @@
   "jest": {
     "preset": "ts-jest",
     "testMatch": [
-      "**/__tests__/**/*.test.ts"
+      "**/__tests__/**/*.test.ts",
+      "**/*.test.ts"
     ]
   }
 }
