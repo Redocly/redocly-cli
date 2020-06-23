@@ -30,7 +30,7 @@ describe('Run e2e tests tests', () => {
     const out = r.stdout.toString('utf-8');
     const err = r.stderr.toString('utf-8')
     
-    const result = `${out}\b${err}`
+    const result = `${out}\n${err}`
 
     it(`Test ${testPath}`, () => {
       // we need this cause TS types not actually allows to 'extend'
