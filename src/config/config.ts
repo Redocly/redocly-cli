@@ -78,6 +78,8 @@ export class LintConfig {
   transformers: Record<string, TransformerConfig>;
   ignore: Record<string, Record<string, Record<string, boolean>>> = {};
 
+  private _usedRules: Set<string> = new Set();
+
   constructor(public rawConfig: RulesConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
 
@@ -173,6 +175,7 @@ export class LintConfig {
   }
 
   getRuleSettings(ruleId: string) {
+    this._usedRules.add(ruleId);
     const settings = this.rules[ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
@@ -185,6 +188,7 @@ export class LintConfig {
   }
 
   getTransformerSettings(ruleId: string) {
+    this._usedRules.add(ruleId);
     const settings = this.transformers[ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
@@ -193,6 +197,13 @@ export class LintConfig {
       };
     } else {
       return { severity: 'error' as 'error', ...settings };
+    }
+  }
+
+  getUnusedRules() {
+    return {
+      rules: Object.keys(this.rules).filter(name => !this._usedRules.has(name)),
+      transformers: Object.keys(this.transformers).filter(name => !this._usedRules.has(name)),
     }
   }
 

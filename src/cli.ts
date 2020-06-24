@@ -8,7 +8,7 @@ import { bundle } from './bundle';
 import { dumpBundle, saveBundle, BundleOutputFormat } from './utils';
 import { formatMessages } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
-import { loadConfig, Config } from './config/config';
+import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedReportMessage } from './walk';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
@@ -91,12 +91,19 @@ yargs // eslint-disable-line
         }
       }
 
-      if (argv['generate-exceptions'])  {
+      if (argv['generate-exceptions']) {
         config.lint.saveExceptions();
-        process.stderr.write(`Added ${totalExceptions} ${pluralize('message', totalExceptions)} to exceptions file\n\n`);
+        process.stderr.write(
+          `Added ${totalExceptions} ${pluralize(
+            'message',
+            totalExceptions,
+          )} to exceptions file\n\n`,
+        );
       } else {
         printLintTotals(totals, entrypoints.length);
       }
+
+      printUnusedWarnings(config.lint);
       process.exit(totals.errors === 0 || argv['generate-exceptions'] ? 0 : 1);
     },
   )
@@ -204,6 +211,7 @@ yargs // eslint-disable-line
         }
       }
 
+      printUnusedWarnings(config.lint);
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
@@ -256,7 +264,9 @@ function handleError(e: Error, ref: string) {
 }
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
-  const ignored = totals.ignored ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored\n`) : '';
+  const ignored = totals.ignored
+    ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored\n`)
+    : '';
 
   if (totals.errors > 0) {
     process.stderr.write(
@@ -275,7 +285,12 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
     );
   } else {
     process.stderr.write(
-      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉. ${ignored}\n`),
+      green(
+        `Woohoo! Your OpenAPI ${pluralize(
+          'definition is',
+          definitionsCount,
+        )} valid 🎉. ${ignored}\n`,
+      ),
     );
   }
 
@@ -342,4 +357,22 @@ function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, con
   }
 
   return res;
+}
+
+function printUnusedWarnings(config: LintConfig) {
+  const { transformers, rules } = config.getUnusedRules();
+  if (rules.length) {
+    process.stderr.write(
+      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}\n`),
+    );
+  }
+  if (transformers.length) {
+    process.stderr.write(
+      yellow(`[WARN} Unknown transformers found in ${blue(config.configFile || '')}: ${transformers.join(', ')}\n`),
+    );
+  }
+
+  if (rules.length || transformers.length) {
+    process.stderr.write(`Check the spelling and verify you added plugin prefix\n`);
+  }
 }
