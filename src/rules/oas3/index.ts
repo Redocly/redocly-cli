@@ -28,6 +28,7 @@ import { OperationSecurityDefined } from './operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
+import { PathHttpVerbsOrder } from './path-http-verbs-order';
 
 export default {
   schema: Oas3Schema,
@@ -60,4 +61,5 @@ export default {
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
+  'path-http-verbs-order': PathHttpVerbsOrder
 } as Oas3RuleSet;
