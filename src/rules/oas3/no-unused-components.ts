@@ -32,7 +32,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
             const componentName = absolutePointer.split('/').pop();
             report({
               message: `Component: "${componentName}" is never used.`,
-              location: { ...usageInfo.location, reportOnKey: true },
+              location: usageInfo.location?.key(),
             });
           }
         });
