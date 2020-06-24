@@ -136,7 +136,7 @@ Below is the `recommended` preset:
     operation-2xx-response: warning
     operation-operationId-unique: error
     operation-parameters-unique: error
-    operation-tag-defined: warning
+    operation-tag-defined: off
     operation-security-defined: warning
     operationId-valid-in-url: error
     operation-singular-tag: off
