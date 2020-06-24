@@ -6,14 +6,14 @@ import { OperationIdUnique } from './operation-operationId-unique';
 import { OperationParametersUnique } from './operation-parameters-unique';
 import { PathParamsDefined } from './path-params-defined';
 import { OperationTagDefined } from './operation-tag-defined';
-import { ExampleValueOrExternalValue } from './oas3-examples-value-or-externalValue';
+import { ExampleValueOrExternalValue } from './examples-value-or-externalValue';
 import { TypedEnum } from './typed-enum';
-import { PathNoTrailingSlash } from './path-keys-no-trailing-slash';
+import { NoPathTrailingSlash } from './no-path-trailing-slash';
 import { PathDeclarationMustExist } from './path-declaration-must-exist';
 import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
 import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
-import { ServerNotExample } from './oas3-server-not-example.com';
-import { ServerNoTrailingSlash } from './oas3-server-trailing-slash';
+import { NoServerExample } from './no-server-example.com';
+import { NoServerTrailingSlash } from './no-server-trailing-slash';
 import { InfoDescription } from './info-description';
 import { TagDescription } from './tag-description';
 import { InfoContact } from './info-contact';
@@ -29,6 +29,7 @@ import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from './paths-kebab-case';
 import { PathHttpVerbsOrder } from './path-http-verbs-order';
+import { NoEmptyServers } from './no-empty-servers';
 
 export default {
   schema: Oas3Schema,
@@ -37,14 +38,15 @@ export default {
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
   'operation-tag-defined': OperationTagDefined,
-  'example-value-or-external-value': ExampleValueOrExternalValue,
+  'examples-value-or-externalValue': ExampleValueOrExternalValue,
   'typed-enum': TypedEnum,
-  'path-no-trailing-slashes': PathNoTrailingSlash,
+  'no-path-trailing-slash': NoPathTrailingSlash,
+  'no-empty-servers': NoEmptyServers,
   'path-declaration-must-exist': PathDeclarationMustExist,
   'operationId-valid-in-url': OperationIdValidUrl,
   'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
-  'server-not-example.com': ServerNotExample,
-  'server-trailing-slash': ServerNoTrailingSlash,
+  'no-server-example.com': NoServerExample,
+  'no-server-trailing-slash': NoServerTrailingSlash,
   'info-description': InfoDescription,
   'tag-description': TagDescription,
   'info-contact': InfoContact,

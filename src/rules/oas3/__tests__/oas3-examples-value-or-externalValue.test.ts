@@ -23,7 +23,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
       document,
       config: new LintConfig({
         extends: [],
-        rules: { 'example-value-or-external-value': 'error' },
+        rules: { 'examples-value-or-externalValue': 'error' },
       }),
     });
 
@@ -38,7 +38,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
             },
           ],
           "message": "Example object can have either \\"value\\" or \\"externalValue\\" fields.",
-          "ruleId": "example-value-or-external-value",
+          "ruleId": "examples-value-or-externalValue",
           "severity": "error",
           "suggest": Array [],
         },
@@ -62,7 +62,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
       document,
       config: new LintConfig({
         extends: [],
-        rules: { 'example-value-or-external-value': 'error' },
+        rules: { 'examples-value-or-externalValue': 'error' },
       }),
     });
 

@@ -5,8 +5,8 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('Oas3 oas3-server-not-example.com', () => {
-  it('oas3-server-not-example.com: should report on server object with "example.com" url', async () => {
+describe('Oas3 oas3-no-server-example.com', () => {
+  it('oas3-no-server-example.com: should report on server object with "example.com" url', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -18,7 +18,7 @@ describe('Oas3 oas3-server-not-example.com', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'server-not-example.com': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -32,7 +32,7 @@ describe('Oas3 oas3-server-not-example.com', () => {
             },
           ],
           "message": "Server URL should not point at example.com.",
-          "ruleId": "server-not-example.com",
+          "ruleId": "no-server-example.com",
           "severity": "error",
           "suggest": Array [],
         },
@@ -40,7 +40,7 @@ describe('Oas3 oas3-server-not-example.com', () => {
     `);
   });
 
-  it('oas3-server-not-example.com: should not report on server object with not "example.com" url', async () => {
+  it('oas3-no-server-example.com: should not report on server object with not "example.com" url', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -52,7 +52,7 @@ describe('Oas3 oas3-server-not-example.com', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'server-not-example.com': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

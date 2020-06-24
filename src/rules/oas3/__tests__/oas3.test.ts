@@ -197,6 +197,19 @@ describe('Oas3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "OpenAPI servers must be present.",
+          "ruleId": "no-empty-servers",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
               "pointer": "#/info/contact/test",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -244,6 +257,19 @@ describe('Oas3 Structural visitor basic', () => {
           ],
           "message": "The field 'paths' must be present on this level.",
           "ruleId": "schema",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "OpenAPI servers must be present.",
+          "ruleId": "no-empty-servers",
           "severity": "error",
           "suggest": Array [],
         },

@@ -1,6 +1,6 @@
 import { Oas3Rule } from '../../visitors';
 
-export const ServerNotExample: Oas3Rule = () => {
+export const NoServerExample: Oas3Rule = () => {
   return {
     Server(server, { report, location }) {
       if (['example.com', 'localhost'].indexOf(server.url) !== -1) {
