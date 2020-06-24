@@ -154,7 +154,7 @@ export type ResolvedRef =
       error?: undefined;
     };
 
-export type ResolvedRefMap = Map<OasRef, ResolvedRef>;
+export type ResolvedRefMap = Map<string, ResolvedRef>;
 
 type RefFrame = {
   prev: RefFrame | null;
@@ -177,6 +177,8 @@ function hasRef(head: RefFrame | null, node: any): boolean {
   }
   return false;
 }
+
+const unknownType = { name: 'unknown', properties: {} };
 
 export async function resolveDocument(opts: {
   rootDocument: Document;
@@ -221,11 +223,11 @@ export async function resolveDocument(opts: {
 
       if (Array.isArray(node)) {
         const itemsType = type.items;
-        if (itemsType === undefined) {
+        if (type !== unknownType && itemsType === undefined) {
           return;
         }
         for (let i = 0; i < node.length; i++) {
-          walk(node[i], itemsType, joinPointer(nodeAbsoluteRef, i));
+          walk(node[i], itemsType || unknownType, joinPointer(nodeAbsoluteRef, i));
         }
         return;
       }
@@ -239,7 +241,9 @@ export async function resolveDocument(opts: {
           propType = type.additionalProperties?.(value, propName);
         }
 
-        if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
+        propType = propType || unknownType;
+
+        if (propType.name === undefined && !propType.referenceable) {
           continue;
         }
 
@@ -292,7 +296,8 @@ export async function resolveDocument(opts: {
           error: error,
         };
 
-        resolvedRefMap.set(ref, resolvedRef);
+        const refId = document.source.absoluteRef + '::' + ref.$ref;
+        resolvedRefMap.set(refId, resolvedRef);
 
         return resolvedRef;
       }
@@ -327,7 +332,8 @@ export async function resolveDocument(opts: {
 
       resolvedRef.node = target;
 
-      resolvedRefMap.set(ref, resolvedRef);
+      const refId = document.source.absoluteRef + '::' + ref.$ref;
+      resolvedRefMap.set(refId, resolvedRef);
       if (resolvedRef.document && isRef(target)) {
         return followRef(resolvedRef.document, target, pushRef(refStack, target));
       }

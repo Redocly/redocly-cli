@@ -316,7 +316,8 @@ export function walkDocument<T>(opts: {
 
     function resolve<T>(ref: Referenced<T>): ResolveResult<T> {
       if (!isRef(ref)) return { location, node: ref };
-      const resolvedRef = resolvedRefMap.get(ref);
+      const refId = location.source.absoluteRef + '::' + ref.$ref;
+      const resolvedRef = resolvedRefMap.get(refId);
       if (!resolvedRef) {
         return {
           location: undefined,

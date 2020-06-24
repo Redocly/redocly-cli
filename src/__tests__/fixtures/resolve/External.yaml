@@ -6,3 +6,5 @@ properties:
     type: number
   external:
     $ref: ./External2.yaml
+  unknown:
+    type: string

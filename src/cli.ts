@@ -70,6 +70,8 @@ yargs // eslint-disable-line
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       let totalExceptions = 0;
+
+      // TODO: use shared externalRef resolver, blocked by transformers now as they mutate documents
       for (const entryPoint of entrypoints) {
         try {
           const startedAt = performance.now();
