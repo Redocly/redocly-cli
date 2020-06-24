@@ -7,7 +7,7 @@
     "test": "npm run typecheck && npm run unit",
     "unit": "jest --coverage --coverageReporters lcov text-summary",
     "cli": "ts-node src/cli.ts",
-    "build": "rm -rf lib && tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
