@@ -11,7 +11,7 @@ const checkForProperties = (typeName: string, properties: string[]) => (node: ob
     } else if (!(node as any)[requiredProperty]) {
       context.report({
         message: `${typeName} object ${requiredProperty} must be non-empty string.`,
-        location: context.location.append([requiredProperty]),
+        location: context.location.child([requiredProperty]),
       });
     }
   }
