@@ -1,5 +1,7 @@
 # OpenAPI 3 CLI toolset
 
+**!WIP**: This is README for the 1.0.0-alpha.x release.
+
 OpenAPI 3 CLI toolbox with rich validation and bundling features.
 
 ![Travis (.org)](https://img.shields.io/travis/Redocly/openapi-cli/master)
@@ -45,36 +47,36 @@ Run `openapi -h` to confirm the installation was successful (you'll see the usag
 
 ## Usage
 
-Currently, `@redocly/openapi-cli` provides two commands `validate` and `bundle`.
+Currently, `@redocly/openapi-cli` provides two commands `lint` and `bundle`.
 
 ### Bundling
 
 You can bundle your OpenAPI 3 definition into a single file (this may be important for certain tools that lack multifile support). To bundle your OpenAPI 3 definition run following command:
 
 ```
-openapi bundle --output <outputName> <startingPoint>
+openapi bundle --output <outputName> <entryPoint>
 ```
 
-`<startingPoint>` is the name of your root document and `<outputName>` is desired output filename.
+`<entryPoint>` is the name of your root document and `<outputName>` is desired output filename.
 
 Supported extensions for `outputName` are `.json`, `.yml` and `.yaml`.
 
 Beware, if the file specified as the bundler's output already exists, it will be overwritten.
 
-### Validation
+### Linting
 
-```openapi validate [options] <filePath>```
+```openapi lint [options] [entryPoint]```
 
- Given this command, it will load the given ruleset and traverse the definition via the `filePath` parameter.
+Given this command, it will load the given ruleset and traverse the definition via the `entryPoint` parameter.
 
 Also, it accepts `[options]` which can be:
-- `--short` Reduce output to minimum.
-- `--no-frame` Print no codeframes with errors.
+- `--format` Ouput format, can be `short` or `detailed`
 - `--config <path>`  Specify custom yaml or json config.
+- TODO: tbd
 
 In the section below, you can learn how to provide settings for the `@redocly/openapi-cli`.
 
-### Preview Docs
+### Preview Docs (not available in alpha)
 
 ```openapi preview-docs [options] [entryPoint]```
 
@@ -86,57 +88,68 @@ Given this command, it will start a local development server and display the add
 
 You may supply a configuration file, in YAML format, to control various options.
 
-You can modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the validator. Also, you can provide the path to the configuration file name other than `.redocly.yaml` by using `--config` option when running the @redocly/openapi-cli.
+You can modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the linter. Also, you can provide the path to the configuration file name other than `.redocly.yaml` by using `--config` option when running the @redocly/openapi-cli.
 
-From a high-level, there are two configurable features: codeframes and rules.
-```yaml
-lint:
-  codeframes: on
-  rules:
-  ...
-```
+From a high-level, there are two configurable features: plugins and rules.
 
-### Codeframes
-
-Codeframes are enabled by default.  You may disable them by setting the value to `off`.
-
-```yaml
-lint:
-  codeframes: off
-  rules:
-  ...
-```
+See more about [plugins](docs/plugins.md)
 
 ### Rules
 
 Rules control validations used on the API definition.  You may customize them (and even extend them), or you may utilize the default configuration.
 
-Below is the default config:
+#### Extends
+
+By default all rules from the `recommended` ruleset are enbaled if nothing else is specified.
+You can extend other ruleset or disable, enalbe other rules:
+
 
 ```yaml
 lint:
-  codeframes: on
+  extends:
+    - recommended
   rules:
-    oas3-schema: on
-    path-param-exists: on
-    operation-2xx-response: on
-    unique-parameter-names: on
-    no-unused-schemas: on
-    operation-operationId-unique: on
-    path-declarations-must-exist: on
+    operation-2xx-response: off
 
-    camel-case-names: off
-    api-servers: off
-    license-url: off
-    no-extra-fields: off
+Below is the `recommended` preset:
+
+```yaml
+  rules:
+    info-description: warning
+    info-contact: off
+    info-license: off
+    info-license-url: off
+
+    tag-description: warning
+    tags-alphabetical: off
+
+    no-server-example.com: warning
+    no-server-trailing-slash: error
+    no-empty-servers: warning
+
+    parameter-description: off
+    no-path-trailing-slash: error
+    path-declaration-must-exist: error
+    path-not-include-query: error
+    path-parameters-defined: error
     operation-description: off
-    operation-operationId: off
-    operation-tags: off
-    provide-contact: off
-    servers-no-trailing-slash: off
+    operation-2xx-response: warning
+    operation-operationId-unique: error
+    operation-parameters-unique: error
+    operation-tag-defined: warning
+    operation-security-defined: warning
+    operationId-valid-in-url: error
+    operation-singular-tag: off
 
-    bundler: off
-    debug-info: off
+    no-example-value-and-externalValue: error
+
+    no-unused-components: warning
+    no-unresolved-refs: error
+    no-enum-type-mismatch: error
+
+    boolean-parameter-prefixes: off
+    paths-kebab-case: off
+    spec: 'error'
 ```
 
 All of the rules are configurable in terms of disabling or changing their severity, or even defining pinpoint exclusions.
@@ -145,26 +158,18 @@ Here is an example of a modified use `.redocly.yaml` file:
 
 ```yaml
 lint:
-  codeframes: on
   rules:
-    no-extra-fields: off
-    external-docs:
-      url: off
-    license-required: warning
-    unique-parameter-names: off
-    no-unused-schemas:
-      level: warning
-      excludedPaths:
-        - 'openapi.yaml#/components/schemas/Unused'
+    parameter-description: warning
+    operationId-valid-in-url: off
 ```
 
-Each rule can be turned `on` or `off`.  In addition, you can control the log-level severity, between `info`, `warning`, and `error`.  You may also define specific exclusions to the rule, and you can do that by combination of file and bath to the object to be excluded.
+Each rule can be turned `off`. In addition, you can control the log-level severity, between `warning` and `error`.
 
 Enabling a rule:
 ```yaml
 lint:
   rules:
-    <rule-name>: on
+    <rule-name>: error
 ```
 
 Disabling a rule:
@@ -176,13 +181,14 @@ lint:
 
 #### Rules Severity Levels
 
-Changing the severity of a rule:
+Changing the severity of a rule when rule accepts options:
 
 ```yaml
 lint:
   rules:
     <rule-name>:
-      level: warning
+      level: <value>
+      # ...rule options
 ```
 
 or
@@ -195,53 +201,36 @@ lint:
 
 Possible values are:
 
-* info
 * warning
 * error
 
-#### Rules Path Exclusions
+#### Exceptions file
 
-Excluding a specific path:
-
-```yaml
-lint:
-  rules:
-    <rule-name>:
-      excludedPaths:
-        - '<path to file>#</path/to/object>'
-```
-
-The `excludedPaths` key can accept an array of exclusions.  The format includes the path to the file, a `#` mark, and the path to the object within the file.  For example:
+You can exclude some known errors to not show up/break you validation using exceptions file.
+Exceptions file should be named `.openapi-cli.exceptions.yaml` and should be placed next to `.redocly.yaml`.
 
 ```yaml
-lint:
-  rules:
-    <rule-name>:
-      excludedPaths:
-        - 'openapi.yaml#/components/schemas/Pet'
+"filename.yaml":
+  rule-id-1:
+    - "#/ecluded/json/pointer"
+    - "#/ecluded/json/pointer"
+  rule-id-2:
+    - "#/ecluded/json/pointer"
+    - "#/ecluded/json/pointer"
 ```
 
-Some rules may have sub-rules.  The same configurations still apply:
-
-```yaml
-lint:
-  rules:
-    <rule-name>:
-      <sub-rule-name>:
-        level: info
-        excludedPaths:
-          - 'openapi.yaml#/components/schemas/Pet'
-```
+Exceptions file can be autogenerated to add all messages as exceptions by running `opeanpi lint --generate-exceptions`
 
 #### Built-in Rules
 
-[Read the docs](RULES.md) for the built-in rules. You also can [create](RULES.md/#string-matcher) your own regular expressions' based rules for `openapi-cli`.
+[Read the docs](docs/rules.md) for the built-in rules.
 
 ### Advanced
 
-[Custom visitors](docs/CUSTOM_VISITORS.md)
-
-[Transformers](docs/TRANSFORMERS.md)
+[Plugins](docs/plugins.md)
+[Type extensions](docs/type-extensions.md)
+[Custom rules](docs/custom-rules.md)
+[Transformers](docs/transformers.md)
 
 ## Credits
 
