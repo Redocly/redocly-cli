@@ -159,9 +159,13 @@ function positionsToLoc(
       start = { line: currentLine, col: currentCol + 1 };
     }
     if (source[i] === '\n') {
-      if (source[i + 1] === '\r') i++;
       currentLine++;
       currentCol = 1;
+      if (i === startPos - 1) {
+        start = { line: currentLine, col: currentCol };
+      }
+
+      if (source[i + 1] === '\r') i++; // TODO: test it
       continue;
     }
     currentCol++;

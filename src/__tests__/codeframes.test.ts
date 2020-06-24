@@ -26,6 +26,27 @@ describe('Location', () => {
     expect(preciseLocation.end).toEqual({ line: 3, col: 10 });
   });
 
+  it('should correctly calculate location for key on top level', () => {
+    const loc = {
+      reportOnKey: true,
+      pointer: '#/info',
+      source: new Source(
+        'foobar.yaml',
+        outdent`
+          openapi: 3.0.2
+          info:
+            license:
+              name: MIT
+              url: https://google.com
+        `,
+      ),
+    };
+
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 2, col: 1 });
+    expect(preciseLocation.end).toEqual({ line: 2, col: 5 });
+  });
+
   it('should correctly calculate location for value', () => {
     const loc = {
       reportOnKey: false,
