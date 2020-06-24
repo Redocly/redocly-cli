@@ -19,7 +19,7 @@ import { TagDescription } from './tag-description';
 import { InfoContact } from './info-contact';
 import { InfoLicense } from './info-license';
 import { OperationDescription } from './operation-description';
-import { NoUnusedComponents } from './unused-components';
+import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from './path-not-include-query';
 import { ParameterDescription } from './parameter-description';
 import { OperationSingularTag } from './operation-singular-tag';
@@ -51,7 +51,7 @@ export default {
   'info-license': InfoLicense,
   'operation-description': OperationDescription,
   'operation-operationId-valid-in-url': OperationIdValidUrl,
-  'no-unused-schemas': NoUnusedComponents,
+  'no-unused-components': NoUnusedComponents,
   'path-not-include-query': PathNotIncludeQuery,
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,

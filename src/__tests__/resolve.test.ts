@@ -33,7 +33,7 @@ describe('collect refs', () => {
       [`foobar.yaml::#/defs/info`],
       `
       Object {
-        "0": "#/defs/info",
+        "0": "foobar.yaml::#/defs/info",
       }
     `,
     );
@@ -178,7 +178,8 @@ describe('collect refs', () => {
     });
 
     expect(resolvedRefs).toBeDefined();
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+      .toMatchInlineSnapshot(`
       Array [
         "openapi.yaml::#/components/schemas/Local",
         "openapi.yaml::#/components/schemas/Local/properties/string",
@@ -271,7 +272,8 @@ describe('collect refs', () => {
 
     expect(resolvedRefs).toBeDefined();
     // expect(resolvedRefs.size).toEqual(2);
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+      .toMatchInlineSnapshot(`
       Array [
         "openapi-with-md-description.yaml::./description.md",
       ]
