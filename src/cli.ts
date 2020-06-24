@@ -42,6 +42,16 @@ yargs // eslint-disable-line
           description: 'Generate exceptions file',
           type: 'boolean',
         })
+        .option('skip-rule', {
+          description: 'ignore certain rules',
+          array: true,
+          type: 'string',
+        })
+        .option('skip-transformer', {
+          description: 'ignore certain transformers',
+          array: true,
+          type: 'string',
+        })
         .option('config', {
           description: 'Specify custom config file',
           requiresArg: true,
@@ -49,6 +59,9 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       const config = await loadConfig(argv.config);
+      config.lint.skipRules(argv["skip-rule"]);
+      config.lint.skipTransformers(argv["skip-transformer"]);
+
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
       if (argv['generate-exceptions']) {
@@ -135,6 +148,16 @@ yargs // eslint-disable-line
           requiresArg: true,
           choices: outputExtensions,
         })
+        .option('skip-rule', {
+          description: 'ignore certain rules',
+          array: true,
+          type: 'string',
+        })
+        .option('skip-transformer', {
+          description: 'ignore certain transformers',
+          array: true,
+          type: 'string',
+        })
         .option('force', {
           alias: 'f',
           description: 'Produce bundle output file even if validation errors were encountered',
@@ -145,6 +168,9 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       const config = await loadConfig(argv.config);
+      config.lint.skipRules(argv["skip-rule"]);
+      config.lint.skipTransformers(argv["skip-transformer"]);
+
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };

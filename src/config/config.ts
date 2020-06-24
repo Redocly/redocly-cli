@@ -218,6 +218,22 @@ export class LintConfig {
         throw new Error('Not implemented');
     }
   }
+
+  skipRules(rules?: string[]) {
+    for (const ruleId of (rules || [])) {
+      if (this.rules[ruleId]) {
+        this.rules[ruleId] = 'off';
+      }
+    }
+  }
+
+  skipTransformers(transformers?: string[]) {
+    for (const transformerId of (transformers || [])) {
+      if (this.transformers[transformerId]) {
+        this.transformers[transformerId] = 'off';
+      }
+    }
+  }
 }
 
 export class Config {
