@@ -76,7 +76,7 @@ export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
   transformers: Record<string, TransformerConfig>;
-  ignore: Record<string, Record<string, Record<string, boolean>>> = {};
+  exceptions: Record<string, Record<string, Record<string, boolean>>> = {};
 
   private _usedRules: Set<string> = new Set();
 
@@ -106,15 +106,15 @@ export class LintConfig {
     this.transformers = merged.transformers;
 
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
-    const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
+    const exceptionsFile = path.join(dir, EXCEPTIONS_FILE);
 
-    if (fs.existsSync(ignoreFile)) {
-      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')); // TODO: parse errors
+    if (fs.existsSync(exceptionsFile)) {
+      this.exceptions = yaml.safeLoad(fs.readFileSync(exceptionsFile, 'utf-8')); // TODO: parse errors
 
       // resolve ignore paths
-      for (const fileName of Object.keys(this.ignore)) {
-        this.ignore[path.resolve(dirname(ignoreFile), fileName)] = this.ignore[fileName];
-        delete this.ignore[fileName];
+      for (const fileName of Object.keys(this.exceptions)) {
+        this.exceptions[path.resolve(dirname(exceptionsFile), fileName)] = this.exceptions[fileName];
+        delete this.exceptions[fileName];
       }
     }
   }
@@ -123,14 +123,14 @@ export class LintConfig {
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
     const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
     const mapped: Record<string, any> = {};
-    for (const absFileName of Object.keys(this.ignore)) {
-      mapped[path.relative(dir, absFileName)] = this.ignore[absFileName];
+    for (const absFileName of Object.keys(this.exceptions)) {
+      mapped[path.relative(dir, absFileName)] = this.exceptions[absFileName];
     }
     fs.writeFileSync(ignoreFile, yaml.safeDump(mapped));
   }
 
   addException(message: NormalizedReportMessage) {
-    const ignore = this.ignore;
+    const ignore = this.exceptions;
     const loc = message.location[0];
     if (loc.pointer === undefined) return;
 
@@ -140,11 +140,11 @@ export class LintConfig {
     ruleIgnore[loc.pointer] = true;
   }
 
-  addMessageIsIgnored(message: NormalizedReportMessage) {
+  addMessageToExceptions(message: NormalizedReportMessage) {
     const loc = message.location[0];
     if (loc.pointer === undefined) return message;
 
-    const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
+    const fileIgnore = this.exceptions[loc.source.absoluteRef] || {};
     const ruleIgnore = fileIgnore[message.ruleId] || {};
     const ignored = ruleIgnore[loc.pointer];
     return ignored

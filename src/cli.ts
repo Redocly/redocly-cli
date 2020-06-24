@@ -52,8 +52,7 @@ yargs // eslint-disable-line
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
       if (argv['generate-exceptions']) {
-        // clear ignore
-        config.lint.ignore = {};
+        config.lint.exceptions = {}; // clear ignore
       }
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };

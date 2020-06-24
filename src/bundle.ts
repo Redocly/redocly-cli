@@ -102,7 +102,7 @@ export async function bundleDocument(opts: {
 
       return {
         bundle: document.parsed,
-        messages: ctx.messages.map((message) => config.addMessageIsIgnored(message)),
+        messages: ctx.messages.map((message) => config.addMessageToExceptions(message)),
       };
     }
   }
