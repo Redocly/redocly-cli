@@ -8,7 +8,7 @@ function isNamedType(
   return typeof t?.name === 'string';
 }
 
-export const Oas3Schema: Oas3Rule = () => {
+export const Oas3Spec: Oas3Rule = () => {
   return {
     any(node: any, { report, type, location, key }) {
       const nodeType = oasTypeOf(node);

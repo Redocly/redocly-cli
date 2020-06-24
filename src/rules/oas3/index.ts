@@ -1,17 +1,17 @@
 import { Oas3RuleSet } from '../../validate';
 
-import { Oas3Schema } from './schema';
+import { Oas3Spec } from './spec';
 import { Operation2xxResponse } from './operation-2xx-response';
 import { OperationIdUnique } from './operation-operationId-unique';
 import { OperationParametersUnique } from './operation-parameters-unique';
 import { PathParamsDefined } from './path-params-defined';
 import { OperationTagDefined } from './operation-tag-defined';
-import { ExampleValueOrExternalValue } from './examples-value-or-externalValue';
-import { TypedEnum } from './typed-enum';
+import { NoExampleValueAndExternalValue } from './no-example-value-and-externalValue';
+import { NoEnumTypeMismatch } from './no-enum-type-mismatch';
 import { NoPathTrailingSlash } from './no-path-trailing-slash';
 import { PathDeclarationMustExist } from './path-declaration-must-exist';
 import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
-import { OpenapiTagsAlphabetical } from './openapi-tags-alphabetical';
+import { TagsAlphabetical } from './tags-alphabetical';
 import { NoServerExample } from './no-server-example.com';
 import { NoServerTrailingSlash } from './no-server-trailing-slash';
 import { OperationDescription } from './operation-description';
@@ -28,19 +28,19 @@ import { NoEmptyServers } from './no-empty-servers';
 import { NoEmptyString } from './no-empty-string';
 
 export default {
-  schema: Oas3Schema,
+  spec: Oas3Spec,
   'operation-2xx-response': Operation2xxResponse,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
   'operation-tag-defined': OperationTagDefined,
-  'examples-value-or-externalValue': ExampleValueOrExternalValue,
-  'typed-enum': TypedEnum,
+  'no-example-value-and-externalValue': NoExampleValueAndExternalValue,
+  'no-enum-type-mismatch': NoEnumTypeMismatch,
   'no-path-trailing-slash': NoPathTrailingSlash,
   'no-empty-servers': NoEmptyServers,
   'path-declaration-must-exist': PathDeclarationMustExist,
   'operationId-valid-in-url': OperationIdValidUrl,
-  'openapi-tags-alphabetical': OpenapiTagsAlphabetical,
+  'tags-alphabetical': TagsAlphabetical,
   'no-server-example.com': NoServerExample,
   'no-server-trailing-slash': NoServerTrailingSlash,
   'operation-description': OperationDescription,

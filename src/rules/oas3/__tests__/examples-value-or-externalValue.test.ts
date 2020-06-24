@@ -5,8 +5,8 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('Oas3 oas3-examples-value-or-externalValue', () => {
-  it('oas3-examples-value-or-externalValue: should report on example object with both value and external value', async () => {
+describe('Oas3 oas3-no-example-value-and-externalValue', () => {
+  it('oas3-no-example-value-and-externalValue: should report on example object with both value and external value', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -23,7 +23,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
       document,
       config: new LintConfig({
         extends: [],
-        rules: { 'examples-value-or-externalValue': 'error' },
+        rules: { 'no-example-value-and-externalValue': 'error' },
       }),
     });
 
@@ -38,7 +38,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
             },
           ],
           "message": "Example object can have either \\"value\\" or \\"externalValue\\" fields.",
-          "ruleId": "examples-value-or-externalValue",
+          "ruleId": "no-example-value-and-externalValue",
           "severity": "error",
           "suggest": Array [],
         },
@@ -46,7 +46,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
     `);
   });
 
-  it('oas3-examples-value-or-externalValue: should not report on example object with value OR external value', async () => {
+  it('oas3-no-example-value-and-externalValue: should not report on example object with value OR external value', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -62,7 +62,7 @@ describe('Oas3 oas3-examples-value-or-externalValue', () => {
       document,
       config: new LintConfig({
         extends: [],
-        rules: { 'examples-value-or-externalValue': 'error' },
+        rules: { 'no-example-value-and-externalValue': 'error' },
       }),
     });
 

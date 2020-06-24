@@ -2,7 +2,7 @@ import { Oas3Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
 
 export const NoUnusedComponents: Oas3Rule = () => {
-  let components = new Map<string, { used: boolean; location?: Location; name: string }>();
+  let components = new Map<string, { used: boolean; location: Location; name: string }>();
 
   function registerComponent(location: Location, name: string): void {
     components.set(location.absolutePointer, {
@@ -13,7 +13,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
   }
 
   return {
-    ref(ref, { type, resolve, key }) {
+    ref(ref, { type, resolve, key, location }) {
       if (
         ['Schema', 'Header', 'Parameter', 'Response', 'Example', 'RequestBody'].includes(type.name)
       ) {
@@ -22,17 +22,17 @@ export const NoUnusedComponents: Oas3Rule = () => {
         components.set(resolvedRef.location.absolutePointer, {
           used: true,
           name: key.toString(),
+          location,
         });
       }
     },
     DefinitionRoot: {
       leave(_, { report }) {
-        components.forEach((usageInfo, absolutePointer) => {
+        components.forEach((usageInfo) => {
           if (!usageInfo.used) {
-            const componentName = absolutePointer.split('/').pop();
             report({
-              message: `Component: "${componentName}" is never used.`,
-              location: { ...usageInfo.location, reportOnKey: true },
+              message: `Component: "${usageInfo.name}" is never used.`,
+              location: usageInfo.location.key(),
             });
           }
         });

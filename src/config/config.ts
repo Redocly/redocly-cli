@@ -75,7 +75,7 @@ export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
   transformers: Record<string, TransformerConfig>;
-  exceptions: Record<string, Record<string, Record<string, boolean>>> = {};
+  exceptions: Record<string, Record<string, Set<string>>> = {};
 
   private _usedRules: Set<string> = new Set();
 
@@ -113,6 +113,9 @@ export class LintConfig {
       // resolve ignore paths
       for (const fileName of Object.keys(this.exceptions)) {
         this.exceptions[path.resolve(dirname(exceptionsFile), fileName)] = this.exceptions[fileName];
+        for (const ruleId of Object.keys(this.exceptions[fileName])) {
+          this.exceptions[fileName][ruleId] = new Set(this.exceptions[fileName][ruleId]);
+        }
         delete this.exceptions[fileName];
       }
     }
@@ -123,7 +126,10 @@ export class LintConfig {
     const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.exceptions)) {
-      mapped[path.relative(dir, absFileName)] = this.exceptions[absFileName];
+      const ruleExceptions = mapped[path.relative(dir, absFileName)] = this.exceptions[absFileName];
+      for (const ruleId of Object.keys(ruleExceptions)) {
+        ruleExceptions[ruleId] = Array.from(ruleExceptions[ruleId]) as any;
+      }
     }
     fs.writeFileSync(ignoreFile, yaml.safeDump(mapped));
   }
@@ -134,9 +140,9 @@ export class LintConfig {
     if (loc.pointer === undefined) return;
 
     const fileIgnore = (ignore[loc.source.absoluteRef] = ignore[loc.source.absoluteRef] || {});
-    const ruleIgnore = fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || {};
+    const ruleIgnore = fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || new Set();
 
-    ruleIgnore[loc.pointer] = true;
+    ruleIgnore.add(loc.pointer);
   }
 
   addMessageToExceptions(message: NormalizedReportMessage) {
@@ -144,8 +150,8 @@ export class LintConfig {
     if (loc.pointer === undefined) return message;
 
     const fileIgnore = this.exceptions[loc.source.absoluteRef] || {};
-    const ruleIgnore = fileIgnore[message.ruleId] || {};
-    const ignored = ruleIgnore[loc.pointer];
+    const ruleIgnore = fileIgnore[message.ruleId];
+    const ignored = ruleIgnore && ruleIgnore.has(loc.pointer);
     return ignored
       ? {
         ...message,

@@ -30,7 +30,7 @@ describe('Oas3 typed enum', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'typed-enum': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -59,7 +59,7 @@ describe('Oas3 typed enum', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'typed-enum': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -73,7 +73,7 @@ describe('Oas3 typed enum', () => {
             },
           ],
           "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected \\"integer\\" but received \\"string\\"",
-          "ruleId": "typed-enum",
+          "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": Array [],
         },
