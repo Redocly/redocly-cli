@@ -58,7 +58,7 @@ export const Oas3Schema: Oas3Rule = () => {
           report({
             message: `Property \`${propName}\` is not expected here`,
             suggest: getSuggest(propName, Object.keys(type.properties)),
-            location: [{ ...propLocation, reportOnKey: true }],
+            location: propLocation.key(),
           });
           continue;
         }
