@@ -1,6 +1,6 @@
 import { Oas3Rule } from '../../visitors';
 
-export const ExampleValueOrExternalValue: Oas3Rule = () => {
+export const NoExampleValueAndExternalValue: Oas3Rule = () => {
   return {
     Example(example, { report, location }) {
       if (example.value && example.externalValue) {

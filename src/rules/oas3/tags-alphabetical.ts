@@ -1,6 +1,6 @@
 import { Oas3Rule } from '../../visitors';
 
-export const OpenapiTagsAlphabetical: Oas3Rule = () => {
+export const TagsAlphabetical: Oas3Rule = () => {
   return {
     DefinitionRoot(root, { report, location }) {
       if (!root.tags) return;

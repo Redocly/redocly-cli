@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('Oas3 openapi-tags-alphabetical', () => {
+describe('Oas3 tags-alphabetical', () => {
   it('should report on tags object if not sorted alphabetically', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -20,7 +20,7 @@ describe('Oas3 openapi-tags-alphabetical', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'openapi-tags-alphabetical': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -34,7 +34,7 @@ describe('Oas3 openapi-tags-alphabetical', () => {
             },
           ],
           "message": "The \\"tags\\" array should be in alphabetical order",
-          "ruleId": "openapi-tags-alphabetical",
+          "ruleId": "tags-alphabetical",
           "severity": "error",
           "suggest": Array [],
         },
@@ -56,7 +56,7 @@ describe('Oas3 openapi-tags-alphabetical', () => {
 
     const results = await validateDocument({
       document,
-      config: new LintConfig({ extends: [], rules: { 'openapi-tags-alphabetical': 'error' } }),
+      config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

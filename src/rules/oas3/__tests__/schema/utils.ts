@@ -4,7 +4,7 @@ import { validateDocument } from '../../../../validate';
 
 export async function validateDoc(
   source: string,
-  rules: Record<string, RuleConfig> = { schema: 'error' },
+  rules: Record<string, RuleConfig> = { spec: 'error' },
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
