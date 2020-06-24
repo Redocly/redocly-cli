@@ -8,5 +8,6 @@ lint:
   rules:
     operation-2xx-response: warning
     operation-description: off
+    path-http-verbs-order: error
   transformers:
     local/duplicate-description: off

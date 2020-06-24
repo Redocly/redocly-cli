@@ -8,7 +8,7 @@ export const OperationIdValidUrl: Oas3Rule = () => {
       if (operation.operationId && !validUrlSymbols.test(operation.operationId)) {
         report({
           message: 'Operation id should not have URL invalid characters.',
-          location: location.append(['operationId']),
+          location: location.child(['operationId']),
         });
       }
     },

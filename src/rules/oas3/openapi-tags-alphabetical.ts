@@ -8,7 +8,7 @@ export const OpenapiTagsAlphabetical: Oas3Rule = () => {
         if (root.tags[i].name > root.tags[i + 1].name) {
           report({
             message: 'The "tags" array should be in alphabetical order',
-            location: location.append(['tags', i]),
+            location: location.child(['tags', i]),
           });
         }
       }

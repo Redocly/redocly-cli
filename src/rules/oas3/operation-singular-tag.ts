@@ -6,7 +6,7 @@ export const OperationSingularTag: Oas3Rule = () => {
       if (operation.tags && operation.tags.length > 1) {
         report({
           message: 'Operation "tags" object should have only one tag.',
-          location: { ...location.append(['tags']), reportOnKey: true },
+          location: { ...location.child(['tags']), reportOnKey: true },
         });
       }
     },

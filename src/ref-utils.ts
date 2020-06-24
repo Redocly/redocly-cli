@@ -12,7 +12,7 @@ export function isRef(node: any): node is OasRef {
 export class Location {
   constructor(public source: Source, public pointer: string) {}
 
-  append(components: (string | number)[] | string | number) {
+  child(components: (string | number)[] | string | number) {
     return new Location(
       this.source,
       joinPointer(
@@ -20,6 +20,10 @@ export class Location {
         (Array.isArray(components) ? components : [components]).map(escapePointer).join('/'),
       ),
     );
+  }
+
+  key() {
+    return { ...this, reportOnKey: true }
   }
 
   get absolutePointer() {

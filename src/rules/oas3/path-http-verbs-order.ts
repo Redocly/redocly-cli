@@ -18,7 +18,7 @@ export const PathHttpVerbsOrder: Oas3Rule = (opts: any) => {
         if (bIdx < aIdx) {
           report({
             message: 'Operation http verbs must be ordered',
-            location: { reportOnKey: true, ...location.append(httpVerbs[i + 1]) },
+            location: { reportOnKey: true, ...location.child(httpVerbs[i + 1]) },
           });
         }
       }

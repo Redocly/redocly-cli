@@ -6,7 +6,7 @@ export const ServerNotExample: Oas3Rule = () => {
       if (['example.com', 'localhost'].indexOf(server.url) !== -1) {
         report({
           message: 'Server URL should not point at example.com.',
-          location: location.append(['url']),
+          location: location.child(['url']),
         });
       }
     },

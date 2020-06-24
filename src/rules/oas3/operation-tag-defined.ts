@@ -13,7 +13,7 @@ export const OperationTagDefined: Oas3Rule = () => {
           if (!definedTags.has(operation.tags[i])) {
             report({
               message: `Operation tags should be defined in global tags.`,
-              location: location.append(['tags', i]),
+              location: location.child(['tags', i]),
             });
           }
         }

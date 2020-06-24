@@ -33,7 +33,7 @@ export const OperationSecurityDefined: Oas3Rule = () => {
     SecurityRequirement(requirements, { location }) {
       for (const requirement of Object.keys(requirements)) {
         const authScheme = referencedSchemes.get(requirement);
-        const requirementLocation = location.append([requirement]);
+        const requirementLocation = location.child([requirement]);
         if (!authScheme) {
           referencedSchemes.set(requirement, { from: [requirementLocation] });
         } else {

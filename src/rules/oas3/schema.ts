@@ -38,7 +38,7 @@ export const Oas3Schema: Oas3Rule = () => {
       }
 
       for (const propName of Object.keys(node)) {
-        const propLocation = location.append([propName]);
+        const propLocation = location.child([propName]);
         const propValue = node[propName];
         const propType =
           type.properties[propName] === undefined
@@ -89,7 +89,7 @@ export const Oas3Schema: Oas3Rule = () => {
             if (!matchesJsonSchemaType(item, itemsType)) {
               report({
                 message: `Expected type '${itemsType}' but got '${oasTypeOf(item)}'`,
-                location: propLocation.append([i]),
+                location: propLocation.child([i]),
               });
             }
           }

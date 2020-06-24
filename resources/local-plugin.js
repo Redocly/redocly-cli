@@ -9,7 +9,7 @@ export const rules = {
           if (operation.operationId === 'test') {
             report({
               message: `operationId must be not "test"`,
-              location: location.append('operationId'),
+              location: location.child('operationId'),
             });
           }
         },

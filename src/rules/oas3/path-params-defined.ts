@@ -23,7 +23,7 @@ export const PathParamsDefined: Oas3Rule = () => {
           if (!pathTemplateParams.has(parameter.name)) {
             report({
               message: `Path parameter \`${parameter.name}\` is not used in the path \`${currentPath}\`.`,
-              location: location.append(['name']),
+              location: location.child(['name']),
             });
           }
         }
@@ -34,7 +34,7 @@ export const PathParamsDefined: Oas3Rule = () => {
             if (!definedPathParams.has(templateParam)) {
               report({
                 message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
-                location: { ...location.append(['parameters']), reportOnKey: true }, // report on operation
+                location: location.child(['parameters']).key(), // report on operation
               });
             }
           }
@@ -45,7 +45,7 @@ export const PathParamsDefined: Oas3Rule = () => {
             if (!pathTemplateParams.has(parameter.name)) {
               report({
                 message: `Path parameter \`${parameter.name}\` is not used in the path \`${currentPath}\`.`,
-                location: location.append(['name']),
+                location: location.child(['name']),
               });
             }
           }

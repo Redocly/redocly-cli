@@ -213,7 +213,7 @@ export function walkDocument<T>(opts: {
           const itemsType = type.items;
           if (itemsType !== undefined) {
             for (let i = 0; i < resolvedNode.length; i++) {
-              walkNode(resolvedNode[i], itemsType, location.append([i]), resolvedNode, i);
+              walkNode(resolvedNode[i], itemsType, location.child([i]), resolvedNode, i);
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
@@ -232,7 +232,7 @@ export function walkDocument<T>(opts: {
             walkNode(
               value,
               propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
-              location.append([propName]),
+              location.child([propName]),
               resolvedNode,
               propName,
             );

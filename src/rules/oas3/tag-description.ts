@@ -11,7 +11,7 @@ export const TagDescription: Oas3Rule = () => {
       } else if (!tag.description) {
         report({
           message: 'Tag object description must be non-empty string.',
-          location: location.append(['description']),
+          location: location.child(['description']),
         });
       }
     },

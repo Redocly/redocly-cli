@@ -11,7 +11,7 @@ export const ParameterDescription: Oas3Rule = () => {
       } else if (!parameter.description) {
         report({
           message: 'Parameter object description must be non-empty string.',
-          location: location.append(['description']),
+          location: location.child(['description']),
         });
       }
     },

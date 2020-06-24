@@ -14,7 +14,7 @@ export const OperationParametersUnique: Oas3Rule = () => {
         if (seenPathParams.has(paramId)) {
           report({
             message: `Paths must have unique \`name\` + \`in\` parameters.\nRepeats of \`in:${parameter.in}\` + \`name:${parameter.name}\``,
-            location: parentLocations.PathItem.append(['parameters', key]),
+            location: parentLocations.PathItem.child(['parameters', key]),
           });
         }
         seenPathParams.add(`${parameter.in}___${parameter.name}`);
@@ -28,7 +28,7 @@ export const OperationParametersUnique: Oas3Rule = () => {
           if (seenOperationParams.has(paramId)) {
             report({
               message: `Operations must have unique \`name\` + \`in\` parameters.\nRepeats of \`in:${parameter.in}\` + \`name:${parameter.name}\``,
-              location: parentLocations.Operation.append(['parameters', key]),
+              location: parentLocations.Operation.child(['parameters', key]),
             });
           }
           seenOperationParams.add(paramId);

@@ -13,7 +13,7 @@ export const TypedEnum: Oas3Rule = () => {
             message: `All values of \`enum\` field must be of the same type as the \`type\` field: expected "${
               schema.type
             }" but received "${oasTypeOf(mismatchedValue)}"`,
-            location: location.append(['enum', schema.enum.indexOf(mismatchedValue)]),
+            location: location.child(['enum', schema.enum.indexOf(mismatchedValue)]),
           });
         }
       }
