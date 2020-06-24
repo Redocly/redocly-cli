@@ -141,132 +141,129 @@ export function walkDocument<T>(opts: {
       }
     }
 
-    if (!resolvedNode || !newLocation || type.name === 'scalar') {
-      // error is reported by separate rule
-      return;
-    }
+    if (resolvedNode && newLocation && type.name !== 'scalar') {
+      location = newLocation;
 
-    location = newLocation;
+      const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
+      let visitedBySome = false;
 
-    const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
-    let visitedBySome = false;
+      const anyEnterVisitors = normalizedVisitors.any.enter;
+      const currentEnterVisitors = anyEnterVisitors.concat(
+        normalizedVisitors[type.name]?.enter || [],
+      );
 
-    const anyEnterVisitors = normalizedVisitors.any.enter;
-    const currentEnterVisitors = anyEnterVisitors.concat(
-      normalizedVisitors[type.name]?.enter || [],
-    );
+      const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 
-    const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
-
-    for (const { context, visit, skip, ruleId, severity } of currentEnterVisitors) {
-      if (context.isSkippedLevel) {
-        if (
-          context.parent.activatedOn &&
-          !context.parent.activatedOn.value.nextLevelTypeActivated &&
-          !context.seen.has(resolvedNode)
-        ) {
-          context.seen.add(resolvedNode);
-          visitedBySome = true;
-          activatedContexts.push(context);
-        }
-      } else {
-        if (
-          (context.parent && // if nested
+      for (const { context, visit, skip, ruleId, severity } of currentEnterVisitors) {
+        if (context.isSkippedLevel) {
+          if (
             context.parent.activatedOn &&
-            context.activatedOn?.value.withParentNode !== context.parent.activatedOn.value.node &&
-            // do not enter if visited by parent children (it works thanks because deeper visitors are sorted before)
-            context.parent.activatedOn.value.nextLevelTypeActivated?.value !== type) ||
-          (!context.parent && !isNodeSeen) // if top-level visit each node just once
-        ) {
-          activatedContexts.push(context);
-
-          const activatedOn = {
-            node: resolvedNode,
-            location,
-            nextLevelTypeActivated: null,
-            withParentNode: context.parent?.activatedOn?.value.node,
-            skipped:
-              (context.parent?.activatedOn?.value.skipped || skip?.(resolvedNode, key)) ?? false,
-          };
-
-          context.activatedOn = pushStack<any>(context.activatedOn, activatedOn);
-
-          let ctx: VisitorLevelContext | null = context.parent;
-          while (ctx) {
-            ctx.activatedOn!.value.nextLevelTypeActivated = pushStack(
-              ctx.activatedOn!.value.nextLevelTypeActivated,
-              type,
-            );
-            ctx = ctx.parent;
-          }
-
-          if (!activatedOn.skipped) {
+            !context.parent.activatedOn.value.nextLevelTypeActivated &&
+            !context.seen.has(resolvedNode)
+          ) {
+            context.seen.add(resolvedNode);
             visitedBySome = true;
-            enteredContexts.add(context);
-            visitWithContext(visit, resolvedNode, context, ruleId, severity);
+            activatedContexts.push(context);
+          }
+        } else {
+          if (
+            (context.parent && // if nested
+              context.parent.activatedOn &&
+              context.activatedOn?.value.withParentNode !== context.parent.activatedOn.value.node &&
+              // do not enter if visited by parent children (it works thanks because deeper visitors are sorted before)
+              context.parent.activatedOn.value.nextLevelTypeActivated?.value !== type) ||
+            (!context.parent && !isNodeSeen) // if top-level visit each node just once
+          ) {
+            activatedContexts.push(context);
+
+            const activatedOn = {
+              node: resolvedNode,
+              location,
+              nextLevelTypeActivated: null,
+              withParentNode: context.parent?.activatedOn?.value.node,
+              skipped:
+                (context.parent?.activatedOn?.value.skipped || skip?.(resolvedNode, key)) ?? false,
+            };
+
+            context.activatedOn = pushStack<any>(context.activatedOn, activatedOn);
+
+            let ctx: VisitorLevelContext | null = context.parent;
+            while (ctx) {
+              ctx.activatedOn!.value.nextLevelTypeActivated = pushStack(
+                ctx.activatedOn!.value.nextLevelTypeActivated,
+                type,
+              );
+              ctx = ctx.parent;
+            }
+
+            if (!activatedOn.skipped) {
+              visitedBySome = true;
+              enteredContexts.add(context);
+              visitWithContext(visit, resolvedNode, context, ruleId, severity);
+            }
           }
         }
       }
-    }
 
-    if (visitedBySome || !isNodeSeen) {
-      seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-      seenNodesPerType[type.name].add(resolvedNode);
+      if (visitedBySome || !isNodeSeen) {
+        seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
+        seenNodesPerType[type.name].add(resolvedNode);
 
-      if (Array.isArray(resolvedNode)) {
-        const itemsType = type.items;
-        if (itemsType !== undefined) {
-          for (let i = 0; i < resolvedNode.length; i++) {
-            walkNode(resolvedNode[i], itemsType, location.append([i]), resolvedNode, i);
+        if (Array.isArray(resolvedNode)) {
+          const itemsType = type.items;
+          if (itemsType !== undefined) {
+            for (let i = 0; i < resolvedNode.length; i++) {
+              walkNode(resolvedNode[i], itemsType, location.append([i]), resolvedNode, i);
+            }
           }
-        }
-      } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
-        // TODO: visit in order from type-tree
-        for (const propName of Object.keys(resolvedNode)) {
-          const value = resolvedNode[propName];
-          let propType = type.properties[propName];
-          if (propType !== undefined) {
-            propType = typeof propType === 'function' ? propType(value, propName) : propType;
-          } else {
-            propType = type.additionalProperties?.(value, propName);
-          }
-          if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
-            continue;
-          }
-          walkNode(
-            value,
-            propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
-            location.append([propName]),
-            resolvedNode,
-            propName,
-          );
-        }
-      }
-    }
-
-    const anyLeaveVisitors = normalizedVisitors.any.leave;
-    const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(anyLeaveVisitors)
-
-    for (const context of activatedContexts.reverse()) {
-      if (context.isSkippedLevel) {
-        context.seen.delete(resolvedNode);
-      } else {
-        context.activatedOn = popStack(context.activatedOn) as any;
-        if (context.parent) {
-          let ctx: VisitorLevelContext | null = context.parent;
-          while (ctx) {
-            ctx.activatedOn!.value.nextLevelTypeActivated = popStack(
-              ctx.activatedOn!.value.nextLevelTypeActivated,
+        } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
+          // TODO: visit in order from type-tree
+          for (const propName of Object.keys(resolvedNode)) {
+            const value = resolvedNode[propName];
+            let propType = type.properties[propName];
+            if (propType !== undefined) {
+              propType = typeof propType === 'function' ? propType(value, propName) : propType;
+            } else {
+              propType = type.additionalProperties?.(value, propName);
+            }
+            if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
+              continue;
+            }
+            walkNode(
+              value,
+              propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
+              location.append([propName]),
+              resolvedNode,
+              propName,
             );
-            ctx = ctx.parent;
           }
         }
       }
-    }
 
-    for (const { context, visit, ruleId, severity } of currentLeaveVisitors) {
-      if (!context.isSkippedLevel && enteredContexts.has(context)) {
-        visitWithContext(visit, resolvedNode, context, ruleId, severity);
+      const anyLeaveVisitors = normalizedVisitors.any.leave;
+      const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(anyLeaveVisitors)
+
+      for (const context of activatedContexts.reverse()) {
+        if (context.isSkippedLevel) {
+          context.seen.delete(resolvedNode);
+        } else {
+          context.activatedOn = popStack(context.activatedOn) as any;
+          if (context.parent) {
+            let ctx: VisitorLevelContext | null = context.parent;
+            while (ctx) {
+              ctx.activatedOn!.value.nextLevelTypeActivated = popStack(
+                ctx.activatedOn!.value.nextLevelTypeActivated,
+              );
+              ctx = ctx.parent;
+            }
+          }
+        }
+      }
+
+      for (const { context, visit, ruleId, severity } of currentLeaveVisitors) {
+        if (!context.isSkippedLevel && enteredContexts.has(context)) {
+          visitWithContext(visit, resolvedNode, context, ruleId, severity);
+        }
       }
     }
 

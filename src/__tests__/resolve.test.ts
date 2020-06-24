@@ -204,7 +204,10 @@ describe('collect refs', () => {
   it('should resolve referenceable scalars', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const externalRefResolver = new BaseResolver();
-    const rootDocument = await externalRefResolver.resolveDocument(null, `${cwd}/openapi.yaml`);
+    const rootDocument = await externalRefResolver.resolveDocument(
+      null,
+      `${cwd}/openapi-with-md-description.yaml`,
+    );
 
     expect(rootDocument).toBeDefined();
 
@@ -218,13 +221,14 @@ describe('collect refs', () => {
     // expect(resolvedRefs.size).toEqual(2);
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.$ref)).toMatchInlineSnapshot(`
       Array [
-        "#/components/schemas/Local",
-        "#/components/schemas/Local/properties/string",
-        "#/components/schemas/Local",
-        "./External.yaml#/properties/string",
-        "./External.yaml",
-        "./External2.yaml",
-        "./External.yaml#/properties",
+        "./description.md",
+      ]
+    `);
+    expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
+      Array [
+        "# Hello World
+
+      Lorem ipsum",
       ]
     `);
   });
