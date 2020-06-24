@@ -24,8 +24,7 @@ export type RuleConfig =
   | 'off'
   | {
       severity?: MessageSeverity;
-      options?: Record<string, any>;
-    };
+    } & Record<string, any>;
 
 export type TransformerConfig =
   | MessageSeverity
@@ -180,7 +179,6 @@ export class LintConfig {
     if (typeof settings === 'string') {
       return {
         severity: settings,
-        options: undefined,
       };
     } else {
       return { severity: 'error' as 'error', ...settings };
@@ -193,7 +191,6 @@ export class LintConfig {
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? ('error' as 'error') : settings,
-        options: undefined,
       };
     } else {
       return { severity: 'error' as 'error', ...settings };
