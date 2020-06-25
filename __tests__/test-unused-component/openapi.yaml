@@ -1,0 +1,35 @@
+
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  description: aadsadas
+  title: Swagger Petstore
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      responses:
+        '200':
+          description: A paged array of pets
+          content:
+            application/json:
+              schema:
+                type: string              
+components:
+  parameters:
+    anotherParam:
+      name: anotherParam
+      schema:
+        type: integer
+      in: query
+  schemas:
+    Someaa:
+      type: integer
+      enum:
+        - 1
+        - 2
