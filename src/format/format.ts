@@ -18,19 +18,21 @@ function severityToNumber(severity: MessageSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
+export type OutputFormat = 'codeframe' | 'stylish';
+
 export function formatMessages(
   messages: (NormalizedReportMessage & { ignored?: boolean })[],
   opts: {
     maxMessages?: number;
     cwd?: string;
-    format?: 'short' | 'detailed';
+    format?: OutputFormat;
     color?: boolean;
   },
 ) {
   const {
     maxMessages = 100,
     cwd = process.cwd(),
-    format = 'detailed',
+    format = 'codeframe',
     color = colorOptions.enabled,
   } = opts;
 
@@ -46,7 +48,7 @@ export function formatMessages(
 
   if (!totalMessages) return;
 
-  if (format === 'detailed') {
+  if (format === 'codeframe') {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
       process.stdout.write(`${fullFormatMessage(message, i)}\n`);

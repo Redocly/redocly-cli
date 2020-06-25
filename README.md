@@ -70,7 +70,7 @@ Beware, if the file specified as the bundler's output already exists, it will be
 Given this command, it will load the given ruleset and traverse the definition via the `entryPoint` parameter.
 
 Also, it accepts `[options]` which can be:
-- `--format` Ouput format, can be `short` or `detailed`
+- `--format` Ouput format, can be `stylish` or `codeframe`
 - `--config <path>`  Specify custom yaml or json config.
 - TODO: tbd
 

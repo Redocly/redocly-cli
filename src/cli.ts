@@ -6,7 +6,7 @@ import { validate } from './validate';
 
 import { bundle } from './bundle';
 import { dumpBundle, saveBundle, BundleOutputFormat } from './utils';
-import { formatMessages } from './format/format';
+import { formatMessages, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedReportMessage } from './walk';
@@ -14,6 +14,7 @@ import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
+
 
 yargs // eslint-disable-line
   .version()
@@ -29,8 +30,8 @@ yargs // eslint-disable-line
         })
         .option('format', {
           description: 'Reduce output to required minimum.',
-          choices: ['short', 'detailed'] as ReadonlyArray<'detailed' | 'short'>,
-          default: 'detailed' as 'detailed' | 'short',
+          choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
+          default: 'codeframe' as OutputFormat,
         })
         .option('max-messages', {
           requiresArg: true,
@@ -138,8 +139,8 @@ yargs // eslint-disable-line
         })
         .option('format', {
           description: 'Reduce output to required minimum.',
-          choices: ['short', 'detailed'] as ReadonlyArray<'detailed' | 'short'>,
-          default: 'detailed' as 'detailed' | 'short',
+          choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
+          default: 'codeframe' as OutputFormat,
         })
         .option('max-messages', {
           requiresArg: true,
