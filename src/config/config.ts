@@ -18,13 +18,16 @@ import { NodeType } from '../types';
 import { dirname } from 'path';
 
 const IGNORE_FILE = '.redocly.lint-ignore.yaml';
+const IGNORE_BANNER =
+  `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
+  `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
 export type RuleConfig =
   | MessageSeverity
   | 'off'
-  | {
+  | ({
       severity?: MessageSeverity;
-    } & Record<string, any>;
+    } & Record<string, any>);
 
 export type TransformerConfig =
   | MessageSeverity
@@ -126,12 +129,12 @@ export class LintConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = mapped[path.relative(dir, absFileName)] = this.ignore[absFileName];
+      const ignoredRules = (mapped[path.relative(dir, absFileName)] = this.ignore[absFileName]);
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
     }
-    fs.writeFileSync(ignoreFile, yaml.safeDump(mapped));
+    fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.safeDump(mapped));
   }
 
   addException(message: NormalizedReportMessage) {
@@ -140,7 +143,7 @@ export class LintConfig {
     if (loc.pointer === undefined) return;
 
     const fileIgnore = (ignore[loc.source.absoluteRef] = ignore[loc.source.absoluteRef] || {});
-    const ruleIgnore = fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || new Set();
+    const ruleIgnore = (fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || new Set());
 
     ruleIgnore.add(loc.pointer);
   }
@@ -154,9 +157,9 @@ export class LintConfig {
     const ignored = ruleIgnore && ruleIgnore.has(loc.pointer);
     return ignored
       ? {
-        ...message,
-        ignored,
-      }
+          ...message,
+          ignored,
+        }
       : message;
   }
 
@@ -205,9 +208,9 @@ export class LintConfig {
 
   getUnusedRules() {
     return {
-      rules: Object.keys(this.rules).filter(name => !this._usedRules.has(name)),
-      transformers: Object.keys(this.transformers).filter(name => !this._usedRules.has(name)),
-    }
+      rules: Object.keys(this.rules).filter((name) => !this._usedRules.has(name)),
+      transformers: Object.keys(this.transformers).filter((name) => !this._usedRules.has(name)),
+    };
   }
 
   getRulesForOasVersion(version: OasVersion) {
@@ -223,7 +226,7 @@ export class LintConfig {
   }
 
   skipRules(rules?: string[]) {
-    for (const ruleId of (rules || [])) {
+    for (const ruleId of rules || []) {
       if (this.rules[ruleId]) {
         this.rules[ruleId] = 'off';
       }
@@ -231,7 +234,7 @@ export class LintConfig {
   }
 
   skipTransformers(transformers?: string[]) {
-    for (const transformerId of (transformers || [])) {
+    for (const transformerId of transformers || []) {
       if (this.transformers[transformerId]) {
         this.transformers[transformerId] = 'off';
       }
