@@ -17,7 +17,7 @@ import { red, blue } from 'colorette';
 import { NodeType } from '../types';
 import { dirname } from 'path';
 
-const EXCEPTIONS_FILE = '.openapi-cli.exceptions.yaml';
+const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 
 export type RuleConfig =
   | MessageSeverity
@@ -75,7 +75,7 @@ export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
   transformers: Record<string, TransformerConfig>;
-  exceptions: Record<string, Record<string, Set<string>>> = {};
+  ignore: Record<string, Record<string, Set<string>>> = {};
 
   private _usedRules: Set<string> = new Set();
 
@@ -105,37 +105,37 @@ export class LintConfig {
     this.transformers = merged.transformers;
 
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
-    const exceptionsFile = path.join(dir, EXCEPTIONS_FILE);
+    const ignoreFile = path.join(dir, IGNORE_FILE);
 
-    if (fs.existsSync(exceptionsFile)) {
-      this.exceptions = yaml.safeLoad(fs.readFileSync(exceptionsFile, 'utf-8')); // TODO: parse errors
+    if (fs.existsSync(ignoreFile)) {
+      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')); // TODO: parse errors
 
       // resolve ignore paths
-      for (const fileName of Object.keys(this.exceptions)) {
-        this.exceptions[path.resolve(dirname(exceptionsFile), fileName)] = this.exceptions[fileName];
-        for (const ruleId of Object.keys(this.exceptions[fileName])) {
-          this.exceptions[fileName][ruleId] = new Set(this.exceptions[fileName][ruleId]);
+      for (const fileName of Object.keys(this.ignore)) {
+        this.ignore[path.resolve(dirname(ignoreFile), fileName)] = this.ignore[fileName];
+        for (const ruleId of Object.keys(this.ignore[fileName])) {
+          this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
         }
-        delete this.exceptions[fileName];
+        delete this.ignore[fileName];
       }
     }
   }
 
-  saveExceptions() {
+  saveIgnore() {
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
-    const ignoreFile = path.join(dir, EXCEPTIONS_FILE);
+    const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
-    for (const absFileName of Object.keys(this.exceptions)) {
-      const ruleExceptions = mapped[path.relative(dir, absFileName)] = this.exceptions[absFileName];
-      for (const ruleId of Object.keys(ruleExceptions)) {
-        ruleExceptions[ruleId] = Array.from(ruleExceptions[ruleId]) as any;
+    for (const absFileName of Object.keys(this.ignore)) {
+      const ignoredRules = mapped[path.relative(dir, absFileName)] = this.ignore[absFileName];
+      for (const ruleId of Object.keys(ignoredRules)) {
+        ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
     }
     fs.writeFileSync(ignoreFile, yaml.safeDump(mapped));
   }
 
   addException(message: NormalizedReportMessage) {
-    const ignore = this.exceptions;
+    const ignore = this.ignore;
     const loc = message.location[0];
     if (loc.pointer === undefined) return;
 
@@ -145,11 +145,11 @@ export class LintConfig {
     ruleIgnore.add(loc.pointer);
   }
 
-  addMessageToExceptions(message: NormalizedReportMessage) {
+  addMessageToIgnore(message: NormalizedReportMessage) {
     const loc = message.location[0];
     if (loc.pointer === undefined) return message;
 
-    const fileIgnore = this.exceptions[loc.source.absoluteRef] || {};
+    const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
     const ruleIgnore = fileIgnore[message.ruleId];
     const ignored = ruleIgnore && ruleIgnore.has(loc.pointer);
     return ignored

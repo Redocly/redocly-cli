@@ -76,7 +76,7 @@ export async function validateDocument(opts: {
         ctx,
       });
 
-      return ctx.messages.map((message) => config.addMessageToExceptions(message));
+      return ctx.messages.map((message) => config.addMessageToIgnore(message));
     }
   }
 }

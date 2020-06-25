@@ -39,8 +39,8 @@ yargs // eslint-disable-line
           type: 'number',
           default: 100,
         })
-        .option('generate-exceptions', {
-          description: 'Generate exceptions file',
+        .option('generate-ignore-file', {
+          description: 'Generate ignore file',
           type: 'boolean',
         })
         .option('skip-rule', {
@@ -65,12 +65,12 @@ yargs // eslint-disable-line
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
-      if (argv['generate-exceptions']) {
-        config.lint.exceptions = {}; // clear ignore
+      if (argv['generate-ignore-file']) {
+        config.lint.ignore = {}; // clear ignore
       }
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-      let totalExceptions = 0;
+      let totalIgnored = 0;
 
       // TODO: use shared externalRef resolver, blocked by transformers now as they mutate documents
       for (const entryPoint of entrypoints) {
@@ -86,10 +86,10 @@ yargs // eslint-disable-line
           totals.warnings += fileTotals.warnings;
           totals.ignored += fileTotals.ignored;
 
-          if (argv['generate-exceptions']) {
+          if (argv['generate-ignore-file']) {
             for (let m of results) {
               config.lint.addException(m);
-              totalExceptions++;
+              totalIgnored++;
             }
           } else {
             formatMessages(results, {
@@ -108,20 +108,20 @@ yargs // eslint-disable-line
         }
       }
 
-      if (argv['generate-exceptions']) {
-        config.lint.saveExceptions();
+      if (argv['generate-ignore-file']) {
+        config.lint.saveIgnore();
         process.stderr.write(
-          `Added ${totalExceptions} ${pluralize(
+          `Added ${totalIgnored} ${pluralize(
             'message',
-            totalExceptions,
-          )} to exceptions file\n\n`,
+            totalIgnored,
+          )} to ignore file\n\n`,
         );
       } else {
         printLintTotals(totals, entrypoints.length);
       }
 
       printUnusedWarnings(config.lint);
-      process.exit(totals.errors === 0 || argv['generate-exceptions'] ? 0 : 1);
+      process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1);
     },
   )
   .command(
@@ -326,7 +326,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`\nrun with \`--generate-exceptions\` to add all messages to exceptions file\n`),
+      gray(`\nrun with \`--generate-ignore-file\` to add all messages to ignore file\n`),
     );
   }
 
