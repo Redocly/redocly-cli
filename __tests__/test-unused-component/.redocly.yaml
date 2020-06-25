@@ -2,4 +2,5 @@ apiDefinitions:
   main: ./openapi.yaml
 
 lint:
-  operation-description: off
+  rules:
+    operation-description: off
