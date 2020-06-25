@@ -27,7 +27,7 @@ describe('E2E', () => {
       cwd: testPath,
       env: {
         ...process.env,
-        'TEST_RUN': 'TRUE',
+        'NODE_ENV': 'test',
         'NOCOLOR': 'TRUE',
       }
     });
