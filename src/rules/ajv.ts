@@ -1,15 +1,15 @@
 import * as Ajv from 'ajv';
-import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
-import { OasVersion } from '../validate';
-import { Location } from '../ref-utils';
+// import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
+// import { OasVersion } from '../validate';
+import { Location, isRef } from '../ref-utils';
 import { Referenced } from '../typings/openapi';
 
-const ajvInstances: Partial<Record<OasVersion, Ajv.Ajv>> = {};
+const ajvInstances: Partial<Record<string, Ajv.Ajv>> = {};
 const ajvValidatorFns: WeakMap<any, Ajv.ValidateFunction> = new WeakMap();
 
-function getAjv(oasVersion: OasVersion) {
-  if (!ajvInstances[oasVersion]) {
-    ajvInstances[oasVersion] = new Ajv({
+function getAjv(file: string, resolve: any) {
+  if (!ajvInstances[file]) {
+    ajvInstances[file] = new Ajv({
       schemaId: 'auto',
       meta: true,
       allErrors: false,
@@ -18,19 +18,26 @@ function getAjv(oasVersion: OasVersion) {
       nullable: true,
       missingRefs: 'ignore',
       validateSchema: false,
+      loadSchemaSync: ($ref) => {
+        return resolve({$ref}).node;
+      }
       // logger: false
     });
 
-    ajvInstances[oasVersion]!.addMetaSchema(jsonSpecV4);
+    // ajvInstances[oasVersion]!.addMetaSchema(jsonSpecV4);
   }
 
-  return ajvInstances[oasVersion]!;
+  return ajvInstances[file]!;
 }
 
-function getAjvValidator(schema: any, oasVersion: OasVersion): Ajv.ValidateFunction {
+function getAjvValidator(schema: any, file: string, resolve: any): Ajv.ValidateFunction {
+  if (isRef(schema)) {
+    schema = resolve(schema).node;
+  }
+
   if (!ajvValidatorFns.get(schema)) {
-    const inst = getAjv(oasVersion);
-    ajvValidatorFns.set(schema, inst?.compile(schema));
+    const inst = getAjv(file, resolve);
+    ajvValidatorFns.set(schema, inst?.compileSync(schema));
   }
 
   return ajvValidatorFns.get(schema)!;
@@ -43,7 +50,6 @@ export function validateSchema(
   resolve: (
     node: Referenced<any>,
   ) => { location: Location; node: any } | { location: undefined; node: undefined },
-  oasVersion: OasVersion,
 ):
   | {
       valid: true;
@@ -51,22 +57,8 @@ export function validateSchema(
     }
   | { valid: false; error: Ajv.ErrorObject } {
 
-  // FIXME: PoC, should be rewritten
-  function resolveDeep(node:any) {
-    if (node.$ref) {
-      return resolve(schema).node
-    }
-    if (node.items && node.items.$ref) {
-      return {
-        ...node,
-        items: resolve(node.items).node
-      }
-    }
-    return node;
-  }
-
-
-  const validator = getAjvValidator(resolveDeep(schema), oasVersion);
+  const { node, location: newLoc } = resolve(schema);
+  const validator = getAjvValidator(node, newLoc!.source.absoluteRef, resolve);
 
   const valid = !!validator(data, location.pointer);
   if (valid) {

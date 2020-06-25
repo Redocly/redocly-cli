@@ -12,7 +12,7 @@ export const ValidContentExamples: Oas3Rule = () => {
         const res = validateSchema(
           mediaType.example,
           mediaType.schema,
-          location.append('example'),
+          location.child('example'),
           resolve,
           oasVersion,
         );
@@ -30,10 +30,10 @@ export const ValidContentExamples: Oas3Rule = () => {
           if (isRef(example)) {
             const res = resolve<Oas3Example>(example);
             if (!res.location) continue;
-            newLocation = res.location.append('value');
+            newLocation = res.location.child('value');
             resolvedExample = res.node;
           } else {
-            newLocation = location.append(['examples', exampleName, 'value']);
+            newLocation = location.child(['examples', exampleName, 'value']);
             resolvedExample = example;
           }
 
@@ -42,7 +42,6 @@ export const ValidContentExamples: Oas3Rule = () => {
             mediaType.schema,
             newLocation,
             resolve,
-            oasVersion,
           );
           if (!res.valid) {
             report({
