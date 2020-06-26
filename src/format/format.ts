@@ -14,6 +14,8 @@ const COLORS = {
   error: red,
 };
 
+const MAX_SUGGEST = 5;
+
 function severityToNumber(severity: MessageSeverity) {
   return severity === 'error' ? 1 : 2;
 }
@@ -110,7 +112,7 @@ function formatDidYouMean(message: NormalizedReportMessage) {
   if (message.suggest.length === 1) {
     return `Did you mean: ${message.suggest[0]} ?\n\n`;
   } else {
-    return `Did you mean:\n -${message.suggest.join('\n -')}\n\n`;
+    return `Did you mean:\n  - ${message.suggest.slice(0, MAX_SUGGEST).join('\n  - ')}\n\n`;
   }
 }
 

@@ -18,6 +18,10 @@ export type ResolveResult<T extends NonUndefined> =
   | { node: T; location: Location; error?: ResolveError | YamlParseError }
   | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
 
+export type ResolveFn<T> = (
+  node: Referenced<T>, from?: string
+) => { location: Location; node: T } | { location: undefined; node: undefined };
+
 export type UserContext = {
   report(message: ReportMessage): void;
   location: Location;
@@ -241,7 +245,9 @@ export function walkDocument<T>(opts: {
       }
 
       const anyLeaveVisitors = normalizedVisitors.any.leave;
-      const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(anyLeaveVisitors)
+      const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(
+        anyLeaveVisitors,
+      );
 
       for (const context of activatedContexts.reverse()) {
         if (context.isSkippedLevel) {
@@ -314,9 +320,13 @@ export function walkDocument<T>(opts: {
       );
     }
 
-    function resolve<T>(ref: Referenced<T>): ResolveResult<T> {
+    function resolve<T>(
+      ref: Referenced<T>,
+      from: string = location.source.absoluteRef,
+    ): ResolveResult<T> {
       if (!isRef(ref)) return { location, node: ref };
-      const refId = location.source.absoluteRef + '::' + ref.$ref;
+      const refId = from + '::' + ref.$ref;
+
       const resolvedRef = resolvedRefMap.get(refId);
       if (!resolvedRef) {
         return {
@@ -345,8 +355,8 @@ export function walkDocument<T>(opts: {
       ctx.messages.push({
         ruleId,
         severity: severity,
-        suggest: [],
         ...opts,
+        suggest: opts.suggest || [],
         location: loc.map((loc: any) => {
           return { ...location, reportOnKey: false, ...loc };
         }),

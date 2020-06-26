@@ -312,18 +312,18 @@ export async function resolveDocument(opts: {
 
       let target = targetDoc.parsed as any;
 
-      const segments = pointer.split('/').slice(1).map(escapePointer).filter(Boolean);
+      const segments = pointer;
       for (let segment of segments) {
         if (typeof target !== 'object') {
           target = undefined;
           break;
         } else if (target[segment] !== undefined) {
           target = target[segment];
-          resolvedRef.nodePointer = path.join(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
         } else if (isRef(target)) {
           resolvedRef = await followRef(document, target, pushRef(refStack, target));
           target = resolvedRef.node[segment];
-          resolvedRef.nodePointer = path.join(resolvedRef.nodePointer!, escapePointer(segment));
+          resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
         } else {
           target = undefined;
           break;

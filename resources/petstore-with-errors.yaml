@@ -20,6 +20,17 @@ paths:
       requestBody:
         content:
           'application/json':
+            schema:
+              type: object
+              properties:
+                summary:
+                  type: string
+                externalValue:
+                  type: number
+            example:
+              summary: A foo example
+              value: {"foo": "bar"}
+              externalValue: 'http://example.org/foo.json'
             examples:
               foo:
                 summary: A foo example

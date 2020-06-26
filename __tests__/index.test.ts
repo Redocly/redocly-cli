@@ -22,7 +22,7 @@ describe('E2E', () => {
     const testPath = join(__dirname, file);
     if (statSync(testPath).isFile()) continue;
     if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
-    
+
     const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../src/cli.ts', 'lint'], {
       cwd: testPath,
       env: {
@@ -34,7 +34,7 @@ describe('E2E', () => {
 
     const out = r.stdout.toString('utf-8');
     const err = r.stderr.toString('utf-8')
-    
+
     const result = `${out}\n${err}`
 
     it(file, () => {
