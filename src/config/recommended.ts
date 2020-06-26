@@ -37,7 +37,7 @@ export default {
 
     'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
-    'valid-content-examples': 'warning',
+    'no-invalid-media-type-examples': 'warning',
     spec: 'error',
   }
 } as RulesConfig

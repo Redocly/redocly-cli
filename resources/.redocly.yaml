@@ -7,7 +7,7 @@ lint:
     - local/all
   rules:
     operation-2xx-response: warning
-    valid-content-examples: error
+    no-invalid-media-type-examples: error
     operation-description: off
     path-http-verbs-order: error
   transformers:

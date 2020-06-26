@@ -30,6 +30,7 @@ export default {
     'operation-singular-tag': 'error',
 
     'no-example-value-and-externalValue': 'error',
+    'no-invalid-media-type-examples': 'error',
 
     'no-unused-components': 'error',
     'no-unresolved-refs': 'error',

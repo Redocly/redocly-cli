@@ -1,75 +1,86 @@
-import * as Ajv from 'ajv';
+import * as Ajv from '@redocly/ajv';
 // import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
 // import { OasVersion } from '../validate';
-import { Location, isRef } from '../ref-utils';
-import { Referenced } from '../typings/openapi';
+import { Location } from '../ref-utils';
+import { ResolveFn } from '../walk';
 
-const ajvInstances: Partial<Record<string, Ajv.Ajv>> = {};
-const ajvValidatorFns: WeakMap<any, Ajv.ValidateFunction> = new WeakMap();
+let ajvInstance: Ajv.Ajv | null = null;
 
-function getAjv(file: string, resolve: any) {
-  if (!ajvInstances[file]) {
-    ajvInstances[file] = new Ajv({
+function getAjv(resolve: ResolveFn<any>) {
+  if (!ajvInstance) {
+    ajvInstance = new Ajv({
       schemaId: 'auto',
       meta: true,
-      allErrors: false,
+      allErrors: true,
       jsonPointers: true,
       unknownFormats: 'ignore',
       nullable: true,
       missingRefs: 'ignore',
+      inlineRefs: false,
       validateSchema: false,
-      loadSchemaSync: ($ref) => {
-        return resolve({$ref}).node;
-      }
-      // logger: false
+      loadSchemaSync(base: string, $ref: string, id: string) {
+        const resolvedRef = resolve({$ref}, base.replace(/#$/, ''));
+        if (!resolvedRef || !resolvedRef.location) return undefined;
+
+        return { id, ...resolvedRef.node };
+      },
+      logger: false,
     });
-
-    // ajvInstances[oasVersion]!.addMetaSchema(jsonSpecV4);
   }
-
-  return ajvInstances[file]!;
+  return ajvInstance;
 }
 
-function getAjvValidator(schema: any, file: string, resolve: any): Ajv.ValidateFunction {
-  if (isRef(schema)) {
-    schema = resolve(schema).node;
+function getAjvValidator(
+  schema: any,
+  loc: Location,
+  resolve: ResolveFn<any>,
+): Ajv.ValidateFunction | undefined {
+  const ajv = getAjv(resolve);
+
+  if (!ajv.getSchema(loc.absolutePointer)) {
+    ajv.addSchema({ id: loc.absolutePointer, ...schema }, loc.absolutePointer);
   }
 
-  if (!ajvValidatorFns.get(schema)) {
-    const inst = getAjv(file, resolve);
-    ajvValidatorFns.set(schema, inst?.compileSync(schema));
-  }
-
-  return ajvValidatorFns.get(schema)!;
+  return ajv.getSchema(loc.absolutePointer);
 }
 
-export function validateSchema(
+export function validateJsonSchema(
   data: any,
   schema: any,
-  location: Location,
-  resolve: (
-    node: Referenced<any>,
-  ) => { location: Location; node: any } | { location: undefined; node: undefined },
-):
-  | {
-      valid: true;
-      error: undefined;
+  schemaLoc: Location,
+  dataPath: string,
+  resolve: ResolveFn<any>,
+): { valid: boolean; errors: (Ajv.ErrorObject & { suggest?: string[] })[] } {
+  const validate = getAjvValidator(schema, schemaLoc, resolve);
+  if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
+
+  const valid = validate(data, dataPath);
+  return {
+    valid: !!valid,
+    errors: (validate.errors || []).map(beatifyErrorMessage),
+  };
+
+  function beatifyErrorMessage(error: Ajv.ErrorObject) {
+    let message = error.message;
+    let suggest =
+      error.keyword === 'enum' ? (error.params as Ajv.EnumParams).allowedValues : undefined;
+    if (suggest) {
+      message += ` ${suggest.map((e) => `"${e}"`).join(', ')}`;
     }
-  | { valid: false; error: Ajv.ErrorObject } {
 
-  const { node, location: newLoc } = resolve(schema);
-  const validator = getAjvValidator(node, newLoc!.source.absoluteRef, resolve);
+    if (error.keyword === 'type') {
+      message = `type ${message}`;
+    }
 
-  const valid = !!validator(data, location.pointer);
-  if (valid) {
+    const relativePath = error.dataPath.substring(dataPath.length + 1);
+    const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
+    if (propName) {
+      message = `\`${propName}\` property ${message}`;
+    }
     return {
-      valid: true,
-      error: undefined
-    };
-  } else {
-    return {
-      valid: false,
-      error: validator.errors?.[0]!,
+      ...error,
+      message,
+      suggest,
     };
   }
 }
