@@ -42,7 +42,7 @@ export type Loc = {
 
 export type PointerLocationObject = {
   source: Source;
-  reportOnKey: boolean;
+  reportOnKey?: boolean;
   pointer: string;
 };
 
@@ -60,6 +60,7 @@ export type ReportMessage = {
   message: string;
   suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
+  from?: LocationObject;
 };
 
 export type NormalizedReportMessage = {
@@ -67,6 +68,7 @@ export type NormalizedReportMessage = {
   ruleId: string;
   severity: MessageSeverity;
   location: LocationObject[];
+  from?: LocationObject;
   suggest: string[];
   ignored?: boolean;
 };

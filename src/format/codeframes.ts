@@ -137,7 +137,7 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
 
   const { source, pointer, reportOnKey } = location;
   const ast = source.getAst() as YAMLNode;
-  const astNode = getAstNodeByPointer(ast, pointer, reportOnKey);
+  const astNode = getAstNodeByPointer(ast, pointer, !!reportOnKey);
   return {
     ...location,
     pointer: undefined,

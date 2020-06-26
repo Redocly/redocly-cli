@@ -59,8 +59,8 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       const config = await loadConfig(argv.config);
-      config.lint.skipRules(argv["skip-rule"]);
-      config.lint.skipTransformers(argv["skip-transformer"]);
+      config.lint.skipRules(argv['skip-rule']);
+      config.lint.skipTransformers(argv['skip-transformer']);
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -168,8 +168,8 @@ yargs // eslint-disable-line
         }),
     async (argv) => {
       const config = await loadConfig(argv.config);
-      config.lint.skipRules(argv["skip-rule"]);
-      config.lint.skipTransformers(argv["skip-transformer"]);
+      config.lint.skipRules(argv['skip-rule']);
+      config.lint.skipTransformers(argv['skip-transformer']);
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -397,7 +397,11 @@ function printUnusedWarnings(config: LintConfig) {
   }
   if (transformers.length) {
     process.stderr.write(
-      yellow(`[WARN} Unknown transformers found in ${blue(config.configFile || '')}: ${transformers.join(', ')}\n`),
+      yellow(
+        `[WARN} Unknown transformers found in ${blue(config.configFile || '')}: ${transformers.join(
+          ', ',
+        )}\n`,
+      ),
     );
   }
 
