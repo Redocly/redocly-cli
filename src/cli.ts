@@ -15,7 +15,6 @@ import { performance } from 'perf_hooks';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
-
 yargs // eslint-disable-line
   .version()
   .command(
@@ -76,6 +75,7 @@ yargs // eslint-disable-line
       for (const entryPoint of entrypoints) {
         try {
           const startedAt = performance.now();
+          process.stderr.write(gray(`validating ${entryPoint}...\n`));
           const results = await validate({
             ref: entryPoint,
             config: config.lint,
@@ -98,10 +98,8 @@ yargs // eslint-disable-line
             });
           }
 
-          const elapsed = `${Math.ceil(performance.now() - startedAt)}ms`;
-          if(process.env.NODE_ENV !== 'test') {
-            process.stderr.write(`${blue(entryPoint)}: validated in ${elapsed}\n\n`);
-          }
+          const elapsed = process.env.NODE_ENV === 'test' ? '<test>ms': `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
           handleError(e, entryPoint);
@@ -111,10 +109,7 @@ yargs // eslint-disable-line
       if (argv['generate-ignore-file']) {
         config.lint.saveIgnore();
         process.stderr.write(
-          `Added ${totalIgnored} ${pluralize(
-            'message',
-            totalIgnored,
-          )} to ignore file\n\n`,
+          `Added ${totalIgnored} ${pluralize('message', totalIgnored)} to ignore file\n\n`,
         );
       } else {
         printLintTotals(totals, entrypoints.length);
@@ -182,6 +177,7 @@ yargs // eslint-disable-line
       for (const entrypoint of entrypoints) {
         try {
           const startedAt = performance.now();
+          process.stderr.write(gray(`bundling ${entrypoint}...\n`));
           const { bundle: result, messages } = await bundle({
             config: config.lint,
             ref: entrypoint,
@@ -214,7 +210,10 @@ yargs // eslint-disable-line
             maxMessages: argv['max-messages'],
           });
 
-          const elapsed = `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          const elapsed =
+            process.env.NODE_ENV === 'test'
+              ? '<test>ms'
+              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
           if (fileTotals.errors > 0) {
             if (argv.force) {
               process.stderr.write(
