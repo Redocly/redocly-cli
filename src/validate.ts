@@ -7,6 +7,7 @@ import { WalkContext, walkDocument } from './walk';
 import { LintConfig } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
+import { releaseAjvInstance } from './rules/ajv';
 
 export enum OasVersion {
   Version2 = 'oas2',
@@ -41,6 +42,8 @@ export async function validateDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver?: BaseResolver;
 }) {
+  releaseAjvInstance(); // FIXME: transformers modify nodes which are then cached to ajv-instance by absolute path
+
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
   switch (detectOpenAPI(document.parsed)) {
     case OasVersion.Version2:

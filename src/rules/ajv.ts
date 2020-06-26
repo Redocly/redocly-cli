@@ -6,7 +6,11 @@ import { ResolveFn } from '../walk';
 
 let ajvInstance: Ajv.Ajv | null = null;
 
-function getAjv(resolve: ResolveFn<any>) {
+export function releaseAjvInstance() {
+  ajvInstance = null;
+}
+
+function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: 'auto',
@@ -22,7 +26,8 @@ function getAjv(resolve: ResolveFn<any>) {
         const resolvedRef = resolve({$ref}, base.replace(/#$/, ''));
         if (!resolvedRef || !resolvedRef.location) return undefined;
 
-        return { id, ...resolvedRef.node };
+        const additionalProps = resolvedRef.node.additionalProperties;
+        return { id, ...resolvedRef.node, additionalProperties: additionalProps === undefined ? !disallowAdditionalProperties : additionalProps };
       },
       logger: false,
     });
@@ -34,8 +39,9 @@ function getAjvValidator(
   schema: any,
   loc: Location,
   resolve: ResolveFn<any>,
+  disallowAdditionalProperties: boolean,
 ): Ajv.ValidateFunction | undefined {
-  const ajv = getAjv(resolve);
+  const ajv = getAjv(resolve, disallowAdditionalProperties);
 
   if (!ajv.getSchema(loc.absolutePointer)) {
     ajv.addSchema({ id: loc.absolutePointer, ...schema }, loc.absolutePointer);
@@ -50,8 +56,9 @@ export function validateJsonSchema(
   schemaLoc: Location,
   dataPath: string,
   resolve: ResolveFn<any>,
+  disallowAdditionalProperties: boolean,
 ): { valid: boolean; errors: (Ajv.ErrorObject & { suggest?: string[] })[] } {
-  const validate = getAjvValidator(schema, schemaLoc, resolve);
+  const validate = getAjvValidator(schema, schemaLoc, resolve, disallowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
   const valid = validate(data, dataPath);
@@ -70,6 +77,11 @@ export function validateJsonSchema(
 
     if (error.keyword === 'type') {
       message = `type ${message}`;
+    }
+
+    if (error.keyword === 'additionalProperties') {
+      const property = (error.params as Ajv.AdditionalPropertiesParams).additionalProperty;
+      message = `${message} \`${property}\``;
     }
 
     const relativePath = error.dataPath.substring(dataPath.length + 1);
