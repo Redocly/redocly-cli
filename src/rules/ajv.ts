@@ -1,7 +1,7 @@
 import * as Ajv from '@redocly/ajv';
 // import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
 // import { OasVersion } from '../validate';
-import { Location } from '../ref-utils';
+import { Location, escapePointer } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
 let ajvInstance: Ajv.Ajv | null = null;
@@ -22,12 +22,11 @@ function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) 
       missingRefs: 'ignore',
       inlineRefs: false,
       validateSchema: false,
+      defaultAdditionalProperties: !disallowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, id: string) {
         const resolvedRef = resolve({$ref}, base.replace(/#$/, ''));
         if (!resolvedRef || !resolvedRef.location) return undefined;
-
-        const additionalProps = resolvedRef.node.additionalProperties;
-        return { id, ...resolvedRef.node, additionalProperties: additionalProps === undefined ? !disallowAdditionalProperties : additionalProps };
+        return { id, ...resolvedRef.node };
       },
       logger: false,
     });
@@ -79,16 +78,17 @@ export function validateJsonSchema(
       message = `type ${message}`;
     }
 
-    if (error.keyword === 'additionalProperties') {
-      const property = (error.params as Ajv.AdditionalPropertiesParams).additionalProperty;
-      message = `${message} \`${property}\``;
-    }
-
     const relativePath = error.dataPath.substring(dataPath.length + 1);
     const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
     if (propName) {
       message = `\`${propName}\` property ${message}`;
     }
+    if (error.keyword === 'additionalProperties') {
+      const property = (error.params as Ajv.AdditionalPropertiesParams).additionalProperty;
+      message = `${message} \`${property}\``;
+      error.dataPath += '/' + escapePointer(property);
+    }
+
     return {
       ...error,
       message,
