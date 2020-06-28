@@ -5,12 +5,12 @@ import { NormalizedReportMessage, MessageSeverity, LineColLocationObject, Locati
 import { getCodeframe, getLineColLocation } from './codeframes';
 
 const BG_COLORS = {
-  warning: bgYellow,
+  warn: bgYellow,
   error: bgRed,
 };
 
 const COLORS = {
-  warning: yellow,
+  warn: yellow,
   error: red,
 };
 
