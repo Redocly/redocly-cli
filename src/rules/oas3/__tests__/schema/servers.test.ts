@@ -23,7 +23,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -48,7 +48,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -80,7 +80,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -101,7 +101,7 @@ describe('OpenAPI Schema', () => {
 
       servers:
         - url: https://server.com/v1
-          description: 
+          description:
 
       paths:
         '/ping':
@@ -113,7 +113,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -133,7 +133,7 @@ describe('OpenAPI Schema', () => {
         version: '1.0'
 
       servers:
-        - url: https://example.com 
+        - url: https://example.com
 
       paths:
         '/ping':
@@ -145,7 +145,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -170,7 +170,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -207,41 +207,10 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
-
-  // This will fail without error message
-  // it('should report on not valid multiple servers', async () => {
-  //   const source = outdent`
-  //     openapi: 3.0.2
-  //     info:
-  //       title: Example OpenAPI 3 definition. Valid.
-  //       version: '1.0'
-
-  //     servers:
-  //       - url: https://development.server.com/v1
-  //         description: Development server
-  //       - url: https://staging.server.com/v1
-  //         description: Staging server
-  //       url: https://api.server.com/v1
-  //         description: Production server
-
-  //     paths:
-  //       '/ping':
-  //         get:
-  //           responses:
-  //             '200':
-  //               description: example description
-  //   `;
-
-  //   expect(
-  //     await validateDoc(source, {
-  //       schema: 'error',
-  //     }),
-  //   ).toMatchInlineSnapshot(`Array []`);
-  // });
 
   it('should not report if variables are used for a server configuration', async () => {
     const source = outdent`
@@ -273,7 +242,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -307,7 +276,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -319,8 +288,8 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  //Check: no error
-  it('should report if some variable is not provided', async () => {
+  // TODO: should be a separate rule
+  it.skip('should report if some variable is not defined', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -348,13 +317,12 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
 
-  // Check: no error
-  it('should report if defaut value is not provided in variables', async () => {
+  it('should report if default value is not provided in variables', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -369,7 +337,6 @@ describe('OpenAPI Schema', () => {
               enum:
                 - '8443'
                 - '443'
-              default: '8443'
             basePath:
               default: v2
 
@@ -383,12 +350,19 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": "#/servers/0/variables/port",
+          "message": "The field 'default' must be present on this level.",
+        },
+      ]
+    `);
   });
 
-  it('should report if defaut value in variables is empty', async () => {
+  it('should report if default value in variables is empty', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -418,7 +392,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -431,7 +405,7 @@ describe('OpenAPI Schema', () => {
   });
 
   //Check: No error
-  it('should report if description in variable is empty', async () => {
+  it('should report if description in variable is not a string', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -443,7 +417,7 @@ describe('OpenAPI Schema', () => {
           variables:
             username:
               default: demo
-              description: 
+              description:
             port:
               enum:
                 - '8443'
@@ -462,7 +436,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -473,7 +447,7 @@ describe('OpenAPI Schema', () => {
         info:
           title: Example OpenAPI 3 definition. Valid.
           version: '1.0'
-  
+
         paths:
           '/ping':
             get:
@@ -484,7 +458,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -497,7 +471,7 @@ describe('OpenAPI Schema', () => {
           version: '1.0'
 
         servers:
-  
+
         paths:
           '/ping':
             get:
@@ -508,426 +482,8 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
-  });
-
-  it('should verify if the title of the API is required ', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        version: '1.0'
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info",
-          "message": "The field 'title' must be present on this level.",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the title of the API is not empty ', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title:
-        version: '1.0'
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/title",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the description fied MAY be used for text representation.', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition.
-        version: '1.0'
-        description: 
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/description",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the termsOfService field MUST be in the format of a URL', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        termsOfService: 
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/termsOfService",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the Contact Object is valid', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        termsOfService: http://example.com/terms/
-        contact:
-          name: API Support
-          url: http://www.example.com/support
-          email: support@example.com
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`Array []`);
-  });
-
-  it('should verify if the Contact Object contains URL', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        termsOfService: http://example.com/terms/
-        contact:
-          url: 
-          email: support@example.com
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/contact/url",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the Contact Object contains email', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        termsOfService: http://example.com/terms/
-        contact:
-          url: http://example.com/contact/
-          email: 
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/contact/email",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the License Object present', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        license:
-          name: Apache 2.0
-          url: https://www.apache.org/licenses/LICENSE-2.0.html
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`Array []`);
-  });
-
-  it('should verify if the License Object contains field Name', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        license:
-          url: https://www.apache.org/licenses/LICENSE-2.0.html
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/license",
-          "message": "The field 'name' must be present on this level.",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the URL field in the License Object should be string', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        license:
-          name: Apache 2.0
-          url:
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/license/url",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the URL field in the License Object is optional', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition. Valid.
-        version: '1.0'
-        license:
-          name: Apache 2.0
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`Array []`);
-  });
-
-  it('should verify if the Version field is Required', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Example OpenAPI 3 definition.
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info",
-          "message": "The field 'version' must be present on this level.",
-        },
-      ]
-    `);
-  });
-
-  it('should verify if the Version field should be string', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        version: 
-        title: Example OpenAPI 3 definition.
-
-      servers:
-        - url: http://google.com
-
-      paths:
-        '/ping':
-          get:
-            responses:
-              '200':
-                description: example description
-    `;
-
-    expect(
-      await validateDoc(source, {
-        schema: 'error',
-      }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/info/version",
-          "message": "Expected type 'string' but got 'null'",
-        },
-      ]
-    `);
   });
 });

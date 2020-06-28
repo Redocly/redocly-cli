@@ -22,7 +22,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -34,13 +34,13 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  it('should report if in the description field is not sring.', async () => {
+  it('should report if in the description field is not string.', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
         title: Example OpenAPI 3 definition.
         version: '1.0'
-        description: 
+        description:
 
       servers:
         - url: http://google.com
@@ -55,7 +55,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -73,7 +73,7 @@ describe('OpenAPI Schema', () => {
       info:
         title: Example OpenAPI 3 definition. Valid.
         version: '1.0'
-        termsOfService: 
+        termsOfService:
 
       servers:
         - url: http://google.com
@@ -88,7 +88,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -125,7 +125,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -138,7 +138,7 @@ describe('OpenAPI Schema', () => {
         version: '1.0'
         termsOfService: http://example.com/terms/
         contact:
-          url: 
+          url:
           email: support@example.com
 
       servers:
@@ -154,7 +154,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -175,7 +175,7 @@ describe('OpenAPI Schema', () => {
         termsOfService: http://example.com/terms/
         contact:
           url: http://example.com/contact/
-          email: 
+          email:
 
       servers:
         - url: http://google.com
@@ -190,7 +190,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -202,7 +202,7 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  it('should not reprt if the License Object is valid', async () => {
+  it('should not report if the License Object is valid', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -225,7 +225,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -252,7 +252,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -287,7 +287,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -299,7 +299,7 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  it('should not report if the URL field of the License Object is not povided', async () => {
+  it('should not report if the URL field of the License Object is not provided', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -321,7 +321,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
@@ -345,7 +345,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
@@ -361,7 +361,7 @@ describe('OpenAPI Schema', () => {
     const source = outdent`
       openapi: 3.0.2
       info:
-        version: 
+        version:
         title: Example OpenAPI 3 definition.
 
       servers:
@@ -377,7 +377,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        schema: 'error',
+        spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
