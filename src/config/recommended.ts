@@ -2,17 +2,17 @@ import { RulesConfig } from './config';
 
 export default {
   rules: {
-    'info-description': 'warning',
+    'info-description': 'warn',
     'info-contact': 'off',
     'info-license': 'off',
     'info-license-url': 'off',
 
-    'tag-description': 'warning',
+    'tag-description': 'warn',
     'tags-alphabetical': 'off',
 
-    'no-server-example.com': 'warning',
+    'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
-    'no-empty-servers': 'warning',
+    'no-empty-servers': 'warn',
 
     'parameter-description': 'off',
     'no-path-trailing-slash': 'error',
@@ -20,25 +20,25 @@ export default {
     'path-not-include-query': 'error',
     'path-parameters-defined': 'error',
     'operation-description': 'off',
-    'operation-2xx-response': 'warning',
+    'operation-2xx-response': 'warn',
     'operation-operationId-unique': 'error',
     'operation-operationId-valid-in-url': 'error',
     'operation-parameters-unique': 'error',
     'operation-tag-defined': 'off',
-    'operation-security-defined': 'warning',
+    'operation-security-defined': 'warn',
     'operationId-valid-in-url': 'error',
     'operation-singular-tag': 'off',
 
     'no-example-value-and-externalValue': 'error',
 
-    'no-unused-components': 'warning',
+    'no-unused-components': 'warn',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',
 
     'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
     'no-invalid-media-type-examples': {
-      severity: 'warning',
+      severity: 'warn',
       disallowAdditionalProperties: false,
     },
     spec: 'error',

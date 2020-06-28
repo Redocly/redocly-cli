@@ -302,7 +302,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       red(
         `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
           totals.warnings
-        } ${pluralize('warning', totals.warnings)}. ${ignored}\n`,
+        } ${pluralize('warn', totals.warnings)}. ${ignored}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
@@ -310,7 +310,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)} ${ignored}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warn', totals.warnings)} ${ignored}\n`),
     );
   } else {
     process.stderr.write(
@@ -349,7 +349,7 @@ function getTotals(messages: (NormalizedReportMessage & { ignored?: boolean })[]
       continue;
     }
     if (m.severity === 'error') errors++;
-    if (m.severity === 'warning') warnings++;
+    if (m.severity === 'warn') warnings++;
   }
 
   return {

@@ -54,7 +54,7 @@ export type LineColLocationObject = Omit<PointerLocationObject, 'pointer'> & {
 
 export type LocationObject = LineColLocationObject | PointerLocationObject;
 
-export type MessageSeverity = 'error' | 'warning';
+export type MessageSeverity = 'error' | 'warn';
 
 export type ReportMessage = {
   message: string;
