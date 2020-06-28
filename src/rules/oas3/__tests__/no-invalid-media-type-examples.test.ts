@@ -186,6 +186,12 @@ describe('no-invalid-media-type-examples', () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
+        components:
+          examples:
+            test:
+              value:
+                a: 23
+                b: 25
         paths:
           /pet:
             get:
@@ -195,9 +201,11 @@ describe('no-invalid-media-type-examples', () => {
                     application/json:
                       examples:
                         test:
+                          $ref: '#/components/examples/test'
+                        test2:
                           value:
-                            a: 23
-                            b: 25
+                            a: test
+                            b: 35
                       schema:
                         type: object
                         properties:
@@ -232,7 +240,7 @@ describe('no-invalid-media-type-examples', () => {
           },
           "location": Array [
             Object {
-              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/examples/test/value/a",
+              "pointer": "#/components/examples/test/value/a",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -244,5 +252,63 @@ describe('no-invalid-media-type-examples', () => {
         },
       ]
     `);
+  });
+
+  it('should not report if no examples', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example:
+                        a: test
+                        b: 35
+
+      `,
+      'foobar.yaml',
+    );
+
+    const results = await validateDocument({
+      document,
+      config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should not report if no schema', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+
+      `,
+      'foobar.yaml',
+    );
+
+    const results = await validateDocument({
+      document,
+      config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 });

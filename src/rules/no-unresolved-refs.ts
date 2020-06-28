@@ -27,8 +27,10 @@ export function reportUnresolvedRef(resolved: ResolveResult<any>, report: (m: Re
     });
   }
 
+  const message = resolved.error?.message;
+
   report({
-    message: `Can't resolve $ref: ${resolved.error?.message}`,
+    message: `Can't resolve $ref${message ? ': ' + message : ''}`,
   });
 }
 

@@ -10,5 +10,6 @@ lint:
     no-invalid-media-type-examples: error
     operation-description: off
     path-http-verbs-order: error
+    boolean-parameter-prefixes: error
   transformers:
     local/duplicate-description: off

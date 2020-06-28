@@ -21,7 +21,7 @@ describe('Normalize visitors', () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId](),
+        visitor: ruleset[ruleId]({}),
       })),
     );
 
@@ -65,7 +65,7 @@ describe('Normalize visitors', () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId](),
+        visitor: ruleset[ruleId]({}),
       })),
     );
 
@@ -103,7 +103,7 @@ describe('Normalize visitors', () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId](),
+        visitor: ruleset[ruleId]({}),
       })),
     );
 
@@ -138,7 +138,7 @@ describe('Normalize visitors', () => {
       Object.keys(ruleset).map((ruleId) => ({
         ruleId,
         severity: 'error' as 'error',
-        visitor: ruleset[ruleId](),
+        visitor: ruleset[ruleId]({}),
       })),
     );
 

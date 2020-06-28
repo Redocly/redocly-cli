@@ -4,7 +4,8 @@ import { Location, isRef } from '../../ref-utils';
 import { Oas3Example } from '../../typings/openapi';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
-  const { disallowAdditionalProperties } = opts || { disallowAdditionalProperties: true };
+  const disallowAdditionalProperties = opts.disallowAdditionalProperties ?? true;
+
   return {
     MediaType: {
       leave(mediaType, { report, location, resolve }) {

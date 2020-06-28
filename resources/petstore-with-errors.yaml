@@ -46,6 +46,12 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: test
+          in: path
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: A paged array of pets

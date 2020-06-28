@@ -182,8 +182,8 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
   };
 };
 
-export type Oas3Rule = (options?: Record<string, any>) => Oas3Visitor;
-export type Oas3Transformer = (options?: Record<string, any>) => Oas3TransformVisitor;
+export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor;
+export type Oas3Transformer = (options: Record<string, any>) => Oas3TransformVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver
