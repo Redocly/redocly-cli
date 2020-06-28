@@ -28,7 +28,7 @@ describe('E2E', () => {
       env: {
         ...process.env,
         'NODE_ENV': 'test',
-        'NOCOLOR': 'TRUE',
+        'NO_COLOR': 'TRUE',
       }
     });
 
