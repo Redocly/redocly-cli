@@ -27,7 +27,7 @@ export const OperationParametersUnique: Oas3Rule = () => {
           const paramId = `${parameter.in}___${parameter.name}`;
           if (seenOperationParams.has(paramId)) {
             report({
-              message: `Operations must have unique \`name\` + \`in\` parameters.\nRepeats of \`in:${parameter.in}\` + \`name:${parameter.name}\``,
+              message: `Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:${parameter.in}\` + \`name:${parameter.name}\``,
               location: parentLocations.Operation.child(['parameters', key]),
             });
           }

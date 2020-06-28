@@ -116,8 +116,57 @@ describe('Oas3 operation-parameters-unique', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Operations must have unique \`name\` + \`in\` parameters.
-      Repeats of \`in:query\` + \`name:a\`",
+          "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`",
+          "ruleId": "operation-parameters-unique",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report when operation with duplicated params via $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test':
+              parameters:
+                - $ref: '#/components/parameters/a'
+              put:
+                parameters:
+                  - $ref: '#/components/parameters/a'
+                  - name: a
+                    in: path
+                  - $ref: '#/components/parameters/a'
+          components:
+            parameters:
+              a:
+                in: query
+                name: a
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await validateDocument({
+      document,
+      config: new LintConfig({
+        extends: [],
+        rules: { 'operation-parameters-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1test/put/parameters/2",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
           "suggest": Array [],

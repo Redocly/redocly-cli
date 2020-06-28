@@ -165,9 +165,10 @@ export function walkDocument<T>(opts: {
           if (
             context.parent.activatedOn &&
             !context.parent.activatedOn.value.nextLevelTypeActivated &&
-            !context.seen.has(resolvedNode)
+            !context.seen.has(node)
           ) {
-            context.seen.add(resolvedNode);
+            // TODO: test for walk through duplicated $ref-ed node
+            context.seen.add(node);
             visitedBySome = true;
             activatedContexts.push(context);
           }
