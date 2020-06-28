@@ -5,15 +5,15 @@ export const NoEmptyServers: Oas3Rule = () => {
     DefinitionRoot(root, { report, location }) {
       if (!root.servers) {
         report({
-          message: 'OpenAPI servers must be present.',
+          message: 'Servers must be present.',
         });
         return;
       }
 
       if (!Array.isArray(root.servers) || root.servers.length === 0) {
         report({
-          message: 'OpenAPI servers must a non-empty array.',
-          location: location.child(['servers']),
+          message: 'Servers must be a non-empty array.',
+          location: location.child(['servers']).key(),
         });
       }
     },

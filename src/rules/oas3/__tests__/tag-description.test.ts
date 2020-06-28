@@ -29,11 +29,11 @@ describe('Oas3 tag-description', () => {
           "location": Array [
             Object {
               "pointer": "#/tags/0",
-              "reportOnKey": true,
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Tag object description must be present.",
+          "message": "Tag object should contain \`description\` field.",
           "ruleId": "tag-description",
           "severity": "error",
           "suggest": Array [],

@@ -27,11 +27,11 @@ describe('Oas3 info-license', () => {
           "location": Array [
             Object {
               "pointer": "#/info",
-              "reportOnKey": true,
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Info object should contain \\"license\\" field.",
+          "message": "Info object should contain \`license\` field.",
           "ruleId": "info-license",
           "severity": "error",
           "suggest": Array [],

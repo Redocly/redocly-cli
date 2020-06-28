@@ -1,4 +1,5 @@
 import levenshtein = require('js-levenshtein');
+import { UserContext } from '../walk';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -33,7 +34,28 @@ export function matchesJsonSchemaType(value: unknown, type: string): boolean {
 }
 
 export function missingRequiredField(type: string, field: string): string {
-  return `${type} object should contain "${field}" field.`;
+  return `${type} object should contain \`${field}\` field.`;
+}
+
+export function fieldNonEmpty(type: string, field: string): string {
+  return `${type} object \`${field}\` must be non-empty string.`;
+}
+
+export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: UserContext) {
+  if (typeof value !== 'object') {
+    return;
+  }
+
+  if (value[fieldName] === undefined) {
+    ctx.report({
+      message: missingRequiredField(ctx.type.name, fieldName),
+    });
+  } else if (!value[fieldName]) {
+    ctx.report({
+      message: fieldNonEmpty(ctx.type.name, fieldName),
+      location: ctx.location.child([fieldName]).key(),
+    });
+  }
 }
 
 export function getSuggest(given: string, variants: string[]): string[] {

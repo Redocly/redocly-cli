@@ -1,15 +1,10 @@
 import { Oas3Rule } from '../../visitors';
-import { missingRequiredField } from '../utils';
+import { validateDefinedAndNonEmpty } from '../utils';
 
 export const OperationDescription: Oas3Rule = () => {
   return {
-    Operation(operation, { report }) {
-      if (!operation.description) {
-        report({
-          message: missingRequiredField('Operation', 'description'),
-          location: { reportOnKey: true },
-        });
-      }
+    Operation(operation, ctx) {
+      validateDefinedAndNonEmpty('description', operation, ctx);
     },
   };
 };

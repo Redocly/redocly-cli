@@ -28,11 +28,11 @@ describe('Oas3 license-url', () => {
           "location": Array [
             Object {
               "pointer": "#/info/license",
-              "reportOnKey": true,
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "License object should contain \\"url\\" field.",
+          "message": "License object should contain \`url\` field.",
           "ruleId": "info-license-url",
           "severity": "error",
           "suggest": Array [],

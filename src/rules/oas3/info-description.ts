@@ -1,14 +1,10 @@
 import { Oas3Rule } from '../../visitors';
+import { validateDefinedAndNonEmpty } from '../utils';
 
 export const InfoDescription: Oas3Rule = () => {
   return {
-    Info(info, { report }) {
-      if (!info.description) {
-        report({
-          message: 'Info object description must be present and non-empty string.',
-          location: { reportOnKey: true },
-        });
-      }
+    Info(info, ctx) {
+      validateDefinedAndNonEmpty('description', info, ctx);
     },
   };
 };

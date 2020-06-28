@@ -7,7 +7,6 @@ export const InfoLicense: Oas3Rule = () => {
       if (!info.license) {
         report({
           message: missingRequiredField('Info', 'license'),
-          location: { reportOnKey: true },
         });
       }
     },
