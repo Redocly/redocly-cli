@@ -147,7 +147,7 @@ export function walkDocument<T>(opts: {
       }
     }
 
-    if (resolvedNode && newLocation && type.name !== 'scalar') {
+    if (resolvedNode !== undefined && newLocation && type.name !== 'scalar') {
       location = newLocation;
 
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);

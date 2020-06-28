@@ -37,7 +37,7 @@ describe('OpenAPI Schema', () => {
       servers:
         - url: http://google.com
 
-      paths:
+      paths: {}
     `;
 
     expect(
@@ -82,7 +82,7 @@ describe('OpenAPI Schema', () => {
       servers:
         - url: http://google.com
 
-      paths:
+      paths: {}
     `;
 
     expect(
@@ -227,7 +227,7 @@ describe('OpenAPI Schema', () => {
         - url: http://google.com
 
       paths:
-        '/ping':
+        '/ping': {}
     `;
 
     expect(

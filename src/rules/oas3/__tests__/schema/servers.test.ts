@@ -332,7 +332,7 @@ describe('OpenAPI Schema', () => {
       servers:
         - url: https://{username}.server.com:{port}/{basePath}
           variables:
-            username:
+            username: {}
             port:
               enum:
                 - '8443'
@@ -354,6 +354,10 @@ describe('OpenAPI Schema', () => {
       }),
     ).toMatchInlineSnapshot(`
       Array [
+        Object {
+          "location": "#/servers/0/variables/username",
+          "message": "The field 'default' must be present on this level.",
+        },
         Object {
           "location": "#/servers/0/variables/port",
           "message": "The field 'default' must be present on this level.",
@@ -470,7 +474,7 @@ describe('OpenAPI Schema', () => {
           title: Example OpenAPI 3 definition. Valid.
           version: '1.0'
 
-        servers:
+        servers: []
 
         paths:
           '/ping':
