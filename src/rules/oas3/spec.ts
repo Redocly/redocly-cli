@@ -1,6 +1,7 @@
 import type { Oas3Rule } from '../../visitors';
 import { NormalizedNodeType, ScalarSchema } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
+import { isRef } from '../../ref-utils';
 
 function isNamedType(
   t: NormalizedNodeType | ScalarSchema | null | undefined,
@@ -10,7 +11,7 @@ function isNamedType(
 
 export const Oas3Spec: Oas3Rule = () => {
   return {
-    any(node: any, { report, type, location, key }) {
+    any(node: any, { report, type, location, key, resolve }) {
       const nodeType = oasTypeOf(node);
       if (type.items) {
         if (nodeType !== 'array') {
@@ -39,7 +40,7 @@ export const Oas3Spec: Oas3Rule = () => {
 
       for (const propName of Object.keys(node)) {
         const propLocation = location.child([propName]);
-        const propValue = node[propName];
+        let propValue = node[propName];
         const propType =
           type.properties[propName] === undefined
             ? type.additionalProperties?.(propValue, propName)
@@ -50,7 +51,7 @@ export const Oas3Spec: Oas3Rule = () => {
         const propValueType = oasTypeOf(propValue);
 
         if (isNamedType(propSchema)) {
-          continue; // do nothing for named schema
+          continue; // do nothing for named schema, it is executed with the next any call
         }
 
         if (propSchema === undefined) {
@@ -65,6 +66,10 @@ export const Oas3Spec: Oas3Rule = () => {
 
         if (propSchema === null) {
           continue; // just defined, no validation
+        }
+
+        if (propSchema.referenceable && isRef(propValue)) {
+          propValue = resolve(propValue).node
         }
 
         if (propSchema.enum) {
