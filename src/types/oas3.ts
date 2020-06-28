@@ -122,7 +122,7 @@ const License: NodeType = {
 
 const PathMap: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) => (key.startsWith('/') ? 'PathItem' : null),
+  additionalProperties: (_value: any, key: string) => (key.startsWith('/') ? 'PathItem' : undefined),
 };
 
 const PathItem: NodeType = {
