@@ -8,7 +8,7 @@ export type ScalarSchema = {
 
 export type NodeType = {
   properties: Record<string, PropType | ResolveTypeFn>;
-  additionalProperties?: ResolveTypeFn;
+  additionalProperties?: PropType | ResolveTypeFn;
   items?: string;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
 };

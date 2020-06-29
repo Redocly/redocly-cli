@@ -68,9 +68,7 @@ const ServerVariable: NodeType = {
 
 const SecurityRequirement: NodeType = {
   properties: {},
-  additionalProperties() {
-    return { type: 'array', items: { type: 'string' } };
-  },
+  additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
 const Info: NodeType = {
@@ -232,7 +230,7 @@ const RequestBody: NodeType = {
 
 const MediaTypeMap: NodeType = {
   properties: {},
-  additionalProperties: () => 'MediaType',
+  additionalProperties: 'MediaType',
 };
 
 const MediaType: NodeType = {
@@ -406,13 +404,13 @@ const Xml: NodeType = {
 
 const SchemaProperties: NodeType = {
   properties: {},
-  additionalProperties: () => 'Schema',
+  additionalProperties: 'Schema',
 };
 
 const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
-    mapping: { type: 'object' }, // TODO: validate mapping
+    mapping: { type: 'object', additionalProperties: { type: 'string'} },
   },
   required: ['propertyName'],
 };

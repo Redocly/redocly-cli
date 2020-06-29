@@ -41,18 +41,17 @@ export const Oas3Spec: Oas3Rule = () => {
       for (const propName of Object.keys(node)) {
         const propLocation = location.child([propName]);
         let propValue = node[propName];
-        const propType =
-          type.properties[propName] === undefined
-            ? type.additionalProperties?.(propValue, propName)
-            : type.properties[propName];
-        const propSchema =
-          typeof propType === 'function' ? propType(propValue, propName) : propType;
+        let propType = type.properties[propName] !== undefined ? type.properties[propName] : type.additionalProperties;
+        if (propType !== undefined) {
+          propType = typeof propType === 'function' ? propType(propValue, propName) : propType;
+        }
 
-        const propValueType = oasTypeOf(propValue);
-
-        if (isNamedType(propSchema)) {
+        if (isNamedType(propType)) {
           continue; // do nothing for named schema, it is executed with the next any call
         }
+
+        const propSchema = propType;
+        const propValueType = oasTypeOf(propValue);
 
         if (propSchema === undefined) {
           if (propName.startsWith('x-')) continue;

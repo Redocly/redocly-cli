@@ -227,12 +227,11 @@ export function walkDocument<T>(opts: {
           // TODO: visit in order from type-tree
           for (const propName of Object.keys(resolvedNode)) {
             const value = resolvedNode[propName];
-            let propType = type.properties[propName];
+            let propType = type.properties[propName] !== undefined ? type.properties[propName] : type.additionalProperties;
             if (propType !== undefined) {
               propType = typeof propType === 'function' ? propType(value, propName) : propType;
-            } else {
-              propType = type.additionalProperties?.(value, propName);
             }
+
             if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
               continue;
             }

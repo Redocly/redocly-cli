@@ -234,11 +234,9 @@ export async function resolveDocument(opts: {
 
       for (const propName of Object.keys(node)) {
         const value = node[propName];
-        let propType = type.properties[propName];
+        let propType = type.properties[propName] !== undefined ? type.properties[propName] : type.additionalProperties;
         if (propType !== undefined) {
           propType = typeof propType === 'function' ? propType(value, propName) : propType;
-        } else {
-          propType = type.additionalProperties?.(value, propName);
         }
 
         propType = propType || unknownType;
