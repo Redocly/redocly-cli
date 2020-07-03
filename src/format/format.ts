@@ -53,7 +53,7 @@ export function formatMessages(
   if (format === 'codeframe') {
     for (let i = 0; i < messages.length; i++) {
       const message = messages[i];
-      process.stdout.write(`${fullFormatMessage(message, i)}\n`);
+      process.stderr.write(`${fullFormatMessage(message, i)}\n`);
     }
   } else {
     const groupedByFile = groupByFiles(messages);
@@ -64,15 +64,15 @@ export function formatMessages(
 
       for (let i = 0; i < fileMessages.length; i++) {
         const message = fileMessages[i];
-        process.stdout.write(`${shortFormatMessage(message, positionPad, ruleIdPad)}\n`);
+        process.stderr.write(`${shortFormatMessage(message, positionPad, ruleIdPad)}\n`);
       }
 
-      process.stdout.write('\n');
+      process.stderr.write('\n');
     }
   }
 
   if (totalMessages - ignoredMessages > maxMessages) {
-    process.stdout.write(
+    process.stderr.write(
       `< ... ${totalMessages - maxMessages} more messages hidden > ${gray(
         'increase with `--max-messages N`',
       )}\n`,

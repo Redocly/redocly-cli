@@ -1,5 +1,6 @@
 import { Referenced } from './typings/openapi';
 import { Location, isRef } from './ref-utils';
+
 import {
   VisitorLevelContext,
   NormalizedOasVisitors,
@@ -10,7 +11,7 @@ import {
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './validate';
-import { NormalizedNodeType } from './types';
+import { NormalizedNodeType, isNamedType } from './types';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
@@ -19,7 +20,8 @@ export type ResolveResult<T extends NonUndefined> =
   | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
 
 export type ResolveFn<T> = (
-  node: Referenced<T>, from?: string
+  node: Referenced<T>,
+  from?: string,
 ) => { location: Location; node: T } | { location: undefined; node: undefined };
 
 export type UserContext = {
@@ -61,6 +63,7 @@ export type ReportMessage = {
   suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
   from?: LocationObject;
+  forceSeverity?: MessageSeverity;
 };
 
 export type NormalizedReportMessage = {
@@ -227,21 +230,19 @@ export function walkDocument<T>(opts: {
           // TODO: visit in order from type-tree
           for (const propName of Object.keys(resolvedNode)) {
             const value = resolvedNode[propName];
-            let propType = type.properties[propName] !== undefined ? type.properties[propName] : type.additionalProperties;
-            if (propType !== undefined) {
-              propType = typeof propType === 'function' ? propType(value, propName) : propType;
+
+            let propType = type.properties[propName];
+            if (propType === undefined) propType = type.additionalProperties;
+            if (typeof propType === 'function') propType = propType(value, propName);
+            if (propType && propType.name === undefined && propType.referenceable) {
+              propType = { name: 'scalar', properties: {} };
             }
 
-            if (propType == undefined || (propType.name === undefined && !propType.referenceable)) {
+            if (!isNamedType(propType)) {
               continue;
             }
-            walkNode(
-              value,
-              propType.name === undefined ? { name: 'scalar', properties: {} } : propType,
-              location.child([propName]),
-              resolvedNode,
-              propName,
-            );
+
+            walkNode(value, propType, location.child([propName]), resolvedNode, propName);
           }
         }
       }
@@ -356,7 +357,7 @@ export function walkDocument<T>(opts: {
 
       ctx.messages.push({
         ruleId,
-        severity: severity,
+        severity: opts.forceSeverity || severity,
         ...opts,
         suggest: opts.suggest || [],
         location: loc.map((loc: any) => {

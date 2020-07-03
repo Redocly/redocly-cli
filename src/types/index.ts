@@ -4,6 +4,16 @@ export type ScalarSchema = {
   items?: ScalarSchema;
   enum?: string[];
   referenceable?: boolean;
+  directResolveAs?: string;
+};
+
+export type NormalizedScalarSchema = {
+  name?: never;
+  type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
+  items?: ScalarSchema;
+  enum?: string[];
+  referenceable?: boolean;
+  directResolveAs?: NormalizedNodeType;
 };
 
 export type NodeType = {
@@ -18,15 +28,16 @@ type ResolveTypeFn = (value: any, key: string) => string | PropType;
 export type NormalizedNodeType = {
   name: string;
   properties: Record<string, NormalizedPropType | NormalizedResolveTypeFn>;
-  additionalProperties?: NormalizedResolveTypeFn;
+  additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedNodeType;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
 };
-type NormalizedPropType = NormalizedNodeType | ScalarSchema | undefined | null;
+
+type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | undefined | null;
 type NormalizedResolveTypeFn = (
   value: any,
   key: string,
-) => NormalizedNodeType | ScalarSchema | undefined | null;
+) => NormalizedNodeType | NormalizedScalarSchema | undefined | null;
 
 export function listOf(typeName: string) {
   return {
@@ -35,6 +46,7 @@ export function listOf(typeName: string) {
     items: typeName,
   };
 }
+
 export function mapOf(typeName: string) {
   return {
     name: typeName + '_Map',
@@ -93,8 +105,20 @@ export function normalizeTypes(
       type = { ...type };
       normalizeType(type);
       return type;
+    } else if (type && type.directResolveAs) {
+      return {
+        ...type,
+        directResolveAs: resolveType(type.directResolveAs),
+      }
     } else {
       return type;
     }
   }
+}
+
+
+export function isNamedType(
+  t: NormalizedNodeType | NormalizedScalarSchema | null | undefined,
+): t is NormalizedNodeType {
+  return typeof t?.name === 'string';
 }

@@ -68,6 +68,11 @@
     "testMatch": [
       "**/__tests__/**/*.test.ts",
       "**/*.test.ts"
-    ]
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    }
   }
 }

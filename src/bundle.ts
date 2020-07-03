@@ -3,7 +3,7 @@ import { BaseResolver, resolveDocument, Document } from './resolve';
 import { Oas3Rule, normalizeVisitors, BaseVisitor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
-import { WalkContext, walkDocument } from './walk';
+import { WalkContext, walkDocument, UserContext } from './walk';
 import { detectOpenAPI, OasVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref-utils';
 import { LintConfig } from './config/config';
@@ -130,14 +130,27 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
 
   // @ts-ignore
   const visitor: T = {
+    DiscriminatorMapping: {
+      leave(mapping: Record<string, string>, ctx: any) {
+        for (const name of Object.keys(mapping)) {
+          const $ref = mapping[name];
+          const resolved = ctx.resolve({$ref});
+          if (!resolved.location || resolved.node === undefined) {
+            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
+            return;
+          }
+
+          const componentType = mapTypeToComponent('Schema', version)!;
+          mapping[name] = saveComponent(componentType, resolved, ctx);
+        }
+      }
+    },
     ref: {
       leave(node, ctx, resolved) {
         if (!resolved.location || resolved.node === undefined) {
-          reportUnresolvedRef(resolved, ctx.report);
+          reportUnresolvedRef(resolved, ctx.report, ctx.location);
           return;
         }
-
-        // TODO: discriminator
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           if (ctx.type.name === 'scalar') {
@@ -147,53 +160,7 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
             Object.assign(node, resolved.node);
           }
         } else {
-          node.$ref = saveComponent(componentType, resolved);
-        }
-
-        function saveComponent(componentType: string, target: { node: any; location: Location }) {
-          components[componentType] = components[componentType] || {};
-          const name = getComponentName(target, componentType);
-          components[componentType][name] = target.node;
-          if (version === OasVersion.Version3_0) {
-            return `#/components/${componentType}/${name}`;
-          } else {
-            throw new Error('Not implemented');
-          }
-        }
-
-        function getComponentName(
-          target: { node: any; location: Location },
-          componentType: string,
-        ) {
-          const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
-
-          const pointerBase = pointerBaseName(pointer);
-          const refBase = refBaseName(fileRef);
-
-          let name = pointerBase || refBase;
-
-          const componentsGroup = components[componentType];
-          if (!componentsGroup || !componentsGroup[name] || componentsGroup[name] === target.node)
-            return name;
-
-          if (pointerBase) {
-            name = `${refBase}/${pointerBase}`;
-            if (!componentsGroup[name] || componentsGroup[name] === target.node) return name;
-          }
-
-          const prevName = name;
-          let serialId = 2;
-          while (componentsGroup[name] && !componentsGroup[name] !== target.node) {
-            name = `${name}-${serialId}`;
-            serialId++;
-          }
-
-          ctx.report({
-            message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
-            location: { reportOnKey: true },
-          });
-
-          return name;
+          node.$ref = saveComponent(componentType, resolved, ctx);
         }
       },
     },
@@ -207,6 +174,54 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
       },
     },
   };
+
+  function saveComponent(componentType: string, target: { node: any; location: Location }, ctx: UserContext) {
+    components[componentType] = components[componentType] || {};
+    const name = getComponentName(target, componentType, ctx);
+    components[componentType][name] = target.node;
+    if (version === OasVersion.Version3_0) {
+      return `#/components/${componentType}/${name}`;
+    } else {
+      throw new Error('Not implemented');
+    }
+  }
+
+  function getComponentName(
+    target: { node: any; location: Location },
+    componentType: string,
+    ctx: UserContext
+  ) {
+    const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
+
+    const pointerBase = pointerBaseName(pointer);
+    const refBase = refBaseName(fileRef);
+
+    let name = pointerBase || refBase;
+
+    const componentsGroup = components[componentType];
+    if (!componentsGroup || !componentsGroup[name] || componentsGroup[name] === target.node)
+      return name;
+
+    if (pointerBase) {
+      name = `${refBase}/${pointerBase}`;
+      if (!componentsGroup[name] || componentsGroup[name] === target.node) return name;
+    }
+
+    const prevName = name;
+    let serialId = 2;
+    while (componentsGroup[name] && !componentsGroup[name] !== target.node) {
+      name = `${name}-${serialId}`;
+      serialId++;
+    }
+
+    ctx.report({
+      message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
+      location: { reportOnKey: true },
+      forceSeverity: 'warn',
+    });
+
+    return name;
+  }
 
   return visitor;
 }

@@ -1,13 +1,7 @@
 import type { Oas3Rule } from '../../visitors';
-import { NormalizedNodeType, ScalarSchema } from '../../types';
+import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
-
-function isNamedType(
-  t: NormalizedNodeType | ScalarSchema | null | undefined,
-): t is NormalizedNodeType {
-  return typeof t?.name === 'string';
-}
 
 export const Oas3Spec: Oas3Rule = () => {
   return {
@@ -41,10 +35,10 @@ export const Oas3Spec: Oas3Rule = () => {
       for (const propName of Object.keys(node)) {
         const propLocation = location.child([propName]);
         let propValue = node[propName];
-        let propType = type.properties[propName] !== undefined ? type.properties[propName] : type.additionalProperties;
-        if (propType !== undefined) {
-          propType = typeof propType === 'function' ? propType(propValue, propName) : propType;
-        }
+
+        let propType = type.properties[propName];
+        if (propType === undefined) propType = type.additionalProperties;
+        if (typeof propType === 'function') propType = propType(propValue, propName);
 
         if (isNamedType(propType)) {
           continue; // do nothing for named schema, it is executed with the next any call

@@ -130,6 +130,7 @@ type Oas3FlatVisitor = {
   Schema?: VisitFunctionOrObject<Oas3Schema>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
   SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
+  DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;
   Discriminator?: VisitFunctionOrObject<Oas3Discriminator>;
   Components?: VisitFunctionOrObject<Oas3Components>;
   NamedSchemas?: VisitFunctionOrObject<Record<string, Oas3Schema>>;
@@ -189,7 +190,6 @@ export type Oas3Transformer = (options: Record<string, any>) => Oas3TransformVis
 // every time we update it - consider semver
 export type OasRule = Oas3Rule;
 export type OasTransformer = (options?: Record<string, any>) => Oas3TransformVisitor;
-
 
 export type RuleInstanceConfig = {
   ruleId: string;
@@ -252,10 +252,17 @@ export function normalizeVisitors<T extends BaseVisitor>(
         possibleChildren.add(type);
       }
     }
+    if (from.additionalProperties && typeof from.additionalProperties !== 'function') {
+      if (from.additionalProperties === to) {
+        addWeakFromStack(ruleConf, stack);
+      } else if (from.additionalProperties.name !== undefined) {
+        possibleChildren.add(from.additionalProperties);
+      }
+    }
     if (from.items) {
       if (from.items === to) {
         addWeakFromStack(ruleConf, stack);
-      } else {
+      } else if (from.items.name !== undefined) {
         possibleChildren.add(from.items);
       }
     }

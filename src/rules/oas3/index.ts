@@ -32,7 +32,9 @@ import { PathHttpVerbsOrder } from './path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
 
-export default {
+import { DiscriminatorMappingToOneOf } from './transformer-discriminator-mapping-one-of';
+
+export const rules = {
   spec: Oas3Spec,
   'operation-2xx-response': Operation2xxResponse,
   'operation-operationId-unique': OperationIdUnique,
@@ -67,3 +69,7 @@ export default {
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
 } as Oas3RuleSet;
+
+export const transformers = {
+  'discriminator-mapping-to-one-of': DiscriminatorMappingToOneOf
+}

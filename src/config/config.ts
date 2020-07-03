@@ -3,9 +3,8 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 
 import { builtInConfigs } from './builtIn';
-import { rules as builtinRules } from '../rules/builtin';
+import * as builtinRules from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
-import oas3 from '../rules/oas3';
 
 import { OasVersion, Oas3TransformersSet, OasMajorVersion } from '../validate';
 
@@ -87,9 +86,8 @@ export class LintConfig {
 
     this.plugins.push({
       id: '', // default plugin doesn't have id
-      rules: {
-        oas3: oas3,
-      },
+      rules:  builtinRules.rules,
+      transformers: builtinRules.transformers
     });
 
     const extendConfigs: RulesConfig[] = rawConfig.extends
@@ -319,9 +317,6 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
   return plugins
     .map((p) => {
       // TODO: resolve npm packages similar to eslint
-      if (typeof p === 'string') {
-        if (builtinRules[p]) return undefined;
-      }
       const plugin =
         typeof p === 'string' ? (require(path.resolve(path.dirname(configPath), p)) as Plugin) : p;
 

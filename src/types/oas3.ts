@@ -120,7 +120,8 @@ const License: NodeType = {
 
 const PathMap: NodeType = {
   properties: {},
-  additionalProperties: (_value: any, key: string) => (key.startsWith('/') ? 'PathItem' : undefined),
+  additionalProperties: (_value: any, key: string) =>
+    key.startsWith('/') ? 'PathItem' : undefined,
 };
 
 const PathItem: NodeType = {
@@ -407,10 +408,27 @@ const SchemaProperties: NodeType = {
   additionalProperties: 'Schema',
 };
 
+const DiscriminatorMapping: NodeType = {
+  properties: {},
+  additionalProperties: (value: any) => {
+    if (
+      value.startsWith('#') ||
+      value.startsWith('https://') ||
+      value.startsWith('./') ||
+      value.startsWith('../') ||
+      value.indexOf('/') > -1
+    ) {
+      return { type: 'string', directResolveAs: 'Schema' };
+    } else {
+      return { type: 'string' };
+    }
+  },
+};
+
 const Discriminator: NodeType = {
   properties: {
     propertyName: { type: 'string' },
-    mapping: { type: 'object', additionalProperties: { type: 'string'} },
+    mapping: 'DiscriminatorMapping',
   },
   required: ['propertyName'],
 };
@@ -527,6 +545,7 @@ export const Oas3Types: Record<string, NodeType> = {
   Schema,
   Xml,
   SchemaProperties,
+  DiscriminatorMapping,
   Discriminator,
   Components,
   NamedSchemas: mapOf('Schema'),

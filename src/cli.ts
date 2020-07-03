@@ -160,6 +160,7 @@ yargs // eslint-disable-line
         })
         .option('force', {
           alias: 'f',
+          type: 'boolean',
           description: 'Produce bundle output file even if validation errors were encountered',
         })
         .option('config', {
@@ -229,7 +230,7 @@ yargs // eslint-disable-line
               );
             }
           } else {
-            process.stdout.write(
+            process.stderr.write(
               `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
                 elapsed,
               )}\n`,
@@ -288,8 +289,6 @@ function handleError(e: Error, ref: string) {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n\n`);
     throw e;
   }
-
-  // process.exit(1);
 }
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
