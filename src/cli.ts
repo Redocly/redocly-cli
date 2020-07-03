@@ -262,13 +262,13 @@ function getOutputFileName(
   if (entries > 1) {
     ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
     if (!outputExtensions.includes(ext as any)) {
-      throw new Error(`Invalid file extension: ${ext}`);
+      throw new Error(`Invalid file extension: ${ext}.`);
     }
     outputFile = join(output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
   } else {
     ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
     if (!outputExtensions.includes(ext as any)) {
-      throw new Error(`Invalid file extension: ${ext}`);
+      throw new Error(`Invalid file extension: ${ext}.`);
     }
     outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
   }
@@ -278,22 +278,22 @@ function getOutputFileName(
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
     process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n`,
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n.`,
     );
   } else if (e instanceof YamlParseError) {
     process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n`,
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n.`,
     );
     // TODO: codeframe
   } else {
-    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n\n`);
+    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n\n.`);
     throw e;
   }
 }
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
-    ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored\n`)
+    ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored.\n`)
     : '';
 
   if (totals.errors > 0) {
@@ -306,10 +306,10 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
-      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid 🎉\n`),
+      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warn', totals.warnings)} ${ignored}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)} ${ignored}\n`),
     );
   } else {
     process.stderr.write(
@@ -317,14 +317,14 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
         `Woohoo! Your OpenAPI ${pluralize(
           'definition is',
           definitionsCount,
-        )} valid 🎉. ${ignored}\n`,
+        )} valid. 🎉 ${ignored}\n`,
       ),
     );
   }
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`\nrun with \`--generate-ignore-file\` to add all messages to ignore file\n`),
+      gray(`\nrun with \`--generate-ignore-file\` to add all messages to ignore file.\n`),
     );
   }
 
@@ -380,7 +380,7 @@ function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, con
   }
 
   if (!res || !res.length) {
-    process.stderr.write('error: missing required argument `entrypoints`\n');
+    process.stderr.write('error: missing required argument `entrypoints`.\n');
     process.exit(1);
   }
 
@@ -391,7 +391,7 @@ function printUnusedWarnings(config: LintConfig) {
   const { transformers, rules } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
-      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}\n`),
+      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}\n.`),
     );
   }
   if (transformers.length) {
@@ -399,12 +399,12 @@ function printUnusedWarnings(config: LintConfig) {
       yellow(
         `[WARN} Unknown transformers found in ${blue(config.configFile || '')}: ${transformers.join(
           ', ',
-        )}\n`,
+        )}\n.`,
       ),
     );
   }
 
   if (rules.length || transformers.length) {
-    process.stderr.write(`Check the spelling and verify you added plugin prefix\n`);
+    process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
   }
 }
