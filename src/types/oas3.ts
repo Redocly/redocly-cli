@@ -1,4 +1,5 @@
 import { NodeType, listOf, mapOf } from '.';
+import { isMappingRef } from '../ref-utils';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
@@ -411,13 +412,7 @@ const SchemaProperties: NodeType = {
 const DiscriminatorMapping: NodeType = {
   properties: {},
   additionalProperties: (value: any) => {
-    if (
-      value.startsWith('#') ||
-      value.startsWith('https://') ||
-      value.startsWith('./') ||
-      value.startsWith('../') ||
-      value.indexOf('/') > -1
-    ) {
+    if (isMappingRef(value)) {
       return { type: 'string', directResolveAs: 'Schema' };
     } else {
       return { type: 'string' };

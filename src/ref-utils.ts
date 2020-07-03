@@ -66,3 +66,12 @@ export function refBaseName(ref: string) {
 export function isAbsoluteUrl(ref: string) {
   return ref.startsWith('http://') || ref.startsWith('https://');
 }
+
+export function isMappingRef(mapping: string ) {
+  // FIXME: proper detection of mapping refs
+  return mapping.startsWith('#') ||
+      mapping.startsWith('https://') ||
+      mapping.startsWith('./') ||
+      mapping.startsWith('../') ||
+      mapping.indexOf('/') > -1
+}
