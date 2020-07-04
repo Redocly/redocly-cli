@@ -8,11 +8,11 @@ Type tree is built from top level `Types` which can link to child types.
 
 TBD
 
-This tree can be modified.
+This tree can be extended or even modified.
 
 ## Extending type definitions
 
-Type tree can be extended using by [plugin](./plugin.md) It should follow the following pattern (similar to reducers):
+Type tree can be extended by exporting `typeExtension` function from [plugin](./plugins.md). It should follow the following pattern (similar to reducers):
 
 ```js
 exports.typeExtension = {
