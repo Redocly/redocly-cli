@@ -28,7 +28,7 @@ yargs // eslint-disable-line
           demandOption: true,
         })
         .option('format', {
-          description: 'Reduce output to required minimum.',
+          description: 'Use a specific output format.',
           choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         })
@@ -133,7 +133,7 @@ yargs // eslint-disable-line
           output: { type: 'string', alias: 'o' },
         })
         .option('format', {
-          description: 'Reduce output to required minimum.',
+          description: 'Use a specific output format.',
           choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         })
