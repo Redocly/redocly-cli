@@ -6,7 +6,7 @@ lint:
     - recommended
     - local/all
   rules:
-    operation-2xx-response: warning
+    operation-2xx-response: warn
     no-invalid-media-type-examples: error
     operation-description: off
     path-http-verbs-order: error
