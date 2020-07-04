@@ -40,7 +40,7 @@ Every operation must have a unique `operationId`.
 
 Why? A lot of documentation systems use this as an identifier, some SDK generators convert them to a method name, all sorts of things like that.
 
-### operation-operationId-valid-in-url
+### operation-operationId-url-safe
 Seeing as `operationId` is often used for unique URLs in documentation systems, it's a good idea to avoid non-URL safe characters.
 
 ### operation-security-defined
