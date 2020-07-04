@@ -5,6 +5,6 @@ export const rules: Record<string, Oas3RuleSet> = {
   oas3: oas3.rules,
 };
 
-export const transformers = {
-  oas3: oas3.transformers
+export const preprocessors = {
+  oas3: oas3.preprocessors
 }

@@ -6,7 +6,7 @@ import { builtInConfigs } from './builtIn';
 import * as builtinRules from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
 
-import { OasVersion, Oas3TransformersSet, OasMajorVersion } from '../validate';
+import { OasVersion, Oas3PreprocessorsSet, OasMajorVersion } from '../validate';
 
 import { MessageSeverity, NormalizedReportMessage } from '../walk';
 import { Oas3RuleSet } from '../validate';
@@ -28,7 +28,7 @@ export type RuleConfig =
       severity?: MessageSeverity;
     } & Record<string, any>);
 
-export type TransformerConfig =
+export type PreprocessorConfig =
   | MessageSeverity
   | 'off'
   | 'on'
@@ -41,11 +41,11 @@ export type RulesConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   rules?: Record<string, RuleConfig>;
-  transformers?: Record<string, TransformerConfig>;
+  preprocessors?: Record<string, PreprocessorConfig>;
 };
 
-export type TransformersConfig = {
-  oas3?: Oas3TransformersSet;
+export type PreprocessorsConfig = {
+  oas3?: Oas3PreprocessorsSet;
   oas2?: any; // TODO: implement Oas2
 };
 
@@ -64,7 +64,7 @@ export type Plugin = {
   id: string;
   configs?: Record<string, RulesConfig>;
   rules?: CustomRulesConfig;
-  transformers?: TransformersConfig;
+  preprocessors?: PreprocessorsConfig;
   typeExtension?: TypeExtensionsConfig;
 };
 
@@ -76,7 +76,7 @@ export type RawConfig = {
 export class LintConfig {
   plugins: Plugin[];
   rules: Record<string, RuleConfig>;
-  transformers: Record<string, TransformerConfig>;
+  preprocessors: Record<string, PreprocessorConfig>;
   ignore: Record<string, Record<string, Set<string>>> = {};
 
   private _usedRules: Set<string> = new Set();
@@ -87,23 +87,23 @@ export class LintConfig {
     this.plugins.push({
       id: '', // default plugin doesn't have id
       rules:  builtinRules.rules,
-      transformers: builtinRules.transformers
+      preprocessors: builtinRules.preprocessors
     });
 
     const extendConfigs: RulesConfig[] = rawConfig.extends
       ? resolvePresets(rawConfig.extends, this.plugins)
       : [recommended];
 
-    if (rawConfig.rules || rawConfig.transformers)
+    if (rawConfig.rules || rawConfig.preprocessors)
       extendConfigs.push({
         rules: rawConfig.rules,
-        transformers: rawConfig.transformers,
+        preprocessors: rawConfig.preprocessors,
       });
 
     const merged = mergeExtends(extendConfigs);
     this.rules = merged.rules;
 
-    this.transformers = merged.transformers;
+    this.preprocessors = merged.preprocessors;
 
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
@@ -192,9 +192,9 @@ export class LintConfig {
     }
   }
 
-  getTransformerSettings(ruleId: string) {
+  getPreprocessorSettings(ruleId: string) {
     this._usedRules.add(ruleId);
-    const settings = this.transformers[ruleId] || 'off';
+    const settings = this.preprocessors[ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? ('error' as 'error') : settings,
@@ -207,7 +207,7 @@ export class LintConfig {
   getUnusedRules() {
     return {
       rules: Object.keys(this.rules).filter((name) => !this._usedRules.has(name)),
-      transformers: Object.keys(this.transformers).filter((name) => !this._usedRules.has(name)),
+      preprocessors: Object.keys(this.preprocessors).filter((name) => !this._usedRules.has(name)),
     };
   }
 
@@ -215,7 +215,7 @@ export class LintConfig {
     switch (version) {
       case OasVersion.Version3_0:
         const oas3Rules: Oas3RuleSet[] = []; // default ruleset
-        this.plugins.forEach((p) => p.transformers?.oas3 && oas3Rules.push(p.transformers.oas3));
+        this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         return oas3Rules;
       default:
@@ -231,10 +231,10 @@ export class LintConfig {
     }
   }
 
-  skipTransformers(transformers?: string[]) {
-    for (const transformerId of transformers || []) {
-      if (this.transformers[transformerId]) {
-        this.transformers[transformerId] = 'off';
+  skipPreprocessors(preprocessors?: string[]) {
+    for (const preprocessorId of preprocessors || []) {
+      if (this.preprocessors[preprocessorId]) {
+        this.preprocessors[preprocessorId] = 'off';
       }
     }
   }
@@ -336,15 +336,15 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
           plugin.rules.oas3 = prefixRules(plugin.rules.oas2, id);
         }
       }
-      if (plugin.transformers) {
-        if (!plugin.transformers.oas3 && !plugin.transformers.oas2) {
-          throw new Error(`Plugin transformers must have \`oas3\` or \`oas2\` transformers "${p}}`);
+      if (plugin.preprocessors) {
+        if (!plugin.preprocessors.oas3 && !plugin.preprocessors.oas2) {
+          throw new Error(`Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}}`);
         }
-        if (plugin.transformers.oas3) {
-          plugin.transformers.oas3 = prefixRules(plugin.transformers.oas3, id);
+        if (plugin.preprocessors.oas3) {
+          plugin.preprocessors.oas3 = prefixRules(plugin.preprocessors.oas3, id);
         }
-        if (plugin.transformers.oas2) {
-          plugin.transformers.oas3 = prefixRules(plugin.transformers.oas2, id);
+        if (plugin.preprocessors.oas2) {
+          plugin.preprocessors.oas3 = prefixRules(plugin.preprocessors.oas2, id);
         }
       }
 
@@ -363,10 +363,10 @@ function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
 }
 
 function mergeExtends(rulesConfList: RulesConfig[]) {
-  const result: Omit<RulesConfig, 'rules' | 'transformers'> &
-    Required<Pick<RulesConfig, 'rules' | 'transformers'>> = {
+  const result: Omit<RulesConfig, 'rules' | 'preprocessors'> &
+    Required<Pick<RulesConfig, 'rules' | 'preprocessors'>> = {
     rules: {},
-    transformers: {},
+    preprocessors: {},
   };
 
   for (let rulesConf of rulesConfList) {
@@ -376,7 +376,7 @@ function mergeExtends(rulesConfList: RulesConfig[]) {
       );
     }
     Object.assign(result.rules, rulesConf.rules);
-    Object.assign(result.transformers, rulesConf.transformers);
+    Object.assign(result.preprocessors, rulesConf.preprocessors);
   }
 
   return result;

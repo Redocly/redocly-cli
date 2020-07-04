@@ -1,6 +1,6 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { Oas3Rule, normalizeVisitors, Oas3Transformer } from './visitors';
+import { Oas3Rule, normalizeVisitors, Oas3Preprocessor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { NodeType } from './types';
 import { WalkContext, walkDocument } from './walk';
@@ -21,7 +21,7 @@ export enum OasMajorVersion {
 
 export type RuleSet<T> = Record<string, T>;
 export type Oas3RuleSet = Record<string, Oas3Rule>;
-export type Oas3TransformersSet = Record<string, Oas3Transformer>;
+export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 
 export async function validate(opts: {
   ref: string;
@@ -42,7 +42,7 @@ export async function validateDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver?: BaseResolver;
 }) {
-  releaseAjvInstance(); // FIXME: transformers modify nodes which are then cached to ajv-instance by absolute path
+  releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
   switch (detectOpenAPI(document.parsed)) {
@@ -60,10 +60,10 @@ export async function validateDocument(opts: {
         oasVersion: OasVersion.Version3_0,
       };
 
-      const transformers = initRules(oas3Rules, config, true);
-      const visitors = initRules(oas3Rules, config, false);
+      const preprocessors = initRules(oas3Rules, config, 'preprocessors');
+      const rules = initRules(oas3Rules, config, 'rules');
 
-      const normalizedVisitors = normalizeVisitors([...transformers, ...visitors], types);
+      const normalizedVisitors = normalizeVisitors([...preprocessors, ...rules], types);
 
       const resolvedRefMap = await resolveDocument({
         rootDocument: document,

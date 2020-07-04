@@ -32,7 +32,7 @@ import { PathHttpVerbsOrder } from './path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
 
-import { DiscriminatorMappingToOneOf } from './transformer-discriminator-mapping-one-of';
+import { DiscriminatorMappingToOneOf } from './preprocessor-discriminator-mapping-one-of';
 
 export const rules = {
   spec: Oas3Spec,
@@ -70,6 +70,6 @@ export const rules = {
   'no-invalid-media-type-examples': ValidContentExamples,
 } as Oas3RuleSet;
 
-export const transformers = {
+export const preprocessors = {
   'discriminator-mapping-to-one-of': DiscriminatorMappingToOneOf
 }

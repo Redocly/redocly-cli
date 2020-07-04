@@ -52,7 +52,7 @@ export async function bundleDocument(opts: {
         config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
       );
 
-      const transformers = initRules(oas3Rules, config, true);
+      const preprocessors = initRules(oas3Rules, config, 'preprocessors');
 
       const ctx: BundleContext = {
         messages: [],
@@ -61,7 +61,7 @@ export async function bundleDocument(opts: {
 
       const bundleVisitor = normalizeVisitors(
         [
-          ...transformers,
+          ...preprocessors,
           {
             severity: 'error',
             ruleId: 'bundler',

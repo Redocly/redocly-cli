@@ -1,8 +1,8 @@
-export type { Oas3Rule, OasRule, Oas3Transformer, OasTransformer} from './visitors';
+export type { Oas3Rule, OasRule, Oas3Preprocessor, OasPreprocessor} from './visitors';
 export type { NodeType } from './types/index';
 export type {
   Config,
-  TransformersConfig,
+  PreprocessorsConfig,
   TypeExtensionsConfig,
   RulesConfig,
   Plugin,

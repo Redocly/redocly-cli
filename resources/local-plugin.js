@@ -18,8 +18,8 @@ export const rules = {
   },
 };
 
-/** @type {import('../src/config/config').TransformersConfig} */
-export const transformers = {
+/** @type {import('../src/config/config').PreprocessorsConfig} */
+export const preprocessors = {
   oas3: {
     'duplicate-description': () => {
       return {

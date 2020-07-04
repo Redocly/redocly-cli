@@ -47,8 +47,8 @@ yargs // eslint-disable-line
           array: true,
           type: 'string',
         })
-        .option('skip-transformer', {
-          description: 'ignore certain transformers',
+        .option('skip-preprocessor', {
+          description: 'ignore certain preprocessor',
           array: true,
           type: 'string',
         })
@@ -60,7 +60,7 @@ yargs // eslint-disable-line
     async (argv) => {
       const config = await loadConfig(argv.config);
       config.lint.skipRules(argv['skip-rule']);
-      config.lint.skipTransformers(argv['skip-transformer']);
+      config.lint.skipPreprocessors(argv['skip-preprocessor']);
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -71,7 +71,7 @@ yargs // eslint-disable-line
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       let totalIgnored = 0;
 
-      // TODO: use shared externalRef resolver, blocked by transformers now as they mutate documents
+      // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
       for (const entryPoint of entrypoints) {
         try {
           const startedAt = performance.now();
@@ -153,8 +153,8 @@ yargs // eslint-disable-line
           array: true,
           type: 'string',
         })
-        .option('skip-transformer', {
-          description: 'ignore certain transformers',
+        .option('skip-preprocessor', {
+          description: 'ignore certain preprocessors',
           array: true,
           type: 'string',
         })
@@ -170,7 +170,7 @@ yargs // eslint-disable-line
     async (argv) => {
       const config = await loadConfig(argv.config);
       config.lint.skipRules(argv['skip-rule']);
-      config.lint.skipTransformers(argv['skip-transformer']);
+      config.lint.skipPreprocessors(argv['skip-preprocessor']);
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -388,23 +388,23 @@ function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, con
 }
 
 function printUnusedWarnings(config: LintConfig) {
-  const { transformers, rules } = config.getUnusedRules();
+  const { preprocessors, rules } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
       yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}\n.`),
     );
   }
-  if (transformers.length) {
+  if (preprocessors.length) {
     process.stderr.write(
       yellow(
-        `[WARN} Unknown transformers found in ${blue(config.configFile || '')}: ${transformers.join(
+        `[WARN} Unknown preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
           ', ',
         )}\n.`,
       ),
     );
   }
 
-  if (rules.length || transformers.length) {
+  if (rules.length || preprocessors.length) {
     process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
   }
 }

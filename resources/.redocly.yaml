@@ -11,5 +11,5 @@ lint:
     operation-description: off
     path-http-verbs-order: error
     boolean-parameter-prefixes: error
-  transformers:
+  preprocessors:
     local/duplicate-description: off

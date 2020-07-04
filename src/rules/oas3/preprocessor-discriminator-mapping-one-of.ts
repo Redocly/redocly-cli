@@ -1,7 +1,7 @@
-import { Oas3Transformer } from '../../visitors';
+import { Oas3Preprocessor } from '../../visitors';
 import { isMappingRef } from '../../ref-utils';
 
-export const DiscriminatorMappingToOneOf: Oas3Transformer = () => {
+export const DiscriminatorMappingToOneOf: Oas3Preprocessor = () => {
   return {
     Schema(schema) {
       const mapping = schema.discriminator && schema.discriminator.mapping;
