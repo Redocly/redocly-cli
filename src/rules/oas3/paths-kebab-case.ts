@@ -6,7 +6,7 @@ export const PathsKebabCase: Oas3Rule = () => {
       const segments = (key as string).substr(1).split('/');
       if (!segments.every((segment) => /^{.+}$/.test(segment) || /^[a-z0-9-_.]+$/.test(segment))) {
         report({
-          message: `${key} is not kebab-case`,
+          message: `${key} is not kebab-case.`,
           location: { reportOnKey: true },
         });
       }

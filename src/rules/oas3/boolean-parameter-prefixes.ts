@@ -18,7 +18,7 @@ export const BooleanParameterPrefixes: Oas3Rule = (options: BooleanParameterPref
       Schema(schema, { report, parentLocations }, parents) {
         if (schema.type === 'boolean' && !regexp.test(parents.Parameter.name)) {
           report({
-            message: `Boolean parameter \`${parents.Parameter.name}\` should have ${prefixesString} prefix`,
+            message: `Boolean parameter \`${parents.Parameter.name}\` should have ${prefixesString} prefix.`,
             location: parentLocations.Parameter.child(['name']),
           });
         }

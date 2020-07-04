@@ -72,7 +72,7 @@ describe('Oas3 typed enum', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected \\"integer\\" but received \\"string\\"",
+          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected \\"integer\\" but received \\"string\\".",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": Array [],

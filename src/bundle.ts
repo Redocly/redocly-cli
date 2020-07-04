@@ -215,7 +215,7 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
     }
 
     ctx.report({
-      message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}`,
+      message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
       location: { reportOnKey: true },
       forceSeverity: 'warn',
     });

@@ -35,7 +35,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Boolean parameter \`a\` should have \`is\` or \`has\` prefix",
+          "message": "Boolean parameter \`a\` should have \`is\` or \`has\` prefix.",
           "ruleId": "boolean-parameter-prefixes",
           "severity": "error",
           "suggest": Array [],

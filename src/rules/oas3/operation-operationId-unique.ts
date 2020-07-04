@@ -8,7 +8,7 @@ export const OperationIdUnique: Oas3Rule = () => {
       if (!operation.operationId) return;
       if (seenOperations.has(operation.operationId)) {
         report({
-          message: 'Every operation must have a unique `operationId`',
+          message: 'Every operation must have a unique `operationId`.',
           location: location.child([operation.operationId]),
         });
       }

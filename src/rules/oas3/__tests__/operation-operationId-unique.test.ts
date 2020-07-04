@@ -40,7 +40,7 @@ describe('Oas3 operation-operationId-unique', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Every operation must have a unique \`operationId\`",
+          "message": "Every operation must have a unique \`operationId\`.",
           "ruleId": "operation-operationId-unique",
           "severity": "error",
           "suggest": Array [],

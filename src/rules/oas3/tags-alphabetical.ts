@@ -7,7 +7,7 @@ export const TagsAlphabetical: Oas3Rule = () => {
       for (let i = 0; i < root.tags.length - 1; i++) {
         if (root.tags[i].name > root.tags[i + 1].name) {
           report({
-            message: 'The "tags" array should be in alphabetical order',
+            message: 'The "tags" array should be in alphabetical order.',
             location: location.child(['tags', i]),
           });
         }

@@ -62,7 +62,7 @@ describe('bundle', () => {
     });
     expect(messages).toHaveLength(1);
     expect(messages[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2`,
+      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`,
     );
     expect(res).toMatchSnapshot();
   });
