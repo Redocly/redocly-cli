@@ -22,6 +22,7 @@ export enum OasMajorVersion {
 export type RuleSet<T> = Record<string, T>;
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
+export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 
 export async function validate(opts: {
   ref: string;

@@ -8,3 +8,7 @@ export const rules: Record<string, Oas3RuleSet> = {
 export const preprocessors = {
   oas3: oas3.preprocessors
 }
+
+export const decorators = {
+  oas3: {}
+}

@@ -33,6 +33,19 @@ export const preprocessors = {
   },
 };
 
+/** @type {import('../src/config/config').DecoratorConfig} */
+export const decorators = {
+  oas3: {
+    'inject-x-stats': () => {
+      return {
+        Info(info) {
+          info['x-stats'] = {test: 1}
+        },
+      };
+    },
+  },
+};
+
 export const configs = {
   all: {
     rules: {

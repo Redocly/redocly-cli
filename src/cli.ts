@@ -88,7 +88,7 @@ yargs // eslint-disable-line
 
           if (argv['generate-ignore-file']) {
             for (let m of results) {
-              config.lint.addException(m);
+              config.lint.addIgnore(m);
               totalIgnored++;
             }
           } else {
@@ -158,6 +158,11 @@ yargs // eslint-disable-line
           array: true,
           type: 'string',
         })
+        .option('skip-decorator', {
+          description: 'ignore certain preprocessor',
+          array: true,
+          type: 'string',
+        })
         .option('force', {
           alias: 'f',
           type: 'boolean',
@@ -171,6 +176,7 @@ yargs // eslint-disable-line
       const config = await loadConfig(argv.config);
       config.lint.skipRules(argv['skip-rule']);
       config.lint.skipPreprocessors(argv['skip-preprocessor']);
+      config.lint.skipDecorators(argv['skip-decorator']);
 
       const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -278,15 +284,15 @@ function getOutputFileName(
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
     process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n.`,
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
     );
   } else if (e instanceof YamlParseError) {
     process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}\n\n.`,
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
     );
     // TODO: codeframe
   } else {
-    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}\n\n.`);
+    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
     throw e;
   }
 }
@@ -388,10 +394,10 @@ function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, con
 }
 
 function printUnusedWarnings(config: LintConfig) {
-  const { preprocessors, rules } = config.getUnusedRules();
+  const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
-      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}\n.`),
+      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`),
     );
   }
   if (preprocessors.length) {
@@ -399,7 +405,16 @@ function printUnusedWarnings(config: LintConfig) {
       yellow(
         `[WARN} Unknown preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
           ', ',
-        )}\n.`,
+        )}.\n`,
+      ),
+    );
+  }
+  if (decorators.length) {
+    process.stderr.write(
+      yellow(
+        `[WARN} Unknown decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+          ', ',
+        )}.\n`,
       ),
     );
   }

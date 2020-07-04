@@ -5,7 +5,7 @@ import { notUndefined } from '../utils';
 export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
   config: LintConfig,
-  type: 'rules' | 'preprocessors'
+  type: 'rules' | 'preprocessors' | 'decorators',
 ) {
   return rules
     .flatMap((ruleset) =>
@@ -16,7 +16,10 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
         const ruleSettings =
           type === 'rules'
             ? config.getRuleSettings(ruleId)
-            : config.getPreprocessorSettings(ruleId);
+            : type === 'preprocessors'
+            ? config.getPreprocessorSettings(ruleId)
+            : config.getDecoratorSettings(ruleId);
+
         if (ruleSettings.severity === 'off') {
           return undefined;
         }

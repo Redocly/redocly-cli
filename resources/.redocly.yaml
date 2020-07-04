@@ -12,4 +12,6 @@ lint:
     path-http-verbs-order: error
     boolean-parameter-prefixes: error
   preprocessors:
-    local/duplicate-description: off
+    local/duplicate-description: on
+  decorators:
+    local/inject-x-stats: on

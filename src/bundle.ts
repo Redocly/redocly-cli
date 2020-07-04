@@ -53,6 +53,7 @@ export async function bundleDocument(opts: {
       );
 
       const preprocessors = initRules(oas3Rules, config, 'preprocessors');
+      const decorators = initRules(oas3Rules, config, 'decorators');
 
       const ctx: BundleContext = {
         messages: [],
@@ -67,6 +68,7 @@ export async function bundleDocument(opts: {
             ruleId: 'bundler',
             visitor: makeBundleVisitor(OasVersion.Version3_0),
           },
+          ...decorators
         ],
         types,
       );
