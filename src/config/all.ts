@@ -22,7 +22,7 @@ export default {
     'operation-description': 'error',
     'operation-2xx-response': 'error',
     'operation-operationId-unique': 'error',
-    'operation-operationId-valid-in-url': 'error',
+    'operation-operationId-url-safe': 'error',
     'operation-parameters-unique': 'error',
     'operation-tag-defined': 'error',
     'operation-security-defined': 'error',

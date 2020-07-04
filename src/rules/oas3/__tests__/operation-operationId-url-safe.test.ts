@@ -5,7 +5,7 @@ import { LintConfig } from '../../../config/config';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
-describe('Oas3 operation-operationId-valid-in-url', () => {
+describe('Oas3 operation-operationId-url-safe', () => {
   it('should report on invalid operationIds', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -24,7 +24,7 @@ describe('Oas3 operation-operationId-valid-in-url', () => {
       document,
       config: new LintConfig({
         extends: [],
-        rules: { 'operation-operationId-valid-in-url': 'error' },
+        rules: { 'operation-operationId-url-safe': 'error' },
       }),
     });
 
@@ -39,7 +39,7 @@ describe('Oas3 operation-operationId-valid-in-url', () => {
             },
           ],
           "message": "Operation id should not have URL invalid characters.",
-          "ruleId": "operation-operationId-valid-in-url",
+          "ruleId": "operation-operationId-url-safe",
           "severity": "error",
           "suggest": Array [],
         },

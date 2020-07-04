@@ -2,7 +2,7 @@ import { Oas3Rule } from '../../visitors';
 
 const validUrlSymbols = /^[A-Za-z0-9-._~:/?#\[\]@!\$&'()*+,;=]*$/;
 
-export const OperationIdValidUrl: Oas3Rule = () => {
+export const OperationIdUrlSafe: Oas3Rule = () => {
   return {
     Operation(operation, { report, location }) {
       if (operation.operationId && !validUrlSymbols.test(operation.operationId)) {

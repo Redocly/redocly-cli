@@ -10,7 +10,7 @@ import { NoExampleValueAndExternalValue } from './no-example-value-and-externalV
 import { NoEnumTypeMismatch } from './no-enum-type-mismatch';
 import { NoPathTrailingSlash } from './no-path-trailing-slash';
 import { PathDeclarationMustExist } from './path-declaration-must-exist';
-import { OperationIdValidUrl } from './operation-operationId-valid-in-url';
+import { OperationIdUrlSafe } from './operation-operationId-url-safe';
 import { TagsAlphabetical } from './tags-alphabetical';
 import { NoServerExample } from './no-server-example.com';
 import { NoServerTrailingSlash } from './no-server-trailing-slash';
@@ -46,7 +46,7 @@ export const rules = {
   'no-path-trailing-slash': NoPathTrailingSlash,
   'no-empty-servers': NoEmptyServers,
   'path-declaration-must-exist': PathDeclarationMustExist,
-  'operationId-valid-in-url': OperationIdValidUrl,
+  'operationId-valid-in-url': OperationIdUrlSafe,
   'tags-alphabetical': TagsAlphabetical,
   'no-server-example.com': NoServerExample,
   'no-server-trailing-slash': NoServerTrailingSlash,
@@ -55,7 +55,7 @@ export const rules = {
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'operation-description': OperationDescription,
-  'operation-operationId-valid-in-url': OperationIdValidUrl,
+  'operation-operationId-url-safe': OperationIdUrlSafe,
   'no-unused-components': NoUnusedComponents,
   'path-not-include-query': PathNotIncludeQuery,
   'path-params-defined': PathParamsDefined,
