@@ -109,7 +109,7 @@ yargs // eslint-disable-line
       if (argv['generate-ignore-file']) {
         config.lint.saveIgnore();
         process.stderr.write(
-          `Added ${totalIgnored} ${pluralize('message', totalIgnored)} to ignore file\n\n`,
+          `Generated ignore file with ${totalIgnored} ${pluralize('message', totalIgnored)}.\n\n`,
         );
       } else {
         printLintTotals(totals, entrypoints.length);
