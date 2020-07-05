@@ -12,7 +12,6 @@ import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
-// TODO: fix visitors typing
 export async function bundle(opts: {
   ref: string;
   externalRefResolver?: BaseResolver;
