@@ -12,6 +12,7 @@ import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedReportMessage } from './walk';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+import { previewDocs } from './cli/preview-docs';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
@@ -251,6 +252,53 @@ yargs // eslint-disable-line
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
+  .command(
+    'preview-docs [entrypoint]',
+    'Preview API Reference docs for the specified entrypoint OAS definition',
+    (yargs) =>
+      yargs
+        .positional('entrypoint', {
+          type: 'string',
+          demandOption: true,
+        })
+        .option('port', {
+          alias: 'p',
+          type: 'number',
+          default: 8080,
+          description: 'Preview port',
+        })
+        .option('skip-rule', {
+          description: 'ignore certain rules',
+          array: true,
+          type: 'string',
+        })
+        .option('skip-preprocessor', {
+          description: 'ignore certain preprocessors',
+          array: true,
+          type: 'string',
+        })
+        .option('skip-decorator', {
+          description: 'ignore certain preprocessor',
+          array: true,
+          type: 'string',
+        })
+        .option('--use-community-edition', {
+          description: 'Force using Redoc CE for docs preview',
+          type: 'boolean',
+        })
+        .option('force', {
+          alias: 'f',
+          type: 'boolean',
+          description: 'Produce bundle output file even if validation errors were encountered',
+        })
+        .option('config', {
+          description: 'Specify custom config file',
+          type: 'string',
+        }),
+    async (argv) => {
+      previewDocs(argv);
+    },
+  )
   .demandCommand(1)
   .strict().argv;
 
@@ -337,13 +385,13 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
   process.stderr.write('\n');
 }
 
-type Totals = {
+export type Totals = {
   errors: number;
   warnings: number;
   ignored: number;
 };
 
-function getTotals(messages: (NormalizedReportMessage & { ignored?: boolean })[]): Totals {
+export function getTotals(messages: (NormalizedReportMessage & { ignored?: boolean })[]): Totals {
   let errors = 0;
   let warnings = 0;
   let ignored = 0;
@@ -373,7 +421,7 @@ function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
+export function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   let res = argsEntrypoints;
   if (
     (!argsEntrypoints || !argsEntrypoints.length) &&

@@ -92,6 +92,7 @@ export async function bundleDocument(opts: {
   return {
     bundle: document.parsed,
     messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
+    fileDependencies: new Set(Array.from(resolvedRefMap.keys()).map(id => id.split('::')[0])),
   };
 }
 

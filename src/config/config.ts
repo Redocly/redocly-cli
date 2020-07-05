@@ -93,6 +93,7 @@ export type Plugin = {
 };
 
 export type RawConfig = {
+  referenceDocs?: any;
   apiDefinitions?: Record<string, string>;
   lint?: RulesConfig;
 };
@@ -336,11 +337,13 @@ export class LintConfig {
 }
 
 export class Config {
+  referenceDocs: any;
   apiDefinitions: Record<string, string>;
   lint: LintConfig;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
+    this.referenceDocs = rawConfig.referenceDocs || {};
   }
 }
 

@@ -15,3 +15,13 @@ lint:
     # local/duplicate-description: on
   decorators:
     # local/inject-x-stats: on
+referenceDocs:
+  showConsole: true
+  layout:
+    scope: section
+  routingStrategy: browser
+  theme:
+    rightPanel:
+      backgroundColor: '#263238'
+    links:
+      color: '#6CC496'

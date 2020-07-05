@@ -49,10 +49,14 @@
   "dependencies": {
     "@redocly/ajv": "^6.12.3",
     "@types/node": "^14.0.13",
+    "chokidar": "^3.4.0",
     "colorette": "^1.2.0",
+    "handlebars": "^4.7.6",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^3.14.0",
     "node-fetch": "^2.6.0",
+    "portfinder": "^1.0.26",
+    "simple-websocket": "^9.0.0",
     "typescript": "^3.9.5",
     "yaml-ast-parser": "0.0.43",
     "yargs": "^15.3.1"
@@ -64,7 +68,11 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "collectCoverageFrom": ["src/**/*.ts", "!src/**/__tests__/**/*", "!src/cli.ts"],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/__tests__/**/*",
+      "!src/cli.ts"
+    ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",
       "**/*.test.ts"
