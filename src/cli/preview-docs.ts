@@ -98,7 +98,7 @@ export async function previewDocs(argv: {
 
   watcher.on('ready', () => {
     process.stdout.write(
-      `\n  👀  Watching ${colorette.blue(entrypoint)} and all related resources for changes\n`,
+      `\n  👀  Watching ${colorette.blue(entrypoint)} and all related resources for changes\n\n`,
     );
   });
 

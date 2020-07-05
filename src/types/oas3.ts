@@ -54,7 +54,8 @@ const Server: NodeType = {
 const ServerVariable: NodeType = {
   properties: {
     enum: {
-      type: 'array', items: {  type: 'string', },
+      type: 'array',
+      items: { type: 'string' },
     },
     default: {
       type: 'string',
@@ -184,7 +185,8 @@ const Parameter: NodeType = {
 const Operation: NodeType = {
   properties: {
     tags: {
-      type: 'array', items: {  type: 'string', },
+      type: 'array',
+      items: { type: 'string' },
     },
     summary: {
       type: 'string',
@@ -206,10 +208,17 @@ const Operation: NodeType = {
       type: 'boolean',
     },
     callbacks: 'PathMap',
-    // 'x-codeSamples'?: Oas3XCodeSample[]; // TODO: x-code-samples
-    // 'x-code-samples'?: Oas3XCodeSample[]; // deprecated
+    'x-codeSamples': listOf('XCodeSample'),
+    'x-code-samples': listOf('XCodeSample'), // deprecated
   },
-  required: [ 'responses' ],
+  required: ['responses'],
+};
+
+const XCodeSample: NodeType = {
+  properties: {
+    lang: { type: 'string' },
+    source: { type: 'string', referenceable: true },
+  },
 };
 
 const RequestBody: NodeType = {
@@ -557,4 +566,5 @@ export const Oas3Types: Record<string, NodeType> = {
   AuthorizationCode,
   SecuritySchemeFlows,
   SecurityScheme,
+  XCodeSample,
 };

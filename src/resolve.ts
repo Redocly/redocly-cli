@@ -101,7 +101,8 @@ export class BaseResolver {
   }
 
   parseDocument(source: Source): Document {
-    if (source.absoluteRef.endsWith('.md')) {
+    const ext = source.absoluteRef.substr(source.absoluteRef.lastIndexOf('.'));
+    if (!['.json', '.json', '.yml', '.yaml'].includes(ext)) {
       return { source, parsed: source.body };
     }
 

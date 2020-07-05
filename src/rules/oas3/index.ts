@@ -39,8 +39,6 @@ export const rules = {
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,
-
-  spec: OasSpec,
   'operation-2xx-response': Operation2xxResponse,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
@@ -69,6 +67,7 @@ export const rules = {
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
+  spec: OasSpec,
 } as Oas3RuleSet;
 
 export const preprocessors = {

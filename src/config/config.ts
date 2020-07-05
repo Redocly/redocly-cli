@@ -239,6 +239,7 @@ export class LintConfig {
   getPreprocessorSettings(ruleId: string, oasVersion: OasVersion) {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
+
     const settings = this.preprocessors[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
