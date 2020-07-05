@@ -27,11 +27,29 @@ import type {
   Oas3Callback,
 } from './typings/openapi';
 
+import {
+  Oas2Definition,
+  Oas2Tag,
+  Oas2ExternalDocs,
+  Oas2SecurityRequirement,
+  Oas2Info,
+  Oas2Contact,
+  Oas2License,
+  Oas2PathItem,
+  Oas2Operation,
+  Oas2Header,
+  Oas2Response,
+  Oas2Schema,
+  Oas2Xml,
+  Oas2Parameter,
+  Oas2SecurityScheme,
+} from './typings/swagger';
+
+
 import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, MessageSeverity } from './walk';
 import { Location } from './ref-utils';
-
 export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any) => void;
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
@@ -150,15 +168,50 @@ type Oas3FlatVisitor = {
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
 };
 
+type Oas2FlatVisitor = {
+  DefinitionRoot?: VisitFunctionOrObject<Oas2Definition>;
+  Tag?: VisitFunctionOrObject<Oas2Tag>;
+  ExternalDocs?: VisitFunctionOrObject<Oas2ExternalDocs>;
+  SecurityRequirement?: VisitFunctionOrObject<Oas2SecurityRequirement>;
+  Info?: VisitFunctionOrObject<Oas2Info>;
+  Contact?: VisitFunctionOrObject<Oas2Contact>;
+  License?: VisitFunctionOrObject<Oas2License>;
+  PathMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
+  PathItem?: VisitFunctionOrObject<Oas2PathItem>;
+  Parameter?: VisitFunctionOrObject<any>;
+  Operation?: VisitFunctionOrObject<Oas2Operation>;
+  Examples?: VisitFunctionOrObject<Record<string, any>>;
+  Header?: VisitFunctionOrObject<Oas2Header>;
+  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas2Response>>;
+  Response?: VisitFunctionOrObject<Oas2Response>;
+  Schema?: VisitFunctionOrObject<Oas2Schema>;
+  Xml?: VisitFunctionOrObject<Oas2Xml>;
+  SchemaProperties?: VisitFunctionOrObject<Record<string, Oas2Schema>>;
+  NamedSchemas?: VisitFunctionOrObject<Record<string, Oas2Schema>>;
+  NamedResponses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
+  NamedParameters?: VisitFunctionOrObject<Record<string, Oas2Parameter>>;
+  SecurityScheme?: VisitFunctionOrObject<Oas2SecurityScheme>;
+};
+
 type Oas3NestedVisitor = {
   [T in keyof Oas3FlatVisitor]: Oas3FlatVisitor[T] extends Function
     ? Oas3FlatVisitor[T]
     : Oas3FlatVisitor[T] & NestedVisitor<Oas3NestedVisitor>;
 };
 
+type Oas2NestedVisitor = {
+  [T in keyof Oas2FlatVisitor]: Oas2FlatVisitor[T] extends Function
+    ? Oas2FlatVisitor[T]
+    : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
+};
+
 export type Oas3Visitor = BaseVisitor &
   Oas3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
+
+export type Oas2Visitor = BaseVisitor &
+  Oas2NestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, Oas2NestedVisitor>>;
 
 export type Oas3TransformVisitor = BaseVisitor &
   Oas3FlatVisitor &
@@ -184,6 +237,7 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
 };
 
 export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor;
+export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor;
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3TransformVisitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3TransformVisitor;
 

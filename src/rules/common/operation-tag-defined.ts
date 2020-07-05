@@ -1,13 +1,16 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Definition, Oas2Operation } from '../../typings/swagger';
+import { Oas3Definition, Oas3Operation } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
-export const OperationTagDefined: Oas3Rule = () => {
+export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
   let definedTags: Set<string>;
 
   return {
-    DefinitionRoot(root) {
+    DefinitionRoot(root: Oas2Definition | Oas3Definition) {
       definedTags = new Set((root.tags ?? []).map((t) => t.name));
     },
-    Operation(operation, { report, location }) {
+    Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
       if (operation.tags) {
         for (let i = 0; i < operation.tags.length; i++) {
           if (!definedTags.has(operation.tags[i])) {

@@ -1,15 +1,18 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2PathItem } from '../../typings/swagger';
+import { Oas3PathItem } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
 const defaultOrder = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
-export const PathHttpVerbsOrder: Oas3Rule = (opts: any) => {
+export const PathHttpVerbsOrder: Oas3Rule | Oas2Rule = (opts: any) => {
   const order: string[] = (opts && opts.order) || defaultOrder;
   if (!Array.isArray(order)) {
     throw new Error('path-http-verbs-order `order` option must be an array');
   }
 
   return {
-    PathItem(path, { report, location }) {
+    PathItem(path: Oas2PathItem | Oas3PathItem, { report, location }: UserContext) {
       const httpVerbs = Object.keys(path).filter((k) => order.includes(k));
 
       for (let i = 0; i < httpVerbs.length - 1; i++) {

@@ -10,10 +10,6 @@ export default {
     'tag-description': 'warn',
     'tags-alphabetical': 'off',
 
-    'no-server-example.com': 'warn',
-    'no-server-trailing-slash': 'error',
-    'no-empty-servers': 'warn',
-
     'parameter-description': 'off',
     'no-path-trailing-slash': 'error',
     'path-declaration-must-exist': 'error',
@@ -29,18 +25,23 @@ export default {
     'operationId-valid-in-url': 'error',
     'operation-singular-tag': 'off',
 
-    'no-example-value-and-externalValue': 'error',
-
-    'no-unused-components': 'warn',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',
 
     'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
-    'no-invalid-media-type-examples': {
-      severity: 'warn',
-      disallowAdditionalProperties: false,
-    },
     spec: 'error',
   },
+  oas3Rules: {
+    'no-invalid-media-type-examples': {
+      severity: 'warn',
+      disallowAdditionalProperties: true,
+    },
+
+    'no-server-example.com': 'warn',
+    'no-server-trailing-slash': 'error',
+    'no-empty-servers': 'warn',
+    'no-example-value-and-externalValue': 'error',
+    'no-unused-components': 'warn',
+  }
 } as RulesConfig;

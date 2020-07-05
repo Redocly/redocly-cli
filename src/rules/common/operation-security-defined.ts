@@ -1,7 +1,8 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
+import { UserContext } from '../../walk';
 
-export const OperationSecurityDefined: Oas3Rule = () => {
+export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
   let referencedSchemes = new Map<
     string,
     {
@@ -12,7 +13,7 @@ export const OperationSecurityDefined: Oas3Rule = () => {
 
   return {
     DefinitionRoot: {
-      leave(_root, { report }) {
+      leave(_: object, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
@@ -24,7 +25,7 @@ export const OperationSecurityDefined: Oas3Rule = () => {
         }
       },
     },
-    SecurityScheme(_securityScheme, { key }) {
+    SecurityScheme(_securityScheme: object, { key }: UserContext) {
       referencedSchemes.set(key.toString(), {
         defined: true,
         from: [],

@@ -54,10 +54,7 @@ const Server: NodeType = {
 const ServerVariable: NodeType = {
   properties: {
     enum: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
+      type: 'array', items: {  type: 'string', },
     },
     default: {
       type: 'string',
@@ -187,10 +184,7 @@ const Parameter: NodeType = {
 const Operation: NodeType = {
   properties: {
     tags: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
+      type: 'array', items: {  type: 'string', },
     },
     summary: {
       type: 'string',
@@ -215,6 +209,7 @@ const Operation: NodeType = {
     // 'x-codeSamples'?: Oas3XCodeSample[]; // TODO: x-code-samples
     // 'x-code-samples'?: Oas3XCodeSample[]; // deprecated
   },
+  required: [ 'responses' ],
 };
 
 const RequestBody: NodeType = {
@@ -312,7 +307,7 @@ const ResponsesMap: NodeType = {
     default: 'Response',
   },
   additionalProperties: (_v: any, key: string) =>
-    responseCodeRegexp.test(key) ? 'Response' : null,
+    responseCodeRegexp.test(key) ? 'Response' : undefined,
 };
 
 const Response: NodeType = {
@@ -445,7 +440,7 @@ const Components: NodeType = {
 const ImplicitFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO: validate scopes
+    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     authorizationUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'scopes'],
@@ -454,7 +449,7 @@ const ImplicitFlow: NodeType = {
 const PasswordFlow: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO: validate scopes
+    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
@@ -463,7 +458,7 @@ const PasswordFlow: NodeType = {
 const ClientCredentials: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO: validate scopes
+    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
@@ -473,7 +468,7 @@ const AuthorizationCode: NodeType = {
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
-    scopes: { type: 'object' }, // TODO: validate scopes
+    scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
@@ -500,6 +495,10 @@ const SecurityScheme: NodeType = {
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
+    if (!value?.type) {
+      return ['type'];
+    }
+
     if (value.type === 'apiKey') {
       return ['type', 'name', 'in'];
     } else if (value.type === 'http') {

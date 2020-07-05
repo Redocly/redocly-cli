@@ -1,8 +1,11 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Parameter } from '../../typings/swagger';
+import { Oas3Parameter } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
 const pathRegex = /\{([a-zA-Z0-9_-]+)\}+/g;
 
-export const PathParamsDefined: Oas3Rule = () => {
+export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   let pathTemplateParams: Set<string>;
   let definedPathParams: Set<string>;
 
@@ -10,14 +13,14 @@ export const PathParamsDefined: Oas3Rule = () => {
 
   return {
     PathItem: {
-      enter(_, { key }) {
+      enter(_: object, { key }: UserContext) {
         definedPathParams = new Set();
         currentPath = key as string;
         pathTemplateParams = new Set(
           Array.from(key!.toString().matchAll(pathRegex)).map((m) => m[1]),
         );
       },
-      Parameter(parameter, { report, location }) {
+      Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
         if (parameter.in === 'path' && parameter.name) {
           definedPathParams.add(parameter.name);
           if (!pathTemplateParams.has(parameter.name)) {
@@ -29,7 +32,7 @@ export const PathParamsDefined: Oas3Rule = () => {
         }
       },
       Operation: {
-        leave(_op, { report, location }) {
+        leave(_op: object, { report, location }: UserContext) {
           for (const templateParam of Array.from(pathTemplateParams.keys())) {
             if (!definedPathParams.has(templateParam)) {
               report({
@@ -39,7 +42,7 @@ export const PathParamsDefined: Oas3Rule = () => {
             }
           }
         },
-        Parameter(parameter, { report, location }) {
+        Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
           if (parameter.in === 'path' && parameter.name) {
             definedPathParams.add(parameter.name);
             if (!pathTemplateParams.has(parameter.name)) {

@@ -1,8 +1,9 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { UserContext } from '../../walk';
 
-export const PathNotIncludeQuery: Oas3Rule = () => {
+export const PathNotIncludeQuery: Oas3Rule | Oas2Rule = () => {
   return {
-    PathItem(_operation, { report, key }) {
+    PathItem(_operation: object, { report, key }: UserContext) {
       if (key.toString().includes('?')) {
         report({
           message: `Don't put query string items in the path, they belong in parameters with in: query.`,

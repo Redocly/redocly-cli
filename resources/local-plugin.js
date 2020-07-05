@@ -18,6 +18,8 @@ export const rules = {
   },
 };
 
+rules.oas2 = rules.oas3;
+
 /** @type {import('../src/config/config').PreprocessorsConfig} */
 export const preprocessors = {
   oas3: {

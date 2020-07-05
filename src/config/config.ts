@@ -6,7 +6,13 @@ import { builtInConfigs } from './builtIn';
 import * as builtinRules from '../rules/builtin';
 import { loadYaml, notUndefined } from '../utils';
 
-import { OasVersion, Oas3PreprocessorsSet, OasMajorVersion, Oas3DecoratorsSet } from '../validate';
+import {
+  OasVersion,
+  Oas3PreprocessorsSet,
+  OasMajorVersion,
+  Oas3DecoratorsSet,
+  Oas2RuleSet,
+} from '../validate';
 
 import { MessageSeverity, NormalizedReportMessage } from '../walk';
 import { Oas3RuleSet } from '../validate';
@@ -42,9 +48,18 @@ export type DecoratorConfig = PreprocessorConfig;
 export type RulesConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
+
   rules?: Record<string, RuleConfig>;
+  oas2Rules?: Record<string, RuleConfig>;
+  oas3_0Rules?: Record<string, RuleConfig>;
+
   preprocessors?: Record<string, PreprocessorConfig>;
-  decorators?: Record<string, PreprocessorConfig>;
+  oas2Preprocessors?: Record<string, PreprocessorConfig>;
+  oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
+
+  decorators?: Record<string, DecoratorConfig>;
+  oas2Decorators?: Record<string, DecoratorConfig>;
+  oas3_0Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type PreprocessorsConfig = {
@@ -84,12 +99,14 @@ export type RawConfig = {
 
 export class LintConfig {
   plugins: Plugin[];
-  rules: Record<string, RuleConfig>;
-  preprocessors: Record<string, PreprocessorConfig>;
-  decorators: Record<string, DecoratorConfig>;
   ignore: Record<string, Record<string, Set<string>>> = {};
 
+  rules: Record<OasVersion, Record<string, RuleConfig>>;
+  preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
+  decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
+
   private _usedRules: Set<string> = new Set();
+  private _usedVersions: Set<OasVersion> = new Set();
 
   constructor(public rawConfig: RulesConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
@@ -115,9 +132,20 @@ export class LintConfig {
 
     const merged = mergeExtends(extendConfigs);
 
-    this.rules = merged.rules;
-    this.preprocessors = merged.preprocessors;
-    this.decorators = merged.decorators;
+    this.rules = {
+      [OasVersion.Version2]: { ...merged.rules, ...merged.oas2Rules },
+      [OasVersion.Version3_0]: { ...merged.rules, ...merged.oas3_0Rules },
+    };
+
+    this.preprocessors = {
+      [OasVersion.Version2]: { ...merged.preprocessors, ...merged.oas2Preprocessors },
+      [OasVersion.Version3_0]: { ...merged.preprocessors, ...merged.oas3_0Preprocessors },
+    };
+
+    this.decorators = {
+      [OasVersion.Version2]: { ...merged.decorators, ...merged.oas2Decorators },
+      [OasVersion.Version3_0]: { ...merged.decorators, ...merged.oas3_0Decorators },
+    };
 
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
@@ -194,9 +222,10 @@ export class LintConfig {
     return extendedTypes;
   }
 
-  getRuleSettings(ruleId: string) {
+  getRuleSettings(ruleId: string, oasVersion: OasVersion) {
     this._usedRules.add(ruleId);
-    const settings = this.rules[ruleId] || 'off';
+    this._usedVersions.add(oasVersion);
+    const settings = this.rules[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
         severity: settings,
@@ -206,9 +235,10 @@ export class LintConfig {
     }
   }
 
-  getPreprocessorSettings(ruleId: string) {
+  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion) {
     this._usedRules.add(ruleId);
-    const settings = this.preprocessors[ruleId] || 'off';
+    this._usedVersions.add(oasVersion);
+    const settings = this.preprocessors[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? ('error' as 'error') : settings,
@@ -218,9 +248,10 @@ export class LintConfig {
     }
   }
 
-  getDecoratorSettings(ruleId: string) {
+  getDecoratorSettings(ruleId: string, oasVersion: OasVersion) {
     this._usedRules.add(ruleId);
-    const settings = this.decorators[ruleId] || 'off';
+    this._usedVersions.add(oasVersion);
+    const settings = this.decorators[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? ('error' as 'error') : settings,
@@ -231,46 +262,74 @@ export class LintConfig {
   }
 
   getUnusedRules() {
+    const rules = [];
+    const decorators = [];
+    const preprocessors = [];
+
+    for (const usedVersion of Array.from(this._usedVersions)) {
+      rules.push(
+        ...Object.keys(this.rules[usedVersion]).filter((name) => !this._usedRules.has(name)),
+      );
+      decorators.push(
+        ...Object.keys(this.decorators[usedVersion]).filter((name) => !this._usedRules.has(name)),
+      );
+      preprocessors.push(
+        ...Object.keys(this.preprocessors[usedVersion]).filter(
+          (name) => !this._usedRules.has(name),
+        ),
+      );
+    }
+
     return {
-      rules: Object.keys(this.rules).filter((name) => !this._usedRules.has(name)),
-      preprocessors: Object.keys(this.preprocessors).filter((name) => !this._usedRules.has(name)),
-      decorators: Object.keys(this.decorators).filter((name) => !this._usedRules.has(name)),
+      rules,
+      preprocessors,
+      decorators,
     };
   }
 
-  getRulesForOasVersion(version: OasVersion) {
+  getRulesForOasVersion(version: OasMajorVersion) {
     switch (version) {
-      case OasVersion.Version3_0:
+      case OasMajorVersion.Version3:
         const oas3Rules: Oas3RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         this.plugins.forEach((p) => p.decorators?.oas3 && oas3Rules.push(p.decorators.oas3));
         return oas3Rules;
-      default:
-        throw new Error('Not implemented');
+      case OasMajorVersion.Version2:
+        const oas2Rules: Oas2RuleSet[] = []; // default ruleset
+        this.plugins.forEach((p) => p.preprocessors?.oas2 && oas2Rules.push(p.preprocessors.oas2));
+        this.plugins.forEach((p) => p.rules?.oas2 && oas2Rules.push(p.rules.oas2));
+        this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
+        return oas2Rules;
     }
   }
 
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
-      if (this.rules[ruleId]) {
-        this.rules[ruleId] = 'off';
+      for (const version of Object.values(OasVersion)) {
+        if (this.rules[version][ruleId]) {
+          this.rules[version][ruleId] = 'off';
+        }
       }
     }
   }
 
   skipPreprocessors(preprocessors?: string[]) {
     for (const preprocessorId of preprocessors || []) {
-      if (this.preprocessors[preprocessorId]) {
-        this.preprocessors[preprocessorId] = 'off';
+      for (const version of Object.values(OasVersion)) {
+        if (this.preprocessors[version][preprocessorId]) {
+          this.preprocessors[version][preprocessorId] = 'off';
+        }
       }
     }
   }
 
   skipDecorators(decorators?: string[]) {
-    for (const preprocessorId of decorators || []) {
-      if (this.decorators[preprocessorId]) {
-        this.decorators[preprocessorId] = 'off';
+    for (const decoratorId of decorators || []) {
+      for (const version of Object.values(OasVersion)) {
+        if (this.decorators[version][decoratorId]) {
+          this.decorators[version][decoratorId] = 'off';
+        }
       }
     }
   }
@@ -369,7 +428,7 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
           plugin.rules.oas3 = prefixRules(plugin.rules.oas3, id);
         }
         if (plugin.rules.oas2) {
-          plugin.rules.oas3 = prefixRules(plugin.rules.oas2, id);
+          plugin.rules.oas2 = prefixRules(plugin.rules.oas2, id);
         }
       }
       if (plugin.preprocessors) {
@@ -382,21 +441,19 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
           plugin.preprocessors.oas3 = prefixRules(plugin.preprocessors.oas3, id);
         }
         if (plugin.preprocessors.oas2) {
-          plugin.preprocessors.oas3 = prefixRules(plugin.preprocessors.oas2, id);
+          plugin.preprocessors.oas2 = prefixRules(plugin.preprocessors.oas2, id);
         }
       }
 
       if (plugin.decorators) {
         if (!plugin.decorators.oas3 && !plugin.decorators.oas2) {
-          throw new Error(
-            `Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}}`,
-          );
+          throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}}`);
         }
         if (plugin.decorators.oas3) {
           plugin.decorators.oas3 = prefixRules(plugin.decorators.oas3, id);
         }
         if (plugin.decorators.oas2) {
-          plugin.decorators.oas3 = prefixRules(plugin.decorators.oas2, id);
+          plugin.decorators.oas2 = prefixRules(plugin.decorators.oas2, id);
         }
       }
 
@@ -414,12 +471,30 @@ function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
   return res;
 }
 
+type RulesFields =
+  | 'rules'
+  | 'oas2Rules'
+  | 'oas3_0Rules'
+  | 'preprocessors'
+  | 'oas2Preprocessors'
+  | 'oas3_0Preprocessors'
+  | 'decorators'
+  | 'oas2Decorators'
+  | 'oas3_0Decorators';
+
 function mergeExtends(rulesConfList: RulesConfig[]) {
-  const result: Omit<RulesConfig, 'rules' | 'preprocessors' | 'decorators'> &
-    Required<Pick<RulesConfig, 'rules' | 'preprocessors' | 'decorators'>> = {
+  const result: Omit<RulesConfig, RulesFields> & Required<Pick<RulesConfig, RulesFields>> = {
     rules: {},
+    oas2Rules: {},
+    oas3_0Rules: {},
+
     preprocessors: {},
+    oas2Preprocessors: {},
+    oas3_0Preprocessors: {},
+
     decorators: {},
+    oas2Decorators: {},
+    oas3_0Decorators: {},
   };
 
   for (let rulesConf of rulesConfList) {
@@ -429,8 +504,16 @@ function mergeExtends(rulesConfList: RulesConfig[]) {
       );
     }
     Object.assign(result.rules, rulesConf.rules);
+    Object.assign(result.oas2Rules, rulesConf.oas2Rules);
+    Object.assign(result.oas3_0Rules, rulesConf.oas3_0Rules);
+
     Object.assign(result.preprocessors, rulesConf.preprocessors);
+    Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
+    Object.assign(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
+
     Object.assign(result.decorators, rulesConf.decorators);
+    Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
+    Object.assign(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
   }
 
   return result;

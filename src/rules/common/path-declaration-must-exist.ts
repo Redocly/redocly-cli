@@ -1,8 +1,9 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { UserContext } from '../../walk';
 
-export const PathDeclarationMustExist: Oas3Rule = () => {
+export const PathDeclarationMustExist: Oas3Rule | Oas2Rule = () => {
   return {
-    PathItem(_path, { report, key }) {
+    PathItem(_path: object, { report, key }: UserContext) {
       if ((key as string).indexOf('{}') !== -1) {
         report({
           message: 'Path parameter declarations must be non-empty. {} is invalid.',

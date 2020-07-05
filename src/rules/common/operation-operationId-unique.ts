@@ -1,10 +1,13 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Operation } from '../../typings/swagger';
+import { Oas3Operation } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
-export const OperationIdUnique: Oas3Rule = () => {
+export const OperationIdUnique: Oas3Rule | Oas2Rule = () => {
   const seenOperations = new Set();
 
   return {
-    Operation(operation, { report, location }) {
+    Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
       if (!operation.operationId) return;
       if (seenOperations.has(operation.operationId)) {
         report({

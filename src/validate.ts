@@ -1,7 +1,8 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { Oas3Rule, normalizeVisitors, Oas3Preprocessor } from './visitors';
+import { Oas3Rule, normalizeVisitors, Oas3Preprocessor, Oas2Rule } from './visitors';
 import { Oas3Types } from './types/oas3';
+import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { WalkContext, walkDocument } from './walk';
 import { LintConfig } from './config/config';
@@ -21,6 +22,7 @@ export enum OasMajorVersion {
 
 export type RuleSet<T> = Record<string, T>;
 export type Oas3RuleSet = Record<string, Oas3Rule>;
+export type Oas2RuleSet = Record<string, Oas2Rule>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 
@@ -46,43 +48,42 @@ export async function validateDocument(opts: {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
   const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
-  switch (detectOpenAPI(document.parsed)) {
-    case OasVersion.Version2:
-      throw new Error('OAS2 is not supported yet');
-    case OasVersion.Version3_0: {
-      const oas3Rules = config.getRulesForOasVersion(OasVersion.Version3_0);
+  const oasVersion = detectOpenAPI(document.parsed);
+  const oasMajorVersion = openAPIMajor(oasVersion);
 
-      const types = normalizeTypes(
-        config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
-      );
+  const rules = config.getRulesForOasVersion(oasMajorVersion);
+  const types = normalizeTypes(
+    config.extendTypes(
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
+      oasVersion,
+    ),
+  );
 
-      const ctx: WalkContext = {
-        messages: [],
-        oasVersion: OasVersion.Version3_0,
-      };
+  const ctx: WalkContext = {
+    messages: [],
+    oasVersion: oasVersion,
+  };
 
-      const preprocessors = initRules(oas3Rules, config, 'preprocessors');
-      const rules = initRules(oas3Rules, config, 'rules');
+  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
+  const regularRules = initRules(rules as any, config, 'rules', oasVersion);
 
-      const normalizedVisitors = normalizeVisitors([...preprocessors, ...rules], types);
+  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules], types);
 
-      const resolvedRefMap = await resolveDocument({
-        rootDocument: document,
-        rootType: types.DefinitionRoot,
-        externalRefResolver,
-      });
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.DefinitionRoot,
+    externalRefResolver,
+  });
 
-      walkDocument({
-        document,
-        rootType: types.DefinitionRoot,
-        normalizedVisitors,
-        resolvedRefMap,
-        ctx,
-      });
+  walkDocument({
+    document,
+    rootType: types.DefinitionRoot,
+    normalizedVisitors,
+    resolvedRefMap,
+    ctx,
+  });
 
-      return ctx.messages.map((message) => config.addMessageToIgnore(message));
-    }
-  }
+  return ctx.messages.map((message) => config.addMessageToIgnore(message));
 }
 
 export function detectOpenAPI(root: any): OasVersion {
@@ -99,4 +100,12 @@ export function detectOpenAPI(root: any): OasVersion {
   }
 
   throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
+}
+
+export function openAPIMajor(version: OasVersion): OasMajorVersion {
+  if (version === OasVersion.Version2) {
+    return OasMajorVersion.Version2;
+  } else {
+    return OasMajorVersion.Version3;
+  }
 }

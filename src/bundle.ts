@@ -1,10 +1,11 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { Oas3Rule, normalizeVisitors, BaseVisitor } from './visitors';
+import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';
+import { Oas2Types } from './types/oas2';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext } from './walk';
-import { detectOpenAPI, OasVersion } from './validate';
+import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref-utils';
 import { LintConfig } from './config/config';
 import { initRules } from './config/rules';
@@ -41,62 +42,62 @@ export async function bundleDocument(opts: {
   externalRefResolver?: BaseResolver;
 }) {
   const { document, config, customTypes, externalRefResolver = new BaseResolver() } = opts;
-  switch (detectOpenAPI(document.parsed)) {
-    case OasVersion.Version2:
-      throw new Error('OAS2 is not implemented yet');
-    case OasVersion.Version3_0: {
-      const oas3Rules = config.getRulesForOasVersion(OasVersion.Version3_0);
+  const oasVersion = detectOpenAPI(document.parsed);
+  const oasMajorVersion = openAPIMajor(oasVersion);
 
-      const types = normalizeTypes(
-        config.extendTypes(customTypes ?? Oas3Types, OasVersion.Version3_0),
-      );
+  const rules = config.getRulesForOasVersion(oasMajorVersion);
 
-      const preprocessors = initRules(oas3Rules, config, 'preprocessors');
-      const decorators = initRules(oas3Rules, config, 'decorators');
+  const types = normalizeTypes(
+    config.extendTypes(
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
+      oasVersion,
+    ),
+  );
 
-      const ctx: BundleContext = {
-        messages: [],
-        oasVersion: OasVersion.Version3_0,
-      };
+  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
+  const decorators = initRules(rules as any, config, 'decorators', oasVersion);
 
-      const bundleVisitor = normalizeVisitors(
-        [
-          ...preprocessors,
-          {
-            severity: 'error',
-            ruleId: 'bundler',
-            visitor: makeBundleVisitor(OasVersion.Version3_0),
-          },
-          ...decorators
-        ],
-        types,
-      );
+  const ctx: BundleContext = {
+    messages: [],
+    oasVersion: oasVersion,
+  };
 
-      const resolvedRefMap = await resolveDocument({
-        rootDocument: document,
-        rootType: types.DefinitionRoot,
-        externalRefResolver,
-      });
+  const bundleVisitor = normalizeVisitors(
+    [
+      ...preprocessors,
+      {
+        severity: 'error',
+        ruleId: 'bundler',
+        visitor: makeBundleVisitor(oasMajorVersion),
+      },
+      ...decorators
+    ],
+    types,
+  );
 
-      walkDocument({
-        document,
-        rootType: types.DefinitionRoot as NormalizedNodeType,
-        normalizedVisitors: bundleVisitor,
-        resolvedRefMap,
-        ctx,
-      });
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.DefinitionRoot,
+    externalRefResolver,
+  });
 
-      return {
-        bundle: document.parsed,
-        messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
-      };
-    }
-  }
+  walkDocument({
+    document,
+    rootType: types.DefinitionRoot as NormalizedNodeType,
+    normalizedVisitors: bundleVisitor,
+    resolvedRefMap,
+    ctx,
+  });
+
+  return {
+    bundle: document.parsed,
+    messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
+  };
 }
 
-function mapTypeToComponent(typeName: string, version: OasVersion) {
+function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
   switch (version) {
-    case OasVersion.Version3_0:
+    case OasMajorVersion.Version3:
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -119,33 +120,26 @@ function mapTypeToComponent(typeName: string, version: OasVersion) {
         default:
           return null;
       }
-    default:
-      throw new Error('Not implemented');
+    case OasMajorVersion.Version2:
+      switch (typeName) {
+        case 'Schema':
+          return 'definitions';
+        case 'Parameter':
+          return 'parameters';
+        case 'Response':
+          return 'responses';
+        default:
+          return null;
+      }
   }
 }
 
 // function oas3Move
 
-function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
+function makeBundleVisitor(version: OasMajorVersion) {
   let components: Record<string, Record<string, any>>;
 
-  // @ts-ignore
-  const visitor: T = {
-    DiscriminatorMapping: {
-      leave(mapping: Record<string, string>, ctx: any) {
-        for (const name of Object.keys(mapping)) {
-          const $ref = mapping[name];
-          const resolved = ctx.resolve({$ref});
-          if (!resolved.location || resolved.node === undefined) {
-            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
-            return;
-          }
-
-          const componentType = mapTypeToComponent('Schema', version)!;
-          mapping[name] = saveComponent(componentType, resolved, ctx);
-        }
-      }
-    },
+  const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
       leave(node, ctx, resolved) {
         if (!resolved.location || resolved.node === undefined) {
@@ -167,23 +161,41 @@ function makeBundleVisitor<T extends BaseVisitor>(version: OasVersion) {
     },
     DefinitionRoot: {
       enter(root: any) {
-        if (version === OasVersion.Version3_0) {
+        if (version === OasMajorVersion.Version3) {
           components = root.components = root.components || {};
-        } else if (version === OasVersion.Version2) {
+        } else if (version === OasMajorVersion.Version2) {
           components = root;
         }
       },
     },
   };
 
+  if (version === OasMajorVersion.Version3) {
+    visitor.DiscriminatorMapping = {
+      leave(mapping: Record<string, string>, ctx: any) {
+        for (const name of Object.keys(mapping)) {
+          const $ref = mapping[name];
+          const resolved = ctx.resolve({$ref});
+          if (!resolved.location || resolved.node === undefined) {
+            reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
+            return;
+          }
+
+          const componentType = mapTypeToComponent('Schema', version)!;
+          mapping[name] = saveComponent(componentType, resolved, ctx);
+        }
+      }
+    }
+  }
+
   function saveComponent(componentType: string, target: { node: any; location: Location }, ctx: UserContext) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === OasVersion.Version3_0) {
+    if (version === OasMajorVersion.Version3) {
       return `#/components/${componentType}/${name}`;
     } else {
-      throw new Error('Not implemented');
+      return `#/${componentType}/${name}`;
     }
   }
 

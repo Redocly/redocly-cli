@@ -1,9 +1,9 @@
-import type { Oas3Rule } from '../../visitors';
+import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
 
-export const Oas3Spec: Oas3Rule = () => {
+export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
     any(node: any, { report, type, location, key, resolve }) {
       const nodeType = oasTypeOf(node);

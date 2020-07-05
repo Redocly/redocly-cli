@@ -1,8 +1,11 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Parameter } from '../../typings/swagger';
+import { Oas3Parameter } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
-export const ParameterDescription: Oas3Rule = () => {
+export const ParameterDescription: Oas3Rule | Oas2Rule = () => {
   return {
-    Parameter(parameter, { report, location }) {
+    Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
       if (parameter.description === undefined) {
         report({
           message: 'Parameter object description must be present.',

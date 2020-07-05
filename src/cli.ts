@@ -397,13 +397,13 @@ function printUnusedWarnings(config: LintConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
-      yellow(`Unknown rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`),
+      yellow(`[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`),
     );
   }
   if (preprocessors.length) {
     process.stderr.write(
       yellow(
-        `[WARN} Unknown preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
+        `[WARNING] Unused preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
           ', ',
         )}.\n`,
       ),
@@ -412,7 +412,7 @@ function printUnusedWarnings(config: LintConfig) {
   if (decorators.length) {
     process.stderr.write(
       yellow(
-        `[WARN} Unknown decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+        `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
           ', ',
         )}.\n`,
       ),

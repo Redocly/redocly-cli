@@ -1,15 +1,21 @@
-import { Oas3Rule } from '../../visitors';
+import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Parameter } from '../../typings/swagger';
+import { Oas3Parameter } from '../../typings/openapi';
+import { UserContext } from '../../walk';
 
-export const OperationParametersUnique: Oas3Rule = () => {
+export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
   let seenPathParams: Set<string>;
   let seenOperationParams: Set<string>;
 
   return {
     PathItem: {
-      enter(_) {
+      enter() {
         seenPathParams = new Set();
       },
-      Parameter(parameter, { report, key, parentLocations }) {
+      Parameter(
+        parameter: Oas2Parameter | Oas3Parameter,
+        { report, key, parentLocations }: UserContext,
+      ) {
         const paramId = `${parameter.in}___${parameter.name}`;
         if (seenPathParams.has(paramId)) {
           report({
@@ -23,7 +29,10 @@ export const OperationParametersUnique: Oas3Rule = () => {
         enter() {
           seenOperationParams = new Set();
         },
-        Parameter(parameter, { report, key, parentLocations }) {
+        Parameter(
+          parameter: Oas2Parameter | Oas3Parameter,
+          { report, key, parentLocations }: UserContext,
+        ) {
           const paramId = `${parameter.in}___${parameter.name}`;
           if (seenOperationParams.has(paramId)) {
             report({
