@@ -1,16 +1,15 @@
-import {
-  existsSync, readFileSync, writeFileSync, unlinkSync,
-} from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
 import { yellow, red, green, gray } from 'colorette';
 
-import query from './query';
+import { query } from './query';
+import { outdent } from 'outdent';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
 export class RedoclyClient {
-  private accessToken:string|undefined;
+  private accessToken: string | undefined;
 
   constructor() {
     this.loadToken();
@@ -37,32 +36,36 @@ export class RedoclyClient {
     return this.hasToken() && !!(await this.getAuthorizationHeader());
   }
 
-  async verifyToken(accessToken:string): Promise<boolean> {
+  async verifyToken(accessToken: string): Promise<boolean> {
     if (!accessToken) return false;
     const authDetails = await RedoclyClient.authorize(accessToken);
     if (!authDetails) return false;
     return true;
   }
 
-  async getAuthorizationHeader(): Promise<string|undefined> {
+  async getAuthorizationHeader(): Promise<string | undefined> {
     // print this only if there is token but invalid
     if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
-      process.stdout.write(
-        `${yellow('Warning:')} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli registry:login" to provide your access token\n`,
+      process.stderr.write(
+        `${yellow(
+          'Warning:',
+        )} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli registry:login" to provide your access token\n`,
       );
       return undefined;
     }
     return this.accessToken;
   }
 
-  async login(accessToken:string) {
+  async login(accessToken: string) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(gray('\n  Logging in...\n'));
 
     const authorized = await this.verifyToken(accessToken);
 
     if (!authorized) {
-      process.stdout.write(red('Authorization failed. Please check if you entered a valid token.\n'));
+      process.stdout.write(
+        red('Authorization failed. Please check if you entered a valid token.\n'),
+      );
       process.exit(1);
     }
 
@@ -83,28 +86,22 @@ export class RedoclyClient {
     process.stdout.write('Logged out from the Redoc.ly account. ✋\n');
   }
 
-  async query(queryString:string, parameters = {}, headers = {}) {
-    return query(queryString, parameters,
-      {
-        Authorization: this.accessToken,
-        ...headers,
-      });
+  async query(queryString: string, parameters = {}, headers = {}) {
+    return query(queryString, parameters, {
+      Authorization: this.accessToken,
+      ...headers,
+    });
   }
 
-  static async authorize(accessToken:string, verbose:boolean = false) {
+  static async authorize(accessToken: string, verbose: boolean = false) {
     try {
-      const result = await query(`
-      {
+      const queryStr = outdent`{
         definitions {
           id
         }
-      }
-      `,
-      {},
-      {
-        Authorization: accessToken,
-      });
-      return result;
+      }`;
+
+      return await query(queryStr, {}, { Authorization: accessToken });
     } catch (e) {
       if (verbose) process.stderr.write(e);
       return null;
@@ -116,9 +113,10 @@ export class RedoclyClient {
     const versionId = process.env.DEFINITION;
     const branchId = process.env.BRANCH;
 
-    if ([definitionId, versionId, branchId].includes(undefined)) return;
+    if (!definitionId || !versionId || !branchId) return;
 
-    await this.query(`
+    await this.query(
+      outdent`
     mutation UpdateBranchDependenciesFromURLs(
       $urls: [String!]!
       $definitionId: Int!
@@ -135,12 +133,13 @@ export class RedoclyClient {
       }
     }
     `,
-    {
-      urls: dependencies || [],
-      definitionId: parseInt(definitionId as string, 10),
-      versionId: parseInt(versionId as string, 10),
-      branchId: parseInt(branchId as string, 10),
-    });
+      {
+        urls: dependencies || [],
+        definitionId: parseInt(definitionId, 10),
+        versionId: parseInt(versionId, 10),
+        branchId: parseInt(branchId, 10),
+      },
+    );
   }
 
   static isRegistryURL(link: string): boolean {
@@ -153,6 +152,7 @@ export class RedoclyClient {
     // we can be sure, that there is job UUID present
     // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
     // so skip this link.
+    // FIXME
     if (pathParts.length === 7) return false;
 
     return true;

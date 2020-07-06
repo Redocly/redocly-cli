@@ -1,9 +1,14 @@
 import fetch from 'node-fetch';
 
 const GRAPHQL_ENDPOINT = process.env.REDOCLY_DOMAIN
-  ? `https://api.${process.env.REDOCLY_DOMAIN}/graphql` : 'https://api.redoc.ly/graphql';
+  ? `https://api.${process.env.REDOCLY_DOMAIN}/graphql`
+  : 'https://api.redoc.ly/graphql';
 
-export default async function query(queryString: string, variables = {}, headers = {}, debugInfo = ''):Promise<any> {
+export async function query(
+  query: string,
+  variables = {},
+  headers = {},
+): Promise<any> {
   headers = {
     ...headers,
     'Content-Type': 'application/json',
@@ -13,31 +18,25 @@ export default async function query(queryString: string, variables = {}, headers
     method: 'POST',
     headers,
     body: JSON.stringify({
-      query: queryString,
+      query: query,
       variables,
     }),
   });
 
-
   if (!gQLResponse.ok) {
-    throw new RequestError(`Failed to execute query: ${gQLResponse.status}`, 500, debugInfo);
+    throw new GqlRequestError(`Failed to execute query: ${gQLResponse.status}`);
   }
 
   const response = await gQLResponse.json();
   if (response.errors && response.errors.length) {
-    throw new RequestError(`Query failed: ${response.errors[0].message}`, 500, debugInfo);
+    throw new GqlRequestError(`Query failed: ${response.errors[0].message}`);
   }
 
   return response.data;
 }
 
-export class RequestError extends Error {
-  statusCode: number;
-  debugInfo: string;
-
-  constructor(message:string, statusCode = 500, debugInfo = '') {
+export class GqlRequestError extends Error {
+  constructor(message: string) {
     super(message);
-    this.statusCode = statusCode;
-    this.debugInfo = debugInfo;
   }
 }
