@@ -41,7 +41,8 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver?: BaseResolver;
 }) {
-  const { document, config, customTypes, externalRefResolver = new BaseResolver() } = opts;
+  const resolver = new BaseResolver();
+  const { document, config, customTypes, externalRefResolver = resolver } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
 
@@ -92,7 +93,7 @@ export async function bundleDocument(opts: {
   return {
     bundle: document.parsed,
     messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
-    fileDependencies: new Set(Array.from(resolvedRefMap.keys()).map(id => id.split('::')[0])),
+    fileDependencies: resolver.getFiles(),
   };
 }
 

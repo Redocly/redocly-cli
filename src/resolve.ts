@@ -77,6 +77,10 @@ export type Document = {
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
+  getFiles() {
+    return new Set(Array.from(this.cache.keys()));
+  }
+
   resolveExternalRef(base: string | null, ref: string): string {
     if (isAbsoluteUrl(ref)) {
       return ref;
