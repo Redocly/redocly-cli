@@ -1,8 +1,11 @@
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
+import path = require('path');
 import { outdent } from 'outdent';
+
 import { validateDocument } from '../../validate';
 import { LintConfig } from '../..';
-import path = require('path');
+import { BaseResolver } from '../../resolve';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on unresolved $ref', async () => {
@@ -19,6 +22,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -61,6 +65,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -120,6 +125,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -146,6 +152,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

@@ -4,7 +4,7 @@ export type {
   Config,
   PreprocessorsConfig,
   TypeExtensionsConfig,
-  RulesConfig,
+  LintRawConfig,
   Plugin,
   CustomRulesConfig,
 } from './config/config';

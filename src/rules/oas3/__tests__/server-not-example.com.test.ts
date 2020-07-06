@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 oas3-no-server-example.com', () => {
   it('oas3-no-server-example.com: should report on server object with "example.com" url', async () => {
@@ -17,6 +18,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),
     });
@@ -51,6 +53,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),
     });

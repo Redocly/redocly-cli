@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 typed enum', () => {
   it('should not report on enum object if all items match type', async () => {
@@ -29,6 +30,7 @@ describe('Oas3 typed enum', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
     });
@@ -58,6 +60,7 @@ describe('Oas3 typed enum', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
     });

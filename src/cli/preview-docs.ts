@@ -33,7 +33,7 @@ export async function previewDocs(argv: {
     process.stdout.write('\nBundling...\n\n');
     const { bundle: openapiBundle, messages, fileDependencies } = await bundle({
       ref: entrypoint,
-      config: config.lint,
+      config,
     });
 
     const removed = [...deps].filter((x) => !fileDependencies.has(x));

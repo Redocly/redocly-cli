@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-2xx-response', () => {
   it('should report missing 2xx response', async () => {
@@ -21,6 +22,7 @@ describe('Oas3 operation-2xx-response', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),
     });
@@ -59,6 +61,7 @@ describe('Oas3 operation-2xx-response', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),
     });
@@ -81,6 +84,7 @@ describe('Oas3 operation-2xx-response', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),
     });

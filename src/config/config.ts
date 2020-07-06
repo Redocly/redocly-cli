@@ -47,7 +47,7 @@ export type PreprocessorConfig =
 
 export type DecoratorConfig = PreprocessorConfig;
 
-export type RulesConfig = {
+export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
 
@@ -87,17 +87,44 @@ export type CustomRulesConfig = {
 
 export type Plugin = {
   id: string;
-  configs?: Record<string, RulesConfig>;
+  configs?: Record<string, LintRawConfig>;
   rules?: CustomRulesConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
 };
 
+export type ResolveHeader =
+  | {
+      name: string;
+      envVariable: undefined;
+      value: string;
+      matches: string;
+    }
+  | {
+      name: string;
+      value: undefined;
+      envVariable: string;
+      matches: string;
+    };
+
+export type RawResolveConfig = {
+  http?: Partial<HttpResolveConfig>;
+};
+
+export type HttpResolveConfig = {
+  headers: ResolveHeader[];
+};
+
+export type ResolveConfig = {
+  http: HttpResolveConfig;
+};
+
 export type RawConfig = {
   referenceDocs?: any;
   apiDefinitions?: Record<string, string>;
-  lint?: RulesConfig;
+  lint?: LintRawConfig;
+  resolve?: RawResolveConfig;
 };
 
 export class LintConfig {
@@ -111,7 +138,7 @@ export class LintConfig {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<OasVersion> = new Set();
 
-  constructor(public rawConfig: RulesConfig, public configFile?: string) {
+  constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
 
     this.plugins.push({
@@ -121,7 +148,7 @@ export class LintConfig {
       decorators: builtinRules.decorators,
     });
 
-    const extendConfigs: RulesConfig[] = rawConfig.extends
+    const extendConfigs: LintRawConfig[] = rawConfig.extends
       ? resolvePresets(rawConfig.extends, this.plugins)
       : [recommended];
 
@@ -344,10 +371,16 @@ export class Config {
   referenceDocs: any;
   apiDefinitions: Record<string, string>;
   lint: LintConfig;
+  resolve: ResolveConfig;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this.referenceDocs = rawConfig.referenceDocs || {};
+    this.resolve = {
+      http: {
+        headers: rawConfig?.resolve?.http?.headers ?? [],
+      },
+    };
   }
 }
 
@@ -489,8 +522,8 @@ type RulesFields =
   | 'oas2Decorators'
   | 'oas3_0Decorators';
 
-function mergeExtends(rulesConfList: RulesConfig[]) {
-  const result: Omit<RulesConfig, RulesFields> & Required<Pick<RulesConfig, RulesFields>> = {
+function mergeExtends(rulesConfList: LintRawConfig[]) {
+  const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},

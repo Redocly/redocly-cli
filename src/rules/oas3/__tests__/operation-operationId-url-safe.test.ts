@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-operationId-url-safe', () => {
   it('should report on invalid operationIds', async () => {
@@ -21,6 +22,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

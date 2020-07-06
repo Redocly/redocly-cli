@@ -1,4 +1,4 @@
-import { RulesConfig } from './config';
+import { LintRawConfig } from './config';
 
 export default {
   rules: {
@@ -44,4 +44,4 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
   }
-} as RulesConfig;
+} as LintRawConfig;

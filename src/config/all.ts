@@ -1,4 +1,4 @@
-import { RulesConfig } from './config';
+import { LintRawConfig } from './config';
 
 export default {
   rules: {
@@ -40,4 +40,4 @@ export default {
     'paths-kebab-case': 'error',
     spec: 'error',
   },
-} as RulesConfig;
+} as LintRawConfig;

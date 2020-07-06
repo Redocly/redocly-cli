@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 tag-description', () => {
   it('should report on tags with no description', async () => {
@@ -19,6 +20,7 @@ describe('Oas3 tag-description', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tag-description': 'error' } }),
     });
@@ -56,6 +58,7 @@ describe('Oas3 tag-description', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tag-description': 'error' } }),
     });

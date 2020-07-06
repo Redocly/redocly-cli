@@ -4,6 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from "../../../../__tests__
 
 import { validateDocument } from "../../../../validate";
 import { LintConfig } from "../../../..";
+import { BaseResolver } from "../../../../resolve";
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {
@@ -21,6 +22,7 @@ describe('Referenceable scalars', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

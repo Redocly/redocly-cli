@@ -3,6 +3,7 @@ import { join as pathJoin, resolve as pathResolve } from 'path';
 
 import { validateDocument } from '../../src/validate';
 import { parseYamlToDocument, makeConfigForRuleset } from '../../src/__tests__/utils';
+import { BaseResolver } from '../../src/resolve';
 
 export const name = 'Validate with 50 top-level rules';
 export const count = 10;
@@ -30,6 +31,7 @@ const config = makeConfigForRuleset(ruleset);
 
 export function measureAsync() {
   return validateDocument({
+    externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,
   });

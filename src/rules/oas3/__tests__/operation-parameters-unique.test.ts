@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-parameters-unique', () => {
   it('should report on duplicated path params', async () => {
@@ -22,6 +23,7 @@ describe('Oas3 operation-parameters-unique', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -67,6 +69,7 @@ describe('Oas3 operation-parameters-unique', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -99,6 +102,7 @@ describe('Oas3 operation-parameters-unique', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -149,6 +153,7 @@ describe('Oas3 operation-parameters-unique', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

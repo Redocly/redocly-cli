@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 oas3-no-example-value-and-externalValue', () => {
   it('oas3-no-example-value-and-externalValue: should report on example object with both value and external value', async () => {
@@ -20,6 +21,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -59,6 +61,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

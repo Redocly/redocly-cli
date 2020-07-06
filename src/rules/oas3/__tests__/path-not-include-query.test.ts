@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 path-not-include-query', () => {
   it('should report on path object if query params in pathitem', async () => {
@@ -19,6 +20,7 @@ describe('Oas3 path-not-include-query', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),
     });
@@ -55,6 +57,7 @@ describe('Oas3 path-not-include-query', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),
     });

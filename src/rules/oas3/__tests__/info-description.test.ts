@@ -3,6 +3,7 @@ import { outdent } from 'outdent';
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 import { LintConfig } from '../../../config/config';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 info-description', () => {
   it('should report on info with no description', async () => {
@@ -16,6 +17,7 @@ describe('Oas3 info-description', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -56,6 +58,7 @@ describe('Oas3 info-description', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -95,6 +98,7 @@ describe('Oas3 info-description', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 oas3-no-server-trailing-slash', () => {
   it('oas3-no-server-trailing-slash: should report on server object with trailing slash', async () => {
@@ -17,6 +18,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-trailing-slash': 'error' } }),
     });
@@ -51,6 +53,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-trailing-slash': 'error' } }),
     });

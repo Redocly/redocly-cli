@@ -45,6 +45,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -111,6 +112,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -195,6 +197,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -266,6 +269,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -337,6 +341,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -403,6 +408,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -456,6 +462,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -511,6 +518,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -552,6 +560,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -606,6 +615,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -691,6 +701,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -769,6 +780,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -840,6 +852,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -883,6 +896,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -947,6 +961,7 @@ describe('walk order', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -1034,6 +1049,7 @@ describe('context.report', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -1113,6 +1129,7 @@ describe('context.report', () => {
     }
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -1220,6 +1237,7 @@ describe('context.resolve', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
     });
@@ -1265,6 +1283,7 @@ describe('type extensions', () => {
     );
 
     await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet, {
         typeExtension: {

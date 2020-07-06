@@ -5,6 +5,7 @@ import { validateDocument } from '../../src/validate';
 import { parseYamlToDocument } from '../../src/__tests__/utils';
 
 import { LintConfig } from '../../src/config/config';
+import { BaseResolver } from '../../src/resolve';
 
 export const name = 'Validate with recommended rules';
 export const count = 10;
@@ -17,6 +18,7 @@ const rebillyDocument = parseYamlToDocument(
 
 export function measureAsync() {
   return validateDocument({
+    externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config: new LintConfig({}),
   });

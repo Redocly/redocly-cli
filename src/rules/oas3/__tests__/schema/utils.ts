@@ -1,6 +1,7 @@
 import { LintConfig, RuleConfig } from '../../../../config/config';
 import { parseYamlToDocument } from '../../../../__tests__/utils';
 import { validateDocument } from '../../../../validate';
+import { BaseResolver } from '../../../../resolve';
 
 export async function validateDoc(
   source: string,
@@ -9,6 +10,7 @@ export async function validateDoc(
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
   const results = await validateDocument({
+    externalRefResolver: new BaseResolver(),
     document,
     config: new LintConfig({
       extends: [],

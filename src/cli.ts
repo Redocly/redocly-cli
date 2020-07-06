@@ -79,7 +79,7 @@ yargs // eslint-disable-line
           process.stderr.write(gray(`validating ${entryPoint}...\n`));
           const results = await validate({
             ref: entryPoint,
-            config: config.lint,
+            config,
           });
 
           const fileTotals = getTotals(results);
@@ -187,7 +187,7 @@ yargs // eslint-disable-line
           const startedAt = performance.now();
           process.stderr.write(gray(`bundling ${entrypoint}...\n`));
           const { bundle: result, messages } = await bundle({
-            config: config.lint,
+            config,
             ref: entrypoint,
           });
 

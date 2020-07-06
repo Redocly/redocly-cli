@@ -3,6 +3,7 @@ import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 import { validateDocument } from '../../../validate';
 import { LintConfig } from '../../..';
+import { BaseResolver } from '../../../resolve';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on boolean param without prefix', async () => {
@@ -21,6 +22,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
     });
@@ -72,6 +74,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
     });
@@ -95,6 +98,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],

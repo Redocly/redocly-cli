@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 tags-alphabetical', () => {
   it('should report on tags object if not sorted alphabetically', async () => {
@@ -19,6 +20,7 @@ describe('Oas3 tags-alphabetical', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),
     });
@@ -55,6 +57,7 @@ describe('Oas3 tags-alphabetical', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),
     });

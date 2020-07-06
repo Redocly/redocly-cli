@@ -9,7 +9,7 @@ import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './validate';
 import { Location, pointerBaseName, refBaseName } from './ref-utils';
-import { LintConfig } from './config/config';
+import { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 
@@ -18,9 +18,9 @@ export type Oas3RuleSet = Record<string, Oas3Rule>;
 export async function bundle(opts: {
   ref: string;
   externalRefResolver?: BaseResolver;
-  config: LintConfig;
+  config: Config;
 }) {
-  const { ref, externalRefResolver = new BaseResolver() } = opts;
+  const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
 
   let document: Document;
   try {
@@ -32,6 +32,8 @@ export async function bundle(opts: {
   return bundleDocument({
     document,
     ...opts,
+    config: opts.config.lint,
+    externalRefResolver,
   });
 }
 
@@ -41,10 +43,9 @@ export async function bundleDocument(opts: {
   document: Document;
   config: LintConfig;
   customTypes?: Record<string, NodeType>;
-  externalRefResolver?: BaseResolver;
+  externalRefResolver: BaseResolver;
 }) {
-  const resolver = new BaseResolver();
-  const { document, config, customTypes, externalRefResolver = resolver } = opts;
+  const { document, config, customTypes, externalRefResolver } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
 
@@ -95,7 +96,7 @@ export async function bundleDocument(opts: {
   return {
     bundle: document.parsed,
     messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
-    fileDependencies: resolver.getFiles(),
+    fileDependencies: externalRefResolver.getFiles(),
   };
 }
 

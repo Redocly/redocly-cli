@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-security-defined', () => {
   it('should report on securityRequirements object if security scheme is not defined in components', async () => {
@@ -19,6 +20,7 @@ describe('Oas3 operation-security-defined', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-security-defined': 'error' } }),
     });
@@ -60,6 +62,7 @@ describe('Oas3 operation-security-defined', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-security-defined': 'error' } }),
     });

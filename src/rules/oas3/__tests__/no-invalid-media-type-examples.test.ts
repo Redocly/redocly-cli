@@ -4,6 +4,7 @@ import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { BaseResolver } from '../../../resolve';
 
 describe('no-invalid-media-type-examples', () => {
   it('should report on invalid example', async () => {
@@ -33,6 +34,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
@@ -105,6 +107,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -167,6 +170,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -219,6 +223,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
         extends: [],
@@ -274,6 +279,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
@@ -305,6 +311,7 @@ describe('no-invalid-media-type-examples', () => {
     );
 
     const results = await validateDocument({
+      externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
     });

@@ -1,11 +1,17 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { Oas3Rule, normalizeVisitors, Oas3Preprocessor, Oas2Rule, Oas2Preprocessor } from './visitors';
+import {
+  Oas3Rule,
+  normalizeVisitors,
+  Oas3Preprocessor,
+  Oas2Rule,
+  Oas2Preprocessor,
+} from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { WalkContext, walkDocument } from './walk';
-import { LintConfig } from './config/config';
+import { LintConfig, Config } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
@@ -28,17 +34,18 @@ export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
 
-
 export async function validate(opts: {
   ref: string;
-  config: LintConfig;
+  config: Config;
   externalRefResolver?: BaseResolver;
 }) {
-  const { ref, externalRefResolver = new BaseResolver() } = opts;
+  const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
   return validateDocument({
     document,
     ...opts,
+    externalRefResolver,
+    config: opts.config.lint,
   });
 }
 
@@ -46,11 +53,11 @@ export async function validateDocument(opts: {
   document: Document;
   config: LintConfig;
   customTypes?: Record<string, NodeType>;
-  externalRefResolver?: BaseResolver;
+  externalRefResolver: BaseResolver;
 }) {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
-  const { document, customTypes, externalRefResolver = new BaseResolver(), config } = opts;
+  const { document, customTypes, externalRefResolver, config } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
 

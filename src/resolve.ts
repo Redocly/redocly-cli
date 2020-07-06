@@ -9,6 +9,7 @@ import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './re
 import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
 import { readFileFromUrl } from './utils';
+import { ResolveConfig } from './config/config';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
@@ -77,6 +78,8 @@ export type Document = {
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
+  constructor(private config: ResolveConfig = { http: { headers: [] } }) {}
+
   getFiles() {
     return new Set(Array.from(this.cache.keys()));
   }
@@ -96,7 +99,7 @@ export class BaseResolver {
   async loadExternalRef(absoluteRef: string): Promise<Source> {
     try {
       const body = isAbsoluteUrl(absoluteRef)
-        ? await readFileFromUrl(absoluteRef)
+        ? await readFileFromUrl(absoluteRef, this.config.http)
         : await readFile(absoluteRef, 'utf-8');
       return new Source(absoluteRef, body);
     } catch (error) {
@@ -247,16 +250,12 @@ export async function resolveDocument(opts: {
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (
-          propType &&
-          propType.name === undefined &&
-          propType.referenceable
-        ) {
+        if (propType && propType.name === undefined && propType.referenceable) {
           propType = resolvableScalarType;
         }
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;
-          propValue = {$ref: propValue};
+          propValue = { $ref: propValue };
         }
 
         if (!isNamedType(propType)) {
