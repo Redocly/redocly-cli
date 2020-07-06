@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
 
-import { validateDocument } from '../../../validate';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
-import { LintConfig } from '../../../config/config';
-import { BaseResolver } from '../../../resolve';
+import { validateDocument } from '../../../../validate';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { LintConfig } from '../../../../config/config';
+import { BaseResolver } from '../../../../resolve';
 
 const allConfig = new LintConfig({ extends: ['all'] });
 
