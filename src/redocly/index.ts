@@ -38,7 +38,7 @@ export class RedoclyClient {
 
   async verifyToken(accessToken: string): Promise<boolean> {
     if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken);
+    const authDetails = await RedoclyClient.authorize(accessToken, true);
     if (!authDetails) return false;
     return true;
   }
@@ -95,15 +95,11 @@ export class RedoclyClient {
 
   static async authorize(accessToken: string, verbose: boolean = false) {
     try {
-      const queryStr = outdent`{
-        definitions {
-          id
-        }
-      }`;
+      const queryStr = `{ definitions { id } }`;
 
       return await query(queryStr, {}, { Authorization: accessToken });
     } catch (e) {
-      if (verbose) process.stderr.write(e);
+      if (verbose) console.log(e);
       return null;
     }
   }

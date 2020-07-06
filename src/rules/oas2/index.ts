@@ -62,7 +62,7 @@ export const rules = {
 
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
 
-  'registry-dependencies': RegistryDependencies,
+  'registry-dependencies': RegistryDependencies as Oas2Rule,
   spec: OasSpec as Oas2Rule,
 }
 
