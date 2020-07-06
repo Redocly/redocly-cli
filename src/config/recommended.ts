@@ -43,5 +43,5 @@ export default {
     'no-empty-servers': 'warn',
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
-  }
+  },
 } as LintRawConfig;

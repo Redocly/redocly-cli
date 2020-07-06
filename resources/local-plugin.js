@@ -41,7 +41,7 @@ export const decorators = {
     'inject-x-stats': () => {
       return {
         Info(info) {
-          info['x-stats'] = {test: 1}
+          info['x-stats'] = { test: 1 };
         },
       };
     },

@@ -35,7 +35,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             location.child('schema'),
             dataLoc.pointer,
             resolve,
-            disallowAdditionalProperties
+            disallowAdditionalProperties,
           );
           if (!valid) {
             for (let error of errors) {

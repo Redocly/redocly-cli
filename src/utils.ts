@@ -82,7 +82,7 @@ export function match(url: string, pattern: string) {
   return minimatch(url, pattern);
 }
 
-export async function promptUser(query:string): Promise<string> {
+export async function promptUser(query: string): Promise<string> {
   return new Promise((resolve) => {
     const rl = readline.createInterface({
       input: process.stdin,

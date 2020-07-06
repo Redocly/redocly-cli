@@ -87,7 +87,7 @@ export default async function startPreviewServer(
         }[request.url || ''] ||
         path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
 
-      const extname = String(path.extname(filePath)).toLowerCase() as keyof (typeof mimeTypes);
+      const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
 
       const contentType = mimeTypes[extname] || 'application/octet-stream';
       try {

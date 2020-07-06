@@ -410,9 +410,9 @@ export async function loadConfig(configPath?: string): Promise<Config> {
         matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
-        value: (redoclyClient && await redoclyClient.getAuthorizationHeader()) || '',
+        value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',
       },
-      ...(rawConfig.resolve.http.headers ?? [])
+      ...(rawConfig.resolve.http.headers ?? []),
     ];
   }
 

@@ -24,11 +24,11 @@ export class Location {
   }
 
   key() {
-    return { ...this, reportOnKey: true }
+    return { ...this, reportOnKey: true };
   }
 
   get absolutePointer() {
-    return this.source.absoluteRef + (this.pointer === '#/' ? '' : this.pointer)
+    return this.source.absoluteRef + (this.pointer === '#/' ? '' : this.pointer);
   }
 }
 
@@ -45,7 +45,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
   const [uri, pointer] = ref.split('#/');
   return {
     uri: uri || null,
-    pointer: pointer ? pointer.split('/').map(escapePointer).filter(Boolean) : []
+    pointer: pointer ? pointer.split('/').map(escapePointer).filter(Boolean) : [],
   };
 }
 
@@ -67,11 +67,13 @@ export function isAbsoluteUrl(ref: string) {
   return ref.startsWith('http://') || ref.startsWith('https://');
 }
 
-export function isMappingRef(mapping: string ) {
+export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
-  return mapping.startsWith('#') ||
-      mapping.startsWith('https://') ||
-      mapping.startsWith('./') ||
-      mapping.startsWith('../') ||
-      mapping.indexOf('/') > -1
+  return (
+    mapping.startsWith('#') ||
+    mapping.startsWith('https://') ||
+    mapping.startsWith('./') ||
+    mapping.startsWith('../') ||
+    mapping.indexOf('/') > -1
+  );
 }

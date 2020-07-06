@@ -29,7 +29,7 @@ export function replaceSourceWithRef(results: NormalizedReportMessage[], cwd?: s
         ...mapped.from,
         source: cwd
           ? path.relative(cwd, mapped.from.source.absoluteRef)
-          : mapped.from.source.absoluteRef as any,
+          : (mapped.from.source.absoluteRef as any),
       };
     }
     return mapped;

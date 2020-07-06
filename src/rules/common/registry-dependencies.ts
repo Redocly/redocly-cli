@@ -4,7 +4,7 @@ import { Oas3Rule, Oas2Rule } from '../../visitors';
 
 export const RegistryDependencies: Oas3Rule | Oas2Rule = () => {
   let redoclyClient: RedoclyClient;
-  let registryDependencies = new Set<string>()
+  let registryDependencies = new Set<string>();
 
   return {
     DefinitionRoot: {

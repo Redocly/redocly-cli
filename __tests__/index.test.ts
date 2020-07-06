@@ -1,8 +1,7 @@
 import { readdirSync, statSync, existsSync } from 'fs';
 import { spawnSync } from 'child_process';
-import {join} from 'path';
+import { join } from 'path';
 import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
-
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -27,19 +26,19 @@ describe('E2E', () => {
       cwd: testPath,
       env: {
         ...process.env,
-        'NODE_ENV': 'test',
-        'NO_COLOR': 'TRUE',
-      }
+        NODE_ENV: 'test',
+        NO_COLOR: 'TRUE',
+      },
     });
 
     const out = r.stdout.toString('utf-8');
-    const err = r.stderr.toString('utf-8')
+    const err = r.stderr.toString('utf-8');
 
-    const result = `${out}\n${err}`
+    const result = `${out}\n${err}`;
 
     it(file, () => {
       // we need this cause TS types not actually allows to 'extend'
       (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
-    })
+    });
   }
 });

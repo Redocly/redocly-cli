@@ -9,11 +9,11 @@ export const NoUnresolvedRefs: Oas3Rule = () => {
       leave(_, { report, location }, resolved) {
         if (resolved.node !== undefined) return;
         reportUnresolvedRef(resolved, report, location);
-      }
+      },
     },
     DiscriminatorMapping(mapping, { report, resolve, location }) {
       for (const mappingName of Object.keys(mapping)) {
-        const resolved = resolve({ $ref: mapping[mappingName] } );
+        const resolved = resolve({ $ref: mapping[mappingName] });
         if (resolved.node !== undefined) return;
 
         console.log(mapping[mappingName], location.absolutePointer);

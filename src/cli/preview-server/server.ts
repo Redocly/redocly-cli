@@ -31,7 +31,7 @@ export function respondWithGzip(
   code = 200,
 ) {
   let compressedStream;
-  const acceptEncoding = request.headers['accept-encoding'] as string || '';
+  const acceptEncoding = (request.headers['accept-encoding'] as string) || '';
   if (acceptEncoding.match(/\bdeflate\b/)) {
     response.writeHead(code, { ...headers, 'content-encoding': 'deflate' });
     compressedStream = zlib.createDeflate();

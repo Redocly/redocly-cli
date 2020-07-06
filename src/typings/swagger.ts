@@ -178,7 +178,6 @@ export interface Oas2Responses {
   [code: string]: Oas2Response;
 }
 
-
 export type Oas2Header = Oas2Items & { description?: 'string' };
 
 export interface Oas2Response {
