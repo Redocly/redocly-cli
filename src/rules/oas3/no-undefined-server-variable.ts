@@ -1,10 +1,8 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { UserContext } from '../../walk';
-import { Oas3Server } from '../../typings/openapi';
+import { Oas3Rule } from '../../visitors';
 
-export const NoUndefinedServerVariable: Oas3Rule | Oas2Rule = () => {
+export const NoUndefinedServerVariable: Oas3Rule = () => {
   return {
-    Server(server:Oas3Server, { report, location }: UserContext) {
+    Server(server, { report, location }) {
       const urlVariables = server.url.match(/{[^}]+}/g)?.map(e => e.slice(1, e.length - 1)) || [];
       const definedVariables = server?.variables && Object.keys(server.variables) || [];
 
