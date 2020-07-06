@@ -79,7 +79,6 @@ export function startWsServer(port: number) {
   });
 
   socketServer.broadcast = (message: string) => {
-    // eslint-disable-next-line no-underscore-dangle
     socketServer._server.clients.forEach((client: any) => {
       if (client.readyState === 1) {
         // OPEN

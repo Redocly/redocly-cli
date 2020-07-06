@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
+import * as readline from 'readline';
 
 import { HttpResolveConfig } from './config/config';
 
@@ -75,4 +76,18 @@ export function match(url: string, pattern: string) {
     url = url.replace(/^https?:\/\//, '');
   }
   return minimatch(url, pattern);
+}
+
+export async function promptUser(query: string): Promise<string> {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question(`${query}:\n\n  `, (answer) => {
+      rl.close();
+      resolve(answer);
+    });
+  });
 }

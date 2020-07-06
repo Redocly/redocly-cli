@@ -25,6 +25,7 @@ import { OperationSecurityDefined } from '../common/operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { Oas2Rule } from '../../visitors';
+import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 
@@ -64,6 +65,8 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
 
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
+
+  'registry-dependencies': RegistryDependencies as Oas2Rule,
   spec: OasSpec as Oas2Rule,
 };
 

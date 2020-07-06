@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { dirname } from 'path';
+import { red, blue } from 'colorette';
 
 import { builtInConfigs } from './builtIn';
 import * as builtinRules from '../rules/builtin';
@@ -20,9 +22,8 @@ import { MessageSeverity, NormalizedReportMessage } from '../walk';
 import { Oas3RuleSet } from '../validate';
 
 import recommended from './recommended';
-import { red, blue } from 'colorette';
 import { NodeType } from '../types';
-import { dirname } from 'path';
+import { RedoclyClient } from '../redocly';
 
 const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -400,6 +401,21 @@ export async function loadConfig(configPath?: string): Promise<Config> {
     } catch (e) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
+  }
+
+  const redoclyClient = new RedoclyClient();
+  if (redoclyClient.hasToken()) {
+    if (!rawConfig.resolve) rawConfig.resolve = {};
+    if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
+    rawConfig.resolve.http.headers = [
+      {
+        matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
+        name: 'Authorization',
+        envVariable: undefined,
+        value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',
+      },
+      ...(rawConfig.resolve.http.headers ?? []),
+    ];
   }
 
   return new Config(rawConfig, configPath);
