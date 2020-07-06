@@ -45,7 +45,6 @@ import {
   Oas2SecurityScheme,
 } from './typings/swagger';
 
-
 import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, MessageSeverity } from './walk';

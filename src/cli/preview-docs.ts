@@ -7,7 +7,7 @@ import { getFallbackEntryPointsOrExit, getTotals } from '../cli';
 import startPreviewServer from './preview-server/preview-server';
 
 export async function previewDocs(argv: {
-  port: number,
+  port: number;
   useCommunityEdition?: boolean;
   config?: string;
   entrypoint: string;
@@ -48,7 +48,7 @@ export async function previewDocs(argv: {
       process.stdout.write(
         fileTotals.errors === 0
           ? `Created a bundle for ${entrypoint} ${
-            fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
+              fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
             }\n`
           : colorette.yellow(
               `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,

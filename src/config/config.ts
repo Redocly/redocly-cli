@@ -380,7 +380,7 @@ export class Config {
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
-        customFetch: undefined
+        customFetch: undefined,
       },
     };
   }

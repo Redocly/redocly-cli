@@ -46,5 +46,5 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'warn',
-  }
+  },
 } as LintRawConfig;

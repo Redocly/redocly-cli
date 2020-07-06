@@ -1,10 +1,10 @@
-import { outdent } from "outdent";
+import { outdent } from 'outdent';
 
-import { parseYamlToDocument, replaceSourceWithRef } from "../../../../__tests__/utils";
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 
-import { validateDocument } from "../../../../validate";
-import { LintConfig } from "../../../..";
-import { BaseResolver } from "../../../../resolve";
+import { validateDocument } from '../../../../validate';
+import { LintConfig } from '../../../..';
+import { BaseResolver } from '../../../../resolve';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {
@@ -18,7 +18,7 @@ describe('Referenceable scalars', () => {
               $ref: fixtures/description.md
           paths: {}
         `,
-      __dirname+ '/foobar.yaml',
+      __dirname + '/foobar.yaml',
     );
 
     const results = await validateDocument({
@@ -27,7 +27,7 @@ describe('Referenceable scalars', () => {
       config: new LintConfig({
         extends: [],
         rules: {
-          'spec': 'error',
+          spec: 'error',
         },
       }),
     });

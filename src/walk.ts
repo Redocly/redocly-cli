@@ -228,7 +228,7 @@ export function walkDocument<T>(opts: {
           // visit in order from type-tree first
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {
-            props.push(...Object.keys(resolvedNode).filter(k => !props.includes(k)));
+            props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
           }
           for (const propName of props) {
             let value = resolvedNode[propName];
@@ -251,7 +251,6 @@ export function walkDocument<T>(opts: {
 
             walkNode(value, propType, newLocation.child([propName]), resolvedNode, propName);
           }
-
         }
       }
 
@@ -357,7 +356,12 @@ export function walkDocument<T>(opts: {
       return { location: newLocation, node, error };
     }
 
-    function reportFn(ruleId: string, severity: MessageSeverity, location: Location, opts: ReportMessage) {
+    function reportFn(
+      ruleId: string,
+      severity: MessageSeverity,
+      location: Location,
+      opts: ReportMessage,
+    ) {
       const loc = opts.location
         ? Array.isArray(opts.location)
           ? opts.location

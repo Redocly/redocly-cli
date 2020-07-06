@@ -109,13 +109,12 @@ export function normalizeTypes(
       return {
         ...type,
         directResolveAs: resolveType(type.directResolveAs),
-      }
+      };
     } else {
       return type;
     }
   }
 }
-
 
 export function isNamedType(
   t: NormalizedNodeType | NormalizedScalarSchema | null | undefined,

@@ -62,7 +62,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
 
         if (propSchema.referenceable && isRef(propValue)) {
-          propValue = resolve(propValue).node
+          propValue = resolve(propValue).node;
         }
 
         if (propSchema.enum) {

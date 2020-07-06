@@ -1,5 +1,5 @@
-import { outdent } from "outdent";
-import { validateDoc } from "./utils";
+import { outdent } from 'outdent';
+import { validateDoc } from './utils';
 
 describe('OpenAPI Schema 2.0', () => {
   it('should not report of a valid GET operation object', async () => {

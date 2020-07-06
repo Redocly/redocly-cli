@@ -4,7 +4,7 @@ import { Oas2Schema } from '../../typings/swagger';
 import { Oas3Schema } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-export const NoEnumTypeMismatch: (Oas3Rule | Oas2Rule) = () => {
+export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
   return {
     Schema(schema: Oas2Schema | Oas3Schema, { report, location }: UserContext) {
       if (schema.enum && schema.type) {

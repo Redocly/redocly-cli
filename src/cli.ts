@@ -99,7 +99,10 @@ yargs // eslint-disable-line
             });
           }
 
-          const elapsed = process.env.NODE_ENV === 'test' ? '<test>ms': `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          const elapsed =
+            process.env.NODE_ENV === 'test'
+              ? '<test>ms'
+              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
           process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
@@ -421,7 +424,10 @@ function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-export function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
+export function getFallbackEntryPointsOrExit(
+  argsEntrypoints: string[] | undefined,
+  config: Config,
+) {
   let res = argsEntrypoints;
   if (
     (!argsEntrypoints || !argsEntrypoints.length) &&
@@ -445,15 +451,17 @@ function printUnusedWarnings(config: LintConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
-      yellow(`[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`),
+      yellow(
+        `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`,
+      ),
     );
   }
   if (preprocessors.length) {
     process.stderr.write(
       yellow(
-        `[WARNING] Unused preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
-          ', ',
-        )}.\n`,
+        `[WARNING] Unused preprocessors found in ${blue(
+          config.configFile || '',
+        )}: ${preprocessors.join(', ')}.\n`,
       ),
     );
   }

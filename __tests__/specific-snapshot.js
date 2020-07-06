@@ -1,7 +1,6 @@
 const { SnapshotState, toMatchSnapshot, addSerializer } = require('jest-snapshot');
 const path = require('path');
 
-
 const snapshotsStateMap = new Map();
 let commonSnapshotState;
 
@@ -28,7 +27,6 @@ function toMatchSpecificSnapshot(received, snapshotFile, ...rest) {
 
 expect.extend({ toMatchSpecificSnapshot });
 
-
 function getAbsolutePathToSnapshot(testPath, snapshotFile) {
   return path.isAbsolute(snapshotFile)
     ? snapshotFile
@@ -36,7 +34,7 @@ function getAbsolutePathToSnapshot(testPath, snapshotFile) {
 }
 
 afterAll(() => {
-  snapshotsStateMap.forEach(snapshotState => {
+  snapshotsStateMap.forEach((snapshotState) => {
     const uncheckedCount = snapshotState.getUncheckedCount();
 
     if (uncheckedCount) {
