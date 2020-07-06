@@ -43,7 +43,7 @@ export function respondWithGzip(
     if (typeof contents === 'string' || Buffer.isBuffer(contents)) {
       response.write(contents);
       response.end();
-    } else {
+    } else if (response !== undefined) {
       contents.pipe(response);
     }
     return;

@@ -6,6 +6,7 @@ import { bundle } from '../bundle';
 import { getFallbackEntryPointsOrExit, getTotals } from '../cli';
 import startPreviewServer from './preview-server/preview-server';
 import { RedoclyClient } from '../redocly';
+import { ResolveError, YamlParseError } from '../resolve';
 
 export async function previewDocs(argv: {
   port: number;
@@ -32,32 +33,36 @@ export async function previewDocs(argv: {
 
   async function updateBundle() {
     process.stdout.write('\nBundling...\n\n');
-    const { bundle: openapiBundle, messages, fileDependencies } = await bundle({
-      ref: entrypoint,
-      config,
-    });
+    try {
+      const { bundle: openapiBundle, messages, fileDependencies } = await bundle({
+        ref: entrypoint,
+        config,
+      });
 
-    const removed = [...deps].filter((x) => !fileDependencies.has(x));
-    watcher.unwatch(removed);
-    watcher.add([...fileDependencies]);
-    deps.clear();
-    fileDependencies.forEach(deps.add, deps);
+      const removed = [...deps].filter((x) => !fileDependencies.has(x));
+      watcher.unwatch(removed);
+      watcher.add([...fileDependencies]);
+      deps.clear();
+      fileDependencies.forEach(deps.add, deps);
 
-    const fileTotals = getTotals(messages);
+      const fileTotals = getTotals(messages);
 
-    if (fileTotals.errors === 0) {
-      process.stdout.write(
-        fileTotals.errors === 0
-          ? `Created a bundle for ${entrypoint} ${
-              fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
-            }\n`
-          : colorette.yellow(
-              `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,
-            ),
-      );
+      if (fileTotals.errors === 0) {
+        process.stdout.write(
+          fileTotals.errors === 0
+            ? `Created a bundle for ${entrypoint} ${
+                fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
+              }\n`
+            : colorette.yellow(
+                `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,
+              ),
+        );
+      }
+
+      return openapiBundle;
+    } catch (e) {
+      handleError(e, entrypoint);
     }
-
-    return openapiBundle;
   }
 
   setImmediate(() => {
@@ -143,4 +148,18 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
 
     if (callNow) func.apply(context, args);
   };
+}
+
+function handleError(e: Error, ref: string) {
+  if (e instanceof ResolveError) {
+    process.stderr.write(
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+    );
+  } else if (e instanceof YamlParseError) {
+    process.stderr.write(
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+    );
+  } else {
+    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
+  }
 }

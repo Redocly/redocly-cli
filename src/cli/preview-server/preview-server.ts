@@ -75,9 +75,25 @@ export default async function startPreviewServer(
         },
       );
     } else if (request.url === '/openapi.json') {
-      respondWithGzip(JSON.stringify(await getBundle()), request, response, {
-        'Content-Type': 'application/json',
-      });
+      const bundle = await getBundle();
+      if (bundle === undefined) {
+        respondWithGzip(
+          JSON.stringify({
+            openapi: '3.0.0',
+            info: { description: '<code> Failed to generate bundle: check out console output for more details </code>' },
+            paths: {},
+          }),
+          request,
+          response,
+          {
+            'Content-Type': 'application/json',
+          },
+        );
+      } else {
+        respondWithGzip(JSON.stringify(bundle), request, response, {
+          'Content-Type': 'application/json',
+        });
+      }
     } else {
       const filePath =
         // @ts-ignore
