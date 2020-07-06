@@ -125,8 +125,7 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  // TODO: should be a separate rule
-  it.skip('should report if paths are considered identical and invalid', async () => {
+  it('should report if paths are considered identical and invalid', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -137,13 +136,13 @@ describe('OpenAPI Schema', () => {
         - url: http://google.com
 
       paths:
-        '/pets/{petId}':
+        /pets/{petId}:
           get:
             responses:
               '200':
                 description: example description
-        '/pets/{name}':
-           get:
+        /pets/{name}:
+          get:
             responses:
               '200':
                 description: example description
@@ -151,9 +150,16 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        'paths-identical': 'error',
       }),
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": "#/paths/~1pets~1{name}",
+          "message": "The path already exists which differs only by path parameter name(s).",
+        },
+      ]
+    `);
   });
 
   it('should not report valid matching URLs', async () => {
