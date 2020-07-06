@@ -256,7 +256,7 @@ yargs
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
-  .command('registry:login', 'Login to the Redoc.ly API Registry with access token', async () => {
+  .command('login', 'Login to the Redoc.ly API Registry with access token', async () => {
     const clientToken = await promptUser(
       green(
         `\n  🔑 Copy your access token from ${blue(
@@ -267,7 +267,7 @@ yargs
     const client = new RedoclyClient();
     client.login(clientToken);
   })
-  .command('registry:logout', 'Clear stored credentials for Redoc.ly API Registry', async () => {
+  .command('logout', 'Clear stored credentials for Redoc.ly API Registry', async () => {
     const client = new RedoclyClient();
     client.logout();
   })
