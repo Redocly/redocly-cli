@@ -151,8 +151,6 @@ export function walkDocument<T>(opts: {
     }
 
     if (resolvedNode !== undefined && newLocation && type.name !== 'scalar') {
-      location = newLocation;
-
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
 
@@ -188,7 +186,7 @@ export function walkDocument<T>(opts: {
 
             const activatedOn = {
               node: resolvedNode,
-              location,
+              location: newLocation,
               nextLevelTypeActivated: null,
               withParentNode: context.parent?.activatedOn?.value.node,
               skipped:
@@ -223,7 +221,7 @@ export function walkDocument<T>(opts: {
           const itemsType = type.items;
           if (itemsType !== undefined) {
             for (let i = 0; i < resolvedNode.length; i++) {
-              walkNode(resolvedNode[i], itemsType, location.child([i]), resolvedNode, i);
+              walkNode(resolvedNode[i], itemsType, newLocation.child([i]), resolvedNode, i);
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
@@ -247,7 +245,7 @@ export function walkDocument<T>(opts: {
               continue;
             }
 
-            walkNode(value, propType, location.child([propName]), resolvedNode, propName);
+            walkNode(value, propType, newLocation.child([propName]), resolvedNode, propName);
           }
         }
       }
@@ -317,7 +315,7 @@ export function walkDocument<T>(opts: {
         {
           report,
           resolve,
-          location,
+          location: newLocation || location,
           type,
           parent,
           key,

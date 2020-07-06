@@ -1,3 +1,5 @@
+import isEqual = require('lodash.isequal');
+
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
@@ -71,7 +73,7 @@ export async function bundleDocument(opts: {
         ruleId: 'bundler',
         visitor: makeBundleVisitor(oasMajorVersion),
       },
-      ...decorators
+      ...decorators,
     ],
     types,
   );
@@ -177,7 +179,7 @@ function makeBundleVisitor(version: OasMajorVersion) {
       leave(mapping: Record<string, string>, ctx: any) {
         for (const name of Object.keys(mapping)) {
           const $ref = mapping[name];
-          const resolved = ctx.resolve({$ref});
+          const resolved = ctx.resolve({ $ref });
           if (!resolved.location || resolved.node === undefined) {
             reportUnresolvedRef(resolved, ctx.report, ctx.location.child(name));
             return;
@@ -186,11 +188,15 @@ function makeBundleVisitor(version: OasMajorVersion) {
           const componentType = mapTypeToComponent('Schema', version)!;
           mapping[name] = saveComponent(componentType, resolved, ctx);
         }
-      }
-    }
+      },
+    };
   }
 
-  function saveComponent(componentType: string, target: { node: any; location: Location }, ctx: UserContext) {
+  function saveComponent(
+    componentType: string,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
@@ -204,7 +210,7 @@ function makeBundleVisitor(version: OasMajorVersion) {
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
-    ctx: UserContext
+    ctx: UserContext,
   ) {
     const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
 
@@ -219,19 +225,19 @@ function makeBundleVisitor(version: OasMajorVersion) {
 
     if (pointerBase) {
       name = `${refBase}/${pointerBase}`;
-      if (!componentsGroup[name] || componentsGroup[name] === target.node) return name;
+      if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) return name;
     }
 
     const prevName = name;
     let serialId = 2;
-    while (componentsGroup[name] && !componentsGroup[name] !== target.node) {
+    while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
       name = `${name}-${serialId}`;
       serialId++;
     }
 
     ctx.report({
       message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
-      location: { reportOnKey: true },
+      location: ctx.location,
       forceSeverity: 'warn',
     });
 
