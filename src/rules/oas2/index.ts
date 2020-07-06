@@ -25,6 +25,7 @@ import { OperationSecurityDefined } from "../common/operation-security-defined";
 import { NoUnresolvedRefs } from "../no-unresolved-refs";
 import { PathHttpVerbsOrder } from "../common/path-http-verbs-order";
 import { Oas2Rule } from "../../visitors";
+import { RegistryDependencies } from '../common/registry-dependencies';
 
 export const rules = {
   'info-description': InfoDescription as Oas2Rule,
@@ -60,6 +61,8 @@ export const rules = {
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
 
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
+
+  'registry-dependencies': RegistryDependencies,
   spec: OasSpec as Oas2Rule,
 }
 

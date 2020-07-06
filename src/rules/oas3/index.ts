@@ -31,6 +31,7 @@ import { PathsKebabCase } from '../common/paths-kebab-case';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
+import { RegistryDependencies } from '../common/registry-dependencies';
 
 export const rules = {
   'info-description': InfoDescription,
@@ -65,6 +66,7 @@ export const rules = {
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
+  'registry-dependencies': RegistryDependencies,
   spec: OasSpec,
 } as Oas3RuleSet;
 

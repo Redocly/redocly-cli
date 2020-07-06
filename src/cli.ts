@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
 import { extname, basename, dirname, join } from 'path';
+import { red, green, yellow, blue, gray } from 'colorette';
+import * as chalk from 'chalk';
+import { performance } from 'perf_hooks';
 
 import { validate } from './validate';
 
 import { bundle } from './bundle';
-import { dumpBundle, saveBundle, BundleOutputFormat } from './utils';
+import { dumpBundle, saveBundle, BundleOutputFormat, promptUser } from './utils';
 import { formatMessages, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedReportMessage } from './walk';
-import { red, green, yellow, blue, gray } from 'colorette';
-import { performance } from 'perf_hooks';
 import { previewDocs } from './cli/preview-docs';
+import RedoclyClient from './redocly';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
@@ -250,6 +252,25 @@ yargs // eslint-disable-line
 
       printUnusedWarnings(config.lint);
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
+    },
+  )
+  .command(
+    'registry:login',
+    'Login to the Redoc.ly API Registry with access token',
+    async () => {
+      const clientToken = await promptUser(
+        chalk.green(`\n  🔑 Copy your access token from ${chalk.blue(`https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`)} and paste it below`),
+      );
+      const client = new RedoclyClient();
+      client.login(clientToken);
+    },
+  )
+  .command(
+    'registry:logout',
+    'Clear stored credentials for Redoc.ly API Registry',
+    async () => {
+      const client = new RedoclyClient();
+      client.logout();
     },
   )
   .command(
