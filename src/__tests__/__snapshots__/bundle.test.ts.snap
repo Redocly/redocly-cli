@@ -18,12 +18,17 @@ components:
   parameters:
     param-a:
       name: param_a
+      schema:
+        $ref: '#/components/schemas/schema-a'
     path-param:
       name: path_param
     param-c:
       name: param_c
     param-b:
       name: param_b
+  schemas:
+    schema-a:
+      type: string
 
 `;
 

@@ -15,5 +15,7 @@ components:
   parameters:
     param-a:
       name: param_a
+      schema:
+        $ref: ./schema-a.yaml
     path-param:
       name: path_param

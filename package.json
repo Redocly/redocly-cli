@@ -75,7 +75,9 @@
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/__tests__/**/*",
-      "!src/cli.ts"
+      "!src/cli.ts",
+      "!src/cli/**/*.ts",
+      "!src/format/format.ts"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",

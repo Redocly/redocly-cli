@@ -288,8 +288,7 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  // TODO: should be a separate rule
-  it.skip('should report if some variable is not defined', async () => {
+  it('should report if some variable is not defined', async () => {
     const source = outdent`
       openapi: 3.0.2
       info:
@@ -317,9 +316,16 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        'no-undefined-server-variable': 'error',
       }),
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": "#/servers/0/url",
+          "message": "The \`basePath\` variable is not defined in the \`variables\` objects.",
+        },
+      ]
+    `);
   });
 
   it('should report if default value is not provided in variables', async () => {

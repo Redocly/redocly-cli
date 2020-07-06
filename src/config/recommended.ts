@@ -12,11 +12,13 @@ export default {
 
     'parameter-description': 'off',
     'no-path-trailing-slash': 'error',
+    'no-ambiguous-paths': 'warn',
     'path-declaration-must-exist': 'error',
     'path-not-include-query': 'error',
     'path-parameters-defined': 'error',
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
+    'operation-operationId': 'off',
     'operation-operationId-unique': 'error',
     'operation-operationId-url-safe': 'error',
     'operation-parameters-unique': 'error',
@@ -43,5 +45,6 @@ export default {
     'no-empty-servers': 'warn',
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
+    'no-undefined-server-variable': 'warn',
   },
 } as LintRawConfig;

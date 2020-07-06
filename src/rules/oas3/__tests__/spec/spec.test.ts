@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
 
-import { validateDocument } from '../../../validate';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
-import { LintConfig } from '../../../config/config';
-import { BaseResolver } from '../../../resolve';
+import { validateDocument } from '../../../../validate';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { LintConfig } from '../../../../config/config';
+import { BaseResolver } from '../../../../resolve';
 
 const allConfig = new LintConfig({ extends: ['all'] });
 
@@ -81,6 +81,23 @@ describe('Oas3 Structural visitor basic', () => {
           ],
           "message": "Expected type 'License (object)' but got 'string'",
           "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": Object {
+            "pointer": "#/servers/0/url",
+            "source": "foobar.yaml",
+          },
+          "location": Array [
+            Object {
+              "pointer": "#/servers/0/variables/a",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`a\` variable is not used in the server's \`url\` field.",
+          "ruleId": "no-undefined-server-variable",
           "severity": "error",
           "suggest": Array [],
         },

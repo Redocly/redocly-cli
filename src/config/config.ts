@@ -98,13 +98,13 @@ export type Plugin = {
 export type ResolveHeader =
   | {
       name: string;
-      envVariable: undefined;
+      envVariable?: undefined;
       value: string;
       matches: string;
     }
   | {
       name: string;
-      value: undefined;
+      value?: undefined;
       envVariable: string;
       matches: string;
     };
@@ -115,6 +115,7 @@ export type RawResolveConfig = {
 
 export type HttpResolveConfig = {
   headers: ResolveHeader[];
+  customFetch?: Function;
 };
 
 export type ResolveConfig = {
@@ -380,6 +381,7 @@ export class Config {
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
+        customFetch: undefined,
       },
     };
   }

@@ -16,10 +16,6 @@ export type Stack<T> = StackFrame<T> | null;
 
 export type StackNonEmpty<T> = StackFrame<T>;
 
-export function makeStack<T>(value: T): StackNonEmpty<T> {
-  return { prev: null, value };
-}
-
 export function pushStack<T, P extends Stack<T> = Stack<T>>(head: P, value: T) {
   return { prev: head, value };
 }
@@ -63,7 +59,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
     }
   }
 
-  const req = await fetch(url, {
+  const req = await (config.customFetch || fetch)(url, {
     headers: headers,
   });
 

@@ -4,13 +4,10 @@ import { validateDoc } from './utils';
 describe('OpenAPI Schema', () => {
   it('should not report if Path object is valid ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         '/ping':
@@ -29,13 +26,10 @@ describe('OpenAPI Schema', () => {
 
   it('should not report if Path object is empty ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths: {}
     `;
@@ -49,13 +43,10 @@ describe('OpenAPI Schema', () => {
 
   it('should report if Path object is not present ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
     `;
 
     expect(
@@ -74,13 +65,10 @@ describe('OpenAPI Schema', () => {
 
   it('should not report if Path object is empty ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths: {}
     `;
@@ -95,13 +83,10 @@ describe('OpenAPI Schema', () => {
   //Check: no error
   it('should report if the field name is not begin with a forward slash (/) ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         'ping':
@@ -125,25 +110,21 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  // TODO: should be a separate rule
-  it.skip('should report if paths are considered identical and invalid', async () => {
+  it('should report if paths are considered identical and invalid', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
 
-      servers:
-        - url: http://google.com
-
       paths:
-        '/pets/{petId}':
+        /pets/{petId}:
           get:
             responses:
               '200':
                 description: example description
-        '/pets/{name}':
-           get:
+        /pets/{name}:
+          get:
             responses:
               '200':
                 description: example description
@@ -151,20 +132,17 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        spec: 'error',
+        'paths-identical': 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
   });
 
   it('should not report valid matching URLs', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         '/pets/{petId}':
@@ -188,13 +166,10 @@ describe('OpenAPI Schema', () => {
 
   it('should not report in case of ambiguous matching ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         '/{entity}/me':
@@ -218,13 +193,10 @@ describe('OpenAPI Schema', () => {
 
   it('should not report if Path Item is empty ', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         '/ping': {}
@@ -239,13 +211,10 @@ describe('OpenAPI Schema', () => {
 
   it('should not report of a valid Parameter Object', async () => {
     const source = outdent`
-      openapi: 3.0.2
+      swagger: '2.0'
       info:
         title: Test
         version: '1.0'
-
-      servers:
-        - url: http://google.com
 
       paths:
         /pet:
@@ -253,11 +222,9 @@ describe('OpenAPI Schema', () => {
             - name: Accept-Language
               in: header
               description: "test"
-              example: en-US
               required: false
-              schema:
-                type: string
-                default: en-AU
+              type: string
+              default: en-AU
           post:
             tags:
               - pet
