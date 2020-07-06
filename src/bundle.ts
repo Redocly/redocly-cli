@@ -235,11 +235,13 @@ function makeBundleVisitor(version: OasMajorVersion) {
       serialId++;
     }
 
-    ctx.report({
-      message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
-      location: ctx.location,
-      forceSeverity: 'warn',
-    });
+    if (!componentsGroup[name]) {
+      ctx.report({
+        message: `Two schemas are referenced with the same name but different content. Renamed ${prevName} to ${name}.`,
+        location: ctx.location,
+        forceSeverity: 'warn',
+      });
+    }
 
     return name;
   }
