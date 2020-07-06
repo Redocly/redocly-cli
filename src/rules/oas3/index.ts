@@ -32,8 +32,6 @@ import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
 
-import { DiscriminatorMappingToOneOf } from './preprocessor-discriminator-mapping-one-of';
-
 export const rules = {
   'info-description': InfoDescription,
   'info-contact': InfoContact,
@@ -70,8 +68,6 @@ export const rules = {
   spec: OasSpec,
 } as Oas3RuleSet;
 
-export const preprocessors = {
-  'discriminator-mapping-to-one-of': DiscriminatorMappingToOneOf,
-};
+export const preprocessors = {};
 
 export const decorators = {};

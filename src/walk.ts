@@ -229,13 +229,18 @@ export function walkDocument<T>(opts: {
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
           // TODO: visit in order from type-tree
           for (const propName of Object.keys(resolvedNode)) {
-            const value = resolvedNode[propName];
+            let value = resolvedNode[propName];
 
             let propType = type.properties[propName];
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
             if (propType && propType.name === undefined && propType.referenceable) {
               propType = { name: 'scalar', properties: {} };
+            }
+
+            if (!isNamedType(propType) && propType?.directResolveAs) {
+              propType = propType.directResolveAs;
+              value = { $ref: value };
             }
 
             if (!isNamedType(propType)) {
