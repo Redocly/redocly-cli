@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { options as colorOptions, gray, blue, bgRed, bgYellow, yellow, red } from 'colorette';
+import { options as colorOptions, gray, blue, bgRed, bgYellow, black, yellow, red } from 'colorette';
 
 import {
   NormalizedReportMessage,
@@ -10,7 +10,7 @@ import {
 import { getCodeframe, getLineColLocation } from './codeframes';
 
 const BG_COLORS = {
-  warn: bgYellow,
+  warn: (str: string) => bgYellow(black(str)),
   error: bgRed,
 };
 
