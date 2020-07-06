@@ -225,8 +225,12 @@ export function walkDocument<T>(opts: {
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
-          // TODO: visit in order from type-tree
-          for (const propName of Object.keys(resolvedNode)) {
+          // visit in order from type-tree first
+          const props = Object.keys(type.properties);
+          if (type.additionalProperties) {
+            props.push(...Object.keys(resolvedNode).filter(k => !props.includes(k)));
+          }
+          for (const propName of props) {
             let value = resolvedNode[propName];
 
             let propType = type.properties[propName];
@@ -247,6 +251,7 @@ export function walkDocument<T>(opts: {
 
             walkNode(value, propType, newLocation.child([propName]), resolvedNode, propName);
           }
+
         }
       }
 

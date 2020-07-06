@@ -20,10 +20,10 @@ components:
       name: param_a
     path-param:
       name: path_param
-    param-b:
-      name: param_b
     param-c:
       name: param_c
+    param-b:
+      name: param_b
 
 `;
 
@@ -49,9 +49,9 @@ components:
       name: param_b_alt
     path-param:
       name: path_param
-    param-b-2:
-      name: param_b
     param-c:
       name: param_c
+    param-b-2:
+      name: param_b
 
 `;

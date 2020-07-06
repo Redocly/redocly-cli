@@ -7,9 +7,9 @@ const DefinitionRoot: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
-    tags: listOf('Tag'),
     servers: listOf('Server'),
     security: listOf('SecurityRequirement'),
+    tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
     paths: 'PathMap',
     components: 'Components',
@@ -434,9 +434,9 @@ const Discriminator: NodeType = {
 
 const Components: NodeType = {
   properties: {
+    parameters: 'NamedParameters',
     schemas: 'NamedSchemas',
     responses: 'NamedResponses',
-    parameters: 'NamedParameters',
     examples: 'NamedExamples',
     requestBodies: 'NamedRequestBodies',
     headers: 'NamedHeaders',

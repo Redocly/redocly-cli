@@ -46,45 +46,6 @@ describe('Oas3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/tags/0",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Expected type 'Tag (object)' but got 'number'",
-          "ruleId": "spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/tags/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Expected type 'Tag (object)' but got 'string'",
-          "ruleId": "spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/servers/0/variables/a/enum/0",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Expected type 'string' but got 'number'",
-          "ruleId": "spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
               "pointer": "#/info/contact/url",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -117,6 +78,45 @@ describe('Oas3 Structural visitor basic', () => {
             },
           ],
           "message": "Expected type 'License (object)' but got 'string'",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/servers/0/variables/a/enum/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Expected type 'string' but got 'number'",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/tags/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Expected type 'Tag (object)' but got 'number'",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/tags/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Expected type 'Tag (object)' but got 'string'",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
