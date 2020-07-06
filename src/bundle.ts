@@ -220,7 +220,7 @@ function makeBundleVisitor(version: OasMajorVersion) {
     let name = pointerBase || refBase;
 
     const componentsGroup = components[componentType];
-    if (!componentsGroup || !componentsGroup[name] || componentsGroup[name] === target.node)
+    if (!componentsGroup || !componentsGroup[name] || isEqual(componentsGroup[name], target.node))
       return name;
 
     if (pointerBase) {

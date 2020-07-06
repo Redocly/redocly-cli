@@ -131,7 +131,7 @@ export function walkDocument<T>(opts: {
       for (const { visit: visitor, ruleId, severity, context } of refEnterVisitors) {
         if (!seenRefs.has(node)) {
           enteredContexts.add(context);
-          const report = reportFn.bind(undefined, ruleId, severity);
+          const report = reportFn.bind(undefined, ruleId, severity, location);
           visitor(
             node,
             {
@@ -207,7 +207,7 @@ export function walkDocument<T>(opts: {
             if (!activatedOn.skipped) {
               visitedBySome = true;
               enteredContexts.add(context);
-              visitWithContext(visit, resolvedNode, context, ruleId, severity);
+              visitWithContext(visit, resolvedNode, context, newLocation, ruleId, severity);
             }
           }
         }
@@ -274,7 +274,7 @@ export function walkDocument<T>(opts: {
 
       for (const { context, visit, ruleId, severity } of currentLeaveVisitors) {
         if (!context.isSkippedLevel && enteredContexts.has(context)) {
-          visitWithContext(visit, resolvedNode, context, ruleId, severity);
+          visitWithContext(visit, resolvedNode, context, newLocation, ruleId, severity);
         }
       }
     }
@@ -283,7 +283,7 @@ export function walkDocument<T>(opts: {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
       for (const { visit: visitor, ruleId, severity, context } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {
-          const report = reportFn.bind(undefined, ruleId, severity);
+          const report = reportFn.bind(undefined, ruleId, severity, location);
           visitor(
             node,
             {
@@ -306,16 +306,17 @@ export function walkDocument<T>(opts: {
       visit: VisitFunction<any>,
       node: any,
       context: VisitorLevelContext,
+      location: Location,
       ruleId: string,
       severity: MessageSeverity,
     ) {
-      const report = reportFn.bind(undefined, ruleId, severity);
+      const report = reportFn.bind(undefined, ruleId, severity, location);
       visit(
         node,
         {
           report,
           resolve,
-          location: newLocation || location,
+          location: location,
           type,
           parent,
           key,
@@ -351,7 +352,7 @@ export function walkDocument<T>(opts: {
       return { location: newLocation, node, error };
     }
 
-    function reportFn(ruleId: string, severity: MessageSeverity, opts: ReportMessage) {
+    function reportFn(ruleId: string, severity: MessageSeverity, location: Location, opts: ReportMessage) {
       const loc = opts.location
         ? Array.isArray(opts.location)
           ? opts.location

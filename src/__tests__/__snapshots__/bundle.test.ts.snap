@@ -46,7 +46,7 @@ components:
     param-a:
       name: test
     param-b:
-      name: param_b
+      name: param_b_alt
     path-param:
       name: path_param
     param-b-2:

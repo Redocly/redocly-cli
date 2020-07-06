@@ -32,7 +32,7 @@ export default {
     'paths-kebab-case': 'off',
     spec: 'error',
   },
-  oas3Rules: {
+  oas3_0Rules: {
     'no-invalid-media-type-examples': {
       severity: 'warn',
       disallowAdditionalProperties: true,
