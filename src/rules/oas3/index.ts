@@ -31,7 +31,7 @@ import { PathsKebabCase } from '../common/paths-kebab-case';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
-import { PathsIdentical } from '../common/paths-identical';
+import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { ServersDefinedVariables } from '../common/servers-defined-variables';
 
 export const rules = {
@@ -67,7 +67,7 @@ export const rules = {
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
-  'paths-identical': PathsIdentical,
+  'no-ambiguous-paths': NoAmbiguousPaths,
   'servers-defined-variables': ServersDefinedVariables,
   spec: OasSpec,
 } as Oas3RuleSet;

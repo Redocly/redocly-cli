@@ -152,14 +152,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         'paths-identical': 'error',
       }),
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": "#/paths/~1pets~1{name}",
-          "message": "The path already exists which differs only by path parameter name(s).",
-        },
-      ]
-    `);
+    ).toMatchInlineSnapshot(`Array []`);
   });
 
   it('should not report valid matching URLs', async () => {
