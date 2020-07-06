@@ -272,12 +272,13 @@ yargs
     client.logout();
   })
   .command(
-    'preview-docs [entrypoint]',
+    'preview-docs <entrypoint>',
     'Preview API Reference docs for the specified entrypoint OAS definition',
     (yargs) =>
       yargs
         .positional('entrypoint', {
           type: 'string',
+          required: true,
           demandOption: true,
         })
         .option('port', {
@@ -301,7 +302,7 @@ yargs
           array: true,
           type: 'string',
         })
-        .option('--use-community-edition', {
+        .option('use-community-edition', {
           description: 'Force using Redoc CE for docs preview',
           type: 'boolean',
         })

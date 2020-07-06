@@ -9,7 +9,7 @@ import { RedoclyClient } from '../redocly';
 
 export async function previewDocs(argv: {
   port: number;
-  useCommunityEdition?: boolean;
+  'use-community-edition'?: boolean;
   config?: string;
   entrypoint: string;
   'skip-rule'?: string[];
@@ -115,7 +115,7 @@ export async function previewDocs(argv: {
 
     redocOptions = {
       ...referenceDocs,
-      useCommunityEdition: argv.useCommunityEdition || referenceDocs.useCommunityEdition,
+      useCommunityEdition: argv['use-community-edition'] || referenceDocs.useCommunityEdition,
       licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs.licenseKey,
     };
 
