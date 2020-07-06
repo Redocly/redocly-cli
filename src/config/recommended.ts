@@ -18,6 +18,7 @@ export default {
     'path-parameters-defined': 'error',
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
+    'operation-operationId': 'off',
     'operation-operationId-unique': 'error',
     'operation-operationId-url-safe': 'error',
     'operation-parameters-unique': 'error',

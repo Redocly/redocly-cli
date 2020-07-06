@@ -33,6 +33,7 @@ import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { ServersDefinedVariables } from '../common/servers-defined-variables';
+import { OperationOperationId } from '../common/operation-operationId';
 
 export const rules = {
   'info-description': InfoDescription,
@@ -50,6 +51,7 @@ export const rules = {
   'no-empty-servers': NoEmptyServers,
   'path-declaration-must-exist': PathDeclarationMustExist,
   'operationId-valid-in-url': OperationIdUrlSafe,
+  'operation-operationId': OperationOperationId,
   'tags-alphabetical': TagsAlphabetical,
   'no-server-example.com': NoServerExample,
   'no-server-trailing-slash': NoServerTrailingSlash,
