@@ -411,7 +411,8 @@ export async function loadConfig(configPath?: string): Promise<Config> {
         name: 'Authorization',
         envVariable: undefined,
         value: (redoclyClient && await redoclyClient.getAuthorizationHeader()) || '',
-      }
+      },
+      ...(rawConfig.resolve.http.headers ?? [])
     ];
   }
 
