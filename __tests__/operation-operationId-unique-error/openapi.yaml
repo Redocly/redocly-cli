@@ -1,0 +1,18 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  '/ping':
+    get:
+      operationId: getUserById
+      responses:
+        '200':
+          description: example description
+  '/pong':
+    get:
+      operationId: getUserById
+      responses:
+        '200':
+          description: example description

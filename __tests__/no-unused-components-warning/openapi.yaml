@@ -1,0 +1,25 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0
+
+paths:
+  /pet/findByStatus:
+    get:
+      summary: Finds pets by Status
+      tags:
+        - pets
+      responses:
+        '200':
+          description: example description
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    

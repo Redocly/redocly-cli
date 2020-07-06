@@ -1,0 +1,64 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0
+
+paths:
+  /ping/{test}:
+    get:
+      parameters:
+      - name: test
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: example description
+  '/user/{test}':
+    get:
+      parameters:
+      - name: test
+        in: path
+        description: ID of pet that needs to be updated
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: metadata
+        schema:
+          type: boolean    
+      operationId: withPathParam
+      description: Get user by id
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
+    /users{id}:
+      get:
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: array
+              items:
+                type: integer
+              minItems: 1
+            style: matrix
+            explode: true
+          - in: query
+            name: metadata
+            schema:
+              type: boolean
+          - in: query
+            name: metadata
+            schema:
+              type: boolean
+        responses:
+          '200':
+            description: A list of users

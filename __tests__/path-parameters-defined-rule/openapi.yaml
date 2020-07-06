@@ -1,0 +1,24 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  '/user/{test}':
+    get:
+      parameters:
+        - in: path
+          name: test
+          description: User id
+          required: true
+          schema:
+            type: string
+      operationId: withPathParam
+      description: Get user by id
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object

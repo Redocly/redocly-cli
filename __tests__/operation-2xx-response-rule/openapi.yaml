@@ -4,7 +4,7 @@ info:
   version: 1.0
 
 paths:
-  /pet/findByStatus:
+  '/ping':
     get:
       responses:
         '200':

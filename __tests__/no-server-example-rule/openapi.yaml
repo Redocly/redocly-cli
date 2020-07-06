@@ -1,10 +1,13 @@
-openapi: 3.0.0
+openapi: 3.0.2
 info:
   title: Example OpenAPI 3 definition.
   version: 1.0
 
+servers:
+  - url: 'http://api.redoc.ly'
+
 paths:
-  /pet/findByStatus:
+  '/ping':
     get:
       responses:
         '200':

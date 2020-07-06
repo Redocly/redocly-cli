@@ -1,0 +1,15 @@
+  
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+servers:
+  - url: https://development.gigantic-server.com/v1/
+
+paths:
+  '/ping':
+    get:
+      responses:
+        '200':
+          description: example description

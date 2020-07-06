@@ -1,0 +1,23 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0
+
+paths:
+  /pet/findByStatus:
+    get:
+      summary: Finds pets by Status
+      tags:
+        - pets
+      responses:
+        '200':
+          description: example description
+security:
+  - app_id: []
+components:
+  securitySchemes:
+    app_id:
+      type: apiKey
+      description: API key to authorize requests. If you don't have an OpenWeatherMap API key, use `fd4698c940c6d1da602a70ac34f0b147`.
+      name: appid
+      in: query
