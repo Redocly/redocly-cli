@@ -85,6 +85,23 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": Object {
+            "pointer": "#/servers/0/url",
+            "source": "foobar.yaml",
+          },
+          "location": Array [
+            Object {
+              "pointer": "#/servers/0/variables/a",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`a\` variable is not used in the server's \`url\` field.",
+          "ruleId": "no-undefined-server-variable",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
           "location": Array [
             Object {
               "pointer": "#/servers/0/variables/a/enum/0",

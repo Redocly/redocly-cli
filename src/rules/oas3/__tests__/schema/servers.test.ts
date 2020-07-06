@@ -316,13 +316,13 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        'servers-defined-variables': 'error',
+        'no-undefined-server-variable': 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [
         Object {
           "location": "#/servers/0/url",
-          "message": "The \\"basePath\\" variable is not defined in the \\"variables\\" objects.",
+          "message": "The \`basePath\` variable is not defined in the \`variables\` objects.",
         },
       ]
     `);

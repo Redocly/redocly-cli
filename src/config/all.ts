@@ -10,10 +10,6 @@ export default {
     'tag-description': 'error',
     'tags-alphabetical': 'error',
 
-    'no-server-example.com': 'error',
-    'no-server-trailing-slash': 'error',
-    'no-empty-servers': 'error',
-
     'parameter-description': 'error',
     'no-ambiguous-paths': 'error',
     'no-path-trailing-slash': 'error',
@@ -31,10 +27,6 @@ export default {
     'operationId-valid-in-url': 'error',
     'operation-singular-tag': 'error',
 
-    'no-example-value-and-externalValue': 'error',
-    'no-invalid-media-type-examples': 'error',
-
-    'no-unused-components': 'error',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',
 
@@ -42,4 +34,14 @@ export default {
     'paths-kebab-case': 'error',
     spec: 'error',
   },
+  oas3_0Rules: {
+    'no-invalid-media-type-examples': 'error',
+
+    'no-server-example.com': 'error',
+    'no-server-trailing-slash': 'error',
+    'no-empty-servers': 'error',
+    'no-example-value-and-externalValue': 'error',
+    'no-unused-components': 'error',
+    'no-undefined-server-variable': 'error',
+  }
 } as LintRawConfig;
