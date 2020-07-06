@@ -2,7 +2,6 @@
 import * as yargs from 'yargs';
 import { extname, basename, dirname, join } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';
-import * as chalk from 'chalk';
 import { performance } from 'perf_hooks';
 
 import { validate } from './validate';
@@ -259,7 +258,7 @@ yargs // eslint-disable-line
     'Login to the Redoc.ly API Registry with access token',
     async () => {
       const clientToken = await promptUser(
-        chalk.green(`\n  🔑 Copy your access token from ${chalk.blue(`https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`)} and paste it below`),
+        green(`\n  🔑 Copy your access token from ${blue(`https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`)} and paste it below`),
       );
       const client = new RedoclyClient();
       client.login(clientToken);

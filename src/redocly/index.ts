@@ -4,7 +4,7 @@ import {
 } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import * as chalk from 'chalk';
+import { yellow, red, green, gray } from 'colorette';
 
 import query from './query';
 
@@ -49,7 +49,7 @@ export default class RedoclyClient {
     // print this only if there is token but invalid
     if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
       process.stdout.write(
-        `${chalk.yellow('Warning:')} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli registry:login" to provide your access token\n`,
+        `${yellow('Warning:')} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli registry:login" to provide your access token\n`,
       );
       return undefined;
     }
@@ -58,12 +58,12 @@ export default class RedoclyClient {
 
   async login(accessToken:string) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    process.stdout.write(chalk.grey('\n  Logging in...\n'));
+    process.stdout.write(gray('\n  Logging in...\n'));
 
     const authorized = await this.verifyToken(accessToken);
 
     if (!authorized) {
-      process.stdout.write(chalk.red('Authorization failed. Please check if you entered a valid token.\n'));
+      process.stdout.write(red('Authorization failed. Please check if you entered a valid token.\n'));
       process.exit(1);
     }
 
@@ -73,7 +73,7 @@ export default class RedoclyClient {
     };
 
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
-    process.stdout.write(chalk.green('  Authorization confirmed. ✅\n\n'));
+    process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
   }
 
   logout(): void {
