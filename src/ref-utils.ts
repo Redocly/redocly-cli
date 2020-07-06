@@ -68,7 +68,7 @@ export function isAbsoluteUrl(ref: string) {
 }
 
 export function isMappingRef(mapping: string ) {
-  // FIXME: proper detection of mapping refs
+  // TODO: proper detection of mapping refs
   return mapping.startsWith('#') ||
       mapping.startsWith('https://') ||
       mapping.startsWith('./') ||

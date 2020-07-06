@@ -24,42 +24,43 @@ import { OperationSingularTag } from "../common/operation-singular-tag";
 import { OperationSecurityDefined } from "../common/operation-security-defined";
 import { NoUnresolvedRefs } from "../no-unresolved-refs";
 import { PathHttpVerbsOrder } from "../common/path-http-verbs-order";
+import { Oas2Rule } from "../../visitors";
 
 export const rules = {
-  'info-description': InfoDescription,
-  'info-contact': InfoContact,
-  'info-license': InfoLicense,
-  'info-license-url': InfoLicenseUrl,
+  'info-description': InfoDescription as Oas2Rule,
+  'info-contact': InfoContact as Oas2Rule,
+  'info-license': InfoLicense as Oas2Rule,
+  'info-license-url': InfoLicenseUrl as Oas2Rule,
 
-  'tag-description': TagDescription,
-  'tags-alphabetical': TagsAlphabetical,
+  'tag-description': TagDescription as Oas2Rule,
+  'tags-alphabetical': TagsAlphabetical as Oas2Rule,
 
-  'paths-kebab-case': PathsKebabCase,
-  'no-enum-type-mismatch': NoEnumTypeMismatch,
+  'paths-kebab-case': PathsKebabCase as Oas2Rule,
+  'no-enum-type-mismatch': NoEnumTypeMismatch as Oas2Rule,
 
-  'boolean-parameter-prefixes': BooleanParameterPrefixes,
-  'no-path-trailing-slash': NoPathTrailingSlash,
-  'operation-2xx-response': Operation2xxResponse,
+  'boolean-parameter-prefixes': BooleanParameterPrefixes as Oas2Rule,
+  'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
+  'operation-2xx-response': Operation2xxResponse as Oas2Rule,
 
-  'operation-operationId-unique': OperationIdUnique,
-  'operation-parameters-unique': OperationParametersUnique,
-  'path-parameters-defined': PathParamsDefined,
-  'operation-tag-defined': OperationTagDefined,
+  'operation-operationId-unique': OperationIdUnique as Oas2Rule,
+  'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
+  'path-parameters-defined': PathParamsDefined as Oas2Rule,
+  'operation-tag-defined': OperationTagDefined as Oas2Rule,
 
-  'path-declaration-must-exist': PathDeclarationMustExist,
-  'operationId-valid-in-url': OperationIdUrlSafe,
+  'path-declaration-must-exist': PathDeclarationMustExist as Oas2Rule,
+  'operationId-valid-in-url': OperationIdUrlSafe as Oas2Rule,
 
-  'operation-description': OperationDescription,
-  'operation-operationId-url-safe': OperationIdUrlSafe,
-  'path-not-include-query': PathNotIncludeQuery,
-  'path-params-defined': PathParamsDefined,
-  'parameter-description': ParameterDescription,
-  'operation-singular-tag': OperationSingularTag,
-  'operation-security-defined': OperationSecurityDefined,
-  'no-unresolved-refs': NoUnresolvedRefs,
+  'operation-description': OperationDescription as Oas2Rule,
+  'operation-operationId-url-safe': OperationIdUrlSafe as Oas2Rule,
+  'path-not-include-query': PathNotIncludeQuery as Oas2Rule,
+  'path-params-defined': PathParamsDefined as Oas2Rule,
+  'parameter-description': ParameterDescription as Oas2Rule,
+  'operation-singular-tag': OperationSingularTag as Oas2Rule,
+  'operation-security-defined': OperationSecurityDefined as Oas2Rule,
+  'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
 
-  'path-http-verbs-order': PathHttpVerbsOrder,
-  spec: OasSpec,
+  'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
+  spec: OasSpec as Oas2Rule,
 }
 
 export const preprocessors = {

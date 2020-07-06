@@ -217,6 +217,10 @@ export type Oas3TransformVisitor = BaseVisitor &
   Oas3FlatVisitor &
   Record<string, VisitFunction<any> | VisitObject<any>>;
 
+export type Oas2TransformVisitor = BaseVisitor &
+  Oas2FlatVisitor &
+  Record<string, VisitFunction<any> | VisitObject<any>>;
+
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'DefinitionRoot'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
@@ -239,7 +243,9 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
 export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor;
 export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor;
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3TransformVisitor;
+export type Oas2Preprocessor = (options: Record<string, any>) => Oas2TransformVisitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3TransformVisitor;
+export type Oas2Decorator = (options: Record<string, any>) => Oas2TransformVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver

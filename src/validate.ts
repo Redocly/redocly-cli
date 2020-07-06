@@ -1,6 +1,6 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 
-import { Oas3Rule, normalizeVisitors, Oas3Preprocessor, Oas2Rule } from './visitors';
+import { Oas3Rule, normalizeVisitors, Oas3Preprocessor, Oas2Rule, Oas2Preprocessor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
@@ -24,7 +24,10 @@ export type RuleSet<T> = Record<string, T>;
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 export type Oas2RuleSet = Record<string, Oas2Rule>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
+export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
+export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
+
 
 export async function validate(opts: {
   ref: string;

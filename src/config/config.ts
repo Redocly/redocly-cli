@@ -12,6 +12,8 @@ import {
   OasMajorVersion,
   Oas3DecoratorsSet,
   Oas2RuleSet,
+  Oas2PreprocessorsSet,
+  Oas2DecoratorsSet,
 } from '../validate';
 
 import { MessageSeverity, NormalizedReportMessage } from '../walk';
@@ -64,12 +66,12 @@ export type RulesConfig = {
 
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;
-  oas2?: any; // TODO: implement Oas2
+  oas2?: Oas2PreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
   oas3?: Oas3DecoratorsSet;
-  oas2?: any; // TODO: implement Oas2
+  oas2?: Oas2DecoratorsSet;
 };
 
 export type TypesExtensionFn = (
@@ -80,7 +82,7 @@ export type TypesExtensionFn = (
 export type TypeExtensionsConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
 export type CustomRulesConfig = {
   oas3?: Oas3RuleSet;
-  oas2?: any; // TODO: implement Oas2
+  oas2?: Oas2RuleSet;
 };
 
 export type Plugin = {
@@ -152,7 +154,8 @@ export class LintConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
 
     if (fs.existsSync(ignoreFile)) {
-      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')); // TODO: parse errors
+      // TODO: parse errors
+      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8'));
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {

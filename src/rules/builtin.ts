@@ -1,7 +1,8 @@
 import * as oas3 from './oas3/index';
 import * as oas2 from './oas2/index';
+import { CustomRulesConfig } from '../index';
 
-export const rules = {
+export const rules: CustomRulesConfig = {
   oas3: oas3.rules,
   oas2: oas2.rules,
 };
