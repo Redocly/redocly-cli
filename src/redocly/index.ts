@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   existsSync, readFileSync, writeFileSync, unlinkSync,
 } from 'fs';
@@ -10,7 +9,7 @@ import query from './query';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
-export default class RedoclyClient {
+export class RedoclyClient {
   private accessToken:string|undefined;
 
   constructor() {

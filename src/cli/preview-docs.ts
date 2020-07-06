@@ -5,6 +5,7 @@ import { loadConfig } from '../config/config';
 import { bundle } from '../bundle';
 import { getFallbackEntryPointsOrExit, getTotals } from '../cli';
 import startPreviewServer from './preview-server/preview-server';
+import { RedoclyClient } from '../redocly';
 
 export async function previewDocs(argv: {
   port: number,
@@ -108,10 +109,8 @@ export async function previewDocs(argv: {
     config.lint.skipPreprocessors(argv['skip-preprocessor']);
     config.lint.skipDecorators(argv['skip-decorator']);
 
-    // FIXME: Redocly Registry Support
-    // const redoclyClient = new RedoclyClient();
-    // const isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
-    isAuthorizedWithRedocly = false;
+    const redoclyClient = new RedoclyClient();
+    isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const referenceDocs = config.referenceDocs || {};
 
     redocOptions = {

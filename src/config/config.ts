@@ -23,7 +23,7 @@ import { Oas3RuleSet } from '../validate';
 
 import recommended from './recommended';
 import { NodeType } from '../types';
-import RedoclyClient from '../redocly';
+import { RedoclyClient } from '../redocly';
 
 const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -392,7 +392,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
 
   let rawConfig: RawConfig = {};
   // let resolvedPlugins: Plugin[] = [];
-  
+
   if (configPath !== undefined) {
     try {
       rawConfig = await loadYaml(configPath);
@@ -400,11 +400,11 @@ export async function loadConfig(configPath?: string): Promise<Config> {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-  
+
   const redoclyClient = new RedoclyClient();
   if (redoclyClient.hasToken()) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
-    if (!rawConfig.resolve.http) rawConfig.resolve.http = {};  
+    if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
     rawConfig.resolve.http.headers = [
       {
         matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,

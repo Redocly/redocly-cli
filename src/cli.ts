@@ -13,11 +13,11 @@ import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedReportMessage } from './walk';
 import { previewDocs } from './cli/preview-docs';
-import RedoclyClient from './redocly';
+import { RedoclyClient } from './redocly';
 
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
-yargs // eslint-disable-line
+yargs
   .version()
   .command(
     'lint [entrypoints...]',
@@ -100,7 +100,10 @@ yargs // eslint-disable-line
             });
           }
 
-          const elapsed = process.env.NODE_ENV === 'test' ? '<test>ms': `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          const elapsed =
+            process.env.NODE_ENV === 'test'
+              ? '<test>ms'
+              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
           process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
@@ -253,25 +256,21 @@ yargs // eslint-disable-line
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
-  .command(
-    'registry:login',
-    'Login to the Redoc.ly API Registry with access token',
-    async () => {
-      const clientToken = await promptUser(
-        green(`\n  🔑 Copy your access token from ${blue(`https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`)} and paste it below`),
-      );
-      const client = new RedoclyClient();
-      client.login(clientToken);
-    },
-  )
-  .command(
-    'registry:logout',
-    'Clear stored credentials for Redoc.ly API Registry',
-    async () => {
-      const client = new RedoclyClient();
-      client.logout();
-    },
-  )
+  .command('registry:login', 'Login to the Redoc.ly API Registry with access token', async () => {
+    const clientToken = await promptUser(
+      green(
+        `\n  🔑 Copy your access token from ${blue(
+          `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
+        )} and paste it below`,
+      ),
+    );
+    const client = new RedoclyClient();
+    client.login(clientToken);
+  })
+  .command('registry:logout', 'Clear stored credentials for Redoc.ly API Registry', async () => {
+    const client = new RedoclyClient();
+    client.logout();
+  })
   .command(
     'preview-docs [entrypoint]',
     'Preview API Reference docs for the specified entrypoint OAS definition',
@@ -441,7 +440,10 @@ function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-export function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
+export function getFallbackEntryPointsOrExit(
+  argsEntrypoints: string[] | undefined,
+  config: Config,
+) {
   let res = argsEntrypoints;
   if (
     (!argsEntrypoints || !argsEntrypoints.length) &&
@@ -465,15 +467,17 @@ function printUnusedWarnings(config: LintConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(
-      yellow(`[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`),
+      yellow(
+        `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`,
+      ),
     );
   }
   if (preprocessors.length) {
     process.stderr.write(
       yellow(
-        `[WARNING] Unused preprocessors found in ${blue(config.configFile || '')}: ${preprocessors.join(
-          ', ',
-        )}.\n`,
+        `[WARNING] Unused preprocessors found in ${blue(
+          config.configFile || '',
+        )}: ${preprocessors.join(', ')}.\n`,
       ),
     );
   }

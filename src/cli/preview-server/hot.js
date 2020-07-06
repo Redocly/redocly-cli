@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 (function run() {
   const Socket = window.SimpleWebsocket;
   const port = window.__OPENAPI_CLI_WS_PORT;

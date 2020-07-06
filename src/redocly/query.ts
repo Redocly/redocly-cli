@@ -4,7 +4,6 @@ const GRAPHQL_ENDPOINT = process.env.REDOCLY_DOMAIN
   ? `https://api.${process.env.REDOCLY_DOMAIN}/graphql` : 'https://api.redoc.ly/graphql';
 
 export default async function query(queryString: string, variables = {}, headers = {}, debugInfo = ''):Promise<any> {
-  // eslint-disable-next-line no-param-reassign
   headers = {
     ...headers,
     'Content-Type': 'application/json',
