@@ -8,7 +8,7 @@ export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
     PathMap(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
       const pathsMap = new Map<string, string>();
       for (const pathName of Object.keys(pathMap)) {
-        const id = pathName.replace(/{.+}/, '{VARIABLE}');
+        const id = pathName.replace(/{.+?}/g, '{VARIABLE}');
         const existingSamePath = pathsMap.get(id);
         if (existingSamePath) {
           report({
