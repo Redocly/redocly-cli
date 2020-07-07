@@ -15,13 +15,16 @@ import { NormalizedProblem } from './walk';
 import { previewDocs } from './cli/preview-docs';
 import { RedoclyClient } from './redocly';
 
+const version = require('../package.json').version;
+
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
 yargs
-  .version()
+  .version('version', 'Show version number.', version)
+  .help('help', 'Show help.')
   .command(
     'lint [entrypoints...]',
-    'Lint definition',
+    'Lint definition.',
     (yargs) =>
       yargs
         .positional('entrypoints', {
@@ -50,7 +53,7 @@ yargs
           type: 'string',
         })
         .option('skip-preprocessor', {
-          description: 'Ignore certain preprocessor.',
+          description: 'Ignore certain preprocessors.',
           array: true,
           type: 'string',
         })
@@ -140,7 +143,7 @@ yargs
   )
   .command(
     'bundle [entrypoints...]',
-    'Bundle definition',
+    'Bundle definition.',
     (yargs) =>
       yargs
         .positional('entrypoints', {
@@ -168,17 +171,17 @@ yargs
           choices: outputExtensions,
         })
         .option('skip-rule', {
-          description: 'Ignore certain rule.',
+          description: 'Ignore certain rules.',
           array: true,
           type: 'string',
         })
         .option('skip-preprocessor', {
-          description: 'Ignore certain preprocessor.',
+          description: 'Ignore certain preprocessors.',
           array: true,
           type: 'string',
         })
         .option('skip-decorator', {
-          description: 'Ignore certain decorator.',
+          description: 'Ignore certain decorators.',
           array: true,
           type: 'string',
         })
@@ -282,13 +285,13 @@ yargs
     const client = new RedoclyClient();
     client.login(clientToken);
   })
-  .command('logout', 'Clear your stored credentials for the Redoc.ly API registry.a', async () => {
+  .command('logout', 'Clear your stored credentials for the Redoc.ly API registry.', async () => {
     const client = new RedoclyClient();
     client.logout();
   })
   .command(
     'preview-docs <entrypoint>',
-    'Preview API reference docs for the specified definition',
+    'Preview API reference docs for the specified definition.',
     (yargs) =>
       yargs
         .positional('entrypoint', {
@@ -303,12 +306,12 @@ yargs
           description: 'Preview port.',
         })
         .option('skip-preprocessor', {
-          description: 'Ignore certain preprocessor.',
+          description: 'Ignore certain preprocessors.',
           array: true,
           type: 'string',
         })
         .option('skip-decorator', {
-          description: 'Ignore certain decorator.',
+          description: 'Ignore certain decorators.',
           array: true,
           type: 'string',
         })
