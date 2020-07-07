@@ -375,7 +375,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       red(
         `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
           totals.warnings
-        } ${pluralize('warning', totals.warnings)}. ${ignored}\n`,
+        }${totals.warnings > 0 ? ` ${pluralize('warning', totals.warnings)}` : ''}. ${ignored}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
