@@ -66,7 +66,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/",
-          "message": "The field 'paths' must be present on this level.",
+          "message": "The field \`paths\` must be present on this level.",
         },
       ]
     `);
@@ -119,7 +119,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/paths/ping",
-          "message": "Property \`ping\` is not expected here",
+          "message": "Property \`ping\` is not expected here.",
         },
       ]
     `);

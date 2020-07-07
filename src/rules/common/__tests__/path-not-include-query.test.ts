@@ -35,7 +35,7 @@ describe('Oas3 path-not-include-query', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Don't put query string items in the path, they belong in parameters with in: query.",
+          "message": "Don't put query string items in the path, they belong in parameters with \`in: query\`.",
           "ruleId": "path-not-include-query",
           "severity": "error",
           "suggest": Array [],

@@ -6,7 +6,7 @@ export const NoServerTrailingSlash: Oas3Rule = () => {
       if (!server.url) return;
       if (server.url.endsWith('/')) {
         report({
-          message: 'Server URL should not have a trailing slash.',
+          message: 'Server `url` should not have a trailing slash.',
           location: location.child(['url']),
         });
       }

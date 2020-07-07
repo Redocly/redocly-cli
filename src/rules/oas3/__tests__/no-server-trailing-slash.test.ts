@@ -33,7 +33,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Server URL should not have a trailing slash.",
+          "message": "Server \`url\` should not have a trailing slash.",
           "ruleId": "no-server-trailing-slash",
           "severity": "error",
           "suggest": Array [],

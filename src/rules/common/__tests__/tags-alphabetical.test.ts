@@ -35,7 +35,7 @@ describe('Oas3 tags-alphabetical', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The \\"tags\\" array should be in alphabetical order.",
+          "message": "The \`tags\` array should be in alphabetical order.",
           "ruleId": "tags-alphabetical",
           "severity": "error",
           "suggest": Array [],

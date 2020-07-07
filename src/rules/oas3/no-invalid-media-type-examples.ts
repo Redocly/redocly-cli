@@ -40,7 +40,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
           if (!valid) {
             for (let error of errors) {
               report({
-                message: `Example must be valid according to schema: ${error.message}.`,
+                message: `Example value must conform to the schema: ${error.message}.`,
                 location: {
                   ...new Location(dataLoc.source, error.dataPath),
                   reportOnKey: error.keyword === 'additionalProperties',

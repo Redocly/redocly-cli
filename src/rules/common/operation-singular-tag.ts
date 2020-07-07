@@ -8,7 +8,7 @@ export const OperationSingularTag: Oas3Rule | Oas2Rule = () => {
     Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
       if (operation.tags && operation.tags.length > 1) {
         report({
-          message: 'Operation "tags" object should have only one tag.',
+          message: 'Operation `tags` object should have only one tag.',
           location: location.child(['tags']).key(),
         });
       }

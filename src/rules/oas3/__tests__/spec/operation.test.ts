@@ -54,7 +54,7 @@ it('should report if summary field is not string ', async () => {
     Array [
       Object {
         "location": "#/paths/~1ping/summary",
-        "message": "Expected type 'string' but got 'null'",
+        "message": "Expected type \`string\` but got \`null\`.",
       },
     ]
   `);
@@ -113,7 +113,7 @@ it('should report if description field is not string', async () => {
     Array [
       Object {
         "location": "#/paths/~1ping/description",
-        "message": "Expected type 'string' but got 'null'",
+        "message": "Expected type \`string\` but got \`null\`.",
       },
     ]
   `);

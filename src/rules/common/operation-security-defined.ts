@@ -18,7 +18,7 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
             report({
-              message: `There is no "${name}" security scheme defined.`,
+              message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
             });
           }

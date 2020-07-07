@@ -54,7 +54,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0/url",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -86,7 +86,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0",
-          "message": "The field 'url' must be present on this level.",
+          "message": "The field \`url\` must be present on this level.",
         },
       ]
     `);
@@ -119,7 +119,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0/description",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -176,7 +176,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers",
-          "message": "Expected type 'Server_List (array)' but got 'object'",
+          "message": "Expected type \`Server_List\` (array) but got \`object\`",
         },
       ]
     `);
@@ -282,7 +282,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0/variables/port/enum",
-          "message": "Expected type 'array' but got 'null'",
+          "message": "Expected type \`array\` but got \`null\`.",
         },
       ]
     `);
@@ -362,11 +362,11 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0/variables/username",
-          "message": "The field 'default' must be present on this level.",
+          "message": "The field \`default\` must be present on this level.",
         },
         Object {
           "location": "#/servers/0/variables/port",
-          "message": "The field 'default' must be present on this level.",
+          "message": "The field \`default\` must be present on this level.",
         },
       ]
     `);
@@ -408,7 +408,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers/0/variables/username/default",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);

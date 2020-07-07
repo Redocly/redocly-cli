@@ -10,7 +10,7 @@ export const OperationIdUrlSafe: Oas3Rule | Oas2Rule = () => {
     Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
       if (operation.operationId && !validUrlSymbols.test(operation.operationId)) {
         report({
-          message: 'Operation id should not have URL invalid characters.',
+          message: 'Operation `operationId` should not have URL invalid characters.',
           location: location.child(['operationId']),
         });
       }

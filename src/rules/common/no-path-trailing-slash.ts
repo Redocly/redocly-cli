@@ -6,7 +6,7 @@ export const NoPathTrailingSlash: Oas3Rule | Oas2Rule = () => {
     PathItem(_path: any, { report, key }: UserContext) {
       if ((key as string).endsWith('/')) {
         report({
-          message: `${key} has a trailing slash.`,
+          message: `\`${key}\` should not have a trailing slash.`,
         });
       }
     },

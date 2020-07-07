@@ -35,7 +35,7 @@ describe('Oas3 operation-security-defined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "There is no \\"some\\" security scheme defined.",
+          "message": "There is no \`some\` security scheme defined.",
           "ruleId": "operation-security-defined",
           "severity": "error",
           "suggest": Array [],

@@ -25,7 +25,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/title",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -55,7 +55,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/description",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -85,7 +85,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/termsOfService",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -145,7 +145,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/contact/url",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -178,7 +178,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/contact/email",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -234,7 +234,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/license",
-          "message": "The field 'name' must be present on this level.",
+          "message": "The field \`name\` must be present on this level.",
         },
       ]
     `);
@@ -266,7 +266,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/license/url",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);
@@ -318,7 +318,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info",
-          "message": "The field 'version' must be present on this level.",
+          "message": "The field \`version\` must be present on this level.",
         },
       ]
     `);
@@ -347,7 +347,7 @@ describe('OpenAPI Schema 2.0', () => {
       Array [
         Object {
           "location": "#/info/version",
-          "message": "Expected type 'string' but got 'null'",
+          "message": "Expected type \`string\` but got \`null\`.",
         },
       ]
     `);

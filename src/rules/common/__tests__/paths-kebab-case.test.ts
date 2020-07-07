@@ -38,7 +38,7 @@ describe('Oas3 paths-kebab-case', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "/someTest is not kebab-case.",
+          "message": "\`/someTest\` is use kebab-case.",
           "ruleId": "paths-kebab-case",
           "severity": "error",
           "suggest": Array [],

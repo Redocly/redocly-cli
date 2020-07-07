@@ -40,7 +40,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Operation id should not have URL invalid characters.",
+          "message": "Operation \`operationId\` should not have URL invalid characters.",
           "ruleId": "operation-operationId-url-safe",
           "severity": "error",
           "suggest": Array [],

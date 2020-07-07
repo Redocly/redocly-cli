@@ -41,26 +41,26 @@ yargs
           default: 100,
         })
         .option('generate-ignore-file', {
-          description: 'Generate ignore file',
+          description: 'Generate ignore file.',
           type: 'boolean',
         })
         .option('skip-rule', {
-          description: 'ignore certain rules',
+          description: 'Ignore certain rules.',
           array: true,
           type: 'string',
         })
         .option('skip-preprocessor', {
-          description: 'ignore certain preprocessor',
+          description: 'Ignore certain preprocessor.',
           array: true,
           type: 'string',
         })
         .option('config', {
-          description: 'Specify custom config file',
+          description: 'Specify path to the config file.',
           requiresArg: true,
           type: 'string',
         })
         .option('extends', {
-          description: 'Specify custom extends',
+          description: 'Override extends configurations (defaults or config file settings).',
           requiresArg: true,
           array: true,
           type: 'string',
@@ -163,32 +163,32 @@ yargs
           default: 100,
         })
         .option('ext', {
-          description: 'Output extension: json, yaml or yml',
+          description: 'Output file extension.',
           requiresArg: true,
           choices: outputExtensions,
         })
         .option('skip-rule', {
-          description: 'ignore certain rules',
+          description: 'Ignore certain rule.',
           array: true,
           type: 'string',
         })
         .option('skip-preprocessor', {
-          description: 'ignore certain preprocessors',
+          description: 'Ignore certain preprocessor.',
           array: true,
           type: 'string',
         })
         .option('skip-decorator', {
-          description: 'ignore certain preprocessor',
+          description: 'Ignore certain decorator.',
           array: true,
           type: 'string',
         })
         .option('force', {
           alias: 'f',
           type: 'boolean',
-          description: 'Produce bundle output file even if validation errors were encountered',
+          description: 'Produce bundle output even if errors were encountered.',
         })
         .option('config', {
-          description: 'Specify custom config file',
+          description: 'Specify path to the config file.',
           type: 'string',
         }),
     async (argv) => {
@@ -270,7 +270,7 @@ yargs
       process.exit(totals.errors === 0 || argv.force ? 0 : 1);
     },
   )
-  .command('login', 'Login to the Redoc.ly API Registry with access token', async () => {
+  .command('login', 'Login to the Redoc.ly API registry with an access token.', async () => {
     const clientToken = await promptUser(
       green(
         `\n  🔑 Copy your access token from ${blue(
@@ -281,13 +281,13 @@ yargs
     const client = new RedoclyClient();
     client.login(clientToken);
   })
-  .command('logout', 'Clear stored credentials for Redoc.ly API Registry', async () => {
+  .command('logout', 'Clear your stored credentials for the Redoc.ly API registry.a', async () => {
     const client = new RedoclyClient();
     client.logout();
   })
   .command(
     'preview-docs <entrypoint>',
-    'Preview API Reference docs for the specified entrypoint OAS definition',
+    'Preview API reference docs for the specified definition',
     (yargs) =>
       yargs
         .positional('entrypoint', {
@@ -299,34 +299,29 @@ yargs
           alias: 'p',
           type: 'number',
           default: 8080,
-          description: 'Preview port',
-        })
-        .option('skip-rule', {
-          description: 'ignore certain rules',
-          array: true,
-          type: 'string',
+          description: 'Preview port.',
         })
         .option('skip-preprocessor', {
-          description: 'ignore certain preprocessors',
+          description: 'Ignore certain preprocessor.',
           array: true,
           type: 'string',
         })
         .option('skip-decorator', {
-          description: 'ignore certain preprocessor',
+          description: 'Ignore certain decorator.',
           array: true,
           type: 'string',
         })
         .option('use-community-edition', {
-          description: 'Force using Redoc CE for docs preview',
+          description: 'Force using Redoc CE for docs preview.',
           type: 'boolean',
         })
         .option('force', {
           alias: 'f',
           type: 'boolean',
-          description: 'Produce bundle output file even if validation errors were encountered',
+          description: 'Produce bundle output even if errors were encountered.',
         })
         .option('config', {
-          description: 'Specify custom config file',
+          description: 'Specify path to the config file.',
           type: 'string',
         }),
     async (argv) => {

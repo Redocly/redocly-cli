@@ -40,7 +40,7 @@ describe('Oas3 operation-singular-tag', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Operation \\"tags\\" object should have only one tag.",
+          "message": "Operation \`tags\` object should have only one tag.",
           "ruleId": "operation-singular-tag",
           "severity": "error",
           "suggest": Array [],

@@ -33,7 +33,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Server URL should not point at example.com.",
+          "message": "Server \`url\` should not point at example.com.",
           "ruleId": "no-server-example.com",
           "severity": "error",
           "suggest": Array [],

@@ -10,13 +10,13 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       if (type.items) {
         if (nodeType !== 'array') {
           report({
-            message: `Expected type '${type.name} (array)' but got '${nodeType}'`,
+            message: `Expected type \`${type.name}\` (array) but got \`${nodeType}\``,
           });
         }
         return;
       } else if (nodeType !== 'object') {
         report({
-          message: `Expected type '${type.name} (object)' but got '${nodeType}'`,
+          message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
         });
         return;
       }
@@ -26,7 +26,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       for (let propName of required || []) {
         if (!(node as object).hasOwnProperty(propName)) {
           report({
-            message: `The field '${propName}' must be present on this level.`,
+            message: `The field \`${propName}\` must be present on this level.`,
             location: [{ reportOnKey: true }],
           });
         }
@@ -50,7 +50,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         if (propSchema === undefined) {
           if (propName.startsWith('x-')) continue;
           report({
-            message: `Property \`${propName}\` is not expected here`,
+            message: `Property \`${propName}\` is not expected here.`,
             suggest: getSuggest(propName, Object.keys(type.properties)),
             location: propLocation.key(),
           });
@@ -69,15 +69,15 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           if (!propSchema.enum.includes(propValue)) {
             report({
               location: propLocation,
-              message: `\`${propName}\` can be one of following only: ${propSchema.enum
+              message: `\`${propName}\` can be one of the following only: ${propSchema.enum
                 .map((i) => `"${i}"`)
-                .join(', ')}`,
+                .join(', ')}.`,
               suggest: getSuggest(propValue, propSchema.enum),
             });
           }
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type)) {
           report({
-            message: `Expected type '${propSchema.type}' but got '${propValueType}'`,
+            message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
             location: propLocation,
           });
         } else if (propValueType === 'array' && propSchema.items?.type) {
@@ -86,7 +86,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             const item = propValue[i];
             if (!matchesJsonSchemaType(item, itemsType)) {
               report({
-                message: `Expected type '${itemsType}' but got '${oasTypeOf(item)}'`,
+                message: `Expected type \`${itemsType}\` but got \`${oasTypeOf(item)}\`.`,
                 location: propLocation.child([i]),
               });
             }
