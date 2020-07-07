@@ -443,22 +443,22 @@ function resolvePresets(presets: string[], plugins: Plugin[]) {
       const [pluginName, configName] = presetName.split('/');
       const plugin = plugins.find((p) => p.id === pluginName);
       if (!plugin) {
-        throw new Error(`Invalid preset ${red(presetName)}: plugin ${pluginName} is not included`);
+        throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginName} is not included.`);
       }
 
       preset = plugin.configs?.[configName]!;
       if (!preset) {
         throw new Error(
-          `Invalid preset ${red(
+          `Invalid config ${red(
             presetName,
-          )}: plugin ${pluginName} doesn't export config with name ${configName}`,
+          )}: plugin ${pluginName} doesn't export config with name ${configName}.`,
         );
       }
       return preset;
     }
 
     if (!preset) {
-      throw new Error(`Invalid preset ${red(presetName)}: no such built-in preset`);
+      throw new Error(`Invalid config ${red(presetName)}: there is no such built-in config.`);
     }
     return preset;
   });
@@ -475,12 +475,12 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
 
       const id = plugin.id;
       if (!id) {
-        throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}`));
+        throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
       }
 
       if (plugin.rules) {
         if (!plugin.rules.oas3 && !plugin.rules.oas2) {
-          throw new Error(`Plugin rules must have \`oas3\` or \`oas2\` rules "${p}}`);
+          throw new Error(`Plugin rules must have \`oas3\` or \`oas2\` rules "${p}.`);
         }
         if (plugin.rules.oas3) {
           plugin.rules.oas3 = prefixRules(plugin.rules.oas3, id);
@@ -492,7 +492,7 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
       if (plugin.preprocessors) {
         if (!plugin.preprocessors.oas3 && !plugin.preprocessors.oas2) {
           throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}}`,
+            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`,
           );
         }
         if (plugin.preprocessors.oas3) {
@@ -505,7 +505,7 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
 
       if (plugin.decorators) {
         if (!plugin.decorators.oas3 && !plugin.decorators.oas2) {
-          throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}}`);
+          throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}.`);
         }
         if (plugin.decorators.oas3) {
           plugin.decorators.oas3 = prefixRules(plugin.decorators.oas3, id);
@@ -558,7 +558,7 @@ function mergeExtends(rulesConfList: LintRawConfig[]) {
   for (let rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `\`extends\` is not supported yet in shared configs: ${JSON.stringify(rulesConf, null, 2)}`,
+        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`,
       );
     }
     Object.assign(result.rules, rulesConf.rules);
