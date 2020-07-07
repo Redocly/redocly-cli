@@ -4,7 +4,6 @@ import { homedir } from 'os';
 import { yellow, red, green, gray } from 'colorette';
 
 import { query } from './query';
-import { outdent } from 'outdent';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
@@ -112,7 +111,7 @@ export class RedoclyClient {
     if (!definitionId || !versionId || !branchId) return;
 
     await this.query(
-      outdent`
+      `
     mutation UpdateBranchDependenciesFromURLs(
       $urls: [String!]!
       $definitionId: Int!
