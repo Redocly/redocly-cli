@@ -140,6 +140,8 @@ export class LintConfig {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<OasVersion> = new Set();
 
+  recommendedFallback: boolean = false;
+
   constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
 
@@ -149,6 +151,10 @@ export class LintConfig {
       preprocessors: builtinRules.preprocessors,
       decorators: builtinRules.decorators,
     });
+
+    if (!rawConfig.extends) {
+      this.recommendedFallback = true;
+    }
 
     const extendConfigs: LintRawConfig[] = rawConfig.extends
       ? resolvePresets(rawConfig.extends, this.plugins)
@@ -387,7 +393,7 @@ export class Config {
   }
 }
 
-export async function loadConfig(configPath?: string): Promise<Config> {
+export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   if (configPath === undefined) {
     configPath = await findConfig();
   }
@@ -401,6 +407,11 @@ export async function loadConfig(configPath?: string): Promise<Config> {
     } catch (e) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
+  }
+
+  if (rawConfig?.lint?.extends == undefined && customExtends !== undefined) {
+    rawConfig.lint = rawConfig.lint || {};
+    rawConfig.lint.extends = customExtends;
   }
 
   const redoclyClient = new RedoclyClient();

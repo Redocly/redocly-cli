@@ -58,9 +58,15 @@ yargs
           description: 'Specify custom config file',
           requiresArg: true,
           type: 'string',
+        })
+        .option('extends', {
+          description: 'Specify custom extends',
+          requiresArg: true,
+          array: true,
+          type: 'string',
         }),
     async (argv) => {
-      const config = await loadConfig(argv.config);
+      const config = await loadConfig(argv.config, argv.extends);
       config.lint.skipRules(argv['skip-rule']);
       config.lint.skipPreprocessors(argv['skip-preprocessor']);
 
@@ -72,6 +78,14 @@ yargs
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       let totalIgnored = 0;
+
+      if (config.lint.recommendedFallback) {
+        process.stderr.write(
+          `No configurations were defined in extends -- using built in ${blue(
+            'recommended',
+          )} configuration by default.\n\n`,
+        );
+      }
 
       // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
       for (const entryPoint of entrypoints) {
@@ -398,7 +412,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`\nrun with \`--generate-ignore-file\` to add all messages to ignore file.\n`),
+      gray(`run with \`--generate-ignore-file\` to add all messages to ignore file.\n`),
     );
   }
 
