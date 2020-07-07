@@ -25,7 +25,7 @@ export type ResolveFn<T> = (
 ) => { location: Location; node: T } | { location: undefined; node: undefined };
 
 export type UserContext = {
-  report(message: ReportMessage): void;
+  report(problem: Problem): void;
   location: Location;
   resolve<T>(
     node: Referenced<T>,
@@ -56,20 +56,20 @@ export type LineColLocationObject = Omit<PointerLocationObject, 'pointer'> & {
 
 export type LocationObject = LineColLocationObject | PointerLocationObject;
 
-export type MessageSeverity = 'error' | 'warn';
+export type ProblemSeverity = 'error' | 'warn';
 
-export type ReportMessage = {
+export type Problem = {
   message: string;
   suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
   from?: LocationObject;
-  forceSeverity?: MessageSeverity;
+  forceSeverity?: ProblemSeverity;
 };
 
-export type NormalizedReportMessage = {
+export type NormalizedProblem = {
   message: string;
   ruleId: string;
-  severity: MessageSeverity;
+  severity: ProblemSeverity;
   location: LocationObject[];
   from?: LocationObject;
   suggest: string[];
@@ -77,7 +77,7 @@ export type NormalizedReportMessage = {
 };
 
 export type WalkContext = {
-  messages: NormalizedReportMessage[];
+  problems: NormalizedProblem[];
   oasVersion: OasVersion;
 };
 
@@ -312,7 +312,7 @@ export function walkDocument<T>(opts: {
       context: VisitorLevelContext,
       location: Location,
       ruleId: string,
-      severity: MessageSeverity,
+      severity: ProblemSeverity,
     ) {
       const report = reportFn.bind(undefined, ruleId, severity, location);
       visit(
@@ -358,9 +358,9 @@ export function walkDocument<T>(opts: {
 
     function reportFn(
       ruleId: string,
-      severity: MessageSeverity,
+      severity: ProblemSeverity,
       location: Location,
-      opts: ReportMessage,
+      opts: Problem,
     ) {
       const loc = opts.location
         ? Array.isArray(opts.location)
@@ -368,7 +368,7 @@ export function walkDocument<T>(opts: {
           : [opts.location]
         : [{ ...location, reportOnKey: false }];
 
-      ctx.messages.push({
+      ctx.problems.push({
         ruleId,
         severity: opts.forceSeverity || severity,
         ...opts,

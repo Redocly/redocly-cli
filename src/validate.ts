@@ -70,7 +70,7 @@ export async function validateDocument(opts: {
   );
 
   const ctx: WalkContext = {
-    messages: [],
+    problems: [],
     oasVersion: oasVersion,
   };
 
@@ -93,7 +93,7 @@ export async function validateDocument(opts: {
     ctx,
   });
 
-  return ctx.messages.map((message) => config.addMessageToIgnore(message));
+  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
 export function detectOpenAPI(root: any): OasVersion {

@@ -47,7 +47,7 @@ import {
 
 import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
-import { UserContext, ResolveResult, MessageSeverity } from './walk';
+import { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import { Location } from './ref-utils';
 export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any) => void;
 
@@ -67,7 +67,7 @@ type VisitFunctionOrObject<T> = VisitFunction<T> | VisitObject<T>;
 
 type VisitorNode<T extends any> = {
   ruleId: string;
-  severity: MessageSeverity;
+  severity: ProblemSeverity;
   context: VisitorLevelContext | VisitorSkippedLevelContext;
   depth: number;
   visit: VisitFunction<T>;
@@ -76,7 +76,7 @@ type VisitorNode<T extends any> = {
 
 type VisitorRefNode = {
   ruleId: string;
-  severity: MessageSeverity;
+  severity: ProblemSeverity;
   context: VisitorLevelContext;
   depth: number;
   visit: VisitRefFunction;
@@ -254,7 +254,7 @@ export type OasDecorator = Oas3Decorator;
 
 export type RuleInstanceConfig = {
   ruleId: string;
-  severity: MessageSeverity;
+  severity: ProblemSeverity;
 };
 
 export function normalizeVisitors<T extends BaseVisitor>(

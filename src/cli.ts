@@ -8,10 +8,10 @@ import { validate } from './validate';
 
 import { bundle } from './bundle';
 import { dumpBundle, saveBundle, BundleOutputFormat, promptUser } from './utils';
-import { formatMessages, OutputFormat } from './format/format';
+import { formatProblems, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
-import { NormalizedReportMessage } from './walk';
+import { NormalizedProblem } from './walk';
 import { previewDocs } from './cli/preview-docs';
 import { RedoclyClient } from './redocly';
 
@@ -34,9 +34,9 @@ yargs
           choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         })
-        .option('max-messages', {
+        .option('max-problems', {
           requiresArg: true,
-          description: 'Reduce output to max N messages.',
+          description: 'Reduce output to max N problems.',
           type: 'number',
           default: 100,
         })
@@ -108,9 +108,9 @@ yargs
               totalIgnored++;
             }
           } else {
-            formatMessages(results, {
+            formatProblems(results, {
               format: argv.format,
-              maxMessages: argv['max-messages'],
+              maxProblems: argv['max-problems'],
             });
           }
 
@@ -128,7 +128,7 @@ yargs
       if (argv['generate-ignore-file']) {
         config.lint.saveIgnore();
         process.stderr.write(
-          `Generated ignore file with ${totalIgnored} ${pluralize('message', totalIgnored)}.\n\n`,
+          `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`,
         );
       } else {
         printLintTotals(totals, entrypoints.length);
@@ -156,14 +156,14 @@ yargs
           choices: ['stylish', 'codeframe'] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         })
-        .option('max-messages', {
+        .option('max-problems', {
           requiresArg: true,
-          description: 'Reduce output to max N messages.',
+          description: 'Reduce output to max N problems.',
           type: 'number',
           default: 100,
         })
         .option('ext', {
-          description: 'Output file extension.',
+          description: 'Bundle file extension.',
           requiresArg: true,
           choices: outputExtensions,
         })
@@ -185,7 +185,7 @@ yargs
         .option('force', {
           alias: 'f',
           type: 'boolean',
-          description: 'Produce bundle output even if errors were encountered.',
+          description: 'Produce bundle output even when errors occur.',
         })
         .option('config', {
           description: 'Specify path to the config file.',
@@ -204,12 +204,12 @@ yargs
         try {
           const startedAt = performance.now();
           process.stderr.write(gray(`bundling ${entrypoint}...\n`));
-          const { bundle: result, messages } = await bundle({
+          const { bundle: result, problems } = await bundle({
             config,
             ref: entrypoint,
           });
 
-          const fileTotals = getTotals(messages);
+          const fileTotals = getTotals(problems);
 
           const { outputFile, ext } = getOutputFileName(
             entrypoint,
@@ -231,34 +231,35 @@ yargs
           totals.warnings += fileTotals.warnings;
           totals.ignored += fileTotals.ignored;
 
-          formatMessages(messages, {
+          formatProblems(problems, {
             format: argv.format,
-            maxMessages: argv['max-messages'],
+            maxProblems: argv['max-problems'],
           });
 
           const elapsed =
             process.env.NODE_ENV === 'test'
               ? '<test>ms'
               : `in ${Math.ceil(performance.now() - startedAt)}ms`;
+
           if (fileTotals.errors > 0) {
             if (argv.force) {
               process.stderr.write(
-                `❓ Force created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
+                `❓ Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} with errors ${green(
                   elapsed,
-                )}. ${yellow('Errors ignored because of --force')}\n`,
+                )}.\n${yellow('Errors ignored because of --force')}.\n`,
               );
             } else {
               process.stderr.write(
                 `❌ Errors encountered while bundling ${blue(
                   entrypoint,
-                )}: bundle not created (use --force to ignore errors)\n`,
+                )}: bundle not created (use --force to ignore errors).\n`,
               );
             }
           } else {
             process.stderr.write(
               `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
                 elapsed,
-              )}\n`,
+              )}.\n`,
             );
           }
         } catch (e) {
@@ -318,7 +319,7 @@ yargs
         .option('force', {
           alias: 'f',
           type: 'boolean',
-          description: 'Produce bundle output even if errors were encountered.',
+          description: 'Produce bundle output even when errors occur.',
         })
         .option('config', {
           description: 'Specify path to the config file.',
@@ -376,7 +377,7 @@ function handleError(e: Error, ref: string) {
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
-    ? yellow(`${totals.ignored} ${pluralize('message is', totals.ignored)} explicitly ignored.\n`)
+    ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n`)
     : '';
 
   if (totals.errors > 0) {
@@ -407,7 +408,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`run with \`--generate-ignore-file\` to add all messages to ignore file.\n`),
+      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
     );
   }
 
@@ -420,12 +421,12 @@ export type Totals = {
   ignored: number;
 };
 
-export function getTotals(messages: (NormalizedReportMessage & { ignored?: boolean })[]): Totals {
+export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
   let warnings = 0;
   let ignored = 0;
 
-  for (const m of messages) {
+  for (const m of problems) {
     if (m.ignored) {
       ignored++;
       continue;

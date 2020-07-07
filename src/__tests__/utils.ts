@@ -2,7 +2,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 
 import { Document, Source } from '../resolve';
-import { NormalizedReportMessage } from '../walk';
+import { NormalizedProblem } from '../walk';
 import { RuleConfig, LintConfig, Plugin } from '../config/config';
 import { Oas3RuleSet } from '../validate';
 
@@ -13,7 +13,7 @@ export function parseYamlToDocument(body: string, absoluteRef: string = ''): Doc
   };
 }
 
-export function replaceSourceWithRef(results: NormalizedReportMessage[], cwd?: string) {
+export function replaceSourceWithRef(results: NormalizedProblem[], cwd?: string) {
   const cwdRegexp = cwd ? new RegExp(cwd + path.sep, 'g') : /$^/;
   return results.map((r) => {
     const mapped = {

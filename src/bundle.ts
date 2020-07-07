@@ -62,7 +62,7 @@ export async function bundleDocument(opts: {
   const decorators = initRules(rules as any, config, 'decorators', oasVersion);
 
   const ctx: BundleContext = {
-    messages: [],
+    problems: [],
     oasVersion: oasVersion,
   };
 
@@ -95,7 +95,7 @@ export async function bundleDocument(opts: {
 
   return {
     bundle: document.parsed,
-    messages: ctx.messages.map((message) => config.addMessageToIgnore(message)),
+    problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
   };
 }

@@ -1,6 +1,6 @@
 import { Oas3Rule } from '../visitors';
 import { YamlParseError } from '../resolve';
-import { ResolveResult, ReportMessage } from '../walk';
+import { ResolveResult, Problem } from '../walk';
 import { Location } from '../ref-utils';
 
 export const NoUnresolvedRefs: Oas3Rule = () => {
@@ -25,7 +25,7 @@ export const NoUnresolvedRefs: Oas3Rule = () => {
 
 export function reportUnresolvedRef(
   resolved: ResolveResult<any>,
-  report: (m: ReportMessage) => void,
+  report: (m: Problem) => void,
   location: Location,
 ) {
   const error = resolved.error;

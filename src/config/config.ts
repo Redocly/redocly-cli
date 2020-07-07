@@ -18,7 +18,7 @@ import {
   Oas2DecoratorsSet,
 } from '../validate';
 
-import { MessageSeverity, NormalizedReportMessage } from '../walk';
+import { ProblemSeverity, NormalizedProblem } from '../walk';
 import { Oas3RuleSet } from '../validate';
 
 import recommended from './recommended';
@@ -31,18 +31,18 @@ const IGNORE_BANNER =
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
 export type RuleConfig =
-  | MessageSeverity
+  | ProblemSeverity
   | 'off'
   | ({
-      severity?: MessageSeverity;
+      severity?: ProblemSeverity;
     } & Record<string, any>);
 
 export type PreprocessorConfig =
-  | MessageSeverity
+  | ProblemSeverity
   | 'off'
   | 'on'
   | {
-      severity?: MessageSeverity;
+      severity?: ProblemSeverity;
       options?: Record<string, any>;
     };
 
@@ -216,30 +216,30 @@ export class LintConfig {
     fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.safeDump(mapped));
   }
 
-  addIgnore(message: NormalizedReportMessage) {
+  addIgnore(problem: NormalizedProblem) {
     const ignore = this.ignore;
-    const loc = message.location[0];
+    const loc = problem.location[0];
     if (loc.pointer === undefined) return;
 
     const fileIgnore = (ignore[loc.source.absoluteRef] = ignore[loc.source.absoluteRef] || {});
-    const ruleIgnore = (fileIgnore[message.ruleId] = fileIgnore[message.ruleId] || new Set());
+    const ruleIgnore = (fileIgnore[problem.ruleId] = fileIgnore[problem.ruleId] || new Set());
 
     ruleIgnore.add(loc.pointer);
   }
 
-  addMessageToIgnore(message: NormalizedReportMessage) {
-    const loc = message.location[0];
-    if (loc.pointer === undefined) return message;
+  addProblemToIgnore(problem: NormalizedProblem) {
+    const loc = problem.location[0];
+    if (loc.pointer === undefined) return problem;
 
     const fileIgnore = this.ignore[loc.source.absoluteRef] || {};
-    const ruleIgnore = fileIgnore[message.ruleId];
+    const ruleIgnore = fileIgnore[problem.ruleId];
     const ignored = ruleIgnore && ruleIgnore.has(loc.pointer);
     return ignored
       ? {
-          ...message,
+          ...problem,
           ignored,
         }
-      : message;
+      : problem;
   }
 
   extendTypes(types: Record<string, NodeType>, version: OasVersion) {

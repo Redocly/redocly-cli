@@ -34,7 +34,7 @@ export async function previewDocs(argv: {
   async function updateBundle() {
     process.stdout.write('\nBundling...\n\n');
     try {
-      const { bundle: openapiBundle, messages, fileDependencies } = await bundle({
+      const { bundle: openapiBundle, problems, fileDependencies } = await bundle({
         ref: entrypoint,
         config,
       });
@@ -45,7 +45,7 @@ export async function previewDocs(argv: {
       deps.clear();
       fileDependencies.forEach(deps.add, deps);
 
-      const fileTotals = getTotals(messages);
+      const fileTotals = getTotals(problems);
 
       if (fileTotals.errors === 0) {
         process.stdout.write(
