@@ -19,6 +19,7 @@ export default {
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
     'operation-operationId': 'warn',
+    'operation-summary': 'warn',
     'operation-operationId-unique': 'warn',
     'operation-operationId-url-safe': 'warn',
     'operation-parameters-unique': 'warn',

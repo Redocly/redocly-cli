@@ -28,6 +28,7 @@ import { Oas2Rule } from '../../visitors';
 import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { OperationOperationId } from '../common/operation-operationId';
+import { OperationSummary } from '../common/operation-summary';
 
 export const rules = {
   'info-description': InfoDescription as Oas2Rule,
@@ -53,6 +54,7 @@ export const rules = {
   'path-declaration-must-exist': PathDeclarationMustExist as Oas2Rule,
   'operationId-valid-in-url': OperationIdUrlSafe as Oas2Rule,
   'operation-operationId': OperationOperationId as Oas2Rule,
+  'operation-summary': OperationSummary as Oas2Rule,
 
   'operation-description': OperationDescription as Oas2Rule,
   'operation-operationId-url-safe': OperationIdUrlSafe as Oas2Rule,

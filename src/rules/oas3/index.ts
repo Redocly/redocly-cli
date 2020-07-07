@@ -35,6 +35,7 @@ import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
+import { OperationSummary } from '../common/operation-summary';
 
 export const rules = {
   'info-description': InfoDescription,
@@ -53,6 +54,7 @@ export const rules = {
   'path-declaration-must-exist': PathDeclarationMustExist,
   'operationId-valid-in-url': OperationIdUrlSafe,
   'operation-operationId': OperationOperationId,
+  'operation-summary': OperationSummary,
   'tags-alphabetical': TagsAlphabetical,
   'no-server-example.com': NoServerExample,
   'no-server-trailing-slash': NoServerTrailingSlash,
