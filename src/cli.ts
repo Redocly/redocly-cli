@@ -383,7 +383,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)} ${ignored}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}. ${ignored}\n`),
     );
   } else {
     process.stderr.write(
