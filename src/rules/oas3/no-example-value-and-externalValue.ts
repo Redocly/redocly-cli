@@ -5,7 +5,7 @@ export const NoExampleValueAndExternalValue: Oas3Rule = () => {
     Example(example, { report, location }) {
       if (example.value && example.externalValue) {
         report({
-          message: 'Example object can have either "value" or "externalValue" fields.',
+          message: 'Example object can have either `value` or `externalValue` fields.',
           location: location.child(['value']).key(),
         });
       }

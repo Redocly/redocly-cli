@@ -69,7 +69,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           if (!propSchema.enum.includes(propValue)) {
             report({
               location: propLocation,
-              message: `'${propName}' can be one of following only: ${propSchema.enum
+              message: `\`${propName}\` can be one of following only: ${propSchema.enum
                 .map((i) => `"${i}"`)
                 .join(', ')}`,
               suggest: getSuggest(propValue, propSchema.enum),

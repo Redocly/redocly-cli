@@ -83,7 +83,7 @@ export function formatMessages(
 
       for (let i = 0; i < fileMessages.length; i++) {
         const message = fileMessages[i];
-        process.stderr.write(`${shortFormatMessage(message, positionPad, ruleIdPad)}\n`);
+        process.stderr.write(`${stylishFormatMessage(message, positionPad, ruleIdPad)}\n`);
       }
 
       process.stderr.write('\n');
@@ -117,12 +117,17 @@ export function formatMessages(
     );
   }
 
-  function shortFormatMessage(message: OnlyLineColMessage, locationPad: number, ruleIdPad: number) {
+  function stylishFormatMessage(
+    message: OnlyLineColMessage,
+    locationPad: number,
+    ruleIdPad: number,
+  ) {
     const color = COLORS[message.severity];
+    const severityName = color(SEVERITY_NAMES[message.severity].toLowerCase().padEnd(7));
     const { start } = message.location[0];
-    return `  ${`${start.line}:${start.col}`.padEnd(locationPad + 2)} ${color(
-      message.ruleId.padEnd(ruleIdPad),
-    )} ${message.message}`;
+    return `  ${`${start.line}:${start.col}`.padEnd(
+      locationPad,
+    )}  ${severityName}  ${message.ruleId.padEnd(ruleIdPad)}  ${message.message}`;
   }
 }
 

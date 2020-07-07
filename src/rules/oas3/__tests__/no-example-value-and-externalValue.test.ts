@@ -39,7 +39,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example object can have either \\"value\\" or \\"externalValue\\" fields.",
+          "message": "Example object can have either \`value\` or \`externalValue\` fields.",
           "ruleId": "no-example-value-and-externalValue",
           "severity": "error",
           "suggest": Array [],
