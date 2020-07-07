@@ -375,7 +375,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       red(
         `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
           totals.warnings
-        }${totals.warnings > 0 ? ` ${pluralize('warning', totals.warnings)}` : ''}. ${ignored}\n`,
+        }${totals.warnings > 0 ? ` ${pluralize('warning', totals.warnings)}` : ''}.\n${ignored}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
@@ -383,7 +383,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}. ${ignored}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}\n`),
     );
   } else {
     process.stderr.write(
@@ -391,7 +391,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
         `Woohoo! Your OpenAPI ${pluralize(
           'definition is',
           definitionsCount,
-        )} valid. 🎉 ${ignored}\n`,
+        )} valid. 🎉\n${ignored}\n`,
       ),
     );
   }
