@@ -7,7 +7,13 @@ import { performance } from 'perf_hooks';
 import { validate } from './validate';
 
 import { bundle } from './bundle';
-import { dumpBundle, saveBundle, BundleOutputFormat, promptUser, CircularJSONNotSupportedError } from './utils';
+import {
+  dumpBundle,
+  saveBundle,
+  BundleOutputFormat,
+  promptUser,
+  CircularJSONNotSupportedError,
+} from './utils';
 import { formatProblems, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
@@ -385,10 +391,10 @@ function handleError(e: Error, ref: string) {
       `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
     );
     // TODO: codeframe
-  } if (e instanceof CircularJSONNotSupportedError) {
+  } else if (e instanceof CircularJSONNotSupportedError) {
     process.stderr.write(
       red(`Detected circular reference which can't be converted to JSON.\n`) +
-      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
+        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
     );
   } else {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
@@ -404,9 +410,9 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
   if (totals.errors > 0) {
     process.stderr.write(
       red(
-        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)} and ${
-          totals.warnings
-        }${totals.warnings > 0 ? ` ${pluralize('warning', totals.warnings)}` : ''}.\n${ignored}\n`,
+        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
+          totals.warnings > 0 ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}` : ''
+        }.\n${ignored}\n`,
       ),
     );
   } else if (totals.warnings > 0) {
