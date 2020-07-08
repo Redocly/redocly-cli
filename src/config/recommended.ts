@@ -12,7 +12,8 @@ export default {
 
     'parameter-description': 'off',
     'no-path-trailing-slash': 'error',
-    'no-identical-paths': 'warn',
+    'no-identical-paths': 'error',
+    'no-ambiguous-paths': 'warn',
     'path-declaration-must-exist': 'error',
     'path-not-include-query': 'error',
     'path-parameters-defined': 'error',

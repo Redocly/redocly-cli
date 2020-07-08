@@ -29,6 +29,7 @@ import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
+import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
 export const rules = {
   'info-description': InfoDescription as Oas2Rule,
@@ -64,6 +65,7 @@ export const rules = {
   'operation-security-defined': OperationSecurityDefined as Oas2Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
+  'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
 
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
 

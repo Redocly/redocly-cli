@@ -13,6 +13,7 @@ export default {
     'parameter-description': 'off',
     'no-path-trailing-slash': 'warn',
     'no-identical-paths': 'warn',
+    'no-ambiguous-paths': 'warn',
     'path-declaration-must-exist': 'warn',
     'path-not-include-query': 'warn',
     'path-parameters-defined': 'warn',

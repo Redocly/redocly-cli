@@ -36,6 +36,7 @@ import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
+import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
 export const rules = {
   'info-description': InfoDescription,
@@ -73,6 +74,7 @@ export const rules = {
   'no-invalid-media-type-examples': ValidContentExamples,
   'registry-dependencies': RegistryDependencies,
   'no-identical-paths': NoIdenticalPaths,
+  'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   spec: OasSpec,
 } as Oas3RuleSet;
