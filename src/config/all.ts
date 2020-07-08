@@ -25,7 +25,6 @@ export default {
     'operation-parameters-unique': 'error',
     'operation-tag-defined': 'error',
     'operation-security-defined': 'error',
-    'operationId-valid-in-url': 'error',
     'operation-singular-tag': 'error',
 
     'no-unresolved-refs': 'error',

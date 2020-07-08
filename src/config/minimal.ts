@@ -21,11 +21,10 @@ export default {
     'operation-operationId': 'warn',
     'operation-summary': 'warn',
     'operation-operationId-unique': 'warn',
-    'operation-operationId-url-safe': 'warn',
     'operation-parameters-unique': 'warn',
     'operation-tag-defined': 'off',
     'operation-security-defined': 'warn',
-    'operationId-valid-in-url': 'warn',
+    'operation-operationId-url-safe': 'warn',
     'operation-singular-tag': 'off',
 
     'no-unresolved-refs': 'error',

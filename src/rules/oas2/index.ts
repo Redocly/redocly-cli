@@ -52,12 +52,11 @@ export const rules = {
   'operation-tag-defined': OperationTagDefined as Oas2Rule,
 
   'path-declaration-must-exist': PathDeclarationMustExist as Oas2Rule,
-  'operationId-valid-in-url': OperationIdUrlSafe as Oas2Rule,
+  'operation-operationId-url-safe': OperationIdUrlSafe as Oas2Rule,
   'operation-operationId': OperationOperationId as Oas2Rule,
   'operation-summary': OperationSummary as Oas2Rule,
 
   'operation-description': OperationDescription as Oas2Rule,
-  'operation-operationId-url-safe': OperationIdUrlSafe as Oas2Rule,
   'path-not-include-query': PathNotIncludeQuery as Oas2Rule,
   'path-params-defined': PathParamsDefined as Oas2Rule,
   'parameter-description': ParameterDescription as Oas2Rule,
