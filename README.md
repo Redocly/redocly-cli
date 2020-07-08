@@ -29,7 +29,9 @@ Currently, @redocly/openapi-cli supports these features:
 
 Unlike other OpenAPI linters, `@redocly/openapi-cli` defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how linters for programming languages work and results in major performance benefits over other approaches. Extend functionality at different points in the lifecycle with preprocessors, rules, and decorators.
 
-## TLDR: `npx @redocly/openapi-cli lint path-to-root-file.yaml`
+## TLDR
+
+`npx @redocly/openapi-cli lint path-to-root-file.yaml`
 
 ## [Read the docs](https://redoc.ly/docs/cli/)
 
