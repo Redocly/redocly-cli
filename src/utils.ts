@@ -26,19 +26,34 @@ export function popStack<T, P extends Stack<T>>(head: P) {
 
 export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
-export function dumpBundle(obj: any, format: BundleOutputFormat) {
+export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: boolean) {
   if (format === 'json') {
-    return JSON.stringify(obj, null, 2);
+    try {
+      return JSON.stringify(obj, null, 2);
+    } catch(e) {
+      if (e.message.indexOf('circular') > -1) {
+        throw new CircularJSONNotSupportedError(e);
+      }
+      throw e;
+    }
   } else {
     return yaml.safeDump(obj, {
-      noRefs: true,
+      noRefs: !dereference,
     });
   }
 }
 
-export function saveBundle(filename: string, obj: any, format: BundleOutputFormat) {
+export class CircularJSONNotSupportedError extends Error {
+  constructor(public originalError: Error) {
+    super(originalError.message);
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, CircularJSONNotSupportedError.prototype);
+  }
+}
+
+export function saveBundle(filename: string, output: string) {
   fs.mkdirSync(path.dirname(filename), { recursive: true });
-  fs.writeFileSync(filename, dumpBundle(obj, format));
+  fs.writeFileSync(filename, output);
 }
 
 export async function loadYaml(filename: string) {

@@ -16,7 +16,6 @@ export const NoUnresolvedRefs: Oas3Rule = () => {
         const resolved = resolve({ $ref: mapping[mappingName] });
         if (resolved.node !== undefined) return;
 
-        console.log(mapping[mappingName], location.absolutePointer);
         reportUnresolvedRef(resolved, report, location.child(mappingName));
       }
     },

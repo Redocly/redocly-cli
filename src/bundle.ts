@@ -19,6 +19,7 @@ export async function bundle(opts: {
   ref: string;
   externalRefResolver?: BaseResolver;
   config: Config;
+  dereference?: boolean;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
 
@@ -44,8 +45,9 @@ export async function bundleDocument(opts: {
   config: LintConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
+  dereference?: boolean;
 }) {
-  const { document, config, customTypes, externalRefResolver } = opts;
+  const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
 
@@ -72,7 +74,7 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference),
       },
       ...decorators,
     ],
@@ -141,7 +143,7 @@ function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor(version: OasMajorVersion) {
+function makeBundleVisitor(version: OasMajorVersion, dereference: boolean) {
   let components: Record<string, Record<string, any>>;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -160,7 +162,13 @@ function makeBundleVisitor(version: OasMajorVersion) {
             Object.assign(node, resolved.node);
           }
         } else {
-          node.$ref = saveComponent(componentType, resolved, ctx);
+          if (dereference) {
+            saveComponent(componentType, resolved, ctx);
+            delete node.$ref;
+            Object.assign(node, resolved.node);
+          } else {
+            node.$ref = saveComponent(componentType, resolved, ctx);
+          }
         }
       },
     },
@@ -187,7 +195,11 @@ function makeBundleVisitor(version: OasMajorVersion) {
           }
 
           const componentType = mapTypeToComponent('Schema', version)!;
-          mapping[name] = saveComponent(componentType, resolved, ctx);
+          if (dereference) {
+            saveComponent(componentType, resolved, ctx);
+          } else {
+            mapping[name] = saveComponent(componentType, resolved, ctx);
+          }
         }
       },
     };

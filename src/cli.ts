@@ -7,7 +7,7 @@ import { performance } from 'perf_hooks';
 import { validate } from './validate';
 
 import { bundle } from './bundle';
-import { dumpBundle, saveBundle, BundleOutputFormat, promptUser } from './utils';
+import { dumpBundle, saveBundle, BundleOutputFormat, promptUser, CircularJSONNotSupportedError } from './utils';
 import { formatProblems, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
@@ -185,6 +185,11 @@ yargs
           array: true,
           type: 'string',
         })
+        .option('dereferenced', {
+          alias: 'd',
+          type: 'boolean',
+          description: 'Produce fully dereferenced bundle.',
+        })
         .option('force', {
           alias: 'f',
           type: 'boolean',
@@ -210,6 +215,7 @@ yargs
           const { bundle: result, problems } = await bundle({
             config,
             ref: entrypoint,
+            dereference: argv.dereferenced,
           });
 
           const fileTotals = getTotals(problems);
@@ -222,11 +228,12 @@ yargs
           );
 
           if (fileTotals.errors === 0 || argv.force) {
-            const output = dumpBundle(result, argv.ext || 'yaml');
             if (!argv.output) {
+              const output = dumpBundle(result, argv.ext || 'yaml', argv.dereferenced);
               process.stdout.write(output);
             } else {
-              saveBundle(outputFile, result, ext);
+              const output = dumpBundle(result, ext, argv.dereferenced);
+              saveBundle(outputFile, output);
             }
           }
 
@@ -247,9 +254,11 @@ yargs
           if (fileTotals.errors > 0) {
             if (argv.force) {
               process.stderr.write(
-                `❓ Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} with errors ${green(
-                  elapsed,
-                )}.\n${yellow('Errors ignored because of --force')}.\n`,
+                `❓ Created a bundle for ${blue(entrypoint)} at ${blue(
+                  outputFile,
+                )} with errors ${green(elapsed)}.\n${yellow(
+                  'Errors ignored because of --force',
+                )}.\n`,
               );
             } else {
               process.stderr.write(
@@ -376,6 +385,11 @@ function handleError(e: Error, ref: string) {
       `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
     );
     // TODO: codeframe
+  } if (e instanceof CircularJSONNotSupportedError) {
+    process.stderr.write(
+      red(`Detected circular reference which can't be converted to JSON.\n`) +
+      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
+    );
   } else {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
     throw e;
