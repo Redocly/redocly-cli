@@ -574,16 +574,30 @@ function mergeExtends(rulesConfList: LintRawConfig[]) {
     }
     Object.assign(result.rules, rulesConf.rules);
     Object.assign(result.oas2Rules, rulesConf.oas2Rules);
+    assignExisting(result.oas2Rules, rulesConf.rules || {});
     Object.assign(result.oas3_0Rules, rulesConf.oas3_0Rules);
+    assignExisting(result.oas3_0Rules, rulesConf.rules || {});
 
     Object.assign(result.preprocessors, rulesConf.preprocessors);
     Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
+    assignExisting(result.oas2Preprocessors, rulesConf.preprocessors || {});
     Object.assign(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
+    assignExisting(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
 
     Object.assign(result.decorators, rulesConf.decorators);
     Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
+    assignExisting(result.oas2Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
+    assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
   }
 
   return result;
+}
+
+function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
+  for (let k of Object.keys(obj)) {
+    if (target.hasOwnProperty(k)) {
+      target[k] = obj[k];
+    }
+  }
 }
