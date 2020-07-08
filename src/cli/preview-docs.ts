@@ -8,6 +8,7 @@ import startPreviewServer from './preview-server/preview-server';
 import { RedoclyClient } from '../redocly';
 import { ResolveError, YamlParseError } from '../resolve';
 
+
 export async function previewDocs(argv: {
   port: number;
   'use-community-edition'?: boolean;
@@ -69,11 +70,15 @@ export async function previewDocs(argv: {
     cachedBundle = updateBundle();
   }); // initial cache
 
+  const isAuthorized = (isAuthorizedWithRedocly || redocOptions.licenseKey)
+  if (!isAuthorized) {
+    process.stderr.write(`Using Redoc community edition.\nLogin with openapi-cli ${colorette.blue('login')} or use an enterprise license key to preview with the premium docs.\n\n`)
+  }
+
   const hotClients = await startPreviewServer(argv.port, {
     getBundle,
     getOptions: () => redocOptions,
-    useRedocPro:
-      (isAuthorizedWithRedocly || redocOptions.licenseKey) && !redocOptions.useCommunityEdition,
+    useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
   });
 
   const watcher = chockidar.watch([entrypoint, config.configFile!], {
