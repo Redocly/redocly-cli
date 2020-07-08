@@ -1,9 +1,0 @@
-parameters:
-  - $ref: ../../components/anotherParameters/parameter.name.yml
-responses:
-  '200':
-    description: blbbbb
-    content: 
-      application/json:
-        schema:
-          type: string

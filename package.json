@@ -1,35 +1,26 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "0.12.16",
+  "version": "1.0.0-alpha.14",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "npm run babel && npm run copyFiles",
-    "babel": "babel src --out-dir dist --source-maps inline",
-    "copyFiles": "chmod +x ./dist/index.js && cp ./package.json ./dist/package.json && cp src/.redocly.yaml dist/.redocly.yaml && cp src/preview-docs/default.hbs dist/preview-docs",
-    "lint": "eslint ./src",
-    "prepublishOnly": "npm run build && cp src/.redocly.yaml dist/.redocly.yaml",
-    "test": "jest --coverage"
+    "test": "npm run typecheck && npm run unit",
+    "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
+    "e2e": "jest ./__tests__",
+    "cli": "ts-node src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
+    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "prepublishOnly": "npm run build"
   },
   "bin": {
-    "openapi": "dist/index.js"
+    "openapi": "lib/cli.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/openapi-cli.git"
   },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ]
-  },
-  "author": "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-  "license": "MIT",
   "keywords": [
     "linter",
     "OpenAPI",
@@ -38,33 +29,64 @@
     "Swagger linter",
     "oas"
   ],
+  "contributors": [
+    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
+  ],
+  "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "^7.9.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.20.1",
-    "jest": "^25.1.0",
-    "prettier": "^2.0.1",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "@types/jest": "^26.0.0",
+    "@types/js-levenshtein": "^1.1.0",
+    "@types/js-yaml": "^3.12.4",
+    "@types/lodash.isequal": "^4.5.5",
+    "@types/minimatch": "^3.0.3",
+    "@types/node-fetch": "^2.5.7",
+    "@types/yargs": "^15.0.5",
+    "jest": "^26.0.1",
+    "outdent": "^0.7.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.1.0",
+    "ts-node": "^8.10.2"
   },
   "dependencies": {
-    "chalk": "^3.0.0",
-    "chokidar": "^3.3.1",
-    "commander": "^5.0.0",
-    "handlebars": "^4.7.3",
-    "js-yaml": "^3.13.1",
+    "@redocly/ajv": "^6.12.3",
+    "@types/node": "^14.0.13",
+    "chokidar": "^3.4.0",
+    "colorette": "^1.2.0",
+    "handlebars": "^4.7.6",
+    "js-levenshtein": "^1.1.6",
+    "js-yaml": "^3.14.0",
     "lodash.isequal": "^4.5.0",
-    "merge-deep": "^3.0.2",
     "minimatch": "^3.0.4",
     "node-fetch": "^2.6.0",
-    "portfinder": "^1.0.25",
-    "simple-websocket": "^8.1.1",
-    "yaml-ast-parser": "0.0.43"
+    "portfinder": "^1.0.26",
+    "simple-websocket": "^9.0.0",
+    "typescript": "^3.9.5",
+    "yaml-ast-parser": "0.0.43",
+    "yargs": "^15.3.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 100
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/__tests__/**/*",
+      "!src/cli.ts",
+      "!src/cli/**/*.ts",
+      "!src/format/format.ts"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts",
+      "**/*.test.ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    }
   }
 }
