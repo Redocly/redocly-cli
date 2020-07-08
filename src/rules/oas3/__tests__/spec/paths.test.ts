@@ -150,7 +150,7 @@ describe('OpenAPI Schema', () => {
 
     expect(
       await validateDoc(source, {
-        'no-ambiguous-paths': 'error',
+        'no-identical-paths': 'error',
       }),
     ).toMatchInlineSnapshot(`
       Array [

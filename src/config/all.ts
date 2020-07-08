@@ -11,7 +11,7 @@ export default {
     'tags-alphabetical': 'error',
 
     'parameter-description': 'error',
-    'no-ambiguous-paths': 'error',
+    'no-identical-paths': 'error',
     'no-path-trailing-slash': 'error',
     'path-declaration-must-exist': 'error',
     'path-not-include-query': 'error',

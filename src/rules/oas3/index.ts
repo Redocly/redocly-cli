@@ -32,7 +32,7 @@ import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
 import { RegistryDependencies } from '../common/registry-dependencies';
-import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
@@ -72,7 +72,7 @@ export const rules = {
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
   'registry-dependencies': RegistryDependencies,
-  'no-ambiguous-paths': NoAmbiguousPaths,
+  'no-identical-paths': NoIdenticalPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   spec: OasSpec,
 } as Oas3RuleSet;
