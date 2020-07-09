@@ -411,7 +411,9 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
     process.stderr.write(
       red(
         `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
-          totals.warnings > 0 ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}` : ''
+          totals.warnings > 0
+            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
+            : ''
         }.\n${ignored}\n`,
       ),
     );

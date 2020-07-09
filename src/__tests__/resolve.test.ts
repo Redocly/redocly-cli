@@ -78,6 +78,12 @@ describe('collect refs', () => {
           $ref: "#/tmp/info"
         tmp:
           $ref: '#/defs'
+        prop:
+          $ref: '#/propTrans'
+        propTrans:
+          $ref: '#/propDest'
+        propDest:
+          type: string
         defs:
           info:
             contact: {}
@@ -93,14 +99,18 @@ describe('collect refs', () => {
     });
 
     expect(resolvedRefs).toBeDefined();
-    expect(resolvedRefs.size).toEqual(2);
+    expect(resolvedRefs.size).toEqual(4);
     expect(Array.from(resolvedRefs.keys())).toEqual([
       'foobar.yaml::#/defs',
+      'foobar.yaml::#/propDest',
       'foobar.yaml::#/tmp/info',
+      'foobar.yaml::#/propTrans',
     ]);
     expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([
       { info: { contact: {}, license: {} } },
+      { type: 'string' },
       { contact: {}, license: {} },
+      { type: 'string' },
     ]);
   });
 

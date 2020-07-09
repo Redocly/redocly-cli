@@ -344,10 +344,11 @@ export async function resolveDocument(opts: {
       resolvedRef.node = target;
 
       const refId = document.source.absoluteRef + '::' + ref.$ref;
-      resolvedRefMap.set(refId, resolvedRef);
+
       if (resolvedRef.document && isRef(target)) {
-        return followRef(resolvedRef.document, target, pushRef(refStack, target));
+        resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
       }
+      resolvedRefMap.set(refId, resolvedRef);
 
       return { ...resolvedRef };
     }
