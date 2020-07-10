@@ -81,7 +81,8 @@ export async function previewDocs(argv: {
     useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
   });
 
-  const watcher = chockidar.watch([entrypoint, config.configFile!], {
+  const watchPaths = [entrypoint, config.configFile!].filter(e => !!e);
+  const watcher = chockidar.watch(watchPaths, {
     disableGlobbing: true,
     ignoreInitial: true,
   });
