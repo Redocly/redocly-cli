@@ -8,7 +8,7 @@
     "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
     "e2e": "jest ./__tests__",
     "cli": "ts-node src/cli.ts",
-    "build": "tsc -p tsconfig.build.json && cp ./src/cli/preview-server/default.hbs ./lib/cli/preview-server/default.hbs",
+    "build": "tsc -p tsconfig.build.json && cp ./src/cli/preview-server/default.hbs ./lib/cli/preview-server",
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
