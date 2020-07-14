@@ -13,7 +13,7 @@ export async function previewDocs(argv: {
   port: number;
   'use-community-edition'?: boolean;
   config?: string;
-  entrypoint: string;
+  entrypoint?: string;
   'skip-rule'?: string[];
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
@@ -23,7 +23,7 @@ export async function previewDocs(argv: {
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const entrypoint = getFallbackEntryPointsOrExit([argv.entrypoint], config)[0];
+  const entrypoint = getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)[0];
 
   let cachedBundle: any;
   const deps = new Set<string>();

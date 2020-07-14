@@ -1,3 +1,5 @@
+apiDefinitions:
+  main: ./petstore-with-errors.yaml
 lint:
   plugins:
     - './local-plugin.js'

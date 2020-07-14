@@ -305,14 +305,12 @@ yargs
     client.logout();
   })
   .command(
-    'preview-docs <entrypoint>',
+    'preview-docs [entrypoint]',
     'Preview API reference docs for the specified definition.',
     (yargs) =>
       yargs
         .positional('entrypoint', {
           type: 'string',
-          required: true,
-          demandOption: true,
         })
         .option('port', {
           alias: 'p',
