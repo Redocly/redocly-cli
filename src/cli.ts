@@ -368,9 +368,8 @@ function getOutputFileName(
   } else {
     if (output) {
       ext = ext || (extname(output).substring(1) as BundleOutputFormat);
-    } else {
-      ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
     }
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
     if (!outputExtensions.includes(ext as any)) {
       throw new Error(`Invalid file extension: ${ext}.`);
     }
