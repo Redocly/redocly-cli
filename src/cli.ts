@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
-import { extname, basename, dirname, join } from 'path';
+import { extname, basename, dirname, join, resolve } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
@@ -490,7 +490,8 @@ export function getFallbackEntryPointsOrExit(
     config.apiDefinitions &&
     Object.keys(config.apiDefinitions).length > 0
   ) {
-    res = Object.values(config.apiDefinitions);
+    const dir = config.configFile ? dirname(config.configFile) : process.cwd();
+    res = Object.values(config.apiDefinitions).map((fileName) => resolve(dir, fileName));
   } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
     res = res!.map((aliasOrPath) => config.apiDefinitions[aliasOrPath] || aliasOrPath);
   }
