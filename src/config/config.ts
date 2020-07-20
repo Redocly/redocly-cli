@@ -409,7 +409,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
     }
   }
 
-  if (rawConfig?.lint?.extends == undefined && customExtends !== undefined) {
+  if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
