@@ -33,7 +33,7 @@ export class Location {
 }
 
 export function unescapePointer(fragment: string): string {
-  return fragment.replace(/~1/g, '/').replace(/~0/g, '~');
+  return decodeURIComponent(fragment.replace(/~1/g, '/').replace(/~0/g, '~'));
 }
 
 export function escapePointer<T extends string | number>(fragment: T): T {
@@ -45,7 +45,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
   const [uri, pointer] = ref.split('#/');
   return {
     uri: uri || null,
-    pointer: pointer ? pointer.split('/').map(escapePointer).filter(Boolean) : [],
+    pointer: pointer ? pointer.split('/').map(unescapePointer).filter(Boolean) : [],
   };
 }
 
