@@ -359,11 +359,7 @@ export function walkDocument<T>(opts: {
       return { location: newLocation, node, error };
     }
 
-    function reportFn(
-      ruleId: string,
-      severity: ProblemSeverity,
-      opts: Problem,
-    ) {
+    function reportFn(ruleId: string, severity: ProblemSeverity, opts: Problem) {
       const loc = opts.location
         ? Array.isArray(opts.location)
           ? opts.location
