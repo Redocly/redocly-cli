@@ -9,7 +9,9 @@ export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
       const seenPaths = [];
 
       for (const currentPath of Object.keys(pathMap)) {
-        const ambiguousPath = seenPaths.find((seenPath) => arePathsAmbiguous(seenPath, currentPath));
+        const ambiguousPath = seenPaths.find((seenPath) =>
+          arePathsAmbiguous(seenPath, currentPath),
+        );
         if (ambiguousPath) {
           report({
             message: `Paths should resolve unambiguously. Found two ambiguous paths: \`${ambiguousPath}\` and \`${currentPath}\`.`,

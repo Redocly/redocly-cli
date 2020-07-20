@@ -8,7 +8,6 @@ import startPreviewServer from './preview-server/preview-server';
 import { RedoclyClient } from '../redocly';
 import { ResolveError, YamlParseError } from '../resolve';
 
-
 export async function previewDocs(argv: {
   port: number;
   'use-community-edition'?: boolean;
@@ -23,7 +22,10 @@ export async function previewDocs(argv: {
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const entrypoint = getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)[0];
+  const entrypoint = getFallbackEntryPointsOrExit(
+    argv.entrypoint ? [argv.entrypoint] : [],
+    config,
+  )[0];
 
   let cachedBundle: any;
   const deps = new Set<string>();
@@ -70,9 +72,13 @@ export async function previewDocs(argv: {
     cachedBundle = updateBundle();
   }); // initial cache
 
-  const isAuthorized = (isAuthorizedWithRedocly || redocOptions.licenseKey)
+  const isAuthorized = isAuthorizedWithRedocly || redocOptions.licenseKey;
   if (!isAuthorized) {
-    process.stderr.write(`Using Redoc community edition.\nLogin with openapi-cli ${colorette.blue('login')} or use an enterprise license key to preview with the premium docs.\n\n`)
+    process.stderr.write(
+      `Using Redoc community edition.\nLogin with openapi-cli ${colorette.blue(
+        'login',
+      )} or use an enterprise license key to preview with the premium docs.\n\n`,
+    );
   }
 
   const hotClients = await startPreviewServer(argv.port, {
@@ -81,7 +87,7 @@ export async function previewDocs(argv: {
     useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
   });
 
-  const watchPaths = [entrypoint, config.configFile!].filter(e => !!e);
+  const watchPaths = [entrypoint, config.configFile!].filter((e) => !!e);
   const watcher = chockidar.watch(watchPaths, {
     disableGlobbing: true,
     ignoreInitial: true,

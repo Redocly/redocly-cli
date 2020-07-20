@@ -30,7 +30,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
   if (format === 'json') {
     try {
       return JSON.stringify(obj, null, 2);
-    } catch(e) {
+    } catch (e) {
       if (e.message.indexOf('circular') > -1) {
         throw new CircularJSONNotSupportedError(e);
       }

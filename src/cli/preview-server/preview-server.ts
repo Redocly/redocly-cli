@@ -80,7 +80,10 @@ export default async function startPreviewServer(
         respondWithGzip(
           JSON.stringify({
             openapi: '3.0.0',
-            info: { description: '<code> Failed to generate bundle: check out console output for more details </code>' },
+            info: {
+              description:
+                '<code> Failed to generate bundle: check out console output for more details </code>',
+            },
             paths: {},
           }),
           request,

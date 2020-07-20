@@ -409,7 +409,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
     }
   }
 
-  if (rawConfig?.lint?.extends == undefined && customExtends !== undefined) {
+  if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
@@ -569,7 +569,11 @@ function mergeExtends(rulesConfList: LintRawConfig[]) {
   for (let rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`,
+        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
+          rulesConf,
+          null,
+          2,
+        )}.`,
       );
     }
     Object.assign(result.rules, rulesConf.rules);

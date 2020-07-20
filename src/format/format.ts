@@ -10,12 +10,7 @@ import {
   red,
 } from 'colorette';
 
-import {
-  NormalizedProblem,
-  ProblemSeverity,
-  LineColLocationObject,
-  LocationObject,
-} from '../walk';
+import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
 
 const BG_COLORS = {
@@ -117,11 +112,7 @@ export function formatProblems(
     );
   }
 
-  function formatStylish(
-    problem: OnlyLineColProblem,
-    locationPad: number,
-    ruleIdPad: number,
-  ) {
+  function formatStylish(problem: OnlyLineColProblem, locationPad: number, ruleIdPad: number) {
     const color = COLORS[problem.severity];
     const severityName = color(SEVERITY_NAMES[problem.severity].toLowerCase().padEnd(7));
     const { start } = problem.location[0];
