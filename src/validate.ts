@@ -102,8 +102,7 @@ export function detectOpenAPI(root: any): OasVersion {
   }
 
   if (!(root.openapi || root.swagger)) {
-    process.stderr.write('❗️❗️❗️ This doesn’t look like an OpenAPI document.\n');
-    process.exit(1);
+    throw new Error('This doesn’t look like an OpenAPI document.\n');
   }
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
