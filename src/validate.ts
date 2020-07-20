@@ -101,6 +101,11 @@ export function detectOpenAPI(root: any): OasVersion {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
   }
 
+  if (!(root.openapi || root.swagger)) {
+    process.stderr.write('❗️❗️❗️ This doesn’t look like an OpenAPI document.\n');
+    process.exit(1);
+  }
+
   if (root.openapi && root.openapi.startsWith('3.0')) {
     return OasVersion.Version3_0;
   }
