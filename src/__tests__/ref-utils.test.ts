@@ -1,4 +1,10 @@
+import outdent from 'outdent';
+
+import { parseYamlToDocument } from './utils';
 import { parseRef } from '../ref-utils';
+import { validateDocument } from '../validate';
+import { LintConfig } from '../config/config';
+import { BaseResolver } from '../resolve';
 
 describe('ref-utils', () => {
   it(`should unescape refs with '/'`, () => {
@@ -42,4 +48,52 @@ describe('ref-utils', () => {
       }
     `);
   });
+
+  it(`should validate definition with urlencoded paths`, async () => {
+    const document = parseYamlToDocument(
+      outdent` 
+        openapi: "3.0.0"
+        info:
+          version: 1.0.0
+          title: Swagger Petstore
+          description: Test definition
+          license:
+            name: MIT
+            url: https://opensource.org/licenses/MIT
+        servers:
+          - url: http://petstore.swagger.io/v1
+        paths:
+          /pet:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '200':
+                  description: A paged array of pets
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/scope%3A%7Banimals%2FPet%7D"
+        components:
+          schemas:
+            scope:{animals/Pet}:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                name:
+                  type: string
+      `,
+      '',
+    );
+
+    const result = await validateDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: new LintConfig({}),
+    })
+
+    expect(result).toMatchSnapshot();
+  })
 });
