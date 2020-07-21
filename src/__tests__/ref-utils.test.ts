@@ -73,7 +73,7 @@ describe('ref-utils', () => {
                   content:
                     application/json:
                       schema:
-                        $ref: "#/components/schemas/scope%3A%7Banimals%2FPet%7D"
+                        $ref: "#/components/schemas/scope%3A%7Banimals~1Pet%7D"
         components:
           schemas:
             scope:{animals/Pet}:
@@ -92,8 +92,8 @@ describe('ref-utils', () => {
       document,
       externalRefResolver: new BaseResolver(),
       config: new LintConfig({}),
-    })
+    });
 
-    expect(result).toMatchSnapshot();
-  })
+    expect(result).toMatchInlineSnapshot(`Array []`);
+  });
 });
