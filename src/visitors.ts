@@ -133,6 +133,7 @@ type Oas3FlatVisitor = {
   License?: VisitFunctionOrObject<Oas3License>;
   PathMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
+  Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;

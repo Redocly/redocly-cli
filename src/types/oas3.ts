@@ -182,6 +182,11 @@ const Parameter: NodeType = {
   required: ['name', 'in'],
 };
 
+const Callback = {
+  properties: {},
+  additionalProperties: 'PathItem'
+}
+
 const Operation: NodeType = {
   properties: {
     tags: {
@@ -207,7 +212,7 @@ const Operation: NodeType = {
     deprecated: {
       type: 'boolean',
     },
-    callbacks: 'PathMap',
+    callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
   },
@@ -536,6 +541,7 @@ export const Oas3Types: Record<string, NodeType> = {
   PathItem,
   Parameter,
   Operation,
+  Callback,
   RequestBody,
   MediaTypeMap,
   MediaType,
