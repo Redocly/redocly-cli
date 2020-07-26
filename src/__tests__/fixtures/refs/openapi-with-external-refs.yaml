@@ -7,10 +7,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/param-a'
         - $ref: ./param-b.yaml
+        - name: test
     get:
       parameters:
         - $ref: '#/components/parameters/param-a'
         - $ref: ./param-c.yaml
+    post:
+      parameters:
+        - $ref: '#/paths/~1pet/put/parameters/2'
 components:
   parameters:
     param-a:

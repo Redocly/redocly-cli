@@ -74,7 +74,7 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference, document),
       },
       ...decorators,
     ],
@@ -143,7 +143,7 @@ function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor(version: OasMajorVersion, dereference: boolean) {
+function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootDocument: Document) {
   let components: Record<string, Record<string, any>>;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -151,6 +151,12 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean) {
       leave(node, ctx, resolved) {
         if (!resolved.location || resolved.node === undefined) {
           reportUnresolvedRef(resolved, ctx.report, ctx.location);
+          return;
+        }
+        if (
+          resolved.location.source === rootDocument.source &&
+          resolved.location.source === ctx.location.source
+        ) {
           return;
         }
         const componentType = mapTypeToComponent(ctx.type.name, version);
