@@ -12,9 +12,9 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+1. Given this `.redocly.yaml` file
+2. And this OpenAPI file(s)
+3. Run this command with these arguments... `openapi ...`
 4. See error
 
 **Expected behavior**
@@ -24,7 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add logs to help explain your problem.
 
 **OpenAPI definition**
-If applicable, add an OpenAPI definition that helps reproduce the problem.
+If applicable, add an OpenAPI definition and `.redocly.yaml` configuration file that helps reproduce the problem.
 
 **Version(s)**
 What version are you using?
