@@ -243,14 +243,14 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
       return name;
 
     if (pointerBase) {
-      name = `${refBase}/${pointerBase}`;
+      name = `${refBase}_${pointerBase}`;
       if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) return name;
     }
 
     const prevName = name;
     let serialId = 2;
     while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
-      name = `${name}-${serialId}`;
+      name = `${prevName}-${serialId}`;
       serialId++;
     }
 
