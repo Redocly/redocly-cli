@@ -48,7 +48,7 @@ export class RedoclyClient {
       process.stderr.write(
         `${yellow(
           'Warning:',
-        )} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli registry:login" to provide your access token\n`,
+        )} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli login" to provide your access token\n`,
       );
       return undefined;
     }
