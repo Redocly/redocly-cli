@@ -14,7 +14,7 @@ import { ResolveConfig } from './config/config';
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
 export class Source {
-  constructor(public absoluteRef: string, public body: string) {}
+  constructor(public absoluteRef: string, public body: string, public mimeType?: string) {}
 
   private _ast: YAMLNode | undefined;
   private _lines: string[] | undefined;
@@ -98,10 +98,12 @@ export class BaseResolver {
 
   async loadExternalRef(absoluteRef: string): Promise<Source> {
     try {
-      const body = isAbsoluteUrl(absoluteRef)
-        ? await readFileFromUrl(absoluteRef, this.config.http)
-        : await readFile(absoluteRef, 'utf-8');
-      return new Source(absoluteRef, body);
+      if (isAbsoluteUrl(absoluteRef)) {
+        const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
+        return new Source(absoluteRef, body, mimeType);
+      } else {
+        return new Source(absoluteRef, await readFile(absoluteRef, 'utf-8'));
+      }
     } catch (error) {
       throw new ResolveError(error);
     }
@@ -109,7 +111,10 @@ export class BaseResolver {
 
   parseDocument(source: Source): Document {
     const ext = source.absoluteRef.substr(source.absoluteRef.lastIndexOf('.'));
-    if (!['.json', '.json', '.yml', '.yaml'].includes(ext)) {
+    if (
+      !['.json', '.json', '.yml', '.yaml'].includes(ext) &&
+      !source.mimeType?.match(/(json|yaml)/)
+    ) {
       return { source, parsed: source.body };
     }
 

@@ -82,7 +82,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
     throw new Error(`Failed to load ${url}: ${req.status} ${req.statusText}`);
   }
 
-  return req.text();
+  return { body: await req.text(), mimeType: req.headers.get('content-type') };
 }
 
 export function match(url: string, pattern: string) {
