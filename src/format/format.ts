@@ -34,7 +34,7 @@ function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
-export type OutputFormat = 'codeframe' | 'stylish';
+export type OutputFormat = 'codeframe' | 'stylish' | 'json';
 
 export function formatProblems(
   problems: (NormalizedProblem & { ignored?: boolean })[],
@@ -64,7 +64,13 @@ export function formatProblems(
 
   if (!totalProblems) return;
 
-  if (format === 'codeframe') {
+  if (format === 'json') {
+    const resultObject = {
+      total: problems.length,
+      problems,
+    }
+    process.stdout.write(JSON.stringify(resultObject, null, 2));
+  } else if (format === 'codeframe') {
     for (let i = 0; i < problems.length; i++) {
       const problem = problems[i];
       process.stderr.write(`${formatCodeframe(problem, i)}\n`);
