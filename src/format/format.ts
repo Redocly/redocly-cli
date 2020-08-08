@@ -59,8 +59,9 @@ export function formatProblems(
   const ignoredProblems = totalProblems - problems.length;
 
   problems = problems
-    .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity))
-    .slice(0, maxProblems);
+    .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity));
+
+  problems = format !== 'json' ? problems.slice(0, maxProblems) : problems;
 
   if (!totalProblems) return;
 
@@ -91,7 +92,7 @@ export function formatProblems(
     }
   }
 
-  if (totalProblems - ignoredProblems > maxProblems) {
+  if (totalProblems - ignoredProblems > maxProblems && format !== 'json') {
     process.stderr.write(
       `< ... ${totalProblems - maxProblems} more problems hidden > ${gray(
         'increase with `--max-problems N`',
