@@ -57,15 +57,16 @@ export function formatProblems(
   const totalProblems = problems.length;
   problems = problems.filter((m) => !m.ignored);
   const ignoredProblems = totalProblems - problems.length;
+  const formatJSON = format === 'json';
 
   problems = problems
     .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity));
 
-  problems = format !== 'json' ? problems.slice(0, maxProblems) : problems;
+  problems = !formatJSON ? problems.slice(0, maxProblems) : problems;
 
-  if (!totalProblems) return;
+  if (!totalProblems && !formatJSON) return;
 
-  if (format === 'json') {
+  if (formatJSON) {
     const resultObject = {
       total: problems.length,
       problems,
