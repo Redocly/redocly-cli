@@ -81,7 +81,6 @@ export function formatProblems(
         return problem;
       }),
     }
-    console.log(resultObject);
     process.stdout.write(JSON.stringify(resultObject, null, 2));
   } else if (format === 'codeframe') {
     for (let i = 0; i < problems.length; i++) {
