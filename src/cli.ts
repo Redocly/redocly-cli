@@ -76,7 +76,6 @@ yargs
         }),
     async (argv) => {
       const config = await loadConfig(argv.config, argv.extends);
-      const silenceOutput = argv.format == 'json';
       config.lint.skipRules(argv['skip-rule']);
       config.lint.skipPreprocessors(argv['skip-preprocessor']);
 
@@ -101,9 +100,7 @@ yargs
       for (const entryPoint of entrypoints) {
         try {
           const startedAt = performance.now();
-          if (!silenceOutput) {
-            process.stderr.write(gray(`validating ${entryPoint}...\n`));
-          }
+          process.stderr.write(gray(`validating ${entryPoint}...\n`));
           const results = await validate({
             ref: entryPoint,
             config,
@@ -130,9 +127,7 @@ yargs
             process.env.NODE_ENV === 'test'
               ? '<test>ms'
               : `in ${Math.ceil(performance.now() - startedAt)}ms`;
-          if (!silenceOutput) {
-            process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
-          }
+          process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
           handleError(e, entryPoint);
@@ -144,7 +139,7 @@ yargs
         process.stderr.write(
           `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`,
         );
-      } else if (!silenceOutput) {
+      } else {
         printLintTotals(totals, entrypoints.length);
       }
 

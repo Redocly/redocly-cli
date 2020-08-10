@@ -103,7 +103,7 @@ export function formatProblems(
     }
   }
 
-  if (totalProblems - ignoredProblems > maxProblems && format !== 'json') {
+  if (totalProblems - ignoredProblems > maxProblems && !formatJSON) {
     process.stderr.write(
       `< ... ${totalProblems - maxProblems} more problems hidden > ${gray(
         'increase with `--max-problems N`',
