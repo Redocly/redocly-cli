@@ -69,8 +69,19 @@ export function formatProblems(
   if (formatJSON) {
     const resultObject = {
       total: problems.length,
-      problems,
+      problems: problems.map(p => {
+        const location = p.location[0]; // TODO: support multiple locations
+        const loc = getLineColLocation(location); 
+        const problem = {
+          ...p,
+          codeframe: getCodeframe(loc, color),
+          pointer: location.pointer,
+        };
+        delete problem.location;
+        return problem;
+      }),
     }
+    console.log(resultObject);
     process.stdout.write(JSON.stringify(resultObject, null, 2));
   } else if (format === 'codeframe') {
     for (let i = 0; i < problems.length; i++) {
