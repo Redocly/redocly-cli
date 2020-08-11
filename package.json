@@ -12,8 +12,9 @@
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build && npm run bundle",
-    "bundle": "webpack --config webpack.config.ts && node prepareBundle.js"
+    "prepublishOnly": "npm run build && npm run bundle && npm run upload",
+    "bundle": "webpack --config webpack.config.ts",
+    "upload": "node prepareBundle.js"
   },
   "bin": {
     "openapi": "lib/cli.js"
@@ -45,6 +46,7 @@
     "@types/yargs": "^15.0.5",
     "jest": "^26.0.1",
     "node-loader": "^1.0.1",
+    "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
     "prettier": "^2.0.5",
     "ts-jest": "^26.1.0",

@@ -14,6 +14,10 @@ module.exports = {
         test: /\.node$/,
         loader: 'node-loader',
       },
+      {
+        test: path.resolve(__dirname, 'node_modules/simple-websocket/server.js'),
+        use: 'null-loader',
+      },
     ],
   },
   resolve: {
