@@ -57,15 +57,49 @@ export function formatProblems(
   const totalProblems = problems.length;
   problems = problems.filter((m) => !m.ignored);
   const ignoredProblems = totalProblems - problems.length;
-  const formatJSON = format === 'json';
 
   problems = problems
     .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity))
     .slice(0, maxProblems);
 
-  if (!totalProblems && !formatJSON) return;
+  if (!totalProblems && format !== 'json') return;
 
-  if (formatJSON) {
+  switch(format) {
+    case 'json':
+      outputJSON();
+      break;
+    case 'codeframe':
+      for (let i = 0; i < problems.length; i++) {
+        const problem = problems[i];
+        process.stderr.write(`${formatCodeframe(problem, i)}\n`);
+      }
+      break;
+    case 'stylish':
+      const groupedByFile = groupByFiles(problems);
+      for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
+        groupedByFile,
+      )) {
+        process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
+
+        for (let i = 0; i < fileProblems.length; i++) {
+          const problem = fileProblems[i];
+          process.stderr.write(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
+        }
+
+        process.stderr.write('\n');
+      }
+      break;
+  }
+
+  if (totalProblems - ignoredProblems > maxProblems) {
+    process.stderr.write(
+      `< ... ${totalProblems - maxProblems} more problems hidden > ${gray(
+        'increase with `--max-problems N`',
+      )}\n`,
+    );
+  }
+  
+  function outputJSON() {
     const resultObject = {
       total: problems.length,
       problems: problems.map(p => {
@@ -77,37 +111,11 @@ export function formatProblems(
           pointer: location.pointer,
         };
         delete problem.location;
+        delete problem.from;
         return problem;
       }),
     }
     process.stdout.write(JSON.stringify(resultObject, null, 2));
-  } else if (format === 'codeframe') {
-    for (let i = 0; i < problems.length; i++) {
-      const problem = problems[i];
-      process.stderr.write(`${formatCodeframe(problem, i)}\n`);
-    }
-  } else {
-    const groupedByFile = groupByFiles(problems);
-    for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
-      groupedByFile,
-    )) {
-      process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
-
-      for (let i = 0; i < fileProblems.length; i++) {
-        const problem = fileProblems[i];
-        process.stderr.write(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
-      }
-
-      process.stderr.write('\n');
-    }
-  }
-
-  if (totalProblems - ignoredProblems > maxProblems) {
-    process.stderr.write(
-      `< ... ${totalProblems - maxProblems} more problems hidden > ${gray(
-        'increase with `--max-problems N`',
-      )}\n`,
-    );
   }
 
   function formatCodeframe(problem: NormalizedProblem, idx: number) {
