@@ -12,8 +12,8 @@
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build",
-    "bundle": "webpack --config webpack.config.ts"
+    "prepublishOnly": "npm run build && npm run bundle",
+    "bundle": "webpack --config webpack.config.ts && node prepareBundle.js"
   },
   "bin": {
     "openapi": "lib/cli.js"

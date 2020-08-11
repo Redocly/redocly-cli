@@ -9,3 +9,5 @@ coverage/
 yarn.lock
 dist/
 lib/
+
+*.tar.gz
