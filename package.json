@@ -12,7 +12,8 @@
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "bundle": "webpack --config webpack.config.ts"
   },
   "bin": {
     "openapi": "lib/cli.js"
@@ -43,10 +44,14 @@
     "@types/node-fetch": "^2.5.7",
     "@types/yargs": "^15.0.5",
     "jest": "^26.0.1",
+    "node-loader": "^1.0.1",
     "outdent": "^0.7.1",
     "prettier": "^2.0.5",
     "ts-jest": "^26.1.0",
-    "ts-node": "^8.10.2"
+    "ts-loader": "^8.0.2",
+    "ts-node": "^8.10.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
   },
   "dependencies": {
     "@redocly/ajv": "^6.12.3",
@@ -58,8 +63,10 @@
     "js-yaml": "^3.14.0",
     "lodash.isequal": "^4.5.0",
     "minimatch": "^3.0.4",
+    "net": "^1.0.2",
     "node-fetch": "^2.6.0",
     "portfinder": "^1.0.26",
+    "readline": "^1.3.0",
     "simple-websocket": "^9.0.0",
     "typescript": "^3.9.5",
     "yaml-ast-parser": "0.0.43",

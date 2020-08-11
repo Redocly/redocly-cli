@@ -190,7 +190,7 @@ export class LintConfig {
 
     if (fs.existsSync(ignoreFile)) {
       // TODO: parse errors
-      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8'));
+      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<string, Record<string, Set<string>>>;
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {
@@ -403,7 +403,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
 
   if (configPath !== undefined) {
     try {
-      rawConfig = await loadYaml(configPath);
+      rawConfig = await loadYaml(configPath) as RawConfig;
     } catch (e) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }

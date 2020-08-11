@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import * as yargs from 'yargs';
 import { extname, basename, dirname, join, resolve } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';

@@ -2,7 +2,7 @@ import * as http from 'http';
 import * as zlib from 'zlib';
 import { ReadStream } from 'fs';
 
-const SocketServer = require('simple-websocket/server');
+const SocketServer = !process.env.UPDATE_REGISTRY ? require('simple-websocket/server') : undefined as any; // need this for correct bundling, UPDATE_REGISTRY is used when run in our cloud
 
 export const mimeTypes = {
   '.html': 'text/html',
