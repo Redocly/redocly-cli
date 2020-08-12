@@ -18,16 +18,16 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.node$/,
-        loader: 'node-loader',
-      },
-      {
         // we use bundling for online processing only, so no need for websockets
         // which are used only in preview-docs command. 
         // on the other hand it was impossible to bundle this lib into a package
         test: path.resolve(__dirname, 'node_modules/simple-websocket/server.js'),
         use: 'null-loader',
       },
+      {
+        test: path.resolve(__dirname, 'node_modules/fsevents/fsevents.node'),
+        use: 'null-loader',
+      }
     ],
   },
   resolve: {
