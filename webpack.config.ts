@@ -7,7 +7,14 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+          },
+          {
+            loader: 'shebang-loader'
+         }
+        ],
         exclude: /node_modules/,
       },
       {
