@@ -1,7 +1,7 @@
 const yargs = require('yargs');
 
 const { execSync } = require('child_process');
-const package = require('./package.json');
+const package = require('../package.json');
 
 const version = package.version;
 const fileName = `openapi-cli.${version}.tar.gz`;

@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "prepublishOnly": "npm run build && npm run bundle && npm run upload",
     "bundle": "webpack --config webpack.config.ts",
-    "upload": "node prepareBundle.js"
+    "upload": "node scripts/archive-and-upload-bundle.js"
   },
   "bin": {
     "openapi": "lib/cli.js"
