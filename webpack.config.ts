@@ -29,15 +29,6 @@ module.exports = {
     fs: 'empty',
   },
 
-  externals: [
-    function(_context: any, request: any, callback: any) {
-      if (/^simple\-websocket\/server$/.test(request)){
-        return callback(null, 'commonjs ' + request);
-      }
-      callback();
-    },
-  ],
-
   plugins: [
     new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true }),
   ],
