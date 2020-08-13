@@ -34,7 +34,7 @@ function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
-export type OutputFormat = 'codeframe' | 'stylish';
+export type OutputFormat = 'codeframe' | 'stylish' | 'json';
 
 export function formatProblems(
   problems: (NormalizedProblem & { ignored?: boolean })[],
@@ -62,27 +62,33 @@ export function formatProblems(
     .sort((a, b) => severityToNumber(a.severity) - severityToNumber(b.severity))
     .slice(0, maxProblems);
 
-  if (!totalProblems) return;
+  if (!totalProblems && format !== 'json') return;
 
-  if (format === 'codeframe') {
-    for (let i = 0; i < problems.length; i++) {
-      const problem = problems[i];
-      process.stderr.write(`${formatCodeframe(problem, i)}\n`);
-    }
-  } else {
-    const groupedByFile = groupByFiles(problems);
-    for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
-      groupedByFile,
-    )) {
-      process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
-
-      for (let i = 0; i < fileProblems.length; i++) {
-        const problem = fileProblems[i];
-        process.stderr.write(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
+  switch(format) {
+    case 'json':
+      outputJSON();
+      break;
+    case 'codeframe':
+      for (let i = 0; i < problems.length; i++) {
+        const problem = problems[i];
+        process.stderr.write(`${formatCodeframe(problem, i)}\n`);
       }
+      break;
+    case 'stylish':
+      const groupedByFile = groupByFiles(problems);
+      for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
+        groupedByFile,
+      )) {
+        process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
 
-      process.stderr.write('\n');
-    }
+        for (let i = 0; i < fileProblems.length; i++) {
+          const problem = fileProblems[i];
+          process.stderr.write(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
+        }
+
+        process.stderr.write('\n');
+      }
+      break;
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -91,6 +97,37 @@ export function formatProblems(
         'increase with `--max-problems N`',
       )}\n`,
     );
+  }
+  
+  function outputJSON() {
+    const resultObject = {
+      total: problems.length,
+      problems: problems.map(p => {
+        let problem = {
+          ...p,
+          location: p.location.map(location => ({
+            ...location,
+            source: {
+              absoluteRef: location.source.absoluteRef,
+            },
+          }) as LocationObject),
+          from: {
+            ...p.from,
+            source: {
+              absoluteRef: p.from?.source.absoluteRef,
+            }
+          }
+        };
+
+        if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
+          const location = p.location[0]; // TODO: support multiple locations
+          const loc = getLineColLocation(location); 
+          (problem as any).codeframe = getCodeframe(loc, color);
+        }
+        return problem;
+      }),
+    }
+    process.stdout.write(JSON.stringify(resultObject, null, 2));
   }
 
   function formatCodeframe(problem: NormalizedProblem, idx: number) {
