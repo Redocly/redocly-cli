@@ -20,7 +20,7 @@ jobs:
     - name: Bundle into single file
       run: npm run bundle
 
-    - name: Upload to AWS S3
+    - name: Upload to AWS S3 bucket
       run: npm run upload
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
