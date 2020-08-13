@@ -1,0 +1,25 @@
+name: Deploy to Workflows
+
+on:
+  push:
+    branches: [ chore/gh-workflows-deploy ]
+  pull_request:
+    branches: [ chore/gh-workflows-deploy ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: npm run install
+
+    - name: Build package
+      run: npm run build
+
+    - name: Run a multi-line script
+      run: npm run bundle
+    - name: Run a multi-line script
+      run: npm run upload
