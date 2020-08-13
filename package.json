@@ -45,7 +45,6 @@
     "@types/node-fetch": "^2.5.7",
     "@types/yargs": "^15.0.5",
     "jest": "^26.0.1",
-    "node-loader": "^1.0.1",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
     "prettier": "^2.0.5",
