@@ -1,6 +1,7 @@
 .DS_Store
 
 node_modules/
+nodejs/
 
 coverage/
 .vscode/
@@ -8,3 +9,5 @@ coverage/
 yarn.lock
 dist/
 lib/
+
+*.tar.gz

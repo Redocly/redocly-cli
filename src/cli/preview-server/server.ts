@@ -2,7 +2,7 @@ import * as http from 'http';
 import * as zlib from 'zlib';
 import { ReadStream } from 'fs';
 
-const SocketServer = require('simple-websocket/server');
+const SocketServer = require('simple-websocket/server.js');
 
 export const mimeTypes = {
   '.html': 'text/html',
