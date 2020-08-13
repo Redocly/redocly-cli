@@ -105,7 +105,6 @@ export function formatProblems(
       problems: problems.map(p => {
         let problem = {
           ...p,
-          pointer: p.location[0].pointer,
           location: p.location.map(location => ({
             ...location,
             source: {
@@ -115,8 +114,7 @@ export function formatProblems(
           from: {
             ...p.from,
             source: {
-              ...p.from?.source,
-              _ast: undefined,
+              absoluteRef: p.from?.source.absoluteRef,
             }
           }
         };
