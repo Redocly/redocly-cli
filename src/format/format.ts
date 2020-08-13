@@ -103,15 +103,29 @@ export function formatProblems(
     const resultObject = {
       total: problems.length,
       problems: problems.map(p => {
-        const location = p.location[0]; // TODO: support multiple locations
-        const loc = getLineColLocation(location); 
-        const problem = {
+        let problem = {
           ...p,
-          codeframe: getCodeframe(loc, color),
-          pointer: location.pointer,
+          pointer: p.location[0].pointer,
+          location: p.location.map(location => ({
+            ...location,
+            source: {
+              absoluteRef: location.source.absoluteRef,
+            },
+          }) as LocationObject),
+          from: {
+            ...p.from,
+            source: {
+              ...p.from?.source,
+              _ast: undefined,
+            }
+          }
         };
-        delete problem.location;
-        delete problem.from;
+
+        if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
+          const location = p.location[0]; // TODO: support multiple locations
+          const loc = getLineColLocation(location); 
+          (problem as any).codeframe = getCodeframe(loc, color);
+        }
         return problem;
       }),
     }
