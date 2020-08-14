@@ -2,7 +2,7 @@ name: Deploy to Workflows
 
 on:
   tag:
-    - v((\d+)\.?)+.*
+    - ^v((\d+)\.?)+.*
 
 jobs:
   build:
