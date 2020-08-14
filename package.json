@@ -12,7 +12,7 @@
     "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build && npm run bundle && npm run upload",
+    "prepublishOnly": "npm run build",
     "bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js"
   },
