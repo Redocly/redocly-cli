@@ -1,8 +1,8 @@
 name: Deploy to Workflows
 
 on:
-  push:
-    branches: [ chore/gh-workflows-deploy ]
+  tag:
+    - v((\d+)\.?)+.*
 
 jobs:
   build:
