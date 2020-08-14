@@ -12,13 +12,18 @@ execSync(`tar -zcvf ${fileNameLatest} dist`);
 
 
 const argv = yargs
-    .option('aws_profile', {
+    .option('aws-profile', {
         alias: 'p',
         type: 'string',
     })
     .argv;
 
-let profile = !!argv.aws_profile ? `--profile ${argv.aws_profile}` : '';
+let profile = !!argv.awsProfile ? `--profile ${argv.awsProfile}` : '';
 
-execSync(`aws s3 cp ${fileName} s3://openapi-cli-dist ${profile}`);
-execSync(`aws s3 cp ${fileNameLatest} s3://openapi-cli-dist ${profile}`);
+try {
+    execSync(`aws s3 cp ${fileName} s3://openapi-cli-dist ${profile}`);
+    execSync(`aws s3 cp ${fileNameLatest} s3://openapi-cli-dist ${profile}`);
+} catch (e) {
+    process.stderr.write(e.output);
+}
+
