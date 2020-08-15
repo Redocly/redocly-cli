@@ -411,7 +411,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
           totals.warnings > 0
             ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
             : ''
-        }.\n${ignored}\n`,
+        }.\n${ignored}`,
       ),
     );
   } else if (totals.warnings > 0) {
@@ -419,7 +419,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
       green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
     );
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}\n`),
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`),
     );
   } else {
     process.stderr.write(
@@ -427,7 +427,7 @@ function printLintTotals(totals: Totals, definitionsCount: number) {
         `Woohoo! Your OpenAPI ${pluralize(
           'definition is',
           definitionsCount,
-        )} valid. 🎉\n${ignored}\n`,
+        )} valid. 🎉\n${ignored}`,
       ),
     );
   }
