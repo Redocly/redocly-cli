@@ -8,7 +8,7 @@ import { Oas2Types } from './types/oas2';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './validate';
-import { Location, pointerBaseName, refBaseName } from './ref-utils';
+import { Location, refBaseName } from './ref-utils';
 import { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -232,19 +232,21 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     ctx: UserContext,
   ) {
     const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
-
-    const pointerBase = pointerBaseName(pointer);
-    const refBase = refBaseName(fileRef);
-
-    let name = pointerBase || refBase;
-
     const componentsGroup = components[componentType];
-    if (!componentsGroup || !componentsGroup[name] || isEqual(componentsGroup[name], target.node))
-      return name;
 
-    if (pointerBase) {
-      name = `${refBase}_${pointerBase}`;
-      if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) return name;
+    let name = '';
+
+    const refParts = pointer.slice(2).split('/').filter(Boolean);  // slice(2) removes "#/"
+    while (refParts.length > 0) {
+      name = refParts.pop() + (name ? `-${name}` : '');
+      if (!componentsGroup || !componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+        return name;
+      }
+    }
+
+    name = refBaseName(fileRef) + (name ? `_${name}` : '')
+    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+      return name;
     }
 
     const prevName = name;

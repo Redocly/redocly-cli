@@ -24,12 +24,27 @@ components:
       name: param_a
       schema:
         $ref: '#/components/schemas/schema-a'
+      examples:
+        first:
+          $ref: '#/components/examples/param-a-first'
+        second:
+          $ref: '#/components/examples/second'
     path-param:
       name: path_param
+      examples:
+        first:
+          $ref: '#/components/examples/first'
     param-c:
       name: param_c
     param-b:
       name: param_b
+  examples:
+    first:
+      value: b1
+    param-a-first:
+      value: a1
+    second:
+      value: a2
   schemas:
     schema-a:
       type: string
