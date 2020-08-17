@@ -13,6 +13,7 @@ const DefinitionRoot: NodeType = {
     externalDocs: 'ExternalDocs',
     paths: 'PathMap',
     components: 'Components',
+    'x-webhooks': 'WebhooksMap',
   },
   required: ['openapi', 'paths', 'info'],
 };
@@ -121,6 +122,11 @@ const PathMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
+};
+
+const WebhooksMap: NodeType = {
+  properties: {},
+  additionalProperties: () => 'PathItem',
 };
 
 const PathItem: NodeType = {
@@ -573,4 +579,5 @@ export const Oas3Types: Record<string, NodeType> = {
   SecuritySchemeFlows,
   SecurityScheme,
   XCodeSample,
+  WebhooksMap,
 };
