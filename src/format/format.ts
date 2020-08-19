@@ -64,7 +64,7 @@ export function formatProblems(
 
   if (!totalProblems && format !== 'json') return;
 
-  switch(format) {
+  switch (format) {
     case 'json':
       outputJSON();
       break;
@@ -98,38 +98,40 @@ export function formatProblems(
       )}\n`,
     );
   }
-  
+
   function outputJSON() {
     const resultObject = {
-      total: { 
-        errors: problems.filter(p => p.severity === 'error').length,
-        warnings: problems.filter(p => p.severity === 'warn').length
+      total: {
+        errors: problems.filter((p) => p.severity === 'error').length,
+        warnings: problems.filter((p) => p.severity === 'warn').length,
       },
-      problems: problems.map(p => {
+      problems: problems.map((p) => {
         let problem = {
           ...p,
-          location: p.location.map(location => ({
+          location: p.location.map((location) => ({
             ...location,
             source: {
               ref: path.relative(cwd, location.source.absoluteRef),
             },
           })),
-          from: p.from ? {
-            ...p.from,
-            source: {
-              ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
-            }
-          } : undefined,
+          from: p.from
+            ? {
+                ...p.from,
+                source: {
+                  ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
+                },
+              }
+            : undefined,
         };
 
         if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
           const location = p.location[0]; // TODO: support multiple locations
-          const loc = getLineColLocation(location); 
+          const loc = getLineColLocation(location);
           (problem as any).codeframe = getCodeframe(loc, color);
         }
         return problem;
       }),
-    }
+    };
     process.stdout.write(JSON.stringify(resultObject, null, 2));
   }
 
