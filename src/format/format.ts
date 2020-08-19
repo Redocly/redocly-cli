@@ -108,13 +108,13 @@ export function formatProblems(
           location: p.location.map(location => ({
             ...location,
             source: {
-              absoluteRef: location.source.absoluteRef,
+              absoluteRef: path.relative(cwd, location.source.absoluteRef),
             },
           }) as LocationObject),
           from: {
             ...p.from,
             source: {
-              absoluteRef: p.from?.source.absoluteRef,
+              absoluteRef: path.relative(cwd, p.from?.source.absoluteRef || cwd),
             }
           }
         };
