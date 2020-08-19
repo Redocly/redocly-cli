@@ -21,5 +21,13 @@ components:
       name: param_a
       schema:
         $ref: ./schema-a.yaml
+      examples:
+        first:
+          $ref: ./examples.yaml#/param-a/first
+        second:
+          $ref: ./examples.yaml#/param-a/second
     path-param:
       name: path_param
+      examples:
+        first:
+          $ref: ./examples.yaml#/path-param/first
