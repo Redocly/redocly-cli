@@ -12,6 +12,7 @@ import {
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
+import { Totals } from '../cli';
 
 const BG_COLORS = {
   warn: (str: string) => bgYellow(black(str)),
@@ -43,6 +44,7 @@ export function formatProblems(
     cwd?: string;
     format?: OutputFormat;
     color?: boolean;
+    totals: Totals;
   },
 ) {
   const {
@@ -50,6 +52,7 @@ export function formatProblems(
     cwd = process.cwd(),
     format = 'codeframe',
     color = colorOptions.enabled,
+    totals,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified
@@ -101,10 +104,7 @@ export function formatProblems(
 
   function outputJSON() {
     const resultObject = {
-      total: {
-        errors: problems.filter((p) => p.severity === 'error').length,
-        warnings: problems.filter((p) => p.severity === 'warn').length,
-      },
+      totals,
       problems: problems.map((p) => {
         let problem = {
           ...p,
