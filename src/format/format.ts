@@ -101,7 +101,10 @@ export function formatProblems(
   
   function outputJSON() {
     const resultObject = {
-      total: problems.length,
+      total: { 
+        errors: problems.filter(p => p.severity === 'error').length,
+        warnings: problems.filter(p => p.severity === 'warn').length
+      },
       problems: problems.map(p => {
         let problem = {
           ...p,
