@@ -108,15 +108,15 @@ export function formatProblems(
           location: p.location.map(location => ({
             ...location,
             source: {
-              absoluteRef: location.source.absoluteRef,
+              ref: path.relative(cwd, location.source.absoluteRef),
             },
-          }) as LocationObject),
-          from: {
+          })),
+          from: p.from ? {
             ...p.from,
             source: {
-              absoluteRef: p.from?.source.absoluteRef,
+              ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
             }
-          }
+          } : undefined,
         };
 
         if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
