@@ -401,7 +401,7 @@ function handleError(e: Error, ref: string) {
 
 function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
-    ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n`)
+    ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n\n`)
     : '';
 
   if (totals.errors > 0) {
