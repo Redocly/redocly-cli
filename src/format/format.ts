@@ -12,6 +12,7 @@ import {
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
+import { Totals } from '../cli';
 
 const BG_COLORS = {
   warn: (str: string) => bgYellow(black(str)),
@@ -43,6 +44,7 @@ export function formatProblems(
     cwd?: string;
     format?: OutputFormat;
     color?: boolean;
+    totals: Totals;
   },
 ) {
   const {
@@ -50,6 +52,7 @@ export function formatProblems(
     cwd = process.cwd(),
     format = 'codeframe',
     color = colorOptions.enabled,
+    totals,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified
@@ -64,7 +67,7 @@ export function formatProblems(
 
   if (!totalProblems && format !== 'json') return;
 
-  switch(format) {
+  switch (format) {
     case 'json':
       outputJSON();
       break;
@@ -98,35 +101,37 @@ export function formatProblems(
       )}\n`,
     );
   }
-  
+
   function outputJSON() {
     const resultObject = {
-      total: problems.length,
-      problems: problems.map(p => {
+      totals,
+      problems: problems.map((p) => {
         let problem = {
           ...p,
-          location: p.location.map(location => ({
+          location: p.location.map((location) => ({
             ...location,
             source: {
               ref: path.relative(cwd, location.source.absoluteRef),
             },
           })),
-          from: p.from ? {
-            ...p.from,
-            source: {
-              ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
-            }
-          } : undefined,
+          from: p.from
+            ? {
+                ...p.from,
+                source: {
+                  ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
+                },
+              }
+            : undefined,
         };
 
         if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
           const location = p.location[0]; // TODO: support multiple locations
-          const loc = getLineColLocation(location); 
+          const loc = getLineColLocation(location);
           (problem as any).codeframe = getCodeframe(loc, color);
         }
         return problem;
       }),
-    }
+    };
     process.stdout.write(JSON.stringify(resultObject, null, 2));
   }
 

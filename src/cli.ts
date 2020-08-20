@@ -120,6 +120,7 @@ yargs
             formatProblems(results, {
               format: argv.format,
               maxProblems: argv['max-problems'],
+              totals: fileTotals,
             });
           }
 
@@ -250,6 +251,7 @@ yargs
           formatProblems(problems, {
             format: argv.format,
             maxProblems: argv['max-problems'],
+            totals: fileTotals,
           });
 
           const elapsed =
