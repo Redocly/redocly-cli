@@ -1,4 +1,11 @@
-export type { Oas3Rule, OasRule, Oas3Preprocessor, OasPreprocessor } from './visitors';
+export type {
+  Oas3Rule,
+  OasRule,
+  Oas3Preprocessor,
+  OasPreprocessor,
+  OasDecorator,
+  Oas3Decorator,
+} from './visitors';
 export type { NodeType } from './types/index';
 export type {
   Config,
