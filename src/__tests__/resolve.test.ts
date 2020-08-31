@@ -176,6 +176,74 @@ describe('collect refs', () => {
     ]);
   });
 
+  it('should resolve back references', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const externalRefResolver = new BaseResolver();
+    const rootDocument = await externalRefResolver.resolveDocument(
+      null,
+      `${cwd}/openapi-with-back.yaml`,
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument: rootDocument as Document,
+      externalRefResolver: externalRefResolver,
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+    });
+
+    expect(resolvedRefs).toBeDefined();
+
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+      .toMatchInlineSnapshot(`
+      Array [
+        "openapi-with-back.yaml::./schemas/type-a.yaml#/",
+        "openapi-with-back.yaml::./schemas/type-b.yaml#/",
+        "schemas/type-a.yaml::../openapi-with-back.yaml#/components/schemas/TypeB",
+      ]
+    `);
+
+    expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "allOf": Array [
+            Object {
+              "properties": Object {
+                "integration_type": Object {
+                  "$ref": "../openapi-with-back.yaml#/components/schemas/TypeB",
+                },
+                "name": Object {
+                  "type": "string",
+                },
+              },
+              "required": Array [
+                "name",
+                "integration_type",
+              ],
+              "type": "object",
+            },
+          ],
+        },
+        Object {
+          "enum": Array [
+            "webhook",
+            "api_key",
+            "sftp",
+            "netsuite",
+          ],
+          "type": "string",
+        },
+        Object {
+          "enum": Array [
+            "webhook",
+            "api_key",
+            "sftp",
+            "netsuite",
+          ],
+          "type": "string",
+        },
+      ]
+    `);
+  });
+
   it('should resolve external refs with circular', async () => {
     const cwd = path.join(__dirname, 'fixtures/resolve');
     const externalRefResolver = new BaseResolver();
