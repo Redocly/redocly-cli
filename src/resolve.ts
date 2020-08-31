@@ -302,7 +302,7 @@ export async function resolveDocument(opts: {
       let targetDoc: Document;
       try {
         targetDoc = isRemote
-          ? ((await externalRefResolver.resolveDocument(rootNodeDocAbsoluteRef, uri!)) as Document)
+          ? ((await externalRefResolver.resolveDocument(document.source.absoluteRef, uri!)) as Document)
           : document;
       } catch (error) {
         const resolvedRef = {
