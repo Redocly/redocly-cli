@@ -121,6 +121,7 @@ yargs
               format: argv.format,
               maxProblems: argv['max-problems'],
               totals: fileTotals,
+              version
             });
           }
 
@@ -252,6 +253,7 @@ yargs
             format: argv.format,
             maxProblems: argv['max-problems'],
             totals: fileTotals,
+            version,
           });
 
           const elapsed =
