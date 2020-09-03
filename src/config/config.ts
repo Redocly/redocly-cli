@@ -478,11 +478,14 @@ function resolvePresets(presets: string[], plugins: Plugin[]) {
 function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string = ''): Plugin[] {
   if (!plugins) return [];
 
+  // @ts-ignore
+  const requireFunc = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
+
   return plugins
     .map((p) => {
       // TODO: resolve npm packages similar to eslint
       const plugin =
-        typeof p === 'string' ? (require(path.resolve(path.dirname(configPath), p)) as Plugin) : p;
+        typeof p === 'string' ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin) : p;
 
       const id = plugin.id;
       if (!id) {
