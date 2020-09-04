@@ -3,9 +3,8 @@ import * as yargs from 'yargs';
 import { extname, basename, dirname, join, resolve } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
-
+import * as glob from 'glob-promise';
 import { validate } from './validate';
-
 import { bundle } from './bundle';
 import {
   dumpBundle,
@@ -22,8 +21,11 @@ import { previewDocs } from './cli/preview-docs';
 import { RedoclyClient } from './redocly';
 
 const version = require('../package.json').version;
-
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
+
+const ERROR = {
+  MISSING_ARGUMENT: 'error: missing required argument `entrypoints`.\n'
+}
 
 yargs
   .version('version', 'Show version number.', version)
@@ -79,7 +81,7 @@ yargs
       config.lint.skipRules(argv['skip-rule']);
       config.lint.skipPreprocessors(argv['skip-preprocessor']);
 
-      const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
+      const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
       if (argv['generate-ignore-file']) {
         config.lint.ignore = {}; // clear ignore
@@ -213,7 +215,7 @@ yargs
       config.lint.skipPreprocessors(argv['skip-preprocessor']);
       config.lint.skipDecorators(argv['skip-decorator']);
 
-      const entrypoints = getFallbackEntryPointsOrExit(argv.entrypoints, config);
+      const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
       const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
       for (const entrypoint of entrypoints) {
@@ -477,32 +479,33 @@ function pluralize(label: string, num: number) {
     [label] = label.split(' ');
     return num === 1 ? `${label} is` : `${label}s are`;
   }
-
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-export function getFallbackEntryPointsOrExit(
-  argsEntrypoints: string[] | undefined,
-  config: Config,
-) {
-  let res = argsEntrypoints;
-  if (
-    (!argsEntrypoints || !argsEntrypoints.length) &&
-    config.apiDefinitions &&
-    Object.keys(config.apiDefinitions).length > 0
-  ) {
-    const dir = config.configFile ? dirname(config.configFile) : process.cwd();
-    res = Object.values(config.apiDefinitions).map((fileName) => resolve(dir, fileName));
-  } else if (argsEntrypoints && argsEntrypoints.length && config.apiDefinitions) {
-    res = res!.map((aliasOrPath) => config.apiDefinitions[aliasOrPath] || aliasOrPath);
-  }
+type Args = string[] | undefined
+const getDirectory = (config: Config) => config.configFile ? dirname(config.configFile) : process.cwd();
+const getAliasOrPath = (config: Config, aliasOrPath: string) => config.apiDefinitions[aliasOrPath] || aliasOrPath
+const isArray = (args: Args) => args && args.length
+const globOrString = (res: Args, config: Config) => {
+  return Promise.all(res!.map(async aliasOrPath => {
+    return (glob.hasMagic(aliasOrPath))
+      ? (await glob(aliasOrPath)).map(g => getAliasOrPath(config, g))
+      : getAliasOrPath(config, aliasOrPath)
+  }))
+}
 
-  if (!res || !res.length) {
-    process.stderr.write('error: missing required argument `entrypoints`.\n');
+export async function getFallbackEntryPointsOrExit(argsEntrypoints: Args, config: Config) {
+  const { apiDefinitions } = config
+  const condition_one = !isArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0
+  const condition_two = isArray(argsEntrypoints) && apiDefinitions
+  const res = condition_one ? Object.values(apiDefinitions).map((fileName) => resolve(getDirectory(config), fileName))
+    : condition_two ? (await globOrString(argsEntrypoints, config)).flat() : [];
+
+  if (!isArray(res)) {
+    process.stderr.write(ERROR.MISSING_ARGUMENT);
     process.exit(1);
   }
-
-  return res;
+  return res
 }
 
 function printUnusedWarnings(config: LintConfig) {
