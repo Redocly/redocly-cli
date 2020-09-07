@@ -14,9 +14,9 @@ import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObje
 import { getCodeframe, getLineColLocation } from './codeframes';
 import { Totals } from '../cli';
 
-const ERROR = {
-  INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn'
-}
+const ERROR_MESSAGE = {
+  INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn',
+};
 
 const BG_COLORS = {
   warn: (str: string) => bgYellow(black(str)),
@@ -140,11 +140,11 @@ export function formatProblems(
   }
 
   function getBgColor(problem: NormalizedProblem) {
-    const { severity } = problem
+    const { severity } = problem;
     if (!BG_COLORS[severity]) {
-      throw new Error(ERROR.INVALID_SEVERITY_LEVEL)
+      throw new Error(ERROR_MESSAGE.INVALID_SEVERITY_LEVEL);
     }
-    return BG_COLORS[severity]
+    return BG_COLORS[severity];
   }
 
   function formatCodeframe(problem: NormalizedProblem, idx: number) {
