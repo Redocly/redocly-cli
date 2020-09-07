@@ -26,9 +26,40 @@ const ERROR_MESSAGE = {
   MISSING_ARGUMENT: 'error: missing required argument `entrypoints`.\n'
 }
 
+
+type Argv = {
+  entrypoint?: string;
+  config?: string;
+  test?: string;
+}
+
+const statsDoc = (argv: Argv | any) => {
+  console.log('argv:::', argv);
+}
+
+const ArgsStats: any = {
+  options: {
+    config: {
+      description: 'Specify path to the config file.',
+      type: 'string'
+    },
+    test: {
+      description: 'TEST',
+      type: 'string'
+    }
+  }
+}
+
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
+
+  .command(
+    'stats [entrypoint]',
+    'Statistics for doc',
+    (yargs) => yargs.positional('entrypoint', { type: 'string' }).option(ArgsStats.options),
+      async(argv) => statsDoc(argv))
+
   .command(
     'lint [entrypoints...]',
     'Lint definition.',
@@ -91,9 +122,7 @@ yargs
 
       if (config.lint.recommendedFallback) {
         process.stderr.write(
-          `No configurations were defined in extends -- using built in ${blue(
-            'recommended',
-          )} configuration by default.\n\n`,
+          `No configurations were defined in extends -- using built in ${blue('recommended')} configuration by default.\n\n`,
         );
       }
 
