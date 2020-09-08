@@ -329,6 +329,9 @@ export function walkDocument<T>(opts: {
       ruleId: string,
       severity: ProblemSeverity,
     ) {
+      if (!node) {
+        return;
+      }
       const report = reportFn.bind(undefined, ruleId, severity);
       visit(
         node,
