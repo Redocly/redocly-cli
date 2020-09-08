@@ -4,7 +4,7 @@ import { extname, basename, dirname, join, resolve } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob-promise';
-import { validate } from './validate';
+import { detectOpenAPI, OasMajorVersion, openAPIMajor, validate } from './validate';
 import { bundle } from './bundle';
 import {
   dumpBundle,
@@ -14,11 +14,15 @@ import {
   CircularJSONNotSupportedError,
 } from './utils';
 import { formatProblems, OutputFormat } from './format/format';
-import { ResolveError, YamlParseError } from './resolve';
+import { BaseResolver, ResolveError, YamlParseError, Document, resolveDocument } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
-import { NormalizedProblem } from './walk';
+import { NormalizedProblem, WalkContext, walkDocument } from './walk';
 import { previewDocs } from './cli/preview-docs';
 import { RedoclyClient } from './redocly';
+import { normalizeVisitors, Oas2Visitor, Oas3Visitor } from './visitors';
+import { normalizeTypes } from './types';
+import { Oas3Types } from './types/oas3';
+import { Oas2Types } from './types/oas2';
 
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
@@ -26,40 +30,100 @@ const ERROR_MESSAGE = {
   MISSING_ARGUMENT: 'error: missing required argument `entrypoints`.\n'
 }
 
-
-type Argv = {
-  entrypoint?: string;
-  config?: string;
-  test?: string;
-}
-
-const statsDoc = (argv: Argv | any) => {
-  console.log('argv:::', argv);
-}
-
-const ArgsStats: any = {
-  options: {
-    config: {
-      description: 'Specify path to the config file.',
-      type: 'string'
-    },
-    test: {
-      description: 'TEST',
-      type: 'string'
-    }
-  }
-}
-
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-
   .command(
     'stats [entrypoint]',
-    'Statistics for doc',
-    (yargs) => yargs.positional('entrypoint', { type: 'string' }).option(ArgsStats.options),
-      async(argv) => statsDoc(argv))
+    'Gathering statistics for doc',
 
+    (yargs) =>
+      yargs
+        .positional('entrypoint', { type: 'string' })
+        .option({
+          config: {
+            description: 'Specify path to the config file.',
+            type: 'string'
+          },
+          test: {
+            description: 'TEST',
+            type: 'string'
+          }
+        }),
+    async (argv) => {
+      const config: LintConfig | Config = await loadConfig(argv.config);
+      const entrypoint = getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)[0];
+      const externalRefResolver = new BaseResolver(config.resolve)
+      const document = (await externalRefResolver.resolveDocument(null, entrypoint)) as Document;
+      const lintConfig: LintConfig = config.lint;
+      const oasVersion = detectOpenAPI(document.parsed);
+      const oasMajorVersion = openAPIMajor(oasVersion);
+
+      const types = normalizeTypes(
+        lintConfig.extendTypes(
+          oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
+          oasVersion,
+        ),
+      );
+
+      interface IStatsCount {
+        operations: number;
+        refs: number;
+        tags: number;
+        externalDocs: number;
+        pathItems: number;
+        links: number;
+      }
+
+      const statsCount: IStatsCount = {
+        operations: 0,
+        refs: 0,
+        tags: 0,
+        externalDocs: 0,
+        pathItems: 0,
+        links: 0,
+      }
+
+      const ctx: WalkContext = {
+        problems: [],
+        oasVersion: oasVersion,
+      }
+
+      const resolvedRefMap = await resolveDocument({
+        rootDocument: document,
+        rootType: types.DefinitionRoot,
+        externalRefResolver,
+      })
+
+      const statVisitor: Oas3Visitor | Oas2Visitor = {
+        ExternalDocs: { enter() { statsCount.externalDocs++; }},
+        ref: { enter() { statsCount.refs++; }},
+        Tag: { enter() { statsCount.tags++; }},
+        Operation: { enter() { statsCount.operations++; }},
+        PathItem: { enter(node: any) { statsCount.pathItems += Object.keys(node).length }},
+        Link: { enter() { statsCount.links++; }},
+      }
+
+      const statsVisitor = normalizeVisitors([{
+        severity: 'warn',
+        ruleId: 'stats',
+        visitor: statVisitor
+      }],
+        types
+      );
+
+      walkDocument({
+        document,
+        rootType: types.DefinitionRoot,
+        normalizedVisitors: statsVisitor,
+        resolvedRefMap,
+        ctx,
+      })
+
+      process.stderr.write(JSON.stringify(statsCount));
+    }
+
+  )
   .command(
     'lint [entrypoints...]',
     'Lint definition.',
