@@ -3,6 +3,10 @@
   "version": "1.0.0-beta.12",
   "description": "",
   "main": "lib/index.js",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
     "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
