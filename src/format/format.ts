@@ -14,6 +14,10 @@ import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObje
 import { getCodeframe, getLineColLocation } from './codeframes';
 import { Totals } from '../cli';
 
+const ERROR_MESSAGE = {
+  INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn',
+};
+
 const BG_COLORS = {
   warn: (str: string) => bgYellow(black(str)),
   error: bgRed,
@@ -138,9 +142,16 @@ export function formatProblems(
     process.stdout.write(JSON.stringify(resultObject, null, 2));
   }
 
-  function formatCodeframe(problem: NormalizedProblem, idx: number) {
-    const bgColor = BG_COLORS[problem.severity];
+  function getBgColor(problem: NormalizedProblem) {
+    const { severity } = problem;
+    if (!BG_COLORS[severity]) {
+      throw new Error(ERROR_MESSAGE.INVALID_SEVERITY_LEVEL);
+    }
+    return BG_COLORS[severity];
+  }
 
+  function formatCodeframe(problem: NormalizedProblem, idx: number) {
+    const bgColor = getBgColor(problem);
     const location = problem.location[0]; // TODO: support multiple locations
     const relativePath = path.relative(cwd, location.source.absoluteRef);
     const loc = getLineColLocation(location);
