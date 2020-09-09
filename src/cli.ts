@@ -101,7 +101,7 @@ yargs
         try {
           const startedAt = performance.now();
           process.stderr.write(gray(`validating ${entryPoint}...\n`));
-          const results = await validate({
+          const { results, oasVersion } = await validate({
             ref: entryPoint,
             config,
           });
@@ -121,7 +121,8 @@ yargs
               format: argv.format,
               maxProblems: argv['max-problems'],
               totals: fileTotals,
-              version
+              version,
+              oasVersion,
             });
           }
 
@@ -220,7 +221,7 @@ yargs
         try {
           const startedAt = performance.now();
           process.stderr.write(gray(`bundling ${entrypoint}...\n`));
-          const { bundle: result, problems } = await bundle({
+          const { bundle: result, problems, oasVersion } = await bundle({
             config,
             ref: entrypoint,
             dereference: argv.dereferenced,
@@ -254,6 +255,7 @@ yargs
             maxProblems: argv['max-problems'],
             totals: fileTotals,
             version,
+            oasVersion,
           });
 
           const elapsed =

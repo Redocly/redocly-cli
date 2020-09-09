@@ -50,6 +50,7 @@ export async function bundleDocument(opts: {
   const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
+  const oasFullVersion = document.parsed.openapi || document.parsed.swagger;
 
   const rules = config.getRulesForOasVersion(oasMajorVersion);
 
@@ -96,6 +97,7 @@ export async function bundleDocument(opts: {
   });
 
   return {
+    oasVersion: oasFullVersion,
     bundle: document.parsed,
     problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),

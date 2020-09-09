@@ -50,6 +50,7 @@ export function formatProblems(
     color?: boolean;
     totals: Totals;
     version: string;
+    oasVersion: string;
   },
 ) {
   const {
@@ -58,7 +59,8 @@ export function formatProblems(
     format = 'codeframe',
     color = colorOptions.enabled,
     totals,
-    version
+    version,
+    oasVersion,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified
@@ -111,6 +113,7 @@ export function formatProblems(
   function outputJSON() {
     const resultObject = {
       totals,
+      oasVersion,
       version,
       problems: problems.map((p) => {
         let problem = {

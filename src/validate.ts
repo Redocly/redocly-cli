@@ -60,6 +60,7 @@ export async function validateDocument(opts: {
   const { document, customTypes, externalRefResolver, config } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
+  const oasFullVersion = document.parsed.openapi || document.parsed.swagger;
 
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
@@ -93,7 +94,10 @@ export async function validateDocument(opts: {
     ctx,
   });
 
-  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
+  return {
+    results: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
+    oasVersion: oasFullVersion,
+  };
 }
 
 export function detectOpenAPI(root: any): OasVersion {
