@@ -1048,7 +1048,7 @@ describe('context.report', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -1128,7 +1128,7 @@ describe('context.report', () => {
       throw 'Should never happen';
     }
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),

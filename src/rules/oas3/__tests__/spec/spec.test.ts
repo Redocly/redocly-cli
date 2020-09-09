@@ -37,7 +37,7 @@ describe('Oas3 Structural visitor basic', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: allConfig,
@@ -165,7 +165,7 @@ describe('Oas3 Structural visitor basic', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: allConfig,
@@ -234,7 +234,7 @@ describe('Oas3 Structural visitor basic', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: allConfig,

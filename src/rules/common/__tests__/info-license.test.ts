@@ -17,7 +17,7 @@ describe('Oas3 info-license', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'info-license': 'error' } }),
@@ -54,7 +54,7 @@ describe('Oas3 info-license', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'info-license': 'error' } }),

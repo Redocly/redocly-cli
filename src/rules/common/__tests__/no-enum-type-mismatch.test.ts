@@ -29,7 +29,7 @@ describe('Oas3 typed enum', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
@@ -59,7 +59,7 @@ describe('Oas3 typed enum', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),

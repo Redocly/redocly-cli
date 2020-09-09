@@ -9,7 +9,7 @@ export async function validateDoc(
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
-  const results = await validateDocument({
+  const {results} = await validateDocument({
     externalRefResolver: new BaseResolver(),
     document,
     config: new LintConfig({

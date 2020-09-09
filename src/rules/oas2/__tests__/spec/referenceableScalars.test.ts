@@ -21,7 +21,7 @@ describe('Referenceable scalars', () => {
       __dirname + '/foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({

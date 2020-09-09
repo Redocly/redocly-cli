@@ -19,7 +19,7 @@ describe('Oas3 tag-description', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tag-description': 'error' } }),
@@ -57,7 +57,7 @@ describe('Oas3 tag-description', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tag-description': 'error' } }),

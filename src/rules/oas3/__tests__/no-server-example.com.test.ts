@@ -17,7 +17,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),
@@ -52,7 +52,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-server-example.com': 'error' } }),

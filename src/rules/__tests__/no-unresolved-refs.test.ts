@@ -21,7 +21,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       path.join(__dirname, 'foobar.yaml'),
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -64,7 +64,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       path.join(__dirname, 'foobar.yaml'),
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -124,7 +124,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       path.join(__dirname, 'foobar.yaml'),
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -151,7 +151,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       path.join(__dirname, 'foobar.yaml'),
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({

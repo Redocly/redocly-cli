@@ -42,7 +42,7 @@ describe('Oas3 no-unused-components', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-unused-components': 'error' } }),

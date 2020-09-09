@@ -19,7 +19,7 @@ describe('Oas3 path-not-include-query', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),
@@ -56,7 +56,7 @@ describe('Oas3 path-not-include-query', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),

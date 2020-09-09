@@ -19,7 +19,7 @@ describe('Oas3 tags-alphabetical', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),
@@ -56,7 +56,7 @@ describe('Oas3 tags-alphabetical', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'tags-alphabetical': 'error' } }),

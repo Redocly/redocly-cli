@@ -19,7 +19,7 @@ describe('Oas3 operation-security-defined', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-security-defined': 'error' } }),
@@ -61,7 +61,7 @@ describe('Oas3 operation-security-defined', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-security-defined': 'error' } }),

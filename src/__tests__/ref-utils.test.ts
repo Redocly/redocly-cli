@@ -94,6 +94,11 @@ describe('ref-utils', () => {
       config: new LintConfig({}),
     });
 
-    expect(result).toMatchInlineSnapshot(`Array []`);
+    expect(result).toMatchInlineSnapshot(`
+      Object {
+        "oasVersion": "3.0.0",
+        "results": Array [],
+      }
+    `);
   });
 });

@@ -46,7 +46,7 @@ describe('no-ambiguous-paths', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-ambiguous-paths': 'error' } }),

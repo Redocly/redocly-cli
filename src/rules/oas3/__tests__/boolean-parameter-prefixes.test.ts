@@ -21,7 +21,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
@@ -73,7 +73,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
@@ -97,7 +97,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({

@@ -21,7 +21,7 @@ describe('Oas3 operation-2xx-response', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),
@@ -60,7 +60,7 @@ describe('Oas3 operation-2xx-response', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),
@@ -83,7 +83,7 @@ describe('Oas3 operation-2xx-response', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-2xx-response': 'error' } }),

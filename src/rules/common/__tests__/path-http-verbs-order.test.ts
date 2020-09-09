@@ -23,7 +23,7 @@ describe('Common path-http-verbs-order', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-http-verbs-order': 'error' } }),
@@ -87,7 +87,7 @@ describe('Common path-http-verbs-order', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-http-verbs-order': 'error' } }),

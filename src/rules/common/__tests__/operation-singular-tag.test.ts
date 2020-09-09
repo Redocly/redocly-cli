@@ -24,7 +24,7 @@ describe('Oas3 operation-singular-tag', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-singular-tag': 'error' } }),
@@ -64,7 +64,7 @@ describe('Oas3 operation-singular-tag', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'operation-singular-tag': 'error' } }),

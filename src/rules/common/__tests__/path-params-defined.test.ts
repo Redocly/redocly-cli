@@ -24,7 +24,7 @@ describe('Oas3 path-params-defined', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-params-defined': 'error' } }),
@@ -52,7 +52,7 @@ describe('Oas3 path-params-defined', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const {results} = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-params-defined': 'error' } }),
@@ -96,7 +96,7 @@ describe('Oas3 path-params-defined', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const { results } = await validateDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-params-defined': 'error' } }),
