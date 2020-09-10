@@ -62,6 +62,14 @@ export async function loadYaml(filename: string) {
   return yaml.safeLoad(contents);
 }
 
+export function readYaml(filename: string) {
+  return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'), { filename });
+}
+
+export function writeYaml(data: any, filename: string) {
+  return fs.writeFileSync(filename, yaml.safeDump(data));
+}
+
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
