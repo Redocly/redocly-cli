@@ -5,7 +5,21 @@ import * as yaml from 'js-yaml';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 const isEqual = require('lodash.isequal');
+import { Oas3Definition } from '../typings/openapi';
+import { Oas2Definition } from '../typings/swagger'
+import { pathToFilename } from '../ref-utils';
+import { isString, isObject } from '../js-utils';
 
+type Definition = Oas3Definition | Oas2Definition;
+interface ComponentsFiles {
+  [schemas: string]: any;
+}
+interface refObj {
+  [$ref: string]: string;
+}
+const COMPONENTS = 'components';
+const PATHS = 'paths';
+const SCHEMAS = 'schemas';
 const OPENAPI3_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 const OPENAPI3_COMPONENTS = [
   'schemas',
@@ -19,39 +33,38 @@ const OPENAPI3_COMPONENTS = [
   'securitySchemes'
 ];
 
-function validateDefinitionFileName(fileName: string) {
-  if (!fs.existsSync(fileName)) {
-    process.stderr.write(red(`File ${blue(fileName)} does not exist \n`));
-    process.exit(1);
-  }
-
-  let file: any;
-  try {
-    file = yaml.safeLoad(fs.readFileSync(fileName, 'utf8'));
-  } catch (e) {
-    process.stderr.write(red(e.message));
-    process.exit(1);
-  }
-
-  if (file.swagger) {
-    process.stderr.write(red('OpenAPI 2 is not supported by this tool'));
-    process.exit(1);
-  }
-
-  if (!file.openapi) {
-    process.stderr.write(red('File does not conform to the OpenAPI Specification'));
-    process.exit(1);
-  }
-
-  return true;
+function isStartsWithComponents(node: string) {
+  const componentsPath = `#/${COMPONENTS}/`;
+  return node.startsWith(componentsPath)
 }
 
-function pathToFilename(path: string) {
-  return path
-    .replace(/~1/g, '/')
-    .replace(/~0/g, '~')
-    .substring(1)
-    .replace(/\//g, '@');
+function isNotYaml(filename: string) {
+  return !(filename.endsWith('.yaml') || filename.endsWith('.yml'));
+}
+
+function isNotObjectKeys(obj: any) {
+  return Object.keys(obj).length === 0;
+}
+
+function stdWriteExit(message: string) {
+  process.stderr.write(red(message));
+  process.exit(1);
+}
+
+function loadFile(fileName: string) {
+  try {
+    return yaml.safeLoad(fs.readFileSync(fileName, 'utf8')) as Definition;
+  } catch (e) {
+    return stdWriteExit(e.message);
+  }
+}
+
+function validateDefinitionFileName(fileName: string) {
+  if (!fs.existsSync(fileName)) stdWriteExit(`File ${blue(fileName)} does not exist \n`);
+  const file = loadFile(fileName);
+  if ((file as Oas2Definition).swagger) stdWriteExit('OpenAPI 2 is not supported by this tool');
+  if (!(file as Oas3Definition).openapi) stdWriteExit('File does not conform to the OpenAPI Specification');
+  return true;
 }
 
 function langToExt(lang: string) {
@@ -76,56 +89,45 @@ function traverseFolderDeep(folder: string, callback: any) {
     if (fs.statSync(filename).isDirectory()) {
       traverseFolderDeep(filename, callback);
     } else {
-      callback(filename);
+      callback(filename, folder);
     }
   }
 }
 
 function crawl(object: any, visitor: any) {
-  if (typeof object !== 'object' || object == null) {
-    return;
-  }
+  if (!isObject(object)) return;
   for (const key of Object.keys(object)) {
     visitor(object, key);
     crawl(object[key], visitor);
   }
 }
 
-function replace$Refs(obj: any, relativeFrom: any, componentFiles = {}) {
-  // @ts-ignore
-  crawl(obj, node => {
-    if (node.$ref && typeof node.$ref === 'string' && node.$ref.startsWith('#/components/')) {
+function replace$Refs(obj: any, relativeFrom: string, componentFiles = {} as ComponentsFiles) {
+  crawl(obj, (node: any) => {
+    if (node.$ref && isString(node.$ref) && isStartsWithComponents(node.$ref)) {
       replace(node, '$ref');
     } else if (
       node.discriminator &&
       node.discriminator.mapping &&
-      typeof node.discriminator.mapping === 'object'
+      isObject(node.discriminator.mapping)
     ) {
-      for (const name of Object.keys(node.discriminator.mapping)) {
-        if (
-          typeof node.discriminator.mapping[name] === 'string' &&
-          node.discriminator.mapping[name].startsWith('#/components/')
-        ) {
+      const { mapping } = node.discriminator;
+      for (const name of Object.keys(mapping)) {
+        if (isString(mapping[name]) && isStartsWithComponents(mapping[name])) {
           replace(node.discriminator.mapping, name);
         }
       }
     }
   });
 
-  function replace(node: any, key: string) {
-    const name = node[key].split('/').pop();
-    const groupName = node[key].split('/')[2];
-    // @ts-ignore
-    if (!componentFiles[groupName] || !componentFiles[groupName][name]) {
-      return;
-    }
-    // @ts-ignore
-    let filename = path.relative(relativeFrom, componentFiles[groupName][name].filename);
-
-    if (!filename.startsWith('.')) {
-      filename = '.' + path.sep + filename;
-    }
-
+  function replace(node: refObj, key: string) {
+    const splittedNode = node[key].split('/');
+    const name = splittedNode.pop();
+    const groupName = splittedNode[2];
+    const filesGroupName = componentFiles[groupName];
+    if (!filesGroupName || !filesGroupName[name!]) return;
+    let filename = path.relative(relativeFrom, filesGroupName[name!].filename);
+    if (!filename.startsWith('.')) { filename = '.' + path.sep + filename; }
     node[key] = filename;
   }
 }
@@ -138,59 +140,52 @@ function implicitlyReferenceDiscriminator(
 ) {
   if (!obj.discriminator) return;
 
-  const defPtr = `#/components/schemas/${defName}`;
-  const implicitMapping = {};
-  // @ts-ignore
-  for (const [name, { inherits, filename: parentFilename }] of Object.entries(schemaFiles)) {
+  const defPtr = `#/${COMPONENTS}/${SCHEMAS}/${defName}`;
+  const implicitMapping = {} as any;
+  for (const [name, { inherits, filename: parentFilename }] of Object.entries(schemaFiles) as any) {
     if (inherits.indexOf(defPtr) > -1) {
       const res = path.relative(path.dirname(filename), parentFilename);
-      // @ts-ignore
       implicitMapping[name] = res.startsWith('.') ? res : '.' + path.sep + res;
     }
   }
 
-  if (!Object.keys(implicitMapping).length) return;
-
+  if (isNotObjectKeys(implicitMapping)) return;
   const discriminatorPropSchema = obj.properties[obj.discriminator.propertyName];
   const discriminatorEnum = discriminatorPropSchema && discriminatorPropSchema.enum;
 
   const mapping = (obj.discriminator.mapping = obj.discriminator.mapping || {});
   for (const name of Object.keys(implicitMapping)) {
-    if (discriminatorEnum && !discriminatorEnum.includes(name)) {
-      continue;
-    }
-    // @ts-ignore
+    if (discriminatorEnum && !discriminatorEnum.includes(name)) { continue; }
     if (mapping[name] && mapping[name] !== implicitMapping[name]) {
       process.stderr.write(yellow(
         `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(filename)}, Check manually, please`
       ));
     }
-    // @ts-ignore
     mapping[name] = implicitMapping[name];
   }
 }
 
 function splitDefinition(openapi: any, openapiDir: string) {
   mkdirp.sync(openapiDir);
-  const pathsDir = path.join(openapiDir, 'paths');
+  const pathsDir = path.join(openapiDir, PATHS);
   mkdirp.sync(pathsDir);
 
   if (openapi.paths) {
     for (const oasPath of Object.keys(openapi.paths)) {
       const pathFile = path.join(pathsDir, pathToFilename(oasPath)) + '.yaml';
       const pathData = openapi.paths[oasPath];
-
+      const XCodeSamples = 'x-code-samples';
       for (const method of OPENAPI3_METHODS) {
         const methodData = pathData[method];
         if (
           !methodData ||
-          !methodData['x-code-samples'] ||
-          !Array.isArray(methodData['x-code-samples'])
+          !methodData[XCodeSamples] ||
+          !Array.isArray(methodData[XCodeSamples])
         ) {
           continue;
         }
 
-        for (const sample of methodData['x-code-samples']) {
+        for (const sample of methodData[XCodeSamples]) {
           if (sample.source && sample.source.$ref) continue;
           const sampleFileName = path.join(
             openapiDir,
@@ -215,20 +210,21 @@ function splitDefinition(openapi: any, openapiDir: string) {
     }
   }
 
-  const componentsDir = path.join(openapiDir, 'components');
+  const componentsDir = path.join(openapiDir, COMPONENTS);
   mkdirp.sync(componentsDir);
 
-  const componentsFiles = {};
+  const componentsFiles: ComponentsFiles = {};
 
   if (openapi.components) {
     for (const componentType of OPENAPI3_COMPONENTS) {
       const compDir = path.join(componentsDir, componentType);
       if (openapi.components[componentType]) {
         mkdirp.sync(compDir);
+        const compType = openapi.components[componentType];
 
-        for (const componentName of Object.keys(openapi.components[componentType])) {
+        for (const componentName of Object.keys(compType)) {
           const filename = path.join(compDir, componentName) + '.yaml';
-          const componentData = openapi.components[componentType][componentName];
+          const componentData = compType[componentName];
           if (fs.existsSync(filename) && isEqual(readYaml(filename), componentData)) {
             process.stderr.write(yellow(
               `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.`
@@ -238,59 +234,42 @@ function splitDefinition(openapi: any, openapiDir: string) {
           writeYaml(componentData, filename);
 
           let inherits = [];
-          if (componentType === 'schemas') {
-            // @ts-ignore
-            inherits = (componentData.allOf || []).map(s => s.$ref).filter(Boolean);
+          if (componentType === SCHEMAS) {
+            inherits = (componentData.allOf || []).map((s: any) => s.$ref).filter(Boolean);
           }
-
-          // @ts-ignore
           componentsFiles[componentType] = componentsFiles[componentType] || {};
-          // @ts-ignore
-          componentsFiles[componentType][componentName] = {
-            inherits,
-            filename
-          };
+          componentsFiles[componentType][componentName] = { inherits, filename };
 
           if (componentType !== 'securitySchemes') {
             // security schemas must referenced from components
             delete openapi.components[componentType][componentName];
           }
         }
-        if (Object.keys(openapi.components[componentType]).length === 0) {
-          delete openapi.components[componentType];
-        }
+        if (isNotObjectKeys(openapi.components[componentType])) { delete openapi.components[componentType]; }
       }
     }
-    if (Object.keys(openapi.components).length === 0) {
-      delete openapi.components;
+    if (isNotObjectKeys(openapi.components)) { delete openapi.components; }
+  }
+
+  function traverseFolderDeepCallback(filename: string, folder: string) {
+    if (isNotYaml(filename)) return;
+    const pathData = readYaml(filename);
+    const isComponentsDir = folder.includes(COMPONENTS);
+    const folderPath = isComponentsDir ? path.dirname(filename) : folder;
+    replace$Refs(pathData, folderPath, componentsFiles);
+    writeYaml(pathData, filename);
+    if (isComponentsDir) {
+      implicitlyReferenceDiscriminator(
+        pathData,
+        path.basename(filename, path.extname(filename)),
+        filename,
+        componentsFiles.schemas || {}
+      );
     }
   }
 
-  traverseFolderDeep(pathsDir, (filename: string) => {
-    if (!filename.endsWith('.yaml') && !filename.endsWith('.yml')) {
-      return;
-    }
-    const pathData = readYaml(filename);
-    replace$Refs(pathData, pathsDir, componentsFiles);
-    writeYaml(pathData, filename);
-  })
-
-  traverseFolderDeep(componentsDir, (filename: string) => {
-    if (!filename.endsWith('.yaml') && !filename.endsWith('.yml')) {
-      return;
-    }
-    const compData = readYaml(filename);
-    replace$Refs(compData, path.dirname(filename), componentsFiles);
-    implicitlyReferenceDiscriminator(
-      compData,
-      path.basename(filename, path.extname(filename)),
-      filename,
-      // @ts-ignore
-      componentsFiles.schemas || {}
-    );
-    writeYaml(compData, filename);
-  });
-
+  traverseFolderDeep(pathsDir, traverseFolderDeepCallback);
+  traverseFolderDeep(componentsDir, traverseFolderDeepCallback);
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
 }
