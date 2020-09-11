@@ -482,30 +482,39 @@ function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-type Args = string[] | undefined
-const getDirectory = (config: Config) => config.configFile ? dirname(config.configFile) : process.cwd();
-const getAliasOrPath = (config: Config, aliasOrPath: string) => config.apiDefinitions[aliasOrPath] || aliasOrPath
-const isArray = (args: Args) => args && args.length
-const globOrString = (res: Args, config: Config) => {
-  return Promise.all(res!.map(async aliasOrPath => {
-    return (glob.hasMagic(aliasOrPath))
-      ? (await glob(aliasOrPath)).map(g => getAliasOrPath(config, g))
-      : getAliasOrPath(config, aliasOrPath)
-  }))
+type ArgsEnrypoints = string[] | undefined;
+function getConfigDirectory(config: Config) {
+  return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-export async function getFallbackEntryPointsOrExit(argsEntrypoints: Args, config: Config) {
-  const { apiDefinitions } = config
-  const condition_one = !isArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0
-  const condition_two = isArray(argsEntrypoints) && apiDefinitions
-  const res = condition_one ? Object.values(apiDefinitions).map((fileName) => resolve(getDirectory(config), fileName))
-    : condition_two ? (await globOrString(argsEntrypoints, config)).flat() : [];
+function getAliasOrPath(config: Config, aliasOrPath: string) {
+  return config.apiDefinitions[aliasOrPath] || aliasOrPath;
+}
 
-  if (!isArray(res)) {
+function isNotEmptyArray(args: ArgsEnrypoints) {
+  return Array.isArray(args) && args.length;
+}
+
+function expandGlobsInEntrypoints(args: ArgsEnrypoints, config: Config) {
+  return Promise.all((args as string[]).map(async aliasOrPath => {
+    return glob.hasMagic(aliasOrPath)
+      ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
+      : getAliasOrPath(config, aliasOrPath);
+  }));
+}
+
+export async function getFallbackEntryPointsOrExit(argsEntrypoints: ArgsEnrypoints, config: Config) {
+  const { apiDefinitions } = config;
+  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0;
+  const res = shouldFallbackToAllDefinitions
+    ? Object.values(apiDefinitions).map((fileName) => resolve(getConfigDirectory(config), fileName))
+    : (await expandGlobsInEntrypoints(argsEntrypoints, config)).flat();
+
+  if (!isNotEmptyArray(res)) {
     process.stderr.write(ERROR.MISSING_ARGUMENT);
     process.exit(1);
   }
-  return res
+  return res;
 }
 
 function printUnusedWarnings(config: LintConfig) {
