@@ -190,7 +190,10 @@ export class LintConfig {
 
     if (fs.existsSync(ignoreFile)) {
       // TODO: parse errors
-      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<string, Record<string, Set<string>>>;
+      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+        string,
+        Record<string, Set<string>>
+      >;
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {
@@ -403,7 +406,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
 
   if (configPath !== undefined) {
     try {
-      rawConfig = await loadYaml(configPath) as RawConfig;
+      rawConfig = (await loadYaml(configPath)) as RawConfig;
     } catch (e) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
@@ -479,18 +482,35 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
   if (!plugins) return [];
 
   // @ts-ignore
-  const requireFunc = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
+  const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+
+  const seenPluginIds = new Map<string, string>();
 
   return plugins
     .map((p) => {
       // TODO: resolve npm packages similar to eslint
       const plugin =
-        typeof p === 'string' ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin) : p;
+        typeof p === 'string'
+          ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
+          : p;
 
       const id = plugin.id;
       if (!id) {
         throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
       }
+
+      if (seenPluginIds.has(id)) {
+        const pluginPath = seenPluginIds.get(id)!;
+        throw new Error(
+          red(
+            `Plugin "id" must be unique. Plugin ${blue(p.toString())} uses id "${blue(
+              id,
+            )}" already seen in ${blue(pluginPath)}`,
+          ),
+        );
+      }
+
+      seenPluginIds.set(id, p.toString());
 
       if (plugin.rules) {
         if (!plugin.rules.oas3 && !plugin.rules.oas2) {
