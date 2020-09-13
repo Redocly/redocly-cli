@@ -526,7 +526,7 @@ const SecurityScheme: NodeType = {
     } else if (value.type === 'oauth2') {
       return ['type', 'flows'];
     } else if (value.type === 'openIdConnect') {
-      return ['type', 'openIdConnect'];
+      return ['type', 'openIdConnectUrl'];
     }
 
     return ['type'];
