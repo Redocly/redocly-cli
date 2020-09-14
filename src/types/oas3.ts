@@ -228,6 +228,7 @@ const Operation: NodeType = {
 const XCodeSample: NodeType = {
   properties: {
     lang: { type: 'string' },
+    label: { type: 'string' },
     source: { type: 'string', referenceable: true },
   },
 };

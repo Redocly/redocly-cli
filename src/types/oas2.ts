@@ -91,10 +91,18 @@ const Operation: NodeType = {
     schemes: { type: 'array', items: { type: 'string' } },
     deprecated: { type: 'boolean' },
     security: listOf('SecurityRequirement'),
-    // 'x-codeSamples'?: Oas3XCodeSample[]; // TODO: x-code-samples
-    // 'x-code-samples'?: Oas3XCodeSample[]; // deprecated
+    'x-codeSamples': listOf('XCodeSample'),
+    'x-code-samples': listOf('XCodeSample'), // deprecated
   },
   required: ['responses'],
+};
+
+const XCodeSample: NodeType = {
+  properties: {
+    lang: { type: 'string' },
+    label: { type: 'string' },
+    source: { type: 'string', referenceable: true },
+  },
 };
 
 const ExternalDocs: NodeType = {
@@ -382,4 +390,6 @@ export const Oas2Types: Record<string, NodeType> = {
   NamedSecuritySchemes: mapOf('SecurityScheme'),
 
   SecurityScheme,
+
+  XCodeSample
 };
