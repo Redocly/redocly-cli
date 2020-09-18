@@ -47,7 +47,7 @@ function loadFile(fileName: string) {
 function validateDefinitionFileName(fileName: string) {
   if (!fs.existsSync(fileName)) stdWriteExit(`File ${blue(fileName)} does not exist \n`);
   const file = loadFile(fileName);
-  if ((file as Oas2Definition).swagger) stdWriteExit('OpenAPI 2 is not supported by this tool');
+  if ((file as Oas2Definition).swagger) stdWriteExit('OpenAPI 2 is not supported by this command');
   if (!(file as Oas3Definition).openapi) stdWriteExit('File does not conform to the OpenAPI Specification');
   return true;
 }
