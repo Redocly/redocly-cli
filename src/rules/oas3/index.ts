@@ -37,6 +37,7 @@ import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { NoDiscriminatorPropertyInObject } from './no-discriminator-property-in-object';
 
 export const rules = {
   'info-description': InfoDescription,
@@ -76,6 +77,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
+  'no-discriminator-property-in-object': NoDiscriminatorPropertyInObject,
   spec: OasSpec,
 } as Oas3RuleSet;
 
