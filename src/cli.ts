@@ -493,12 +493,12 @@ function isNotEmptyArray(args?: string[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
 
-function expandGlobsInEntrypoints(args: string[], config: Config) {
-  return Promise.all((args as string[]).map(async aliasOrPath => {
+async function expandGlobsInEntrypoints(args: string[], config: Config) {
+  return (await Promise.all((args as string[]).map(async aliasOrPath => {
     return glob.hasMagic(aliasOrPath)
       ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
       : getAliasOrPath(config, aliasOrPath);
-  }));
+  }))).flat();
 }
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
@@ -506,7 +506,7 @@ export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | u
   const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0;
   const res = shouldFallbackToAllDefinitions
     ? Object.values(apiDefinitions).map((fileName) => resolve(getConfigDirectory(config), fileName))
-    : (await expandGlobsInEntrypoints(argsEntrypoints!, config)).flat();
+    : await expandGlobsInEntrypoints(argsEntrypoints!, config);
 
   if (!isNotEmptyArray(res)) {
     process.stderr.write(ERROR_MESSAGE.MISSING_ARGUMENT);
