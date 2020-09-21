@@ -22,10 +22,8 @@ export async function previewDocs(argv: {
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const entrypoint = getFallbackEntryPointsOrExit(
-    argv.entrypoint ? [argv.entrypoint] : [],
-    config,
-  )[0];
+  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)
+  const entrypoint = entrypoints[0]
 
   let cachedBundle: any;
   const deps = new Set<string>();

@@ -64,6 +64,7 @@
     "@types/node": "^14.0.13",
     "chokidar": "^3.4.0",
     "colorette": "^1.2.0",
+    "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^3.14.0",
