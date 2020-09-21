@@ -33,7 +33,14 @@ yargs
   .command('stats [entrypoint]', 'Gathering statistics for a document',
     (yargs) => yargs
       .positional('entrypoint', { type: 'string' })
-      .option({ config: { description: 'Specify path to the config file.', type: 'string' }}
+      .option({
+        config: { description: 'Specify path to the config file.', type: 'string' },
+        format: {
+          description: 'Use a specific output format.',
+          choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+          default: 'stylish' as OutputFormat,
+        }
+      }
     ),
     async (argv) => { handleStats(argv) }
   )

@@ -17,7 +17,7 @@ interface IStatsRow {
   metric: string;
   total: number;
   color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
-  items?: any;
+  items?: Set<string>;
 }
 type StatsName = 'operations' | 'refs' | 'tags' | 'externalDocs' | 'pathItems' | 'links' | 'schemas' | 'parameters';
 type IStatsCount = Record<StatsName, IStatsRow>;
@@ -33,11 +33,29 @@ const statsCount: IStatsCount = {
   tags: { metric: '🔖 Tags', total: 0, color: 'white' },
 }
 
-function printStatsTable(statsCount: IStatsCount, entrypoint: string) {
-  process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
+function printStatsStylish(statsCount: IStatsCount) {
   for (const node in statsCount) {
     const { metric, total, color } = statsCount[node as StatsName];
     process.stderr.write(colors[color](`${metric}: ${total} \n`));
+  }
+}
+
+function printStatsJson(statsCount: IStatsCount) {
+  const json: any = {};
+  Object.keys(statsCount).forEach((key) => {
+    json[key] = {
+      metric: statsCount[key as StatsName].metric,
+      total: statsCount[key as StatsName].total,
+    }
+  })
+  process.stdout.write(JSON.stringify(json, null, 2));
+}
+
+function printStats(statsCount: IStatsCount, entrypoint: string, format: string) {
+  process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
+  switch (format) {
+    case 'stylish': printStatsStylish(statsCount); break;
+    case 'json': printStatsJson(statsCount); break;
   }
 }
 
@@ -49,6 +67,7 @@ function printExecutionTime(startedAt: number, entrypoint: string) {
 export async function handleStats (argv: {
   config?: string;
   entrypoint?: string;
+  format: string;
 }) {
   const config: LintConfig | Config = await loadConfig(argv.config);
   const entrypoint = getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)[0];
@@ -77,21 +96,21 @@ export async function handleStats (argv: {
   });
 
   const statVisitor: Oas3Visitor | Oas2Visitor = {
-    ExternalDocs: { leave() {statsCount.externalDocs.total++; }},
-    ref: { enter(ref: OasRef) {statsCount.refs.items.add(ref['$ref']); }},
+    ExternalDocs: { leave() { statsCount.externalDocs.total++; }},
+    ref: { enter(ref: OasRef) { statsCount.refs.items!.add(ref['$ref']); }},
     Tag: { enter() { statsCount.tags.total++; }},
-    Link: { leave(link: any) { statsCount.links.items.add(link.operationId); }},
+    Link: { leave(link: any) { statsCount.links.items!.add(link.operationId); }},
     PathMap: {
       leave() {
-        statsCount.parameters.total = statsCount.parameters.items.size;
-        statsCount.refs.total = statsCount.refs.items.size;
-        statsCount.links.total = statsCount.links.items.size;
+        statsCount.parameters.total = statsCount.parameters.items!.size;
+        statsCount.refs.total = statsCount.refs.items!.size;
+        statsCount.links.total = statsCount.links.items!.size;
       },
       PathItem: {
         leave() { statsCount.pathItems.total++; },
         Operation: { leave() { statsCount.operations.total++; }},
         Parameter: { leave(parameter: Oas2Parameter | Oas3Parameter) {
-          statsCount.parameters.items.add(parameter.name)
+          statsCount.parameters.items!.add(parameter.name)
         }}
       }
     },
@@ -116,6 +135,6 @@ export async function handleStats (argv: {
     ctx,
   });
 
-  printStatsTable(statsCount, entrypoint);
+  printStats(statsCount, entrypoint, argv.format);
   printExecutionTime(startedAt, entrypoint);
 }
