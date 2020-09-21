@@ -12,6 +12,7 @@ import {
   BundleOutputFormat,
   promptUser,
   CircularJSONNotSupportedError,
+  getExecutionTime,
 } from './utils';
 import { formatProblems, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
@@ -131,10 +132,7 @@ yargs
             });
           }
 
-          const elapsed =
-            process.env.NODE_ENV === 'test'
-              ? '<test>ms'
-              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          const elapsed = getExecutionTime(startedAt);
           process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
@@ -262,11 +260,7 @@ yargs
             version,
           });
 
-          const elapsed =
-            process.env.NODE_ENV === 'test'
-              ? '<test>ms'
-              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
-
+          const elapsed = getExecutionTime(startedAt);
           if (fileTotals.errors > 0) {
             if (argv.force) {
               process.stderr.write(

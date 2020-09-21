@@ -10,6 +10,8 @@ import * as colors from 'colorette';
 import { getFallbackEntryPointsOrExit } from '../cli';
 import { Oas2Parameter } from '../typings/swagger';
 import { Oas3Parameter, OasRef } from '../typings/openapi';
+import { performance } from 'perf_hooks';
+import { getExecutionTime } from '../utils';
 
 interface IStatsRow {
   metric: string;
@@ -39,6 +41,11 @@ function printStatsTable(statsCount: IStatsCount, entrypoint: string) {
   }
 }
 
+function printExecutionTime(startedAt: number, entrypoint: string) {
+  const elapsed = getExecutionTime(startedAt);
+  process.stderr.write(colors.gray(`\n${entrypoint}: stats processed in ${elapsed}\n\n`));
+}
+
 export async function handleStats (argv: {
   config?: string;
   entrypoint?: string;
@@ -57,6 +64,7 @@ export async function handleStats (argv: {
     ),
   );
 
+  const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
     oasVersion: oasVersion,
@@ -109,4 +117,5 @@ export async function handleStats (argv: {
   });
 
   printStatsTable(statsCount, entrypoint);
+  printExecutionTime(startedAt, entrypoint);
 }

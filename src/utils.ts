@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import * as readline from 'readline';
 
 import { HttpResolveConfig } from './config/config';
+import { performance } from 'perf_hooks';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -105,4 +106,10 @@ export async function promptUser(query: string): Promise<string> {
       resolve(answer);
     });
   });
+}
+
+export function getExecutionTime(startedAt: number) {
+  return process.env.NODE_ENV === 'test'
+    ? '<test>ms'
+    : `${Math.ceil(performance.now() - startedAt)}ms`;
 }
