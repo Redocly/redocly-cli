@@ -481,7 +481,6 @@ function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-type ArgsEnrypoints = string[] | undefined;
 function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
@@ -490,11 +489,11 @@ function getAliasOrPath(config: Config, aliasOrPath: string) {
   return config.apiDefinitions[aliasOrPath] || aliasOrPath;
 }
 
-function isNotEmptyArray(args: ArgsEnrypoints) {
-  return Array.isArray(args) && args.length;
+function isNotEmptyArray(args?: string[]): boolean {
+  return Array.isArray(args) && !!args.length;
 }
 
-function expandGlobsInEntrypoints(args: ArgsEnrypoints, config: Config) {
+function expandGlobsInEntrypoints(args: string[], config: Config) {
   return Promise.all((args as string[]).map(async aliasOrPath => {
     return glob.hasMagic(aliasOrPath)
       ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
@@ -502,12 +501,12 @@ function expandGlobsInEntrypoints(args: ArgsEnrypoints, config: Config) {
   }));
 }
 
-export async function getFallbackEntryPointsOrExit(argsEntrypoints: ArgsEnrypoints, config: Config) {
+export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   const { apiDefinitions } = config;
   const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0;
   const res = shouldFallbackToAllDefinitions
     ? Object.values(apiDefinitions).map((fileName) => resolve(getConfigDirectory(config), fileName))
-    : (await expandGlobsInEntrypoints(argsEntrypoints, config)).flat();
+    : (await expandGlobsInEntrypoints(argsEntrypoints!, config)).flat();
 
   if (!isNotEmptyArray(res)) {
     process.stderr.write(ERROR_MESSAGE.MISSING_ARGUMENT);
