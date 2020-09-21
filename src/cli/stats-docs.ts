@@ -70,7 +70,8 @@ export async function handleStats (argv: {
   format: string;
 }) {
   const config: LintConfig | Config = await loadConfig(argv.config);
-  const entrypoint = getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)[0];
+  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
+  const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, entrypoint)) as Document;
   const lintConfig: LintConfig = config.lint;
