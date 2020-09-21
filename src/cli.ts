@@ -22,8 +22,7 @@ import { RedoclyClient } from './redocly';
 
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
-
-const ERROR = {
+const ERROR_MESSAGE = {
   MISSING_ARGUMENT: 'error: missing required argument `entrypoints`.\n'
 }
 
@@ -511,7 +510,7 @@ export async function getFallbackEntryPointsOrExit(argsEntrypoints: ArgsEnrypoin
     : (await expandGlobsInEntrypoints(argsEntrypoints, config)).flat();
 
   if (!isNotEmptyArray(res)) {
-    process.stderr.write(ERROR.MISSING_ARGUMENT);
+    process.stderr.write(ERROR_MESSAGE.MISSING_ARGUMENT);
     process.exit(1);
   }
   return res;
