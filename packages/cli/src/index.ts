@@ -4,9 +4,7 @@ import * as yargs from 'yargs';
 import { extname, basename, dirname, join } from 'path';
 import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
-
 import { Totals } from './types';
-
 import {
   BundleOutputFormat,
   validate,
@@ -61,6 +59,14 @@ yargs
           type: 'string'
         }}),
     (argv) => { handleSplit(argv) }
+  )
+  .command('merge <entrypoints...>', 'Merge definition.',
+    (yargs) => yargs.positional('entrypoints', {
+      array: true,
+      type: 'string',
+      demandOption: true
+    }),
+    argv => { handleMerge(argv, version) }
   )
   .command(
     'lint [entrypoints...]',
@@ -407,7 +413,7 @@ function getOutputFileName(
   return { outputFile, ext };
 }
 
-function handleError(e: Error, ref: string) {
+export function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
     process.stderr.write(
       `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
@@ -430,7 +436,7 @@ function handleError(e: Error, ref: string) {
   }
 }
 
-function printLintTotals(totals: Totals, definitionsCount: number) {
+export function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
     ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n\n`)
     : '';
