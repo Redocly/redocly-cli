@@ -19,7 +19,7 @@ import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedProblem } from './walk';
 import { previewDocs } from './cli/preview-docs';
-import { handleStats } from './cli/stats-docs'
+import { handleStats } from './cli/stats';
 import { RedoclyClient } from './redocly';
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;

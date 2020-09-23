@@ -1,26 +1,26 @@
+import { performance } from 'perf_hooks';
+import * as colors from 'colorette';
 import { Config, LintConfig, loadConfig } from '..';
-import { BaseResolver, Document, resolveDocument } from '../resolve';
-import { detectOpenAPI, OasMajorVersion, openAPIMajor } from '../validate';
 import { normalizeTypes } from '../types';
 import { Oas3Types } from '../types/oas3';
 import { Oas2Types } from '../types/oas2';
-import { WalkContext, walkDocument } from '../walk';
-import { normalizeVisitors, Oas2Visitor, Oas3Visitor } from '../visitors';
-import * as colors from 'colorette';
-import { getFallbackEntryPointsOrExit } from '../cli';
 import { Oas2Parameter } from '../typings/swagger';
 import { Oas3Parameter, OasRef } from '../typings/openapi';
-import { performance } from 'perf_hooks';
+import { BaseResolver, Document, resolveDocument } from '../resolve';
+import { detectOpenAPI, OasMajorVersion, openAPIMajor } from '../validate';
+import { normalizeVisitors, Oas2Visitor, Oas3Visitor } from '../visitors';
+import { WalkContext, walkDocument } from '../walk';
+import { getFallbackEntryPointsOrExit } from '../cli';
 import { getExecutionTime } from '../utils';
 
-interface IStatsRow {
+interface StatsRow {
   metric: string;
   total: number;
   color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
   items?: Set<string>;
 }
 type StatsName = 'operations' | 'refs' | 'tags' | 'externalDocs' | 'pathItems' | 'links' | 'schemas' | 'parameters';
-type IStatsCount = Record<StatsName, IStatsRow>;
+type IStatsCount = Record<StatsName, StatsRow>;
 
 const statsCount: IStatsCount = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -42,12 +42,12 @@ function printStatsStylish(statsCount: IStatsCount) {
 
 function printStatsJson(statsCount: IStatsCount) {
   const json: any = {};
-  Object.keys(statsCount).forEach((key) => {
+  for (const key of Object.keys(statsCount)) {
     json[key] = {
       metric: statsCount[key as StatsName].metric,
       total: statsCount[key as StatsName].total,
     }
-  })
+  }
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
@@ -115,7 +115,7 @@ export async function handleStats (argv: {
         }}
       }
     },
-    Components: {
+    NamedSchemas: {
       Schema: { leave() { statsCount.schemas.total++; }}
     }
   }
