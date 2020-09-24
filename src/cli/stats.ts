@@ -4,16 +4,16 @@ import { Config, LintConfig, loadConfig } from '..';
 import { normalizeTypes } from '../types';
 import { Oas3Types } from '../types/oas3';
 import { Oas2Types } from '../types/oas2';
-import { StatsCount, StatsName } from '../typings/common';
+import { StatsAccumulator, StatsName } from '../typings/common';
 import { BaseResolver, Document, resolveDocument } from '../resolve';
 import { detectOpenAPI, OasMajorVersion, openAPIMajor } from '../validate';
 import { normalizeVisitors } from '../visitors';
 import { WalkContext, walkDocument } from '../walk';
 import { getFallbackEntryPointsOrExit } from '../cli';
 import { getExecutionTime } from '../utils';
-import { makeStatsVisitor } from '../rules/common/stats';
+import { Stats } from '../rules/other/stats';
 
-const statsCount: StatsCount = {
+const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
   schemas: { metric: '📈 Schemas', total: 0, color: 'white'},
@@ -24,29 +24,29 @@ const statsCount: StatsCount = {
   tags: { metric: '🔖 Tags', total: 0, color: 'white' },
 }
 
-function printStatsStylish(statsCount: StatsCount) {
-  for (const node in statsCount) {
-    const { metric, total, color } = statsCount[node as StatsName];
+function printStatsStylish(statsAccumulator: StatsAccumulator) {
+  for (const node in statsAccumulator) {
+    const { metric, total, color } = statsAccumulator[node as StatsName];
     process.stderr.write(colors[color](`${metric}: ${total} \n`));
   }
 }
 
-function printStatsJson(statsCount: StatsCount) {
+function printStatsJson(statsAccumulator: StatsAccumulator) {
   const json: any = {};
-  for (const key of Object.keys(statsCount)) {
+  for (const key of Object.keys(statsAccumulator)) {
     json[key] = {
-      metric: statsCount[key as StatsName].metric,
-      total: statsCount[key as StatsName].total,
+      metric: statsAccumulator[key as StatsName].metric,
+      total: statsAccumulator[key as StatsName].total,
     }
   }
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
-function printStats(statsCount: StatsCount, entrypoint: string, format: string) {
+function printStats(statsAccumulator: StatsAccumulator, entrypoint: string, format: string) {
   process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
   switch (format) {
-    case 'stylish': printStatsStylish(statsCount); break;
-    case 'json': printStatsJson(statsCount); break;
+    case 'stylish': printStatsStylish(statsAccumulator); break;
+    case 'json': printStatsJson(statsAccumulator); break;
   }
 }
 
@@ -90,7 +90,7 @@ export async function handleStats (argv: {
   const statsVisitor = normalizeVisitors([{
     severity: 'warn',
     ruleId: 'stats',
-    visitor: makeStatsVisitor(statsCount)
+    visitor: Stats(statsAccumulator)
   }],
     types
   );
@@ -103,6 +103,6 @@ export async function handleStats (argv: {
     ctx,
   });
 
-  printStats(statsCount, entrypoint, argv.format);
+  printStats(statsAccumulator, entrypoint, argv.format);
   printExecutionTime(startedAt, entrypoint);
 }

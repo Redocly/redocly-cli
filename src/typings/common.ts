@@ -6,4 +6,4 @@ export interface StatsRow {
 }
 
 export type StatsName = 'operations' | 'refs' | 'tags' | 'externalDocs' | 'pathItems' | 'links' | 'schemas' | 'parameters';
-export type StatsCount = Record<StatsName, StatsRow>;
+export type StatsAccumulator = Record<StatsName, StatsRow>;
