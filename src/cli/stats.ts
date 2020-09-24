@@ -4,25 +4,16 @@ import { Config, LintConfig, loadConfig } from '..';
 import { normalizeTypes } from '../types';
 import { Oas3Types } from '../types/oas3';
 import { Oas2Types } from '../types/oas2';
-import { Oas2Parameter } from '../typings/swagger';
-import { Oas3Parameter, OasRef } from '../typings/openapi';
+import { StatsCount, StatsName } from '../typings/common';
 import { BaseResolver, Document, resolveDocument } from '../resolve';
 import { detectOpenAPI, OasMajorVersion, openAPIMajor } from '../validate';
-import { normalizeVisitors, Oas2Visitor, Oas3Visitor } from '../visitors';
+import { normalizeVisitors } from '../visitors';
 import { WalkContext, walkDocument } from '../walk';
 import { getFallbackEntryPointsOrExit } from '../cli';
 import { getExecutionTime } from '../utils';
+import { makeStatsVisitor } from '../rules/common/stats';
 
-interface StatsRow {
-  metric: string;
-  total: number;
-  color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
-  items?: Set<string>;
-}
-type StatsName = 'operations' | 'refs' | 'tags' | 'externalDocs' | 'pathItems' | 'links' | 'schemas' | 'parameters';
-type IStatsCount = Record<StatsName, StatsRow>;
-
-const statsCount: IStatsCount = {
+const statsCount: StatsCount = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
   schemas: { metric: '📈 Schemas', total: 0, color: 'white'},
@@ -33,14 +24,14 @@ const statsCount: IStatsCount = {
   tags: { metric: '🔖 Tags', total: 0, color: 'white' },
 }
 
-function printStatsStylish(statsCount: IStatsCount) {
+function printStatsStylish(statsCount: StatsCount) {
   for (const node in statsCount) {
     const { metric, total, color } = statsCount[node as StatsName];
     process.stderr.write(colors[color](`${metric}: ${total} \n`));
   }
 }
 
-function printStatsJson(statsCount: IStatsCount) {
+function printStatsJson(statsCount: StatsCount) {
   const json: any = {};
   for (const key of Object.keys(statsCount)) {
     json[key] = {
@@ -51,7 +42,7 @@ function printStatsJson(statsCount: IStatsCount) {
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
-function printStats(statsCount: IStatsCount, entrypoint: string, format: string) {
+function printStats(statsCount: StatsCount, entrypoint: string, format: string) {
   process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
   switch (format) {
     case 'stylish': printStatsStylish(statsCount); break;
@@ -96,34 +87,10 @@ export async function handleStats (argv: {
     externalRefResolver,
   });
 
-  const statVisitor: Oas3Visitor | Oas2Visitor = {
-    ExternalDocs: { leave() { statsCount.externalDocs.total++; }},
-    ref: { enter(ref: OasRef) { statsCount.refs.items!.add(ref['$ref']); }},
-    Tag: { enter() { statsCount.tags.total++; }},
-    Link: { leave(link: any) { statsCount.links.items!.add(link.operationId); }},
-    PathMap: {
-      leave() {
-        statsCount.parameters.total = statsCount.parameters.items!.size;
-        statsCount.refs.total = statsCount.refs.items!.size;
-        statsCount.links.total = statsCount.links.items!.size;
-      },
-      PathItem: {
-        leave() { statsCount.pathItems.total++; },
-        Operation: { leave() { statsCount.operations.total++; }},
-        Parameter: { leave(parameter: Oas2Parameter | Oas3Parameter) {
-          statsCount.parameters.items!.add(parameter.name)
-        }}
-      }
-    },
-    NamedSchemas: {
-      Schema: { leave() { statsCount.schemas.total++; }}
-    }
-  }
-
   const statsVisitor = normalizeVisitors([{
     severity: 'warn',
     ruleId: 'stats',
-    visitor: statVisitor
+    visitor: makeStatsVisitor(statsCount)
   }],
     types
   );
