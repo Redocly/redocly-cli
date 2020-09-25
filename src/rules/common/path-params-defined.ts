@@ -3,12 +3,11 @@ import { Oas2Parameter } from '../../typings/swagger';
 import { Oas3Parameter } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-const pathRegex = /\{([a-zA-Z0-9_-]+)\}+/g;
+const pathRegex = /\{([a-zA-Z0-9_.-]+)\}+/g;
 
 export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   let pathTemplateParams: Set<string>;
   let definedPathParams: Set<string>;
-
   let currentPath: string;
 
   return {
