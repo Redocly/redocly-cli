@@ -12,14 +12,15 @@ import {
   BundleOutputFormat,
   promptUser,
   CircularJSONNotSupportedError,
+  getExecutionTime,
 } from './utils';
 import { formatProblems, OutputFormat } from './format/format';
 import { ResolveError, YamlParseError } from './resolve';
 import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedProblem } from './walk';
 import { previewDocs } from './cli/preview-docs';
+import { handleStats } from './cli/stats';
 import { RedoclyClient } from './redocly';
-
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 const ERROR_MESSAGE = {
@@ -29,6 +30,20 @@ const ERROR_MESSAGE = {
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
+  .command('stats [entrypoint]', 'Gathering statistics for a document',
+    (yargs) => yargs
+      .positional('entrypoint', { type: 'string' })
+      .option({
+        config: { description: 'Specify path to the config file.', type: 'string' },
+        format: {
+          description: 'Use a specific output format.',
+          choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+          default: 'stylish' as OutputFormat,
+        }
+      }
+    ),
+    async (argv) => { handleStats(argv) }
+  )
   .command(
     'lint [entrypoints...]',
     'Lint definition.',
@@ -91,9 +106,7 @@ yargs
 
       if (config.lint.recommendedFallback) {
         process.stderr.write(
-          `No configurations were defined in extends -- using built in ${blue(
-            'recommended',
-          )} configuration by default.\n\n`,
+          `No configurations were defined in extends -- using built in ${blue('recommended')} configuration by default.\n\n`,
         );
       }
 
@@ -126,10 +139,7 @@ yargs
             });
           }
 
-          const elapsed =
-            process.env.NODE_ENV === 'test'
-              ? '<test>ms'
-              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
+          const elapsed = getExecutionTime(startedAt);
           process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
         } catch (e) {
           totals.errors++;
@@ -257,11 +267,7 @@ yargs
             version,
           });
 
-          const elapsed =
-            process.env.NODE_ENV === 'test'
-              ? '<test>ms'
-              : `in ${Math.ceil(performance.now() - startedAt)}ms`;
-
+          const elapsed = getExecutionTime(startedAt);
           if (fileTotals.errors > 0) {
             if (argv.force) {
               process.stderr.write(
