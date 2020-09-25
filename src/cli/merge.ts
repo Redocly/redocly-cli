@@ -1,13 +1,47 @@
-import { Config, loadConfig, validate } from '..';
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import { red, blue } from 'colorette';
+import { Config, loadConfig, validate } from '..';
 import { Oas2Definition } from '../typings/swagger';
 import { Oas3Definition } from '../typings/openapi';
 import { getFallbackEntryPointsOrExit, handleError, getTotals, printLintTotals } from '../cli';
 import { formatProblems } from '../format/format';
+import { readYaml } from '../utils';
 
 type Definition = Oas3Definition | Oas2Definition;
+
+export async function handleMerge (argv: { entrypoints: string[] }, version: string) {
+  const config: Config = await loadConfig();
+  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+
+  for (const entryPoint of entrypoints) {
+    const isNotOas3 = isNotOas3Definition(entryPoint);
+    if (isNotOas3) return stdWriteExit(`File ${entryPoint} should be compatible with OpenAPI Specification`);
+    await validateEndpoint(entryPoint, config, version);
+  }
+
+  let spec: any = { paths: {}};
+  let conflicts: any = { paths: {}};
+
+  for (const entryPoint of entrypoints) {
+    const openapi = readYaml(entryPoint!) as Oas3Definition;
+    collectPaths(openapi, entryPoint, spec, conflicts);
+  }
+}
+
+function collectPaths(openapi: Oas3Definition, entryPoint: string, spec: any, conflicts: any) {
+  const { paths } = openapi;
+  if (paths) {
+    for (const path of Object.keys(paths)) {
+      if (spec.paths.hasOwnProperty(path)) {
+        conflicts.paths[path] = { [entryPoint]: paths[path] };
+      } else {
+        spec.paths[path] = paths[path];
+      }
+    }
+  }
+}
+
 
 function stdWriteExit(message: string) {
   process.stderr.write(red(message));
@@ -36,16 +70,5 @@ async function validateEndpoint(entryPoint: string, config: Config, version: str
     printLintTotals(fileTotals, 2);
   } catch (err) {
     handleError(err, entryPoint);
-  }
-}
-
-export async function handleMerge (argv: { entrypoints: string[] }, version: string) {
-  const config: Config = await loadConfig();
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
-
-  for (const entryPoint of entrypoints) {
-    const isNotOas3 = isNotOas3Definition(entryPoint);
-    if (isNotOas3) return stdWriteExit(`File ${entryPoint} should be compatible with OpenAPI Specification`);
-    await validateEndpoint(entryPoint, config, version);
   }
 }
