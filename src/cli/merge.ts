@@ -26,6 +26,7 @@ export async function handleMerge (argv: { entrypoints: string[] }, version: str
   for (const entryPoint of entrypoints) {
     const openapi = readYaml(entryPoint!) as Oas3Definition;
     collectPaths(openapi, entryPoint, spec, conflicts);
+    collectComponents(openapi, spec);
   }
 }
 
@@ -41,7 +42,18 @@ function collectPaths(openapi: Oas3Definition, entryPoint: string, spec: any, co
     }
   }
 }
+const COMPONENTS = 'components';
+function collectComponents(openapi: Oas3Definition, spec: any) {
+  const { components } = openapi;
+  if (components) {
+    if (!spec.hasOwnProperty(COMPONENTS)) { spec[COMPONENTS] = {}; }
+    for (const component of Object.keys(components)) {
 
+      // @ts-ignore
+      spec[COMPONENTS][component] = { ...spec[COMPONENTS][component], ...components[component]};
+    }
+  }
+}
 
 function stdWriteExit(message: string) {
   process.stderr.write(red(message));
