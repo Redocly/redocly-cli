@@ -3,6 +3,7 @@ import {
   Oas3Components,
   Oas3PathItem,
   Oas3Paths,
+  Oas3ComponentName,
 } from '../../typings/openapi';
 import { Oas2Definition } from '../../typings/swagger';
 export { Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem }
@@ -14,13 +15,19 @@ export interface refObj {
   [$ref: string]: string;
 }
 
+export interface ComponentRef {
+  type: string;
+  name: string;
+}
+
 export type ComponentType = {
-  name: string
+  name: Oas3ComponentName
   data: any
 }
 
 export const COMPONENTS = 'components';
 export const PATHS = 'paths';
+export const componentsPath = `#/${COMPONENTS}/`;
 
 enum OPENAPI3_METHOD {
   Get = 'get',
@@ -33,7 +40,7 @@ enum OPENAPI3_METHOD {
   Trace = 'trace'
 }
 
-export const OPENAPI3_METHODS: OPENAPI3_METHOD[] = [
+export const OPENAPI3_METHOD_NAMES: OPENAPI3_METHOD[] = [
   OPENAPI3_METHOD.Get,
   OPENAPI3_METHOD.Put,
   OPENAPI3_METHOD.Post,
@@ -56,13 +63,14 @@ export enum OPENAPI3_COMPONENT {
   SecuritySchemes = 'securitySchemes'
 }
 
-export const OPENAPI3_COMPONENTS: OPENAPI3_COMPONENT[] = [
+export const OPENAPI3_COMPONENT_NAMES: OPENAPI3_COMPONENT[] = [
+  OPENAPI3_COMPONENT.RequestBodies,
   OPENAPI3_COMPONENT.Schemas,
   OPENAPI3_COMPONENT.Responses,
   OPENAPI3_COMPONENT.Parameters,
   OPENAPI3_COMPONENT.Examples,
   OPENAPI3_COMPONENT.Headers,
-  OPENAPI3_COMPONENT.RequestBodies,
+
   OPENAPI3_COMPONENT.Links,
   OPENAPI3_COMPONENT.Callbacks,
   OPENAPI3_COMPONENT.SecuritySchemes

@@ -220,6 +220,8 @@ export interface Oas3Components {
   callbacks?: { [name: string]: Referenced<Oas3Callback> };
 }
 
+export type Oas3ComponentName = keyof Oas3Components;
+
 export interface Oas3SecurityRequirement {
   [name: string]: string[];
 }

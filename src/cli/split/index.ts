@@ -2,28 +2,65 @@ import { readYaml, writeYaml } from '../../utils';
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 const isEqual = require('lodash.isequal');
 import { pathToFilename } from '../../ref-utils';
-import { isString, isObject, isNotObjectKeys } from '../../js-utils';
+import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
   Definition,
   Oas2Definition,
   Oas3Definition,
+  Oas3Components,
   ComponentsFiles,
   ComponentType,
+  ComponentRef,
   refObj,
   Oas3PathItem,
   OPENAPI3_COMPONENT,
   COMPONENTS,
+  componentsPath,
   PATHS,
-  OPENAPI3_METHODS,
-  OPENAPI3_COMPONENTS
+  OPENAPI3_METHOD_NAMES,
+  OPENAPI3_COMPONENT_NAMES
 } from './types'
+import { Oas3ComponentName } from '../../typings/openapi';
+
+export async function handleSplit (argv: {
+  entrypoint?: string;
+  outDir: string
+}) {
+  const { entrypoint, outDir } = argv;
+  validateDefinitionFileName(entrypoint!);
+  const openapi = readYaml(entrypoint!) as Oas3Definition;
+  splitDefinition(openapi, outDir);
+  process.stderr.write(
+    `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')} 
+    and all related files are saved to the directory: ${blue(outDir)} \n`,
+  );
+}
+
+function splitDefinition(openapi: Oas3Definition, openapiDir: string) {
+  fs.mkdirSync(openapiDir, { recursive: true });
+  const pathsDir = path.join(openapiDir, PATHS);
+  fs.mkdirSync(pathsDir, { recursive: true });
+
+  const componentsFiles: ComponentsFiles = {};
+  iteratePaths(openapi, pathsDir, openapiDir);
+  iterateComponents(openapi, openapiDir, componentsFiles);
+
+  function traverseDirectoryDeepCallback(filename: string, directory: string) {
+    if (isNotYaml(filename)) return;
+    const pathData = readYaml(filename);
+    replace$Refs(pathData, directory, componentsFiles);
+    writeYaml(pathData, filename);
+  }
+
+  traverseDirectoryDeep(pathsDir, traverseDirectoryDeepCallback);
+  replace$Refs(openapi, openapiDir, componentsFiles);
+  writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
+}
 
 function isStartsWithComponents(node: string) {
-  const componentsPath = `#/${COMPONENTS}/`;
   return node.startsWith(componentsPath)
 }
 
@@ -31,7 +68,7 @@ function isNotYaml(filename: string) {
   return !(filename.endsWith('.yaml') || filename.endsWith('.yml'));
 }
 
-function stdWriteExit(message: string) {
+function exitWithError(message: string) {
   process.stderr.write(red(message));
   process.exit(1);
 }
@@ -40,15 +77,15 @@ function loadFile(fileName: string) {
   try {
     return yaml.safeLoad(fs.readFileSync(fileName, 'utf8')) as Definition;
   } catch (e) {
-    return stdWriteExit(e.message);
+    return exitWithError(e.message);
   }
 }
 
 function validateDefinitionFileName(fileName: string) {
-  if (!fs.existsSync(fileName)) stdWriteExit(`File ${blue(fileName)} does not exist \n`);
+  if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist \n`);
   const file = loadFile(fileName);
-  if ((file as Oas2Definition).swagger) stdWriteExit('OpenAPI 2 is not supported by this command');
-  if (!(file as Oas3Definition).openapi) stdWriteExit('File does not conform to the OpenAPI Specification');
+  if ((file as Oas2Definition).swagger) exitWithError('OpenAPI 2 is not supported by this command');
+  if (!(file as Oas3Definition).openapi) exitWithError('File does not conform to the OpenAPI Specification. OpenAPI version is not specified');
   return true;
 }
 
@@ -66,15 +103,15 @@ function langToExt(lang: string) {
   return langObj[lang];
 }
 
-function traverseFolderDeep(folder: string, callback: any) {
-  if (!fs.existsSync(folder) || !fs.statSync(folder).isDirectory()) return;
-  const files = fs.readdirSync(folder);
+function traverseDirectoryDeep(directory: string, callback: any) {
+  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) return;
+  const files = fs.readdirSync(directory);
   for (const f of files) {
-    const filename = path.join(folder, f);
+    const filename = path.join(directory, f);
     if (fs.statSync(filename).isDirectory()) {
-      traverseFolderDeep(filename, callback);
+      traverseDirectoryDeep(filename, callback);
     } else {
-      callback(filename, folder);
+      callback(filename, directory);
     }
   }
 }
@@ -88,11 +125,13 @@ function crawl(object: any, visitor: any) {
 }
 
 function getComponentRefs(obj: any) {
-  const refs: string[] = [];
+  const refs: ComponentRef[] = [];
   crawl(obj, (node: any) => {
     if (node.$ref && isString(node.$ref) && isStartsWithComponents(node.$ref)) {
-      const name = node.$ref.split('/').pop();
-      if (!refs.includes(name)) refs.push(name);
+      const [ type, name ] = node.$ref.replace(componentsPath,'').split('/')
+      if (!refs.some(ref => ref.type === type && ref.name === name)) {
+        refs.push({ type, name });
+      }
     }
   })
   return refs;
@@ -149,7 +188,7 @@ function implicitlyReferenceDiscriminator(
     }
   }
 
-  if (isNotObjectKeys(implicitMapping)) return;
+  if (isEmptyObject(implicitMapping)) return;
   const discriminatorPropSchema = obj.properties[obj.discriminator.propertyName];
   const discriminatorEnum = discriminatorPropSchema && discriminatorPropSchema.enum;
 
@@ -158,7 +197,7 @@ function implicitlyReferenceDiscriminator(
     if (discriminatorEnum && !discriminatorEnum.includes(name)) { continue; }
     if (mapping[name] && mapping[name] !== implicitMapping[name]) {
       process.stderr.write(yellow(
-        `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(filename)}, Check manually, please`
+        `warning: explicit mapping overlaps with local mapping entry ${red(name)} at ${blue(filename)}. Please check it.`
       ));
     }
     mapping[name] = implicitMapping[name];
@@ -170,53 +209,50 @@ function isNotSecurityComponentType(componentType: string) {
 }
 
 function findComponentTypes(components: any) {
-  return OPENAPI3_COMPONENTS
+  return OPENAPI3_COMPONENT_NAMES
     .filter(item => isNotSecurityComponentType(item) && Object.keys(components).includes(item))
     .map(type => ({ name: type, data: components[type] }))
 }
 
-function isFileNotEqual(filename: string, componentData: string, componentName: string) {
-  const result = fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
-  if (result) {
-    process.stderr.write(yellow(
-      `warning: conflict for ${componentName} - file already exists
-         with different content: ${blue(filename)} ... Skip.\n`
-    ));
-  }
-  return result;
+function isFileNotEqual(filename: string, componentData: string) {
+  return fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
 }
 
-function cleanupComponentsExceptSecuritySchemes(
+function removeComponentsExceptSecuritySchemes(
   openapi: Oas3Definition,
-  componentType: string,
+  componentType: Oas3ComponentName,
   componentName: string
 ) {
   if (isNotSecurityComponentType(componentType)) {
     // security schemas must referenced from components
-    // @ts-ignore
-    delete openapi.components[componentType][componentName];
+    delete openapi.components![componentType]![componentName];
   }
 }
 
-function cleanupEmptyProperties(openapi: Oas3Definition, componentType: string) {
-  // @ts-ignore
-  if (isNotObjectKeys(openapi.components && openapi.components[componentType])) {
-    // @ts-ignore
+function removeEmptyComponents(openapi: Oas3Definition, componentType: Oas3ComponentName) {
+  if (openapi.components && isEmptyObject(openapi.components[componentType])) {
     delete openapi.components[componentType];
   }
-  if (isNotObjectKeys(openapi.components)) {
+  if (isEmptyObject(openapi.components)) {
     delete openapi.components;
   }
 }
 
 function createComponentDir(componetDirPath: string, componentType: string) {
   if (isNotSecurityComponentType(componentType)) {
-    mkdirp.sync(componetDirPath);
+    fs.mkdirSync(componetDirPath, { recursive: true });
   }
 }
 
-function isRefComponentsExist(componentRefs: string[], components: string[]) {
-  return componentRefs.length ? components.some(c => componentRefs.includes(c)) : true;
+function hasRefComponents(componentRefs: ComponentRef[], components: Oas3Components) {
+  let result = true;
+  if (componentRefs.length) {
+    for (const { type, name } of componentRefs) {
+      if (!components.hasOwnProperty(type)) { result = false; break; }
+      if (!components && !components[type][name]) { result = false; break; }
+    }
+  }
+  return result;
 }
 
 function extractFileNameFromPath(filename: string) {
@@ -227,7 +263,7 @@ function getFileNamePath(componentDirPath: string, componentName: string) {
   return path.join(componentDirPath, componentName) + '.yaml';
 }
 
-function gatheringComponentsFiles(
+function gatherComponentsFiles(
   componentsFiles: ComponentsFiles,
   componentType: ComponentType,
   componentName: string,
@@ -253,7 +289,7 @@ function iteratePaths(
       const pathData: Oas3PathItem = paths[oasPath];
       const XCodeSamples = 'x-code-samples';
 
-      for (const method of OPENAPI3_METHODS) {
+      for (const method of OPENAPI3_METHOD_NAMES) {
         const methodData = pathData[method];
         const methodDataXCode = methodData?.[XCodeSamples];
         if (!methodDataXCode || !Array.isArray(methodDataXCode)) { continue; }
@@ -269,7 +305,7 @@ function iteratePaths(
             method + langToExt(sample.lang)
           );
 
-          mkdirp.sync(path.dirname(sampleFileName));
+          fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
           fs.writeFileSync(sampleFileName, sample.source);
           // @ts-ignore
           sample.source = {
@@ -295,20 +331,18 @@ function iterateComponents(
   const { components } = openapi;
   if (components) {
     const componentsDir = path.join(openapiDir, COMPONENTS);
-    mkdirp.sync(componentsDir);
+    fs.mkdirSync(componentsDir, { recursive: true });
     const componentTypes = findComponentTypes(components);
     componentTypes.forEach(iterateComponentTypes);
 
     function iterateComponentTypes(componentType: ComponentType) {
-      const allComponents: string[] = [];
       const componentDirPath = path.join(componentsDir, componentType.name);
       createComponentDir(componentDirPath, componentType.name);
       const comps = Object.keys(componentType.data);
-      allComponents.push(...comps)
 
       for (const componentName of comps) {
         const filename = getFileNamePath(componentDirPath, componentName);
-        gatheringComponentsFiles(componentsFiles, componentType, componentName, filename);
+        gatherComponentsFiles(componentsFiles, componentType, componentName, filename);
       }
 
       for (const componentName of comps) {
@@ -316,7 +350,7 @@ function iterateComponents(
         const componentData = componentType.data[componentName];
         const componentRefs = getComponentRefs(componentData);
 
-        if (isRefComponentsExist(componentRefs, allComponents)) {
+        if (hasRefComponents(componentRefs, components!)) {
           replace$Refs(componentData, path.dirname(filename), componentsFiles);
           implicitlyReferenceDiscriminator(
             componentData,
@@ -325,53 +359,20 @@ function iterateComponents(
             componentsFiles.schemas || {}
           );
 
-          if (!isFileNotEqual(filename, componentData, componentName)) {
-            writeYaml(componentData, filename);
-          }
+          if (isFileNotEqual(filename, componentData)) {
+            process.stderr.write(yellow(
+              `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.\n`
+            ));
+          } else { writeYaml(componentData, filename); }
 
-          cleanupComponentsExceptSecuritySchemes(openapi, componentType.name, componentName);
+          removeComponentsExceptSecuritySchemes(openapi, componentType.name, componentName);
         } else {
           process.stderr.write(yellow(
             `warning: conflict for ${componentName} - Reference files for the file: ${blue(filename)} are not exist ... Skip.\n`
           ));
         }
       }
-      cleanupEmptyProperties(openapi, componentType.name);
+      removeEmptyComponents(openapi, componentType.name);
     }
   }
-}
-
-function splitDefinition(openapi: Oas3Definition, openapiDir: string) {
-  mkdirp.sync(openapiDir);
-  const pathsDir = path.join(openapiDir, PATHS);
-  mkdirp.sync(pathsDir);
-
-  const componentsFiles: ComponentsFiles = {};
-  iteratePaths(openapi, pathsDir, openapiDir);
-  iterateComponents(openapi, openapiDir, componentsFiles);
-
-  function traverseFolderDeepCallback(filename: string, folder: string) {
-    if (isNotYaml(filename)) return;
-    const pathData = readYaml(filename);
-    replace$Refs(pathData, folder, componentsFiles);
-    writeYaml(pathData, filename);
-  }
-
-  traverseFolderDeep(pathsDir, traverseFolderDeepCallback);
-  replace$Refs(openapi, openapiDir, componentsFiles);
-  writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
-}
-
-export async function handleSplit (argv: {
-  entrypoint?: string;
-  outDir: string
-}) {
-  const { entrypoint, outDir } = argv;
-  validateDefinitionFileName(entrypoint!);
-  const openapi = readYaml(entrypoint!) as Oas3Definition;
-  splitDefinition(openapi, outDir);
-  process.stderr.write(
-    `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')} 
-    and all related files are saved to the folder: ${blue(outDir)} \n`,
-  );
 }
