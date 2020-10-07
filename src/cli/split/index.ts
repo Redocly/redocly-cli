@@ -1,4 +1,4 @@
-import { readYaml, writeYaml } from '../../utils';
+import { printExecutionTime, readYaml, writeYaml } from '../../utils';
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
@@ -24,11 +24,13 @@ import {
   OPENAPI3_COMPONENT_NAMES
 } from './types'
 import { Oas3ComponentName } from '../../typings/openapi';
+import { performance } from 'perf_hooks';
 
 export async function handleSplit (argv: {
   entrypoint?: string;
   outDir: string
 }) {
+  const startedAt = performance.now();
   const { entrypoint, outDir } = argv;
   validateDefinitionFileName(entrypoint!);
   const openapi = readYaml(entrypoint!) as Oas3Definition;
@@ -37,6 +39,7 @@ export async function handleSplit (argv: {
     `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')} 
     and all related files are saved to the directory: ${blue(outDir)} \n`,
   );
+  printExecutionTime(startedAt, entrypoint!);
 }
 
 function splitDefinition(openapi: Oas3Definition, openapiDir: string) {
@@ -214,19 +217,8 @@ function findComponentTypes(components: any) {
     .map(type => ({ name: type, data: components[type] }))
 }
 
-function isFileNotEqual(filename: string, componentData: string) {
+function doesFileDiffer(filename: string, componentData: string) {
   return fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
-}
-
-function removeComponentsExceptSecuritySchemes(
-  openapi: Oas3Definition,
-  componentType: Oas3ComponentName,
-  componentName: string
-) {
-  if (isNotSecurityComponentType(componentType)) {
-    // security schemas must referenced from components
-    delete openapi.components![componentType]![componentName];
-  }
 }
 
 function removeEmptyComponents(openapi: Oas3Definition, componentType: Oas3ComponentName) {
@@ -287,13 +279,11 @@ function iteratePaths(
     for (const oasPath of Object.keys(paths)) {
       const pathFile = path.join(pathsDir, pathToFilename(oasPath)) + '.yaml';
       const pathData: Oas3PathItem = paths[oasPath];
-      const XCodeSamples = 'x-code-samples';
 
       for (const method of OPENAPI3_METHOD_NAMES) {
         const methodData = pathData[method];
-        const methodDataXCode = methodData?.[XCodeSamples];
+        const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
         if (!methodDataXCode || !Array.isArray(methodDataXCode)) { continue; }
-
         for (const sample of methodDataXCode) {
           // @ts-ignore
           if (sample.source && sample.source.$ref) continue;
@@ -359,13 +349,16 @@ function iterateComponents(
             componentsFiles.schemas || {}
           );
 
-          if (isFileNotEqual(filename, componentData)) {
+          if (doesFileDiffer(filename, componentData)) {
             process.stderr.write(yellow(
               `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.\n`
             ));
           } else { writeYaml(componentData, filename); }
 
-          removeComponentsExceptSecuritySchemes(openapi, componentType.name, componentName);
+          if (isNotSecurityComponentType(componentType.name)) {
+            // security schemas must referenced from components
+            delete openapi.components![componentType.name]![componentName];
+          }
         } else {
           process.stderr.write(yellow(
             `warning: conflict for ${componentName} - Reference files for the file: ${blue(filename)} are not exist ... Skip.\n`

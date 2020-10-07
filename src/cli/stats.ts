@@ -10,7 +10,7 @@ import { detectOpenAPI, OasMajorVersion, openAPIMajor } from '../validate';
 import { normalizeVisitors } from '../visitors';
 import { WalkContext, walkDocument } from '../walk';
 import { getFallbackEntryPointsOrExit } from '../cli';
-import { getExecutionTime } from '../utils';
+import { printExecutionTime } from '../utils';
 import { Stats } from '../rules/other/stats';
 
 const statsAccumulator: StatsAccumulator = {
@@ -48,11 +48,6 @@ function printStats(statsAccumulator: StatsAccumulator, entrypoint: string, form
     case 'stylish': printStatsStylish(statsAccumulator); break;
     case 'json': printStatsJson(statsAccumulator); break;
   }
-}
-
-function printExecutionTime(startedAt: number, entrypoint: string) {
-  const elapsed = getExecutionTime(startedAt);
-  process.stderr.write(colors.gray(`\n${entrypoint}: stats processed in ${elapsed}\n\n`));
 }
 
 export async function handleStats (argv: {

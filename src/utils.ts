@@ -7,6 +7,7 @@ import * as readline from 'readline';
 
 import { HttpResolveConfig } from './config/config';
 import { performance } from 'perf_hooks';
+import * as colors from 'colorette';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -120,4 +121,9 @@ export function getExecutionTime(startedAt: number) {
   return process.env.NODE_ENV === 'test'
     ? '<test>ms'
     : `${Math.ceil(performance.now() - startedAt)}ms`;
+}
+
+export function printExecutionTime(startedAt: number, entrypoint: string) {
+  const elapsed = getExecutionTime(startedAt);
+  process.stderr.write(colors.gray(`\n${entrypoint}: stats processed in ${elapsed}\n\n`));
 }
