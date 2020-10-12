@@ -123,7 +123,7 @@ export function getExecutionTime(startedAt: number) {
     : `${Math.ceil(performance.now() - startedAt)}ms`;
 }
 
-export function printExecutionTime(startedAt: number, entrypoint: string) {
+export function printExecutionTime(commandName: string, startedAt: number, entrypoint: string) {
   const elapsed = getExecutionTime(startedAt);
-  process.stderr.write(colors.gray(`\n${entrypoint}: stats processed in ${elapsed}\n\n`));
+  process.stderr.write(colors.gray(`\n${entrypoint}: ${commandName} processed in ${elapsed}\n\n`));
 }

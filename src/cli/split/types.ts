@@ -6,7 +6,7 @@ import {
   Oas3ComponentName,
 } from '../../typings/openapi';
 import { Oas2Definition } from '../../typings/swagger';
-export { Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem }
+export { Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName }
 export type Definition = Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
@@ -18,11 +18,6 @@ export interface refObj {
 export interface ComponentRef {
   type: string;
   name: string;
-}
-
-export type ComponentType = {
-  name: Oas3ComponentName
-  data: any
 }
 
 export const COMPONENTS = 'components';

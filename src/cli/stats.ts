@@ -99,5 +99,5 @@ export async function handleStats (argv: {
   });
 
   printStats(statsAccumulator, entrypoint, argv.format);
-  printExecutionTime(startedAt, entrypoint);
+  printExecutionTime('stats', startedAt, entrypoint);
 }
