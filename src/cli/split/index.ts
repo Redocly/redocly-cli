@@ -13,7 +13,6 @@ import {
   Oas3Components,
   Oas3ComponentName,
   ComponentsFiles,
-  ComponentRef,
   refObj,
   Oas3PathItem,
   OPENAPI3_COMPONENT,
@@ -126,19 +125,6 @@ function crawl(object: any, visitor: any) {
   }
 }
 
-function getComponentRefs(obj: any) {
-  const refs: ComponentRef[] = [];
-  crawl(obj, (node: any) => {
-    if (node.$ref && isString(node.$ref) && isStartsWithComponents(node.$ref)) {
-      const [ type, name ] = node.$ref.replace(componentsPath,'').split('/')
-      if (!refs.some(ref => ref.type === type && ref.name === name)) {
-        refs.push({ type, name });
-      }
-    }
-  })
-  return refs;
-}
-
 function replace$Refs(
   obj: any,
   relativeFrom: string,
@@ -232,17 +218,6 @@ function createComponentDir(componetDirPath: string, componentType: string) {
   }
 }
 
-function hasRefComponents(componentRefs: ComponentRef[], components: Oas3Components) {
-  let result = true;
-  if (componentRefs.length) {
-    for (const { type, name } of componentRefs) {
-      if (!components.hasOwnProperty(type)) { result = false; break; }
-      if (!components && !components[type][name]) { result = false; break; }
-    }
-  }
-  return result;
-}
-
 function extractFileNameFromPath(filename: string) {
   return path.basename(filename, path.extname(filename));
 }
@@ -321,7 +296,6 @@ function iterateComponents(
     const componentsDir = path.join(openapiDir, COMPONENTS);
     fs.mkdirSync(componentsDir, { recursive: true });
     const componentTypes = findComponentTypes(components);
-    const componentsData = Object.assign({}, components);
     componentTypes.forEach(iterateAndGatherComponentsFiles);
     componentTypes.forEach(iterateComponentTypes);
 
@@ -342,35 +316,27 @@ function iterateComponents(
         const filename = getFileNamePath(componentDirPath, componentName);
         //@ts-ignore
         const componentData = components[componentType][componentName];
-        const componentRefs = getComponentRefs(componentData);
+        replace$Refs(componentData, path.dirname(filename), componentsFiles);
+        implicitlyReferenceDiscriminator(
+          componentData,
+          extractFileNameFromPath(filename),
+          filename,
+          componentsFiles.schemas || {}
+        );
 
-        if (hasRefComponents(componentRefs, componentsData)) {
-          replace$Refs(componentData, path.dirname(filename), componentsFiles);
-          implicitlyReferenceDiscriminator(
-            componentData,
-            extractFileNameFromPath(filename),
-            filename,
-            componentsFiles.schemas || {}
-          );
-
-          //@ts-ignore
-          if (doesFileDiffer(filename, componentData)) {
-            process.stderr.write(yellow(
-              `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.\n`
-            ));
-          } else {
-            writeYaml(componentData, filename);
-          }
-
-          if (isNotSecurityComponentType(componentType)) {
-            // security schemas must referenced from components
-            //@ts-ignore
-            delete openapi.components[componentType][componentName];
-          }
-        } else {
+        //@ts-ignore
+        if (doesFileDiffer(filename, componentData)) {
           process.stderr.write(yellow(
-            `warning: conflict for ${componentName} - References to the file: ${blue(filename)} do not exist ... Skip.\n`
+            `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.\n`
           ));
+        } else {
+          writeYaml(componentData, filename);
+        }
+
+        if (isNotSecurityComponentType(componentType)) {
+          // security schemas must referenced from components
+          //@ts-ignore
+          delete openapi.components[componentType][componentName];
         }
       }
       removeEmptyComponents(openapi, componentType);

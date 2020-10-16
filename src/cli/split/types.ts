@@ -15,11 +15,6 @@ export interface refObj {
   [$ref: string]: string;
 }
 
-export interface ComponentRef {
-  type: string;
-  name: string;
-}
-
 export const COMPONENTS = 'components';
 export const PATHS = 'paths';
 export const componentsPath = `#/${COMPONENTS}/`;
