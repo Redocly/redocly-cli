@@ -22,7 +22,7 @@ Currently, @redocly/openapi-cli supports these features:
 - [x] Bundle a multifile definition into a single file.
 - [x] Decorators to modify a validated definition during bundling.
 - [x] Preview reference docs for local development.
-- [x] Support for OpenAPI 2 (fka Swagger) and OpenAPI 3.0.
+- [x] Support for OpenAPI 2 (aka Swagger) and OpenAPI 3.0.
 - [ ] Support for OpenAPI 3.1 ([coming soon](https://github.com/Redocly/openapi-cli/issues/160)).
 
 ## What makes this tool different
