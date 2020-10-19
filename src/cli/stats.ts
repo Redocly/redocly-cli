@@ -21,7 +21,7 @@ const statsAccumulator: StatsAccumulator = {
   links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
   pathItems: { metric: '➡️ Path Items', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
-  tags: { metric: '🔖 Tags', total: 0, color: 'white' },
+  tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
 }
 
 function printStatsStylish(statsAccumulator: StatsAccumulator) {
