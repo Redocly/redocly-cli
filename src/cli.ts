@@ -20,6 +20,7 @@ import { loadConfig, Config, LintConfig } from './config/config';
 import { NormalizedProblem } from './walk';
 import { previewDocs } from './cli/preview-docs';
 import { handleStats } from './cli/stats';
+import { handleSplit } from './cli/split';
 import { RedoclyClient } from './redocly';
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
@@ -43,6 +44,16 @@ yargs
       }
     ),
     async (argv) => { handleStats(argv) }
+  )
+  .command('split [entrypoint]', 'Split definition into a multi-file structure',
+    (yargs) => yargs
+      .positional('entrypoint', { type: 'string' })
+      .option({ outDir: {
+        description: 'Output directory where files will be saved',
+        required: true,
+        type: 'string'
+      }}),
+    (argv) => { handleSplit(argv) }
   )
   .command(
     'lint [entrypoints...]',

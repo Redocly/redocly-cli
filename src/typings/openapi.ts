@@ -32,7 +32,7 @@ export interface Oas3ServerVariable {
 }
 
 export interface Oas3Paths {
-  [path: string]: Oas3PathItem;
+  [path: string]: Referenced<Oas3PathItem>;
 }
 export interface OasRef {
   $ref: string;
@@ -219,6 +219,8 @@ export interface Oas3Components {
   links?: { [name: string]: Referenced<Oas3Link> };
   callbacks?: { [name: string]: Referenced<Oas3Callback> };
 }
+
+export type Oas3ComponentName = keyof Oas3Components;
 
 export interface Oas3SecurityRequirement {
   [name: string]: string[];

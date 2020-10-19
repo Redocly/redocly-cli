@@ -79,3 +79,11 @@ export function isMappingRef(mapping: string) {
     mapping.indexOf('/') > -1
   );
 }
+
+export function pathToFilename(path: string) {
+  return path
+    .replace(/~1/g, '/')
+    .replace(/~0/g, '~')
+    .substring(1)
+    .replace(/\//g, '@');
+}
