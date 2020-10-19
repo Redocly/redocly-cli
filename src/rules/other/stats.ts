@@ -8,10 +8,15 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
     ref: { enter(ref: OasRef) { statsAccumulator.refs.items!.add(ref['$ref']); }},
     Tag: { leave(tag: Oas3Tag) { statsAccumulator.tags.items!.add(tag.name); }},
     Link: { leave(link: any) { statsAccumulator.links.items!.add(link.operationId); }},
-    WebhooksMap: {
+    DefinitionRoot: {
       leave() {
+        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
+        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
+        statsAccumulator.links.total = statsAccumulator.links.items!.size;
         statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
       },
+    },
+    WebhooksMap: {
       Operation: {
         leave(operation: any) {
           operation.tags.forEach((tag: string) => { statsAccumulator.tags.items!.add(tag); })
@@ -19,12 +24,6 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
       }
     },
     PathMap: {
-      leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.links.total = statsAccumulator.links.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
-      },
       PathItem: {
         leave() { statsAccumulator.pathItems.total++; },
         Operation: {
