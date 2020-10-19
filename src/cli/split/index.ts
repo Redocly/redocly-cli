@@ -23,6 +23,7 @@ import {
   OPENAPI3_COMPONENT_NAMES
 } from './types'
 import { performance } from 'perf_hooks';
+import { Oas3Schema } from '../../typings/openapi';
 
 export async function handleSplit (argv: {
   entrypoint?: string;
@@ -34,7 +35,7 @@ export async function handleSplit (argv: {
   const openapi = readYaml(entrypoint!) as Oas3Definition;
   splitDefinition(openapi, outDir);
   process.stderr.write(
-    `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')} 
+    `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`,
   );
   printExecutionTime('split', startedAt, entrypoint!);
@@ -199,7 +200,7 @@ function findComponentTypes(components: any) {
     .filter(item => isNotSecurityComponentType(item) && Object.keys(components).includes(item))
 }
 
-function doesFileDiffer(filename: string, componentData: string) {
+function doesFileDiffer(filename: string, componentData: any) {
   return fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
 }
 
@@ -212,9 +213,9 @@ function removeEmptyComponents(openapi: Oas3Definition, componentType: Oas3Compo
   }
 }
 
-function createComponentDir(componetDirPath: string, componentType: string) {
+function createComponentDir(componentDirPath: string, componentType: string) {
   if (isNotSecurityComponentType(componentType)) {
-    fs.mkdirSync(componetDirPath, { recursive: true });
+    fs.mkdirSync(componentDirPath, { recursive: true });
   }
 }
 
@@ -227,7 +228,7 @@ function getFileNamePath(componentDirPath: string, componentName: string) {
 }
 
 function gatherComponentsFiles(
-  components: Oas3Components | undefined,
+  components: Oas3Components,
   componentsFiles: ComponentsFiles,
   componentType: Oas3ComponentName,
   componentName: string,
@@ -235,8 +236,7 @@ function gatherComponentsFiles(
 ) {
   let inherits = [];
   if (componentType === OPENAPI3_COMPONENT.Schemas) {
-    //@ts-ignore
-    inherits = (components[componentType][componentName].allOf || []).map((s: any) => s.$ref).filter(Boolean);
+    inherits = ((components?.[componentType]?.[componentName] as Oas3Schema)?.allOf || []).map((s: any) => s.$ref).filter(Boolean);
   }
   componentsFiles[componentType] = componentsFiles[componentType] || {};
   componentsFiles[componentType][componentName] = { inherits, filename };
@@ -251,15 +251,14 @@ function iteratePaths(
   if (paths) {
     for (const oasPath of Object.keys(paths)) {
       const pathFile = path.join(pathsDir, pathToFilename(oasPath)) + '.yaml';
-      const pathData: Oas3PathItem = paths[oasPath];
+      const pathData: Oas3PathItem = paths[oasPath] as Oas3PathItem;
 
       for (const method of OPENAPI3_METHOD_NAMES) {
         const methodData = pathData[method];
         const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
         if (!methodDataXCode || !Array.isArray(methodDataXCode)) { continue; }
         for (const sample of methodDataXCode) {
-          // @ts-ignore
-          if (sample.source && sample.source.$ref) continue;
+          if (sample.source && (sample.source as any).$ref) continue;
           const sampleFileName = path.join(
             openapiDir,
             'code_samples',
@@ -279,7 +278,6 @@ function iteratePaths(
 
       writeYaml(pathData, pathFile);
       paths[oasPath] = {
-        // @ts-ignore
         $ref: path.relative(openapiDir, pathFile)
       };
     }
@@ -301,21 +299,18 @@ function iterateComponents(
 
     function iterateAndGatherComponentsFiles(componentType: Oas3ComponentName) {
       const componentDirPath = path.join(componentsDir, componentType);
-      // @ts-ignore
-      for (const componentName of Object.keys(components[componentType])) {
+      for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName);
-        gatherComponentsFiles(components, componentsFiles, componentType, componentName, filename);
+        gatherComponentsFiles(components!, componentsFiles, componentType, componentName, filename);
       }
     }
 
     function iterateComponentTypes(componentType: Oas3ComponentName) {
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
-      //@ts-ignore
-      for (const componentName of Object.keys(components[componentType])) {
+      for (const componentName of Object.keys(components?.[componentType] || {})) {
         const filename = getFileNamePath(componentDirPath, componentName);
-        //@ts-ignore
-        const componentData = components[componentType][componentName];
+        const componentData = components?.[componentType]?.[componentName];
         replace$Refs(componentData, path.dirname(filename), componentsFiles);
         implicitlyReferenceDiscriminator(
           componentData,
@@ -324,7 +319,6 @@ function iterateComponents(
           componentsFiles.schemas || {}
         );
 
-        //@ts-ignore
         if (doesFileDiffer(filename, componentData)) {
           process.stderr.write(yellow(
             `warning: conflict for ${componentName} - file already exists with different content: ${blue(filename)} ... Skip.\n`
@@ -335,8 +329,7 @@ function iterateComponents(
 
         if (isNotSecurityComponentType(componentType)) {
           // security schemas must referenced from components
-          //@ts-ignore
-          delete openapi.components[componentType][componentName];
+          delete openapi.components?.[componentType]?.[componentName];
         }
       }
       removeEmptyComponents(openapi, componentType);

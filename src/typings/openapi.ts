@@ -32,7 +32,7 @@ export interface Oas3ServerVariable {
 }
 
 export interface Oas3Paths {
-  [path: string]: Oas3PathItem;
+  [path: string]: Referenced<Oas3PathItem>;
 }
 export interface OasRef {
   $ref: string;
