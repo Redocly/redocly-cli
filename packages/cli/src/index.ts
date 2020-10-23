@@ -60,13 +60,27 @@ yargs
         }}),
     (argv) => { handleSplit(argv) }
   )
-  .command('merge <entrypoints...>', 'Merge definition.',
-    (yargs) => yargs.positional('entrypoints', {
-      array: true,
-      type: 'string',
-      demandOption: true
-    }),
-    argv => { handleMerge(argv, version) }
+  .command('merge [entrypoints...]', 'Merge definitions',
+    (yargs) => yargs
+      .positional('entrypoints', {
+        array: true,
+        type: 'string',
+        demandOption: true
+      })
+      .option({
+        lint: { description: 'Lint definitions', type: 'boolean', default: false },
+        'prefix-tags-with-info-prop': {
+          description: 'Prefix tags',
+          requiresArg: true,
+          type: 'string',
+        },
+        'prefix-components-with-info-prop': {
+          description: 'Prefix components',
+          requiresArg: true,
+          type: 'string',
+        }
+      }),
+    async (argv) => { handleMerge(argv, version) }
   )
   .command(
     'lint [entrypoints...]',
