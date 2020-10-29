@@ -75,6 +75,7 @@ export async function handleMerge (argv: {
       process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entryPoint)} will be skipped \n`));
     }
 
+    collectExternalDocs(openapi, spec, entryPoint);
     collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix);
     collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
@@ -82,7 +83,7 @@ export async function handleMerge (argv: {
 
   iteratePotentialConflicts(potentialConflicts);
   const specFileName = 'openapi.yaml';
-  if (potentialConflictsTotal) { writeYaml(spec, specFileName); }
+  if (!potentialConflictsTotal) { writeYaml(spec, specFileName); }
   printExecutionTime('merge', startedAt, specFileName);
 }
 
@@ -176,6 +177,17 @@ async function validateEndpoint(entryPoint: string, config: Config, version: str
     printLintTotals(fileTotals, 2);
   } catch (err) {
     handleError(err, entryPoint);
+  }
+}
+
+function collectExternalDocs(openapi: Oas3Definition, spec: any, entryPoint: string) {
+  const { externalDocs } = openapi;
+  if (externalDocs) {
+    if (spec.hasOwnProperty('externalDocs')) {
+      process.stderr.write(yellow(`warning: skip externalDocs from ${blue(path.basename(entryPoint))} \n`));
+      return;
+    }
+    spec['externalDocs'] = externalDocs;
   }
 }
 
