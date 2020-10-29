@@ -70,12 +70,12 @@ yargs
       .option({
         lint: { description: 'Lint definitions', type: 'boolean', default: false },
         'prefix-tags-with-info-prop': {
-          description: 'Prefix tags',
+          description: 'Add prefix to tags',
           requiresArg: true,
           type: 'string',
         },
         'prefix-components-with-info-prop': {
-          description: 'Prefix components',
+          description: 'Add prefix to components',
           requiresArg: true,
           type: 'string',
         }
