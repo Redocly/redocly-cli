@@ -20,6 +20,7 @@ export async function handleMerge (argv: {
   entrypoints: string[],
   lint?: boolean,
   'prefix-tags-with-info-prop'?: string,
+  'prefix-tags-with-filename'?: boolean,
   'prefix-components-with-info-prop'?: string
 },
   version: string
@@ -48,16 +49,24 @@ export async function handleMerge (argv: {
     components: {}
   };
 
+  const prefixTagsWithFilename = argv['prefix-tags-with-filename'];
+  const prefixTagsWithInfoProp = argv['prefix-tags-with-info-prop'];
+  if (prefixTagsWithFilename && prefixTagsWithInfoProp) {
+    return exitWithError(
+      `You used ${yellow('prefix-tags-with-filename')} and ${yellow('prefix-tags-with-info-prop')} that do not go together.\nPlease choose only one! \n\n`
+    );
+  }
+
   for (const entryPoint of entrypoints) {
     const openapi = readYaml(entryPoint!) as Oas3Definition;
     const { tags, info } = openapi;
-    const tagsPrefix = getPrefix(info, argv['prefix-tags-with-info-prop'], 'tags');
-    const componentsPrefix = getPrefix(info, argv['prefix-components-with-info-prop'], COMPONENTS);
+    const entryPointFileName = getEntryPointFileName(entryPoint);
+    const tagsPrefix = prefixTagsWithFilename ? entryPointFileName : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
+    const componentsPrefix = getInfoPrefix(info, argv['prefix-components-with-info-prop'], COMPONENTS);
 
-    if (tags) { populateTags(entryPoint, spec, tags, tagsPrefix); }
+    if (tags) { populateTags(entryPointFileName, spec, tags, tagsPrefix); }
 
     if (info && info.description) {
-      const entryPointFileName = getEntryPointFileName(entryPoint);
       const indexGroup = spec['x-tagGroups'].findIndex((item: any) => item.name === entryPointFileName);
       spec['x-tagGroups'][indexGroup]['description'] = info.description;
     }
@@ -66,14 +75,14 @@ export async function handleMerge (argv: {
       process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entryPoint)} will be skipped \n`));
     }
 
-    collectPaths(openapi, entryPoint, spec, potentialConflicts, tagsPrefix);
+    collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix);
     collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
   iteratePotentialConflicts(potentialConflicts);
   const specFileName = 'openapi.yaml';
-  if (!potentialConflictsTotal) { writeYaml(spec, specFileName); }
+  if (potentialConflictsTotal) { writeYaml(spec, specFileName); }
   printExecutionTime('merge', startedAt, specFileName);
 }
 
@@ -123,31 +132,36 @@ function getEntryPointFileName(filePath: string) {
   return path.basename(filePath, path.extname(filePath))
 }
 
-function getPrefix(info: any, prefixArg: string | undefined, type: string) {
+function addPrefix(tag: string, tagsPrefix: string) {
+  return tagsPrefix ? tagsPrefix +'_'+ tag : tag;
+}
+
+function formatTags(tags: string[]) {
+  return tags.map((tag: string) => ({ name: tag }));
+}
+
+function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
   if (!info[prefixArg]) exitWithError(`prefix-${type}-with-info-prop argument value is not found in info section. \n`);
   return info[prefixArg];
 }
 
-function populateTags(entryPoint: string, spec: any, tags: Oas3Tag[], tagsPrefix: string) {
+function populateTags(entryPointFileName: string, spec: any, tags: Oas3Tag[], tagsPrefix: string) {
   const xTagGroups = 'x-tagGroups';
   const Tags = 'tags';
   if (!spec.hasOwnProperty(Tags)) { spec[Tags] = []; }
   if (!spec.hasOwnProperty(xTagGroups)) { spec[xTagGroups] = []; }
-  const entryPointFileName = getEntryPointFileName(entryPoint);
   if (!spec[xTagGroups].some((g: any) => g.name === entryPointFileName)) {
     spec[xTagGroups].push({ name: entryPointFileName, tags: [] });
   }
   const indexGroup = spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName);
-
   for (const tag of tags) {
-    const entryPointTagName = tagsPrefix ? tagsPrefix +'_'+ tag.name : entryPointFileName +'_'+ tag.name;
+    const entryPointTagName = addPrefix(tag.name, tagsPrefix);
     if (!spec.tags.find((t: any) => t.name === entryPointTagName)) {
       tag['x-displayName'] = tag.name;
       tag.name = entryPointTagName;
       spec.tags.push(tag);
     }
-
     if (!spec[xTagGroups][indexGroup][Tags].find((t: any) => t === entryPointTagName)) {
       spec[xTagGroups][indexGroup][Tags].push(entryPointTagName);
     }
@@ -165,7 +179,14 @@ async function validateEndpoint(entryPoint: string, config: Config, version: str
   }
 }
 
-function collectPaths(openapi: Oas3Definition, entryPoint: string, spec: any, potentialConflicts: any, tagsPrefix: string) {
+function collectPaths(
+  openapi: Oas3Definition,
+  entryPointFileName: string,
+  entryPoint: string,
+  spec: any,
+  potentialConflicts: any,
+  tagsPrefix: string
+) {
   const { paths } = openapi;
   if (paths) {
     if (!spec.hasOwnProperty('paths')) { spec['paths'] = {}; }
@@ -184,8 +205,8 @@ function collectPaths(openapi: Oas3Definition, entryPoint: string, spec: any, po
       for (const operationKey of Object.keys(spec.paths[path])) {
         let { tags } = spec.paths[path][operationKey];
         if (tags) {
-          tags = tags.map((tag: string) => ({ name: tag }));
-          populateTags(entryPoint, spec, tags, tagsPrefix);
+          spec.paths[path][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
+          populateTags(entryPointFileName, spec, formatTags(tags), tagsPrefix);
         }
       }
     }

@@ -70,12 +70,17 @@ yargs
       .option({
         lint: { description: 'Lint definitions', type: 'boolean', default: false },
         'prefix-tags-with-info-prop': {
-          description: 'Add prefix to tags',
+          description: 'Prefix tags with property value from info object',
           requiresArg: true,
           type: 'string',
         },
+        'prefix-tags-with-filename': {
+          description: 'Prefix tags with property value from file name',
+          type: 'boolean',
+          default: false
+        },
         'prefix-components-with-info-prop': {
-          description: 'Add prefix to components',
+          description: 'Prefix components with property value from info object',
           requiresArg: true,
           type: 'string',
         }
