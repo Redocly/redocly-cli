@@ -1,7 +1,7 @@
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
-import { red, blue, yellow } from 'colorette';
+import { red, blue, yellow, green } from 'colorette';
 import { Config, loadConfig, validate } from '..';
 import { Oas2Definition } from '../typings/swagger';
 import { Oas3Definition, Oas3Tag } from '../typings/openapi';
@@ -13,6 +13,7 @@ const isEqual = require('lodash.isequal');
 
 type Definition = Oas3Definition | Oas2Definition;
 const COMPONENTS = 'components';
+let potentialConflictsTotal = 0;
 
 export async function handleMerge (argv: {
   entrypoints: string[],
@@ -42,9 +43,7 @@ export async function handleMerge (argv: {
   };
   let potentialConflicts = {
     paths: {},
-    operations: {},
-    components: {},
-    total: 0
+    components: {}
   };
 
   for (const entryPoint of entrypoints) {
@@ -69,8 +68,9 @@ export async function handleMerge (argv: {
     collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
+
   iteratePotentialConflicts(potentialConflicts);
-  if (!potentialConflicts.total) { writeYaml(spec, 'openapi.yaml'); }
+  if (!potentialConflictsTotal) { writeYaml(spec, 'openapi.yaml'); }
 }
 
 function doesComponentsDiffer(curr: object, next: object) {
@@ -91,31 +91,15 @@ function validateComponentsDifference(conflicts: any) {
 }
 
 function iteratePotentialConflicts(potentialConflicts: any) {
-  for (const [key, value] of Object.entries(potentialConflicts)) {
-    const conflicts = filterFiles(value as object);
-    if (conflicts.length) {
-      potentialConflicts.total = potentialConflicts.total += conflicts.length;
-      showConflicts(key, conflicts);
-    }
-    if (key === COMPONENTS) {
-      for (const [key2, value2] of Object.entries(potentialConflicts[key])) {
-        const conflicts2 = filterFiles(value2 as object);
-        if (conflicts2.length) {
-          if (validateComponentsDifference(conflicts2)) {
-            conflicts2.map(it => { it[1] = it[1].map((itt: string) => Object.keys(itt)[0]) });
-            potentialConflicts.total = potentialConflicts.total += conflicts.length;
-            showConflicts(COMPONENTS +'/'+ key2, conflicts2);
-          }
+  for (const group of Object.keys(potentialConflicts)) {
+    for (const [key, value] of Object.entries(potentialConflicts[group])) {
+      const conflicts = filterConflicts(value as object);
+      if (conflicts.length) {
+        if (group === COMPONENTS && validateComponentsDifference(conflicts)) {
+          conflicts.map(c => { c[1] = c[1].map((cn: string) => Object.keys(cn)[0]) });
         }
-      }
-    }
-    if (key === 'paths') {
-      for (const [key3, value3] of Object.entries(potentialConflicts[key])) {
-        const conflicts3 = filterFiles(value3 as object);
-        if (conflicts3.length) {
-          potentialConflicts.total = potentialConflicts.total += conflicts.length;
-          showConflicts('paths: '+'/'+ key3, conflicts3);
-        }
+        potentialConflictsTotal += conflicts.length;
+        showConflicts(green(group) +' => '+ key, conflicts);
       }
     }
   }
@@ -127,7 +111,7 @@ function showConflicts(key: string, conflicts: any) {
   }
 }
 
-function filterFiles(entities: object) {
+function filterConflicts(entities: object) {
   return Object.entries(entities).filter(([_, files]) => files.length > 1);
 }
 
@@ -189,7 +173,8 @@ function collectPaths(openapi: Oas3Definition, entryPoint: string, spec: any, po
         // @ts-ignore
         const { operationId } = paths[path][operation];
         if (operationId) {
-          potentialConflicts.operations[operationId] = [...(potentialConflicts.operations[operationId] || []), entryPoint];
+          if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
+          potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entryPoint];
         }
       }
       for (const operationKey of Object.keys(spec.paths[path])) {
