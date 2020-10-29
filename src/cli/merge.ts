@@ -7,8 +7,9 @@ import { Oas2Definition } from '../typings/swagger';
 import { Oas3Definition, Oas3Tag } from '../typings/openapi';
 import { getFallbackEntryPointsOrExit, handleError, getTotals, printLintTotals } from '../cli';
 import { formatProblems } from '../format/format';
-import { readYaml, writeYaml } from '../utils';
+import { printExecutionTime, readYaml, writeYaml } from '../utils';
 import { isObject, isString } from '../js-utils';
+import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 
 type Definition = Oas3Definition | Oas2Definition;
@@ -23,6 +24,7 @@ export async function handleMerge (argv: {
 },
   version: string
 ) {
+  const startedAt = performance.now();
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
@@ -70,7 +72,9 @@ export async function handleMerge (argv: {
   }
 
   iteratePotentialConflicts(potentialConflicts);
-  if (!potentialConflictsTotal) { writeYaml(spec, 'openapi.yaml'); }
+  const specFileName = 'openapi.yaml';
+  if (!potentialConflictsTotal) { writeYaml(spec, specFileName); }
+  printExecutionTime('merge', startedAt, specFileName);
 }
 
 function doesComponentsDiffer(curr: object, next: object) {
