@@ -47,6 +47,7 @@ export async function handleMerge (argv: {
     info: { version: '1.0.0' }
   };
   let potentialConflicts = {
+    tags: {},
     paths: {},
     components: {}
   };
@@ -66,7 +67,7 @@ export async function handleMerge (argv: {
     const tagsPrefix = prefixTagsWithFilename ? entryPointFileName : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
     const componentsPrefix = getInfoPrefix(info, argv['prefix-components-with-info-prop'], COMPONENTS);
 
-    if (tags) { populateTags(entryPointFileName, spec, tags, tagsPrefix); }
+    if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix); }
 
     if (info && info.description) {
       const indexGroup = spec['x-tagGroups'].findIndex((item: any) => item.name === entryPointFileName);
@@ -93,14 +94,12 @@ function doesComponentsDiffer(curr: object, next: object) {
   return !isEqual(Object.values(curr)[0], Object.values(next)[0]);
 }
 
-function validateComponentsDifference(conflicts: any) {
+function validateComponentsDifference(files: any) {
   let isDiffer = false;
-  for (const [_, files] of conflicts) {
-    for (let i = 0, len = files.length; i < len; i++) {
-      let next = files[i + 1];
-      if (next && doesComponentsDiffer(files[i], next)) {
-        isDiffer = true;
-      }
+  for (let i = 0, len = files.length; i < len; i++) {
+    let next = files[i + 1];
+    if (next && doesComponentsDiffer(files[i], next)) {
+      isDiffer = true;
     }
   }
   return isDiffer;
@@ -111,13 +110,30 @@ function iteratePotentialConflicts(potentialConflicts: any) {
     for (const [key, value] of Object.entries(potentialConflicts[group])) {
       const conflicts = filterConflicts(value as object);
       if (conflicts.length) {
-        if (group === COMPONENTS && validateComponentsDifference(conflicts)) {
-          conflicts.map(c => { c[1] = c[1].map((cn: string) => Object.keys(cn)[0]) });
+        if (group === COMPONENTS) {
+          for (const [_, conflict] of Object.entries(conflicts)) {
+            if (validateComponentsDifference(conflict[1])) {
+              conflict[1] = conflict[1].map((c: string) => Object.keys(c)[0]);
+              showConflicts(green(group) + ' => ' + key, [conflict]);
+              potentialConflictsTotal += 1;
+            }
+          }
+        } else {
+          showConflicts(green(group) +' => '+ key, conflicts);
+          potentialConflictsTotal += conflicts.length;
         }
-        potentialConflictsTotal += conflicts.length;
-        showConflicts(green(group) +' => '+ key, conflicts);
+        prefixTagSuggestion(group, conflicts.length);
       }
     }
+  }
+}
+
+function prefixTagSuggestion(group: string, conflictsLength: number) {
+  if (group === 'tags') {
+    process.stderr.write(green(`
+    ${conflictsLength} conflict(s) on tags.
+    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue('prefix-tags-with-info-prop')} to prevent naming conflicts. \n\n`
+    ));
   }
 }
 
@@ -149,11 +165,19 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   return info[prefixArg];
 }
 
-function populateTags(entryPointFileName: string, spec: any, tags: Oas3Tag[], tagsPrefix: string) {
+function populateTags(
+  entryPoint: string,
+  entryPointFileName: string,
+  spec: any,
+  tags: Oas3Tag[],
+  potentialConflicts: any,
+  tagsPrefix: string
+) {
   const xTagGroups = 'x-tagGroups';
   const Tags = 'tags';
   if (!spec.hasOwnProperty(Tags)) { spec[Tags] = []; }
   if (!spec.hasOwnProperty(xTagGroups)) { spec[xTagGroups] = []; }
+  if (!potentialConflicts.tags.hasOwnProperty('all')) { potentialConflicts.tags['all'] = {}; }
   if (!spec[xTagGroups].some((g: any) => g.name === entryPointFileName)) {
     spec[xTagGroups].push({ name: entryPointFileName, tags: [] });
   }
@@ -168,6 +192,15 @@ function populateTags(entryPointFileName: string, spec: any, tags: Oas3Tag[], ta
     if (!spec[xTagGroups][indexGroup][Tags].find((t: any) => t === entryPointTagName)) {
       spec[xTagGroups][indexGroup][Tags].push(entryPointTagName);
     }
+
+    const doesEntryPointExist = !potentialConflicts.tags.all[tag.name] || (
+      potentialConflicts.tags.all[tag.name] &&
+      !potentialConflicts.tags.all[tag.name].includes(entryPoint)
+    )
+
+    potentialConflicts.tags.all[tag.name] = [
+      ...(potentialConflicts.tags.all[tag.name] || []), ...(doesEntryPointExist ? [entryPoint] : [])
+    ];
   }
 }
 
@@ -220,7 +253,7 @@ function collectPaths(
         let { tags } = spec.paths[path][operationKey];
         if (tags) {
           spec.paths[path][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-          populateTags(entryPointFileName, spec, formatTags(tags), tagsPrefix);
+          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
         }
       }
     }
