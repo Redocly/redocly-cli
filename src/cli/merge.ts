@@ -161,7 +161,9 @@ function formatTags(tags: string[]) {
 
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
-  if (!info[prefixArg]) exitWithError(`prefix-${type}-with-info-prop argument value is not found in info section. \n`);
+  if (!info[prefixArg]) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`);
+  if (!isString(info[prefixArg])) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string. \n\n`);
+  if (info[prefixArg].length > 50) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value length should not exceed 50 characters. \n\n`);
   return info[prefixArg];
 }
 
