@@ -196,13 +196,12 @@ function populateTags(
       spec[xTagGroups][indexGroup][Tags].push(entryPointTagName);
     }
 
-    const doesEntryPointExist = !potentialConflicts.tags.all[tag.name] || (
-      potentialConflicts.tags.all[tag.name] &&
-      !potentialConflicts.tags.all[tag.name].includes(entryPoint)
+    const doesEntryPointExist = !potentialConflicts.tags.all[entryPointTagName] || (
+      potentialConflicts.tags.all[entryPointTagName] &&
+      !potentialConflicts.tags.all[entryPointTagName].includes(entryPoint)
     )
-
-    potentialConflicts.tags.all[tag.name] = [
-      ...(potentialConflicts.tags.all[tag.name] || []), ...(doesEntryPointExist ? [entryPoint] : [])
+    potentialConflicts.tags.all[entryPointTagName] = [
+      ...(potentialConflicts.tags.all[entryPointTagName] || []), ...(doesEntryPointExist ? [entryPoint] : [])
     ];
   }
 }
