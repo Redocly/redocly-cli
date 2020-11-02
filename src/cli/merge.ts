@@ -232,7 +232,7 @@ function collectExternalDocs(openapi: Oas3Definition, spec: any, entryPoint: str
 function collectInfoDescriptions(info: any, spec: any, entryPointFileName: string) {
   if (info && info.description) {
     const xTagGroups = 'x-tagGroups';
-    const groupIndex = spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName);
+    const groupIndex = spec[xTagGroups] ? spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName) : -1;
     if (
       spec.hasOwnProperty(xTagGroups) &&
       groupIndex !== -1 &&
