@@ -162,7 +162,7 @@ function showConflicts(key: string, conflicts: any) {
 }
 
 function filterConflicts(entities: object) {
-  return Object.entries(entities).filter(([_, files]) => files.length > 1);
+  return Object.entries(entities).filter(([key, files]) => key !== 'other' && files.length > 1);
 }
 
 function getEntryPointFileName(filePath: string) {
@@ -290,6 +290,9 @@ function collectPaths(
         if (tags) {
           spec.paths[path][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
           populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
+        } else if (spec.hasOwnProperty('x-tagGroups')) {
+          spec.paths[path][operationKey]['tags'] = addPrefix('other', tagsPrefix);
+          populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix);
         }
       }
     }
