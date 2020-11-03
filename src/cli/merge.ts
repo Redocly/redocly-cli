@@ -72,6 +72,7 @@ export async function handleMerge (argv: {
     }
 
     if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix); }
+    collectServers(openapi, spec);
     collectInfoDescriptions(info, spec, entryPointFileName);
     collectExternalDocs(openapi, spec, entryPoint);
     collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix);
@@ -93,6 +94,18 @@ function addInfoSectionAndSpecVersion(entrypoints: any, spec: any) {
   if (!openapi.info) exitWithError('Info section is not found in specification. \n');
   spec.openapi = openapi.openapi;
   spec.info = openapi.info;
+}
+
+function collectServers(openapi: Oas3Definition, spec: any) {
+  const { servers } = openapi;
+  if (servers) {
+    if (!spec.hasOwnProperty('servers')) { spec['servers'] = []; }
+    for (const server of servers) {
+      if (!spec.servers.some((s: any) => s.url === server.url)) {
+        spec.servers.push(server);
+      }
+    }
+  }
 }
 
 function doesComponentsDiffer(curr: object, next: object) {
