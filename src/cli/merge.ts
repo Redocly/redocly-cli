@@ -42,13 +42,7 @@ export async function handleMerge (argv: {
     }
   }
 
-  let spec: any = {
-    openapi: '3.0.0',
-    info: {
-      version: '1.0.0',
-      title: 'OpenAPI specification title'
-    }
-  };
+  let spec: any = {};
   let potentialConflicts = {
     tags: {},
     paths: {},
@@ -63,6 +57,8 @@ export async function handleMerge (argv: {
       `You used ${yellow('prefix-tags-with-filename')} and ${yellow('prefix-tags-with-info-prop')} that do not go together.\nPlease choose only one! \n\n`
     );
   }
+
+  addInfoSectionAndSpecVersion(entrypoints, spec);
 
   for (const entryPoint of entrypoints) {
     const openapi = readYaml(entryPoint!) as Oas3Definition;
@@ -88,6 +84,15 @@ export async function handleMerge (argv: {
   const specFileName = 'openapi.yaml';
   if (!potentialConflictsTotal) { writeYaml(spec, specFileName); }
   printExecutionTime('merge', startedAt, specFileName);
+}
+
+function addInfoSectionAndSpecVersion(entrypoints: any, spec: any) {
+  const firstEntryPoint = entrypoints[0];
+  const openapi = readYaml(firstEntryPoint) as Oas3Definition;
+  if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
+  if (!openapi.info) exitWithError('Info section is not found in specification. \n');
+  spec.openapi = openapi.openapi;
+  spec.info = openapi.info;
 }
 
 function doesComponentsDiffer(curr: object, next: object) {
@@ -161,6 +166,7 @@ function formatTags(tags: string[]) {
 
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
+  if (!info) exitWithError('Info section is not found in specification. \n');
   if (!info[prefixArg]) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`);
   if (!isString(info[prefixArg])) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string. \n\n`);
   if (info[prefixArg].length > 50) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value length should not exceed 50 characters. \n\n`);
