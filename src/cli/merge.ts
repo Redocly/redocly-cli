@@ -350,8 +350,9 @@ function loadFile(fileName: string) {
 }
 
 function isNotOas3Definition(fileName: string) {
-  if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist \n`);
+  if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist. \n\n`);
   const file = loadFile(fileName);
+  if (!file) exitWithError(`File ${blue(fileName)} is empty. \n\n`);
   return !(file as Oas3Definition).openapi;
 }
 
