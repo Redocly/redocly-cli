@@ -274,24 +274,24 @@ function collectPaths(
   if (paths) {
     if (!spec.hasOwnProperty('paths')) { spec['paths'] = {}; }
     for (const path of Object.keys(paths)) {
-      spec.paths[path] = paths[path];
+      if (!spec.paths.hasOwnProperty(path)) { spec.paths[path] = {}; }
       if (!potentialConflicts.paths.hasOwnProperty(path)) { potentialConflicts.paths[path] = {}; }
       for (const operation of Object.keys(paths[path])) {
-        potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entryPoint];
         // @ts-ignore
-        const { operationId } = paths[path][operation];
+        const pathOperation = paths[path][operation];
+        spec.paths[path][operation] = pathOperation;
+        potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entryPoint];
+        const { operationId } = pathOperation;
         if (operationId) {
           if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
           potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entryPoint];
         }
-      }
-      for (const operationKey of Object.keys(spec.paths[path])) {
-        let { tags } = spec.paths[path][operationKey];
+        let { tags } = spec.paths[path][operation];
         if (tags) {
-          spec.paths[path][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
+          spec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
           populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
         } else if (spec.hasOwnProperty('x-tagGroups')) {
-          spec.paths[path][operationKey]['tags'] = addPrefix('other', tagsPrefix);
+          spec.paths[path][operation]['tags'] = addPrefix('other', tagsPrefix);
           populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix);
         }
       }
