@@ -85,7 +85,7 @@ yargs
           type: 'string',
         }
       }),
-    async (argv) => { handleMerge(argv, version) }
+    (argv) => { handleMerge(argv, version) }
   )
   .command(
     'lint [entrypoints...]',

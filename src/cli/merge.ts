@@ -309,13 +309,13 @@ function collectComponents(openapi: Oas3Definition, entryPoint: string, spec: an
         spec[COMPONENTS][component] = {};
       }
       // @ts-ignore
-      for (const item of Object.keys(components[component])) {
-        potentialConflicts.components[component][item] = [
-          // @ts-ignore
-          ...(potentialConflicts.components[component][item] || []), { [entryPoint]: components[component][item]}
+      const componentObj = components[component];
+      for (const item of Object.keys(componentObj)) {
+        const componentPrefix = addPrefix(item, componentsPrefix);
+        potentialConflicts.components[component][componentPrefix] = [
+          ...(potentialConflicts.components[component][item] || []), { [entryPoint]: componentObj[item]}
         ];
-        // @ts-ignore
-        spec.components[component][addPrefix(item, componentsPrefix)] = components[component][item];
+        spec.components[component][componentPrefix] = componentObj[item];
       }
     }
   }
