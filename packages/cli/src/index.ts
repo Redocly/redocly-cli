@@ -11,6 +11,7 @@ import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
+import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 const version = require('../package.json').version;
@@ -69,6 +70,16 @@ yargs
         }
       }),
     (argv) => { handleJoin(argv, version) }
+  )
+  .command('push [entrypoint]', 'Push a API definition to the Redocly API Registry',
+    (yargs) => yargs
+    .positional('entrypoint', { type: 'string' })
+    .option({
+      'organization-id': { required: true, type: 'string' },
+      'api-name': { required: true, type: 'string' },
+      'api-version': { required: true, type: 'string' }
+    }),
+    (argv) => { handlePush(argv) }
   )
   .command('lint [entrypoints...]', 'Lint definition.',
     (yargs) => yargs

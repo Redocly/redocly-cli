@@ -136,6 +136,39 @@ export class RedoclyClient {
     );
   }
 
+  async updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
+    await this.query(`
+      mutation UpdateDefinitionVersion($definitionId: Int!, $versionId: Int!, $updatePatch: DefinitionVersionPatch!) {
+        updateDefinitionVersionByDefinitionIdAndId(input: {definitionId: $definitionId, id: $versionId, patch: $updatePatch}) {
+          definitionVersion {
+            ...VersionDetails
+            __typename
+          }
+          __typename
+        }
+      }
+      
+      fragment VersionDetails on DefinitionVersion {
+        id
+        nodeId
+        uuid
+        definitionId
+        name
+        description
+        sourceType
+        source
+        registryAccess
+        __typename
+      }
+    `,
+      {
+        definitionId,
+        versionId,
+        updatePatch,
+      },
+    );
+  }
+
   static isRegistryURL(link: string): boolean {
     const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
     if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
