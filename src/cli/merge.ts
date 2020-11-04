@@ -291,7 +291,7 @@ function collectPaths(
           spec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
           populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
         } else if (spec.hasOwnProperty('x-tagGroups')) {
-          spec.paths[path][operation]['tags'] = addPrefix('other', tagsPrefix);
+          spec.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix)];
           populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix);
         }
       }
