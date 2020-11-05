@@ -286,13 +286,16 @@ function collectPaths(
           if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
           potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entryPoint];
         }
-        let { tags } = spec.paths[path][operation];
+        let { tags, security } = spec.paths[path][operation];
         if (tags) {
           spec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
           populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
         } else if (spec.hasOwnProperty('x-tagGroups')) {
           spec.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix)];
           populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix);
+        }
+        if (!security && openapi.hasOwnProperty('security')) {
+          spec.paths[path][operation]['security'] = openapi.security;
         }
       }
     }
