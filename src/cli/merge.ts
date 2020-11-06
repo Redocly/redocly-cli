@@ -71,13 +71,13 @@ export async function handleMerge (argv: {
       process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entryPoint)} will be skipped \n`));
     }
 
-    if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix); }
+    if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix, componentsPrefix); }
     collectServers(openapi, spec);
     collectInfoDescriptions(info, spec, entryPointFileName);
     collectExternalDocs(openapi, spec, entryPoint);
-    collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix);
+    collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix, componentsPrefix);
     collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
-    collectXWebhooks(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix);
+    collectXWebhooks(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix, componentsPrefix);
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
@@ -193,7 +193,8 @@ function populateTags(
   spec: any,
   tags: Oas3Tag[],
   potentialConflicts: any,
-  tagsPrefix: string
+  tagsPrefix: string,
+  componentsPrefix: string
 ) {
   const xTagGroups = 'x-tagGroups';
   const Tags = 'tags';
@@ -207,6 +208,13 @@ function populateTags(
   if (!spec[xTagGroups][indexGroup].hasOwnProperty(Tags)) { spec[xTagGroups][indexGroup][Tags] = []; }
   for (const tag of tags) {
     const entryPointTagName = addPrefix(tag.name, tagsPrefix);
+
+    if (tag.description) {
+      tag.description = tag.description.replace(/"(.*?)"/g, (match) => {
+        const componentName = path.basename(match);
+        return match.replace(componentName, addPrefix(componentName, componentsPrefix));
+      })
+    }
     if (!spec.tags.find((t: any) => t.name === entryPointTagName)) {
       tag['x-displayName'] = tag.name;
       tag.name = entryPointTagName;
@@ -269,7 +277,8 @@ function collectPaths(
   entryPoint: string,
   spec: any,
   potentialConflicts: any,
-  tagsPrefix: string
+  tagsPrefix: string,
+  componentsPrefix: string
 ) {
   const { paths } = openapi;
   if (paths) {
@@ -290,10 +299,10 @@ function collectPaths(
         let { tags, security } = spec.paths[path][operation];
         if (tags) {
           spec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
+          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
         } else if (spec.hasOwnProperty('x-tagGroups')) {
           spec.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix)];
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix);
+          populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix, componentsPrefix);
         }
         if (!security && openapi.hasOwnProperty('security')) {
           spec.paths[path][operation]['security'] = openapi.security;
@@ -331,7 +340,8 @@ function collectXWebhooks(
   entryPoint: string,
   spec: any,
   potentialConflicts: any,
-  tagsPrefix: string
+  tagsPrefix: string,
+  componentsPrefix: string
 ) {
   const xWebhooks = 'x-webhooks';
   // @ts-ignore
@@ -349,7 +359,7 @@ function collectXWebhooks(
         let { tags } = spec[xWebhooks][webhook][operationKey];
         if (tags) {
           spec[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix);
+          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
         }
       }
     }
