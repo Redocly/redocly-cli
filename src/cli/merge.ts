@@ -83,7 +83,8 @@ export async function handleMerge (argv: {
 
   iteratePotentialConflicts(potentialConflicts);
   const specFileName = 'openapi.yaml';
-  if (!potentialConflictsTotal) { writeYaml(spec, specFileName); }
+  const noRefs = true;
+  if (!potentialConflictsTotal) { writeYaml(spec, specFileName, noRefs); }
   printExecutionTime('merge', startedAt, specFileName);
 }
 
