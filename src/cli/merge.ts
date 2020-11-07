@@ -210,7 +210,7 @@ function populateTags(
     const entryPointTagName = addPrefix(tag.name, tagsPrefix);
 
     if (tag.description) {
-      tag.description = tag.description.replace(/"(.*?)"/g, (match) => {
+      tag.description = tag.description.replace(/"(#\/components\/.*?)"/g, (match) => {
         const componentName = path.basename(match);
         return match.replace(componentName, addPrefix(componentName, componentsPrefix));
       })
