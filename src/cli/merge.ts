@@ -26,7 +26,7 @@ export async function handleMerge (argv: {
   version: string
 ) {
   const startedAt = performance.now();
-  if (argv.entrypoints.length < 2) { return exitWithError(`At least 2 files should be provided. \n\n`); }
+  if (argv.entrypoints.length < 2) { return exitWithError(`At least 2 entrypoints should be provided. \n\n`); }
 
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
