@@ -322,6 +322,8 @@ function collectPaths(
         }
         if (!security && openapi.hasOwnProperty('security')) {
           spec.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix);
+        } else if (pathOperation.security) {
+          spec.paths[path][operation].security = addSecurityPrefix(pathOperation.security, componentsPrefix);
         }
       }
     }
