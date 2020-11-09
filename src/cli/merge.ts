@@ -2,6 +2,8 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
+import { performance } from 'perf_hooks';
+const isEqual = require('lodash.isequal');
 import { Config, loadConfig, validate } from '..';
 import { Oas2Definition } from '../typings/swagger';
 import { Oas3Definition, Oas3Tag } from '../typings/openapi';
@@ -9,8 +11,6 @@ import { getFallbackEntryPointsOrExit, handleError, getTotals, printLintTotals }
 import { formatProblems } from '../format/format';
 import { printExecutionTime, readYaml, writeYaml } from '../utils';
 import { isObject, isString } from '../js-utils';
-import { performance } from 'perf_hooks';
-const isEqual = require('lodash.isequal');
 
 type Definition = Oas3Definition | Oas2Definition;
 const COMPONENTS = 'components';
@@ -31,18 +31,18 @@ export async function handleMerge (argv: {
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
-  for (const entryPoint of entrypoints) {
-    const isNotOas3 = isNotOas3Definition(entryPoint);
-    if (isNotOas3) return exitWithError(`File ${entryPoint} does not conform to the OpenAPI Specification. OpenAPI version is not specified.`);
+  for (const entrypoint of entrypoints) {
+    const isNotOas3 = isNotOas3Definition(entrypoint);
+    if (isNotOas3) return exitWithError(`File ${entrypoint} does not conform to the OpenAPI Specification. OpenAPI version is not specified.`);
   }
 
   if (argv.lint) {
-    for (const entryPoint of entrypoints) {
-      await validateEndpoint(entryPoint, config, version);
+    for (const entrypoint of entrypoints) {
+      await validateEndpoint(entrypoint, config, version);
     }
   }
 
-  let spec: any = {};
+  let mergedSpec: any = {};
   let potentialConflicts = {
     tags: {},
     paths: {},
@@ -59,56 +59,56 @@ export async function handleMerge (argv: {
     );
   }
 
-  addInfoSectionAndSpecVersion(entrypoints, spec, prefixComponentsWithInfoProp);
+  addInfoSectionAndSpecVersion(entrypoints, mergedSpec, prefixComponentsWithInfoProp);
 
-  for (const entryPoint of entrypoints) {
-    const openapi = readYaml(entryPoint!) as Oas3Definition;
+  for (const entrypoint of entrypoints) {
+    const openapi = readYaml(entrypoint!) as Oas3Definition;
     const { tags, info } = openapi;
-    const entryPointFileName = getEntryPointFileName(entryPoint);
-    const tagsPrefix = prefixTagsWithFilename ? entryPointFileName : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
+    const entrypointFilename = getEntrypointFilename(entrypoint);
+    const tagsPrefix = prefixTagsWithFilename ? entrypointFilename : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
     const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
-      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entryPoint)} will be skipped \n`));
+      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entrypoint)} will be skipped \n`));
     }
 
-    if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix, componentsPrefix); }
-    collectServers(openapi, spec);
-    collectInfoDescriptions(info, spec, entryPointFileName, componentsPrefix);
-    collectExternalDocs(openapi, spec, entryPoint);
-    collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix, componentsPrefix);
-    collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
-    collectXWebhooks(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix, componentsPrefix);
+    if (tags) { populateTags(entrypoint, entrypointFilename, mergedSpec, tags, potentialConflicts, tagsPrefix, componentsPrefix); }
+    collectServers(openapi, mergedSpec);
+    collectInfoDescriptions(info, mergedSpec, entrypointFilename, componentsPrefix);
+    collectExternalDocs(openapi, mergedSpec, entrypoint);
+    collectPaths(openapi, entrypointFilename, entrypoint, mergedSpec, potentialConflicts, tagsPrefix, componentsPrefix);
+    collectComponents(openapi, entrypoint, mergedSpec, potentialConflicts, componentsPrefix);
+    collectXWebhooks(openapi, entrypointFilename, entrypoint, mergedSpec, potentialConflicts, tagsPrefix, componentsPrefix);
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
   iteratePotentialConflicts(potentialConflicts);
-  const specFileName = 'openapi.yaml';
+  const specFilename = 'openapi.yaml';
   const noRefs = true;
-  if (!potentialConflictsTotal) { writeYaml(spec, specFileName, noRefs); }
-  printExecutionTime('merge', startedAt, specFileName);
+  if (!potentialConflictsTotal) { writeYaml(mergedSpec, specFilename, noRefs); }
+  printExecutionTime('merge', startedAt, specFilename);
 }
 
-function addInfoSectionAndSpecVersion(entrypoints: any, spec: any, prefixComponentsWithInfoProp: string | undefined) {
-  const firstEntryPoint = entrypoints[0];
-  const openapi = readYaml(firstEntryPoint) as Oas3Definition;
+function addInfoSectionAndSpecVersion(entrypoints: any, mergedSpec: any, prefixComponentsWithInfoProp: string | undefined) {
+  const firstEntrypoint = entrypoints[0];
+  const openapi = readYaml(firstEntrypoint) as Oas3Definition;
   const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
   if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
   if (!openapi.info) exitWithError('Info section is not found in specification. \n');
   if (openapi.info?.description) {
     openapi.info.description = addComponentsPrefix(openapi.info.description, componentsPrefix);
   }
-  spec.openapi = openapi.openapi;
-  spec.info = openapi.info;
+  mergedSpec.openapi = openapi.openapi;
+  mergedSpec.info = openapi.info;
 }
 
-function collectServers(openapi: Oas3Definition, spec: any) {
+function collectServers(openapi: Oas3Definition, mergedSpec: any) {
   const { servers } = openapi;
   if (servers) {
-    if (!spec.hasOwnProperty('servers')) { spec['servers'] = []; }
+    if (!mergedSpec.hasOwnProperty('servers')) { mergedSpec['servers'] = []; }
     for (const server of servers) {
-      if (!spec.servers.some((s: any) => s.url === server.url)) {
-        spec.servers.push(server);
+      if (!mergedSpec.servers.some((s: any) => s.url === server.url)) {
+        mergedSpec.servers.push(server);
       }
     }
   }
@@ -171,7 +171,7 @@ function filterConflicts(entities: object) {
   return Object.entries(entities).filter(([key, files]) => key !== 'other' && files.length > 1);
 }
 
-function getEntryPointFileName(filePath: string) {
+function getEntrypointFilename(filePath: string) {
   return path.basename(filePath, path.extname(filePath))
 }
 
@@ -207,9 +207,9 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
 }
 
 function populateTags(
-  entryPoint: string,
-  entryPointFileName: string,
-  spec: any,
+  entrypoint: string,
+  entrypointFilename: string,
+  mergedSpec: any,
   tags: Oas3Tag[],
   potentialConflicts: any,
   tagsPrefix: string,
@@ -217,136 +217,142 @@ function populateTags(
 ) {
   const xTagGroups = 'x-tagGroups';
   const Tags = 'tags';
-  if (!spec.hasOwnProperty(Tags)) { spec[Tags] = []; }
-  if (!spec.hasOwnProperty(xTagGroups)) { spec[xTagGroups] = []; }
+  if (!mergedSpec.hasOwnProperty(Tags)) { mergedSpec[Tags] = []; }
+  if (!mergedSpec.hasOwnProperty(xTagGroups)) { mergedSpec[xTagGroups] = []; }
   if (!potentialConflicts.tags.hasOwnProperty('all')) { potentialConflicts.tags['all'] = {}; }
-  if (!spec[xTagGroups].some((g: any) => g.name === entryPointFileName)) {
-    spec[xTagGroups].push({ name: entryPointFileName, tags: [] });
+  if (!mergedSpec[xTagGroups].some((g: any) => g.name === entrypointFilename)) {
+    mergedSpec[xTagGroups].push({ name: entrypointFilename, tags: [] });
   }
-  const indexGroup = spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName);
-  if (!spec[xTagGroups][indexGroup].hasOwnProperty(Tags)) { spec[xTagGroups][indexGroup][Tags] = []; }
+  const indexGroup = mergedSpec[xTagGroups].findIndex((item: any) => item.name === entrypointFilename);
+  if (!mergedSpec[xTagGroups][indexGroup].hasOwnProperty(Tags)) { mergedSpec[xTagGroups][indexGroup][Tags] = []; }
   for (const tag of tags) {
-    const entryPointTagName = addPrefix(tag.name, tagsPrefix);
+    const entrypointTagName = addPrefix(tag.name, tagsPrefix);
 
     if (tag.description) {
       tag.description = addComponentsPrefix(tag.description, componentsPrefix);
     }
-    if (!spec.tags.find((t: any) => t.name === entryPointTagName)) {
+    if (!mergedSpec.tags.find((t: any) => t.name === entrypointTagName)) {
       tag['x-displayName'] = tag.name;
-      tag.name = entryPointTagName;
-      spec.tags.push(tag);
+      tag.name = entrypointTagName;
+      mergedSpec.tags.push(tag);
     }
-    if (!spec[xTagGroups][indexGroup][Tags].find((t: any) => t === entryPointTagName)) {
-      spec[xTagGroups][indexGroup][Tags].push(entryPointTagName);
+    if (!mergedSpec[xTagGroups][indexGroup][Tags].find((t: any) => t === entrypointTagName)) {
+      mergedSpec[xTagGroups][indexGroup][Tags].push(entrypointTagName);
     }
 
-    const doesEntryPointExist = !potentialConflicts.tags.all[entryPointTagName] || (
-      potentialConflicts.tags.all[entryPointTagName] &&
-      !potentialConflicts.tags.all[entryPointTagName].includes(entryPoint)
+    const doesEntrypointExist = !potentialConflicts.tags.all[entrypointTagName] || (
+      potentialConflicts.tags.all[entrypointTagName] &&
+      !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint)
     )
-    potentialConflicts.tags.all[entryPointTagName] = [
-      ...(potentialConflicts.tags.all[entryPointTagName] || []), ...(doesEntryPointExist ? [entryPoint] : [])
+    potentialConflicts.tags.all[entrypointTagName] = [
+      ...(potentialConflicts.tags.all[entrypointTagName] || []), ...(doesEntrypointExist ? [entrypoint] : [])
     ];
   }
 }
 
-async function validateEndpoint(entryPoint: string, config: Config, version: string) {
+async function validateEndpoint(entrypoint: string, config: Config, version: string) {
   try {
-    const results = await validate({ ref: entryPoint, config });
+    const results = await validate({ ref: entrypoint, config });
     const fileTotals = getTotals(results);
     formatProblems(results, { format: 'stylish', totals: fileTotals, version });
     printLintTotals(fileTotals, 2);
   } catch (err) {
-    handleError(err, entryPoint);
+    handleError(err, entrypoint);
   }
 }
 
-function collectExternalDocs(openapi: Oas3Definition, spec: any, entryPoint: string) {
+function collectExternalDocs(openapi: Oas3Definition, mergedSpec: any, entrypoint: string) {
   const { externalDocs } = openapi;
   if (externalDocs) {
-    if (spec.hasOwnProperty('externalDocs')) {
-      process.stderr.write(yellow(`warning: skip externalDocs from ${blue(path.basename(entryPoint))} \n`));
+    if (mergedSpec.hasOwnProperty('externalDocs')) {
+      process.stderr.write(yellow(`warning: skip externalDocs from ${blue(path.basename(entrypoint))} \n`));
       return;
     }
-    spec['externalDocs'] = externalDocs;
+    mergedSpec['externalDocs'] = externalDocs;
   }
 }
 
-function collectInfoDescriptions(info: any, spec: any, entryPointFileName: string, componentsPrefix: string | undefined) {
+function collectInfoDescriptions(info: any, mergedSpec: any, entrypointFilename: string, componentsPrefix: string | undefined) {
   if (info && info.description) {
     const xTagGroups = 'x-tagGroups';
-    const groupIndex = spec[xTagGroups] ? spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName) : -1;
+    const groupIndex = mergedSpec[xTagGroups] ? mergedSpec[xTagGroups].findIndex((item: any) => item.name === entrypointFilename) : -1;
     if (
-      spec.hasOwnProperty(xTagGroups) &&
+      mergedSpec.hasOwnProperty(xTagGroups) &&
       groupIndex !== -1 &&
-      spec[xTagGroups][groupIndex]['tags'] &&
-      spec[xTagGroups][groupIndex]['tags'].length
+      mergedSpec[xTagGroups][groupIndex]['tags'] &&
+      mergedSpec[xTagGroups][groupIndex]['tags'].length
     ) {
-      spec[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description, componentsPrefix!);
+      mergedSpec[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description, componentsPrefix!);
     }
   }
 }
 
 function collectPaths(
   openapi: Oas3Definition,
-  entryPointFileName: string,
-  entryPoint: string,
-  spec: any,
+  entrypointFilename: string,
+  entrypoint: string,
+  mergedSpec: any,
   potentialConflicts: any,
   tagsPrefix: string,
   componentsPrefix: string
 ) {
   const { paths } = openapi;
   if (paths) {
-    if (!spec.hasOwnProperty('paths')) { spec['paths'] = {}; }
+    if (!mergedSpec.hasOwnProperty('paths')) { mergedSpec['paths'] = {}; }
     for (const path of Object.keys(paths)) {
-      if (!spec.paths.hasOwnProperty(path)) { spec.paths[path] = {}; }
+      if (!mergedSpec.paths.hasOwnProperty(path)) { mergedSpec.paths[path] = {}; }
       if (!potentialConflicts.paths.hasOwnProperty(path)) { potentialConflicts.paths[path] = {}; }
       for (const operation of Object.keys(paths[path])) {
         // @ts-ignore
         const pathOperation = paths[path][operation];
-        spec.paths[path][operation] = pathOperation;
-        potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entryPoint];
+        mergedSpec.paths[path][operation] = pathOperation;
+        potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entrypoint];
         const { operationId } = pathOperation;
         if (operationId) {
           if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
-          potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entryPoint];
+          potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entrypoint];
         }
-        let { tags, security } = spec.paths[path][operation];
+        let { tags, security } = mergedSpec.paths[path][operation];
         if (tags) {
-          spec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
-        } else if (spec.hasOwnProperty('x-tagGroups')) {
-          spec.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix)];
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix, componentsPrefix);
+          mergedSpec.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
+          populateTags(entrypoint, entrypointFilename, mergedSpec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
+        } else if (mergedSpec.hasOwnProperty('x-tagGroups')) {
+          mergedSpec.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix)];
+          populateTags(entrypoint, entrypointFilename, mergedSpec, formatTags(['other']), potentialConflicts, tagsPrefix, componentsPrefix);
         }
         if (!security && openapi.hasOwnProperty('security')) {
-          spec.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix);
+          mergedSpec.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix);
         } else if (pathOperation.security) {
-          spec.paths[path][operation].security = addSecurityPrefix(pathOperation.security, componentsPrefix);
+          mergedSpec.paths[path][operation].security = addSecurityPrefix(pathOperation.security, componentsPrefix);
         }
       }
     }
   }
 }
 
-function collectComponents(openapi: Oas3Definition, entryPoint: string, spec: any, potentialConflicts: any, componentsPrefix: string) {
+function collectComponents(
+  openapi: Oas3Definition,
+  entrypoint: string,
+  mergedSpec: any,
+  potentialConflicts: any,
+  componentsPrefix: string
+) {
   const { components } = openapi;
   if (components) {
-    if (!spec.hasOwnProperty(COMPONENTS)) { spec[COMPONENTS] = {}; }
+    if (!mergedSpec.hasOwnProperty(COMPONENTS)) { mergedSpec[COMPONENTS] = {}; }
     for (const component of Object.keys(components)) {
       if (!potentialConflicts[COMPONENTS].hasOwnProperty(component)) {
         potentialConflicts[COMPONENTS][component] = {};
-        spec[COMPONENTS][component] = {};
+        mergedSpec[COMPONENTS][component] = {};
       }
       // @ts-ignore
       const componentObj = components[component];
       for (const item of Object.keys(componentObj)) {
         const componentPrefix = addPrefix(item, componentsPrefix);
         potentialConflicts.components[component][componentPrefix] = [
-          ...(potentialConflicts.components[component][item] || []), { [entryPoint]: componentObj[item]}
+          ...(potentialConflicts.components[component][item] || []), { [entrypoint]: componentObj[item]}
         ];
-        spec.components[component][componentPrefix] = componentObj[item];
+        mergedSpec.components[component][componentPrefix] = componentObj[item];
       }
     }
   }
@@ -354,9 +360,9 @@ function collectComponents(openapi: Oas3Definition, entryPoint: string, spec: an
 
 function collectXWebhooks(
   openapi: Oas3Definition,
-  entryPointFileName: string,
-  entryPoint: string,
-  spec: any,
+  entrypointFileName: string,
+  entrypoint: string,
+  mergedSpec: any,
   potentialConflicts: any,
   tagsPrefix: string,
   componentsPrefix: string
@@ -365,19 +371,19 @@ function collectXWebhooks(
   // @ts-ignore
   const openapiXWebhooks = openapi[xWebhooks];
   if (openapiXWebhooks) {
-    if (!spec.hasOwnProperty(xWebhooks)) { spec[xWebhooks] = {}; }
+    if (!mergedSpec.hasOwnProperty(xWebhooks)) { mergedSpec[xWebhooks] = {}; }
     for (const webhook of Object.keys(openapiXWebhooks)) {
-      spec[xWebhooks][webhook] = openapiXWebhooks[webhook];
+      mergedSpec[xWebhooks][webhook] = openapiXWebhooks[webhook];
 
       if (!potentialConflicts.xWebhooks.hasOwnProperty(webhook)) { potentialConflicts.xWebhooks[webhook] = {}; }
       for (const operation of Object.keys(openapiXWebhooks[webhook])) {
-        potentialConflicts.xWebhooks[webhook][operation] = [...(potentialConflicts.xWebhooks[webhook][operation] || []), entryPoint];
+        potentialConflicts.xWebhooks[webhook][operation] = [...(potentialConflicts.xWebhooks[webhook][operation] || []), entrypoint];
       }
-      for (const operationKey of Object.keys(spec[xWebhooks][webhook])) {
-        let { tags } = spec[xWebhooks][webhook][operationKey];
+      for (const operationKey of Object.keys(mergedSpec[xWebhooks][webhook])) {
+        let { tags } = mergedSpec[xWebhooks][webhook][operationKey];
         if (tags) {
-          spec[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-          populateTags(entryPoint, entryPointFileName, spec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
+          mergedSpec[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
+          populateTags(entrypoint, entrypointFileName, mergedSpec, formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix);
         }
       }
     }
