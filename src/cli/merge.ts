@@ -50,6 +50,7 @@ export async function handleMerge (argv: {
     xWebhooks: {}
   };
 
+  const prefixComponentsWithInfoProp = argv['prefix-components-with-info-prop'];
   const prefixTagsWithFilename = argv['prefix-tags-with-filename'];
   const prefixTagsWithInfoProp = argv['prefix-tags-with-info-prop'];
   if (prefixTagsWithFilename && prefixTagsWithInfoProp) {
@@ -58,14 +59,14 @@ export async function handleMerge (argv: {
     );
   }
 
-  addInfoSectionAndSpecVersion(entrypoints, spec);
+  addInfoSectionAndSpecVersion(entrypoints, spec, prefixComponentsWithInfoProp);
 
   for (const entryPoint of entrypoints) {
     const openapi = readYaml(entryPoint!) as Oas3Definition;
     const { tags, info } = openapi;
     const entryPointFileName = getEntryPointFileName(entryPoint);
     const tagsPrefix = prefixTagsWithFilename ? entryPointFileName : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
-    const componentsPrefix = getInfoPrefix(info, argv['prefix-components-with-info-prop'], COMPONENTS);
+    const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
       process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entryPoint)} will be skipped \n`));
@@ -73,7 +74,7 @@ export async function handleMerge (argv: {
 
     if (tags) { populateTags(entryPoint, entryPointFileName, spec, tags, potentialConflicts, tagsPrefix, componentsPrefix); }
     collectServers(openapi, spec);
-    collectInfoDescriptions(info, spec, entryPointFileName);
+    collectInfoDescriptions(info, spec, entryPointFileName, componentsPrefix);
     collectExternalDocs(openapi, spec, entryPoint);
     collectPaths(openapi, entryPointFileName, entryPoint, spec, potentialConflicts, tagsPrefix, componentsPrefix);
     collectComponents(openapi, entryPoint, spec, potentialConflicts, componentsPrefix);
@@ -88,11 +89,15 @@ export async function handleMerge (argv: {
   printExecutionTime('merge', startedAt, specFileName);
 }
 
-function addInfoSectionAndSpecVersion(entrypoints: any, spec: any) {
+function addInfoSectionAndSpecVersion(entrypoints: any, spec: any, prefixComponentsWithInfoProp: string | undefined) {
   const firstEntryPoint = entrypoints[0];
   const openapi = readYaml(firstEntryPoint) as Oas3Definition;
+  const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
   if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
   if (!openapi.info) exitWithError('Info section is not found in specification. \n');
+  if (openapi.info?.description) {
+    openapi.info.description = addComponentsPrefix(openapi.info.description, componentsPrefix);
+  }
   spec.openapi = openapi.openapi;
   spec.info = openapi.info;
 }
@@ -178,6 +183,13 @@ function formatTags(tags: string[]) {
   return tags.map((tag: string) => ({ name: tag }));
 }
 
+function addComponentsPrefix(description: string, componentsPrefix: string) {
+  return description.replace(/"(#\/components\/.*?)"/g, (match) => {
+    const componentName = path.basename(match);
+    return match.replace(componentName, addPrefix(componentName, componentsPrefix));
+  })
+}
+
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
   if (!info) exitWithError('Info section is not found in specification. \n');
@@ -210,10 +222,7 @@ function populateTags(
     const entryPointTagName = addPrefix(tag.name, tagsPrefix);
 
     if (tag.description) {
-      tag.description = tag.description.replace(/"(#\/components\/.*?)"/g, (match) => {
-        const componentName = path.basename(match);
-        return match.replace(componentName, addPrefix(componentName, componentsPrefix));
-      })
+      tag.description = addComponentsPrefix(tag.description, componentsPrefix);
     }
     if (!spec.tags.find((t: any) => t.name === entryPointTagName)) {
       tag['x-displayName'] = tag.name;
@@ -256,7 +265,7 @@ function collectExternalDocs(openapi: Oas3Definition, spec: any, entryPoint: str
   }
 }
 
-function collectInfoDescriptions(info: any, spec: any, entryPointFileName: string) {
+function collectInfoDescriptions(info: any, spec: any, entryPointFileName: string, componentsPrefix: string | undefined) {
   if (info && info.description) {
     const xTagGroups = 'x-tagGroups';
     const groupIndex = spec[xTagGroups] ? spec[xTagGroups].findIndex((item: any) => item.name === entryPointFileName) : -1;
@@ -266,7 +275,7 @@ function collectInfoDescriptions(info: any, spec: any, entryPointFileName: strin
       spec[xTagGroups][groupIndex]['tags'] &&
       spec[xTagGroups][groupIndex]['tags'].length
     ) {
-      spec[xTagGroups][groupIndex]['description'] = info.description;
+      spec[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description, componentsPrefix!);
     }
   }
 }
