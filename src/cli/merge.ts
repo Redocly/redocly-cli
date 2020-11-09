@@ -190,6 +190,13 @@ function addComponentsPrefix(description: string, componentsPrefix: string) {
   })
 }
 
+function addSecurityPrefix(security: any, componentsPrefix: string) {
+  return componentsPrefix ? security?.map((s: any) => {
+    const key = Object.keys(s)[0];
+    return { [componentsPrefix +'_'+ key]: s[key] }
+  }) : security;
+}
+
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
   if (!info) exitWithError('Info section is not found in specification. \n');
@@ -314,7 +321,7 @@ function collectPaths(
           populateTags(entryPoint, entryPointFileName, spec, formatTags(['other']), potentialConflicts, tagsPrefix, componentsPrefix);
         }
         if (!security && openapi.hasOwnProperty('security')) {
-          spec.paths[path][operation]['security'] = openapi.security;
+          spec.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix);
         }
       }
     }
