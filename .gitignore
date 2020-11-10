@@ -2,12 +2,10 @@
 .idea
 node_modules/
 nodejs/
-
 coverage/
 .vscode/
-
 yarn.lock
 dist/
 lib/
-
 *.tar.gz
+*.tsbuildinfo

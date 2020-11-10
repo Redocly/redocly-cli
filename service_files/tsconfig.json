@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "declaration": true,
     "module": "commonjs",
     "target": "ES2016",
@@ -15,7 +14,8 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "lib": ["es2019", "es2020.string"],
-    "baseUrl": "./packages"
-  }
+    "outDir": "lib",
+    "lib": ["es2019", "es2020.string"]
+  },
+  "include": ["src/**/*.ts", "benchmark/benches/**/*.ts", "src/__tests__/walk.test.ts"],
 }

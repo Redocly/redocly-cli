@@ -1,28 +1,25 @@
 {
-  "name": "@redocly/openapi-cli",
+  "name": "@redocly/openapi",
   "version": "1.0.0-beta.18",
   "description": "",
-  "main": "lib/index.js",
   "engines": {
     "node": ">=12.0.0"
   },
   "engineStrict": true,
   "scripts": {
-    "test": "npm run typecheck && npm run unit",
-    "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
-    "e2e": "jest ./__tests__",
-    "cli": "ts-node src/cli.ts",
-    "build": "tsc -p tsconfig.build.json && cp ./src/cli/preview-server/default.hbs ./lib/cli/preview-server",
-    "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
-    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
-    "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build",
-    "bundle": "webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js"
+    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
+    "compile": "tsc -b tsconfig.build.json",
+    "prepare": "npm run compile",
+    "cli": "ts-node packages/cli/src/index.ts",
+    "lint": "npm run cli lint nodejs/resources/pets.yaml -- --format stylish",
+    "bundle": "npm run cli bundle nodejs/resources/pets.yaml nodejs/resources/p.yaml",
+    "stats": "npm run cli stats nodejs/resources/pets.yaml",
+    "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
+    "preview": "npm run cli preview-docs nodejs/resources/pets.yaml"
   },
-  "bin": {
-    "openapi": "lib/cli.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/openapi-cli.git"
@@ -40,67 +37,12 @@
     "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
-  "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/js-levenshtein": "^1.1.0",
-    "@types/js-yaml": "^3.12.4",
-    "@types/lodash.isequal": "^4.5.5",
-    "@types/minimatch": "^3.0.3",
-    "@types/node-fetch": "^2.5.7",
-    "@types/yargs": "^15.0.5",
-    "jest": "^26.0.1",
-    "null-loader": "^4.0.0",
-    "outdent": "^0.7.1",
-    "prettier": "^2.0.5",
-    "shebang-loader": "0.0.1",
-    "ts-jest": "^26.1.0",
-    "ts-loader": "^8.0.2",
-    "ts-node": "^8.10.2",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
-  },
-  "dependencies": {
-    "@redocly/ajv": "^6.12.3",
-    "@types/node": "^14.0.13",
-    "chokidar": "^3.4.0",
-    "colorette": "^1.2.0",
-    "glob": "^7.1.6",
-    "glob-promise": "^3.4.0",
-    "handlebars": "^4.7.6",
-    "js-levenshtein": "^1.1.6",
-    "js-yaml": "^3.14.0",
-    "lodash.isequal": "^4.5.0",
-    "minimatch": "^3.0.4",
-    "node-fetch": "^2.6.1",
-    "portfinder": "^1.0.26",
-    "readline": "^1.3.0",
-    "simple-websocket": "^9.0.0",
-    "typescript": "^3.9.5",
-    "yaml-ast-parser": "0.0.43",
-    "yargs": "^15.3.1"
-  },
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all",
     "printWidth": 100
   },
-  "jest": {
-    "preset": "ts-jest",
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/__tests__/**/*",
-      "!src/cli.ts",
-      "!src/cli/**/*.ts",
-      "!src/format/format.ts"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.test.ts",
-      "**/*.test.ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    }
+  "devDependencies": {
+    "typescript": "4.0.3"
   }
 }
