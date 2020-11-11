@@ -19,7 +19,7 @@ import {
   WalkContext,
   walkDocument,
   Stats
-} from "@redocly/core";
+} from "@redocly/openapi-core";
 
 import { getFallbackEntryPointsOrExit } from '../utils'
 import { printExecutionTime } from '../utils';

@@ -1,5 +1,5 @@
 {
-  "name": "@redocly/core",
+  "name": "@redocly/openapi-core",
   "version": "1.0.0-beta.18",
   "description": "",
   "main": "lib/index.js",

@@ -7,11 +7,7 @@ import { performance } from 'perf_hooks';
 
 import { Totals } from './types';
 import {
-  dumpBundle,
-  saveBundle,
   BundleOutputFormat,
-  promptUser,
-  CircularJSONNotSupportedError,
   validate,
   bundle,
   loadConfig,
@@ -19,10 +15,18 @@ import {
   ResolveError,
   YamlParseError,
   RedoclyClient
-} from "@redocly/core";
+} from "@redocly/openapi-core";
 
 import { formatProblems, OutputFormat } from './format/format';
-import { getFallbackEntryPointsOrExit, getExecutionTime, getTotals } from './utils';
+import {
+  CircularJSONNotSupportedError,
+  getFallbackEntryPointsOrExit,
+  getExecutionTime,
+  getTotals,
+  dumpBundle,
+  saveBundle,
+  promptUser,
+} from './utils';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';

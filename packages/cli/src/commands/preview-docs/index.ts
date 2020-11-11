@@ -1,6 +1,6 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
-import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient } from "@redocly/core";
+import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient } from "@redocly/openapi-core";
 import { getFallbackEntryPointsOrExit, getTotals } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 
@@ -35,7 +35,6 @@ export async function previewDocs(argv: {
         ref: entrypoint,
         config,
       });
-
       const removed = [...deps].filter((x) => !fileDependencies.has(x));
       watcher.unwatch(removed);
       watcher.add([...fileDependencies]);

@@ -1,36 +1,28 @@
 import { gray, red, options as colorOptions } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
-import { LineColLocationObject, Loc, LocationObject } from "@redocly/core";
-import { unescapePointer } from '@redocly/core/lib/ref-utils';
+import { LineColLocationObject, Loc, LocationObject, unescapePointer } from "@redocly/openapi-core";
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };
 type YAMLAnchorReference = yamlAst.YAMLAnchorReference & { kind: yamlAst.Kind.ANCHOR_REF };
 type YAMLSequence = yamlAst.YAMLSequence & { kind: yamlAst.Kind.SEQ };
 type YAMLScalar = yamlAst.YAMLScalar & { kind: yamlAst.Kind.SCALAR };
-
 type YAMLNode = YAMLMapping | YAMLMap | YAMLAnchorReference | YAMLSequence | YAMLScalar;
 
 const MAX_LINE_LENGTH = 150;
 const MAX_CODEFRAME_LINES = 3;
-
 
 // TODO: temporary
 function parsePointer(pointer: string) {
   return pointer.substr(2).split('/').map(unescapePointer);
 }
 
-
 export function getCodeframe(location: LineColLocationObject, color: boolean) {
   colorOptions.enabled = color;
-
   const { start, end = { line: start.line, col: start.col + 1 }, source } = location;
-
   const lines = source.getLines();
-
   const startLineNum = start.line;
   const endLineNum = Math.max(Math.min(end.line, lines.length), start.line);
-
   let skipLines = Math.max(endLineNum - startLineNum - MAX_CODEFRAME_LINES + 1, 0);
   if (skipLines < 2) skipLines = 0; // do not skip one line
 

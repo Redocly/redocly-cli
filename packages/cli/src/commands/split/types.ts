@@ -6,7 +6,7 @@ import {
   Oas3Paths,
   Oas3ComponentName,
   Oas2Definition
-} from "@redocly/core";
+} from "@redocly/openapi-core";
 export { Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3Schema }
 export type Definition = Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {

@@ -4,8 +4,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
-import { readYaml, writeYaml, pathToFilename } from "@redocly/core";
-import { printExecutionTime } from '../../utils';
+import { printExecutionTime, pathToFilename, readYaml, writeYaml } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
   Definition,

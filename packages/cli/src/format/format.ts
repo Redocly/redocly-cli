@@ -10,7 +10,7 @@ import {
   red,
 } from 'colorette';
 
-import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from "@redocly/core";
+import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from "@redocly/openapi-core";
 import { getCodeframe, getLineColLocation } from './codeframes';
 import { Totals } from '../types';
 
