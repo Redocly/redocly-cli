@@ -1,14 +1,11 @@
 'use strict';
-
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 const { execSync } = require('child_process');
-
 const { red, green, yellow, cyan, grey } = require('./colors');
 const { sampleModule } = require('./fork');
-
 const NS_PER_SEC = 1e9;
 const LOCAL = 'local';
 
@@ -27,37 +24,32 @@ function prepareRevision(revision) {
   console.log(`🍳  Preparing ${revision}...`);
 
   if (revision === LOCAL) {
-    return tscBuild(LOCAL_DIR());
+    return tscBuild(path.join(LOCAL_DIR(), '../../..'));
   }
 
   // Returns the complete git hash for a given git revision reference.
   const hash = exec(`git rev-parse "${revision}"`);
-
   const dir = path.join(os.tmpdir(), 'openapi-cli-benchmark', hash);
   fs.rmdirSync(dir, { recursive: true });
   fs.mkdirSync(dir, { recursive: true });
 
   exec(`git archive "${hash}" | tar -xC "${dir}"`);
   exec('npm ci', { cwd: dir });
-
-  const to = path.join(dir, 'benchmark/benches');
+  const to = path.join(dir, 'packages/core/src/benchmark/benches');
   exec(`rm -rf ${to}`);
   exec(`cp -R ${LOCAL_DIR('benchmark/benches')} ${to}`);
-
   return tscBuild(dir);
 }
 
 function tscBuild(dir) {
   const oldCwd = process.cwd();
   process.chdir(dir);
-
-  execSync('rm -rf dist && npx tsc', { stdio: 'inherit' });
+  execSync('npm run compile', { stdio: 'inherit' });
   exec(
-    `cp ${path.join(dir, 'benchmark/benches/*.yaml')} ${path.join(dir, 'lib/benchmark/benches/')}`,
+    `cp ${path.join(dir, 'packages/core/src/benchmark/benches/*.yaml')} ${path.join(dir, 'packages/core/lib/benchmark/benches/')}`,
   );
-
   process.chdir(oldCwd);
-  return path.join(dir, 'lib/benchmark/benches');
+  return path.join(dir, 'packages/core/lib/benchmark/benches');
 }
 
 async function collectSamples(modulePath) {
@@ -258,10 +250,10 @@ function exec(command, options) {
 
 // Find all benchmark tests to be run.
 function matchBenchmarks(patterns) {
-  let benchmarks = findFiles(LOCAL_DIR('lib/benchmark/benches'), '*.bench.js');
+  let benchmarks = findFiles(LOCAL_DIR('../lib/benchmark/benches'), '*.bench.js');
   if (patterns.length > 0) {
     benchmarks = benchmarks.filter((benchmark) =>
-      patterns.some((pattern) => path.join('benchmark/benches', benchmark).includes(pattern)),
+      patterns.some((pattern) => path.join('../lib/benchmark/benches', benchmark).includes(pattern)),
     );
   }
 

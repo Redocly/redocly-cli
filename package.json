@@ -10,13 +10,14 @@
   "scripts": {
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "compile": "tsc -b tsconfig.build.json",
-    "prepare": "npm run compile",
+    "prepare-tsc": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
     "lint": "npm run cli lint nodejs/resources/pets.yaml -- --format stylish",
     "bundle": "npm run cli bundle nodejs/resources/pets.yaml nodejs/resources/p.yaml",
     "stats": "npm run cli stats nodejs/resources/pets.yaml",
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
-    "preview": "npm run cli preview-docs nodejs/resources/pets.yaml"
+    "preview": "npm run cli preview-docs nodejs/resources/pets.yaml",
+    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js"
   },
   "workspaces": [
     "packages/*"

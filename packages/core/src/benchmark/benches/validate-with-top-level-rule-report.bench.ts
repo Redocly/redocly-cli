@@ -1,13 +1,11 @@
 import { readFileSync } from 'fs';
 import { join as pathJoin, resolve as pathResolve } from 'path';
+import { validateDocument } from '../../validate';
+import { BaseResolver } from '../../resolve';
+import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
 
-import { validateDocument } from '../../src/validate';
-import { parseYamlToDocument, makeConfigForRuleset } from '../../src/__tests__/utils';
-import { BaseResolver } from '../../src/resolve';
-
-export const name = 'Validate with single top-level rule';
+export const name = 'Validate with single top-level rule and report';
 export const count = 10;
-
 const rebillyDefinitionRef = pathResolve(pathJoin(__dirname, 'rebilly.yaml'));
 const rebillyDocument = parseYamlToDocument(
   readFileSync(rebillyDefinitionRef, 'utf-8'),
@@ -16,11 +14,14 @@ const rebillyDocument = parseYamlToDocument(
 
 const config = makeConfigForRuleset({
   test: () => {
-    let count = 0;
     return {
-      Schema() {
-        count++;
-        if (count === -1) throw new Error('Disable optimization');
+      // @ts-ignore
+      Schema(schema, ctx) {
+        if (schema.type === 'number') {
+          ctx.report({
+            message: 'type number is not allowed',
+          });
+        }
       },
     };
   },
