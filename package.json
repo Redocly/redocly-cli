@@ -9,8 +9,10 @@
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
+    "unit": "jest . --coverage --coverageReporters lcov text-summary",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "jest ./__tests__",
+    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "compile": "tsc -b tsconfig.build.json",
     "prepare-tsc": "npm run compile",
@@ -20,7 +22,8 @@
     "stats": "npm run cli stats nodejs/resources/pets.yaml",
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
     "preview": "npm run cli preview-docs nodejs/resources/pets.yaml",
-    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js"
+    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
+    "webpack-bundle": "webpack --config webpack.config.ts"
   },
   "workspaces": [
     "packages/*"
@@ -51,18 +54,23 @@
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "jest": "^26.6.3",
+    "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
+    "shebang-loader": "0.0.1",
     "ts-jest": "^26.4.4",
-    "typescript": "4.0.3"
+    "ts-loader": "^8.0.2",
+    "typescript": "4.0.5",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
   },
   "jest": {
     "preset": "ts-jest",
     "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/__tests__/**/*",
-      "!src/cli.ts",
-      "!src/cli/**/*.ts",
-      "!src/format/format.ts"
+      "packages/**/*.ts",
+      "!packages/**/__tests__/**/*",
+      "!packages/cli/src/index.ts",
+      "!packages/cli/**/*.ts",
+      "!packages/cli/src/format/format.ts"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",
