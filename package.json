@@ -23,7 +23,8 @@
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
     "preview": "npm run cli preview-docs nodejs/resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
-    "webpack-bundle": "webpack --config webpack.config.ts"
+    "webpack-bundle": "webpack --config webpack.config.ts",
+    "upload": "node scripts/archive-and-upload-bundle.js"
   },
   "workspaces": [
     "packages/*"
@@ -56,6 +57,7 @@
     "jest": "^26.6.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
+    "prettier": "^2.1.2",
     "shebang-loader": "0.0.1",
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.2",

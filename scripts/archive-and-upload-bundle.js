@@ -1,5 +1,4 @@
 const yargs = require('yargs');
-
 const { execSync } = require('child_process');
 const package = require('../package.json');
 
@@ -9,7 +8,6 @@ const fileNameLatest = `openapi-cli.latest.tar.gz`;
 
 execSync(`tar -zcvf ${fileName} dist`);
 execSync(`tar -zcvf ${fileNameLatest} dist`);
-
 
 const argv = yargs
     .option('aws-profile', {
