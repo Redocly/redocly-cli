@@ -9,7 +9,7 @@
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
-    "unit": "jest . --coverage --coverageReporters lcov text-summary",
+    "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "jest ./__tests__",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
