@@ -46,11 +46,8 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Build package
-      run: npm run build
-
     - name: Bundle into single file
-      run: npm run bundle
+      run: npm run webpack-bundle
 
     - name: Upload to AWS S3 bucket
       run: npm run upload
@@ -85,9 +82,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
-    - name: Build package
-      run: npm run build
 
     - name: Publish to NPM
       run: npm publish
