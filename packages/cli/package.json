@@ -9,6 +9,24 @@
   "scripts": {
     "compile": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Redocly/openapi-cli.git"
+  },
+  "homepage": "https://github.com/Redocly/openapi-cli",
+  "keywords": [
+    "linter",
+    "OpenAPI",
+    "Swagger",
+    "OpenAPI linter",
+    "Swagger linter",
+    "oas"
+  ],
+  "contributors": [
+    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
+    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+  ],
   "dependencies": {
     "@redocly/openapi-core": "^1.0.0-beta.18",
     "@types/node": "^14.11.8",
