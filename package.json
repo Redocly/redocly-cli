@@ -15,7 +15,7 @@
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "compile": "tsc -b tsconfig.build.json",
-    "prepare-tsc": "npm run compile",
+    "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
     "lint": "npm run cli lint nodejs/resources/pets.yaml -- --format stylish",
     "bundle": "npm run cli bundle nodejs/resources/pets.yaml nodejs/resources/p.yaml",
