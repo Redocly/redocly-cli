@@ -1,10 +1,10 @@
 import * as yaml from 'js-yaml';
 import * as path from 'path';
 
-import { Document, Source } from '../resolve';
-import { NormalizedProblem } from '../walk';
-import { RuleConfig, LintConfig, Plugin } from '../config/config';
-import { Oas3RuleSet } from '../validate';
+import { Document, Source } from '../src/resolve';
+import { NormalizedProblem } from '../src/walk';
+import { RuleConfig, LintConfig, Plugin } from '../src/config/config';
+import { Oas3RuleSet } from '../src/validate';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {

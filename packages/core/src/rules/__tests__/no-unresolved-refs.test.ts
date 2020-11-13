@@ -5,7 +5,7 @@ import { validateDocument } from '../../validate';
 import { LintConfig } from '../..';
 import { BaseResolver } from '../../resolve';
 
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on unresolved $ref', async () => {

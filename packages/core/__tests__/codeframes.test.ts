@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
 
-import { getLineColLocation, getCodeframe } from '../format/codeframes';
-import { LocationObject } from '../walk';
-import { Source } from '../resolve';
+import { getLineColLocation, getCodeframe } from '../../cli/src/format/codeframes';
+import { LocationObject } from '../src/walk';
+import { Source } from '../src/resolve';
 
 describe('Location', () => {
   it('should correctly calculate location for key', () => {

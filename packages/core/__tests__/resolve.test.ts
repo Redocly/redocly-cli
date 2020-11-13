@@ -1,10 +1,10 @@
 import { outdent } from 'outdent';
 import * as path from 'path';
 
-import { resolveDocument, BaseResolver, Document } from '../resolve';
+import { resolveDocument, BaseResolver, Document } from '../src/resolve';
 import { parseYamlToDocument } from './utils';
-import { Oas3Types } from '../types/oas3';
-import { normalizeTypes } from '../types';
+import { Oas3Types } from '../src/types/oas3';
+import { normalizeTypes } from '../src/types';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
@@ -32,9 +32,9 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.keys())).toMatchInlineSnapshot(
       [`foobar.yaml::#/defs/info`],
       `
-      Object {
-        "0": "foobar.yaml::#/defs/info",
-      }
+      Array [
+        "foobar.yaml::#/defs/info",
+      ]
     `,
     );
     expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([

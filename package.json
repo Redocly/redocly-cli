@@ -8,6 +8,9 @@
   },
   "engineStrict": true,
   "scripts": {
+    "test": "npm run typecheck && npm run unit",
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "e2e": "jest ./__tests__",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "compile": "tsc -b tsconfig.build.json",
     "prepare-tsc": "npm run compile",
@@ -46,6 +49,29 @@
     "printWidth": 100
   },
   "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "jest": "^26.6.3",
+    "outdent": "^0.7.1",
+    "ts-jest": "^26.4.4",
     "typescript": "4.0.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/__tests__/**/*",
+      "!src/cli.ts",
+      "!src/cli/**/*.ts",
+      "!src/format/format.ts"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts",
+      "**/*.test.ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    }
   }
 }

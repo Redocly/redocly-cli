@@ -1,6 +1,7 @@
 import { readdirSync, statSync, existsSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { join } from 'path';
+//@ts-ignore
 import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
 
 expect.extend({
@@ -10,8 +11,8 @@ expect.extend({
 });
 
 addSerializer({
-  test: (val) => typeof val === 'string',
-  print: (v) => v as string,
+  test: (val: any) => typeof val === 'string',
+  print: (v: any) => v as string,
 });
 
 describe('E2E', () => {
@@ -22,7 +23,7 @@ describe('E2E', () => {
     if (statSync(testPath).isFile()) continue;
     if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
 
-    const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../src/cli.ts', 'lint'], {
+    const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../packages/cli/src/index.ts', 'lint'], {
       cwd: testPath,
       env: {
         ...process.env,
@@ -38,7 +39,7 @@ describe('E2E', () => {
 
     it(file, () => {
       // we need this cause TS types not actually allows to 'extend'
-      (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'test-unused-component/snapshot.js'));
     });
   }
 });

@@ -1,5 +1,5 @@
 import { LintConfig, RuleConfig } from '../../../../config/config';
-import { parseYamlToDocument } from '../../../../__tests__/utils';
+import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { validateDocument } from '../../../../validate';
 import { BaseResolver } from '../../../../resolve';
 

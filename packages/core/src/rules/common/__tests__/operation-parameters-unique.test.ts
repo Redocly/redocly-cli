@@ -3,7 +3,7 @@ import { outdent } from 'outdent';
 import { LintConfig } from '../../../config/config';
 
 import { validateDocument } from '../../../validate';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-parameters-unique', () => {
