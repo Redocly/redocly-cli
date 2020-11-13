@@ -29,7 +29,7 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
         Operation: {
           leave(operation: any) {
             statsAccumulator.operations.total++;
-            operation.tags.forEach((tag: string) => { statsAccumulator.tags.items!.add(tag); })
+            operation.tags && operation.tags.forEach((tag: string) => { statsAccumulator.tags.items!.add(tag); })
           }
         },
         Parameter: { leave(parameter: Oas2Parameter | Oas3Parameter) {
