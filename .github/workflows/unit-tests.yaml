@@ -5,8 +5,16 @@ on: [push]
 jobs:
   build-and-unit:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
     - name: cache node modules
       uses: actions/cache@v1
       with:
@@ -15,5 +23,8 @@ jobs:
         restore-keys: |
           npm-${{ hashFiles('package-lock.json') }}
           npm-
-    - run: npm ci
+    - run: npm i -g npm@7
+    - run: npm install
     - run: npm test
+      env:
+        CI: true

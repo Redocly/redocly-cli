@@ -6,7 +6,6 @@ let commonSnapshotState;
 
 function toMatchSpecificSnapshot(received, snapshotFile, ...rest) {
   const absoluteSnapshotFile = getAbsolutePathToSnapshot(this.testPath, snapshotFile);
-
   // store the common state to re-use it in "afterAll" hook.
   commonSnapshotState = this.snapshotState;
   let snapshotState = snapshotsStateMap.get(absoluteSnapshotFile);
