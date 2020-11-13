@@ -6,6 +6,7 @@ import { red, green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
 import { Totals } from './types';
+
 import {
   BundleOutputFormat,
   validate,
@@ -14,10 +15,11 @@ import {
   LintConfig,
   ResolveError,
   YamlParseError,
-  RedoclyClient
+  RedoclyClient,
+  formatProblems,
+  OutputFormat,
 } from "@redocly/openapi-core";
 
-import { formatProblems, OutputFormat } from './format/format';
 import {
   CircularJSONNotSupportedError,
   getFallbackEntryPointsOrExit,

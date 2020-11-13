@@ -10,9 +10,15 @@ import {
   red,
 } from 'colorette';
 
-import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from "@redocly/openapi-core";
+import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { Totals } from '../types';
+
+type Totals = {
+	errors: number;
+	warnings: number;
+	ignored: number;
+}
+
 
 const ERROR_MESSAGE = {
   INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn',

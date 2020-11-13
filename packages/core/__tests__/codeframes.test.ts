@@ -1,6 +1,6 @@
 import { outdent } from 'outdent';
 
-import { getLineColLocation, getCodeframe } from '../../cli/src/format/codeframes';
+import { getLineColLocation, getCodeframe } from '../src/format/codeframes';
 import { LocationObject } from '../src/walk';
 import { Source } from '../src/resolve';
 
@@ -20,7 +20,6 @@ describe('Location', () => {
         `,
       ),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 3, col: 3 });
     expect(preciseLocation.end).toEqual({ line: 3, col: 10 });
@@ -41,7 +40,6 @@ describe('Location', () => {
         `,
       ),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 2, col: 1 });
     expect(preciseLocation.end).toEqual({ line: 2, col: 5 });
@@ -62,7 +60,6 @@ describe('Location', () => {
         `,
       ),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 4, col: 11 });
     expect(preciseLocation.end).toEqual({ line: 4, col: 14 });
@@ -83,7 +80,6 @@ describe('Location', () => {
         `,
       ),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 3, col: 3 });
     expect(preciseLocation.end).toEqual({ line: 5, col: 28 });
@@ -95,7 +91,6 @@ describe('Location', () => {
       pointer: '#/info/missing',
       source: new Source('foobar.yaml', ''),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 1, col: 1 });
     expect(preciseLocation.end).toEqual({ line: 1, col: 1 });
@@ -107,7 +102,6 @@ describe('Location', () => {
       pointer: '#/info/missing',
       source: new Source('foobar.yaml', '\n\n\n'),
     };
-		//@ts-ignore
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 1, col: 1 });
     expect(preciseLocation.end).toEqual({ line: 1, col: 1 });
@@ -116,14 +110,12 @@ describe('Location', () => {
 
 describe('codeframes', () => {
   function getColorCodeframe(loc: LocationObject) {
-		//@ts-ignore
     return getCodeframe(getLineColLocation(loc), true)
       .replace(/\x1b\[90m(.*?)\x1b\[39m/g, '<g>$1</g>')
       .replace(/\x1b\[31m(.*?)\x1b\[39m/g, '<r>$1</r>');
   }
 
   function getPlainCodeframe(loc: LocationObject) {
-		//@ts-ignore
     return getCodeframe(getLineColLocation(loc), false);
   }
 
