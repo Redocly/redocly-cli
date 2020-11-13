@@ -21,7 +21,6 @@
     "simple-websocket": "^9.0.0",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0"
-
   },
   "devDependencies": {
     "@types/yargs": "^15.0.5",

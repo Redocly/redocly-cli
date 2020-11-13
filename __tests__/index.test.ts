@@ -17,7 +17,6 @@ addSerializer({
 
 describe('E2E', () => {
   const contents = readdirSync(__dirname);
-
   for (const file of contents) {
     const testPath = join(__dirname, file);
     if (statSync(testPath).isFile()) continue;
@@ -39,7 +38,7 @@ describe('E2E', () => {
 
     it(file, () => {
       // we need this cause TS types not actually allows to 'extend'
-      (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'test-unused-component/snapshot.js'));
+      (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
   }
 });
