@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi",
-  "version": "1.0.0-beta.20",
+  "version": "1.0.0-beta.21",
   "description": "",
   "private": true,
   "engines": {
@@ -23,7 +23,7 @@
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
     "preview": "npm run cli preview-docs nodejs/resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
-    "webpack-bundle": "npm run copy-assets && webpack --config webpack.config.ts",
+    "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js"
   },
   "workspaces": [
