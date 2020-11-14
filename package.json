@@ -23,10 +23,8 @@
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
     "preview": "npm run cli preview-docs nodejs/resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
-    "copy-assets": "cp packages/cli/src/commands/preview-docs/preview-server/default.hbs packages/cli/lib/commands/preview-docs/preview-server/default.hbs",
     "webpack-bundle": "npm run copy-assets && webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js",
-    "prepublishOnly": "npm run copy-assets && npm run compile"
+    "upload": "node scripts/archive-and-upload-bundle.js"
   },
   "workspaces": [
     "packages/*"

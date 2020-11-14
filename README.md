@@ -18,7 +18,7 @@ Currently, @redocly/openapi-cli supports these features:
 - [x] Configurable severity levels for each rule.
 - [x] Human-readable error messages with codeframes and stylish format options.
 - [x] Intuitive suggestions for misspelled types or references.
-- [x] Easy to implement custom rules. 
+- [x] Easy to implement custom rules.
 - [x] Bundle a multifile definition into a single file.
 - [x] Decorators to modify a validated definition during bundling.
 - [x] Preview reference docs for local development.
