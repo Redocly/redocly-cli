@@ -3,6 +3,10 @@
   "version": "1.0.0-beta.19",
   "description": "",
   "main": "lib/index.js",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "engineStrict": true,
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -4,8 +4,12 @@
   "description": "",
   "license": "MIT",
   "bin": {
-    "openapi-cli": "bin/cli.js"
+    "openapi": "bin/cli.js"
   },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "engineStrict": true,
   "scripts": {
     "compile": "tsc"
   },
@@ -28,7 +32,7 @@
     "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "^1.0.0-beta.18",
+    "@redocly/openapi-core": "^1.0.0-beta.19",
     "@types/node": "^14.11.8",
     "yargs": "^15.3.1",
     "colorette": "^1.2.0",
