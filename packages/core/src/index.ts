@@ -17,5 +17,5 @@ export { WalkContext, walkDocument, NormalizedProblem, ProblemSeverity, LineColL
 
 export { formatProblems, OutputFormat } from './format/format';
 
-export { validate } from './validate';
+export { OasVersion, validate, validateDocument } from './validate';
 export { bundle } from './bundle';
