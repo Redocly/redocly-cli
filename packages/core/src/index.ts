@@ -1,7 +1,7 @@
 export type { BundleOutputFormat } from './utils';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
-export { Oas3Definition, Oas3Components, Oas3PathItem, Oas3Paths, Oas3ComponentName, Oas3Schema } from './typings/openapi';
+export { Oas3Definition, Oas3Components, Oas3PathItem, Oas3Paths, Oas3ComponentName, Oas3Schema, Oas3Tag } from './typings/openapi';
 export { Oas2Definition } from './typings/swagger';
 export { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';

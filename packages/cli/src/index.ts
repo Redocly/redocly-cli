@@ -2,7 +2,7 @@
 
 import * as yargs from 'yargs';
 import { extname, basename, dirname, join } from 'path';
-import { red, green, yellow, blue, gray } from 'colorette';
+import { green, yellow, blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import { Totals } from './types';
 import {
@@ -11,25 +11,26 @@ import {
   bundle,
   loadConfig,
   LintConfig,
-  ResolveError,
-  YamlParseError,
   RedoclyClient,
   formatProblems,
   OutputFormat,
 } from "@redocly/openapi-core";
 
 import {
-  CircularJSONNotSupportedError,
   getFallbackEntryPointsOrExit,
   getExecutionTime,
   getTotals,
   dumpBundle,
   saveBundle,
   promptUser,
+  pluralize,
+  printLintTotals,
+  handleError
 } from './utils';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
+import { handleMerge } from './commands/merge';
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
@@ -430,79 +431,6 @@ function getOutputFileName(
     outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
   }
   return { outputFile, ext };
-}
-
-export function handleError(e: Error, ref: string) {
-  if (e instanceof ResolveError) {
-    process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
-    );
-  } else if (e instanceof YamlParseError) {
-    process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
-    );
-    // TODO: codeframe
-  } else { // @ts-ignore
-    if (e instanceof CircularJSONNotSupportedError) {
-        process.stderr.write(
-          red(`Detected circular reference which can't be converted to JSON.\n`) +
-          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
-        );
-      } else {
-        process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
-        throw e;
-      }
-  }
-}
-
-export function printLintTotals(totals: Totals, definitionsCount: number) {
-  const ignored = totals.ignored
-    ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n\n`)
-    : '';
-
-  if (totals.errors > 0) {
-    process.stderr.write(
-      red(
-        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
-          totals.warnings > 0
-            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
-            : ''
-        }.\n${ignored}`,
-      ),
-    );
-  } else if (totals.warnings > 0) {
-    process.stderr.write(
-      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
-    );
-    process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`),
-    );
-  } else {
-    process.stderr.write(
-      green(
-        `Woohoo! Your OpenAPI ${pluralize(
-          'definition is',
-          definitionsCount,
-        )} valid. 🎉\n${ignored}`,
-      ),
-    );
-  }
-
-  if (totals.errors > 0) {
-    process.stderr.write(
-      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
-    );
-  }
-
-  process.stderr.write('\n');
-}
-
-function pluralize(label: string, num: number) {
-  if (label.endsWith('is')) {
-    [label] = label.split(' ');
-    return num === 1 ? `${label} is` : `${label}s are`;
-  }
-  return num === 1 ? `${label}` : `${label}s`;
 }
 
 function printUnusedWarnings(config: LintConfig) {

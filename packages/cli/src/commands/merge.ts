@@ -4,12 +4,24 @@ import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
-import { Config, loadConfig, validate } from '..';
-import { Oas2Definition } from '../typings/swagger';
-import { Oas3Definition, Oas3Tag } from '../typings/openapi';
-import { getFallbackEntryPointsOrExit, handleError, getTotals, printLintTotals } from '../cli';
-import { formatProblems } from '../format/format';
-import { printExecutionTime, readYaml, writeYaml } from '../utils';
+import {
+  Config,
+  loadConfig,
+  Oas3Tag,
+  Oas2Definition,
+  Oas3Definition,
+  formatProblems,
+  validate
+} from "@redocly/openapi-core";
+import {
+  getFallbackEntryPointsOrExit,
+  getTotals,
+  printExecutionTime,
+  handleError,
+  printLintTotals,
+  readYaml,
+  writeYaml
+} from '../utils';
 import { isObject, isString } from '../js-utils';
 
 type Definition = Oas3Definition | Oas2Definition;
