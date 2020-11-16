@@ -13,7 +13,9 @@ import {
   formatProblems,
   validateDocument,
   detectOpenAPI,
+  Oas3Tag,
 } from '@redocly/openapi-core';
+
 import {
   getFallbackEntryPointsOrExit,
   getTotals,
@@ -26,7 +28,16 @@ import { isObject, isString } from '../js-utils';
 
 const COMPONENTS = 'components';
 let potentialConflictsTotal = 0;
-import { Properties } from '../types';
+
+type MergeDocumentContext = {
+  entrypoint: string,
+  entrypointFilename: string,
+  tags: Oas3Tag[],
+  potentialConflicts: any,
+  tagsPrefix: string,
+  componentsPrefix: string | undefined
+}
+
 
 export async function handleMerge (argv: {
   entrypoints: string[],
@@ -35,7 +46,7 @@ export async function handleMerge (argv: {
   'prefix-tags-with-filename'?: boolean,
   'prefix-components-with-info-prop'?: string
 },
-  version: string
+packageVersion: string
 ) {
   const startedAt = performance.now();
   if (argv.entrypoints.length < 2) { return exitWithError(`At least 2 entrypoints should be provided. \n\n`); }
@@ -51,16 +62,16 @@ export async function handleMerge (argv: {
     try {
       const version = detectOpenAPI(document.parsed)
       if (version !== OasVersion.Version3_0) {
-        return exitWithError(`Only openapi 3 is supported: ${document.source.absoluteRef} \n\n`);
+        return exitWithError(`Only OpenAPI 3 is supported: ${blue(document.source.absoluteRef)} \n\n`);
       }
-    } catch (err) {
-      return exitWithError(err);
+    } catch (e) {
+      return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
     }
   }
 
   if (argv.lint) {
     for (const document of documents) {
-      await validateEndpoint(document, config.lint, externalRefResolver, version);
+      await validateEndpoint(document, config.lint, externalRefResolver, packageVersion);
     }
   }
 
@@ -119,7 +130,7 @@ export async function handleMerge (argv: {
     potentialConflicts,
     tagsPrefix,
     componentsPrefix
-  }: Properties) {
+  }: MergeDocumentContext) {
     const xTagGroups = 'x-tagGroups';
     const Tags = 'tags';
     if (!mergedDef.hasOwnProperty(Tags)) { mergedDef[Tags] = []; }
@@ -172,7 +183,7 @@ export async function handleMerge (argv: {
     {
       entrypointFilename,
       componentsPrefix
-    }: Properties
+    }: MergeDocumentContext
   ) {
     const { info } = openapi;
     if (info && info.description) {
@@ -189,7 +200,7 @@ export async function handleMerge (argv: {
     }
   }
 
-  function collectExternalDocs(openapi: Oas3Definition, { entrypoint }: Properties) {
+  function collectExternalDocs(openapi: Oas3Definition, { entrypoint }: MergeDocumentContext) {
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (mergedDef.hasOwnProperty('externalDocs')) {
@@ -208,7 +219,7 @@ export async function handleMerge (argv: {
       potentialConflicts,
       tagsPrefix,
       componentsPrefix
-    }: Properties
+    }: MergeDocumentContext
   ) {
     const { paths } = openapi;
     if (paths) {
@@ -251,7 +262,7 @@ export async function handleMerge (argv: {
       entrypoint,
       potentialConflicts,
       componentsPrefix
-    }: Properties
+    }: MergeDocumentContext
   ) {
     const { components } = openapi;
     if (components) {
@@ -282,7 +293,7 @@ export async function handleMerge (argv: {
       potentialConflicts,
       tagsPrefix,
       componentsPrefix
-    }: Properties
+    }: MergeDocumentContext
   ) {
     const xWebhooks = 'x-webhooks';
     // @ts-ignore
@@ -413,11 +424,11 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   return info[prefixArg];
 }
 
-async function validateEndpoint(document: Document, config: LintConfig, externalRefResolver: BaseResolver, version: string) {
+async function validateEndpoint(document: Document, config: LintConfig, externalRefResolver: BaseResolver, packageVersion: string) {
   try {
     const results = await validateDocument({ document, config, externalRefResolver });
     const fileTotals = getTotals(results);
-    formatProblems(results, { format: 'stylish', totals: fileTotals, version });
+    formatProblems(results, { format: 'stylish', totals: fileTotals, version: packageVersion });
     printLintTotals(fileTotals, 2);
   } catch (err) {
     handleError(err, document.parsed);
