@@ -5,9 +5,10 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { BundleOutputFormat, Config, NormalizedProblem } from "@redocly/openapi-core";
+import { BundleOutputFormat, Config, NormalizedProblem, ResolveError, YamlParseError } from '@redocly/openapi-core';
 import { dirname, resolve } from 'path';
 import { Totals } from './types';
+import { blue, gray, green, red, yellow } from 'colorette';
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   const { apiDefinitions } = config;
@@ -130,6 +131,79 @@ export function readYaml(filename: string) {
   return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
-export function writeYaml(data: any, filename: string) {
-  return fs.writeFileSync(filename, yaml.safeDump(data));
+export function writeYaml(data: any, filename: string, noRefs = false) {
+  return fs.writeFileSync(filename, yaml.safeDump(data, { noRefs }));
+}
+
+export function pluralize(label: string, num: number) {
+  if (label.endsWith('is')) {
+    [label] = label.split(' ');
+    return num === 1 ? `${label} is` : `${label}s are`;
+  }
+  return num === 1 ? `${label}` : `${label}s`;
+}
+
+export function handleError(e: Error, ref: string) {
+  if (e instanceof ResolveError) {
+    process.stderr.write(
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+    );
+  } else if (e instanceof YamlParseError) {
+    process.stderr.write(
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+    );
+    // TODO: codeframe
+  } else { // @ts-ignore
+    if (e instanceof CircularJSONNotSupportedError) {
+      process.stderr.write(
+        red(`Detected circular reference which can't be converted to JSON.\n`) +
+        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
+      );
+    } else {
+      process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
+      throw e;
+    }
+  }
+}
+
+export function printLintTotals(totals: Totals, definitionsCount: number) {
+  const ignored = totals.ignored
+    ? yellow(`${totals.ignored} ${pluralize('problem is', totals.ignored)} explicitly ignored.\n\n`)
+    : '';
+
+  if (totals.errors > 0) {
+    process.stderr.write(
+      red(
+        `❌ Validation failed with ${totals.errors} ${pluralize('error', totals.errors)}${
+          totals.warnings > 0
+            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
+            : ''
+        }.\n${ignored}`,
+      ),
+    );
+  } else if (totals.warnings > 0) {
+    process.stderr.write(
+      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`),
+    );
+    process.stderr.write(
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`),
+    );
+  } else {
+    process.stderr.write(
+      green(
+        `Woohoo! Your OpenAPI ${pluralize(
+          'definition is',
+          definitionsCount,
+        )} valid. 🎉\n${ignored}`,
+      ),
+    );
+  }
+
+  if (totals.errors > 0) {
+    process.stderr.write(
+      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
+    );
+  }
+
+  process.stderr.write('\n');
 }
