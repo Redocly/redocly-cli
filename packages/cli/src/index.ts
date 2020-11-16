@@ -30,7 +30,7 @@ import {
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
-import { handleMerge } from './commands/merge';
+import { handleJoin } from './commands/join';
 const version = require('../package.json').version;
 const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 
@@ -61,7 +61,7 @@ yargs
         }}),
     (argv) => { handleSplit(argv) }
   )
-  .command('merge [entrypoints...]', 'Merge definitions',
+  .command('join [entrypoints...]', 'Join definitions [experimental]',
     (yargs) => yargs
       .positional('entrypoints', {
         array: true,
@@ -86,7 +86,7 @@ yargs
           type: 'string',
         }
       }),
-    (argv) => { handleMerge(argv, version) }
+    (argv) => { handleJoin(argv, version) }
   )
   .command(
     'lint [entrypoints...]',
