@@ -143,7 +143,6 @@ packageVersion: string
     if (!joinedDef[xTagGroups][indexGroup].hasOwnProperty(Tags)) { joinedDef[xTagGroups][indexGroup][Tags] = []; }
     for (const tag of tags) {
       const entrypointTagName = addPrefix(tag.name, tagsPrefix);
-
       if (tag.description) {
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
@@ -242,9 +241,8 @@ packageVersion: string
             joinedDef.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
             populateTags({ entrypoint, entrypointFilename, tags: formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix });
           } else {
-            const otherTagName = tagsPrefix ? 'other' : entrypointFilename + '_other';
-            joinedDef.paths[path][operation]['tags'] = [addPrefix(otherTagName, tagsPrefix)];
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags([otherTagName]), potentialConflicts, tagsPrefix, componentsPrefix });
+            joinedDef.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix || entrypointFilename)];
+            populateTags({ entrypoint, entrypointFilename, tags: formatTags(['other']), potentialConflicts, tagsPrefix: tagsPrefix || entrypointFilename, componentsPrefix });
           }
           if (!security && openapi.hasOwnProperty('security')) {
             joinedDef.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix!);
@@ -386,7 +384,7 @@ function showConflicts(key: string, conflicts: any) {
 }
 
 function filterConflicts(entities: object) {
-  return Object.entries(entities).filter(([key, files]) => key !== 'other' && files.length > 1);
+  return Object.entries(entities).filter(([_, files]) => files.length > 1);
 }
 
 function getEntrypointFilename(filePath: string) {
