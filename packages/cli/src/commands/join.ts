@@ -9,11 +9,11 @@ import {
   BaseResolver,
   Document,
   LintConfig,
+  Oas3Tag,
   loadConfig,
   formatProblems,
   validateDocument,
-  detectOpenAPI,
-  Oas3Tag,
+  detectOpenAPI
 } from '@redocly/openapi-core';
 
 import {
@@ -37,7 +37,6 @@ type JoinDocumentContext = {
   tagsPrefix: string,
   componentsPrefix: string | undefined
 }
-
 
 export async function handleJoin (argv: {
   entrypoints: string[],

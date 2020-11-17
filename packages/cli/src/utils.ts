@@ -1,3 +1,5 @@
+import { basename, dirname, extname, join, resolve } from 'path';
+import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from "perf_hooks";
 import * as colors from 'colorette';
 import * as glob from 'glob-promise';
@@ -5,10 +7,15 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { BundleOutputFormat, Config, NormalizedProblem, ResolveError, YamlParseError } from '@redocly/openapi-core';
-import { dirname, resolve } from 'path';
-import { Totals } from './types';
-import { blue, gray, green, red, yellow } from 'colorette';
+import {
+  BundleOutputFormat,
+  Config,
+  LintConfig,
+  NormalizedProblem,
+  ResolveError,
+  YamlParseError,
+} from '@redocly/openapi-core';
+import { Totals, outputExtensions } from './types';
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   const { apiDefinitions } = config;
@@ -206,4 +213,67 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   }
 
   process.stderr.write('\n');
+}
+
+export function getOutputFileName(
+  entrypoint: string,
+  entries: number,
+  output?: string,
+  ext?: BundleOutputFormat,
+) {
+  if (!output) {
+    return { outputFile: 'stdout', ext: ext || 'yaml' };
+  }
+
+  let outputFile = output;
+  if (entries > 1) {
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext as any)) {
+      throw new Error(`Invalid file extension: ${ext}.`);
+    }
+    outputFile = join(output, basename(entrypoint, extname(entrypoint))) + '.' + ext;
+  } else {
+    if (output) {
+      ext = ext || (extname(output).substring(1) as BundleOutputFormat);
+    }
+    ext = ext || (extname(entrypoint).substring(1) as BundleOutputFormat);
+    if (!outputExtensions.includes(ext as any)) {
+      throw new Error(`Invalid file extension: ${ext}.`);
+    }
+    outputFile = join(dirname(outputFile), basename(outputFile, extname(outputFile))) + '.' + ext;
+  }
+  return { outputFile, ext };
+}
+
+export function printUnusedWarnings(config: LintConfig) {
+  const { preprocessors, rules, decorators } = config.getUnusedRules();
+  if (rules.length) {
+    process.stderr.write(
+      yellow(
+        `[WARNING] Unused rules found in ${blue(config.configFile || '')}: ${rules.join(', ')}.\n`,
+      ),
+    );
+  }
+  if (preprocessors.length) {
+    process.stderr.write(
+      yellow(
+        `[WARNING] Unused preprocessors found in ${blue(
+          config.configFile || '',
+        )}: ${preprocessors.join(', ')}.\n`,
+      ),
+    );
+  }
+  if (decorators.length) {
+    process.stderr.write(
+      yellow(
+        `[WARNING] Unused decorators found in ${blue(config.configFile || '')}: ${decorators.join(
+          ', ',
+        )}.\n`,
+      ),
+    );
+  }
+
+  if (rules.length || preprocessors.length) {
+    process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
+  }
 }
