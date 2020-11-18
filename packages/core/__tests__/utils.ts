@@ -4,7 +4,7 @@ import * as path from 'path';
 import { Document, Source } from '../src/resolve';
 import { NormalizedProblem } from '../src/walk';
 import { RuleConfig, LintConfig, Plugin } from '../src/config/config';
-import { Oas3RuleSet } from '../src/validate';
+import { Oas3RuleSet } from '../src/lint';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {

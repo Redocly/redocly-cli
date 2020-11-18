@@ -1,6 +1,5 @@
 import { outdent } from 'outdent';
-
-import { validateDocument } from '../../../validate';
+import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { LintConfig } from '../../../config/config';
 import { BaseResolver } from '../../../resolve';
@@ -16,7 +15,7 @@ describe('Oas3 info-description', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -57,7 +56,7 @@ describe('Oas3 info-description', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -97,7 +96,7 @@ describe('Oas3 info-description', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({

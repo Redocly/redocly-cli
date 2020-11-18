@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { validateDoc } from './utils';
+import { lintDoc } from './utils';
 
 describe('OpenAPI Schema 2.0', () => {
   it('should report if the title of the API is empty ', async () => {
@@ -18,7 +18,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -48,7 +48,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -78,7 +78,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -112,7 +112,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -138,7 +138,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -171,7 +171,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -203,7 +203,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -227,7 +227,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -259,7 +259,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -290,7 +290,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -311,7 +311,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -340,7 +340,7 @@ describe('OpenAPI Schema 2.0', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`

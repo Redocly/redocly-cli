@@ -15,10 +15,10 @@ import {
   Oas2RuleSet,
   Oas2PreprocessorsSet,
   Oas2DecoratorsSet,
-} from '../validate';
+} from '../lint';
 
 import { ProblemSeverity, NormalizedProblem } from '../walk';
-import { Oas3RuleSet } from '../validate';
+import { Oas3RuleSet } from '../lint';
 
 import recommended from './recommended';
 import { NodeType } from '../types';

@@ -1,5 +1,5 @@
 import { normalizeVisitors, VisitorLevelContext } from '../src/visitors';
-import { Oas3RuleSet } from '../src/validate';
+import { Oas3RuleSet } from '../src/lint';
 import { Oas3Types } from '../src/types/oas3';
 import { normalizeTypes } from '../src/types';
 

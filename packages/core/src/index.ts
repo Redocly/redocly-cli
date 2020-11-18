@@ -11,11 +11,10 @@ export { loadConfig, Config, LintConfig } from './config/config';
 export { RedoclyClient } from './redocly';
 export { BaseResolver, Document, resolveDocument, ResolveError, YamlParseError } from './resolve';
 export { unescapePointer } from './ref-utils';
-export { detectOpenAPI, OasMajorVersion, openAPIMajor } from './validate';
+export { detectOpenAPI, OasMajorVersion, openAPIMajor } from './lint';
 export { normalizeVisitors } from './visitors';
 export { WalkContext, walkDocument, NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject, Loc } from './walk';
 
 export { formatProblems, OutputFormat } from './format/format';
-
-export { OasVersion, validate, validateDocument } from './validate';
+export { OasVersion, lint, lintDocument } from './lint';
 export { bundle } from './bundle';

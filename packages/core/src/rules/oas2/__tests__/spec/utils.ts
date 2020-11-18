@@ -1,15 +1,15 @@
 import { LintConfig, RuleConfig } from '../../../../config/config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
-import { validateDocument } from '../../../../validate';
+import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
 
-export async function validateDoc(
+export async function lintDoc(
   source: string,
   rules: Record<string, RuleConfig> = { spec: 'error' },
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
-  const results = await validateDocument({
+  const results = await lintDocument({
     externalRefResolver: new BaseResolver(),
     document,
     config: new LintConfig({

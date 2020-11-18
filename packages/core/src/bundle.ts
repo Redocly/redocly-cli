@@ -5,7 +5,7 @@ import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext } from './walk';
-import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './validate';
+import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './lint';
 import { Location, refBaseName } from './ref-utils';
 import { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';

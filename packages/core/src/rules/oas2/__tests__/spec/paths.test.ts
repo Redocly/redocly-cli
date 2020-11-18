@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { validateDoc } from './utils';
+import { lintDoc } from './utils';
 
 describe('OpenAPI Schema', () => {
   it('should not report if Path object is valid ', async () => {
@@ -18,7 +18,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -35,7 +35,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -50,7 +50,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -74,7 +74,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -97,7 +97,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`
@@ -131,7 +131,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         'paths-identical': 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -158,7 +158,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -185,7 +185,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -203,7 +203,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);
@@ -237,7 +237,7 @@ describe('OpenAPI Schema', () => {
     `;
 
     expect(
-      await validateDoc(source, {
+      await lintDoc(source, {
         spec: 'error',
       }),
     ).toMatchInlineSnapshot(`Array []`);

@@ -10,7 +10,7 @@ import {
 
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
-import { OasVersion } from './validate';
+import { OasVersion } from './lint';
 import { NormalizedNodeType, isNamedType } from './types';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;

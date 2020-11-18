@@ -1,8 +1,6 @@
 import { outdent } from 'outdent';
-
 import { LintConfig } from '../../../config/config';
-
-import { validateDocument } from '../../../validate';
+import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
@@ -23,7 +21,7 @@ describe('Common path-http-verbs-order', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-http-verbs-order': 'error' } }),
@@ -87,7 +85,7 @@ describe('Common path-http-verbs-order', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'path-http-verbs-order': 'error' } }),

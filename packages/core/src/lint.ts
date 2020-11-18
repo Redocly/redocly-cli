@@ -33,14 +33,14 @@ export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
 
-export async function validate(opts: {
+export async function lint(opts: {
   ref: string;
   config: Config;
   externalRefResolver?: BaseResolver;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
-  return validateDocument({
+  return lintDocument({
     document,
     ...opts,
     externalRefResolver,
@@ -48,7 +48,7 @@ export async function validate(opts: {
   });
 }
 
-export async function validateDocument(opts: {
+export async function lintDocument(opts: {
   document: Document;
   config: LintConfig;
   customTypes?: Record<string, NodeType>;

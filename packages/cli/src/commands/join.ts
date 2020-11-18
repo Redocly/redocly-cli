@@ -12,8 +12,8 @@ import {
   Oas3Tag,
   loadConfig,
   formatProblems,
-  validateDocument,
-  detectOpenAPI
+  lintDocument,
+  detectOpenAPI,
 } from '@redocly/openapi-core';
 
 import {
@@ -423,7 +423,7 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
 
 async function validateEntrypoint(document: Document, config: LintConfig, externalRefResolver: BaseResolver, packageVersion: string) {
   try {
-    const results = await validateDocument({ document, config, externalRefResolver });
+    const results = await lintDocument({ document, config, externalRefResolver });
     const fileTotals = getTotals(results);
     formatProblems(results, { format: 'stylish', totals: fileTotals, version: packageVersion });
     printLintTotals(fileTotals, 2);

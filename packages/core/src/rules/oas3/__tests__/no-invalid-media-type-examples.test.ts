@@ -1,8 +1,6 @@
 import { outdent } from 'outdent';
-
 import { LintConfig } from '../../../config/config';
-
-import { validateDocument } from '../../../validate';
+import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
@@ -33,7 +31,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
@@ -106,7 +104,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -169,7 +167,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -222,7 +220,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({
@@ -278,7 +276,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
@@ -310,7 +308,7 @@ describe('no-invalid-media-type-examples', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
