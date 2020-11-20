@@ -45,7 +45,7 @@ describe('bundle', () => {
     const origCopy = JSON.parse(JSON.stringify(document.parsed));
 
     expect(problems).toHaveLength(0);
-    expect(bundle).toEqual(origCopy);
+    expect(bundle.parsed).toEqual(origCopy);
   });
 
   it('should bundle external refs', async () => {
@@ -54,7 +54,7 @@ describe('bundle', () => {
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs.yaml'),
     });
     expect(problems).toHaveLength(0);
-    expect(res).toMatchSnapshot();
+    expect(res.parsed).toMatchSnapshot();
   });
 
   it('should bundle external refs and warn for conflicting names', async () => {
@@ -66,6 +66,6 @@ describe('bundle', () => {
     expect(problems[0].message).toEqual(
       `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`,
     );
-    expect(res).toMatchSnapshot();
+    expect(res.parsed).toMatchSnapshot();
   });
 });

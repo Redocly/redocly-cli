@@ -94,7 +94,7 @@ export async function bundleDocument(opts: {
   });
 
   return {
-    bundle: document.parsed,
+    bundle: document,
     problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
   };

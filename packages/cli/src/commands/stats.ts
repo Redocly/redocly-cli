@@ -10,7 +10,6 @@ import {
   StatsAccumulator,
   StatsName,
   BaseResolver,
-  Document,
   resolveDocument,
   detectOpenAPI,
   OasMajorVersion,
@@ -18,8 +17,9 @@ import {
   normalizeVisitors,
   WalkContext,
   walkDocument,
-  Stats
-} from "@redocly/openapi-core";
+  Stats,
+  bundle
+} from '@redocly/openapi-core';
 
 import { getFallbackEntryPointsOrExit } from '../utils'
 import { printExecutionTime } from '../utils';
@@ -70,7 +70,8 @@ export async function handleStats (argv: {
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
   const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
-  const document = (await externalRefResolver.resolveDocument(null, entrypoint)) as Document;
+  const { bundle: document } = await bundle({ config, ref: entrypoint });
+
   const lintConfig: LintConfig = config.lint;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);

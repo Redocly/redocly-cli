@@ -30,10 +30,9 @@ version: string
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);
-
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
-
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
+
   for (const entrypoint of entrypoints) {
     try {
       const startedAt = performance.now();
@@ -45,7 +44,6 @@ version: string
       });
 
       const fileTotals = getTotals(problems);
-
       const { outputFile, ext } = getOutputFileName(
         entrypoint,
         entrypoints.length,
@@ -55,10 +53,10 @@ version: string
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!argv.output) {
-          const output = dumpBundle(result, argv.ext || 'yaml', argv.dereferenced);
+          const output = dumpBundle(result.parsed, argv.ext || 'yaml', argv.dereferenced);
           process.stdout.write(output);
         } else {
-          const output = dumpBundle(result, ext, argv.dereferenced);
+          const output = dumpBundle(result.parsed, ext, argv.dereferenced);
           saveBundle(outputFile, output);
         }
       }

@@ -55,7 +55,7 @@ export async function previewDocs(argv: {
         );
       }
 
-      return openapiBundle;
+      return openapiBundle.parsed;
     } catch (e) {
       handleError(e, entrypoint);
     }
