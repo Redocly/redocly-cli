@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join as pathJoin, resolve as pathResolve } from 'path';
-import { validateDocument } from '../../validate';
+import { lintDocument } from '../../lint';
 import { LintConfig } from '../../config/config';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument } from '../utils';
@@ -14,7 +14,7 @@ const rebillyDocument = parseYamlToDocument(
 );
 
 export function measureAsync() {
-  return validateDocument({
+  return lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config: new LintConfig({}),

@@ -1,7 +1,7 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { validateDocument, Oas3RuleSet } from '../src/validate';
+import { lintDocument, Oas3RuleSet } from '../src/lint';
 
 import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from './utils';
 import { BaseResolver, Document } from '../src/resolve';
@@ -44,7 +44,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -111,7 +111,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -196,7 +196,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -268,7 +268,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -340,7 +340,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -407,7 +407,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -461,7 +461,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -517,7 +517,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -559,7 +559,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -614,7 +614,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -700,7 +700,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -779,7 +779,7 @@ describe('walk order', () => {
       'foobar.yaml',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -851,7 +851,7 @@ describe('walk order', () => {
       'foobar.yaml',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -895,7 +895,7 @@ describe('walk order', () => {
       'foobar.yaml',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -960,7 +960,7 @@ describe('walk order', () => {
       '',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -1048,7 +1048,7 @@ describe('context.report', () => {
       'foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -1128,7 +1128,7 @@ describe('context.report', () => {
       throw 'Should never happen';
     }
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -1236,7 +1236,7 @@ describe('context.resolve', () => {
       'foobar.yaml',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet),
@@ -1282,7 +1282,7 @@ describe('type extensions', () => {
       'foobar.yaml',
     );
 
-    await validateDocument({
+    await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: makeConfigForRuleset(testRuleSet, {

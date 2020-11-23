@@ -1,8 +1,7 @@
 import outdent from 'outdent';
-
 import { parseYamlToDocument } from './utils';
 import { parseRef } from '../src/ref-utils';
-import { validateDocument } from '../src/validate';
+import { lintDocument } from '../src/lint';
 import { LintConfig } from '../src/config/config';
 import { BaseResolver } from '../src/resolve';
 
@@ -88,7 +87,7 @@ describe('ref-utils', () => {
       '',
     );
 
-    const result = await validateDocument({
+    const result = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
       config: new LintConfig({}),

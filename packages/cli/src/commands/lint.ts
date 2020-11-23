@@ -1,4 +1,4 @@
-import { Config, formatProblems, loadConfig, OutputFormat, validate } from '@redocly/openapi-core';
+import { Config, formatProblems, lint, loadConfig, OutputFormat } from '@redocly/openapi-core';
 import {
   getExecutionTime,
   getFallbackEntryPointsOrExit,
@@ -44,7 +44,7 @@ export async function handleLint (argv: {
     try {
       const startedAt = performance.now();
       process.stderr.write(gray(`validating ${entryPoint}...\n`));
-      const results = await validate({
+      const results = await lint({
         ref: entryPoint,
         config,
       });
@@ -87,5 +87,4 @@ export async function handleLint (argv: {
 
   printUnusedWarnings(config.lint);
   process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1);
-
 }

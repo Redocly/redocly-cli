@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join as pathJoin, resolve as pathResolve } from 'path';
-import { validateDocument } from '../../validate';
+import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, makeConfigForRuleset } from '../utils';
 export const name = 'Validate with single top-level rule';
@@ -24,7 +24,7 @@ const config = makeConfigForRuleset({
 });
 
 export function measureAsync() {
-  return validateDocument({
+  return lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

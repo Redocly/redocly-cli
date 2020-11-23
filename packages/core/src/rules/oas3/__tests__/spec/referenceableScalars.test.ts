@@ -1,8 +1,6 @@
 import { outdent } from 'outdent';
-
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
-
-import { validateDocument } from '../../../../validate';
+import { lintDocument } from '../../../../lint';
 import { LintConfig } from '../../../..';
 import { BaseResolver } from '../../../../resolve';
 
@@ -21,7 +19,7 @@ describe('Referenceable scalars', () => {
       __dirname + '/foobar.yaml',
     );
 
-    const results = await validateDocument({
+    const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
       config: new LintConfig({

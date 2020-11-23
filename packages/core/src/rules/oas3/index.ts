@@ -1,4 +1,4 @@
-import { Oas3RuleSet } from '../../validate';
+import { Oas3RuleSet } from '../../lint';
 
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
