@@ -16,5 +16,5 @@ export { normalizeVisitors } from './visitors';
 export { WalkContext, walkDocument, NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject, Loc } from './walk';
 
 export { formatProblems, OutputFormat } from './format/format';
-export { OasVersion, lint, lintDocument } from './lint';
+export { OasVersion, lint, lint as validate, lintDocument } from './lint';
 export { bundle } from './bundle';
