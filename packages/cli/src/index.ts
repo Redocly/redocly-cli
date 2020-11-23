@@ -1,32 +1,10 @@
 #!/usr/bin/env node
 
 import * as yargs from 'yargs';
-import { extname, basename, dirname, join } from 'path';
-import { green, yellow, blue, gray } from 'colorette';
-import { performance } from 'perf_hooks';
-import { Totals } from './types';
-import {
-  BundleOutputFormat,
-  lint,
-  bundle,
-  loadConfig,
-  LintConfig,
-  RedoclyClient,
-  formatProblems,
-  OutputFormat,
-} from "@redocly/openapi-core";
-
-import {
-  getFallbackEntryPointsOrExit,
-  getExecutionTime,
-  getTotals,
-  dumpBundle,
-  saveBundle,
-  promptUser,
-  pluralize,
-  printLintTotals,
-  handleError
-} from './utils';
+import { green, blue } from 'colorette';
+import { outputExtensions } from './types';
+import { RedoclyClient, OutputFormat } from "@redocly/openapi-core";
+import { promptUser } from './utils';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
