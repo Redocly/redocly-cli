@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-cli",
-  "version": "1.0.0-beta.22",
+  "version": "1.0.0-beta.23",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -34,7 +34,7 @@
     "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "^1.0.0-beta.22",
+    "@redocly/openapi-core": "^1.0.0-beta.23",
     "@types/node": "^14.11.8",
     "yargs": "^15.3.1",
     "colorette": "^1.2.0",
