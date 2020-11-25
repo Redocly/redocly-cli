@@ -71,7 +71,6 @@ export async function handleStats (argv: {
   const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: entrypoint });
-
   const lintConfig: LintConfig = config.lint;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
