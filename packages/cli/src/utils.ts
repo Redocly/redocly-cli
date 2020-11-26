@@ -1,7 +1,6 @@
 import { basename, dirname, extname, join, resolve } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from "perf_hooks";
-import * as colors from 'colorette';
 import * as glob from 'glob-promise';
 import * as yaml from 'js-yaml';
 import * as fs from 'fs';
@@ -79,7 +78,7 @@ export function getExecutionTime(startedAt: number) {
 
 export function printExecutionTime(commandName: string, startedAt: number, entrypoint: string) {
   const elapsed = getExecutionTime(startedAt);
-  process.stderr.write(colors.gray(`\n${entrypoint}: ${commandName} processed in ${elapsed}\n\n`));
+  process.stderr.write(gray(`\n${entrypoint}: ${commandName} processed in ${elapsed}\n\n`));
 }
 
 export function pathToFilename(path: string) {
@@ -279,6 +278,14 @@ export function printUnusedWarnings(config: LintConfig) {
 }
 
 export function exitWithError(message: string) {
-  process.stderr.write(red(message));
+  process.stderr.write(red(message)+ '\n\n');
   process.exit(1);
+}
+
+export function assertNodeVersion() {
+  try {
+    require('assert-node-version')()
+  } catch (err) {
+    exitWithError(err.message)
+  }
 }

@@ -36,18 +36,19 @@
   "dependencies": {
     "@redocly/openapi-core": "^1.0.0-beta.23",
     "@types/node": "^14.11.8",
-    "yargs": "^15.3.1",
-    "colorette": "^1.2.0",
     "chokidar": "^3.4.0",
+    "colorette": "^1.2.0",
+    "glob": "^7.1.6",
+    "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
     "portfinder": "^1.0.26",
     "readline": "^1.3.0",
     "simple-websocket": "^9.0.0",
-    "glob": "^7.1.6",
-    "glob-promise": "^3.4.0"
+    "yargs": "^15.3.1"
   },
   "devDependencies": {
     "@types/yargs": "^15.0.5",
+    "assert-node-version": "^1.0.3",
     "typescript": "^4.0.3"
   }
 }
