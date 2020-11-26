@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
-import { printExecutionTime, pathToFilename, readYaml, writeYaml } from '../../utils';
+import { printExecutionTime, pathToFilename, readYaml, writeYaml, exitWithError } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
   Definition,
@@ -67,11 +67,6 @@ function isStartsWithComponents(node: string) {
 
 function isNotYaml(filename: string) {
   return !(filename.endsWith('.yaml') || filename.endsWith('.yml'));
-}
-
-function exitWithError(message: string) {
-  process.stderr.write(red(message));
-  process.exit(1);
 }
 
 function loadFile(fileName: string) {

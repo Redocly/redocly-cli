@@ -22,7 +22,8 @@ import {
   printExecutionTime,
   handleError,
   printLintTotals,
-  writeYaml
+  writeYaml,
+  exitWithError
 } from '../utils';
 import { isObject, isString } from '../js-utils';
 
@@ -430,11 +431,6 @@ async function validateEntrypoint(document: Document, config: LintConfig, extern
   } catch (err) {
     handleError(err, document.parsed);
   }
-}
-
-function exitWithError(message: string) {
-  process.stderr.write(red(message));
-  process.exit(1);
 }
 
 function crawl(object: any, visitor: any) {

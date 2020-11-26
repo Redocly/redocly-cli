@@ -277,3 +277,8 @@ export function printUnusedWarnings(config: LintConfig) {
     process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
   }
 }
+
+export function exitWithError(message: string) {
+  process.stderr.write(red(message));
+  process.exit(1);
+}
