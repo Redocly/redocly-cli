@@ -281,11 +281,3 @@ export function exitWithError(message: string) {
   process.stderr.write(red(message)+ '\n\n');
   process.exit(1);
 }
-
-export function assertNodeVersion() {
-  try {
-    require('assert-node-version')()
-  } catch (err) {
-    exitWithError(err.message)
-  }
-}

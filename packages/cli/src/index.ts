@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
-import { promptUser, assertNodeVersion } from './utils';
-assertNodeVersion();
+import './assert-node-version';
+
 import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
+import { promptUser } from './utils';
 import { outputExtensions } from './types';
 import { RedoclyClient, OutputFormat } from "@redocly/openapi-core";
 import { previewDocs } from './commands/preview-docs';
