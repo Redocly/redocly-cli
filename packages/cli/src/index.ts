@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+import './assert-node-version';
+
 import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
+import { promptUser } from './utils';
 import { outputExtensions } from './types';
 import { RedoclyClient, OutputFormat } from "@redocly/openapi-core";
-import { promptUser } from './utils';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -12,6 +14,7 @@ import { handleJoin } from './commands/join';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 const version = require('../package.json').version;
+
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
