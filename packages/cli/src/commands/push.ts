@@ -1,4 +1,4 @@
-import { RedoclyClient } from '../redocly';
+import { RedoclyClient } from '@redocly/openapi-core';
 import { promptUser } from '../utils';
 import { blue, green } from 'colorette';
 import * as fs from 'fs';
@@ -11,11 +11,11 @@ export async function handlePush (argv: {
     'api-version': string;
 }) {
     const clientToken = await promptUser(
-        green(
-            `\n  🔑 Copy your access token from ${blue(
-                `https://app.redoc.online/profile`,
-            )} and paste it below`,
-        ),
+      green(
+        `\n  🔑 Copy your access token from ${blue(
+            `https://app.redoc.online/profile`,
+        )} and paste it below`,
+      ),
     );
     const client = new RedoclyClient();
     await client.login(clientToken);
@@ -24,16 +24,14 @@ export async function handlePush (argv: {
     await uploadFileToS3(signedUrl, entrypoint!);
 
     const { version } = await getDefinitionId(client,
-        argv['organization-id'],
-        argv['api-name'],
-        argv['api-version']
+      argv['organization-id'],
+      argv['api-name'],
+      argv['api-version']
     );
     const { definitionId, id } = version;
-
-
     const updatePatch = {
-        "sourceType": "FILE",
-        "source": JSON.stringify({ files:['spec.yaml'], root: 'spec.yaml', branchName: "test"})
+      "sourceType": "FILE",
+      "source": JSON.stringify({ files:['spec.yaml'], root: 'spec.yaml', branchName: "test"})
     }
 
     // @ts-ignore
@@ -49,10 +47,10 @@ function getDefinitionId(client: any, orgId: string, definitionName: string, ver
       }
     }
   `, {
-        orgId,
-        definitionName,
-        versionName
-    })
+    orgId,
+    definitionName,
+    versionName
+  })
 }
 
 function getSignedUrl() {
@@ -65,13 +63,13 @@ function getSignedUrl() {
 }
 
 function uploadFileToS3(url: string, entrypoint: string) {
-    const stats = fs.statSync(entrypoint!);
-    const fileSizeInBytes = stats.size;
-    let readStream = fs.createReadStream(entrypoint!);
-    return fetch(url, {
-        method: 'PUT',
-        //@ts-ignore
-        headers: { "Content-length": fileSizeInBytes },
-        body: readStream
-    })
+  const stats = fs.statSync(entrypoint!);
+  const fileSizeInBytes = stats.size;
+  let readStream = fs.createReadStream(entrypoint!);
+  return fetch(url, {
+    method: 'PUT',
+    //@ts-ignore
+    headers: { "Content-length": fileSizeInBytes },
+    body: readStream
+  })
 }
