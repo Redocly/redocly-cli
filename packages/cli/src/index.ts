@@ -71,13 +71,14 @@ yargs
       }),
     (argv) => { handleJoin(argv, version) }
   )
-  .command('push [entrypoint]', 'Push a API definition to the Redocly API Registry',
+  .command('push <entrypoint> <destination> [branchName]', 'Push a API definition to the Redocly API Registry',
     (yargs) => yargs
     .positional('entrypoint', { type: 'string' })
+    .positional('destination', { type: 'string' })
+    .positional('branchName', { type: 'string' })
     .option({
-      'organization-id': { required: true, type: 'string' },
-      'api-name': { required: true, type: 'string' },
-      'api-version': { required: true, type: 'string' }
+      'upsert': { type: 'boolean', alias: 'u' },
+      'run-id': { type: 'string', requiresArg: true }
     }),
     (argv) => { handlePush(argv) }
   )
