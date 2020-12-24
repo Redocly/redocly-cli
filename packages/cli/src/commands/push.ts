@@ -18,30 +18,115 @@ export async function handlePush (argv: {
   );
   const client = new RedoclyClient();
   await client.login(clientToken);
-  const { entrypoint, destination, branchName } = argv;
+  const { entrypoint, destination, branchName, upsert } = argv;
 
   if (!validateDestination(destination!)) {
     exitWithError(`Destination argument value is not valid, please use the right format: ${yellow('<@organization-id/api-name@api-version>')}`);
   }
 
   const [ organizationId, apiName, apiVersion ] = getDestinationProps(destination!);
-  const filesPaths = collectFilePaths(entrypoint!);
-  const filesHash = createHashFromFiles(filesPaths);
-  const fileName = getFilename(entrypoint!);
-  const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
-  const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
-  await uploadFileToS3(signedFileUrl, entrypoint!);
-  const { version } = await getDefinitionId(organizationId, apiName, apiVersion);
-  const { definitionId, id } = version;
-  const updatePatch = {
-    "sourceType": "FILE",
-    "source": JSON.stringify({
-      files: [uploadedFilePath],
-      root: uploadedFilePath,
-      branchName
+  const { version } = await getDefinitionVersion(organizationId, apiName, apiVersion);
+
+  if (upsert && !version) {
+    const { organizationById } = await getOrganizationId(organizationId);
+    if (!organizationById) { exitWithError('Organization not found'); }
+    const { definitionByOrganizationIdAndName } = await getDefinitionByName(apiName, organizationId);
+
+    let definitionId;
+    if (!definitionByOrganizationIdAndName) {
+      const { def } = await createDefinition(organizationId, apiName);
+      definitionId = def.definition.id;
+    } else {
+      definitionId = definitionByOrganizationIdAndName.id;
+    }
+    const updatePatch = await processFiles();
+    await createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source, '');
+  } else {
+    if (!version) {
+      exitWithError(`
+      Definition is not exist!
+      Suggestion: please use ${blue('-u')} or ${blue('--upsert')} to create definition.
+      `);
+    }
+    const { definitionId, id } = version;
+    const updatePatch = await processFiles();
+    await client.updateDefinitionVersion(definitionId, id, updatePatch);
+  }
+
+  function getOrganizationId(organizationId: string) {
+    return client.query(`
+      query ($organizationId: String!) {
+        organizationById(id: $organizationId) {
+          id
+        }
+      }
+    `, {
+      organizationId
+    });
+  }
+
+  function getDefinitionByName(name: string, organizationId: string) {
+    return client.query(`
+      query ($name: String!, $organizationId: String!) {
+        definitionByOrganizationIdAndName(name: $name, organizationId: $organizationId) {
+          id
+        }
+      }
+    `, {
+      name,
+      organizationId
+    });
+  }
+
+  function createDefinition(organizationId: string, name: string) {
+    return client.query(`
+      mutation CreateDefinition($organizationId: String!, $name: String!) {
+        def: createDefinition(input: {organizationId: $organizationId, name: $name }) {
+          definition {
+            id
+            nodeId
+            name
+          }
+        }
+      }
+    `, {
+      organizationId,
+      name
     })
   }
-  await client.updateDefinitionVersion(definitionId, id, updatePatch);
+
+  function createDefinitionVersion(definitionId: string, name: string, sourceType: string, source: any, description: string) {
+    return client.query(`
+      mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON, $description: String!) {
+        createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source, description: $description}) {
+          definitionVersion {
+            ...VersionDetails
+            __typename
+          }
+          __typename
+        }
+      }
+
+      fragment VersionDetails on DefinitionVersion {
+        id
+        nodeId
+        uuid
+        definitionId
+        name
+        description
+        sourceType
+        source
+        registryAccess
+        __typename
+      }
+    `, {
+      definitionId,
+      name,
+      sourceType,
+      source,
+      description
+    });
+  }
 
   function getSignedUrl(organizationId: string, filesHash: string, fileName: string) {
     return client.query(`
@@ -58,19 +143,36 @@ export async function handlePush (argv: {
     })
   }
 
-  function getDefinitionId(organizationId: string, definitionName: string, versionName: string) {
+  function getDefinitionVersion(organizationId: string, definitionName: string, versionName: string) {
     return client.query(`
-    query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
-      version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
-        id
-        definitionId
+      query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
+        version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
+          id
+          definitionId
+        }
       }
-    }
-  `, {
+    `, {
       organizationId,
       definitionName,
       versionName
-    })
+    });
+  }
+
+  async function processFiles() {
+    const filesPaths = collectFilePaths(entrypoint!);
+    const filesHash = createHashFromFiles(filesPaths);
+    const fileName = getFilename(entrypoint!);
+    const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
+    const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
+    await uploadFileToS3(signedFileUrl, entrypoint!);
+    return {
+      sourceType: "FILE",
+      source: JSON.stringify({
+        files: [uploadedFilePath],
+        root: uploadedFilePath,
+        branchName
+      })
+    }
   }
 }
 
