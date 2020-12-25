@@ -27,7 +27,18 @@ export async function handlePush (argv: {
   const [ organizationId, apiName, apiVersion ] = getDestinationProps(destination!);
   const { version } = await getDefinitionVersion(organizationId, apiName, apiVersion);
 
-  if (upsert && !version) {
+  if (!version && !upsert) {
+    exitWithError(`
+      Definition is not exist!
+      ${yellow('Suggestion:')} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
+    `);
+  }
+
+  if (version) {
+    const { definitionId, id } = version;
+    const updatePatch = await processFiles();
+    await client.updateDefinitionVersion(definitionId, id, updatePatch);
+  } else if (upsert) {
     const { organizationById } = await getOrganizationId(organizationId);
     if (!organizationById) { exitWithError('Organization not found'); }
     const { definitionByOrganizationIdAndName } = await getDefinitionByName(apiName, organizationId);
@@ -41,16 +52,6 @@ export async function handlePush (argv: {
     }
     const updatePatch = await processFiles();
     await createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source, '');
-  } else {
-    if (!version) {
-      exitWithError(`
-      Definition is not exist!
-      Suggestion: please use ${blue('-u')} or ${blue('--upsert')} to create definition.
-      `);
-    }
-    const { definitionId, id } = version;
-    const updatePatch = await processFiles();
-    await client.updateDefinitionVersion(definitionId, id, updatePatch);
   }
 
   function getOrganizationId(organizationId: string) {
@@ -100,24 +101,9 @@ export async function handlePush (argv: {
       mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON, $description: String!) {
         createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source, description: $description}) {
           definitionVersion {
-            ...VersionDetails
-            __typename
+            id
           }
-          __typename
         }
-      }
-
-      fragment VersionDetails on DefinitionVersion {
-        id
-        nodeId
-        uuid
-        definitionId
-        name
-        description
-        sourceType
-        source
-        registryAccess
-        __typename
       }
     `, {
       definitionId,
