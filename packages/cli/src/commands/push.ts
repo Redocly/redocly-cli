@@ -3,8 +3,14 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-import { RedoclyClient } from '@redocly/openapi-core';
+import { Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
 import { promptUser, exitWithError } from '../utils';
+
+type Source = {
+  files: string[];
+  branchName?: string;
+  root?: string;
+}
 
 export async function handlePush (argv: {
   entrypoint?: string;
@@ -145,29 +151,86 @@ export async function handlePush (argv: {
   }
 
   async function processFiles() {
-    const filesPaths = collectFilePaths(entrypoint!);
-    const filesHash = createHashFromFiles(filesPaths);
-    const fileName = getFilename(entrypoint!);
-    const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
-    const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
-    await uploadFileToS3(signedFileUrl, entrypoint!);
+    let source: Source = { files: [], branchName };
+    const filesPaths = await collectFilePaths(entrypoint!);
+    const filesHash = createHashFromFiles(filesPaths.files);
+
+    for await (let file of filesPaths.files) {
+      const fileName = getFilename(file);
+      const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
+      const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
+      if (file === filesPaths.root) { source['root'] = uploadedFilePath; }
+      source.files.push(uploadedFilePath);
+      await uploadFileToS3(signedFileUrl, entrypoint!);
+    }
+
     return {
       sourceType: "FILE",
-      source: JSON.stringify({
-        files: [uploadedFilePath],
-        root: uploadedFilePath,
-        branchName
-      })
+      source: JSON.stringify(source)
     }
   }
 }
 
-function collectFilePaths(entrypoint: string) {
-  return [entrypoint];
+function getConfigPath(folder: string) {
+  if (fs.existsSync(`${folder}/.redocly.yaml`)) {
+    return `${folder}/.redocly.yaml`;
+  } else if (fs.existsSync(`${folder}/.redocly.yml`)) {
+    return `${folder}/.redocly.yml`;
+  } else {
+    return undefined;
+  }
+}
+
+function getFilesList(dir: string) {
+  const files = [];
+  const filesAndDirs = fs.readdirSync(dir);
+  for (const name of filesAndDirs) {
+    const currentPath = dir + '/' + name;
+    files.push(currentPath);
+  }
+  return files;
+}
+
+async function collectFilePaths(entrypoint: string) {
+  let files: string[] = [];
+  const entrypointPath = path.resolve(entrypoint);
+  files.push(entrypointPath);
+
+  const entrypointFolder = getFolder(entrypoint);
+  const configPath = getConfigPath(entrypointFolder);
+  if (configPath) {
+    const config: Config = await loadConfig(configPath);
+    if (config.referenceDocs.htmlTemplate) {
+      const htmlDir = getFilename(getFolder(config.referenceDocs.htmlTemplate));
+      const dir = entrypointFolder +'/'+ htmlDir;
+      const fileList = getFilesList(dir);
+      if (fileList.length) {
+        files = files.concat(fileList);
+      }
+    }
+    if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
+      config.rawConfig.lint.plugins.forEach(plugin => {
+        // @ts-ignore
+        files = files.concat(entrypointFolder + '/' + getRalativePath(plugin));
+      });
+    }
+  }
+  return {
+    files,
+    root: entrypointPath
+  }
+}
+
+function getFolder(filePath: string) {
+  return path.resolve(path.dirname(filePath));
 }
 
 function getFilename(filePath: string) {
   return path.basename(filePath);
+}
+
+function getRalativePath(filePath: string) {
+  return path.relative(process.cwd(), filePath);
 }
 
 function createHashFromFiles(filePaths: string[]) {
