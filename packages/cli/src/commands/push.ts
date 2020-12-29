@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
+import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
 import { Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
 import { promptUser, exitWithError, printExecutionTime } from '../utils';
-import { performance } from "perf_hooks";
 
 type Source = {
   files: string[];
@@ -47,8 +47,8 @@ export async function handlePush (argv: {
   }
 
   if (version) {
-    const { definitionId, id } = version;
-    const updatePatch = await processFiles();
+    const { definitionId, defaultBranch, id } = version;
+    const updatePatch = await processFiles(branchName || defaultBranch.name);
     await client.updateDefinitionVersion(definitionId, id, updatePatch);
   } else if (upsert) {
     const { organizationById } = await getOrganizationId(organizationId);
@@ -62,7 +62,7 @@ export async function handlePush (argv: {
     } else {
       definitionId = definitionByOrganizationIdAndName.id;
     }
-    const updatePatch = await processFiles();
+    const updatePatch = await processFiles(branchName || 'main');
     await createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source, '');
   }
 
@@ -150,6 +150,9 @@ export async function handlePush (argv: {
         version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
           id
           definitionId
+          defaultBranch {
+            name
+          }
         }
       }
     `, {
@@ -159,8 +162,8 @@ export async function handlePush (argv: {
     });
   }
 
-  async function processFiles() {
-    let source: Source = { files: [], branchName };
+  async function processFiles(branch: string) {
+    let source: Source = { files: [], branchName: branch };
     const filesPaths = await collectFilePaths(entrypoint!);
     const filesHash = createHashFromFiles(filesPaths.files);
 
