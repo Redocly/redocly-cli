@@ -20,11 +20,14 @@ export async function handlePush (argv: {
   upsert?: boolean;
   'run-id'?: string;
 }) {
-  const clientToken = await promptUser(
-    green(`\n  🔑 Copy your access token from ${blue(`https://app.redoc.online/profile`)} and paste it below`)
-  );
   const client = new RedoclyClient();
-  await client.login(clientToken);
+  const isAuthorized = await client.isAuthorizedWithRedocly();
+  if (!isAuthorized) {
+    const clientToken = await promptUser(
+       green(`\n  🔑 Copy your access token from ${blue(`https://app.redoc.online/profile`)} and paste it below`)
+    );
+    await client.login(clientToken);
+  }
 
   const startedAt = performance.now();
   const { entrypoint, destination, branchName, upsert } = argv;
