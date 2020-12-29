@@ -165,7 +165,7 @@ export async function handlePush (argv: {
     const filesHash = createHashFromFiles(filesPaths.files);
 
     for await (let file of filesPaths.files) {
-      const fileName = getFilename(file);
+      const fileName = getRalativePath(file, getFilename(filesPaths.folder));
       const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
       if (file === filesPaths.root) { source['root'] = uploadedFilePath; }
@@ -209,6 +209,7 @@ async function collectFilePaths(entrypoint: string) {
   const configPath = getConfigPath(entrypointFolder);
   if (configPath) {
     const config: Config = await loadConfig(configPath);
+    files.push(configPath);
     if (config.referenceDocs.htmlTemplate) {
       const htmlDir = getFilename(getFolder(config.referenceDocs.htmlTemplate));
       const dir = entrypointFolder +'/'+ htmlDir;
@@ -226,6 +227,7 @@ async function collectFilePaths(entrypoint: string) {
   }
   return {
     files,
+    folder: entrypointFolder,
     root: entrypointPath
   }
 }
@@ -238,8 +240,8 @@ function getFilename(filePath: string) {
   return path.basename(filePath);
 }
 
-function getRalativePath(filePath: string) {
-  return path.relative(process.cwd(), filePath);
+function getRalativePath(filePath: string, from: string = process.cwd()) {
+  return path.relative(from, filePath);
 }
 
 function createHashFromFiles(filePaths: string[]) {
