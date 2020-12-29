@@ -24,6 +24,7 @@ export async function handlePush (argv: {
   );
   const client = new RedoclyClient();
   await client.login(clientToken);
+
   const { entrypoint, destination, branchName, upsert } = argv;
 
   if (!validateDestination(destination!)) {
@@ -240,7 +241,7 @@ function createHashFromFiles(filePaths: string[]) {
 }
 
 function validateDestination(destination: string) {
-  const regexp = /^@+[a-zA-Z0-9-_]{3,}\/+[a-zA-Z0-9-_]{3,}@[a-zA-Z0-9-_]{2,}$/g;
+  const regexp = /^@+[a-zA-Z0-9-_]{1,}\/+[a-zA-Z0-9-_]{1,}@[a-zA-Z0-9-_]{1,}$/g;
   return regexp.test(destination);
 }
 
