@@ -4,7 +4,8 @@ import fetch from 'node-fetch';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
 import { Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
-import { promptUser, exitWithError } from '../utils';
+import { promptUser, exitWithError, printExecutionTime } from '../utils';
+import { performance } from "perf_hooks";
 
 type Source = {
   files: string[];
@@ -25,6 +26,7 @@ export async function handlePush (argv: {
   const client = new RedoclyClient();
   await client.login(clientToken);
 
+  const startedAt = performance.now();
   const { entrypoint, destination, branchName, upsert } = argv;
 
   if (!validateDestination(destination!)) {
@@ -60,6 +62,9 @@ export async function handlePush (argv: {
     const updatePatch = await processFiles();
     await createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source, '');
   }
+
+  process.stderr.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
+  printExecutionTime('push', startedAt, entrypoint!);
 
   function getOrganizationId(organizationId: string) {
     return client.query(`
