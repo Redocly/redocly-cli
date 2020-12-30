@@ -24,7 +24,7 @@ export async function handlePush (argv: {
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
     const clientToken = await promptUser(
-       green(`\n  🔑 Copy your access token from ${blue(`https://app.redoc.online/profile`)} and paste it below`)
+       green(`\n  🔑 Copy your access token from ${blue('https://app.redoc.ly/profile')} and paste it below`)
     );
     await client.login(clientToken);
   }
@@ -37,139 +37,45 @@ export async function handlePush (argv: {
   }
 
   const [ organizationId, apiName, apiVersion ] = getDestinationProps(destination!);
-  const { version } = await getDefinitionVersion(organizationId, apiName, apiVersion);
+  const { version } = await client.getDefinitionVersion(organizationId, apiName, apiVersion);
 
   if (!version && !upsert) {
     exitWithError(`
-      Definition is not exist!
-      ${yellow('Suggestion:')} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
+  The definition version ${blue(apiName)}/${blue(apiVersion)} does not exist in organization ${blue(organizationId)}!
+  ${yellow('Suggestion:')} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
     `);
   }
 
   if (version) {
     const { definitionId, defaultBranch, id } = version;
-    const updatePatch = await processFiles(branchName || defaultBranch.name);
+    const updatePatch = await collectAndUploadFiles(branchName || defaultBranch.name);
     await client.updateDefinitionVersion(definitionId, id, updatePatch);
   } else if (upsert) {
-    const { organizationById } = await getOrganizationId(organizationId);
-    if (!organizationById) { exitWithError('Organization not found'); }
-    const { definitionByOrganizationIdAndName } = await getDefinitionByName(apiName, organizationId);
-
+    const { organizationById } = await client.getOrganizationId(organizationId);
+    if (!organizationById) { exitWithError(`Organization ${blue(organizationId)} not found`); }
+    const { definition } = await client.getDefinitionByName(apiName, organizationId);
     let definitionId;
-    if (!definitionByOrganizationIdAndName) {
-      const { def } = await createDefinition(organizationId, apiName);
+    if (!definition) {
+      const { def } = await client.createDefinition(organizationId, apiName);
       definitionId = def.definition.id;
     } else {
-      definitionId = definitionByOrganizationIdAndName.id;
+      definitionId = definition.id;
     }
-    const updatePatch = await processFiles(branchName || 'main');
-    await createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source, '');
+    const updatePatch = await collectAndUploadFiles(branchName || 'main');
+    await client.createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source);
   }
 
   process.stderr.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
   printExecutionTime('push', startedAt, entrypoint!);
 
-  function getOrganizationId(organizationId: string) {
-    return client.query(`
-      query ($organizationId: String!) {
-        organizationById(id: $organizationId) {
-          id
-        }
-      }
-    `, {
-      organizationId
-    });
-  }
-
-  function getDefinitionByName(name: string, organizationId: string) {
-    return client.query(`
-      query ($name: String!, $organizationId: String!) {
-        definitionByOrganizationIdAndName(name: $name, organizationId: $organizationId) {
-          id
-        }
-      }
-    `, {
-      name,
-      organizationId
-    });
-  }
-
-  function createDefinition(organizationId: string, name: string) {
-    return client.query(`
-      mutation CreateDefinition($organizationId: String!, $name: String!) {
-        def: createDefinition(input: {organizationId: $organizationId, name: $name }) {
-          definition {
-            id
-            nodeId
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      name
-    })
-  }
-
-  function createDefinitionVersion(definitionId: string, name: string, sourceType: string, source: any, description: string) {
-    return client.query(`
-      mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON, $description: String!) {
-        createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source, description: $description}) {
-          definitionVersion {
-            id
-          }
-        }
-      }
-    `, {
-      definitionId,
-      name,
-      sourceType,
-      source,
-      description
-    });
-  }
-
-  function getSignedUrl(organizationId: string, filesHash: string, fileName: string) {
-    return client.query(`
-      query ($organizationId: String!, $filesHash: String!, $fileName: String!) {
-        signFileUploadCLI(organizationId: $organizationId, filesHash: $filesHash, fileName: $fileName) {
-          signedFileUrl
-          uploadedFilePath
-        }
-      }
-    `, {
-      organizationId,
-      filesHash,
-      fileName
-    })
-  }
-
-  function getDefinitionVersion(organizationId: string, definitionName: string, versionName: string) {
-    return client.query(`
-      query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
-        version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
-          id
-          definitionId
-          defaultBranch {
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      definitionName,
-      versionName
-    });
-  }
-
-  async function processFiles(branch: string) {
+  async function collectAndUploadFiles(branch: string) {
     let source: Source = { files: [], branchName: branch };
-    const filesPaths = await collectFilePaths(entrypoint!);
-    const filesHash = createHashFromFiles(filesPaths.files);
+    const filesPaths = await collectFilesToUpload(entrypoint!);
+    const filesHash = hashFiles(filesPaths.files);
 
-    for await (let file of filesPaths.files) {
+    for (let file of filesPaths.files) {
       const fileName = getRalativePath(file, getFilename(filesPaths.folder));
-      const { signFileUploadCLI } = await getSignedUrl(organizationId, filesHash, fileName);
+      const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, fileName);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
       if (file === filesPaths.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
@@ -203,7 +109,7 @@ function getFilesList(dir: string) {
   return files;
 }
 
-async function collectFilePaths(entrypoint: string) {
+async function collectFilesToUpload(entrypoint: string) {
   let files: string[] = [];
   const entrypointPath = path.resolve(entrypoint);
   files.push(entrypointPath);
@@ -247,7 +153,7 @@ function getRalativePath(filePath: string, from: string = process.cwd()) {
   return path.relative(from, filePath);
 }
 
-function createHashFromFiles(filePaths: string[]) {
+function hashFiles(filePaths: string[]) {
   let sum = createHash('sha256');
   filePaths.forEach(file => sum.update(fs.readFileSync(file)));
   return sum.digest('hex');

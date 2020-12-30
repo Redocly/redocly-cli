@@ -136,8 +136,8 @@ export class RedoclyClient {
     );
   }
 
-  async updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
-    await this.query(`
+  updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
+    return this.query(`
       mutation UpdateDefinitionVersion($definitionId: Int!, $versionId: Int!, $updatePatch: DefinitionVersionPatch!) {
         updateDefinitionVersionByDefinitionIdAndId(input: {definitionId: $definitionId, id: $versionId, patch: $updatePatch}) {
           definitionVersion {
@@ -167,6 +167,98 @@ export class RedoclyClient {
         updatePatch,
       },
     );
+  }
+
+  getOrganizationId(organizationId: string) {
+    return this.query(`
+      query ($organizationId: String!) {
+        organizationById(id: $organizationId) {
+          id
+        }
+      }
+    `, {
+      organizationId
+    });
+  }
+
+  getDefinitionByName(name: string, organizationId: string) {
+    return this.query(`
+      query ($name: String!, $organizationId: String!) {
+        definition: definitionByOrganizationIdAndName(name: $name, organizationId: $organizationId) {
+          id
+        }
+      }
+    `, {
+      name,
+      organizationId
+    });
+  }
+
+  createDefinition(organizationId: string, name: string) {
+    return this.query(`
+      mutation CreateDefinition($organizationId: String!, $name: String!) {
+        def: createDefinition(input: {organizationId: $organizationId, name: $name }) {
+          definition {
+            id
+            nodeId
+            name
+          }
+        }
+      }
+    `, {
+      organizationId,
+      name
+    })
+  }
+
+  createDefinitionVersion(definitionId: string, name: string, sourceType: string, source: any) {
+    return this.query(`
+      mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON) {
+        createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source }) {
+          definitionVersion {
+            id
+          }
+        }
+      }
+    `, {
+      definitionId,
+      name,
+      sourceType,
+      source
+    });
+  }
+
+  getSignedUrl(organizationId: string, filesHash: string, fileName: string) {
+    return this.query(`
+      query ($organizationId: String!, $filesHash: String!, $fileName: String!) {
+        signFileUploadCLI(organizationId: $organizationId, filesHash: $filesHash, fileName: $fileName) {
+          signedFileUrl
+          uploadedFilePath
+        }
+      }
+    `, {
+      organizationId,
+      filesHash,
+      fileName
+    })
+  }
+
+  getDefinitionVersion(organizationId: string, definitionName: string, versionName: string) {
+    return this.query(`
+      query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
+        version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
+          id
+          definitionId
+          defaultBranch {
+            name
+          }
+        }
+      }
+    `, {
+      organizationId,
+      definitionName,
+      versionName
+    });
   }
 
   static isRegistryURL(link: string): boolean {
