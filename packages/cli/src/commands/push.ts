@@ -129,7 +129,7 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   return {
     files,
-    root: entrypointPath,
+    root: path.resolve(entrypointPath),
   }
 
   function getFileEntry(filename: string) {
