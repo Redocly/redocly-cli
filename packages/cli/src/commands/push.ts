@@ -80,13 +80,13 @@ export async function handlePush (argv: {
 
     for (let file of filesPaths.files) {
       const fileName = getRalativePath(file, getFilename(filesPaths.folder));
+      const filePath = getRalativePath(file);
       const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, fileName);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
       if (file === filesPaths.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
-      await uploadFileToS3(signedFileUrl, entrypoint!);
+      await uploadFileToS3(signedFileUrl, filePath);
     }
-
     return {
       sourceType: "FILE",
       source: JSON.stringify(source)
