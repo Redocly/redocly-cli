@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
 import { Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
-import { promptUser, exitWithError, printExecutionTime } from '../utils';
+import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit } from '../utils';
 
 type Source = {
   files: string[];
@@ -75,17 +75,15 @@ export async function handlePush (argv: {
 
   async function collectAndUploadFiles(branch: string) {
     let source: Source = { files: [], branchName: branch };
-    const filesPaths = await collectFilesToUpload(entrypoint!);
-    const filesHash = hashFiles(filesPaths.files);
+    const filesToUpload = await collectFilesToUpload(entrypoint!);
+    const filesHash = hashFiles(filesToUpload.files);
 
-    for (let file of filesPaths.files) {
-      const fileName = getRalativePath(file, getFilename(filesPaths.folder));
-      const filePath = getRalativePath(file);
-      const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, fileName);
+    for (let file of filesToUpload.files) {
+      const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, file.keyOnS3);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
-      if (file === filesPaths.root) { source['root'] = uploadedFilePath; }
+      if (file.filePath === filesToUpload.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
-      await uploadFileToS3(signedFileUrl, filePath);
+      await uploadFileToS3(signedFileUrl, file.filePath);
     }
     return {
       sourceType: "FILE",
@@ -94,55 +92,53 @@ export async function handlePush (argv: {
   }
 }
 
-function getConfigPath(folder: string) {
-  if (fs.existsSync(`${folder}/.redocly.yaml`)) {
-    return `${folder}/.redocly.yaml`;
-  } else if (fs.existsSync(`${folder}/.redocly.yml`)) {
-    return `${folder}/.redocly.yml`;
-  } else {
-    return undefined;
-  }
-}
-
-function getFilesList(dir: string) {
-  const files = [];
+function getFilesList(dir: string, files?: any) {
+  files = files || [];
   const filesAndDirs = fs.readdirSync(dir);
   for (const name of filesAndDirs) {
-    const currentPath = dir + '/' + name;
-    files.push(currentPath);
+    if (fs.statSync(path.join(dir, name)).isDirectory()) {
+      files = getFilesList(path.join(dir, name), files);
+    } else {
+      const currentPath = dir + '/' + name;
+      files.push(currentPath);
+    }
   }
   return files;
 }
 
 async function collectFilesToUpload(entrypoint: string) {
-  let files: string[] = [];
-  const entrypointPath = path.resolve(entrypoint);
-  files.push(entrypointPath);
+  let files: { filePath: string, keyOnS3: string }[] = [];
+  const config: Config = await loadConfig();
+  const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
+  const entrypointPath = entrypoints[0];
+  files.push(getFileEntry(entrypointPath));
 
-  const entrypointFolder = getFolder(entrypoint);
-  const configPath = getConfigPath(entrypointFolder);
-  if (configPath) {
-    const config: Config = await loadConfig(configPath);
-    files.push(configPath);
+  if (config.configFile) {
+    files.push(getFileEntry(config.configFile));
     if (config.referenceDocs.htmlTemplate) {
-      const htmlDir = getFilename(getFolder(config.referenceDocs.htmlTemplate));
-      const dir = entrypointFolder +'/'+ htmlDir;
-      const fileList = getFilesList(dir);
-      if (fileList.length) {
-        files = files.concat(fileList);
-      }
+      const dir = getFolder(config.referenceDocs.htmlTemplate);
+      const fileList = getFilesList(dir, []);
+      files.push(...fileList.map(getFileEntry));
     }
     if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
-      config.rawConfig.lint.plugins.forEach(plugin => {
-        // @ts-ignore
-        files = files.concat(entrypointFolder + '/' + getRalativePath(plugin));
-      });
+      for (const plugin of config.rawConfig.lint.plugins) {
+        if (typeof plugin !== 'string') continue;
+        files.push(getFileEntry(plugin));
+      }
     }
   }
   return {
     files,
-    folder: entrypointFolder,
-    root: entrypointPath
+    root: entrypointPath,
+  }
+
+  function getFileEntry(filename: string) {
+    return {
+      filePath: path.resolve(filename),
+      keyOnS3: config.configFile
+        ? path.relative(path.dirname(config.configFile), filename)
+        : path.basename(filename)
+    }
   }
 }
 
@@ -150,17 +146,9 @@ function getFolder(filePath: string) {
   return path.resolve(path.dirname(filePath));
 }
 
-function getFilename(filePath: string) {
-  return path.basename(filePath);
-}
-
-function getRalativePath(filePath: string, from: string = process.cwd()) {
-  return path.relative(from, filePath);
-}
-
-function hashFiles(filePaths: string[]) {
+function hashFiles(filePaths: { filePath: string }[]) {
   let sum = createHash('sha256');
-  filePaths.forEach(file => sum.update(fs.readFileSync(file)));
+  filePaths.forEach(file => sum.update(fs.readFileSync(file.filePath)));
   return sum.digest('hex');
 }
 
