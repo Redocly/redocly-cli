@@ -37,6 +37,7 @@ export async function handlePush (argv: {
   }
 
   const [ organizationId, apiName, apiVersion ] = getDestinationProps(destination!);
+  await doesOrganizationExist(organizationId);
   const { version } = await client.getDefinitionVersion(organizationId, apiName, apiVersion);
 
   if (!version && !upsert) {
@@ -51,8 +52,7 @@ export async function handlePush (argv: {
     const updatePatch = await collectAndUploadFiles(branchName || defaultBranch.name);
     await client.updateDefinitionVersion(definitionId, id, updatePatch);
   } else if (upsert) {
-    const { organizationById } = await client.getOrganizationId(organizationId);
-    if (!organizationById) { exitWithError(`Organization ${blue(organizationId)} not found`); }
+    await doesOrganizationExist(organizationId);
     const { definition } = await client.getDefinitionByName(apiName, organizationId);
     let definitionId;
     if (!definition) {
@@ -67,6 +67,11 @@ export async function handlePush (argv: {
 
   process.stderr.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
   printExecutionTime('push', startedAt, entrypoint!);
+
+  async function doesOrganizationExist(organizationId: string) {
+    const { organizationById } = await client.getOrganizationId(organizationId);
+    if (!organizationById) { exitWithError(`Organization ${blue(organizationId)} not found`); }
+  }
 
   async function collectAndUploadFiles(branch: string) {
     let source: Source = { files: [], branchName: branch };
