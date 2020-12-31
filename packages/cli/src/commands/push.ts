@@ -78,6 +78,10 @@ export async function handlePush (argv: {
     const filesToUpload = await collectFilesToUpload(entrypoint!);
     const filesHash = hashFiles(filesToUpload.files);
 
+    process.stdout.write(`Uploading ${filesToUpload.files.length}: \n`);
+
+    process.stdout.write(filesToUpload.files.join('\n  - '));
+
     for (let file of filesToUpload.files) {
       const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, file.keyOnS3);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
