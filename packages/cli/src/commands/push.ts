@@ -4,8 +4,8 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-import { Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
-import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit } from '../utils';
+import { bundle, Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
+import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit, getTotals, pluralize } from '../utils';
 
 type Source = {
   files: string[];
@@ -78,17 +78,19 @@ export async function handlePush (argv: {
     const filesToUpload = await collectFilesToUpload(entrypoint!);
     const filesHash = hashFiles(filesToUpload.files);
 
-    process.stdout.write(`Uploading ${filesToUpload.files.length}: \n`);
-
-    process.stdout.write(filesToUpload.files.map(f => f.filePath).join('\n  - '));
-
+    process.stdout.write(`Uploading ${filesToUpload.files.length} ${pluralize('file', filesToUpload.files.length)}:\n`);
+    let uploaded = 0;
     for (let file of filesToUpload.files) {
       const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, file.keyOnS3);
       const { signedFileUrl, uploadedFilePath } = signFileUploadCLI;
       if (file.filePath === filesToUpload.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
-      await uploadFileToS3(signedFileUrl, file.filePath);
+      process.stdout.write(`Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`);
+      await uploadFileToS3(signedFileUrl, file.contents || file.filePath);
+      process.stdout.write(green(`✓ (${++uploaded}/${filesToUpload.files.length})\n`));
     }
+
+    process.stdout.write('\n');
     return {
       sourceType: "FILE",
       source: JSON.stringify(source)
@@ -96,7 +98,7 @@ export async function handlePush (argv: {
   }
 }
 
-function getFilesList(dir: string, files?: any) {
+function getFilesList(dir: string, files?: any): string[] {
   files = files || [];
   const filesAndDirs = fs.readdirSync(dir);
   for (const name of filesAndDirs) {
@@ -111,18 +113,38 @@ function getFilesList(dir: string, files?: any) {
 }
 
 async function collectFilesToUpload(entrypoint: string) {
-  let files: { filePath: string, keyOnS3: string }[] = [];
+  let files: { filePath: string, keyOnS3: string, contents?: Buffer }[] = [];
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
   const entrypointPath = entrypoints[0];
-  files.push(getFileEntry(entrypointPath));
+
+  process.stdout.write('Bundling definition\n');
+
+  const {bundle: openapiBundle, problems} = await bundle({
+    config,
+    ref: entrypointPath
+  });
+
+  const fileTotals = getTotals(problems);
+
+  if (fileTotals.errors === 0) {
+    process.stdout.write(
+      `Created a bundle for ${blue(entrypoint)} ${
+        fileTotals.warnings > 0 ? 'with warnings' : ''
+      }\n`
+    );
+  } else {
+    exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`)
+  }
+
+  files.push(getFileEntry(entrypointPath, openapiBundle.source.body));
 
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
     if (config.referenceDocs.htmlTemplate) {
       const dir = getFolder(config.referenceDocs.htmlTemplate);
       const fileList = getFilesList(dir, []);
-      files.push(...fileList.map(getFileEntry));
+      files.push(...fileList.map(f => getFileEntry(f)));
     }
     if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
       for (const plugin of config.rawConfig.lint.plugins) {
@@ -136,12 +158,13 @@ async function collectFilesToUpload(entrypoint: string) {
     root: path.resolve(entrypointPath),
   }
 
-  function getFileEntry(filename: string) {
+  function getFileEntry(filename: string, contents?: string) {
     return {
       filePath: path.resolve(filename),
       keyOnS3: config.configFile
         ? path.relative(path.dirname(config.configFile), filename)
-        : path.basename(filename)
+        : path.basename(filename),
+      contents: contents && Buffer.from(contents, 'utf-8') || undefined,
     }
   }
 }
@@ -165,10 +188,10 @@ function getDestinationProps(destination: string) {
   return destination.substring(1).split(/[@\/]/);
 }
 
-function uploadFileToS3(url: string, entrypoint: string) {
-  const stats = fs.statSync(entrypoint!);
-  const fileSizeInBytes = stats.size;
-  let readStream = fs.createReadStream(entrypoint!);
+function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
+  const fileSizeInBytes = typeof filePathOrBuffer === 'string' ? fs.statSync(filePathOrBuffer).size : filePathOrBuffer.byteLength;
+  let readStream = typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
+
   return fetch(url, {
     method: 'PUT',
     // @ts-ignore
