@@ -397,7 +397,7 @@ export class Config {
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   if (configPath === undefined) {
-    configPath = await findConfig();
+    configPath = findConfig();
   }
 
   let rawConfig: RawConfig = {};
@@ -434,20 +434,15 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   return new Config(rawConfig, configPath);
 }
 
-async function findConfig() {
-  if (await existsAsync('.redocly.yaml')) {
+function findConfig() {
+  if (fs.existsSync('.redocly.yaml')) {
     return '.redocly.yaml';
-  } else if (await existsAsync('.redocly.yml')) {
+  } else if (fs.existsSync('.redocly.yml')) {
     return '.redocly.yml';
   }
   return undefined;
 }
 
-function existsAsync(path: string) {
-  return new Promise(function (resolve) {
-    fs.exists(path, resolve);
-  });
-}
 
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
