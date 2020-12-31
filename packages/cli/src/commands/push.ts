@@ -80,7 +80,7 @@ export async function handlePush (argv: {
 
     process.stdout.write(`Uploading ${filesToUpload.files.length}: \n`);
 
-    process.stdout.write(filesToUpload.files.join('\n  - '));
+    process.stdout.write(filesToUpload.files.map(f => f.filePath).join('\n  - '));
 
     for (let file of filesToUpload.files) {
       const { signFileUploadCLI } = await client.getSignedUrl(organizationId, filesHash, file.keyOnS3);
