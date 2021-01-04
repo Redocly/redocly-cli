@@ -7,6 +7,8 @@ import { createHash } from 'crypto';
 import { bundle, Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
 import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit, getTotals, pluralize } from '../utils';
 
+const IGNORE_FILE = '.redocly.lint-ignore.yaml';
+
 type Source = {
   files: string[];
   branchName?: string;
@@ -20,6 +22,7 @@ export async function handlePush (argv: {
   upsert?: boolean;
   'run-id'?: string;
 }) {
+
   const client = new RedoclyClient();
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
@@ -141,21 +144,35 @@ async function collectFilesToUpload(entrypoint: string) {
 
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
+    if (fs.existsSync('package.json')) { files.push(getFileEntry('package.json')); }
+    if (fs.existsSync(IGNORE_FILE)) { files.push(getFileEntry(IGNORE_FILE)); }
     if (config.referenceDocs.htmlTemplate) {
       const dir = getFolder(config.referenceDocs.htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map(f => getFileEntry(f)));
     }
     if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
+      let pluginFiles = new Set();
       for (const plugin of config.rawConfig.lint.plugins) {
         if (typeof plugin !== 'string') continue;
-        files.push(getFileEntry(plugin));
+        const fileList = getFilesList(getFolder(plugin), []);
+        fileList.map(f => pluginFiles.add(f));
       }
+      files
+        .push(...(filterFilesByExtensions(Array.from(pluginFiles) as string[]))
+        .map(f => getFileEntry(f)));
     }
   }
   return {
     files,
     root: path.resolve(entrypointPath),
+  }
+
+  function filterFilesByExtensions(files: string[]) {
+    return files.filter((file: string) => {
+      const fileExt = path.extname(file).toLowerCase();
+      return fileExt === '.js' || fileExt === '.ts' || fileExt === '.mjs' || fileExt === 'json';
+    });
   }
 
   function getFileEntry(filename: string, contents?: string) {
