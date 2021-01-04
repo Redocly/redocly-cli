@@ -4,10 +4,8 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-import { bundle, Config, loadConfig, RedoclyClient } from '@redocly/openapi-core';
+import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE } from '@redocly/openapi-core';
 import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit, getTotals, pluralize } from '../utils';
-
-const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 
 type Source = {
   files: string[];
@@ -142,25 +140,25 @@ async function collectFilesToUpload(entrypoint: string) {
 
   files.push(getFileEntry(entrypointPath, openapiBundle.source.body));
 
+  if (fs.existsSync('package.json')) { files.push(getFileEntry('package.json')); }
+  if (fs.existsSync(IGNORE_FILE)) { files.push(getFileEntry(IGNORE_FILE)); }
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
-    if (fs.existsSync('package.json')) { files.push(getFileEntry('package.json')); }
-    if (fs.existsSync(IGNORE_FILE)) { files.push(getFileEntry(IGNORE_FILE)); }
     if (config.referenceDocs.htmlTemplate) {
       const dir = getFolder(config.referenceDocs.htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map(f => getFileEntry(f)));
     }
     if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
-      let pluginFiles = new Set();
+      let pluginFiles = new Set<string>();
       for (const plugin of config.rawConfig.lint.plugins) {
         if (typeof plugin !== 'string') continue;
         const fileList = getFilesList(getFolder(plugin), []);
-        fileList.map(f => pluginFiles.add(f));
+        fileList.forEach(f => pluginFiles.add(f));
       }
-      files
-        .push(...(filterFilesByExtensions(Array.from(pluginFiles) as string[]))
-        .map(f => getFileEntry(f)));
+      files.push(
+        ...(filterPluginFilesByExt(Array.from(pluginFiles))).map(f => getFileEntry(f))
+      );
     }
   }
   return {
@@ -168,7 +166,7 @@ async function collectFilesToUpload(entrypoint: string) {
     root: path.resolve(entrypointPath),
   }
 
-  function filterFilesByExtensions(files: string[]) {
+  function filterPluginFilesByExt(files: string[]) {
     return files.filter((file: string) => {
       const fileExt = path.extname(file).toLowerCase();
       return fileExt === '.js' || fileExt === '.ts' || fileExt === '.mjs' || fileExt === 'json';

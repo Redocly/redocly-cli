@@ -24,7 +24,7 @@ import recommended from './recommended';
 import { NodeType } from '../types';
 import { RedoclyClient } from '../redocly';
 
-const IGNORE_FILE = '.redocly.lint-ignore.yaml';
+export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
@@ -189,6 +189,7 @@ export class LintConfig {
 
     if (fs.existsSync(ignoreFile)) {
       // TODO: parse errors
+      this.ignore = {};
       this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
         string,
         Record<string, Set<string>>
