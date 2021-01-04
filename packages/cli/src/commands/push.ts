@@ -4,8 +4,16 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE } from '@redocly/openapi-core';
-import { promptUser, exitWithError, printExecutionTime, getFallbackEntryPointsOrExit, getTotals, pluralize } from '../utils';
+import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE, BundleOutputFormat } from '@redocly/openapi-core';
+import {
+  promptUser,
+  exitWithError,
+  printExecutionTime,
+  getFallbackEntryPointsOrExit,
+  getTotals,
+  pluralize,
+  dumpBundle,
+} from '../utils';
 
 type Source = {
   files: string[];
@@ -138,7 +146,8 @@ async function collectFilesToUpload(entrypoint: string) {
     exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`)
   }
 
-  files.push(getFileEntry(entrypointPath, openapiBundle.source.body));
+  const fileExt = path.extname(entrypointPath).split('.').pop();
+  files.push(getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)));
 
   if (fs.existsSync('package.json')) { files.push(getFileEntry('package.json')); }
   if (fs.existsSync(IGNORE_FILE)) { files.push(getFileEntry(IGNORE_FILE)); }

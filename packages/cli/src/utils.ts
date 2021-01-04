@@ -97,7 +97,7 @@ export class CircularJSONNotSupportedError extends Error {
   }
 }
 
-export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: boolean) {
+export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: boolean): string {
   if (format === 'json') {
     try {
       return JSON.stringify(obj, null, 2);
