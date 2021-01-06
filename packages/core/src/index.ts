@@ -7,7 +7,7 @@ export { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
 
-export { loadConfig, Config, LintConfig } from './config/config';
+export { loadConfig, Config, LintConfig, IGNORE_FILE } from './config/config';
 export { RedoclyClient } from './redocly';
 export { BaseResolver, Document, resolveDocument, ResolveError, YamlParseError } from './resolve';
 export { unescapePointer } from './ref-utils';

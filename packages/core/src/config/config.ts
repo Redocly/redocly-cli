@@ -24,7 +24,7 @@ import recommended from './recommended';
 import { NodeType } from '../types';
 import { RedoclyClient } from '../redocly';
 
-const IGNORE_FILE = '.redocly.lint-ignore.yaml';
+export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
@@ -192,7 +192,7 @@ export class LintConfig {
       this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
         string,
         Record<string, Set<string>>
-      >;
+      > || {};
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {
@@ -397,7 +397,7 @@ export class Config {
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   if (configPath === undefined) {
-    configPath = await findConfig();
+    configPath = findConfig();
   }
 
   let rawConfig: RawConfig = {};
@@ -434,20 +434,15 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   return new Config(rawConfig, configPath);
 }
 
-async function findConfig() {
-  if (await existsAsync('.redocly.yaml')) {
+function findConfig() {
+  if (fs.existsSync('.redocly.yaml')) {
     return '.redocly.yaml';
-  } else if (await existsAsync('.redocly.yml')) {
+  } else if (fs.existsSync('.redocly.yml')) {
     return '.redocly.yml';
   }
   return undefined;
 }
 
-function existsAsync(path: string) {
-  return new Promise(function (resolve) {
-    fs.exists(path, resolve);
-  });
-}
 
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
