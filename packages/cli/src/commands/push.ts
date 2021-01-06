@@ -218,9 +218,8 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
 
   return fetch(url, {
     method: 'PUT',
-    // @ts-ignore
     headers: {
-      'Content-length': fileSizeInBytes
+      'Content-Length': fileSizeInBytes.toString()
     },
     body: readStream
   })

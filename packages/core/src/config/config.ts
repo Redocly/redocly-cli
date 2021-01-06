@@ -189,7 +189,6 @@ export class LintConfig {
 
     if (fs.existsSync(ignoreFile)) {
       // TODO: parse errors
-     //  this.ignore = {};
       this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
         string,
         Record<string, Set<string>>
