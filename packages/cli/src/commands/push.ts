@@ -204,7 +204,7 @@ function hashFiles(filePaths: { filePath: string }[]) {
 }
 
 function validateDestination(destination: string) {
-  const regexp = /^@+[a-zA-Z0-9-_]{1,}\/+[a-zA-Z0-9-_ ]{1,}@[a-zA-Z0-9-_ ]{1,}$/g;
+  const regexp = /^@+[a-zA-Z0-9-_.& ]+\/+[^@\/]+@[^@\/]+$/g;
   return regexp.test(destination);
 }
 
