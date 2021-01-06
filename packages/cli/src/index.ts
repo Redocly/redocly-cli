@@ -19,7 +19,7 @@ const version = require('../package.json').version;
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-  .command('stats [entrypoint]', 'Gathering statistics for a document',
+  .command('stats [entrypoint]', 'Gathering statistics for a document.',
     (yargs) => yargs
       .positional('entrypoint', { type: 'string' })
       .option({
@@ -32,19 +32,19 @@ yargs
       }),
     (argv) => { handleStats(argv) }
   )
-  .command('split [entrypoint]', 'Split definition into a multi-file structure',
+  .command('split [entrypoint]', 'Split definition into a multi-file structure.',
     (yargs) => yargs
       .positional('entrypoint', { type: 'string' })
       .option({
         outDir: {
-          description: 'Output directory where files will be saved',
+          description: 'Output directory where files will be saved.',
           required: true,
           type: 'string'
         }
       }),
     (argv) => { handleSplit(argv) }
   )
-  .command('join [entrypoints...]', 'Join definitions [experimental]',
+  .command('join [entrypoints...]', 'Join definitions [experimental].',
     (yargs) => yargs
       .positional('entrypoints', {
         array: true,
@@ -54,24 +54,24 @@ yargs
       .option({
         lint: { description: 'Lint definitions', type: 'boolean', default: false },
         'prefix-tags-with-info-prop': {
-          description: 'Prefix tags with property value from info object',
+          description: 'Prefix tags with property value from info object.',
           requiresArg: true,
           type: 'string',
         },
         'prefix-tags-with-filename': {
-          description: 'Prefix tags with property value from file name',
+          description: 'Prefix tags with property value from file name.',
           type: 'boolean',
           default: false
         },
         'prefix-components-with-info-prop': {
-          description: 'Prefix components with property value from info object',
+          description: 'Prefix components with property value from info object.',
           requiresArg: true,
           type: 'string',
         }
       }),
     (argv) => { handleJoin(argv, version) }
   )
-  .command('push <entrypoint> <destination> [branchName]', 'Push a API definition to the Redocly API Registry',
+  .command('push <entrypoint> <destination> [branchName]', 'Push an API definition to the Redocly API registry.',
     (yargs) => yargs
     .positional('entrypoint', { type: 'string' })
     .positional('destination', { type: 'string' })
@@ -178,7 +178,7 @@ yargs
       }),
     (argv) => { handleBundle(argv, version) }
   )
-  .command('login', 'Login to the Redoc.ly API registry with an access token.', async () => {
+  .command('login', 'Login to the Redocly API registry with an access token.', async () => {
     const clientToken = await promptUser(
       green(
         `\n  🔑 Copy your access token from ${blue(
@@ -189,7 +189,7 @@ yargs
     const client = new RedoclyClient();
     client.login(clientToken);
   })
-  .command('logout', 'Clear your stored credentials for the Redoc.ly API registry.', async () => {
+  .command('logout', 'Clear your stored credentials for the Redocly API registry.', async () => {
     const client = new RedoclyClient();
     client.logout();
   })
