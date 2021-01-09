@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
+
 import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE, BundleOutputFormat } from '@redocly/openapi-core';
 import {
   promptUser,
@@ -13,6 +14,7 @@ import {
   getTotals,
   pluralize,
   dumpBundle,
+  slash
 } from '../utils';
 
 type Source = {
@@ -186,8 +188,8 @@ async function collectFilesToUpload(entrypoint: string) {
     return {
       filePath: path.resolve(filename),
       keyOnS3: config.configFile
-        ? path.relative(path.dirname(config.configFile), filename)
-        : path.basename(filename),
+        ? slash(path.relative(path.dirname(config.configFile), filename))
+        : slash(path.basename(filename)),
       contents: contents && Buffer.from(contents, 'utf-8') || undefined,
     }
   }
