@@ -281,3 +281,16 @@ export function exitWithError(message: string) {
   process.stderr.write(red(message)+ '\n\n');
   process.exit(1);
 }
+
+
+/**
+ * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
+ */
+export function slash(path: string): string {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+  if (isExtendedLengthPath) {
+    return path
+  }
+
+  return path.replace(/\\/g, '/');
+}
