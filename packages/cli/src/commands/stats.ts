@@ -74,11 +74,13 @@ export async function handleStats (argv: {
   const lintConfig: LintConfig = config.lint;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
+  const incorrectRefs = lintConfig.getIncorrectRefs();
   const types = normalizeTypes(
     lintConfig.extendTypes(
       oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
+    incorrectRefs
   );
 
   const startedAt = performance.now();

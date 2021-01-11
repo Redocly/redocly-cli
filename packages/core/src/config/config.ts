@@ -50,6 +50,7 @@ export type DecoratorConfig = PreprocessorConfig;
 export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
+  resolveIncorrectRefs?: string[];
 
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
@@ -344,6 +345,18 @@ export class LintConfig {
         this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
         return oas2Rules;
     }
+  }
+
+  getIncorrectRefs() {
+    const { resolveIncorrectRefs } = this.rawConfig;
+    if (!resolveIncorrectRefs) return null;
+    let refsObj: any = {};
+    resolveIncorrectRefs.forEach(item => {
+      const [key, value] = item.split('.');
+      if (!refsObj[key]) { refsObj[key] = new Set(); }
+      refsObj[key].add(value);
+    });
+    return refsObj;
   }
 
   skipRules(rules?: string[]) {

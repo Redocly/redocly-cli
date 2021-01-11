@@ -57,6 +57,7 @@ export function mapOf(typeName: string) {
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
+  incorrectRefs: object | null
 ): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
@@ -67,11 +68,18 @@ export function normalizeTypes(
     } as any;
   }
 
-  for (const type of Object.values(normalizedTypes)) {
-    normalizeType(type);
+  if (incorrectRefs) {
+    for (const type of Object.values(normalizedTypes)) { normalizeIncorrectRefs(type, incorrectRefs); }
   }
-
+  for (const type of Object.values(normalizedTypes)) { normalizeType(type); }
   return normalizedTypes;
+
+  function normalizeIncorrectRefs(type: any, incorrectRefs: any) {
+    const typeName = type.name.toLowerCase();
+    incorrectRefs[typeName]?.forEach((item: string) => {
+      type.properties[item] = { ...type.properties[item], referenceable: true }
+    })
+  }
 
   function normalizeType(type: any) {
     if (type.additionalProperties) {

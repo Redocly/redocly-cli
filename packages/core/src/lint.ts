@@ -40,6 +40,7 @@ export async function lint(opts: {
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
+
   return lintDocument({
     document,
     ...opts,
@@ -59,13 +60,14 @@ export async function lintDocument(opts: {
   const { document, customTypes, externalRefResolver, config } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
-
   const rules = config.getRulesForOasVersion(oasMajorVersion);
+  const incorrectRefs = config.getIncorrectRefs();
   const types = normalizeTypes(
     config.extendTypes(
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
+    incorrectRefs
   );
 
   const ctx: WalkContext = {
@@ -92,7 +94,6 @@ export async function lintDocument(opts: {
     resolvedRefMap,
     ctx,
   });
-
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 

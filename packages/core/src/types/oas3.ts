@@ -21,7 +21,7 @@ const DefinitionRoot: NodeType = {
 const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
-    description: { type: 'string', referenceable: true },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
@@ -80,7 +80,6 @@ const Info: NodeType = {
       type: 'string',
     },
     description: {
-      referenceable: true,
       type: 'string',
     },
     termsOfService: {
@@ -199,17 +198,10 @@ const Operation: NodeType = {
       type: 'array',
       items: { type: 'string' },
     },
-    summary: {
-      type: 'string',
-    },
-    description: {
-      referenceable: true,
-      type: 'string',
-    },
+    summary: { type: 'string' },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
-    operationId: {
-      type: 'string',
-    },
+    operationId: { type: 'string' },
     parameters: listOf('Parameter'),
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
@@ -229,7 +221,7 @@ const XCodeSample: NodeType = {
   properties: {
     lang: { type: 'string' },
     label: { type: 'string' },
-    source: { type: 'string', referenceable: true },
+    source: { type: 'string' },
   },
 };
 

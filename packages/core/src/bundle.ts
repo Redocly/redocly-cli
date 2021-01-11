@@ -20,7 +20,6 @@ export async function bundle(opts: {
   dereference?: boolean;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
-
   let document: Document;
   try {
     document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
@@ -46,21 +45,21 @@ export async function bundleDocument(opts: {
   dereference?: boolean;
 }) {
   const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
+
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
-
   const rules = config.getRulesForOasVersion(oasMajorVersion);
-
+  const incorrectRefs = config.getIncorrectRefs();
   const types = normalizeTypes(
     config.extendTypes(
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
+    incorrectRefs
   );
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const decorators = initRules(rules as any, config, 'decorators', oasVersion);
-
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
