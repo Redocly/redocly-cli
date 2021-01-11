@@ -75,8 +75,7 @@ export function normalizeTypes(
   return normalizedTypes;
 
   function normalizeIncorrectRefs(type: any, incorrectRefs: any) {
-    const typeName = type.name.toLowerCase();
-    incorrectRefs[typeName]?.forEach((item: string) => {
+    incorrectRefs[type.name]?.forEach((item: string) => {
       type.properties[item] = { ...type.properties[item], referenceable: true }
     })
   }
