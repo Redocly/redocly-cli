@@ -1,3 +1,5 @@
+import { red, blue, yellow } from 'colorette';
+
 export type ScalarSchema = {
   name?: never;
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
@@ -57,7 +59,7 @@ export function mapOf(typeName: string) {
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
-  incorrectRefs: object | null
+  incorrectRefs: Record<string, Set<string>> = {}
 ): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
@@ -68,13 +70,33 @@ export function normalizeTypes(
     } as any;
   }
 
-  if (incorrectRefs) {
-    for (const type of Object.values(normalizedTypes)) { normalizeIncorrectRefs(type, incorrectRefs); }
+  validateIncorrectRefs();
+
+  for (const type of Object.values(normalizedTypes)) {
+    normalizeIncorrectRefs(type, incorrectRefs);
+    normalizeType(type);
   }
-  for (const type of Object.values(normalizedTypes)) { normalizeType(type); }
   return normalizedTypes;
 
-  function normalizeIncorrectRefs(type: any, incorrectRefs: any) {
+  function validateIncorrectRefs() {
+    for (const refKey of Object.keys(incorrectRefs)) {
+      if (normalizedTypes[refKey]) {
+        for (const key of incorrectRefs[refKey]) {
+          if (!(
+            normalizedTypes[refKey].properties[key] &&
+            //@ts-ignore
+            normalizedTypes[refKey].properties[key]['type']
+          )) {
+            process.stderr.write(red(`Invalid property: ${blue(refKey)} :: ${yellow(key)} \n\n`));
+          }
+        }
+      } else {
+        process.stderr.write(red(`Invalid type key: ${blue(refKey)} \n\n`));
+      }
+    }
+  }
+
+  function normalizeIncorrectRefs(type: any, incorrectRefs: Record<string, Set<string>>) {
     incorrectRefs[type.name]?.forEach((item: string) => {
       type.properties[item] = { ...type.properties[item], referenceable: true }
     })

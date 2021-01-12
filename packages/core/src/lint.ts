@@ -61,13 +61,12 @@ export async function lintDocument(opts: {
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const rules = config.getRulesForOasVersion(oasMajorVersion);
-  const incorrectRefs = config.getIncorrectRefs();
   const types = normalizeTypes(
     config.extendTypes(
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    incorrectRefs
+    config.incorrectRefs
   );
 
   const ctx: WalkContext = {
@@ -77,10 +76,7 @@ export async function lintDocument(opts: {
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const regularRules = initRules(rules as any, config, 'rules', oasVersion);
-
-  //@ts-ignore
   const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules], types);
-
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,

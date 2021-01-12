@@ -45,17 +45,15 @@ export async function bundleDocument(opts: {
   dereference?: boolean;
 }) {
   const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
-
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const rules = config.getRulesForOasVersion(oasMajorVersion);
-  const incorrectRefs = config.getIncorrectRefs();
   const types = normalizeTypes(
     config.extendTypes(
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    incorrectRefs
+    config.incorrectRefs
   );
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
@@ -82,6 +80,7 @@ export async function bundleDocument(opts: {
     rootDocument: document,
     rootType: types.DefinitionRoot,
     externalRefResolver,
+    resolveAllIncorrectRefs: config.rawConfig.resolveAllIncorrectRefs
   });
 
   walkDocument({

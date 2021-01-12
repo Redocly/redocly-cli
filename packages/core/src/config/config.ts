@@ -51,6 +51,7 @@ export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   resolveIncorrectRefs?: string[];
+  resolveAllIncorrectRefs?: boolean;
 
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
@@ -132,7 +133,7 @@ export type RawConfig = {
 export class LintConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
-
+  incorrectRefs: Record<string, Set<string>>;
   rules: Record<OasVersion, Record<string, RuleConfig>>;
   preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
@@ -144,6 +145,9 @@ export class LintConfig {
 
   constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
+    this.incorrectRefs = {};
+    this.validateIncorrectRefsParams();
+    this.getIncorrectRefs();
 
     this.plugins.push({
       id: '', // default plugin doesn't have id
@@ -347,16 +351,19 @@ export class LintConfig {
     }
   }
 
+  validateIncorrectRefsParams() {
+    if (this.rawConfig.resolveAllIncorrectRefs && this.rawConfig.resolveIncorrectRefs) {
+      process.stdout.write(red(`You don\'t need to provide ${blue('resolveIncorrectRefs')} types when the ${blue('resolveAllIncorrectRefs')} parameter exists.\n\n`));
+      process.exit(1);
+    }
+  }
+
   getIncorrectRefs() {
-    const { resolveIncorrectRefs } = this.rawConfig;
-    if (!resolveIncorrectRefs) return null;
-    let refsObj: any = {};
-    resolveIncorrectRefs.forEach(item => {
+    this.rawConfig.resolveIncorrectRefs?.forEach(item => {
       const [key, value] = item.split('.');
-      if (!refsObj[key]) { refsObj[key] = new Set(); }
-      refsObj[key].add(value);
+      if (!this.incorrectRefs[key]) { this.incorrectRefs[key] = new Set(); }
+      this.incorrectRefs[key].add(value);
     });
-    return refsObj;
   }
 
   skipRules(rules?: string[]) {
