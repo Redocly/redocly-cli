@@ -27,9 +27,9 @@ describe('Referenceable scalars', () => {
         rules: {
           spec: 'error',
         },
+        resolveIncorrectRefs: ['Info.description']
       }),
     });
-
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 });

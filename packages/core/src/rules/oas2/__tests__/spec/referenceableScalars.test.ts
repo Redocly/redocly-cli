@@ -27,6 +27,7 @@ describe('Referenceable scalars', () => {
         rules: {
           spec: 'error',
         },
+        resolveIncorrectRefs: ['Info.description']
       }),
     });
 

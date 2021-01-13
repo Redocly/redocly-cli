@@ -81,6 +81,7 @@ export async function lintDocument(opts: {
     rootDocument: document,
     rootType: types.DefinitionRoot,
     externalRefResolver,
+    resolveAllIncorrectRefs: config.rawConfig.resolveAllIncorrectRefs
   });
 
   walkDocument({

@@ -345,12 +345,12 @@ describe('collect refs', () => {
       rootDocument: rootDocument as Document,
       externalRefResolver: externalRefResolver,
       rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+      resolveAllIncorrectRefs: true
     });
 
     expect(resolvedRefs).toBeDefined();
     // expect(resolvedRefs.size).toEqual(2);
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
-      .toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
       Array [
         "openapi-with-md-description.yaml::./description.md",
       ]

@@ -353,7 +353,7 @@ export class LintConfig {
 
   validateIncorrectRefsParams() {
     if (this.rawConfig.resolveAllIncorrectRefs && this.rawConfig.resolveIncorrectRefs) {
-      process.stdout.write(red(`You don\'t need to provide ${blue('resolveIncorrectRefs')} types when the ${blue('resolveAllIncorrectRefs')} parameter exists.\n\n`));
+      process.stdout.write(red(`You don't need to provide ${blue('resolveIncorrectRefs')} types when the ${blue('resolveAllIncorrectRefs')} parameter exists.\n\n`));
       process.exit(1);
     }
   }
