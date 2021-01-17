@@ -20,7 +20,7 @@ export async function bundle(opts: {
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
-  base: string;
+  base?: string;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve), base = null } = opts;
   let document: Document;
