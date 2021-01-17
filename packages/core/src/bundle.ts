@@ -16,15 +16,21 @@ import { OasRef } from './typings/openapi';
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
 export async function bundle(opts: {
-  ref: string;
+  ref: string | Document;
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
+  base: string;
 }) {
-  const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
+  const { ref, externalRefResolver = new BaseResolver(opts.config.resolve), base = null } = opts;
   let document: Document;
   try {
-    document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
+    const isDocument = ['source','parsed'].every(d => Object.keys(ref).includes(d));
+    if (typeof ref === 'object' && isDocument) {
+      document = ref;
+    } else {
+      document = (await externalRefResolver.resolveDocument(base, ref as string)) as Document;
+    }
   } catch (e) {
     throw e;
   }
