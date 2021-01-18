@@ -156,7 +156,9 @@ export class LintConfig {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
     this.incorrectRefs = {};
     this.validateIncorrectRefsParams();
-    this.rawConfig.resolveIncorrectRefs = (this.rawConfig.resolveIncorrectRefs || []).concat(DEFAULT_INCORRECT_REFS);
+    if (!this.rawConfig.resolveIncorrectRefs && !this.rawConfig.resolveAllIncorrectRefs) {
+      this.rawConfig.resolveIncorrectRefs = DEFAULT_INCORRECT_REFS;
+    }
     this.getIncorrectRefs();
 
     this.plugins.push({

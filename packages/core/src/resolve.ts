@@ -254,6 +254,7 @@ export async function resolveDocument(opts: {
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
         if (propType && propType.name === undefined && (propType.referenceable || resolveAllIncorrectRefs)) {
+          if (!propType.referenceable) { propType.referenceable = true }
           propType = resolvableScalarType;
         }
 
