@@ -29,6 +29,15 @@ const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
+const DEFAULT_INCORRECT_REFS = [
+  'Info.description',
+  'Tag.description',
+  'Operation.description',
+  'XCodeSample.source',
+  'MediaType.example',
+  'Example.value'
+];
+
 export type RuleConfig =
   | ProblemSeverity
   | 'off'
@@ -147,6 +156,7 @@ export class LintConfig {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
     this.incorrectRefs = {};
     this.validateIncorrectRefsParams();
+    this.rawConfig.resolveIncorrectRefs = (this.rawConfig.resolveIncorrectRefs || []).concat(DEFAULT_INCORRECT_REFS);
     this.getIncorrectRefs();
 
     this.plugins.push({
