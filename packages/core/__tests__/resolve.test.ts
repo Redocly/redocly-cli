@@ -341,11 +341,12 @@ describe('collect refs', () => {
 
     expect(rootDocument).toBeDefined();
 
+    // @ts-ignore
+    Oas3Types.Info.properties.description['referenceable'] = true;
     const resolvedRefs = await resolveDocument({
       rootDocument: rootDocument as Document,
       externalRefResolver: externalRefResolver,
-      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
-      resolveAllIncorrectRefs: true
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot
     });
 
     expect(resolvedRefs).toBeDefined();
