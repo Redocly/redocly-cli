@@ -66,7 +66,8 @@ export async function lintDocument(opts: {
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    config.incorrectRefs
+    config.incorrectRefs,
+    config.rawConfig.resolveAllIncorrectRefs
   );
 
   const ctx: WalkContext = {
@@ -80,8 +81,7 @@ export async function lintDocument(opts: {
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,
-    externalRefResolver,
-    resolveAllIncorrectRefs: config.rawConfig.resolveAllIncorrectRefs
+    externalRefResolver
   });
 
   walkDocument({

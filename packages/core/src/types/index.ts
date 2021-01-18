@@ -57,7 +57,8 @@ export function mapOf(typeName: string) {
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
-  incorrectRefs: Record<string, Set<string>> = {}
+  incorrectRefs: Record<string, Set<string>> = {},
+  resolveAllIncorrectRefs?: boolean
 ): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
@@ -91,6 +92,15 @@ export function normalizeTypes(
     if (type.properties) {
       const mappedProps: Record<string, any> = {};
       for (const propName of Object.keys(type.properties)) {
+        if (
+          resolveAllIncorrectRefs && (
+            typeof type.properties[propName] === 'object' &&
+            type.properties[propName] !== null &&
+            type.properties[propName].type
+          )
+        ) {
+          type.properties[propName]['referenceable'] = true;
+        }
         mappedProps[propName] = resolveType(type.properties[propName]);
       }
       type.properties = mappedProps;

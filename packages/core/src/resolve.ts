@@ -197,9 +197,8 @@ export async function resolveDocument(opts: {
   rootDocument: Document;
   externalRefResolver: BaseResolver;
   rootType: NormalizedNodeType;
-  resolveAllIncorrectRefs?: boolean;
 }): Promise<ResolvedRefMap> {
-  const { rootDocument, externalRefResolver, rootType, resolveAllIncorrectRefs } = opts;
+  const { rootDocument, externalRefResolver, rootType } = opts;
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seedNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
 
@@ -253,8 +252,7 @@ export async function resolveDocument(opts: {
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (propType && propType.name === undefined && (propType.referenceable || resolveAllIncorrectRefs)) {
-          if (!propType.referenceable) { propType.referenceable = true }
+        if (propType && propType.name === undefined && propType.referenceable) {
           propType = resolvableScalarType;
         }
 
