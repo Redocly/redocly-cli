@@ -23,15 +23,20 @@ export async function bundle(opts: {
   dereference?: boolean;
   base?: string;
 }) {
-  const { ref, doc, externalRefResolver = new BaseResolver(opts.config.resolve), base = null } = opts;
+  const {
+    ref,
+    doc,
+    externalRefResolver = new BaseResolver(opts.config.resolve),
+    base = null,
+  } = opts;
   if (!(ref || doc)) {
     throw new Error('Document or reference is required.\n');
   }
-  let document;
-  try {
-    document = doc || await externalRefResolver.resolveDocument(base, ref as string) as Document;
-  } catch (e) {
-    throw e;
+
+  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!);
+
+  if (document instanceof Error) {
+    throw document;
   }
 
   return bundleDocument({
