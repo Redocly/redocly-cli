@@ -94,12 +94,16 @@ export function normalizeTypes(
       for (const propName of Object.keys(type.properties)) {
         if (
           resolveAllIncorrectRefs && (
-            typeof type.properties[propName] === 'object' &&
+            (typeof type.properties[propName] === 'object' &&
             type.properties[propName] !== null &&
-            type.properties[propName].type
+            type.properties[propName].type)
+            || propName === 'example'
           )
         ) {
-          type.properties[propName]['referenceable'] = true;
+          type.properties[propName] = {
+            ...type.properties[propName],
+            ...{ referenceable: true }
+          }
         }
         mappedProps[propName] = resolveType(type.properties[propName]);
       }
