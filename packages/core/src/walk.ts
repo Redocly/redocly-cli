@@ -231,9 +231,16 @@ export function walkDocument<T>(opts: {
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
+            props.push(...Object.keys(node).filter((k) => k!== '$ref' && !props.includes(k))); // properties on the same level as $ref
           }
           for (const propName of props) {
             let value = resolvedNode[propName];
+            let loc = resolvedLocation;
+
+            if (value === undefined) {
+              value =  node[propName];
+              loc = location; // properties on the same level as $ref should resolve against original location, not target
+            }
 
             let propType = type.properties[propName];
             if (propType === undefined) propType = type.additionalProperties;
@@ -251,7 +258,7 @@ export function walkDocument<T>(opts: {
               continue;
             }
 
-            walkNode(value, propType, resolvedLocation.child([propName]), resolvedNode, propName);
+            walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
           }
         }
       }
