@@ -115,8 +115,8 @@ export type BaseVisitor = {
 
   ref?:
     | {
-        enter?: VisitFunction<any>;
-        leave?: VisitFunction<any>;
+        enter?: VisitRefFunction;
+        leave?: VisitRefFunction;
       }
     | VisitRefFunction;
 };
