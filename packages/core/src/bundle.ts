@@ -4,12 +4,14 @@ import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitor
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
-import { WalkContext, walkDocument, UserContext } from './walk';
+import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './lint';
 import { Location, refBaseName } from './ref-utils';
 import { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
+import { isPlainObject } from './utils';
+import { OasRef } from './typings/openapi';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -20,7 +22,6 @@ export async function bundle(opts: {
   dereference?: boolean;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
-
   let document: Document;
   try {
     document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
@@ -48,19 +49,17 @@ export async function bundleDocument(opts: {
   const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
-
   const rules = config.getRulesForOasVersion(oasMajorVersion);
-
   const types = normalizeTypes(
     config.extendTypes(
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
+    config,
   );
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const decorators = initRules(rules as any, config, 'decorators', oasVersion);
-
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
@@ -153,23 +152,18 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         }
         if (
           resolved.location.source === rootDocument.source &&
-          resolved.location.source === ctx.location.source
+          resolved.location.source === ctx.location.source &&
+          ctx.type.name !== 'scalar'
         ) {
           return;
         }
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
-          if (ctx.type.name === 'scalar') {
-            ctx.parent[ctx.key] = resolved.node;
-          } else {
-            delete node.$ref;
-            Object.assign(node, resolved.node);
-          }
+          replaceRef(node, resolved, ctx);
         } else {
           if (dereference) {
             saveComponent(componentType, resolved, ctx);
-            delete node.$ref;
-            Object.assign(node, resolved.node);
+            replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
           }
@@ -209,6 +203,16 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     };
   }
 
+  function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+    if (!isPlainObject(resolved.node)) {
+      ctx.parent[ctx.key] = resolved.node;
+    } else {
+      // @ts-ignore
+      delete ref.$ref;
+      Object.assign(ref, resolved.node);
+    }
+  }
+
   function saveComponent(
     componentType: string,
     target: { node: any; location: Location },
@@ -234,15 +238,19 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
 
     let name = '';
 
-    const refParts = pointer.slice(2).split('/').filter(Boolean);  // slice(2) removes "#/"
+    const refParts = pointer.slice(2).split('/').filter(Boolean); // slice(2) removes "#/"
     while (refParts.length > 0) {
       name = refParts.pop() + (name ? `-${name}` : '');
-      if (!componentsGroup || !componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+      if (
+        !componentsGroup ||
+        !componentsGroup[name] ||
+        isEqual(componentsGroup[name], target.node)
+      ) {
         return name;
       }
     }
 
-    name = refBaseName(fileRef) + (name ? `_${name}` : '')
+    name = refBaseName(fileRef) + (name ? `_${name}` : '');
     if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
       return name;
     }

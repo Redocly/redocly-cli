@@ -50,6 +50,7 @@ export type DecoratorConfig = PreprocessorConfig;
 export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
+  doNotResolveExamples?: boolean;
 
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
@@ -131,7 +132,7 @@ export type RawConfig = {
 export class LintConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
-
+  doNotResolveExamples: boolean;
   rules: Record<OasVersion, Record<string, RuleConfig>>;
   preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
@@ -143,6 +144,7 @@ export class LintConfig {
 
   constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
+    this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
     this.plugins.push({
       id: '', // default plugin doesn't have id

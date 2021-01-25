@@ -341,16 +341,17 @@ describe('collect refs', () => {
 
     expect(rootDocument).toBeDefined();
 
+    // @ts-ignore
+    Oas3Types.Info.properties.description['referenceable'] = true;
     const resolvedRefs = await resolveDocument({
       rootDocument: rootDocument as Document,
       externalRefResolver: externalRefResolver,
-      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot
     });
 
     expect(resolvedRefs).toBeDefined();
     // expect(resolvedRefs.size).toEqual(2);
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
-      .toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
       Array [
         "openapi-with-md-description.yaml::./description.md",
       ]

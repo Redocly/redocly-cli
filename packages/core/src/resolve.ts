@@ -199,7 +199,6 @@ export async function resolveDocument(opts: {
   rootType: NormalizedNodeType;
 }): Promise<ResolvedRefMap> {
   const { rootDocument, externalRefResolver, rootType } = opts;
-
   const resolvedRefMap: ResolvedRefMap = new Map();
   const seedNodes = new Set<string>(); // format "${type}::${absoluteRef}${pointer}"
 
@@ -249,20 +248,21 @@ export async function resolveDocument(opts: {
 
       for (const propName of Object.keys(node)) {
         let propValue = node[propName];
-
         let propType = type.properties[propName];
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (propType && propType.name === undefined && propType.referenceable) {
-          propType = resolvableScalarType;
-        }
+
         if (!isNamedType(propType) && propType?.directResolveAs) {
           propType = propType.directResolveAs;
           propValue = { $ref: propValue };
         }
 
-        if (!isNamedType(propType)) {
+        if (propType && propType.name === undefined && propType.resolvable !== false) {
+          propType = resolvableScalarType;
+        }
+
+        if (!isNamedType(propType) || typeof propValue !== 'object') {
           continue;
         }
 
@@ -295,7 +295,6 @@ export async function resolveDocument(opts: {
       if (hasRef(refStack.prev, ref)) {
         throw new Error('Self-referencing circular pointer');
       }
-
       const { uri, pointer } = parseRef(ref.$ref);
       const isRemote = uri !== null;
       let targetDoc: Document;
@@ -346,7 +345,6 @@ export async function resolveDocument(opts: {
       }
 
       resolvedRef.node = target;
-
       const refId = document.source.absoluteRef + '::' + ref.$ref;
 
       if (resolvedRef.document && isRef(target)) {

@@ -3,7 +3,7 @@ export type ScalarSchema = {
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
   items?: ScalarSchema;
   enum?: string[];
-  referenceable?: boolean;
+  isExample?: boolean;
   directResolveAs?: string;
 };
 
@@ -12,8 +12,8 @@ export type NormalizedScalarSchema = {
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
   items?: ScalarSchema;
   enum?: string[];
-  referenceable?: boolean;
   directResolveAs?: NormalizedNodeType;
+  resolvable: boolean;
 };
 
 export type NodeType = {
@@ -57,6 +57,7 @@ export function mapOf(typeName: string) {
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
+  options: { doNotResolveExamples?: boolean } = {},
 ): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
@@ -70,7 +71,6 @@ export function normalizeTypes(
   for (const type of Object.values(normalizedTypes)) {
     normalizeType(type);
   }
-
   return normalizedTypes;
 
   function normalizeType(type: any) {
@@ -83,8 +83,15 @@ export function normalizeTypes(
 
     if (type.properties) {
       const mappedProps: Record<string, any> = {};
-      for (const propName of Object.keys(type.properties)) {
-        mappedProps[propName] = resolveType(type.properties[propName]);
+      for (const [propName, prop] of Object.entries(type.properties)) {
+        mappedProps[propName] = resolveType(prop);
+
+        if (options.doNotResolveExamples && prop && (prop as ScalarSchema).isExample) {
+          mappedProps[propName] = {
+            ...(prop as object),
+            resolvable: false,
+          };
+        }
       }
       type.properties = mappedProps;
     }

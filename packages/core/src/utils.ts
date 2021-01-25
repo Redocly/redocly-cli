@@ -30,6 +30,10 @@ export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
+export function isPlainObject(value: any): value is object {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   const headers: Record<string, string> = {};
   for (const header of config.headers) {

@@ -21,7 +21,7 @@ const DefinitionRoot: NodeType = {
 const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
-    description: { type: 'string', referenceable: true },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
@@ -80,7 +80,6 @@ const Info: NodeType = {
       type: 'string',
     },
     description: {
-      referenceable: true,
       type: 'string',
     },
     termsOfService: {
@@ -131,7 +130,7 @@ const WebhooksMap: NodeType = {
 
 const PathItem: NodeType = {
   properties: {
-    $ref: 'PathItem', // TODO: verify special $ref handling for Path Item
+    $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
     servers: listOf('Server'),
     parameters: listOf('Parameter'),
     summary: {
@@ -181,7 +180,7 @@ const Parameter: NodeType = {
       type: 'boolean',
     },
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     content: 'MediaTypeMap',
   },
@@ -190,8 +189,8 @@ const Parameter: NodeType = {
 
 const Callback = {
   properties: {},
-  additionalProperties: 'PathItem'
-}
+  additionalProperties: 'PathItem',
+};
 
 const Operation: NodeType = {
   properties: {
@@ -199,17 +198,10 @@ const Operation: NodeType = {
       type: 'array',
       items: { type: 'string' },
     },
-    summary: {
-      type: 'string',
-    },
-    description: {
-      referenceable: true,
-      type: 'string',
-    },
+    summary: { type: 'string' },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
-    operationId: {
-      type: 'string',
-    },
+    operationId: { type: 'string' },
     parameters: listOf('Parameter'),
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
@@ -229,7 +221,7 @@ const XCodeSample: NodeType = {
   properties: {
     lang: { type: 'string' },
     label: { type: 'string' },
-    source: { type: 'string', referenceable: true },
+    source: { type: 'string' },
   },
 };
 
@@ -254,7 +246,7 @@ const MediaTypeMap: NodeType = {
 const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     encoding: mapOf('Encoding'),
   },
@@ -262,7 +254,7 @@ const MediaType: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: null,
+    value: { isExample: true },
     summary: {
       type: 'string',
     },
@@ -317,7 +309,7 @@ const Header: NodeType = {
       type: 'boolean',
     },
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     content: 'MediaTypeMap',
   },
@@ -405,7 +397,7 @@ const Schema: NodeType = {
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
     xml: 'Xml',
-    example: null,
+    example: { isExample: true },
     deprecated: { type: 'boolean' },
   },
 };

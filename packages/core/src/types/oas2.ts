@@ -28,7 +28,7 @@ const DefinitionRoot: NodeType = {
 const Info: NodeType = {
   properties: {
     title: { type: 'string' },
-    description: { referenceable: true, type: 'string' },
+    description: { type: 'string' },
     termsOfService: { type: 'string' },
     contact: 'Contact',
     license: 'License',
@@ -61,7 +61,7 @@ const PathMap: NodeType = {
 
 const PathItem: NodeType = {
   properties: {
-    $ref: 'PathItem', // TODO: verify special $ref handling for Path Item
+    $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
 
     get: 'Operation',
     put: 'Operation',
@@ -81,7 +81,7 @@ const Operation: NodeType = {
     summary: {
       type: 'string',
     },
-    description: { referenceable: true, type: 'string' },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
     consumes: { type: 'array', items: { type: 'string' } },
@@ -101,7 +101,7 @@ const XCodeSample: NodeType = {
   properties: {
     lang: { type: 'string' },
     label: { type: 'string' },
-    source: { type: 'string', referenceable: true },
+    source: { type: 'string' },
   },
 };
 
@@ -209,7 +209,7 @@ const Response: NodeType = {
 
 const Examples: NodeType = {
   properties: {},
-  additionalProperties: null,
+  additionalProperties: { isExample: true },
 };
 
 const Header: NodeType = {
@@ -246,7 +246,7 @@ const Header: NodeType = {
 const Tag: NodeType = {
   properties: {
     name: { type: 'string' },
-    description: { type: 'string', referenceable: true },
+    description: { type: 'string' },
     externalDocs: 'ExternalDocs',
   },
   required: ['name'],
@@ -299,7 +299,7 @@ const Schema: NodeType = {
     readOnly: { type: 'boolean' },
     xml: 'Xml',
     externalDocs: 'ExternalDocs',
-    example: null,
+    example: { isExample: true },
   },
 };
 
@@ -391,5 +391,5 @@ export const Oas2Types: Record<string, NodeType> = {
 
   SecurityScheme,
 
-  XCodeSample
+  XCodeSample,
 };
