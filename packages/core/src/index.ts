@@ -9,7 +9,7 @@ export { Stats } from './rules/other/stats';
 
 export { loadConfig, Config, LintConfig, IGNORE_FILE } from './config/config';
 export { RedoclyClient } from './redocly';
-export { BaseResolver, Document, resolveDocument, ResolveError, YamlParseError } from './resolve';
+export { Source, BaseResolver, Document, resolveDocument, ResolveError, YamlParseError } from './resolve';
 export { unescapePointer } from './ref-utils';
 export { detectOpenAPI, OasMajorVersion, openAPIMajor } from './lint';
 export { normalizeVisitors } from './visitors';

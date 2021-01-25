@@ -16,17 +16,27 @@ import { OasRef } from './typings/openapi';
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
 export async function bundle(opts: {
-  ref: string;
+  ref?: string;
+  doc?: Document;
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
+  base?: string;
 }) {
-  const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
-  let document: Document;
-  try {
-    document = (await externalRefResolver.resolveDocument(null, ref)) as Document;
-  } catch (e) {
-    throw e;
+  const {
+    ref,
+    doc,
+    externalRefResolver = new BaseResolver(opts.config.resolve),
+    base = null,
+  } = opts;
+  if (!(ref || doc)) {
+    throw new Error('Document or reference is required.\n');
+  }
+
+  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!);
+
+  if (document instanceof Error) {
+    throw document;
   }
 
   return bundleDocument({
