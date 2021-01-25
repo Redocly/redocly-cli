@@ -259,7 +259,7 @@ export function walkDocument<T>(opts: {
               propType = { name: 'scalar', properties: {} };
             }
 
-            if (!isNamedType(propType) || propType.name === 'scalar') {
+            if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
               continue;
             }
 
