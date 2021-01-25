@@ -3,7 +3,7 @@ export type ScalarSchema = {
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
   items?: ScalarSchema;
   enum?: string[];
-  referenceable?: boolean;
+  isExample?: boolean;
   directResolveAs?: string;
 };
 
@@ -12,8 +12,8 @@ export type NormalizedScalarSchema = {
   type?: 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array';
   items?: ScalarSchema;
   enum?: string[];
-  referenceable?: boolean;
   directResolveAs?: NormalizedNodeType;
+  resolvable: boolean;
 };
 
 export type NodeType = {
@@ -57,8 +57,7 @@ export function mapOf(typeName: string) {
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
-  incorrectRefs: Record<string, Set<string>> = {},
-  resolveAllIncorrectRefs?: boolean
+  options: { doNotResolveExamples?: boolean } = {},
 ): Record<string, NormalizedNodeType> {
   const normalizedTypes: Record<string, NormalizedNodeType> = {};
 
@@ -70,16 +69,9 @@ export function normalizeTypes(
   }
 
   for (const type of Object.values(normalizedTypes)) {
-    normalizeIncorrectRefs(type, incorrectRefs);
     normalizeType(type);
   }
   return normalizedTypes;
-
-  function normalizeIncorrectRefs(type: any, incorrectRefs: Record<string, Set<string>>) {
-    incorrectRefs[type.name]?.forEach((item: string) => {
-      type.properties[item] = { ...type.properties[item], referenceable: true }
-    })
-  }
 
   function normalizeType(type: any) {
     if (type.additionalProperties) {
@@ -91,21 +83,15 @@ export function normalizeTypes(
 
     if (type.properties) {
       const mappedProps: Record<string, any> = {};
-      for (const propName of Object.keys(type.properties)) {
-        if (
-          resolveAllIncorrectRefs && (
-            (typeof type.properties[propName] === 'object' &&
-            type.properties[propName] !== null &&
-            type.properties[propName].type)
-            || propName === 'example'
-          )
-        ) {
-          type.properties[propName] = {
-            ...type.properties[propName],
-            ...{ referenceable: true }
-          }
+      for (const [propName, prop] of Object.entries(type.properties)) {
+        mappedProps[propName] = resolveType(prop);
+
+        if (options.doNotResolveExamples && prop && (prop as ScalarSchema).isExample) {
+          mappedProps[propName] = {
+            ...(prop as object),
+            resolvable: false,
+          };
         }
-        mappedProps[propName] = resolveType(type.properties[propName]);
       }
       type.properties = mappedProps;
     }

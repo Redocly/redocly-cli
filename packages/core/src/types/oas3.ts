@@ -180,7 +180,7 @@ const Parameter: NodeType = {
       type: 'boolean',
     },
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     content: 'MediaTypeMap',
   },
@@ -246,7 +246,7 @@ const MediaTypeMap: NodeType = {
 const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     encoding: mapOf('Encoding'),
   },
@@ -254,7 +254,7 @@ const MediaType: NodeType = {
 
 const Example: NodeType = {
   properties: {
-    value: null,
+    value: { isExample: true },
     summary: {
       type: 'string',
     },
@@ -309,7 +309,7 @@ const Header: NodeType = {
       type: 'boolean',
     },
     schema: 'Schema',
-    example: null,
+    example: { isExample: true },
     examples: mapOf('Example'),
     content: 'MediaTypeMap',
   },
@@ -397,7 +397,7 @@ const Schema: NodeType = {
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
     xml: 'Xml',
-    example: null,
+    example: { isExample: true },
     deprecated: { type: 'boolean' },
   },
 };

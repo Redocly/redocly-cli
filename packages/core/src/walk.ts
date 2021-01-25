@@ -245,7 +245,7 @@ export function walkDocument<T>(opts: {
             let propType = type.properties[propName];
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
-            if (propType && propType.name === undefined && propType.referenceable) {
+            if (propType && propType.name === undefined && propType.resolvable !== false) {
               propType = { name: 'scalar', properties: {} };
             }
 
@@ -254,7 +254,7 @@ export function walkDocument<T>(opts: {
               value = { $ref: value };
             }
 
-            if (!isNamedType(propType)) {
+            if (!isNamedType(propType) || propType.name === 'scalar') {
               continue;
             }
 

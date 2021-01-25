@@ -66,8 +66,7 @@ export async function lintDocument(opts: {
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    config.incorrectRefs,
-    config.rawConfig.resolveAllIncorrectRefs
+    config,
   );
 
   const ctx: WalkContext = {

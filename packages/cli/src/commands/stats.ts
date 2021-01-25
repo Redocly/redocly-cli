@@ -66,7 +66,7 @@ export async function handleStats (argv: {
   entrypoint?: string;
   format: string;
 }) {
-  const config: LintConfig | Config = await loadConfig(argv.config);
+  const config: Config = await loadConfig(argv.config);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
   const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
@@ -79,7 +79,7 @@ export async function handleStats (argv: {
       oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    lintConfig.incorrectRefs
+    lintConfig
   );
 
   const startedAt = performance.now();

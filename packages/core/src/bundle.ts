@@ -55,8 +55,7 @@ export async function bundleDocument(opts: {
       customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
       oasVersion,
     ),
-    config.incorrectRefs,
-    config.rawConfig.resolveAllIncorrectRefs
+    config,
   );
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
@@ -82,7 +81,7 @@ export async function bundleDocument(opts: {
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,
-    externalRefResolver
+    externalRefResolver,
   });
 
   walkDocument({
@@ -239,15 +238,19 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
 
     let name = '';
 
-    const refParts = pointer.slice(2).split('/').filter(Boolean);  // slice(2) removes "#/"
+    const refParts = pointer.slice(2).split('/').filter(Boolean); // slice(2) removes "#/"
     while (refParts.length > 0) {
       name = refParts.pop() + (name ? `-${name}` : '');
-      if (!componentsGroup || !componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+      if (
+        !componentsGroup ||
+        !componentsGroup[name] ||
+        isEqual(componentsGroup[name], target.node)
+      ) {
         return name;
       }
     }
 
-    name = refBaseName(fileRef) + (name ? `_${name}` : '')
+    name = refBaseName(fileRef) + (name ? `_${name}` : '');
     if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
       return name;
     }

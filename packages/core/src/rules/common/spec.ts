@@ -61,7 +61,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           continue; // just defined, no validation
         }
 
-        if (propSchema.referenceable && isRef(propValue)) {
+        if (propSchema.resolvable !== false && isRef(propValue)) {
           propValue = resolve(propValue).node;
         }
 

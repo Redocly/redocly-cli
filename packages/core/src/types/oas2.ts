@@ -209,7 +209,7 @@ const Response: NodeType = {
 
 const Examples: NodeType = {
   properties: {},
-  additionalProperties: null,
+  additionalProperties: { isExample: true },
 };
 
 const Header: NodeType = {
@@ -299,7 +299,7 @@ const Schema: NodeType = {
     readOnly: { type: 'boolean' },
     xml: 'Xml',
     externalDocs: 'ExternalDocs',
-    example: null,
+    example: { isExample: true },
   },
 };
 
@@ -391,5 +391,5 @@ export const Oas2Types: Record<string, NodeType> = {
 
   SecurityScheme,
 
-  XCodeSample
+  XCodeSample,
 };

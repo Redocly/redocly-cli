@@ -252,7 +252,7 @@ export async function resolveDocument(opts: {
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (propType && propType.name === undefined && propType.referenceable) {
+        if (propType && propType.name === undefined && propType.resolvable !== false) {
           propType = resolvableScalarType;
         }
 
@@ -261,7 +261,7 @@ export async function resolveDocument(opts: {
           propValue = { $ref: propValue };
         }
 
-        if (!isNamedType(propType)) {
+        if (!isNamedType(propType) || typeof propValue !== 'object') {
           continue;
         }
 

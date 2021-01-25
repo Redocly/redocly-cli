@@ -29,15 +29,6 @@ const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
-const DEFAULT_INCORRECT_REFS = [
-  'Info.description',
-  'Tag.description',
-  'Operation.description',
-  'XCodeSample.source',
-  'MediaType.example',
-  'Example.value'
-];
-
 export type RuleConfig =
   | ProblemSeverity
   | 'off'
@@ -59,8 +50,7 @@ export type DecoratorConfig = PreprocessorConfig;
 export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
-  resolveIncorrectRefs?: string[];
-  resolveAllIncorrectRefs?: boolean;
+  doNotResolveExamples?: boolean;
 
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
@@ -142,7 +132,7 @@ export type RawConfig = {
 export class LintConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
-  incorrectRefs: Record<string, Set<string>>;
+  doNotResolveExamples: boolean;
   rules: Record<OasVersion, Record<string, RuleConfig>>;
   preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
@@ -154,12 +144,7 @@ export class LintConfig {
 
   constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
-    this.incorrectRefs = {};
-    this.validateIncorrectRefsParams();
-    if (!this.rawConfig.resolveIncorrectRefs && !this.rawConfig.resolveAllIncorrectRefs) {
-      this.rawConfig.resolveIncorrectRefs = DEFAULT_INCORRECT_REFS;
-    }
-    this.getIncorrectRefs();
+    this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
     this.plugins.push({
       id: '', // default plugin doesn't have id
@@ -361,21 +346,6 @@ export class LintConfig {
         this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
         return oas2Rules;
     }
-  }
-
-  validateIncorrectRefsParams() {
-    if (this.rawConfig.resolveAllIncorrectRefs && this.rawConfig.resolveIncorrectRefs) {
-      process.stdout.write(red(`You don't need to provide ${blue('resolveIncorrectRefs')} types when the ${blue('resolveAllIncorrectRefs')} parameter exists.\n\n`));
-      process.exit(1);
-    }
-  }
-
-  getIncorrectRefs() {
-    this.rawConfig.resolveIncorrectRefs?.forEach(item => {
-      const [key, value] = item.split('.');
-      if (!this.incorrectRefs[key]) { this.incorrectRefs[key] = new Set(); }
-      this.incorrectRefs[key].add(value);
-    });
   }
 
   skipRules(rules?: string[]) {
