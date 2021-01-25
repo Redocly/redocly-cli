@@ -231,8 +231,12 @@ export function walkDocument<T>(opts: {
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
+          }
+
+          if (isRef(node)) {
             props.push(...Object.keys(node).filter((k) => k!== '$ref' && !props.includes(k))); // properties on the same level as $ref
           }
+
           for (const propName of props) {
             let value = resolvedNode[propName];
             let loc = resolvedLocation;
@@ -245,13 +249,14 @@ export function walkDocument<T>(opts: {
             let propType = type.properties[propName];
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
-            if (propType && propType.name === undefined && propType.resolvable !== false) {
-              propType = { name: 'scalar', properties: {} };
-            }
 
             if (!isNamedType(propType) && propType?.directResolveAs) {
               propType = propType.directResolveAs;
               value = { $ref: value };
+            }
+
+            if (propType && propType.name === undefined && propType.resolvable !== false) {
+              propType = { name: 'scalar', properties: {} };
             }
 
             if (!isNamedType(propType) || propType.name === 'scalar') {

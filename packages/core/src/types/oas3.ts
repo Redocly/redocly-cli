@@ -130,7 +130,7 @@ const WebhooksMap: NodeType = {
 
 const PathItem: NodeType = {
   properties: {
-    $ref: 'PathItem', // TODO: verify special $ref handling for Path Item
+    $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
     servers: listOf('Server'),
     parameters: listOf('Parameter'),
     summary: {
@@ -189,8 +189,8 @@ const Parameter: NodeType = {
 
 const Callback = {
   properties: {},
-  additionalProperties: 'PathItem'
-}
+  additionalProperties: 'PathItem',
+};
 
 const Operation: NodeType = {
   properties: {
