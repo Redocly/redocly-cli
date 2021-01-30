@@ -11,7 +11,7 @@ RUN npm run webpack-bundle
 
 FROM node:alpine
 
-WORKDIR /bin
+WORKDIR /spec
 COPY --from=0 /build/dist/bundle.js /bin/openapi-cli
 
-ENTRYPOINT [ "node", "openapi-cli"]
+ENTRYPOINT [ "node", "/bin/openapi-cli"]

@@ -29,12 +29,32 @@ Currently, @redocly/openapi-cli supports these features:
 
 Unlike other OpenAPI linters, `@redocly/openapi-cli` defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how linters for programming languages work and results in major performance benefits over other approaches. Extend functionality at different points in the lifecycle with preprocessors, rules, and decorators.
 
-## TLDR
+## Usage
 
-`npx @redocly/openapi-cli lint path-to-root-file.yaml`
+### Node
+
+```
+npx @redocly/openapi-cli lint path-to-root-file.yaml
+```
+
+### Docker
+
+To give the docker container access to the OpenAPI spec files, you need to
+mount the containing directory as a volume. Assuming the spec is rooted
+in the current working directory, you need the following command:
+
+```
+docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
+```
+
+To build and run with a local image, run the following from the project root:
+
+```
+docker build -t openapi-cli .
+docker run --rm -v $PWD:/spec oepnapi-cli lint path-to-root-file.yaml
+```
 
 ## [Read the docs](https://redoc.ly/docs/cli/)
-
 ## Credits
 
 Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to [Swagger](https://github.com/swagger-api/swagger-editor), [Spectral](https://github.com/stoplightio/spectral), and [OAS-Kit](https://github.com/Mermade/oas-kit) for inspiring the ruleset.
