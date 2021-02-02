@@ -84,6 +84,6 @@ jobs:
       run: npm install
 
     - name: Publish to NPM
-      run: cd packages/core && npm publish --tag next && cd ../cli && npm publish --tag next
+      run: cd packages/core && npm publish && cd ../cli && npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
