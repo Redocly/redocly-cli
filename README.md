@@ -55,6 +55,7 @@ docker run --rm -v $PWD:/spec oepnapi-cli lint path-to-root-file.yaml
 ```
 
 ## [Read the docs](https://redoc.ly/docs/cli/)
+
 ## Credits
 
 Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to [Swagger](https://github.com/swagger-api/swagger-editor), [Spectral](https://github.com/stoplightio/spectral), and [OAS-Kit](https://github.com/Mermade/oas-kit) for inspiring the ruleset.
