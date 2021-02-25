@@ -185,6 +185,7 @@ yargs
           `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
         )} and paste it below`,
       ),
+      true
     );
     const client = new RedoclyClient();
     client.login(clientToken);

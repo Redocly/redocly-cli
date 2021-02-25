@@ -6,6 +6,7 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+import { Writable } from 'stream';
 import {
   BundleOutputFormat,
   Config,
@@ -119,17 +120,35 @@ export function saveBundle(filename: string, output: string) {
   fs.writeFileSync(filename, output);
 }
 
-export async function promptUser(query: string): Promise<string> {
+export async function promptUser(query: string, hideUserInput = false): Promise<string> {
   return new Promise((resolve) => {
+    let output: Writable = process.stdout;
+    let isOutputMuted = false;
+
+    if (hideUserInput) {
+      output = new Writable({
+        write: (chunk, encoding, callback) => {
+          if (!isOutputMuted) {
+            process.stdout.write(chunk, encoding);
+          }
+          callback();
+        },
+      });
+    }
+
     const rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout,
+      output,
+      terminal: true,
+      historySize: hideUserInput ? 0 : 30,
     });
 
     rl.question(`${query}:\n\n  `, (answer) => {
       rl.close();
       resolve(answer);
     });
+
+    isOutputMuted = hideUserInput;
   });
 }
 
