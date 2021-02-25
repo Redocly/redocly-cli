@@ -329,11 +329,6 @@ export function walkDocument<T>(opts: {
       ruleId: string,
       severity: ProblemSeverity,
     ) {
-      if ((node === null || node === undefined) && (context.type?.name !== 'scalar')) {
-        // if node is not a scalar then visitor may crash when null or undefined is passed
-        // instead of a node when it tries to access any fields
-        return;
-      }
       const report = reportFn.bind(undefined, ruleId, severity);
       visit(
         node,
