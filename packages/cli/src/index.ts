@@ -181,10 +181,11 @@ yargs
   .command('login', 'Login to the Redocly API registry with an access token.', async () => {
     const clientToken = await promptUser(
       green(
-        `\n  🔑 Copy your access token from ${blue(
+        `\n  🔑 Copy your API key from ${blue(
           `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
         )} and paste it below`,
       ),
+      true
     );
     const client = new RedoclyClient();
     client.login(clientToken);
