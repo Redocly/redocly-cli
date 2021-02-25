@@ -35,7 +35,7 @@ export async function handlePush (argv: {
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
     const clientToken = await promptUser(
-       green(`\n  🔑 Copy your access token from ${blue('https://app.redoc.ly/profile')} and paste it below`)
+       green(`\n  🔑 Copy your API key from ${blue('https://app.redoc.ly/profile')} and paste it below`)
     );
     await client.login(clientToken);
   }
