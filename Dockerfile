@@ -6,7 +6,7 @@ COPY webpack.config.ts tsconfig.json tsconfig.build.json /build/
 COPY package.json package-lock.json /build/
 COPY packages /build/packages
 
-RUN npm ci --no-optional --ignore-scripts
+RUN npm ci --no-optional
 RUN npm run webpack-bundle
 
 FROM node:alpine
