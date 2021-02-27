@@ -51,7 +51,7 @@ To build and run with a local image, run the following from the project root:
 
 ```
 docker build -t openapi-cli .
-docker run --rm -v $PWD:/spec oepnapi-cli lint path-to-root-file.yaml
+docker run --rm -v $PWD:/spec openapi-cli lint path-to-root-file.yaml
 ```
 
 ## [Read the docs](https://redoc.ly/docs/cli/)
