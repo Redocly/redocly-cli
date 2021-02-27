@@ -47,7 +47,7 @@ export class RedoclyClient {
       process.stderr.write(
         `${yellow(
           'Warning:',
-        )} invalid Redoc.ly access token. Use "npx @redocly/openapi-cli login" to provide your access token\n`,
+        )} invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key\n`,
       );
       return undefined;
     }
@@ -62,7 +62,7 @@ export class RedoclyClient {
 
     if (!authorized) {
       process.stdout.write(
-        red('Authorization failed. Please check if you entered a valid token.\n'),
+        red('Authorization failed. Please check if you entered a valid API key.\n'),
       );
       process.exit(1);
     }
@@ -81,7 +81,7 @@ export class RedoclyClient {
     if (existsSync(credentialsPath)) {
       unlinkSync(credentialsPath);
     }
-    process.stdout.write('Logged out from the Redoc.ly account. ✋\n');
+    process.stdout.write('Logged out from the Redocly account. ✋\n');
   }
 
   async query(queryString: string, parameters = {}, headers = {}) {
