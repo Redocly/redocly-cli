@@ -34,9 +34,9 @@ export class RedoclyClient {
     return this.hasToken() && !!(await this.getAuthorizationHeader());
   }
 
-  async verifyToken(accessToken: string): Promise<boolean> {
+  async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
     if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken, true);
+    const authDetails = await RedoclyClient.authorize(accessToken, verbose);
     if (!authDetails) return false;
     return true;
   }
@@ -54,11 +54,11 @@ export class RedoclyClient {
     return this.accessToken;
   }
 
-  async login(accessToken: string) {
+  async login(accessToken: string, verbose: boolean = false) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(gray('\n  Logging in...\n'));
 
-    const authorized = await this.verifyToken(accessToken);
+    const authorized = await this.verifyToken(accessToken, verbose);
 
     if (!authorized) {
       process.stdout.write(

@@ -178,17 +178,24 @@ yargs
       }),
     (argv) => { handleBundle(argv, version) }
   )
-  .command('login', 'Login to the Redocly API registry with an access token.', async () => {
-    const clientToken = await promptUser(
-      green(
-        `\n  🔑 Copy your API key from ${blue(
-          `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
-        )} and paste it below`,
-      ),
-      true
-    );
-    const client = new RedoclyClient();
-    client.login(clientToken);
+  .command('login', 'Login to the Redocly API registry with an access token.', async (yargs) =>
+    yargs.options({
+      verbose: {
+        description: 'Include addtional output.',
+        type: 'boolean',
+      },
+    }),
+    async (argv) => {
+      const clientToken = await promptUser(
+        green(
+          `\n  🔑 Copy your API key from ${blue(
+            `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
+          )} and paste it below`,
+        ),
+        true,
+      );
+      const client = new RedoclyClient();
+      client.login(clientToken, argv.verbose);
   })
   .command('logout', 'Clear your stored credentials for the Redocly API registry.', async () => {
     const client = new RedoclyClient();
