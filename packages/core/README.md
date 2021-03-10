@@ -17,7 +17,7 @@ const lintResults = wait lint({ ref: pathToEntryPoint, config });
 ### Bundle
 
 ```js
-import { formatProblems, lint, loadConfig } from '@redocly/openapi-core';
+import { formatProblems, bundle, loadConfig } from '@redocly/openapi-core';
 
 const pathToEntryPoint = 'openapi.yaml';
 const config = loadConfig('optional/path/to/.redocly.yaml');
