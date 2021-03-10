@@ -11,7 +11,7 @@ import { formatProblems, lint, loadConfig } from '@redocly/openapi-core';
 
 const pathToEntryPoint = 'openapi.yaml';
 const config = loadConfig('optional/path/to/.redocly.yaml');
-const lintResults = wait lint({ ref: pathToEntryPoint, config });
+const lintResults = await lint({ ref: pathToEntryPoint, config });
 ```
 
 ### Bundle
