@@ -242,7 +242,7 @@ yargs
   .completion('completion', 'Generate completion script.', (current, argv, completionFilter, done) => {
   // @ts-ignore: Until @types/yargs@17.0.0 is released
     completionFilter((err, completions) => {
-      if (argv._[1]==='completion') {
+      if (err || argv._[1] === 'completion') {
         done([]);
       } else {
         done(completions);
