@@ -197,7 +197,7 @@ yargs
       const client = new RedoclyClient();
       client.login(clientToken, argv.verbose);
   })
-  .command('logout', 'Clear your stored credentials for the Redocly API registry.', async () => {
+  .command('logout', 'Clear your stored credentials for the Redocly API registry.', yargs => yargs, async () => {
     const client = new RedoclyClient();
     client.logout();
   })
@@ -237,5 +237,17 @@ yargs
       }),
     async (argv) => { previewDocs(argv) },
   )
+  // TODO: remove ts-ignore
+  // @ts-ignore: Until @types/yargs@17.0.0 is released
+  .completion('completion', 'Generate completion script.', (current, argv, completionFilter, done) => {
+  // @ts-ignore: Until @types/yargs@17.0.0 is released
+    completionFilter((err, completions) => {
+      if (err || argv._[1] === 'completion') {
+        done([]);
+      } else {
+        done(completions);
+      }
+    });
+  })
   .demandCommand(1)
   .strict().argv;
