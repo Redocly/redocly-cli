@@ -32,6 +32,7 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
+    mainFields: [ 'main' ]
   },
 
   node: {

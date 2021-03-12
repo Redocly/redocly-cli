@@ -44,7 +44,7 @@
     "handlebars": "^4.7.6",
     "portfinder": "^1.0.26",
     "simple-websocket": "^9.0.0",
-    "yargs": "^17.0.0-candidate.5"
+    "yargs": "17.0.0-candidate.6"
   },
   "devDependencies": {
     "@types/yargs": "^16.0.0",
