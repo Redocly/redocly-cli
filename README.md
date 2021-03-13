@@ -40,7 +40,7 @@ npx @redocly/openapi-cli lint path-to-root-file.yaml
 ### Docker
 
 To give the docker container access to the OpenAPI definition files, you need to
-mount the containing directory as a volume. Assuming the OAS defintion is rooted
+mount the containing directory as a volume. Assuming the OAS definition is rooted
 in the current working directory, you need the following command:
 
 ```
