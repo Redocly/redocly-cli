@@ -23,6 +23,8 @@ type Source = {
   root?: string;
 }
 
+const SOURCE_TYPE = 'CICD';
+
 export async function handlePush (argv: {
   entrypoint?: string;
   destination?: string;
@@ -74,7 +76,7 @@ export async function handlePush (argv: {
       definitionId = definition.id;
     }
     const updatePatch = await collectAndUploadFiles(branchName || 'main');
-    await client.createDefinitionVersion(definitionId, apiVersion, "FILE", updatePatch.source);
+    await client.createDefinitionVersion(definitionId, apiVersion, SOURCE_TYPE, updatePatch.source);
   }
 
   process.stderr.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
@@ -104,7 +106,7 @@ export async function handlePush (argv: {
 
     process.stdout.write('\n');
     return {
-      sourceType: "FILE",
+      sourceType: SOURCE_TYPE,
       source: JSON.stringify(source)
     }
   }
