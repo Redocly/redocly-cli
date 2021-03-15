@@ -79,7 +79,7 @@ export async function handlePush (argv: {
     await client.createDefinitionVersion(definitionId, apiVersion, PUSH_SOURCE_TYPE, updatePatch.source);
   }
 
-  process.stderr.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
+  process.stdout.write(`Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`);
   printExecutionTime('push', startedAt, entrypoint!);
 
   async function doesOrganizationExist(organizationId: string) {
@@ -100,8 +100,15 @@ export async function handlePush (argv: {
       if (file.filePath === filesToUpload.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
       process.stdout.write(`Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`);
-      await uploadFileToS3(signedFileUrl, file.contents || file.filePath);
-      process.stdout.write(green(`✓ (${++uploaded}/${filesToUpload.files.length})\n`));
+      const isUploaded = await uploadFileToS3(signedFileUrl, file.contents || file.filePath);
+
+      const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
+
+      if (!isUploaded) {
+        exitWithError(`✗ ${fileCounter}\nFile upload failed\n`);
+      }
+
+      process.stdout.write(green(`✓ ${fileCounter}\n`));
     }
 
     process.stdout.write('\n');
@@ -217,15 +224,17 @@ function getDestinationProps(destination: string) {
   return destination.substring(1).split(/[@\/]/);
 }
 
-function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
+async function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer): Promise<boolean> {
   const fileSizeInBytes = typeof filePathOrBuffer === 'string' ? fs.statSync(filePathOrBuffer).size : filePathOrBuffer.byteLength;
   let readStream = typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
-  return fetch(url, {
+  const response = await fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Length': fileSizeInBytes.toString()
     },
     body: readStream
-  })
+  });
+
+  return response.ok;
 }
