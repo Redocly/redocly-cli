@@ -100,11 +100,11 @@ export async function handlePush (argv: {
       if (file.filePath === filesToUpload.root) { source['root'] = uploadedFilePath; }
       source.files.push(uploadedFilePath);
       process.stdout.write(`Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`);
-      const isUploaded = await uploadFileToS3(signedFileUrl, file.contents || file.filePath);
+      const uploadResponse = await uploadFileToS3(signedFileUrl, file.contents || file.filePath);
 
       const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
 
-      if (!isUploaded) {
+      if (!uploadResponse.ok) {
         exitWithError(`✗ ${fileCounter}\nFile upload failed\n`);
       }
 
@@ -224,17 +224,15 @@ function getDestinationProps(destination: string) {
   return destination.substring(1).split(/[@\/]/);
 }
 
-async function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer): Promise<boolean> {
+function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
   const fileSizeInBytes = typeof filePathOrBuffer === 'string' ? fs.statSync(filePathOrBuffer).size : filePathOrBuffer.byteLength;
   let readStream = typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
-  const response = await fetch(url, {
+  return fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Length': fileSizeInBytes.toString()
     },
     body: readStream
   });
-
-  return response.ok;
 }
