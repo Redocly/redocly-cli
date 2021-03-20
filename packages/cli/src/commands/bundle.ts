@@ -1,30 +1,32 @@
-import { bundle, formatProblems, loadConfig, OutputFormat } from '@redocly/openapi-core';
+import { bundle, formatProblems, getTotals, loadConfig, OutputFormat } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
   getFallbackEntryPointsOrExit,
   getOutputFileName,
-  getTotals, handleError, printUnusedWarnings,
+  handleError,
+  printUnusedWarnings,
   saveBundle,
 } from '../utils';
 import { OutputExtensions, Totals } from '../types';
-import { performance } from "perf_hooks";
+import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 
-export async function handleBundle (argv: {
-  entrypoints: string[];
-  output?: string;
-  ext: OutputExtensions;
-  'max-problems'?: number;
-  'skip-rule'?: string[];
-  'skip-preprocessor'?: string[];
-  'skip-decorator'?: string[];
-  dereferenced?: boolean;
-  force?: boolean;
-  config?: string;
-  format: OutputFormat;
-},
-version: string
+export async function handleBundle(
+  argv: {
+    entrypoints: string[];
+    output?: string;
+    ext: OutputExtensions;
+    'max-problems'?: number;
+    'skip-rule'?: string[];
+    'skip-preprocessor'?: string[];
+    'skip-decorator'?: string[];
+    dereferenced?: boolean;
+    force?: boolean;
+    config?: string;
+    format: OutputFormat;
+  },
+  version: string,
 ) {
   const config = await loadConfig(argv.config);
   config.lint.skipRules(argv['skip-rule']);
@@ -76,11 +78,9 @@ version: string
       if (fileTotals.errors > 0) {
         if (argv.force) {
           process.stderr.write(
-            `❓ Created a bundle for ${blue(entrypoint)} at ${blue(
-              outputFile,
-            )} with errors ${green(elapsed)}.\n${yellow(
-              'Errors ignored because of --force',
-            )}.\n`,
+            `❓ Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} with errors ${green(
+              elapsed,
+            )}.\n${yellow('Errors ignored because of --force')}.\n`,
           );
         } else {
           process.stderr.write(
@@ -91,9 +91,7 @@ version: string
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(
-            elapsed,
-          )}.\n`,
+          `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
         );
       }
     } catch (e) {

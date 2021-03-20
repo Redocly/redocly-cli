@@ -1,28 +1,35 @@
-import { Config, formatProblems, lint, loadConfig, OutputFormat } from '@redocly/openapi-core';
+import {
+  Config,
+  formatProblems,
+  getTotals,
+  lint,
+  loadConfig,
+  OutputFormat,
+} from '@redocly/openapi-core';
 import {
   getExecutionTime,
   getFallbackEntryPointsOrExit,
-  getTotals,
   handleError,
   pluralize,
   printLintTotals,
-  printUnusedWarnings
+  printUnusedWarnings,
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray } from 'colorette';
-import { performance } from "perf_hooks";
+import { performance } from 'perf_hooks';
 
-export async function handleLint (argv: {
-  entrypoints: string[];
-  'max-problems'?: number;
-  'generate-ignore-file'?: boolean;
-  'skip-rule'?: string[];
-  'skip-preprocessor'?: string[];
-  extends?: string[];
-  config?: string;
-  format: OutputFormat;
-},
-  version: string
+export async function handleLint(
+  argv: {
+    entrypoints: string[];
+    'max-problems'?: number;
+    'generate-ignore-file'?: boolean;
+    'skip-rule'?: string[];
+    'skip-preprocessor'?: string[];
+    extends?: string[];
+    config?: string;
+    format: OutputFormat;
+  },
+  version: string,
 ) {
   const config: Config = await loadConfig(argv.config, argv.extends);
   config.lint.skipRules(argv['skip-rule']);
@@ -35,7 +42,9 @@ export async function handleLint (argv: {
   let totalIgnored = 0;
   if (config.lint.recommendedFallback) {
     process.stderr.write(
-      `No configurations were defined in extends -- using built in ${blue('recommended')} configuration by default.\n\n`,
+      `No configurations were defined in extends -- using built in ${blue(
+        'recommended',
+      )} configuration by default.\n\n`,
     );
   }
 
@@ -64,7 +73,7 @@ export async function handleLint (argv: {
           format: argv.format,
           maxProblems: argv['max-problems'],
           totals: fileTotals,
-          version
+          version,
         });
       }
 

@@ -11,7 +11,6 @@ import {
   BundleOutputFormat,
   Config,
   LintConfig,
-  NormalizedProblem,
   ResolveError,
   YamlParseError,
 } from '@redocly/openapi-core';
@@ -48,27 +47,6 @@ async function expandGlobsInEntrypoints(args: string[], config: Config) {
       ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
       : getAliasOrPath(config, aliasOrPath);
   }))).flat();
-}
-
-export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
-  let errors = 0;
-  let warnings = 0;
-  let ignored = 0;
-
-  for (const m of problems) {
-    if (m.ignored) {
-      ignored++;
-      continue;
-    }
-    if (m.severity === 'error') errors++;
-    if (m.severity === 'warn') warnings++;
-  }
-
-  return {
-    errors,
-    warnings,
-    ignored,
-  };
 }
 
 export function getExecutionTime(startedAt: number) {
