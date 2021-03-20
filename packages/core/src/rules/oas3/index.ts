@@ -72,7 +72,6 @@ export const rules = {
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
-  'registry-dependencies': RegistryDependencies,
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
@@ -81,4 +80,6 @@ export const rules = {
 
 export const preprocessors = {};
 
-export const decorators = {};
+export const decorators = {
+  'registry-dependencies': RegistryDependencies,
+};
