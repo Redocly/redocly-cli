@@ -10,15 +10,16 @@ import {
   red,
 } from 'colorette';
 
+const coreVersion = require('../../package.json').version;
+
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
 
-type Totals = {
+export type Totals = {
 	errors: number;
 	warnings: number;
 	ignored: number;
 }
-
 
 const ERROR_MESSAGE = {
   INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn',
@@ -47,6 +48,27 @@ function severityToNumber(severity: ProblemSeverity) {
 
 export type OutputFormat = 'codeframe' | 'stylish' | 'json';
 
+export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
+  let errors = 0;
+  let warnings = 0;
+  let ignored = 0;
+
+  for (const m of problems) {
+    if (m.ignored) {
+      ignored++;
+      continue;
+    }
+    if (m.severity === 'error') errors++;
+    if (m.severity === 'warn') warnings++;
+  }
+
+  return {
+    errors,
+    warnings,
+    ignored,
+  };
+}
+
 export function formatProblems(
   problems: (NormalizedProblem & { ignored?: boolean })[],
   opts: {
@@ -54,7 +76,7 @@ export function formatProblems(
     cwd?: string;
     format?: OutputFormat;
     color?: boolean;
-    totals: Totals;
+    totals: Totals
     version: string;
   },
 ) {
@@ -63,8 +85,8 @@ export function formatProblems(
     cwd = process.cwd(),
     format = 'codeframe',
     color = colorOptions.enabled,
-    totals,
-    version
+    totals = getTotals(problems),
+    version = coreVersion,
   } = opts;
 
   colorOptions.enabled = color; // force colors if specified

@@ -38,6 +38,8 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
+import { Oas3Decorator } from '../../visitors';
+
 export const rules = {
   'info-description': InfoDescription,
   'info-contact': InfoContact,
@@ -72,7 +74,6 @@ export const rules = {
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
   'path-http-verbs-order': PathHttpVerbsOrder,
   'no-invalid-media-type-examples': ValidContentExamples,
-  'registry-dependencies': RegistryDependencies,
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
@@ -81,4 +82,6 @@ export const rules = {
 
 export const preprocessors = {};
 
-export const decorators = {};
+export const decorators = {
+  'registry-dependencies': RegistryDependencies as Oas3Decorator,
+};

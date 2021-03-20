@@ -15,6 +15,6 @@ export { detectOpenAPI, OasMajorVersion, openAPIMajor } from './lint';
 export { normalizeVisitors } from './visitors';
 export { WalkContext, walkDocument, NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject, Loc } from './walk';
 
-export { formatProblems, OutputFormat } from './format/format';
+export { formatProblems, OutputFormat, getTotals, Totals } from './format/format';
 export { OasVersion, lint, lint as validate, lintDocument } from './lint';
 export { bundle } from './bundle';

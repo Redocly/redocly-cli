@@ -7,4 +7,7 @@ export const builtInConfigs: Record<string, LintRawConfig> = {
   recommended,
   minimal,
   all,
+  'redocly-registry': {
+    decorators: { 'registry-dependencies': 'on' }
+  }
 };

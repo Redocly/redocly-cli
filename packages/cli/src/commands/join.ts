@@ -12,13 +12,13 @@ import {
   Oas3Tag,
   loadConfig,
   formatProblems,
+  getTotals,
   lintDocument,
   detectOpenAPI,
 } from '@redocly/openapi-core';
 
 import {
   getFallbackEntryPointsOrExit,
-  getTotals,
   printExecutionTime,
   handleError,
   printLintTotals,
