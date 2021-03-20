@@ -24,7 +24,7 @@ import { OperationSingularTag } from '../common/operation-singular-tag';
 import { OperationSecurityDefined } from '../common/operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
-import { Oas2Rule } from '../../visitors';
+import { Oas2Decorator, Oas2Rule } from '../../visitors';
 import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
@@ -74,5 +74,5 @@ export const rules = {
 
 export const preprocessors = {};
 export const decorators = {
-  'registry-dependencies': RegistryDependencies as Oas2Rule,
+  'registry-dependencies': RegistryDependencies as Oas2Decorator,
 };

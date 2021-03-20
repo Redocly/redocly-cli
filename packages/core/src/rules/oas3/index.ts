@@ -38,6 +38,8 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
+import { Oas3Decorator } from '../../visitors';
+
 export const rules = {
   'info-description': InfoDescription,
   'info-contact': InfoContact,
@@ -81,5 +83,5 @@ export const rules = {
 export const preprocessors = {};
 
 export const decorators = {
-  'registry-dependencies': RegistryDependencies,
+  'registry-dependencies': RegistryDependencies as Oas3Decorator,
 };

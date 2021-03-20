@@ -1,7 +1,7 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
-import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient } from "@redocly/openapi-core";
-import { getFallbackEntryPointsOrExit, getTotals } from '../../utils';
+import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient, getTotals } from "@redocly/openapi-core";
+import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 
 export async function previewDocs(argv: {

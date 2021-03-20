@@ -1,8 +1,8 @@
 import { RedoclyClient } from '../../redocly';
 
-import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
-export const RegistryDependencies: Oas3Rule | Oas2Rule = () => {
+export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
   let redoclyClient: RedoclyClient;
   let registryDependencies = new Set<string>();
 

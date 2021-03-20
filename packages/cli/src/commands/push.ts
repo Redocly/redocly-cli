@@ -5,13 +5,12 @@ import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
 
-import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE, BundleOutputFormat } from '@redocly/openapi-core';
+import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE, BundleOutputFormat, getTotals, } from '@redocly/openapi-core';
 import {
   promptUser,
   exitWithError,
   printExecutionTime,
   getFallbackEntryPointsOrExit,
-  getTotals,
   pluralize,
   dumpBundle,
   slash
