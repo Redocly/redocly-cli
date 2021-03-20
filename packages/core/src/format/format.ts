@@ -10,7 +10,7 @@ import {
   red,
 } from 'colorette';
 
-const coreVersion = require('../package.json').version;
+const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';

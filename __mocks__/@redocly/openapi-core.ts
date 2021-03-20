@@ -14,3 +14,4 @@ export const __redoclyClient = {
 export const RedoclyClient = jest.fn(() => __redoclyClient);
 export const loadConfig = jest.fn(() => ({ configFile: null }));
 export const bundle = jest.fn(() => ({ bundle: { parsed: null }, problems: null }));
+export const getTotals = jest.fn(() => ({ errors: 0 }));
