@@ -12,7 +12,7 @@
   "engineStrict": true,
   "scripts": {
     "compile": "tsc",
-    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs",
+    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js",
     "prepublishOnly": "npm run copy-assets"
   },
   "repository": {
