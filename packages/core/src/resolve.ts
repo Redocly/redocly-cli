@@ -338,7 +338,7 @@ export async function resolveDocument(opts: {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
           targetDoc = resolvedRef.document || targetDoc;
 
-          if (!resolvedRef.node) {
+          if (typeof resolvedRef.node !== 'object') {
             target = undefined;
             break;
           }
