@@ -385,7 +385,7 @@ describe('collect refs', () => {
     });
 
     expect(resolvedRefs).toBeDefined();
-    // expect(resolvedRefs.size).toEqual(2);
+    expect(resolvedRefs.size).toEqual(3);
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toEqual([
       'transitive/components.yaml::./schemas.yaml#/schemas',
       'transitive/schemas.yaml::a.yaml',
