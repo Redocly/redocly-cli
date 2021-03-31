@@ -338,6 +338,11 @@ export async function resolveDocument(opts: {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
           targetDoc = resolvedRef.document || targetDoc;
 
+          if (!resolvedRef.node) {
+            target = undefined;
+            break;
+          }
+
           target = resolvedRef.node[segment];
           resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
         } else {
