@@ -336,6 +336,13 @@ export async function resolveDocument(opts: {
           resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
         } else if (isRef(target)) {
           resolvedRef = await followRef(targetDoc, target, pushRef(refStack, target));
+          targetDoc = resolvedRef.document || targetDoc;
+
+          if (typeof resolvedRef.node !== 'object') {
+            target = undefined;
+            break;
+          }
+
           target = resolvedRef.node[segment];
           resolvedRef.nodePointer = joinPointer(resolvedRef.nodePointer!, escapePointer(segment));
         } else {
@@ -345,6 +352,7 @@ export async function resolveDocument(opts: {
       }
 
       resolvedRef.node = target;
+      resolvedRef.document = targetDoc;
       const refId = document.source.absoluteRef + '::' + ref.$ref;
 
       if (resolvedRef.document && isRef(target)) {

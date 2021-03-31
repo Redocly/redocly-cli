@@ -192,7 +192,8 @@ describe('collect refs', () => {
 
     expect(resolvedRefs).toBeDefined();
 
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+      .toMatchInlineSnapshot(`
       Array [
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
@@ -346,12 +347,13 @@ describe('collect refs', () => {
     const resolvedRefs = await resolveDocument({
       rootDocument: rootDocument as Document,
       externalRefResolver: externalRefResolver,
-      rootType: normalizeTypes(Oas3Types).DefinitionRoot
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
     });
 
     expect(resolvedRefs).toBeDefined();
     // expect(resolvedRefs.size).toEqual(2);
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+      .toMatchInlineSnapshot(`
       Array [
         "openapi-with-md-description.yaml::./description.md",
       ]
@@ -363,5 +365,35 @@ describe('collect refs', () => {
       Lorem ipsum",
       ]
     `);
+  });
+
+  it('should resolve external transitive ref', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          $ref: "./transitive/components.yaml#/components/schemas/a"
+      `,
+      path.join(cwd, 'foobar.yaml'),
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+    });
+
+    expect(resolvedRefs).toBeDefined();
+    expect(resolvedRefs.size).toEqual(3);
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1))).toEqual([
+      'transitive/components.yaml::./schemas.yaml#/schemas',
+      'transitive/schemas.yaml::a.yaml',
+      'foobar.yaml::./transitive/components.yaml#/components/schemas/a',
+    ]);
+
+    expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual(
+      { type: 'string' },
+    );
   });
 });
