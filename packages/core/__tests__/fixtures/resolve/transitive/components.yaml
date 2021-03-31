@@ -1,0 +1,3 @@
+components:
+  schemas:
+    $ref: ./schemas.yaml#/schemas
