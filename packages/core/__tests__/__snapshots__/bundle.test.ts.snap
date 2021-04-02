@@ -79,3 +79,23 @@ components:
       name: param_b
 
 `;
+
+exports[`bundle should dereferenced correctly when used with dereference 1`] = `
+openapi: 3.0.0
+paths:
+  /pet:
+    get:
+      operationId: get
+      parameters:
+        - name: shared-a
+        - name: get_b
+    post:
+      operationId: post
+      parameters:
+        - name: shared-a
+components:
+  parameters:
+    shared_a:
+      name: shared-a
+
+`;
