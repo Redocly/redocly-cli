@@ -163,7 +163,8 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         if (
           resolved.location.source === rootDocument.source &&
           resolved.location.source === ctx.location.source &&
-          ctx.type.name !== 'scalar'
+          ctx.type.name !== 'scalar' &&
+          !dereference
         ) {
           return;
         }
