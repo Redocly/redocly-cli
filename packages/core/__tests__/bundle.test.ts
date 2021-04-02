@@ -10,39 +10,36 @@ import { BaseResolver } from '../src/resolve';
 describe('bundle', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
-  it('change nothing with only internal refs', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        info:
-          contact: {}
-          license: {}
-        paths:
-          /pet:
-            get:
-              operationId: get
-              parameters:
-                - $ref: '#/components/parameters/shared_a'
-                - name: get_b
-            post:
-              operationId: post
-              parameters:
-                - $ref: '#/components/parameters/shared_a'
-        components:
-          parameters:
-            shared_a:
-              name: shared-a
-      `,
-      '',
-    );
+  const testDocument =  parseYamlToDocument(
+    outdent`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          get:
+            operationId: get
+            parameters:
+              - $ref: '#/components/parameters/shared_a'
+              - name: get_b
+          post:
+            operationId: post
+            parameters:
+              - $ref: '#/components/parameters/shared_a'
+      components:
+        parameters:
+          shared_a:
+            name: shared-a
+    `,
+    '',
+  );
 
+  it('change nothing with only internal refs', async () => {
     const { bundle, problems } = await bundleDocument({
-      document,
+      document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: new LintConfig({}),
     });
 
-    const origCopy = JSON.parse(JSON.stringify(document.parsed));
+    const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
 
     expect(problems).toHaveLength(0);
     expect(bundle.parsed).toEqual(origCopy);
@@ -66,6 +63,18 @@ describe('bundle', () => {
     expect(problems[0].message).toEqual(
       `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`,
     );
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should dereferenced correctly when used with dereference', async () => {
+    const { bundle: res, problems } = await bundleDocument({
+      externalRefResolver: new BaseResolver(),
+      config: new LintConfig({}),
+      document: testDocument,
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
 });
