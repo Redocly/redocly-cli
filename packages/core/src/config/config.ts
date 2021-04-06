@@ -189,7 +189,8 @@ export class LintConfig {
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
 
-    if (fs.existsSync(ignoreFile)) {
+    /* no crash when using it on the client */
+    if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
       this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
         string,
@@ -397,11 +398,7 @@ export class Config {
   }
 }
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-
+async function getRawConfig(configPath?: string, customExtends?: string[]) {
   let rawConfig: RawConfig = {};
   // let resolvedPlugins: Plugin[] = [];
 
@@ -417,6 +414,20 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
+
+  return rawConfig
+}
+
+export async function createConfig(): Promise<Config> {
+  const rawConfig = await getRawConfig();
+  return new Config(rawConfig);
+}
+
+export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
+  if (configPath === undefined) {
+    configPath = findConfig();
+  }
+  const rawConfig = await getRawConfig(configPath, customExtends);
 
   const redoclyClient = new RedoclyClient();
   if (redoclyClient.hasToken()) {
