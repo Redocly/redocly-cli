@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as url from 'url';
 import * as yaml from 'js-yaml';
-const { readFile } = fs.promises;
 import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
 import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
@@ -101,7 +100,7 @@ export class BaseResolver {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
-        return new Source(absoluteRef, await readFile(absoluteRef, 'utf-8'));
+        return new Source(absoluteRef, await fs.promises.readFile(absoluteRef, 'utf-8'));
       }
     } catch (error) {
       throw new ResolveError(error);

@@ -189,7 +189,8 @@ export class LintConfig {
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
     const ignoreFile = path.join(dir, IGNORE_FILE);
 
-    if (fs.existsSync(ignoreFile)) {
+    /* no crash when using it on the client */
+    if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
       this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
         string,
@@ -401,7 +402,6 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   if (configPath === undefined) {
     configPath = findConfig();
   }
-
   let rawConfig: RawConfig = {};
   // let resolvedPlugins: Plugin[] = [];
 
@@ -412,7 +412,6 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -432,7 +431,6 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       ...(rawConfig.resolve.http.headers ?? []),
     ];
   }
-
   return new Config(rawConfig, configPath);
 }
 
