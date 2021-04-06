@@ -398,10 +398,6 @@ export class Config {
   }
 }
 
-export async function createConfig(configPath?: string, rawConfig: RawConfig = {}): Promise<Config> {
-  return new Config(rawConfig, configPath);
-}
-
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   if (configPath === undefined) {
     configPath = findConfig();
@@ -435,7 +431,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       ...(rawConfig.resolve.http.headers ?? []),
     ];
   }
-  return createConfig(configPath, rawConfig);
+  return new Config(rawConfig, configPath);
 }
 
 function findConfig() {
