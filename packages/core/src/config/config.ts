@@ -398,7 +398,14 @@ export class Config {
   }
 }
 
-async function getRawConfig(configPath?: string, customExtends?: string[]) {
+export async function createConfig(configPath?: string, rawConfig: RawConfig = {}): Promise<Config> {
+  return new Config(rawConfig, configPath);
+}
+
+export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
+  if (configPath === undefined) {
+    configPath = findConfig();
+  }
   let rawConfig: RawConfig = {};
   // let resolvedPlugins: Plugin[] = [];
 
@@ -409,25 +416,10 @@ async function getRawConfig(configPath?: string, customExtends?: string[]) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
-
-  return rawConfig
-}
-
-export async function createConfig(): Promise<Config> {
-  const rawConfig = await getRawConfig();
-  return new Config(rawConfig);
-}
-
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-  const rawConfig = await getRawConfig(configPath, customExtends);
 
   const redoclyClient = new RedoclyClient();
   if (redoclyClient.hasToken()) {
@@ -443,8 +435,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       ...(rawConfig.resolve.http.headers ?? []),
     ];
   }
-
-  return new Config(rawConfig, configPath);
+  return createConfig(configPath, rawConfig);
 }
 
 function findConfig() {
