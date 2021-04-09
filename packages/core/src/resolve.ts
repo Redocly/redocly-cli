@@ -107,11 +107,12 @@ export class BaseResolver {
     }
   }
 
-  parseDocument(source: Source): Document {
+  parseDocument(source: Source, isRoot: boolean = false): Document {
     const ext = source.absoluteRef.substr(source.absoluteRef.lastIndexOf('.'));
     if (
       !['.json', '.json', '.yml', '.yaml'].includes(ext) &&
-      !source.mimeType?.match(/(json|yaml)/)
+      !source.mimeType?.match(/(json|yaml)/) &&
+      !isRoot // always parse root
     ) {
       return { source, parsed: source.body };
     }
@@ -129,6 +130,7 @@ export class BaseResolver {
   async resolveDocument(
     base: string | null,
     ref: string,
+    isRoot: boolean = false
   ): Promise<Document | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
     const cachedDocument = this.cache.get(absoluteRef);
@@ -137,7 +139,7 @@ export class BaseResolver {
     }
 
     const doc = this.loadExternalRef(absoluteRef).then((source) => {
-      return this.parseDocument(source);
+      return this.parseDocument(source, isRoot);
     });
 
     this.cache.set(absoluteRef, doc);
