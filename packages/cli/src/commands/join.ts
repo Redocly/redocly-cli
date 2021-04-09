@@ -55,7 +55,7 @@ packageVersion: string
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
-    entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref) as Promise<Document>)
+    entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref, true) as Promise<Document>)
   );
 
   for (const document of documents) {

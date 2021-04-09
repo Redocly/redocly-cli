@@ -33,7 +33,7 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!);
+  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
