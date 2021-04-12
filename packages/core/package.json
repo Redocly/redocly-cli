@@ -12,6 +12,9 @@
     "type": "git",
     "url": "https://github.com/Redocly/openapi-cli.git"
   },
+  "browser": {
+    "fs": false
+  },
   "homepage": "https://github.com/Redocly/openapi-cli",
   "keywords": [
     "linter",
