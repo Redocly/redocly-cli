@@ -1,4 +1,5 @@
 export type { BundleOutputFormat } from './utils';
+export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
 export { Oas3Definition, Oas3Components, Oas3PathItem, Oas3Paths, Oas3ComponentName, Oas3Schema, Oas3Tag } from './typings/openapi';

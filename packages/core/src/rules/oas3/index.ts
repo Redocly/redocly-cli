@@ -37,6 +37,7 @@ import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { NoEmptyEnumServers } from './no-servers-empty-enum';
 
 import { Oas3Decorator } from '../../visitors';
 
@@ -77,6 +78,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
+  'no-servers-empty-enum': NoEmptyEnumServers,
   spec: OasSpec,
 } as Oas3RuleSet;
 

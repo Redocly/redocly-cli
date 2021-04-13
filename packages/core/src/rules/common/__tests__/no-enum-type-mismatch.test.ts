@@ -114,4 +114,52 @@ describe('Oas3 typed enum', () => {
       ]
     `);
   });
+
+  it('should report on enum object, \'string\' value in enum does not have allowed types', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    content:
+                      application/json:
+                        schema:
+                          type:
+                            - integer
+                            - array
+                          enum:
+                            - 1
+                            - string
+                            - 3
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Enum value \`string\` must be of one type. Allowed types: \`integer,array\`.",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });

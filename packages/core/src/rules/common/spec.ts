@@ -32,6 +32,21 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
       }
 
+      const requiredOneOf = type.requiredOneOf || null;
+      if (requiredOneOf) {
+        let hasProperty = false;
+        for (let propName of requiredOneOf || []) {
+          if ((node as object).hasOwnProperty(propName)) {
+            hasProperty = true;
+          }
+        }
+        if (!hasProperty)
+          report({
+            message: 'Must contain at least one of the following fields: path, components, webhooks.',
+            location: [{ reportOnKey: true }],
+          });
+      }
+
       for (const propName of Object.keys(node)) {
         const propLocation = location.child([propName]);
         let propValue = node[propName];

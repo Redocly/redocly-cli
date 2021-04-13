@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+servers:
+  - url: https://example.com/user/{id}/place/{placeId}
+    variables:
+      id:
+        enum: [c]
+      placeId:
+          enum: [b, a]
+          default: a
+  - url: https://example.com/{var}
+    variables: {}
+
+paths:
+  '/ping':
+    get:
+      summary: example summary
+      operationId: getPing
+      responses:
+        '200':
+          description: example description
