@@ -9,5 +9,5 @@
 ## Check yourself
 
 - [ ] Code is linted
-- [ ] Tested with redoc/reference-doc/workflows
+- [ ] Tested with redoc/reference-docs/workflows
 - [ ] All new/updated code is covered with tests
