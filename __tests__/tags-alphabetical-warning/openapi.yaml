@@ -6,6 +6,7 @@ paths:
   /pet/findByStatus:
     get:
       summary: Finds pets by Status
+      operationId: findByStatus
       responses:
         '200':
           description: example description
@@ -13,6 +14,7 @@ paths:
         - xpets
   /pet:
     post:
+      operationId: createNewPet
       summary: Adds a new pet to the store
       responses:
         '200':
@@ -21,12 +23,13 @@ paths:
         - xpets
   /store/inventory:
     get:
+      operationId: getStoreInventory
       summary: Returns pet inventories
       responses:
         '200':
           description: example description
       tags:
-        - astore    
+        - astore
 tags:
   - name: xpets
     description: Everything about your Pets

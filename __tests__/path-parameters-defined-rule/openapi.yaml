@@ -15,6 +15,7 @@ paths:
             type: string
       operationId: withPathParam
       description: Get user by id
+      summary: example summary
       responses:
         '200':
           description: example description

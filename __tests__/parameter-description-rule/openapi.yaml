@@ -34,6 +34,8 @@ paths:
         required: true
         description: The user ID.
     get:
+      operationId: getPing
+      summary: Example summary
       parameters:
         - in: path
           name: userId

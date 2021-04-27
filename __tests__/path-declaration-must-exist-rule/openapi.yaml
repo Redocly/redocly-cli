@@ -6,6 +6,8 @@ info:
 paths:
   '/api/user/{userId}/profie':
     get:
+      operationId: getUserProfileById
+      summary: Example summary
       parameters:
         - in: path
           name: userId

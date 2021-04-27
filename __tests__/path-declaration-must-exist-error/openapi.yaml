@@ -9,6 +9,8 @@ servers:
 paths:
   '/api/user/{}/profie':
     get:
+      operationId: getUserProfile
+      summary: Example summary
       responses:
         '200':
           description: example description

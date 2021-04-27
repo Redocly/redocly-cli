@@ -6,6 +6,8 @@ info:
 paths:
   /ping/{test}:
     get:
+      operationId: getPing
+      summary: example summary
       parameters:
       - name: test
         in: path
@@ -18,6 +20,8 @@ paths:
           description: example description
   '/user/{test}':
     get:
+      operationId: getUserByTest
+      summary: example summary
       parameters:
       - name: test
         in: path
@@ -28,7 +32,7 @@ paths:
       - in: query
         name: metadata
         schema:
-          type: boolean    
+          type: boolean
       operationId: withPathParam
       description: Get user by id
       responses:
@@ -40,6 +44,8 @@ paths:
                 type: object
     /users{id}:
       get:
+      operationId: getUserById
+      summary: example summary
         parameters:
           - in: path
             name: id

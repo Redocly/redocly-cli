@@ -6,7 +6,7 @@ lint:
     info-description: off
     info-contact: off
     info-license: off
-    info-license-url: warning
+    info-license-url: warn
 
     tag-description: off
     tags-alphabetical: off
@@ -23,15 +23,15 @@ lint:
     operation-description: off
     operation-2xx-response: off
     operation-operationId-unique: off
-    operation-operationId-valid-in-url: off
+
     operation-parameters-unique: off
     operation-tag-defined: off
     operation-security-defined: off
-    operationId-valid-in-url: off
+
     operation-singular-tag: off
 
     no-example-value-and-externalValue: off
-    
+
     no-unused-components: off
     no-unresolved-refs: off
     no-enum-type-mismatch: off
@@ -39,4 +39,4 @@ lint:
     boolean-parameter-prefixes: off
     paths-kebab-case: off
     spec: off
-  
+  extends: []

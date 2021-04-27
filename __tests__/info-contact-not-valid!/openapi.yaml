@@ -7,6 +7,8 @@ info:
 paths:
   /pet/findByStatus:
     get:
+      summary: example summary
+      operationId: getPetByStatus
       responses:
         '200':
           description: example description

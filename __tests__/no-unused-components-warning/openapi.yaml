@@ -7,6 +7,7 @@ paths:
   /pet/findByStatus:
     get:
       summary: Finds pets by Status
+      operationId: getPetsByStatus
       tags:
         - pets
       responses:
@@ -22,4 +23,3 @@ components:
           format: int64
         name:
           type: string
-    

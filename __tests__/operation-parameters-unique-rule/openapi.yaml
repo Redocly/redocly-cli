@@ -6,6 +6,8 @@ info:
 paths:
   /user:
     get:
+      operationId: getUser
+      summary: example summary
       parameters:
         - in: query
           name: offset

@@ -7,12 +7,14 @@ paths:
   /pet/findByStatus:
     get:
       summary: Finds pets by Status
+      operationId: getPetsByStatus
       responses:
         '200':
           description: example description
   /pet:
     post:
       summary: Adds a new pet to the store
+      operationId: getPetById
       tags:
       responses:
         '200':

@@ -2,7 +2,10 @@
 
 exports[`E2E path-not-include-query-rule 1`] = `
 
-Woohoo! Your OpenAPI definition is valid 🎉. 
+validating /openapi.yaml...
+/openapi.yaml: validated in <test>ms
+
+Woohoo! Your OpenAPI definition is valid. 🎉
 
 
 `;

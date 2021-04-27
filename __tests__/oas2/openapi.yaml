@@ -41,6 +41,8 @@ paths:
         schema:
           $ref: "#/definitions/Pet"
       responses:
+        200:
+          description: example description
         405:
           description: "Invalid input"
       security:
@@ -67,6 +69,8 @@ paths:
         schema:
           $ref: "#/definitions/Pet"
       responses:
+        200:
+          description: example description
         400:
           description: "Invalid ID supplied"
         404:

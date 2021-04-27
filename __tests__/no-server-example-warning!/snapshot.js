@@ -2,7 +2,10 @@
 
 exports[`E2E no-server-example-warning! 1`] = `
 
-Woohoo! Your OpenAPI definition is valid 🎉. 
+validating /openapi.yaml...
+/openapi.yaml: validated in <test>ms
+
+Woohoo! Your OpenAPI definition is valid. 🎉
 
 
 `;

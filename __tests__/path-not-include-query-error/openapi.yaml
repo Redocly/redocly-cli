@@ -9,6 +9,8 @@ servers:
 paths:
   '/ping/items?id=###':
     get:
+      operationId: getUserProfileById
+      summary: Example summary
       responses:
         '200':
           description: example description

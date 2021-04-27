@@ -1,4 +1,3 @@
-  
 openapi: 3.0.2
 info:
   title: Example OpenAPI 3 definition. Valid.
@@ -9,6 +8,8 @@ servers:
 paths:
   '/ping':
     get:
+      summary: example summary
+      operationId: getPing
       responses:
         '200':
           description: example description

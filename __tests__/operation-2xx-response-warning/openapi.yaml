@@ -6,6 +6,8 @@ info:
 paths:
   '/ping':
     get:
+      operationId: gitPing
+      summary: example text
       responses:
         '400':
           description: example description

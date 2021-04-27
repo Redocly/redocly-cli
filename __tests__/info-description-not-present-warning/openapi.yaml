@@ -6,6 +6,8 @@ info:
 paths:
   '/ping/{id}/{test}':
     get:
+      summary: example summary
+      operationId: getPingTestById
       parameters:
         - in: path
           name: test_id

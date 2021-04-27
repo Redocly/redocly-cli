@@ -9,6 +9,8 @@ servers:
 paths:
   '/ping':
     get:
+      operationId: getPing
+      summary: Example summary
       responses:
         '200':
           description: example description

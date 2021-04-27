@@ -7,12 +7,14 @@ paths:
   '/ping':
     get:
       operationId: getPingById
+      summary: example summary
       responses:
         '200':
           description: example description
   '/pong':
     get:
       operationId: getPongById
+      summary: example summary
       responses:
         '200':
           description: example description

@@ -6,16 +6,22 @@ info:
 paths:
   /pet/findByStatus:
     get:
+      operationId: findPetByStatus
+      summary: Example summary
       responses:
         '200':
           description: example description
   /pet:
     post:
+      operationId: createPet
+      summary: Example summary
       responses:
         '200':
           description: example description
   /store/inventory:
     get:
+      operationId: getStoreInventory
+      summary: Example summary
       responses:
         '200':
           description: example description
