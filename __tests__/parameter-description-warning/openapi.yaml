@@ -12,7 +12,6 @@ components:
       schema:
         type: integer
         minimum: 0
-      #description: The number of items to skip before starting to collect the result set.
     limitParam:
       in: query
       name: limit
@@ -22,7 +21,6 @@ components:
         minimum: 1
         maximum: 50
         default: 20
-      #description: The numbers of items to return.
 
 paths:
   '/ping':
@@ -32,7 +30,6 @@ paths:
         schema:
           type: integer
         required: true
-        #description: The user ID.
     get:
       operationId: getPing
       summary: Example summary
@@ -42,7 +39,6 @@ paths:
           schema:
             type: integer
           required: true
-          #description: Numeric ID of the user to get
       responses:
         '200':
           description: example description

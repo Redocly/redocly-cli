@@ -28,4 +28,4 @@ paths:
           description: The number of items to return.
       responses:
         '200':
-          description: example description 
+          description: example description

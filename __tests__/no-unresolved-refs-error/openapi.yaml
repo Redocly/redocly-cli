@@ -19,7 +19,7 @@ paths:
                 $ref: '#/components/schemas/ApiResponse'
 components:
   schemas:
-    ApiResponse:
+    someSchema:
       type: object
       properties:
         code:
