@@ -2,8 +2,6 @@
 
 exports[`E2E operation-security-defined-warning 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:17:5 at #/security/0/app_id
 

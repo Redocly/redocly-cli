@@ -2,8 +2,6 @@
 
 exports[`E2E info-description-not-present-warning 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:3:3 at #/info
 
