@@ -1,0 +1,5 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  extends: []

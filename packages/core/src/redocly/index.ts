@@ -147,7 +147,7 @@ export class RedoclyClient {
           __typename
         }
       }
-      
+  
       fragment VersionDetails on DefinitionVersion {
         id
         nodeId

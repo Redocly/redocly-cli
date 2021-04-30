@@ -392,8 +392,6 @@ describe('collect refs', () => {
       'foobar.yaml::./transitive/components.yaml#/components/schemas/a',
     ]);
 
-    expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual(
-      { type: 'string' },
-    );
+    expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
   });
 });

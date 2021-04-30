@@ -3,4 +3,4 @@ apiDefinitions:
 
 lint:
   rules:
-    operation-description: off
+    info-description: off

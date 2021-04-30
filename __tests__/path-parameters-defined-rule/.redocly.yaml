@@ -1,0 +1,7 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    path-parameters-defined: error
+  extends: []

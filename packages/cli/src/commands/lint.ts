@@ -52,7 +52,7 @@ export async function handleLint(
   for (const entryPoint of entrypoints) {
     try {
       const startedAt = performance.now();
-      process.stderr.write(gray(`validating ${entryPoint}...\n`));
+      process.stderr.write(gray(`validating ${entryPoint.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: entryPoint,
         config,
@@ -78,7 +78,7 @@ export async function handleLint(
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${entryPoint}: validated in ${elapsed}\n\n`));
+      process.stderr.write(gray(`${entryPoint.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
       totals.errors++;
       handleError(e, entryPoint);
