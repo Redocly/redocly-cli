@@ -9,7 +9,7 @@ export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
     Schema(schema: Oas2Schema | Oas3Schema, { report, location }: UserContext) {
       if (schema.enum && schema.type) {
         const typeMismatchedValues = schema.enum.filter(
-          (item) => !matchesJsonSchemaType(item, schema.type as string),
+          (item) => !matchesJsonSchemaType(item, schema.type as string, schema.nullable as boolean),
         );
         for (const mismatchedValue of typeMismatchedValues) {
           report({

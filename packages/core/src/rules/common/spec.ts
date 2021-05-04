@@ -75,7 +75,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
               suggest: getSuggest(propValue, propSchema.enum),
             });
           }
-        } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type)) {
+        } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({
             message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
             location: propLocation,
@@ -84,7 +84,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           const itemsType = propSchema.items?.type;
           for (let i = 0; i < propValue.length; i++) {
             const item = propValue[i];
-            if (!matchesJsonSchemaType(item, itemsType)) {
+            if (!matchesJsonSchemaType(item, itemsType, false)) {
               report({
                 message: `Expected type \`${itemsType}\` but got \`${oasTypeOf(item)}\`.`,
                 location: propLocation.child([i]),

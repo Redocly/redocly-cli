@@ -150,7 +150,7 @@ export interface Oas2Schema {
   format?: string;
   externalDocs?: Oas2ExternalDocs;
   discriminator?: string;
-
+  nullable?: boolean;
   allOf?: Oas2Schema[];
 
   title?: string;
