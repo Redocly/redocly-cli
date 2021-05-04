@@ -36,6 +36,39 @@ describe('Oas3 typed enum', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
+  it('should not report on enum object if all items match type and enum is nullable', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    description: A paged array of pets
+                    content:
+                      application/json:
+                        schema:
+                          type: string
+                          nullable: true
+                          enum:
+                            - A
+                            - B
+                            - C
+                            - null
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
   it('should report on enum object if not all items match type', async () => {
     const document = parseYamlToDocument(
       outdent`

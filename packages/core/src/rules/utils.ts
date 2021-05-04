@@ -18,7 +18,11 @@ export function oasTypeOf(value: unknown) {
  * @param {JSONSchemaType} type - JSON Schema type
  * @returns boolean
  */
-export function matchesJsonSchemaType(value: unknown, type: string): boolean {
+export function matchesJsonSchemaType(value: unknown, type: string, nullable: boolean): boolean {
+  if (nullable && value === null) {
+    return value === null
+  }
+
   switch (type) {
     case 'array':
       return Array.isArray(value);
