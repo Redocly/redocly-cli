@@ -147,7 +147,7 @@ packageVersion: string
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
       if (!joinedDef.tags.find((t: any) => t.name === entrypointTagName)) {
-        tag['x-displayName'] = tag.name;
+        tag['x-displayName'] = tag['x-displayName'] || tag.name;
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
       }
