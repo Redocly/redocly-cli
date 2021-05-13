@@ -40,6 +40,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pets"
+  /pets/model:
+    get:
+      summary: List all pets
+      operationId: listPetsModel
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of model
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Model"
+  /pets/person:
+    get:
+      summary: List all pets
+      operationId: listPetsPerson
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of person
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/person"
   /:
     get:
       operationId: getEmptyOperationId

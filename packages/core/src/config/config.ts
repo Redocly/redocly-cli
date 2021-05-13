@@ -567,26 +567,32 @@ type RulesFields =
   | 'rules'
   | 'oas2Rules'
   | 'oas3_0Rules'
+  | 'oas3_1Rules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
+  | 'oas3_1Preprocessors'
   | 'decorators'
   | 'oas2Decorators'
   | 'oas3_0Decorators'
+  | 'oas3_1Decorators';
 
 function mergeExtends(rulesConfList: LintRawConfig[]) {
   const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
+    oas3_1Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
     oas3_0Preprocessors: {},
+    oas3_1Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
     oas3_0Decorators: {},
+    oas3_1Decorators: {},
   };
 
   for (let rulesConf of rulesConfList) {
@@ -599,23 +605,30 @@ function mergeExtends(rulesConfList: LintRawConfig[]) {
         )}.`,
       );
     }
+
     Object.assign(result.rules, rulesConf.rules);
     Object.assign(result.oas2Rules, rulesConf.oas2Rules);
     assignExisting(result.oas2Rules, rulesConf.rules || {});
     Object.assign(result.oas3_0Rules, rulesConf.oas3_0Rules);
     assignExisting(result.oas3_0Rules, rulesConf.rules || {});
+    Object.assign(result.oas3_1Rules, rulesConf.oas3_1Rules);
+    assignExisting(result.oas3_1Rules, rulesConf.rules || {});
 
     Object.assign(result.preprocessors, rulesConf.preprocessors);
     Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
     assignExisting(result.oas2Preprocessors, rulesConf.preprocessors || {});
     Object.assign(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
     assignExisting(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
+    Object.assign(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
+    assignExisting(result.oas3_1Preprocessors, rulesConf.preprocessors || {});
 
     Object.assign(result.decorators, rulesConf.decorators);
     Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
     assignExisting(result.oas2Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
+    Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
+    assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
   }
 
   return result;

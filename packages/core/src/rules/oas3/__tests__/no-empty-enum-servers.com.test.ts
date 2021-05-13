@@ -174,4 +174,33 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('oas3-no-servers-empty-enum: should be success because enum contains default value', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: API
+          version: 1.0.0
+        servers:
+          - url: https://example.com/{var}
+            variables:
+              var:
+                type: ['string', 'null']
+                enum:
+                  - 'some string'
+                  - null
+                default: 'some string'
+        components: {}
+      `
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });
