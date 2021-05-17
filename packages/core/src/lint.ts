@@ -6,6 +6,7 @@ import {
   Oas2Rule,
   Oas2Preprocessor,
 } from './visitors';
+import { Oas3_1Types } from './types/oas3_1';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
@@ -18,6 +19,7 @@ import { releaseAjvInstance } from './rules/ajv';
 export enum OasVersion {
   Version2 = 'oas2',
   Version3_0 = 'oas3_0',
+  Version3_1 = 'oas3_1',
 }
 
 export enum OasMajorVersion {
@@ -63,7 +65,7 @@ export async function lintDocument(opts: {
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
       oasVersion,
     ),
     config,
@@ -104,6 +106,10 @@ export function detectOpenAPI(root: any): OasVersion {
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
     return OasVersion.Version3_0;
+  }
+
+  if (root.openapi && root.openapi.startsWith('3.1')) {
+    return OasVersion.Version3_1;
   }
 
   if (root.swagger && root.swagger === '2.0') {

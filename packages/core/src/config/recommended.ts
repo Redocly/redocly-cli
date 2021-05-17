@@ -42,5 +42,15 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
+    'no-servers-empty-enum': 'error',
+  },
+  oas3_1Rules: {
+    'no-server-example.com': 'warn',
+    'no-server-trailing-slash': 'error',
+    'no-empty-servers': 'error',
+    'no-example-value-and-externalValue': 'error',
+    'no-unused-components': 'warn',
+    'no-undefined-server-variable': 'error',
+    'no-servers-empty-enum': 'error',
   },
 } as LintRawConfig;

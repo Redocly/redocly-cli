@@ -21,6 +21,7 @@ export type NodeType = {
   additionalProperties?: PropType | ResolveTypeFn;
   items?: string;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
+  requiredOneOf?: string[];
 };
 type PropType = string | NodeType | ScalarSchema | undefined | null;
 type ResolveTypeFn = (value: any, key: string) => string | PropType;
@@ -31,6 +32,7 @@ export type NormalizedNodeType = {
   additionalProperties?: NormalizedPropType | NormalizedResolveTypeFn;
   items?: NormalizedNodeType;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
+  requiredOneOf?: string[];
 };
 
 type NormalizedPropType = NormalizedNodeType | NormalizedScalarSchema | undefined | null;

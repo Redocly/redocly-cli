@@ -3,6 +3,7 @@ import { BaseResolver, resolveDocument, Document } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
+import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './lint';
@@ -14,6 +15,12 @@ import { isPlainObject } from './utils';
 import { OasRef } from './typings/openapi';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
+
+export enum OasVersion {
+  Version2 = 'oas2',
+  Version3_0 = 'oas3_0',
+  Version3_1 = 'oas3_1',
+}
 
 export async function bundle(opts: {
   ref?: string;
@@ -62,7 +69,7 @@ export async function bundleDocument(opts: {
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
       oasVersion,
     ),
     config,

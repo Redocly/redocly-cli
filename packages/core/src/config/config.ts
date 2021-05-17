@@ -55,14 +55,17 @@ export type LintRawConfig = {
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
   oas3_0Rules?: Record<string, RuleConfig>;
+  oas3_1Rules?: Record<string, RuleConfig>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
+  oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
   oas3_0Decorators?: Record<string, DecoratorConfig>;
+  oas3_1Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type PreprocessorsConfig = {
@@ -174,16 +177,19 @@ export class LintConfig {
     this.rules = {
       [OasVersion.Version2]: { ...merged.rules, ...merged.oas2Rules },
       [OasVersion.Version3_0]: { ...merged.rules, ...merged.oas3_0Rules },
+      [OasVersion.Version3_1]: { ...merged.rules, ...merged.oas3_1Rules },
     };
 
     this.preprocessors = {
       [OasVersion.Version2]: { ...merged.preprocessors, ...merged.oas2Preprocessors },
       [OasVersion.Version3_0]: { ...merged.preprocessors, ...merged.oas3_0Preprocessors },
+      [OasVersion.Version3_1]: { ...merged.preprocessors, ...merged.oas3_1Preprocessors },
     };
 
     this.decorators = {
       [OasVersion.Version2]: { ...merged.decorators, ...merged.oas2Decorators },
       [OasVersion.Version3_0]: { ...merged.decorators, ...merged.oas3_0Decorators },
+      [OasVersion.Version3_1]: { ...merged.decorators, ...merged.oas3_1Decorators },
     };
 
     const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
@@ -561,26 +567,32 @@ type RulesFields =
   | 'rules'
   | 'oas2Rules'
   | 'oas3_0Rules'
+  | 'oas3_1Rules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
+  | 'oas3_1Preprocessors'
   | 'decorators'
   | 'oas2Decorators'
-  | 'oas3_0Decorators';
+  | 'oas3_0Decorators'
+  | 'oas3_1Decorators';
 
 function mergeExtends(rulesConfList: LintRawConfig[]) {
   const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
+    oas3_1Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
     oas3_0Preprocessors: {},
+    oas3_1Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
     oas3_0Decorators: {},
+    oas3_1Decorators: {},
   };
 
   for (let rulesConf of rulesConfList) {
@@ -593,23 +605,30 @@ function mergeExtends(rulesConfList: LintRawConfig[]) {
         )}.`,
       );
     }
+
     Object.assign(result.rules, rulesConf.rules);
     Object.assign(result.oas2Rules, rulesConf.oas2Rules);
     assignExisting(result.oas2Rules, rulesConf.rules || {});
     Object.assign(result.oas3_0Rules, rulesConf.oas3_0Rules);
     assignExisting(result.oas3_0Rules, rulesConf.rules || {});
+    Object.assign(result.oas3_1Rules, rulesConf.oas3_1Rules);
+    assignExisting(result.oas3_1Rules, rulesConf.rules || {});
 
     Object.assign(result.preprocessors, rulesConf.preprocessors);
     Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
     assignExisting(result.oas2Preprocessors, rulesConf.preprocessors || {});
     Object.assign(result.oas3_0Preprocessors, rulesConf.oas3_0Preprocessors);
     assignExisting(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
+    Object.assign(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
+    assignExisting(result.oas3_1Preprocessors, rulesConf.preprocessors || {});
 
     Object.assign(result.decorators, rulesConf.decorators);
     Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
     assignExisting(result.oas2Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_0Decorators, rulesConf.oas3_0Decorators);
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
+    Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
+    assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
   }
 
   return result;
