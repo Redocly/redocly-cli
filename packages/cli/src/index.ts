@@ -237,17 +237,6 @@ yargs
       }),
     async (argv) => { previewDocs(argv) },
   )
-  // TODO: remove ts-ignore
-  // @ts-ignore: Until @types/yargs@17.0.0 is released
-  .completion('completion', 'Generate completion script.', (current, argv, completionFilter, done) => {
-  // @ts-ignore: Until @types/yargs@17.0.0 is released
-    completionFilter((err, completions) => {
-      if (err || argv._[1] === 'completion') {
-        done([]);
-      } else {
-        done(completions);
-      }
-    });
-  })
+  .completion('completion', 'Generate completion script.')
   .demandCommand(1)
   .strict().argv;
