@@ -1,4 +1,4 @@
-import { bundle, formatProblems, getTotals, loadConfig, OutputFormat } from '@redocly/openapi-core';
+import { bundle, formatProblems, getTotals, loadConfig, OutputFormat, lint } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -7,6 +7,7 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
+  printLintTotals
 } from '../utils';
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
@@ -24,6 +25,7 @@ export async function handleBundle(
     dereferenced?: boolean;
     force?: boolean;
     config?: string;
+    lint?: boolean;
     format: OutputFormat;
   },
   version: string,
@@ -38,6 +40,18 @@ export async function handleBundle(
   for (const entrypoint of entrypoints) {
     try {
       const startedAt = performance.now();
+
+      if (argv.lint) {
+        const results = await lint({
+          ref: entrypoint,
+          config,
+        });
+
+        const fileLintTotals = getTotals(results);
+        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version });
+        printLintTotals(fileLintTotals, 2);
+      }
+
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
       const { bundle: result, problems } = await bundle({
         config,
