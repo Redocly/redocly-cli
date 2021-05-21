@@ -174,7 +174,12 @@ yargs
         config: {
           description: 'Specify path to the config file.',
           type: 'string',
-        }
+        },
+        lint: {
+          description: 'Lint definitions',
+          type: 'boolean',
+          default: false,
+        },
       }),
     (argv) => { handleBundle(argv, version) }
   )
