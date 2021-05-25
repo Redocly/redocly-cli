@@ -198,10 +198,11 @@ export class LintConfig {
     /* no crash when using it on the client */
     if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
-      this.ignore = yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
-        string,
-        Record<string, Set<string>>
-      > || {};
+      this.ignore =
+        (yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+          string,
+          Record<string, Set<string>>
+        >) || {};
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {
@@ -489,12 +490,12 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
   return plugins
     .map((p) => {
       // TODO: resolve npm packages similar to eslint
-      const plugin =
+      const pluginModule =
         typeof p === 'string'
           ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
           : p;
 
-      const id = plugin.id;
+      const id = pluginModule.id;
       if (!id) {
         throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
       }
@@ -512,40 +513,49 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
 
       seenPluginIds.set(id, p.toString());
 
-      if (plugin.rules) {
-        if (!plugin.rules.oas3 && !plugin.rules.oas2) {
+      const plugin: Plugin = {
+        id,
+        ...(pluginModule.configs ? { configs: pluginModule.configs } : {}),
+        ...(pluginModule.typeExtension ? { typeExtension: pluginModule.typeExtension } : {}),
+      };
+
+      if (pluginModule.rules) {
+        if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2) {
           throw new Error(`Plugin rules must have \`oas3\` or \`oas2\` rules "${p}.`);
         }
-        if (plugin.rules.oas3) {
-          plugin.rules.oas3 = prefixRules(plugin.rules.oas3, id);
+        plugin.rules = {};
+        if (pluginModule.rules.oas3) {
+          plugin.rules.oas3 = prefixRules(pluginModule.rules.oas3, id);
         }
-        if (plugin.rules.oas2) {
-          plugin.rules.oas2 = prefixRules(plugin.rules.oas2, id);
+        if (pluginModule.rules.oas2) {
+          plugin.rules.oas2 = prefixRules(pluginModule.rules.oas2, id);
         }
       }
-      if (plugin.preprocessors) {
-        if (!plugin.preprocessors.oas3 && !plugin.preprocessors.oas2) {
+      if (pluginModule.preprocessors) {
+        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
           throw new Error(
             `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`,
           );
         }
-        if (plugin.preprocessors.oas3) {
-          plugin.preprocessors.oas3 = prefixRules(plugin.preprocessors.oas3, id);
+        plugin.preprocessors = {};
+        if (pluginModule.preprocessors.oas3) {
+          plugin.preprocessors.oas3 = prefixRules(pluginModule.preprocessors.oas3, id);
         }
-        if (plugin.preprocessors.oas2) {
-          plugin.preprocessors.oas2 = prefixRules(plugin.preprocessors.oas2, id);
+        if (pluginModule.preprocessors.oas2) {
+          plugin.preprocessors.oas2 = prefixRules(pluginModule.preprocessors.oas2, id);
         }
       }
 
-      if (plugin.decorators) {
-        if (!plugin.decorators.oas3 && !plugin.decorators.oas2) {
+      if (pluginModule.decorators) {
+        if (!pluginModule.decorators.oas3 && !pluginModule.decorators.oas2) {
           throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}.`);
         }
-        if (plugin.decorators.oas3) {
-          plugin.decorators.oas3 = prefixRules(plugin.decorators.oas3, id);
+        plugin.decorators = {};
+        if (pluginModule.decorators.oas3) {
+          plugin.decorators.oas3 = prefixRules(pluginModule.decorators.oas3, id);
         }
-        if (plugin.decorators.oas2) {
-          plugin.decorators.oas2 = prefixRules(plugin.decorators.oas2, id);
+        if (pluginModule.decorators.oas2) {
+          plugin.decorators.oas2 = prefixRules(pluginModule.decorators.oas2, id);
         }
       }
 
