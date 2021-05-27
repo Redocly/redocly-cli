@@ -131,7 +131,6 @@ const Schema: NodeType = {
     not: 'Schema',
     if: 'Schema',
     then: 'Schema',
-    catch: 'Schema',
     else: 'Schema',
     dependentSchemas: listOf('Schema'),
     prefixItems: { type: 'array' },
@@ -161,7 +160,6 @@ const Schema: NodeType = {
     format: { type: 'string' },
     contentEncoding: { type: 'string' },
     contentMediaType: { type: 'string' },
-    contentSchema: 'Schema',
     default: null,
 
     readOnly: { type: 'boolean' },
@@ -173,9 +171,6 @@ const Schema: NodeType = {
     const: {
       enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
     },
-    maxContains: { type: 'number' },
-    minContains: { type: 'number' },
-    dependentRequired: { type: 'object', items: { type: 'array' } },
     $comment: { type: 'string' },
   },
 };
