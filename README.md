@@ -1,3 +1,5 @@
+# RUN TESTS
+
 # OpenAPI CLI toolset
 
 OpenAPI CLI toolbox with rich validation and bundling features.
