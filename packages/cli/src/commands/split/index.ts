@@ -71,7 +71,7 @@ function isNotYaml(filename: string) {
 
 function loadFile(fileName: string) {
   try {
-    return yaml.safeLoad(fs.readFileSync(fileName, 'utf8')) as Definition;
+    return yaml.load(fs.readFileSync(fileName, 'utf8')) as Definition;
   } catch (e) {
     return exitWithError(e.message);
   }

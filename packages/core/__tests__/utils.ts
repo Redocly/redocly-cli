@@ -9,7 +9,7 @@ import { Oas3RuleSet } from '../src/lint';
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
     source: new Source(absoluteRef, body),
-    parsed: yaml.safeLoad(body, { filename: absoluteRef }),
+    parsed: yaml.load(body, { filename: absoluteRef }),
   };
 }
 
@@ -41,7 +41,7 @@ export const yamlSerializer = {
     return true;
   },
   print: (val: any) => {
-    return yaml.safeDump(val);
+    return yaml.dump(val);
   },
 };
 

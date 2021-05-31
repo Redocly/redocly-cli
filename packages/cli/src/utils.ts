@@ -87,7 +87,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
       throw e;
     }
   } else {
-    return yaml.safeDump(obj, {
+    return yaml.dump(obj, {
       noRefs: !dereference,
     });
   }
@@ -131,11 +131,11 @@ export async function promptUser(query: string, hideUserInput = false): Promise<
 }
 
 export function readYaml(filename: string) {
-  return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'), { filename });
+  return yaml.load(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  return fs.writeFileSync(filename, yaml.safeDump(data, { noRefs }));
+  return fs.writeFileSync(filename, yaml.dump(data, { noRefs }));
 }
 
 export function pluralize(label: string, num: number) {

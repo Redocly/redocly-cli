@@ -23,7 +23,7 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
 export async function loadYaml(filename: string) {
   const contents = await fs.promises.readFile(filename, 'utf-8');
-  return yaml.safeLoad(contents);
+  return yaml.load(contents);
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {

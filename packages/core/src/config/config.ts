@@ -199,7 +199,7 @@ export class LintConfig {
     if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
       this.ignore =
-        (yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+        (yaml.load(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
           string,
           Record<string, Set<string>>
         >) || {};
@@ -225,7 +225,7 @@ export class LintConfig {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
     }
-    fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.safeDump(mapped));
+    fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.dump(mapped));
   }
 
   addIgnore(problem: NormalizedProblem) {

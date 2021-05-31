@@ -120,7 +120,7 @@ export class BaseResolver {
     try {
       return {
         source,
-        parsed: yaml.safeLoad(source.body, { filename: source.absoluteRef }),
+        parsed: yaml.load(source.body, { filename: source.absoluteRef }),
       };
     } catch (e) {
       throw new YamlParseError(e, source);

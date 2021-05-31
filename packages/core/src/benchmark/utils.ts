@@ -6,7 +6,7 @@ import { RuleConfig, LintConfig, Plugin } from '../config/config';
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
     source: new Source(absoluteRef, body),
-    parsed: yaml.safeLoad(body, { filename: absoluteRef }),
+    parsed: yaml.load(body, { filename: absoluteRef }),
   };
 }
 
