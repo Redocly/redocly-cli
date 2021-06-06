@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
-import { LintConfig } from '../../../..';
 import { BaseResolver } from '../../../../resolve';
+import { makeConfig } from '../../../__tests__/config';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {
@@ -22,11 +22,8 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          spec: 'error',
-        },
+      config: makeConfig({
+        spec: 'error',
       }),
     });
 

@@ -22,23 +22,24 @@ describe('E2E', () => {
     if (statSync(testPath).isFile()) continue;
     if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
 
-    const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../packages/cli/src/index.ts', 'lint'], {
-      cwd: testPath,
-      env: {
-        ...process.env,
-        NODE_ENV: 'test',
-        NO_COLOR: 'TRUE',
-      },
-    });
-
-    const out = r.stdout.toString('utf-8');
-    const err = r.stderr.toString('utf-8');
-
-    const result = `${out}\n${err}`;
-
     it(file, () => {
-      // we need this cause TS types not actually allows to 'extend'
-      (expect(result) as any).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../packages/cli/src/index.ts', 'lint'], {
+        cwd: testPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'test',
+          NO_COLOR: 'TRUE',
+        },
+      });
+
+      const out = r.stdout.toString('utf-8');
+      const err = r.stderr.toString('utf-8');
+
+      const result = `${out}\n${err}`;
+
+
+      // @ts-ignore
+      expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
   }
 });

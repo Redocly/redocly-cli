@@ -2,6 +2,7 @@ import { LintConfig, RuleConfig } from '../../../../config/config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
+import { defaultPlugin } from '../../../../config/builtIn';
 
 export async function lintDoc(
   source: string,
@@ -13,6 +14,7 @@ export async function lintDoc(
     externalRefResolver: new BaseResolver(),
     document,
     config: new LintConfig({
+      plugins: [defaultPlugin],
       extends: [],
       rules,
     }),

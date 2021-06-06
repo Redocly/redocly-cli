@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
+import { makeConfig } from '../../__tests__/config';
 
 describe('Oas3 as3-no-servers-empty-enum', () => {
   it('oas3-no-servers-empty-enum: should report on server object with empty enum and unknown enum value', async () => {
@@ -25,7 +25,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -79,7 +79,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -118,7 +118,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -142,7 +142,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -169,7 +169,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -198,7 +198,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-servers-empty-enum': 'error' } }),
+      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

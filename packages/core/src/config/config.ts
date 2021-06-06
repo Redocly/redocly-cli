@@ -3,9 +3,8 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { dirname } from 'path';
 import { red, blue } from 'colorette';
-import { builtInConfigs } from './builtIn';
-import * as builtinRules from '../rules/builtin';
-import { loadYaml, notUndefined } from '../utils';
+
+import { notUndefined } from '../utils';
 
 import {
   OasVersion,
@@ -22,7 +21,6 @@ import { Oas3RuleSet } from '../lint';
 
 import recommended from './recommended';
 import { NodeType } from '../types';
-import { RedoclyClient } from '../redocly';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -148,13 +146,6 @@ export class LintConfig {
   constructor(public rawConfig: LintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
-
-    this.plugins.push({
-      id: '', // default plugin doesn't have id
-      rules: builtinRules.rules,
-      preprocessors: builtinRules.preprocessors,
-      decorators: builtinRules.decorators,
-    });
 
     if (!rawConfig.extends) {
       this.recommendedFallback = true;
@@ -405,78 +396,36 @@ export class Config {
   }
 }
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-  let rawConfig: RawConfig = {};
-  // let resolvedPlugins: Plugin[] = [];
-
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
-  if (customExtends !== undefined) {
-    rawConfig.lint = rawConfig.lint || {};
-    rawConfig.lint.extends = customExtends;
-  }
-
-  const redoclyClient = new RedoclyClient();
-  if (redoclyClient.hasToken()) {
-    if (!rawConfig.resolve) rawConfig.resolve = {};
-    if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
-    rawConfig.resolve.http.headers = [
-      {
-        matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
-        name: 'Authorization',
-        envVariable: undefined,
-        value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',
-      },
-      ...(rawConfig.resolve.http.headers ?? []),
-    ];
-  }
-  return new Config(rawConfig, configPath);
-}
-
-function findConfig() {
-  if (fs.existsSync('.redocly.yaml')) {
-    return '.redocly.yaml';
-  } else if (fs.existsSync('.redocly.yml')) {
-    return '.redocly.yml';
-  }
-  return undefined;
-}
-
-
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
-    let preset = builtInConfigs[presetName];
-    if (!preset && presetName.indexOf('/') > -1) {
-      const [pluginName, configName] = presetName.split('/');
-      const plugin = plugins.find((p) => p.id === pluginName);
-      if (!plugin) {
-        throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginName} is not included.`);
-      }
+    const { pluginId, configName } = parsePresetName(presetName);
 
-      preset = plugin.configs?.[configName]!;
-      if (!preset) {
-        throw new Error(
-          `Invalid config ${red(
-            presetName,
-          )}: plugin ${pluginName} doesn't export config with name ${configName}.`,
-        );
-      }
-      return preset;
+    const plugin = plugins.find((p) => p.id === pluginId);
+    if (!plugin) {
+      throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
     }
 
+    const preset = plugin.configs?.[configName]!;
     if (!preset) {
-      throw new Error(`Invalid config ${red(presetName)}: there is no such built-in config.`);
+      throw new Error(
+        pluginId
+          ? `Invalid config ${red(
+              presetName,
+            )}: plugin ${pluginId} doesn't export config with name ${configName}.`
+          : `Invalid config ${red(presetName)}: there is no such built-in config.`,
+      );
     }
     return preset;
   });
+}
+
+function parsePresetName(presetName: string): { pluginId: string; configName: string } {
+  if (presetName.indexOf('/') > -1) {
+    const [pluginId, configName] = presetName.split('/');
+    return { pluginId, configName };
+  } else {
+    return { pluginId: '', configName: presetName };
+  }
 }
 
 function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string = ''): Plugin[] {
@@ -496,7 +445,7 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
           : p;
 
       const id = pluginModule.id;
-      if (!id) {
+      if (typeof id !== 'string') {
         throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
       }
 
@@ -565,6 +514,8 @@ function resolvePlugins(plugins: (string | Plugin)[] | null, configPath: string 
 }
 
 function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
+  if (!prefix) return rules;
+
   const res: any = {};
   for (const name of Object.keys(rules)) {
     res[`${prefix}/${name}`] = rules[name];

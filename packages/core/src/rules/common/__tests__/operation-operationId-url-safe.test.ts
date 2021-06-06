@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-operationId-url-safe', () => {
@@ -22,10 +22,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: { 'operation-operationId-url-safe': 'error' },
-      }),
+      config: makeConfig({ 'operation-operationId-url-safe': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
