@@ -1,10 +1,6 @@
 import { BaseResolver, resolveDocument, Document } from './resolve';
 import {
-  Oas3Rule,
   normalizeVisitors,
-  Oas3Preprocessor,
-  Oas2Rule,
-  Oas2Preprocessor,
 } from './visitors';
 import { Oas3_1Types } from './types/oas3_1';
 import { Oas3Types } from './types/oas3';
@@ -15,25 +11,7 @@ import { LintConfig, Config } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
-
-export enum OasVersion {
-  Version2 = 'oas2',
-  Version3_0 = 'oas3_0',
-  Version3_1 = 'oas3_1',
-}
-
-export enum OasMajorVersion {
-  Version2 = 'oas2',
-  Version3 = 'oas3',
-}
-
-export type RuleSet<T> = Record<string, T>;
-export type Oas3RuleSet = Record<string, Oas3Rule>;
-export type Oas2RuleSet = Record<string, Oas2Rule>;
-export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
-export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
-export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
+import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 
 export async function lint(opts: {
   ref: string;
@@ -93,36 +71,4 @@ export async function lintDocument(opts: {
     ctx,
   });
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
-}
-
-export function detectOpenAPI(root: any): OasVersion {
-  if (typeof root !== 'object') {
-    throw new Error(`Document must be JSON object, got ${typeof root}`);
-  }
-
-  if (!(root.openapi || root.swagger)) {
-    throw new Error('This doesn’t look like an OpenAPI document.\n');
-  }
-
-  if (root.openapi && root.openapi.startsWith('3.0')) {
-    return OasVersion.Version3_0;
-  }
-
-  if (root.openapi && root.openapi.startsWith('3.1')) {
-    return OasVersion.Version3_1;
-  }
-
-  if (root.swagger && root.swagger === '2.0') {
-    return OasVersion.Version2;
-  }
-
-  throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
-}
-
-export function openAPIMajor(version: OasVersion): OasMajorVersion {
-  if (version === OasVersion.Version2) {
-    return OasMajorVersion.Version2;
-  } else {
-    return OasMajorVersion.Version3;
-  }
 }

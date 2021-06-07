@@ -14,10 +14,10 @@ import {
   Oas2RuleSet,
   Oas2PreprocessorsSet,
   Oas2DecoratorsSet,
-} from '../lint';
+  Oas3RuleSet
+} from '../oas-types';
 
 import { ProblemSeverity, NormalizedProblem } from '../walk';
-import { Oas3RuleSet } from '../lint';
 
 import recommended from './recommended';
 import { NodeType } from '../types';

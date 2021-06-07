@@ -1,6 +1,6 @@
 import * as yaml from 'js-yaml';
 import { Document, Source } from '../resolve';
-import { Oas3RuleSet } from '../lint';
+import { Oas3RuleSet } from '../oas-types';
 import { RuleConfig, LintConfig, Plugin } from '../config/config';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
