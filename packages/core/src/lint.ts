@@ -1,4 +1,4 @@
-import { BaseResolver, resolveDocument, Document } from './resolve';
+import { BaseResolver, resolveDocument, Document, makeDocumentFromString } from './resolve';
 import {
   normalizeVisitors,
 } from './visitors';
@@ -20,6 +20,23 @@ export async function lint(opts: {
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
+
+  return lintDocument({
+    document,
+    ...opts,
+    externalRefResolver,
+    config: opts.config.lint,
+  });
+}
+
+export async function lintFromString(opts: {
+  source: string;
+  absoluteRef?: string;
+  config: Config;
+  externalRefResolver?: BaseResolver;
+}) {
+  const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
+  const document = makeDocumentFromString(source, absoluteRef || '/');
 
   return lintDocument({
     document,

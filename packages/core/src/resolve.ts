@@ -74,6 +74,18 @@ export type Document = {
   parsed: any;
 };
 
+export function makeDocumentFromString(sourceString: string, absoluteRef: string) {
+  const source = new Source(absoluteRef, sourceString);
+  try {
+    return {
+      source,
+      parsed: yaml.safeLoad(sourceString, { filename: absoluteRef }),
+    };
+  } catch (e) {
+    throw new YamlParseError(e, source);
+  }
+}
+
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
