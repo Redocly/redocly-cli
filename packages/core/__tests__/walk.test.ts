@@ -1,11 +1,12 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { lintDocument, Oas3RuleSet } from '../src/lint';
+import { lintDocument } from '../src/lint';
 
 import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from './utils';
 import { BaseResolver, Document } from '../src/resolve';
 import { listOf } from '../src/types';
+import { Oas3RuleSet } from '../src/oas-types';
 
 describe('walk order', () => {
   it('should run visitors', async () => {

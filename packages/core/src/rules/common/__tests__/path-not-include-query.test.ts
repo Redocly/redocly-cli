@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 path-not-include-query', () => {
@@ -20,7 +20,7 @@ describe('Oas3 path-not-include-query', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),
+      config: makeConfig({ 'path-not-include-query': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -57,7 +57,7 @@ describe('Oas3 path-not-include-query', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'path-not-include-query': 'error' } }),
+      config: makeConfig({ 'path-not-include-query': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('no-ambiguous-paths', () => {
@@ -47,7 +47,7 @@ describe('no-ambiguous-paths', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-ambiguous-paths': 'error' } }),
+      config: makeConfig({ 'no-ambiguous-paths': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

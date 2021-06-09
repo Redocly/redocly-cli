@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 operation-singular-tag', () => {
@@ -25,7 +25,7 @@ describe('Oas3 operation-singular-tag', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'operation-singular-tag': 'error' } }),
+      config: makeConfig({ 'operation-singular-tag': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -65,7 +65,7 @@ describe('Oas3 operation-singular-tag', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'operation-singular-tag': 'error' } }),
+      config: makeConfig({ 'operation-singular-tag': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

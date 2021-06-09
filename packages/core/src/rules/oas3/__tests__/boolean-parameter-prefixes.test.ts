@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { lintDocument } from '../../../lint';
-import { LintConfig } from '../../..';
 import { BaseResolver } from '../../../resolve';
 
 describe('oas3 boolean-parameter-prefixes', () => {
@@ -23,7 +23,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
+      config: makeConfig({ 'boolean-parameter-prefixes': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -75,7 +75,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'boolean-parameter-prefixes': 'error' } }),
+      config: makeConfig({ 'boolean-parameter-prefixes': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -99,13 +99,10 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'boolean-parameter-prefixes': {
-            severity: 'error',
-            prefixes: ['should'],
-          },
+      config: makeConfig({
+        'boolean-parameter-prefixes': {
+          severity: 'error',
+          prefixes: ['should'],
         },
       }),
     });

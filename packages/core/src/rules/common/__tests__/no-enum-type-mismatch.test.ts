@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 typed enum', () => {
@@ -30,7 +30,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+      config: makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -63,7 +63,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+      config: makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -93,7 +93,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+      config: makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -141,7 +141,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-enum-type-mismatch': 'error' } }),
+      config: makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

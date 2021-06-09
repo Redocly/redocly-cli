@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 no-unused-components', () => {
@@ -43,7 +43,7 @@ describe('Oas3 no-unused-components', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-unused-components': 'error' } }),
+      config: makeConfig({ 'no-unused-components': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

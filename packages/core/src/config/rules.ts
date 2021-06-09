@@ -1,4 +1,4 @@
-import { RuleSet, OasVersion } from '../lint';
+import { RuleSet, OasVersion } from '../oas-types';
 import { LintConfig } from './config';
 import { notUndefined } from '../utils';
 
