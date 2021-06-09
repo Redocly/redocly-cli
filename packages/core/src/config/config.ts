@@ -183,7 +183,7 @@ export class LintConfig {
       [OasVersion.Version3_1]: { ...merged.decorators, ...merged.oas3_1Decorators },
     };
 
-    const dir = this.configFile ? path.dirname(this.configFile) : process.cwd();
+    const dir = this.configFile ? path.dirname(this.configFile) : (typeof process !== 'undefined' && process.cwd() || '');
     const ignoreFile = path.join(dir, IGNORE_FILE);
 
     /* no crash when using it on the client */
