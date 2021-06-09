@@ -7,7 +7,7 @@ import { replaceSourceWithRef } from '../../__tests__/utils';
 describe('lint', () => {
   it('lintFromString should work', async () => {
     const results = await lintFromString({
-      absoluteRef: process.cwd(),
+      absoluteRef: '/test/spec.yaml',
       source: outdent`
       openapi: 3.0.0
       info:
@@ -30,7 +30,7 @@ describe('lint', () => {
             Object {
               "pointer": "#/info/license",
               "reportOnKey": false,
-              "source": "/Users/romanhotsiy/Projects/Redocly/openapi-cli",
+              "source": "/test/spec.yaml",
             },
           ],
           "message": "Expected type \`License\` (object) but got \`string\`",
