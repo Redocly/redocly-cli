@@ -49,7 +49,7 @@ import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import { Location } from './ref-utils';
-export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any) => void;
+export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any, context?: any) => void;
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
@@ -86,7 +86,7 @@ export type VisitorLevelContext = {
   isSkippedLevel: false;
   type: NormalizedNodeType;
   parent: VisitorLevelContext | null;
-
+  stopWalking: false;
   activatedOn: Stack<{
     node?: any;
     withParentNode?: any;
@@ -264,17 +264,17 @@ export function normalizeVisitors<T extends BaseVisitor>(
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
+  normalizedVisitors.any = {
+    enter: [],
+    leave: [],
+  };
+
   for (const typeName of Object.keys(types) as Array<keyof T>) {
     normalizedVisitors[typeName] = {
       enter: [],
       leave: [],
     } as any;
   }
-
-  normalizedVisitors.any = {
-    enter: [],
-    leave: [],
-  };
 
   normalizedVisitors.ref = {
     enter: [],
@@ -404,6 +404,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
         type: types[typeName],
         parent: parentContext,
         isSkippedLevel: false as false,
+        stopWalking: false
       };
 
       if (typeof typeVisitor === 'object') {

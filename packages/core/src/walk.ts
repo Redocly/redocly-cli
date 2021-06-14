@@ -1,6 +1,5 @@
 import { Referenced } from './typings/openapi';
 import { Location, isRef } from './ref-utils';
-
 import {
   VisitorLevelContext,
   NormalizedOasVisitors,
@@ -12,7 +11,6 @@ import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from '
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './lint';
 import { NormalizedNodeType, isNamedType } from './types';
-
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
@@ -109,7 +107,6 @@ export function walkDocument<T>(opts: {
   ctx: WalkContext;
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
-
   const seenNodesPerType: Record<string, Set<any>> = {};
   const seenRefs = new Set<any>();
 
@@ -122,9 +119,9 @@ export function walkDocument<T>(opts: {
     parent: any,
     key: string | number,
   ) {
+
     let currentLocation = location;
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
-
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
     if (isRef(node)) {
@@ -152,6 +149,7 @@ export function walkDocument<T>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
+
       currentLocation = resolvedLocation;
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
@@ -210,6 +208,9 @@ export function walkDocument<T>(opts: {
               visitedBySome = true;
               enteredContexts.add(context);
               visitWithContext(visit, resolvedNode, context, ruleId, severity);
+              if (context.stopWalking) {
+                break;
+              }
             }
           }
         }
@@ -239,6 +240,7 @@ export function walkDocument<T>(opts: {
 
           for (const propName of props) {
             let value = resolvedNode[propName];
+
             let loc = resolvedLocation;
 
             if (value === undefined) {
@@ -343,6 +345,7 @@ export function walkDocument<T>(opts: {
           oasVersion: ctx.oasVersion,
         },
         collectParents(context),
+        context
       );
     }
 
@@ -354,6 +357,7 @@ export function walkDocument<T>(opts: {
       const refId = from + '::' + ref.$ref;
 
       const resolvedRef = resolvedRefMap.get(refId);
+
       if (!resolvedRef) {
         return {
           location: undefined,
