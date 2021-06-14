@@ -30,7 +30,9 @@ function prepareRevision(revision) {
   // Returns the complete git hash for a given git revision reference.
   const hash = exec(`git rev-parse "${revision}"`);
   const dir = path.join(os.tmpdir(), 'openapi-cli-benchmark', hash);
-  fs.rmdirSync(dir, { recursive: true });
+  if (fs.existsSync(dir)) {
+    fs.rmdirSync(dir, { recursive: true});
+  }
   fs.mkdirSync(dir, { recursive: true });
 
   exec(`git archive "${hash}" | tar -xC "${dir}"`);

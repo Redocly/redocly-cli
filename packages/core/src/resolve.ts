@@ -4,7 +4,7 @@ import * as url from 'url';
 import * as yaml from 'js-yaml';
 import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
-import { safeLoad as safeLoadToAst, YAMLNode, Kind } from 'yaml-ast-parser';
+import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
 import { readFileFromUrl } from './utils';
 import { ResolveConfig } from './config/config';
@@ -17,14 +17,15 @@ export class Source {
   private _ast: YAMLNode | undefined;
   private _lines: string[] | undefined;
 
-  getAst() {
+  // pass safeLoad as argument to separate it from browser bundle
+  getAst(safeLoad: (input: string, options?: LoadOptions | undefined) => YAMLNode) {
     if (this._ast === undefined) {
-      this._ast = safeLoadToAst(this.body, { filename: this.absoluteRef }) ?? undefined;
+      this._ast = safeLoad(this.body, { filename: this.absoluteRef }) ?? undefined;
 
       // fix ast representation of file with newlines only
       if (
         this._ast &&
-        this._ast.kind === Kind.SCALAR &&
+        this._ast.kind === 0 && // KIND.scalar = 0
         this._ast.value === '' &&
         this._ast.startPosition !== 1
       ) {
@@ -72,6 +73,18 @@ export type Document = {
   source: Source;
   parsed: any;
 };
+
+export function makeDocumentFromString(sourceString: string, absoluteRef: string) {
+  const source = new Source(absoluteRef, sourceString);
+  try {
+    return {
+      source,
+      parsed: yaml.safeLoad(sourceString, { filename: absoluteRef }),
+    };
+  } catch (e) {
+    throw new YamlParseError(e, source);
+  }
+}
 
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();

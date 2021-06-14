@@ -1,4 +1,4 @@
-import { Oas3RuleSet } from '../../lint';
+import { Oas3RuleSet } from '../../oas-types';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';

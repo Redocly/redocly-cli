@@ -1,8 +1,8 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
+import { makeConfig } from '../../__tests__/config';
 
 describe('Oas3 oas3-no-example-value-and-externalValue', () => {
   it('oas3-no-example-value-and-externalValue: should report on example object with both value and external value', async () => {
@@ -21,10 +21,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: { 'no-example-value-and-externalValue': 'error' },
-      }),
+      config: makeConfig({ 'no-example-value-and-externalValue': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -61,10 +58,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: { 'no-example-value-and-externalValue': 'error' },
-      }),
+      config: makeConfig({ 'no-example-value-and-externalValue': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

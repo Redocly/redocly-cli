@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
-import { LintConfig } from '../../../config/config';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig } from '../../__tests__/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('no-invalid-media-type-examples', () => {
@@ -34,7 +34,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -107,13 +107,10 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'no-invalid-media-type-examples': {
-            severity: 'error',
-            disallowAdditionalProperties: true,
-          },
+      config: makeConfig({
+        'no-invalid-media-type-examples': {
+          severity: 'error',
+          disallowAdditionalProperties: true,
         },
       }),
     });
@@ -170,13 +167,10 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'no-invalid-media-type-examples': {
-            severity: 'error',
-            disallowAdditionalProperties: true,
-          },
+      config: makeConfig({
+        'no-invalid-media-type-examples': {
+          severity: 'error',
+          disallowAdditionalProperties: true,
         },
       }),
     });
@@ -223,13 +217,10 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'no-invalid-media-type-examples': {
-            severity: 'error',
-            disallowAdditionalProperties: true,
-          },
+      config: makeConfig({
+        'no-invalid-media-type-examples': {
+          severity: 'error',
+          disallowAdditionalProperties: true,
         },
       }),
     });
@@ -279,7 +270,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -311,7 +302,7 @@ describe('no-invalid-media-type-examples', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({ extends: [], rules: { 'no-invalid-media-type-examples': 'error' } }),
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

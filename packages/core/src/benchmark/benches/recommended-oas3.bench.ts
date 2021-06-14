@@ -4,6 +4,7 @@ import { lintDocument } from '../../lint';
 import { LintConfig } from '../../config/config';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument } from '../utils';
+import { defaultPlugin } from '../../config/builtIn';
 
 export const name = 'Validate with recommended rules';
 export const count = 10;
@@ -17,6 +18,6 @@ export function measureAsync() {
   return lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
-    config: new LintConfig({}),
+    config: new LintConfig({ plugins: [defaultPlugin] }),
   });
 }

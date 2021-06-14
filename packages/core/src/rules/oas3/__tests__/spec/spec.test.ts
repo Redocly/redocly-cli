@@ -2,9 +2,11 @@ import { outdent } from 'outdent';
 import { lintDocument } from '../../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
 import { LintConfig } from '../../../../config/config';
+import { defaultPlugin } from '../../../../config/builtIn';
+
 import { BaseResolver } from '../../../../resolve';
 
-const allConfig = new LintConfig({ extends: ['all'] });
+const allConfig = new LintConfig({ plugins: [defaultPlugin], extends: ['all'] });
 
 describe('Oas3 Structural visitor basic', () => {
   it('should report wrong types', async () => {

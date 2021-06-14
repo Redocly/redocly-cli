@@ -1,8 +1,9 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
-import { LintConfig } from '../../../config/config';
 import { BaseResolver } from '../../../resolve';
+
+import { makeConfig } from '../../__tests__/config';
 
 describe('Oas3 info-description', () => {
   it('should report on info with no description', async () => {
@@ -18,11 +19,8 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'info-description': 'error',
-        },
+      config: makeConfig({
+        'info-description': 'error',
       }),
     });
 
@@ -59,11 +57,8 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'info-description': 'error',
-        },
+      config: makeConfig({
+        'info-description': 'error',
       }),
     });
 
@@ -99,11 +94,8 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'info-description': 'error',
-        },
+      config: makeConfig({
+        'info-description': 'error',
       }),
     });
 

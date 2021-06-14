@@ -9,7 +9,7 @@ import {
 
 import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
 import { pushStack, popStack } from './utils';
-import { OasVersion } from './lint';
+import { OasVersion } from './oas-types';
 import { NormalizedNodeType, isNamedType } from './types';
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
