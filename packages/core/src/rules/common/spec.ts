@@ -20,7 +20,9 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         report({
           message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
         });
-        context.stopWalking = true;
+        if ((node === null || node === undefined) && (context.type?.name !== 'scalar')) {
+          context.stopWalking = true;
+        }
         return;
       }
 
