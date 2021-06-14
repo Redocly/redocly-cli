@@ -13,8 +13,8 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Expected type \`${type.name}\` (array) but got \`${nodeType}\``,
           });
+          context.stopWalking = true;
         }
-        context.stopWalking = true;
         return;
       } else if (nodeType !== 'object') {
         report({
