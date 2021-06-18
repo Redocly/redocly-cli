@@ -17,7 +17,7 @@
     "compile": "tsc -b tsconfig.build.json",
     "prepare": "npm run compile",
     "cli": "ts-node packages/cli/src/index.ts",
-    "lint": "npm run cli lint nodejs/resources/pets.yaml -- --format stylish",
+    "lint": "npm run cli lint resources/recursion.yaml -- --format stylish",
     "bundle": "npm run cli bundle nodejs/resources/pets.yaml nodejs/resources/p.yaml",
     "stats": "npm run cli stats nodejs/resources/pets.yaml",
     "split": "npm run cli split nodejs/resources/pets.yaml -- --outDir output",
@@ -62,7 +62,7 @@
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.2",
     "ts-node": "^9.0.0",
-    "typescript": "4.0.5",
+    "typescript": "4.3.3",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },
