@@ -1,7 +1,4 @@
 import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv';
-// import { AnyValidateFunction } from '@redocly/ajv/dist/core';
-// import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
-// import { OasVersion } from '../validate';
 import { Location, escapePointer } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
@@ -14,19 +11,15 @@ export function releaseAjvInstance() {
 function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
-      // schemaId: '$id',
+      schemaId: '$id',
       meta: true,
       allErrors: true,
-      // jsonPointers: true,
-      // unknownFormats: 'ignore',
-      // nullable: true,
-      // missingRefs: 'ignore',
+      strictSchema: false,
       inlineRefs: false,
       validateSchema: false,
       defaultAdditionalProperties: !disallowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string, $id: string) {
-        debugger
-        const resolvedRef = resolve({ $ref }, base.replace(/#$/, ''));
+        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return undefined;
         return { $id, ...resolvedRef.node };
       },
