@@ -17,7 +17,6 @@ function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) 
       strictSchema: false,
       inlineRefs: false,
       validateSchema: false,
-      jsPropertySyntax: true, // deprecated, but using for old formats
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: false, // TODO: fix it
