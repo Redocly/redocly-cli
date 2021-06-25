@@ -1,0 +1,477 @@
+---
+tocMaxDepth: 2
+---
+
+# OpenAPI CLI changelog
+
+## 1.0.0-beta.48 (2021-05-25)
+
+### Fixes
+
+- Resolved an issue with the plugin ID being prefixed to all rules, preprocessors and decorators multiple times (for example, when using the `preview-docs` command and changing configuration files).
+
+
+----
+
+## 1.0.0-beta.47 (2021-05-21)
+
+### Features
+
+- The `bundle` command now supports an optional `--lint` parameter.
+
+### Fixes
+
+- Improved the error messages for `kebab-case` and implemented detection of `snake_case` usage in paths.
+
+- The `join` command will no longer overwrite an existing `x-displayName` of a tag with the tag's `name` property.
+
+
+----
+
+## 1.0.0-beta.46 (2021-05-17)
+
+### Features
+
+- Implemented support for [OpenAPI 3.1](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.1.0). You can now lint, validate, and bundle your OAS 3.1 definitions with OpenAPI CLI.
+
+
+----
+
+## 1.0.0-beta.45 (2021-05-09)
+
+### Fixes
+
+- Resolved a validation issue for `enum` items with the nullable property. Validation errors are no longer reported when `nullable: true` for `enum` items that contain a `null` value.
+
+
+----
+
+## 1.0.0-beta.44 (2021-04-12)
+
+### Fixes
+
+- The `browser` field in `package.json` is now set to simplify using `openapi-core` in browser-based builds.
+
+
+----
+
+## 1.0.0-beta.43 (2021-04-09)
+
+### Fixes
+
+- The root API definition document is now parsed in all cases, even if it doesn't report the correct MIME type or doesn't use any of the supported file extensions.
+
+
+----
+
+## 1.0.0-beta.42 (2021-04-06)
+
+### Fixes
+
+- Improved `openapi-core` so that it can be used within our other projects including Redoc, Reference docs, and Developer portal.
+
+
+----
+
+## 1.0.0-beta.41 (2021-04-02)
+
+### Fixes
+
+- Resolved an issue with the `--dereferenced` CLI option not functioning properly.
+
+
+----
+
+## 1.0.0-beta.40 (2021-03-31)
+
+### Fixes
+
+- Resolved an issue where transitive $refs that span multiple files would crash the validation in some cases.
+
+
+----
+
+## 1.0.0-beta.39 (2021-03-26)
+
+### Fixes
+
+- Resolved a hot-reloading issue with the `preview-docs` command. It will now automatically reload the docs in the browser when you make live changes to an OpenAPI definition.
+
+
+----
+
+## 1.0.0-beta.38 (2021-03-20)
+
+### Fixes
+
+- Exported a helper function from `openapi-core` and implemented defaults for some functions to improve integration with the Developer portal.
+
+
+----
+
+## 1.0.0-beta.37 (2021-03-16)
+
+### Fixes
+
+- Implemented error handling for failed file uploads when using the `push` command. The command now displays success/failure messages in the output.
+
+
+----
+
+## 1.0.0-beta.36 (2021-03-15)
+
+### Features
+
+- Source type was changed from `FILE` to `CICD` to support integration with the new CI/CD source in Workflows.
+
+
+----
+
+## 1.0.0-beta.35 (2021-03-12)
+
+### Features
+
+- OpenAPI CLI now has tab completion for global installations. Run `openapi completion` for instructions to set it up in your environment.
+
+
+----
+
+## 1.0.0-beta.34 (2021-03-10)
+
+### Features
+
+- OpenAPI CLI now has an official Docker image! You can get it from [Docker Hub](https://hub.docker.com/repository/docker/redocly/openapi-cli).
+
+
+----
+
+## 1.0.0-beta.33 (2021-03-10)
+
+### Features
+
+- You can now use the `--verbose` parameter with the `login` command to show a detailed error trace (if any). Detailed error output will no longer be displayed by default for this command.
+
+
+----
+
+## 1.0.0-beta.32 (2021-02-25)
+
+### Features
+
+- The "access token" has been renamed to "API key" in the output of relevant OpenAPI CLI commands (`login`, `push`) to make it clearer what information the users must provide.
+
+- For improved security, the API key is now hidden (masked) when the user provides it in the terminal, and it's not logged in the user's history.
+
+
+----
+
+
+## 1.0.0-beta.31 (2021-01-25)
+
+### Features
+
+- The `bundle` method is now able to accept `Document` directly in openapi-core.
+
+
+----
+
+
+## 1.0.0-beta.30 (2021-01-25)
+
+### Features
+
+- OpenAPI CLI now automatically resolves all $refs by default, even in places where they are not allowed by the specification ("incorrect $refs"). This functionality can be disabled for examples by setting `doNotResolveExamples` to `true` in `redocly.yaml`.
+
+
+----
+
+
+## 1.0.0-beta.29 (2021-01-13)
+
+### Fixes
+
+- Fixed an issue with incorrect base directory when resolving transitive `$refs`.
+
+
+----
+
+
+## 1.0.0-beta.28 (2021-01-09)
+
+### Fixes
+
+- Resolved an issue with nested filepaths that caused the `push` command to upload files to the wrong path when used on Windows systems.
+
+
+----
+
+
+## 1.0.0-beta.27 (2021-01-06)
+
+### Features
+
+- A new command called `push` is now supported by OpenAPI CLI. With this command, you can upload your API definitions and associated files, and set up your own CI pipeline for updating API definitions without granting Redocly Workflows access to your repositories.
+
+
+### Fixes
+
+- Resolved an issue that prevented using the `.` (dot) symbol in version names with the `push` command.
+
+
+----
+
+
+## 1.0.0-beta.25 (2020-11-27)
+
+### Fixes
+
+- Resolved an issue with `assert-node-version` using the wrong path.
+
+- OpenAPI CLI will now bundle the API definition before gathering stats.
+
+
+----
+
+
+## 1.0.0-beta.23 (2020-11-24)
+
+### Fixes
+
+- Resolved issues with tag logic and tag display names for the `join` command.
+
+- Refactored CLI command handlers.
+
+
+----
+
+
+## 1.0.0-beta.22 (2020-11-16)
+
+### Features
+
+- A new command called `join` is now available in OpenAPI CLI. Use it to combine two or more API definition files into one. The resulting file optionally helps distinguish the origin of OpenAPI objects and properties by appending custom prefixes to them. Note that this command is considered experimental; meaning, it's still a work in progress.
+
+
+----
+
+
+## 1.0.0-beta.19 (2020-11-13)
+
+### Features
+
+- The previously single OpenAPI CLI package has been split into two: `openapi-cli` and `openapi-core`.
+
+
+----
+
+
+## 1.0.0-beta.18 (2020-10-19)
+
+### Features
+
+- OpenAPI CLI now supports the `split` command, which you can use to create a multi-file structure out of an API definition file by extracting referenced parts into standalone, separate files. The command doesn't support OAS 2.
+
+
+### Fixes
+
+- Resolved an issue with counting operation tags in the `stats` command.
+
+
+----
+
+
+## 1.0.0-beta-16 (2020-09-28)
+
+### Features
+
+- A new command called `stats` has been implemented. It provides statistics about the structure of one or more API definition files, and lets you choose the format in which the statistics will be presented.
+
+
+### Fixes
+
+- Resolved an issue with the `glob` library by installing the missing package.
+
+
+----
+
+
+## 1.0.0-beta-15 (2020-09-25)
+
+### Fixes
+
+- Resolved an issue with the extended regex path which was missing the dot symbol.
+
+- Added support for non-compatible globbing shells.
+
+
+----
+
+
+## 1.0.0-beta-14 (2020-09-14)
+
+### Fixes
+
+- Added the missing label definition for `x-codeSamples` and enabled `x-codeSamples` for OAS 2.
+
+
+----
+
+
+## 1.0.0-beta-13 (2020-09-13)
+
+### Fixes
+
+- Fixed the required field name for `openIdConnectUrl`.
+
+- Resolved an issue with detecting duplicated plugin IDs, and added a warning that plugin IDs must be unique.
+
+- Adedd `engines` and `engineStrict` to `package.json`.
+
+- Implemented better handling and error messages for invalid severity values.
+
+
+----
+
+
+## 1.0.0-beta-12 (2020-09-08)
+
+### Fixes
+
+- Previously, OpenAPI CLI tried to use `/` instead of `\` for file path splitting on Windows machines. The issue has been resolved by implementing platform-specific separator usage.
+
+
+----
+
+
+## 1.0.0-beta-11 (2020-09-03)
+
+### Fixes
+
+- Resolved an issue with missing support for external plugins in the bundled version.
+
+
+----
+
+
+## 1.0.0-beta.10 (2020-08-31)
+
+### Fixes
+
+- Fixed a crash that happened when attempting to resolve back-references.
+
+- The version number of OpenAPI CLI is now printed in the JSON output.
+
+
+----
+
+
+## 1.0.0-beta.9 (2020-08-20)
+
+### Features
+
+- The `--format` option now supports JSON as one of the output formats you can choose when using OpenAPI CLI commands.
+
+- Bundling and uploading are now part of the build process.
+
+- Warnings and errors are now displayed as separate counts in JSON output.
+
+- All parts of a pointer are now used to generate unique component names when needed.
+
+- Added support for linting `x-webhooks`, which is a forward-compatibility vendor extension for `webhooks` from OpenAPI 3.1.
+
+
+### Fixes
+
+- Removed an extra blank line that was printed when no rules were ignored.
+
+- Resolved an issue with missing types for `OasDecorator` and `Oas3Decorator`.
+
+- Resolved a tag syntax error when deploying to Workflows.
+
+- Relative paths are now used for JSON output.
+
+
+----
+
+
+## 1.0.0-beta.8 (2020-07-30)
+
+### Fixes
+
+- Added mime-type handling for remote docs.
+
+
+----
+
+
+## 1.0.0-beta-7 (2020-07-26)
+
+### Fixes
+
+- Fixed the callbacks type definition.
+
+- Fixed invalid component names for some components.
+
+- Resolved an issue with bundling local references.
+
+- Resolved a minor issue where the help message displayed references to the `registry:login` command instead of the `login` command.
+
+
+----
+
+
+## 1.0.0-beta.5 (2020-07-21)
+
+### Fixes
+
+- Fixed invalid unescape and `decodeURIComponent`.
+
+- Updated the `extends` parameter logic to allow configuration overrides.
+
+- Improved handling logic and error message when the input file is not an OpenAPI document.
+
+
+----
+
+
+## 1.0.0-beta.4 (2020-07-14)
+
+### Fixes
+
+- Resolved an issue with detecting output file extension without an entrypoint.
+
+- Resolved an issue with the `preview-docs` command failing to automatically select the first definition from the `apiDefinitions` section of the configuration file when used without arguments.
+
+- Fixed an issue with relative paths for entrypoints from external configuration files.
+
+
+----
+
+
+## 1.0.0-beta.3 (2020-07-10)
+
+### Fixes
+
+- The `default.hbs` file is now copied to the build directory.
+
+- Resolved an issue with the preview functionality failing to access `watcher`.
+
+
+----
+
+
+## 1.0.0-beta.2 (2020-07-09)
+
+### Fixes
+
+- Resolved an issue with the `no-path-trailing-slash` rule showing errors for the wrong location and path.
+
+- Fixed a transitive resolve issue.
+
+
+----
+
+
+## 1.0.0-beta.1 (2020-07-09)
+
+First beta release!
