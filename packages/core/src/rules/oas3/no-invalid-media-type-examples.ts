@@ -42,7 +42,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
               report({
                 message: `Example value must conform to the schema: ${error.message}.`,
                 location: {
-                  ...new Location(dataLoc.source, error.dataPath),
+                  ...new Location(dataLoc.source, error.instancePath),
                   reportOnKey: error.keyword === 'additionalProperties',
                 },
                 from: location,

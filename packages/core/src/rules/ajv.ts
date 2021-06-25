@@ -1,11 +1,8 @@
-// @ts-ignore
-import * as Ajv from '@redocly/ajv';
-// import * as jsonSpecV4 from 'ajv/lib/refs/json-schema-draft-04.json';
-// import { OasVersion } from '../validate';
+import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv';
 import { Location, escapePointer } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
-let ajvInstance: Ajv.Ajv | null = null;
+let ajvInstance: Ajv | null = null;
 
 export function releaseAjvInstance() {
   ajvInstance = null;
@@ -14,20 +11,20 @@ export function releaseAjvInstance() {
 function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
-      schemaId: 'auto',
+      schemaId: '$id',
       meta: true,
       allErrors: true,
-      jsonPointers: true,
-      unknownFormats: 'ignore',
-      nullable: true,
-      missingRefs: 'ignore',
+      strictSchema: false,
       inlineRefs: false,
       validateSchema: false,
+      discriminator: true,
+      allowUnionTypes: true,
+      validateFormats: false, // TODO: fix it
       defaultAdditionalProperties: !disallowAdditionalProperties,
-      loadSchemaSync(base: string, $ref: string, id: string) {
-        const resolvedRef = resolve({ $ref }, base.replace(/#$/, ''));
+      loadSchemaSync(base: string, $ref: string, $id: string) {
+        const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return undefined;
-        return { id, ...resolvedRef.node };
+        return { $id, ...resolvedRef.node };
       },
       logger: false,
     });
@@ -40,11 +37,11 @@ function getAjvValidator(
   loc: Location,
   resolve: ResolveFn<any>,
   disallowAdditionalProperties: boolean,
-): Ajv.ValidateFunction | undefined {
+): ValidateFunction | undefined {
   const ajv = getAjv(resolve, disallowAdditionalProperties);
 
   if (!ajv.getSchema(loc.absolutePointer)) {
-    ajv.addSchema({ id: loc.absolutePointer, ...schema }, loc.absolutePointer);
+    ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
   }
 
   return ajv.getSchema(loc.absolutePointer);
@@ -54,23 +51,30 @@ export function validateJsonSchema(
   data: any,
   schema: any,
   schemaLoc: Location,
-  dataPath: string,
+  instancePath: string,
   resolve: ResolveFn<any>,
   disallowAdditionalProperties: boolean,
-): { valid: boolean; errors: (Ajv.ErrorObject & { suggest?: string[] })[] } {
+): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate = getAjvValidator(schema, schemaLoc, resolve, disallowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
-  const valid = validate(data, dataPath);
+  const valid = validate(data, {
+    instancePath,
+    parentData: { fake: {} },
+    parentDataProperty: 'fake',
+    rootData: {},
+    dynamicAnchors: {},
+  });
+
   return {
     valid: !!valid,
     errors: (validate.errors || []).map(beatifyErrorMessage),
   };
 
-  function beatifyErrorMessage(error: Ajv.ErrorObject) {
+  function beatifyErrorMessage(error: ErrorObject) {
     let message = error.message;
     let suggest =
-      error.keyword === 'enum' ? (error.params as Ajv.EnumParams).allowedValues : undefined;
+      error.keyword === 'enum' ? error.params.allowedValues : undefined;
     if (suggest) {
       message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
     }
@@ -79,15 +83,15 @@ export function validateJsonSchema(
       message = `type ${message}`;
     }
 
-    const relativePath = error.dataPath.substring(dataPath.length + 1);
+    const relativePath = error.instancePath.substring(instancePath.length + 1);
     const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
     if (propName) {
       message = `\`${propName}\` property ${message}`;
     }
     if (error.keyword === 'additionalProperties') {
-      const property = (error.params as Ajv.AdditionalPropertiesParams).additionalProperty;
+      const property = error.params.additionalProperty;
       message = `${message} \`${property}\``;
-      error.dataPath += '/' + escapePointer(property);
+      error.instancePath += '/' + escapePointer(property);
     }
 
     return {
