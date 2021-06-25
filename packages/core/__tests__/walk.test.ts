@@ -1336,15 +1336,21 @@ describe('ignoreNextRules', () => {
       skip: jest.fn(() => {
         return {
           Operation: {
-            enter: jest.fn((op, _ctx, _, context) => {
+            enter: jest.fn((op, ctx) => {
               if (op.operationId === 'get') {
-                context.stopWalking = true;
+                ctx.ignoreNextVisitorsOnNode();
                 calls.push(`enter and skip operation ${op.operationId}`);
               } else {
                 calls.push(`enter and not skip operation ${op.operationId}`);
               }
             }),
-            leave: jest.fn((op) => calls.push(`leave skipped operation ${op.operationId}`)),
+            leave: jest.fn((op) => {
+              if (op.operationId === 'get') {
+                calls.push(`leave skipped operation ${op.operationId}`);
+              } else {
+                calls.push(`leave not skipped operation ${op.operationId}`);
+              }
+            }),
           },
         };
       }),
@@ -1383,8 +1389,8 @@ describe('ignoreNextRules', () => {
         "leave skipped operation get",
         "enter and not skip operation put",
         "enter operation put",
+        "leave not skipped operation put",
         "leave operation put",
-        "leave skipped operation put",
       ]
     `);
   });

@@ -162,4 +162,49 @@ describe('Oas3 typed enum', () => {
       ]
     `);
   });
+
+  it('should not crash on null schema when there is spec rule', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          info:
+            title: test
+            version: 1.2.3
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    description: test
+                    content:
+                      application/json:
+                        schema: null
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ 'spec': 'error', 'no-enum-type-mismatch': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Expected type \`Schema\` (object) but got \`null\`",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });

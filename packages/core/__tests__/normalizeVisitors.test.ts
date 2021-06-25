@@ -37,7 +37,6 @@ describe('Normalize visitors', () => {
       activatedOn: null,
       parent: null,
       isSkippedLevel: false,
-      stopWalking: false
     });
 
     expect(type.name).toEqual('Schema');

@@ -119,7 +119,6 @@ export function walkDocument<T>(opts: {
     parent: any,
     key: string | number,
   ) {
-
     let currentLocation = location;
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
@@ -149,7 +148,6 @@ export function walkDocument<T>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
-
       currentLocation = resolvedLocation;
       const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
       let visitedBySome = false;
@@ -207,8 +205,14 @@ export function walkDocument<T>(opts: {
             if (!activatedOn.skipped) {
               visitedBySome = true;
               enteredContexts.add(context);
-              visitWithContext(visit, resolvedNode, context, ruleId, severity);
-              if (context.stopWalking) {
+              const ignoreNextVisitorsOnNode = visitWithContext(
+                visit,
+                resolvedNode,
+                context,
+                ruleId,
+                severity,
+              );
+              if (ignoreNextVisitorsOnNode) {
                 break;
               }
             }
@@ -235,7 +239,7 @@ export function walkDocument<T>(opts: {
           }
 
           if (isRef(node)) {
-            props.push(...Object.keys(node).filter((k) => k!== '$ref' && !props.includes(k))); // properties on the same level as $ref
+            props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
           }
 
           for (const propName of props) {
@@ -244,7 +248,7 @@ export function walkDocument<T>(opts: {
             let loc = resolvedLocation;
 
             if (value === undefined) {
-              value =  node[propName];
+              value = node[propName];
               loc = location; // properties on the same level as $ref should resolve against original location, not target
             }
 
@@ -324,6 +328,7 @@ export function walkDocument<T>(opts: {
       }
     }
 
+    // returns true ignores all the next visitors on the specific node
     function visitWithContext(
       visit: VisitFunction<any>,
       node: any,
@@ -332,6 +337,8 @@ export function walkDocument<T>(opts: {
       severity: ProblemSeverity,
     ) {
       const report = reportFn.bind(undefined, ruleId, severity);
+      let ignoreNextVisitorsOnNode = false;
+
       visit(
         node,
         {
@@ -343,10 +350,15 @@ export function walkDocument<T>(opts: {
           key,
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
+          ignoreNextVisitorsOnNode: () => {
+            ignoreNextVisitorsOnNode = true;
+          },
         },
         collectParents(context),
-        context
+        context,
       );
+
+      return ignoreNextVisitorsOnNode;
     }
 
     function resolve<T>(

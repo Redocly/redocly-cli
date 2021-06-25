@@ -5,7 +5,7 @@ import { isRef } from '../../ref-utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, key, resolve }, _, context ) {
+    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
       const nodeType = oasTypeOf(node);
 
       if (type.items) {
@@ -13,16 +13,14 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Expected type \`${type.name}\` (array) but got \`${nodeType}\``,
           });
-          context.stopWalking = true;
+          ignoreNextVisitorsOnNode();
         }
         return;
       } else if (nodeType !== 'object') {
         report({
           message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
         });
-        if ((node === null || node === undefined) && (context.type?.name !== 'scalar')) {
-          context.stopWalking = true;
-        }
+        ignoreNextVisitorsOnNode();
         return;
       }
 
