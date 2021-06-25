@@ -1328,10 +1328,8 @@ describe('type extensions', () => {
   });
 });
 
-
-describe.only('ignoreNextRules', () => {
-
-  it.only('should correctly skip top level', async () => {
+describe('ignoreNextRules', () => {
+  it('should correctly skip top level', async () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
