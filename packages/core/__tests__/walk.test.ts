@@ -1327,3 +1327,71 @@ describe('type extensions', () => {
     `);
   });
 });
+
+describe('ignoreNextRules', () => {
+  it('should correctly skip top level', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      skip: jest.fn(() => {
+        return {
+          Operation: {
+            enter: jest.fn((op, ctx) => {
+              if (op.operationId === 'get') {
+                ctx.ignoreNextVisitorsOnNode();
+                calls.push(`enter and skip operation ${op.operationId}`);
+              } else {
+                calls.push(`enter and not skip operation ${op.operationId}`);
+              }
+            }),
+            leave: jest.fn((op) => {
+              if (op.operationId === 'get') {
+                calls.push(`leave skipped operation ${op.operationId}`);
+              } else {
+                calls.push(`leave not skipped operation ${op.operationId}`);
+              }
+            }),
+          },
+        };
+      }),
+      test: jest.fn(() => {
+        return {
+          Operation: {
+            enter: jest.fn((op) => calls.push(`enter operation ${op.operationId}`)),
+            leave: jest.fn((op) => calls.push(`leave operation ${op.operationId}`)),
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              operationId: get
+            put:
+              operationId: put
+      `,
+      '',
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfigForRuleset(testRuleSet),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      Array [
+        "enter and skip operation get",
+        "leave skipped operation get",
+        "enter and not skip operation put",
+        "enter operation put",
+        "leave not skipped operation put",
+        "leave operation put",
+      ]
+    `);
+  });
+});

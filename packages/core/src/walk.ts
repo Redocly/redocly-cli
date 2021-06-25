@@ -1,6 +1,5 @@
 import { Referenced } from './typings/openapi';
 import { Location, isRef } from './ref-utils';
-
 import {
   VisitorLevelContext,
   NormalizedOasVisitors,
@@ -12,7 +11,6 @@ import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from '
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
 import { NormalizedNodeType, isNamedType } from './types';
-
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
@@ -109,7 +107,6 @@ export function walkDocument<T>(opts: {
   ctx: WalkContext;
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
-
   const seenNodesPerType: Record<string, Set<any>> = {};
   const seenRefs = new Set<any>();
 
@@ -124,7 +121,6 @@ export function walkDocument<T>(opts: {
   ) {
     let currentLocation = location;
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
-
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
     if (isRef(node)) {
@@ -209,7 +205,16 @@ export function walkDocument<T>(opts: {
             if (!activatedOn.skipped) {
               visitedBySome = true;
               enteredContexts.add(context);
-              visitWithContext(visit, resolvedNode, context, ruleId, severity);
+              const ignoreNextVisitorsOnNode = visitWithContext(
+                visit,
+                resolvedNode,
+                context,
+                ruleId,
+                severity,
+              );
+              if (ignoreNextVisitorsOnNode) {
+                break;
+              }
             }
           }
         }
@@ -234,15 +239,16 @@ export function walkDocument<T>(opts: {
           }
 
           if (isRef(node)) {
-            props.push(...Object.keys(node).filter((k) => k!== '$ref' && !props.includes(k))); // properties on the same level as $ref
+            props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
           }
 
           for (const propName of props) {
             let value = resolvedNode[propName];
+
             let loc = resolvedLocation;
 
             if (value === undefined) {
-              value =  node[propName];
+              value = node[propName];
               loc = location; // properties on the same level as $ref should resolve against original location, not target
             }
 
@@ -322,6 +328,7 @@ export function walkDocument<T>(opts: {
       }
     }
 
+    // returns true ignores all the next visitors on the specific node
     function visitWithContext(
       visit: VisitFunction<any>,
       node: any,
@@ -330,6 +337,8 @@ export function walkDocument<T>(opts: {
       severity: ProblemSeverity,
     ) {
       const report = reportFn.bind(undefined, ruleId, severity);
+      let ignoreNextVisitorsOnNode = false;
+
       visit(
         node,
         {
@@ -341,9 +350,15 @@ export function walkDocument<T>(opts: {
           key,
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
+          ignoreNextVisitorsOnNode: () => {
+            ignoreNextVisitorsOnNode = true;
+          },
         },
         collectParents(context),
+        context,
       );
+
+      return ignoreNextVisitorsOnNode;
     }
 
     function resolve<T>(
@@ -354,6 +369,7 @@ export function walkDocument<T>(opts: {
       const refId = from + '::' + ref.$ref;
 
       const resolvedRef = resolvedRefMap.get(refId);
+
       if (!resolvedRef) {
         return {
           location: undefined,

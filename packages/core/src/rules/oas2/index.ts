@@ -3,7 +3,6 @@ import { InfoDescription } from '../common/info-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license-url';
 import { InfoLicenseUrl } from '../common/license-url';
-
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
@@ -32,31 +31,26 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
 export const rules = {
+  spec: OasSpec as Oas2Rule,
   'info-description': InfoDescription as Oas2Rule,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
   'info-license-url': InfoLicenseUrl as Oas2Rule,
-
   'tag-description': TagDescription as Oas2Rule,
   'tags-alphabetical': TagsAlphabetical as Oas2Rule,
-
   'paths-kebab-case': PathsKebabCase as Oas2Rule,
   'no-enum-type-mismatch': NoEnumTypeMismatch as Oas2Rule,
-
   'boolean-parameter-prefixes': BooleanParameterPrefixes as Oas2Rule,
   'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
   'operation-2xx-response': Operation2xxResponse as Oas2Rule,
-
   'operation-operationId-unique': OperationIdUnique as Oas2Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
   'path-parameters-defined': PathParamsDefined as Oas2Rule,
   'operation-tag-defined': OperationTagDefined as Oas2Rule,
-
   'path-declaration-must-exist': PathDeclarationMustExist as Oas2Rule,
   'operation-operationId-url-safe': OperationIdUrlSafe as Oas2Rule,
   'operation-operationId': OperationOperationId as Oas2Rule,
   'operation-summary': OperationSummary as Oas2Rule,
-
   'operation-description': OperationDescription as Oas2Rule,
   'path-not-include-query': PathNotIncludeQuery as Oas2Rule,
   'path-params-defined': PathParamsDefined as Oas2Rule,
@@ -66,10 +60,7 @@ export const rules = {
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
-
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
-
-  spec: OasSpec as Oas2Rule,
 };
 
 export const preprocessors = {};

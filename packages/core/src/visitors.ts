@@ -49,7 +49,12 @@ import { NormalizedNodeType } from './types';
 import { Stack } from './utils';
 import { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import { Location } from './ref-utils';
-export type VisitFunction<T> = (node: T, ctx: UserContext, parents?: any) => void;
+export type VisitFunction<T> = (
+  node: T,
+  ctx: UserContext & { ignoreNextVisitorsOnNode: () => void },
+  parents?: any,
+  context?: any,
+) => void;
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
@@ -86,7 +91,6 @@ export type VisitorLevelContext = {
   isSkippedLevel: false;
   type: NormalizedNodeType;
   parent: VisitorLevelContext | null;
-
   activatedOn: Stack<{
     node?: any;
     withParentNode?: any;
@@ -264,17 +268,17 @@ export function normalizeVisitors<T extends BaseVisitor>(
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
+  normalizedVisitors.any = {
+    enter: [],
+    leave: [],
+  };
+
   for (const typeName of Object.keys(types) as Array<keyof T>) {
     normalizedVisitors[typeName] = {
       enter: [],
       leave: [],
     } as any;
   }
-
-  normalizedVisitors.any = {
-    enter: [],
-    leave: [],
-  };
 
   normalizedVisitors.ref = {
     enter: [],
@@ -376,7 +380,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     }
 
     for (const typeName of visitorKeys as Array<keyof T>) {
-      const typeVisitor = (visitor[typeName] as any) as NestedVisitObject<any, T>;
+      const typeVisitor = visitor[typeName] as any as NestedVisitObject<any, T>;
       const normalizedTypeVisitor = normalizedVisitors[typeName]!;
 
       if (!typeVisitor) continue;

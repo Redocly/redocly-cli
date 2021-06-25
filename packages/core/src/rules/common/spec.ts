@@ -5,19 +5,22 @@ import { isRef } from '../../ref-utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, key, resolve }) {
+    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
       const nodeType = oasTypeOf(node);
+
       if (type.items) {
         if (nodeType !== 'array') {
           report({
             message: `Expected type \`${type.name}\` (array) but got \`${nodeType}\``,
           });
+          ignoreNextVisitorsOnNode();
         }
         return;
       } else if (nodeType !== 'object') {
         report({
           message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
         });
+        ignoreNextVisitorsOnNode();
         return;
       }
 

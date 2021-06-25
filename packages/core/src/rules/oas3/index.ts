@@ -1,5 +1,4 @@
 import { Oas3RuleSet } from '../../oas-types';
-
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
@@ -42,6 +41,7 @@ import { NoEmptyEnumServers } from './no-servers-empty-enum';
 import { Oas3Decorator } from '../../visitors';
 
 export const rules = {
+  spec: OasSpec,
   'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
@@ -78,8 +78,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers,
-  spec: OasSpec,
+  'no-servers-empty-enum': NoEmptyEnumServers
 } as Oas3RuleSet;
 
 export const preprocessors = {};
