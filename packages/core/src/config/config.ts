@@ -251,6 +251,7 @@ export class LintConfig {
       if (plugin.typeExtension !== undefined) {
         switch (version) {
           case OasVersion.Version3_0:
+          case OasVersion.Version3_1:
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
           case OasVersion.Version2:
