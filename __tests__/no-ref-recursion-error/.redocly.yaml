@@ -1,0 +1,6 @@
+apiDefinitions:
+  main: ./openapi.json
+
+lint:
+  extends:
+    - recommended
