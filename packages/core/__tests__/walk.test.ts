@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import each from 'jest-each';
 import * as path from 'path';
 
 import { lintDocument } from '../src/lint';
@@ -1246,7 +1247,10 @@ describe('context.resolve', () => {
 });
 
 describe('type extensions', () => {
-  it('should correctly visit extended types', async () => {
+  each([
+    ['3.0.0', 'oas3_0'],
+    ['3.1.0', 'oas3_1'],
+  ]).it('should correctly visit OpenAPI %s extended types', async (openapi, oas) => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
@@ -1274,7 +1278,7 @@ describe('type extensions', () => {
 
     const document = parseYamlToDocument(
       outdent`
-        openapi: 3.0.0
+        openapi: ${openapi}
         x-webhooks:
           name: test
           parameters:
@@ -1289,7 +1293,7 @@ describe('type extensions', () => {
       config: makeConfigForRuleset(testRuleSet, {
         typeExtension: {
           oas3(types, version) {
-            expect(version).toEqual('oas3_0');
+            expect(version).toEqual(oas);
 
             return {
               ...types,
