@@ -1,0 +1,69 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "TEST",
+    "description": "TEST",
+    "version": "v1",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [{
+    "url": "http://petstore.swagger.io/v1"
+  }],
+  "paths": {
+    "/test": {
+      "get": {
+        "summary": "test",
+        "operationId": "test",
+        "responses": {
+          "202": {
+            "description": "Test",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PetWithProps" },
+                "example": {
+                  "a": {
+                  },
+                  "b": {
+                    "c": "hello"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "oneOf": [{ "$ref": "#/components/schemas/Dog" }]
+      },
+      "Dog": {
+        "type": "object",
+        "oneOf": [{ "$ref": "#/components/schemas/Pet" }]
+      },
+      "PetDirect": {
+        "type": "object",
+        "oneOf": [{ "$ref": "#/components/schemas/PetDirect" }]
+      },
+      "PetWithProps": {
+        "type": "object",
+        "required": ["c"],
+        "properties": {
+          "c": { "type": "string" },
+          "a": {
+            "$ref":  "#/components/schemas/PetWithProps"
+          },
+          "b": {
+            "oneOf": [{ "$ref": "#/components/schemas/PetWithProps" }]
+          }
+        }
+      }
+    }
+  }
+}
