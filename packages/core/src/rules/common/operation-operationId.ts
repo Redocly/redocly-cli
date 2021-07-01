@@ -6,8 +6,12 @@ import { Oas3Operation } from '../../typings/openapi';
 
 export const OperationOperationId: Oas3Rule | Oas2Rule = () => {
   return {
-    Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
-      validateDefinedAndNonEmpty('operationId', operation, ctx);
-    },
+    DefinitionRoot: {
+      PathItem: {
+        Operation(operation: Oas2Operation | Oas3Operation, ctx: UserContext) {
+          validateDefinedAndNonEmpty('operationId', operation, ctx);
+        },
+      },
+    }
   };
 };
