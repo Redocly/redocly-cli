@@ -21,10 +21,10 @@ function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) 
       allowUnionTypes: true,
       validateFormats: false, // TODO: fix it
       defaultAdditionalProperties: !disallowAdditionalProperties,
-      loadSchemaSync(base: string, $ref: string, $id: string) {
+      loadSchemaSync(base: string, $ref: string) {
         const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return undefined;
-        return { $id, ...resolvedRef.node };
+        return { $id: resolvedRef.location.absolutePointer, ...resolvedRef.node };
       },
       logger: false,
     });

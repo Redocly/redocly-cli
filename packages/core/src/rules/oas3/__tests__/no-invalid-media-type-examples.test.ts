@@ -307,4 +307,39 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should work with cross-file $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            C:
+              $ref: './fixtures/common.yaml#/components/schemas/A'
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example: {
+                        "a": "test",
+                        "b": "test"
+                      }
+                      schema:
+                        $ref: '#/components/schemas/C'
+
+      `,
+      __dirname + '/foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });
