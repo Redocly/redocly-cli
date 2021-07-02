@@ -359,7 +359,7 @@ describe('no-invalid-media-type-examples', () => {
                         nullable: true
 
       `,
-      __dirname + '/foobar.yaml',
+      'foobar.yaml',
     );
 
     const results = await lintDocument({
@@ -373,13 +373,13 @@ describe('no-invalid-media-type-examples', () => {
         Object {
           "from": Object {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
-            "source": "/Users/romanhotsiy/Projects/Redocly/openapi-cli/packages/core/src/rules/oas3/__tests__/foobar.yaml",
+            "source": "foobar.yaml",
           },
           "location": Array [
             Object {
               "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/schema",
               "reportOnKey": false,
-              "source": "/Users/romanhotsiy/Projects/Redocly/openapi-cli/packages/core/src/rules/oas3/__tests__/foobar.yaml",
+              "source": "foobar.yaml",
             },
           ],
           "message": "Example validation errored: \\"nullable\\" cannot be used without \\"type\\".",
