@@ -342,4 +342,52 @@ describe('no-invalid-media-type-examples', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should not throw for ajv throw', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example: {}
+                      schema:
+                        nullable: true
+
+      `,
+      __dirname + '/foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": Object {
+            "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
+            "source": "/Users/romanhotsiy/Projects/Redocly/openapi-cli/packages/core/src/rules/oas3/__tests__/foobar.yaml",
+          },
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/schema",
+              "reportOnKey": false,
+              "source": "/Users/romanhotsiy/Projects/Redocly/openapi-cli/packages/core/src/rules/oas3/__tests__/foobar.yaml",
+            },
+          ],
+          "message": "Example validation errored: \\"nullable\\" cannot be used without \\"type\\".",
+          "ruleId": "no-invalid-media-type-examples",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });

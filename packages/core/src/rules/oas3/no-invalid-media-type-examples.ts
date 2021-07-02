@@ -29,26 +29,34 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
         }
 
         function validateExample(example: any, dataLoc: Location) {
-          const { valid, errors } = validateJsonSchema(
-            example,
-            mediaType.schema!,
-            location.child('schema'),
-            dataLoc.pointer,
-            resolve,
-            disallowAdditionalProperties,
-          );
-          if (!valid) {
-            for (let error of errors) {
-              report({
-                message: `Example value must conform to the schema: ${error.message}.`,
-                location: {
-                  ...new Location(dataLoc.source, error.instancePath),
-                  reportOnKey: error.keyword === 'additionalProperties',
-                },
-                from: location,
-                suggest: error.suggest,
-              });
+          try {
+            const { valid, errors } = validateJsonSchema(
+              example,
+              mediaType.schema!,
+              location.child('schema'),
+              dataLoc.pointer,
+              resolve,
+              disallowAdditionalProperties,
+            );
+            if (!valid) {
+              for (let error of errors) {
+                report({
+                  message: `Example value must conform to the schema: ${error.message}.`,
+                  location: {
+                    ...new Location(dataLoc.source, error.instancePath),
+                    reportOnKey: error.keyword === 'additionalProperties',
+                  },
+                  from: location,
+                  suggest: error.suggest,
+                });
+              }
             }
+          } catch(e) {
+            report({
+              message: `Example validation errored: ${e.message}.`,
+              location: location.child('schema'),
+              from: location
+            });
           }
         }
       },
