@@ -4,6 +4,63 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.53 (2021-07-02)
+
+### Fixes
+
+- Resolved an issue with transitive $ref resolution in the JSON schema validator.
+
+- If the JSON schema validator crashes, OpenAPI CLI will now report the problem in the output instead of crashing itself.
+
+
+----
+
+## 1.0.0-beta.52 (2021-07-01)
+
+### Fixes
+
+- The `operation-operationId` rule no longer triggers a warning when one or more operations in the `callbacks` object don't have `operationId` defined.
+
+
+----
+
+## 1.0.0-beta.51 (2021-06-30)
+
+### Features
+
+- Our [official OpenAPI CLI documentation](https://redoc.ly/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/openapi-cli/tree/master/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redoc.ly/code-of-conduct/) in all your contributions.
+
+- Implemented support for OpenAPI 3.1 in `typeExtension` plugins.
+
+### Fixes
+
+- Resolved a crash caused when processing properties with the `null` value.
+
+- Resolved a "Maximum call stack size exceeded" issue in the JSON schema validator caused by recursive `oneOf`.
+
+
+----
+
+## 1.0.0-beta.50 (2021-06-08)
+
+### Fixes
+
+- Implemented improvements to the `openapi-cli` package to reduce the size of the browser bundle.
+
+
+----
+
+## 1.0.0-beta.49 (2021-06-01)
+
+### Fixes
+
+- Removed unused keywords in OpenAPI 3.1.
+
+- Resolved an issue with the `openapi bundle` command failing because of the missing `js-yaml` dependency.
+
+
+----
+
 ## 1.0.0-beta.48 (2021-05-25)
 
 ### Fixes

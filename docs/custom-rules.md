@@ -82,9 +82,8 @@ See an example of a custom rule implementation in our ["Response contains proper
 Keys of the object can be any of the following:
 
 - node type - visitor will be called on specific node type. List of available node types for each specific OAS version:
-  <!-- TODO: update the link below once merged -->
-  - OAS3: https://github.com/Redocly/openapi-cli/blob/master/src/types/oas3.ts#L538-L583
-  - OAS2: https://github.com/Redocly/openapi-cli/blob/master/src/types/oas2.ts#L367-L394
+  - OAS3: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3.ts#L530
+  - OAS2: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas2.ts#L367
 - `any` - visitor will be called on every node
 - `ref` - visitor will be called on $ref nodes
 
