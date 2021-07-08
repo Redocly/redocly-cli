@@ -1,6 +1,6 @@
 # `login`
 
-Use the `login` command to authenticate to the API registry. You must [generate a personal API key](../workflows/personal-api-keys.md) first.
+Use the `login` command to authenticate to the API registry. You must [generate a personal API key](../../workflows/personal-api-keys.md) first.
 
 When you log in, the `preview-docs` command will start a preview server using Redocly API reference docs with all of the premium features.
 
