@@ -1,0 +1,33 @@
+openapi: 3.0.0
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  /ping:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type:
+                  - integer
+                  - array
+                enum:
+                  - 1
+                  - [ 1, 2, 3, string]
+                  - 3
+                  - string
+  /pong:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+                enum:
+                  - 1
+                  - string
+                  - 13

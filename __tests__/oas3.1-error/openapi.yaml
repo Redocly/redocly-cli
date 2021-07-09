@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Webhook Example
+  summary: My lovely API
+  version: 1.0.0
+  description: some description
+  license:
+    name: MIT
+    identifier: MIT
+    url: https://opensource.org/licenses/MIT
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+tags:
+  - name: Gameplay
+    description: gameplay tag
+servers:
+  - url: https://example.com/{var}
+    variables:
+      var:
+        enum:
+        - a
+        - b
+        default: b

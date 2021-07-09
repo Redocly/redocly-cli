@@ -1,0 +1,160 @@
+type: object
+properties:
+  apiDefinitions:
+    type: array
+    description: >
+      A map of aliases and the source of the API definitions.
+      Especially useful for managing multiple API definitions.
+    minItems: 1
+    items:
+      type: object
+      additionalProperties:
+        type: string
+        description: The path (or URL) to the API definition.
+  lint:
+    type: object
+    description: A set of configurations to lint and decorate your APIs used when the `lint` and `bundle` commands execute.
+    properties:
+      plugins:
+        type: array
+        description: >
+          Import any local plugins (e.g. `./local-plugins.js`).
+          The built-in plugins do not need to be imported.
+          There is not support for community plugins yet.
+        example: ['./local-plugin.js']
+        items:
+          type: string
+          format: path
+      extends:
+        type: array
+        description: Choose the base configuration. Defaults to `recommended`. You may also use `minimal` or add your own plugins.
+        items:
+          type: string
+      resolve:
+        type: object
+        description: >
+          Use this when you have external links in your definition that are not publicly accessible (except for Redocly API registry links).
+          We recommend using environment variables where possible.
+        properties:
+          http:
+            type: object
+            description: Description of URL pattern matches and the corresponding headers to use when resolving references.
+            properties:
+              headers:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    matches:
+                      type: string
+                      description: The URL pattern to match. For example, `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`
+                    name:
+                      type: string
+                      description: The header name. For example, `X-API-KEY`.
+                    value:
+                      type: string
+                      description: The value of the header. We recommend to use `envVariable` instead for any secrets.
+                    envVariable:
+                      type: string
+                      description: The environment variable name which will be resolved and should contain the value.
+      preprocessors:
+        type: array
+        description: >
+          Change the severity level of any rules in your extended configurations.
+          Some rules may also receive additional configurations.
+          Preprocessors run first during `lint` and `bundle`.
+        items:
+          type: object
+          additionalProperties:
+            description: >
+              List each rule by name.
+              For example, `no-sibling-refs`.
+            oneOf:
+              - type: string
+                description: Specify the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - on
+                  - off
+              - type: object
+                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - error
+                      - warn
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
+
+      rules:
+        type: array
+        description: >
+          Change the severity level of any rules in your extended configurations.
+          Some rules may also receive additional configurations.
+          Rules run during the `lint` command after preprocessors.
+          They run during the `bundle` command between preprocessors and decorators.
+        items:
+          type: object
+          additionalProperties:
+            description: >
+              List each rule by name.
+              For example, `no-sibling-refs`.
+            oneOf:
+              - type: string
+                description: Specify the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - error
+                  - warn
+                  - off
+              - type: object
+                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - error
+                      - warn
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
+
+
+      decorators:
+        type: array
+        description: >
+          Enable or disable decorators.
+          They run during the `bundle` command after linting.
+        items:
+          type: object
+          additionalProperties:
+            description: >
+              List each rule by name.
+              For example, `demo/hide-internal-apis`.
+            oneOf:
+              - type: string
+                description: Specify the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - off
+                  - on
+              - type: object
+                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - on
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
+  referenceDocs:
+    type: object
+    description: These configurations are used when previewing or building the docs.
+    properties:
+      disableSearch:
+        description: Disable search indexing and hide the search box
+        type: boolean
+        default: false
+      theme:
+        type: object

@@ -1,3 +1,0 @@
-petstore-with-errors.yaml:
-  no-unused-schemas:
-    '#/components/schemas/Some': true

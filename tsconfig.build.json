@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["src"],
-  "exclude": ["**/__tests__"]
+  "files": [],
+  "references": [{ "path": "packages/core" }, { "path": "packages/cli" }]
 }

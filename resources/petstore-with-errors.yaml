@@ -20,6 +20,17 @@ paths:
       requestBody:
         content:
           'application/json':
+            schema:
+              type: object
+              properties:
+                summary:
+                  type: string
+                externalValue:
+                  type: number
+            example:
+              summary: A foo example
+              value: {"foo": "bar"}
+              externalValue: 'http://example.org/foo.json'
             examples:
               foo:
                 summary: A foo example
@@ -35,6 +46,12 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: test
+          in: path
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: A paged array of pets

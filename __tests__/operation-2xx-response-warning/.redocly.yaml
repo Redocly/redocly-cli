@@ -1,0 +1,7 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    operation-2xx-response: warn
+  extends: []

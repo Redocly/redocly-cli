@@ -1,0 +1,34 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0.0
+  description: test
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://petstore.swagger.io/v1
+
+paths:
+  '/ping/{id}/{userId}':
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: The user ID.
+    get:
+      operationId: getPing
+      summary: Example summary
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user to get
+      responses:
+        '200':
+          description: example description

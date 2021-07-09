@@ -1,0 +1,54 @@
+{
+  "name": "@redocly/openapi-cli",
+  "version": "1.0.0-beta.53",
+  "description": "",
+  "license": "MIT",
+  "bin": {
+    "openapi": "bin/cli.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "engineStrict": true,
+  "scripts": {
+    "compile": "tsc",
+    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js",
+    "prepublishOnly": "npm run copy-assets"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Redocly/openapi-cli.git"
+  },
+  "homepage": "https://github.com/Redocly/openapi-cli",
+  "keywords": [
+    "linter",
+    "OpenAPI",
+    "Swagger",
+    "OpenAPI linter",
+    "Swagger linter",
+    "oas"
+  ],
+  "contributors": [
+    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
+    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+  ],
+  "dependencies": {
+    "@redocly/openapi-core": "^1.0.0-beta.53",
+    "@types/node": "^14.11.8",
+    "assert-node-version": "^1.0.3",
+    "js-yaml": "^3.14.1",
+    "chokidar": "^3.5.1",
+    "colorette": "^1.2.0",
+    "glob": "^7.1.6",
+    "glob-promise": "^3.4.0",
+    "handlebars": "^4.7.6",
+    "portfinder": "^1.0.26",
+    "simple-websocket": "^9.0.0",
+    "yargs": "17.0.1"
+  },
+  "devDependencies": {
+    "@types/yargs": "16.0.2",
+    "typescript": "^4.0.3"
+  }
+}

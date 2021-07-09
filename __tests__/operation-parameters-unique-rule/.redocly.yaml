@@ -1,0 +1,7 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    operation-parameters-unique: error
+  extends: []

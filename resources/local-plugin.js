@@ -9,7 +9,7 @@ export const rules = {
           if (operation.operationId === 'test') {
             report({
               message: `operationId must be not "test"`,
-              location: location.append('operationId'),
+              location: location.child('operationId'),
             });
           }
         },
@@ -18,8 +18,10 @@ export const rules = {
   },
 };
 
-/** @type {import('../src/config/config').TransformersConfig} */
-export const transformers = {
+rules.oas2 = rules.oas3;
+
+/** @type {import('../src/config/config').PreprocessorsConfig} */
+export const preprocessors = {
   oas3: {
     'duplicate-description': () => {
       return {
@@ -27,6 +29,19 @@ export const transformers = {
           if (info.description) {
             info.description = info.description + '\n' + info.description;
           }
+        },
+      };
+    },
+  },
+};
+
+/** @type {import('../src/config/config').DecoratorConfig} */
+export const decorators = {
+  oas3: {
+    'inject-x-stats': () => {
+      return {
+        Info(info) {
+          info['x-stats'] = { test: 1 };
         },
       };
     },

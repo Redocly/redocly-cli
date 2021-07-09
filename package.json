@@ -1,21 +1,34 @@
 {
-  "name": "@redocly/openapi-cli",
-  "version": "1.0.0-alpha.1",
+  "name": "@redocly/openapi",
+  "version": "1.0.0-beta.53",
   "description": "",
-  "main": "lib/index.js",
+  "private": true,
+  "engines": {
+    "node": ">=15.0.0"
+  },
+  "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
-    "unit": "jest --coverage --coverageReporters lcov text-summary",
-    "cli": "ts-node src/cli.ts",
-    "build": "rm -rf lib && tsc -p tsconfig.build.json",
-    "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
-    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build"
+    "e2e": "jest ./__tests__",
+    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
+    "compile": "tsc -b tsconfig.build.json",
+    "prepare": "npm run compile",
+    "cli": "ts-node packages/cli/src/index.ts",
+    "lint": "npm run cli lint resources/pets.yaml -- --format stylish",
+    "bundle": "npm run cli bundle resources/pets.yaml",
+    "stats": "npm run cli stats resources/pets.yaml",
+    "split": "npm run cli split resources/pets.yaml -- --outDir output",
+    "preview": "npm run cli preview-docs resources/pets.yaml",
+    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
+    "webpack-bundle": "webpack --config webpack.config.ts",
+    "upload": "node scripts/archive-and-upload-bundle.js"
   },
-  "bin": {
-    "openapi": "lib/cli.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Redocly/openapi-cli.git"
@@ -30,40 +43,46 @@
   ],
   "contributors": [
     "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
+    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
-  "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/js-levenshtein": "^1.1.0",
-    "@types/js-yaml": "^3.12.4",
-    "@types/node-fetch": "^2.5.7",
-    "@types/yargs": "^15.0.5",
-    "jest": "^26.0.1",
-    "outdent": "^0.7.1",
-    "prettier": "^2.0.5",
-    "ts-jest": "^26.1.0",
-    "ts-node": "^8.10.2"
-  },
-  "dependencies": {
-    "@types/node": "^14.0.13",
-    "colorette": "^1.2.0",
-    "js-levenshtein": "^1.1.6",
-    "js-yaml": "^3.14.0",
-    "node-fetch": "^2.6.0",
-    "typescript": "^3.9.5",
-    "yaml-ast-parser": "0.0.43",
-    "yargs": "^15.3.1"
-  },
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all",
     "printWidth": 100
   },
+  "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "jest": "^26.6.3",
+    "null-loader": "^4.0.0",
+    "outdent": "^0.7.1",
+    "prettier": "^2.1.2",
+    "shebang-loader": "0.0.1",
+    "ts-jest": "^26.4.4",
+    "ts-loader": "^8.0.2",
+    "ts-node": "^9.0.0",
+    "typescript": "4.3.3",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
   "jest": {
     "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "packages/**/*.ts",
+      "!packages/**/__tests__/**/*",
+      "!packages/cli/src/index.ts",
+      "!packages/cli/**/*.ts",
+      "!packages/cli/src/format/format.ts"
+    ],
     "testMatch": [
-      "**/__tests__/**/*.test.ts"
-    ]
+      "**/__tests__/**/*.test.ts",
+      "**/*.test.ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    }
   }
 }

@@ -1,0 +1,14 @@
+openapi: 3.0.2
+info:
+  title: Example OpenAPI 3 definition. Valid.
+  version: 1.0
+
+paths:
+  '/ping':
+    get:
+      operationId: gitPing
+      summary: example text
+      description: example description
+      responses:
+        '200':
+          description: example description
