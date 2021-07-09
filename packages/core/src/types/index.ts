@@ -16,6 +16,7 @@ export type NormalizedScalarSchema = {
   enum?: string[];
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
+  constraints?: ScalarConstraints;
 };
 
 export type ScalarConstraints = {
