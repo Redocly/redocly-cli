@@ -19,9 +19,8 @@ const argv = yargs
 let profile = !!argv.awsProfile ? `--profile ${argv.awsProfile}` : '';
 
 try {
-    execSync(`aws s3 cp ${fileName} s3://openapi-cli-dist ${profile}`);
-    execSync(`aws s3 cp ${fileNameLatest} s3://openapi-cli-dist ${profile}`);
+    execSync(`aws s3 cp ${fileName} s3://${process.env.AWS_S3_PATH} ${profile}`);
+    execSync(`aws s3 cp ${fileNameLatest} s3://${process.env.AWS_S3_PATH} ${profile}`);
 } catch (e) {
     process.stderr.write(e.output);
 }
-
