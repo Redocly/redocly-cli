@@ -76,15 +76,15 @@ In this step, add the environment variable `SERVERS_URL` (defined in the previou
 
 1. In your Redocly app, navigate to **API Registry > API Version > Settings > Environment variables**.
 
-![Environment variables](../images/envt_variable.png)
+![Environment variables](./images/envt-variable.png)
 
 2. Select **Add Variable** to add a new environment variable. The _Add a new environment variable_ dialog opens.
 
-![Add new environment variable](../images/add_new_env_variable.png)
+![Add new environment variable](./images/add-new-env-variable.png)
 
 3. Under Name, type in **SERVERS_URL**. Type in the value for the variable, and select **Create Variable**. The environment variable is now added to your API version settings.
 
-![Environment variables](../images/envt_variable_after.png)
+![Environment variables](./images/envt-variable-after.png)
 
 To create API versions for different server URLs, use the **API registry**. [Add another version](../../workflows/api-registry/versions.md) of the API with a different environment variable value.
 
