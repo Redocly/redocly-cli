@@ -131,7 +131,7 @@ docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
 
 ### Using OpenAPI CLI commands
 
-Read more about [supported commands in Redocly OpenAPI CLI](./commands.md).
+Read more about [supported commands in Redocly OpenAPI CLI](./commands/index.md).
 
 ### Contributions
 
