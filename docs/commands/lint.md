@@ -139,6 +139,13 @@ This option is useful when you have an API design standard, but have some except
 openapi lint --generate-ignore-file
 ```
 
+To generate ignore file for multiple definitions pass them as arguments:
+
+```shell
+openapi lint v1.yaml v2.yaml --generate-ignore-file
+```
+
+
 
 This command generates a file named `.redocly.lint-ignore.yaml`.
 
