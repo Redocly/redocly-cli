@@ -24,7 +24,7 @@ If there are exceptions to the rule, the exceptions can be explicitly added to t
 ## Steps to writing the rule
 
 1. Identify the type of object to visit. The rules follow the visitor pattern and traverses the tree of the OpenAPI definition.
-    - The [Response](https://github.com/Redocly/openapi-cli/blob/master/src/types/oas3.ts#L558) object is appropriate because we want to verify the property on the response (not on requests).
+    - The [Response](https://github.com/Redocly/openapi-cli/tree/master/packages/core/src/types) object is appropriate because we want to verify the property on the response (not on requests).
 1. Find the relationship between the starting object and the property we must evaluate for our decision. (Sometimes this will be the same object as above.)
 1. Craft the logic for the rule.
 1. Report the problem.

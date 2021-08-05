@@ -2,7 +2,7 @@
 
 Preview the API reference docs on your local machine.
 
-If you have a license key, you will have a preview of the premium Redocly API reference docs. The [`login`](#login) command also generates a preview of the premium Redocly API reference docs.
+If you have a license key, you will have a preview of the premium Redocly API reference docs. The [`login`](./login.md) command also generates a preview of the premium Redocly API reference docs.
 
 Otherwise, you'll get a preview of Redoc community edition.
 
@@ -29,9 +29,9 @@ Options:
 
 ### How to preview the docs on a custom port
 
-By default, without providing a port, the preview starts on port 8080, and can be accessed at http://localhost:8080.
+By default, without providing a port, the preview starts on port 8080, and can be accessed at `http://localhost:8080`.
 
-This command starts a preview on port 8888, and you can access the docs at http://localhost:8888 after running it.
+This command starts a preview on port 8888, and you can access the docs at `http://localhost:8888` after running it.
 
 
 ```shell

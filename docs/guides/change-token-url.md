@@ -1,3 +1,7 @@
+---
+redirectFrom:
+  - /docs/resources/change-token-url/
+---
 # Change OAuth2 token URL
 
 Use a custom decorator to change the OAuth credentials flow token URL.

@@ -143,9 +143,11 @@ openapi lint --generate-ignore-file
 This command generates a file named `.redocly.lint-ignore.yaml`.
 
 
-<div class="warning">
+:::warning
+
 This command will overwrite an existing ignore file.
-</div>
+
+:::
 
 
 Example of an ignore file:
@@ -174,7 +176,7 @@ openapi lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 
-Learn more about [preprocessors]().
+Learn more about [preprocessors](../custom-rules.md).
 
 
 #### Skip rule
@@ -187,7 +189,7 @@ openapi lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 
-Learn more about [rules]().
+Learn more about [rules](../custom-rules.md).
 
 
 #### Specify config file
