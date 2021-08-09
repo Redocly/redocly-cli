@@ -4,7 +4,7 @@ redirectFrom:
 ---
 # Lint configuration
 
-The `lint` configuration section is part of the [Redocly configuration file](index.mdx).
+The `lint` configuration section is part of the [Redocly configuration file](../configuration/index.mdx).
 It is used by the `lint` and `bundle` commands to control various options.
 
 Modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the `lint` or `bundle` commands.
@@ -15,7 +15,7 @@ When using our hosted Workflows product, the `.redocly.yaml` file must be in the
 
 :::
 
-Read about the [`--config` option](../commands.md) to use other file names or locations.
+Read about the [`--config` option](../commands/index.md) to use other file names or locations.
 
 From a high-level, there are a few sub-sections.
 ```yaml

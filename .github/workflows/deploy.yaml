@@ -55,6 +55,15 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
+        AWS_S3_PATH: openapi-cli-dist
+
+    - name: Upload to AWS sandbox S3 bucket
+      run: npm run upload
+      env:
+        AWS_SANDBOX_ACCESS_KEY_ID: ${{ secrets.AWS_SANDBOX_ACCESS_KEY_ID }}
+        AWS_SANDBOX_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
+        AWS_SANDBOX_DEFAULT_REGION: us-east-1
+        AWS_S3_PATH: redocly-sandbox-openapi-cli-dist
   publish:
     needs: [test, deploy]
     runs-on: ubuntu-latest

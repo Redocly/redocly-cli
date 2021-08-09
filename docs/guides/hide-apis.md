@@ -15,7 +15,11 @@ Whatever you do... don't make these API security mistakes:
 
 - Do not leave any endpoint unprotected.
 
-<div class="danger">If an endpoint is discovered, your API authentication mechanism must prevent unauthorized access.</div>
+:::danger
+
+If an endpoint is discovered, your API authentication mechanism must prevent unauthorized access.
+
+:::
 
 
 ## Three approaches
@@ -617,7 +621,7 @@ This is indicated when:
 - There may be shared schemas between internal and external APIs.
 - Internal parts are only paths.
 
-We recommend our [multi-file OpenAPI structure](./multi-file-definitions.md) for organizing your API definitions.
+We recommend our [multi-file OpenAPI structure](../../resources/multi-file-definitions.md) for organizing your API definitions.
 
 This approach calls for making an additional root file (the root file is the file where the OpenAPI description begins).
 
@@ -672,9 +676,9 @@ paths:
 
 ### Using a decorator
 
-Redocly's API registry uses [OpenAPI-cli](../../openapi-cli.mdx) under the hood.
+Redocly's API registry uses [OpenAPI-cli](../../../openapi-cli.mdx) under the hood.
 
-OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../cli/custom-rules.md) to:
+OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../custom-rules.md) to:
 - create your own organization's linting rules
 - transform your API definition during the bundle process (using decorators)
 
