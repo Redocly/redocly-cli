@@ -14,7 +14,7 @@ Redocly OpenAPI CLI is an open-source command-line tool used to:
 - Integrate with Redocly's API registry.
 - Build production-ready reference docs (requires an Enterprise license key).
 
-:::success Useful tip
+:::success Tip
 You can also [extend](custom-rules.md) the functionality of Redocly OpenAPI CLI by dynamically adding
 or removing content during the bundling process using decorators or by defining your own rules to validate OpenAPI definitions
 :::
