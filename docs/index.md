@@ -33,29 +33,27 @@ Currently, Redocly OpenAPI CLI supports these features:
 
 ## What makes Redocly OpenAPI CLI different
 
-Unlike other OpenAPI validators, Redocly OpenAPI CLI defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how compilers work, and results in major performance benefits over other approaches.
+As you can see from the previous section, OpenAPI CLI is your all-in-one swiss army knife that can fulfill all your needs when designing, defining, and working with OpenAPI definitions.
 
-Redocly OpenAPI CLI comes with a set of built-in rules, but you can extend its functionality by creating your own rules. Both the lint and the bundle features follow the [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern) for adding custom behavior on the parsed object.
+There are four pillars that make Redocly OpenAPI CLI great - **performance**, **bundling**, **linting**, and **extensibility**. To better understand why you need to
+look at the OpenAPI authoring process from a higher level.
 
+### Performance
 
-### Lint
+**Performance** is associated with _validation_. Unlike other OpenAPI validators, Redocly OpenAPI CLI defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how compilers work and results in major performance benefits over other approaches.
 
-```mermaid
-graph LR
-    preprocessors[Preprocessors]
-    rules[Rules]
-    preprocessors --> rules
-```
+### Bundling
 
-### Bundle
+Bundling is a process of compilation of multiple referenced files (linked with `$ref`s) into a single one. Generally, there are two approaches to writing OpenAPI definitions: single-file and multi-file. The first approach is great for beginners when you learn the basics
+and then try to define small APIs. But as soon as you dive deeper and start designing complex APIs with a lot of endpoints, the single-file approach becomes increasingly impractical.
 
-```mermaid
-graph LR
-    preprocessors[Preprocessors]
-    rules[Rules]
-    decorators[Decorators]
-    preprocessors --> rules --> decorators
-```
+That's why people proceed with the multi-file approach, where you define the main structure of the API in the root definition file and everything else that can be reused or segmented into smaller units is located in separate files.
+
+The problem with the multi-file approach is that many existing tools offer multi-file support as the only feature, meaning that you will have yet another tool to install and maintain. OpenAPI CLI has a strong advantage here over other tools, as it bundles files automatically and it's just one of the powerful features it provides you with.
+
+### Linting and extensibility
+
+Linting is associated with _extensibility_. Linting is used to ensure that your OpenAPI definition is clear and doesn't contain junk information. To instruct OpenAPI CLI what's junk and what's not you use either built-in or custom rules or the combination of both. With these rules, you ensure that the OpenAPI documents are consistent and correct as well as follow a specific API design standard/style. Furthermore, custom rules can help you extend the basic functionality to cover specific use-cases depending on the specification of your API definitions. Using rule-based linting is especially useful when you follow the design-first API development approach.
 
 ## Installation and usage
 
