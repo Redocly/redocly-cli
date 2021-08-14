@@ -33,7 +33,7 @@ Currently, Redocly OpenAPI CLI supports these features:
 
 ## What makes Redocly OpenAPI CLI different
 
-As you can see from the previous section, OpenAPI CLI is your all-in-one swiss army knife that can fulfill all your needs when designing, defining, and working with OpenAPI definitions.
+OpenAPI CLI is your all-in-one Swiss army knife that can fulfill your needs when designing, defining, and working with OpenAPI definitions.
 
 There are four pillars that make Redocly OpenAPI CLI great - **performance**, **bundling**, **linting**, and **extensibility**. To better understand why you need to
 look at the OpenAPI authoring process from a higher level.
