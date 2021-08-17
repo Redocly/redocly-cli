@@ -1,8 +1,8 @@
-# Installation
+# Installing OpenAPI-CLI
 
 You can install and use OpenAPI CLI in several ways:
 
-## Global installation
+## Installing globally
 
 ### npm
 
@@ -37,7 +37,7 @@ success Installed "@redocly/openapi-cli@1.0.0-beta.54" with binaries:
 ✨  Done in 6.90s.
 ```
 
-### Verify global installation
+## Verifying global installation
 
 After installing it globally, run `openapi --version` to confirm that the installation was successful:
 
@@ -46,7 +46,7 @@ openapi --version
 1.0.0-beta.54
 ```
 
-## Runtime installations
+## Installing in runtime
 
 ### npx
 
@@ -112,7 +112,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 ### Docker
 
-To give the Docker container access to the OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the OAS definition is rooted in the current working directory, the commnd will be the following:
+To give the Docker container access to the OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the OAS definition is rooted in the current working directory, the command will be the following:
 
 ```shell example with lint command
 docker run --rm -v $PWD:/spec redocly/openapi-cli lint petstore.yaml
@@ -139,7 +139,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 ## Post-installation
 
-### Set up tab completion
+### Setting up tab completion
 
 To set up tab completion for the terminal, generate the completion script with the command:
 
