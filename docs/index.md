@@ -33,7 +33,7 @@ Currently, Redocly OpenAPI CLI supports these features:
 
 ## What makes Redocly OpenAPI CLI different
 
-OpenAPI CLI is your all-in-one Swiss army knife that can fulfill your needs when designing, defining, and working with OpenAPI definitions.
+As you can see from the previous section, OpenAPI CLI is your all-in-one swiss army knife that can fulfill all your needs when designing, defining, and working with OpenAPI definitions.
 
 There are four pillars that make Redocly OpenAPI CLI great - **performance**, **bundling**, **linting**, and **extensibility**. To better understand why you need to
 look at the OpenAPI authoring process from a higher level.
@@ -44,10 +44,154 @@ look at the OpenAPI authoring process from a higher level.
 
 ### Bundling
 
-Bundling is a process of compilation of multiple referenced files (linked with `$ref`s) into a single one. Generally, there are two approaches to writing OpenAPI definitions: single-file and multi-file. The first approach is great for beginners when you learn the basics
+Bundling is a process of compilation of multiple referenced files (linked with `$ref`s) into a single one.
+
+Generally, there are two approaches to writing OpenAPI definitions: single-file and multi-file. The first approach is great for beginners when you learn the basics
 and then try to define small APIs. But as soon as you dive deeper and start designing complex APIs with a lot of endpoints, the single-file approach becomes increasingly impractical.
 
 That's why people proceed with the multi-file approach, where you define the main structure of the API in the root definition file and everything else that can be reused or segmented into smaller units is located in separate files.
+
+Compare the following examples:
+
+```yaml Single-file approach
+```
+```yaml openapi.yaml
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  description: Multi-file boilerplate for OpenAPI Specification.
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of pets
+          [...]
+          content:
+            application/json:    
+              schema:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                    tag:
+                      type: string
+  /pets/{petId}:
+    get:
+      summary: Info for a specific pet
+      operationId: showPetById
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                    tag:
+                      type: string
+```
+----
+
+```yaml Multi-file approach
+```
+```yaml openapi.yaml
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  description: Multi-file boilerplate for OpenAPI Specification.
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
+paths:
+  /pets:
+    $ref: "./paths/pets.yaml"
+  /pets/{petId}:
+    $ref: "./paths/pet.yaml"
+components:
+  parameters:
+    $ref: "./parameters/_index.yaml"
+  schemas:
+    $ref: "./schemas/_index.yaml"
+  responses:
+    $ref: "./responses/_index.yaml"
+```
+```yaml ./paths/pets.yaml
+get:
+  summary: Info for a specific pet
+  operationId: showPetById
+  tags:
+    - pets
+  parameters:
+    - $ref: "../parameters/path/petId.yaml"
+  responses:
+    '200':
+      description: Expected response to a valid request
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/Pet.yaml"
+    default:
+      $ref: "../responses/UnexpectedError.yaml"
+```
+```yaml ./schemas/Pet.yaml
+type: object
+required:
+- id
+- name
+properties:
+id:
+  type: integer
+  format: int64
+name:
+  type: string
+tag:
+  type: string
+```
+
+:::info Note
+Please note that the definitions above are not complete and are used as demonstration for you to grab the basic idea of the multi-file approach.
+:::
 
 The problem with the multi-file approach is that many existing tools offer multi-file support as the only feature, meaning that you will have yet another tool to install and maintain. OpenAPI CLI has a strong advantage here over other tools, as it bundles files automatically and it's just one of the powerful features it provides you with.
 
