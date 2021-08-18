@@ -1,4 +1,4 @@
-# Installing OpenAPI-CLI
+# Installing OpenAPI CLI
 
 You can install and use OpenAPI CLI in several ways:
 
@@ -6,7 +6,9 @@ You can install and use OpenAPI CLI in several ways:
 
 ### npm
 
-<div class="attention">This is the recommended method</div>
+:::success Tip
+This is the recommended method
+:::
 
 ```shell command
 npm i -g @redocly/openapi-cli@latest
@@ -50,7 +52,9 @@ openapi --version
 
 ### npx
 
-<div class="attention"><code>npx</code> is npm's package runner. It will install and run a command at the same time without installing it globally.</div>
+:::info
+`npx` is npm's package runner. It will install and run a command at the same time without installing it globally.
+:::
 
 ```shell command
 npx @redocly/openapi-cli <command> [options]
