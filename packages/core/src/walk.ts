@@ -77,6 +77,7 @@ export type NormalizedProblem = {
 export type WalkContext = {
   problems: NormalizedProblem[];
   oasVersion: OasVersion;
+  refTypes?: Map<string, NormalizedNodeType>;
 };
 
 function collectParents(ctx: VisitorLevelContext) {
@@ -143,6 +144,9 @@ export function walkDocument<T>(opts: {
             },
             { node: resolvedNode, location: resolvedLocation, error },
           );
+          if (resolvedLocation?.source.absoluteRef && ctx.refTypes) {
+            ctx.refTypes.set(resolvedLocation?.source.absoluteRef, type);
+          }
         }
       }
     }

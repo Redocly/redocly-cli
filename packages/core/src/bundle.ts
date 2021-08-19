@@ -80,6 +80,7 @@ export async function bundleDocument(opts: {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
+    refTypes: new Map(),
   };
 
   const bundleVisitor = normalizeVisitors(
@@ -113,6 +114,7 @@ export async function bundleDocument(opts: {
     bundle: document,
     problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
+    refTypes: ctx.refTypes,
   };
 }
 
