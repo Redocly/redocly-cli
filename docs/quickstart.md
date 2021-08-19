@@ -405,3 +405,7 @@ GET /openapi.json: 0.867ms
 Navigate to `http://127.0.0.1:8080` and check the updated definition file:
 
 ![updated-preview-docs](../images/updated-preview-docs.png)
+
+## Full list of commands
+
+This guide describes only a common set of commands. To check the full list of commands available to you, please refer to the [OpenAPI CLI commands](./commands/index.md) document
