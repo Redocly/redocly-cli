@@ -51,8 +51,8 @@ The solution is the multi-file approach, where you define the main structure of 
 
 Compare the following examples:
 
-```yaml Single-file approach
-```
+#### Single-file approach
+
 ```yaml openapi.yaml
 openapi: "3.0.0"
 info:
@@ -83,7 +83,7 @@ paths:
           description: A paged array of pets
           [...]
           content:
-            application/json:    
+            application/json:
               schema:
                   type: object
                   required:
@@ -129,8 +129,8 @@ paths:
 ```
 ----
 
-```yaml Multi-file approach
-```
+#### Multi-file approach
+
 ```yaml openapi.yaml
 openapi: "3.0.0"
 info:
