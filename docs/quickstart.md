@@ -131,13 +131,13 @@ With this command, you can get a quick statistics about the structure of one or 
 
 In your terminal, type the following:
 
-```
+```bash
 $ openapi stats petstore.yaml
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi stats petstore.yaml 
 Document: petstore.yaml stats:
 
@@ -161,13 +161,13 @@ With this command, you ensure that your OpenAPI definition files do not contain 
 
 In your terminal, type the following:
 
-```
+```bash
 $ openapi lint petstore.yaml
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi lint petstore.yaml 
 No configurations were defined in extends -- using built in recommended configuration by default.
 
@@ -243,27 +243,27 @@ Don't worry, they were made intentionally to show the power of the tool.
 
 Let's fix the errors. Please, make the following modifications:
 
-```sh line 15
+```bash line 15
 operationIds: --> operationId:
 ```
 
-```sh line 58
+```bash line 58
 /pets/{petId: --> /pets/{petId}:
 ```
 
-```sh line 103
+```bash line 103
 require: --> required:
 ```
 
 Once fixed, run the `lint` command again:
 
-```
+```bash
 $ openapi lint petstore.yaml
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi lint petstore.yaml 
 No configurations were defined in extends -- using built in recommended configuration by default.
 
@@ -281,13 +281,13 @@ With this command, your OpenAPI definition file will be divided into constituent
 
 In your terminal, type the following:
 
-```
+```bash
 $ openapi split petstore.yaml --outDir openapi
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi split petstore.yaml --outDir openapi
 Document: petstore.yaml is successfully split
  and all related files are saved to the directory: openapi 
@@ -299,7 +299,7 @@ Cool, split completed. But what actually happened?
 
 Open the `openapi` directory. See? That's where the magic took place:
 
-```
+```bash
 .
 ├── components
 │   └── schemas
@@ -322,13 +322,13 @@ Let's bundle the definition file that we split earlier.
 
 In your terminal, type the following:
 
-```
+```bash
 $ openapi bundle openapi/openapi.yaml --output bundled.yaml
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi bundle openapi/openapi.yaml --output bundled.yaml
 bundling openapi/openapi.yaml...
 📦 Created a bundle for openapi/openapi.yaml at bundled.yaml 46ms.
@@ -342,13 +342,13 @@ With this command, you can run a server to preview your OpenAPI definition file 
 
 In your terminal, type the following:
 
-```
+```bash
 $ openapi preview-docs petstore.yaml 
 ```
 
 You should get the following response:
 
-```
+```bash
 $ openapi preview-docs petstore.yaml 
 Using Redoc community edition.
 Login with openapi-cli login or use an enterprise license key to preview with the premium docs.
@@ -366,7 +366,7 @@ Created a bundle for petstore.yaml successfully
 
 Navigate to `http://127.0.0.1:8080` and check that your definition file has been served successfully:
 
-![preview-docs](./images/preview-docs.png)
+![preview-docs](../images/preview-docs.png)
 
 This server support live changes - try to modify your definition file, these modifications will be previewed immediately.
 
@@ -381,7 +381,7 @@ info:
 
 You should get the following response:
 
-```
+```bash
 watch changed petstore.yaml
 watch changed /path-to-your-project/petstore.yaml
 
@@ -404,4 +404,4 @@ GET /openapi.json: 0.867ms
 
 Navigate to `http://127.0.0.1:8080` and check the updated definition file:
 
-![updated-preview-docs](./images/updated-preview-docs.png)
+![updated-preview-docs](../images/updated-preview-docs.png)
