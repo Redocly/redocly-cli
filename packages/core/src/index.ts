@@ -44,4 +44,4 @@ export {
 export { getAstNodeByPointer, getLineColLocation } from './format/codeframes';
 export { formatProblems, OutputFormat, getTotals, Totals } from './format/format';
 export { lint, lint as validate, lintDocument, lintFromString } from './lint';
-export { bundle } from './bundle';
+export { bundle, bundleDocument } from './bundle';
