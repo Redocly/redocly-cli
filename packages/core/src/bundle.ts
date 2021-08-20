@@ -80,7 +80,7 @@ export async function bundleDocument(opts: {
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
-    refTypes: new Map(),
+    refTypes: new Map<string, NormalizedNodeType>(),
   };
 
   const bundleVisitor = normalizeVisitors(
