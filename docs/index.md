@@ -1,37 +1,42 @@
+---
+tocMaxDepth: 2
+---
+
 # Redocly OpenAPI CLI
 
-Redocly OpenAPI CLI is an open source command-line tool used to:
+## Overview
+
+Redocly OpenAPI CLI is an open-source command-line tool used to:
 
 - Lint and bundle your OpenAPI definition(s).
-- Decorate your APIs (add or remove data).
-- Preview reference docs for local development.
 - Split single-file OpenAPI files into a multi-file format.
+- Preview reference docs for local development.
 - Integrate with Redocly's API registry.
 - Build production-ready reference docs (requires an Enterprise license key).
 
-
-Redocly OpenAPI CLI can be:
-
-- Extended by writing [custom rules and decorators](custom-rules.md).
-
+:::success Tip
+You can also [extend](custom-rules.md) the functionality of Redocly OpenAPI CLI by dynamically adding
+or removing content during the bundling process using decorators or by defining your own rules to validate OpenAPI definitions
+:::
 
 ## Features
 
 Currently, Redocly OpenAPI CLI supports these features:
 
-- [x] Multi-file validation. No need to bundle your files before validation.
-- [x] Support for remote `$ref`s.
-- [x] Configurable severity levels for each rule. Tailor your experience with Redocly OpenAPI CLI to suit your needs.
-- [x] Lightning-fast validation. Check a 1 MB file in less than one second.
-- [x] Human-readable error messages. Now with stacktraces and codeframes.
-- [x] Intuitive suggestions for misspelled types or references.
-- [x] Easy-to-implement custom rules. Need something? Ask us or do it yourself.
-- [x] Bundle a multi-file definition into a single file for compatibility with external tools.
-- [x] Preview reference docs.
-- [x] Support for OAS 3.0 and Swagger 2.0 (OAS 3.1 is coming soon).
+- ✅ Multi-file validation. No need to bundle your files before validation.
+- ✅ Lightning-fast validation. Check a 1 MB file in less than one second.
+- ✅ Support for remote `$ref`s. Reference a definition hosted on any location.
+- ✅ Bundle a multi-file definition into a single file for compatibility with external tools.
+- ✅ Configurable severity levels for each rule. Fine tune Redocly OpenAPI CLI to suit your needs.
+- ✅ Human-readable error messages. Now with stacktraces and codeframes.
+- ✅ Intuitive suggestions for misspelled types or references. No error will pass you by.
+- ✅ Easy-to-implement custom rules. Need something? Ask us or do it yourself.
+- ✅ Preview reference docs. Writing OpenAPI documents has never been easier.
+- ✅ Support for OAS 3.1 and Swagger 2.0.
 
+## Why Redocly OpenAPI CLI?
 
-## What makes Redocly OpenAPI CLI different
+### Performance
 
 OpenAPI CLI is your all-in-one Swiss army knife when designing, defining, and working with OpenAPI definitions.
 
@@ -197,82 +202,6 @@ The problem with the multi-file approach is that many existing tools offer multi
 
 Linting is associated with _extensibility_. Linting is used to ensure that your OpenAPI definition is clear and doesn't contain errors or quality issues. To instruct OpenAPI CLI how to detect those issues, you use either built-in or custom rules, or the combination of both. With these rules, you ensure that the OpenAPI documents are consistent, correct, and follow a specific API design standard or style. Furthermore, custom rules can help you extend the basic functionality to cover specific use-cases that your API definitions need to accommodate. Using rule-based linting is especially useful when you follow the design-first API development approach.
 
-## Installation and usage
-
-You can install and use OpenAPI CLI in any of these ways:
-
-- `npx` (NPM's package runner)
-- `npm -g` (NPM's global installation)
-- `npm` (NPM as a package local to a project)
-- `yarn global` (Yarn's global installation)
-- `yarn` (Yarn as a package local to a project)
-- `docker` (use a Docker image)
-
-### Global installations
-
-**Install globally with npm**
-
-<div class="attention">This is the recommended installation method.</div>
-
-`npm install -g @redocly/openapi-cli@latest`
-
-![install openapi-cli globally](./images/install-update-openapi-cli.gif)
-
-**Install globally with yarn**
-
-`yarn global add @redocly/openapi-cli`
-
-**Verify your global installation**
-
-After installing it globally, run `openapi --version` to confirm the installation was successful.
-
-
-#### Set up tab completion
-
-OpenAPI CLI supports the tab completion functionality.
-
-To set it up for your terminal, generate the completion script with the command:
-
-```shell
-openapi completion
-```
-
-The command output contains installation instructions. For example, to install the completion script in **bash**, use:
-
-```shell
-openapi completion >> ~/.bashrc
-```
-
-The approach is similar for other shells. After the installation, restart your terminal for changes to take effect.
-
-
-### Runtime installations
-
-**Install and use with npx**
-
-NPX is NPM's package runner.
-It will install and run a command at the same time (without installing it globally).
-
-`npx @redocly/openapi-cli <command> [options]`
-
-Here is a sample command:
-
-```shell
-npx @redocly/openapi-cli@latest lint
-```
-
-**Install and use with docker**
-
-To give the Docker container access to the OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the OAS definition is rooted in the current working directory, you need the following command:
-
-```
-docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
-```
-
-### Using OpenAPI CLI commands
-
-Read more about [supported commands in Redocly OpenAPI CLI](./commands/index.md).
-
-### Contributions
+## Contributions
 
 The source code is available in the [OpenAPI-CLI GitHub repository](https://github.com/Redocly/openapi-cli).
