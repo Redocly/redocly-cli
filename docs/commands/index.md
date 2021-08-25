@@ -5,11 +5,15 @@ tocMaxDepth: 2
 
 Redocly OpenAPI CLI currently supports the following commands:
 
-commands            |                                 | 
---------------------|---------------------------------|------------------
-[bundle](bundle.md) | [split](split.md)               | [join](join.md)
-[lint](lint.md)     | [preview-docs](preview-docs.md) |  [stats](stats.md)
-[login](login.md)   | [logout](logout.md)             | [push](push.md)
+* [bundle](bundle.md)
+* [join](join.md)
+* [lint](lint.md) 
+* [login](login.md)
+* [logout](logout.md)
+* [preview-docs](preview-docs.md)
+* [push](push.md)
+* [split](split.md)
+* [stats](stats.md)
 
 To define the behavior of the commands, you can use configuration files:
 
