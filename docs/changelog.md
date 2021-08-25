@@ -4,6 +4,19 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.55 (2021-08-20)
+
+### Features
+
+- Updated and improved the [introductory content](index.md) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
+
+- Exported `bundleDocument` with support for file reference types to be used in our new [Redocly OpenAPI](https://marketplace.visualstudio.com/items?itemName=Redocly.openapi-vs-code) VS Code extension.
+
+- Implemented improvements to the internal CD process.
+
+
+----
+
 ## 1.0.0-beta.54 (2021-07-19)
 
 - Internal changes.
