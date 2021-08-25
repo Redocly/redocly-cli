@@ -1,4 +1,4 @@
-# Quickstart guide
+# Redocly OpenAPI CLI quickstart guide
 
 ## Before you start
 
@@ -45,7 +45,7 @@ paths:
               schema:
                 type: string
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Pets"
         default:
@@ -139,17 +139,17 @@ $ openapi stats petstore.yaml
 You should get the following response:
 
 ```bash
-$ openapi stats petstore.yaml 
+$ openapi stats petstore.yaml
 Document: petstore.yaml stats:
 
-🚗 References: 3 
-📦 External Documents: 0 
-📈 Schemas: 3 
-👉 Parameters: 2 
-🔗 Links: 0 
-➡️ Path Items: 2 
-👷 Operations: 3 
-🔖 Tags: 1 
+🚗 References: 3
+📦 External Documents: 0
+📈 Schemas: 3
+👉 Parameters: 2
+🔗 Links: 0
+➡️ Path Items: 2
+👷 Operations: 3
+🔖 Tags: 1
 
 petstore.yaml: stats processed in 10ms
 ```
@@ -158,7 +158,7 @@ Okay, now you know some basic information about your definition. But, is it vali
 
 ### lint - validate your definition files
 
-With this command, you ensure that your OpenAPI definition files do not contain errors and have a valid structure according to the specification. 
+With this command, you ensure that your OpenAPI definition files do not contain errors and have a valid structure according to the specification.
 
 In your terminal, type the following:
 
@@ -169,7 +169,7 @@ $ openapi lint petstore.yaml
 You should get the following response:
 
 ```bash
-$ openapi lint petstore.yaml 
+$ openapi lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
@@ -305,7 +305,7 @@ You should get the following response:
 ```bash
 $ openapi split petstore.yaml --outDir openapi
 Document: petstore.yaml is successfully split
- and all related files are saved to the directory: openapi 
+ and all related files are saved to the directory: openapi
 
 petstore.yaml: split processed in 44ms
 ```
@@ -331,7 +331,7 @@ With the `split` command, you can easily switch to a [multi-file structure](./in
 
 ### bundle - pull constituent parts of the OpenAPI definition into a single file
 
-With this command, you can merge standalone files back into a single definition file. `bundle` does the opposite of the [`split`](#split) command.
+With this command, you can merge standalone files back into a single definition file. `bundle` does the opposite of the [`split`](#split---divide-your-large-definition-into-smaller-constituent-parts) command.
 
 Let's bundle the definition file that you split earlier.
 
@@ -358,13 +358,13 @@ With this command, you can generate a documentation preview for your OpenAPI def
 In your terminal, type the following:
 
 ```bash
-$ openapi preview-docs petstore.yaml 
+$ openapi preview-docs petstore.yaml
 ```
 
 You should get the following response:
 
 ```bash
-$ openapi preview-docs petstore.yaml 
+$ openapi preview-docs petstore.yaml
 Using Redoc community edition.
 Login with openapi-cli login or use an enterprise license key to preview with the premium docs.
 
@@ -379,9 +379,9 @@ Bundling...
 Created a bundle for petstore.yaml successfully
 ```
 
-Navigate to `http://127.0.0.1:8080` and check that your definition file has been served successfully:
+Navigate to `http://127.0.0.1:8080` and check that your definition file has been served successfully.
 
-![preview-docs](../images/preview-docs.png)
+![API documentation preview](./images/preview-docs.png)
 
 This server supports live changes. Try to modify your definition file - the modifications will be visible in the preview immediately.
 
@@ -417,9 +417,9 @@ GET /openapi.json: 2.293ms
 GET /openapi.json: 0.867ms
 ```
 
-Navigate to `http://127.0.0.1:8080` and check the updated definition file:
+Navigate to `http://127.0.0.1:8080` and check the updated definition file.
 
-![updated-preview-docs](../images/updated-preview-docs.png)
+![Updated API documentation preview](./images/updated-preview-docs.png)
 
 ## Next steps
 
