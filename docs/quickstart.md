@@ -178,7 +178,7 @@ petstore.yaml: validated in 59ms
 Woohoo! Your OpenAPI definition is valid. 🎉
 ```
 
-That's great, but how does lint work when it detects errors? And what exactly the error is? To figure this out, let's introduce an error to our definition file and check how linter will react on it.
+That's great, but how does lint work when it detects errors? And what exactly the error is? To figure this out, let's introduce an error to our definition file and check the output.
 
 1. Open your `petstore.yaml` file
 1. Navigate to line #15: `operationId: listPets`
@@ -274,7 +274,7 @@ You got that error because you've changed a property that is strictly defined in
 
 The warning is a consequence of the error - when you changed the `operationId`, you also changed the object that this property is a part of - the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object). Since the `operationId` is no longer there, you get a warning triggered by the corresponding built-in rule - [operation-operationId](./built-in-rules.md#operation-operationid).
 
-Let's make you definition valid again. If you look at the defined Field Names of the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) (after the warning description), you can quickly detect what's wrong with your definition file - there cannot be a Field Name with the `operationIdentifier` name, it is invalid. So, change it back to the `operationId` and you're done. In this way, you will fix both the warning and the error because the unexpected property `operationIdentifier` is gone.
+Let's make your definition valid again. Look at the defined Field Names of the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) (after the warning description). Detect what's wrong with your definition file - there cannot be a Field Name with the `operationIdentifier` name (it is invalid). Change it back to the `operationId` and you're done. You will fix both the warning and the error because the unexpected property `operationIdentifier` is gone.
 
 To check that everything is correct, run the `lint` command again:
 
@@ -327,9 +327,9 @@ Open the `openapi` directory. See? That's where the magic took place:
 └── openapi.yaml
 ```
 
-With the `split` command, you can easily switch to a multi-file structure in a blink of an eye even if your definition file became extremely lengthy.
+With the `split` command, you can easily switch to a [multi-file structure](./index.md#multi-file-approach) in a blink of an eye even if your definition file became extremely lengthy.
 
-### bundle - combine several definition files into a single one
+### bundle - pull constituent parts of the OpenAPI definition into a single file
 
 With this command, you can merge standalone files back into a single definition file. `bundle` does the opposite of the [`split`](#split) command.
 
@@ -349,7 +349,7 @@ bundling openapi/openapi.yaml...
 📦 Created a bundle for openapi/openapi.yaml at bundled.yaml 46ms.
 ```
 
-You should now see a new `bundled.yaml` file as a result of the `bundle` command completion. Open this file in your text editor or IDE and compare it with the linted definition file. You can see that both files are the same which means that the `bundle` command executed flawlessly.
+You should now see a new `bundled.yaml` file as a result of the `bundle` command completion. Open this file in your text editor or IDE and compare it with the linted definition file. You can see that OpenAPI definition hasn't changed which means that the `bundle` command executed flawlessly.
 
 ### preview-docs - preview your definition files quickly
 
@@ -423,6 +423,6 @@ Navigate to `http://127.0.0.1:8080` and check the updated definition file:
 
 ## Next steps
 
-* Check the full list of [OpenAPI CLI commands](./commands/index.md) available to you
-* Learn how to fine-tune your OpenAPI CLI tool using [configuraton file](./configuration/index.mdx)
-* Learn more about [custom plugins and rules](./custom-rules.md)
+- Check the full list of [OpenAPI CLI commands](./commands/index.md) available to you
+- Learn how to fine-tune your OpenAPI CLI tool using [configuraton file](./configuration/index.mdx)
+- Learn more about [custom plugins and rules](./custom-rules.md)
