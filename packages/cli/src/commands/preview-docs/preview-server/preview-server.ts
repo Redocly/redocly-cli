@@ -60,10 +60,11 @@ export default async function startPreviewServer(
 ) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request: IncomingMessage, response: any) => {
-    console.time(colorette.dim(`GET ${request.url}`));
+    const url = request.url.split('?')[0];
+    console.time(colorette.dim(`GET ${url}`));
     const { htmlTemplate } = getOptions() || {};
 
-    if (request.url === '/') {
+    if (url === '/') {
       respondWithGzip(
         getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,
@@ -72,7 +73,7 @@ export default async function startPreviewServer(
           'Content-Type': 'text/html',
         },
       );
-    } else if (request.url === '/openapi.json') {
+    } else if (url === '/openapi.json') {
       const bundle = await getBundle();
       if (bundle === undefined) {
         respondWithGzip(
@@ -101,8 +102,8 @@ export default async function startPreviewServer(
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
-        }[request.url || ''] ||
-        path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
+        }[url || ''] ||
+        path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${url}`);
 
       const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
 
@@ -125,7 +126,7 @@ export default async function startPreviewServer(
         }
       }
     }
-    console.timeEnd(colorette.dim(`GET ${request.url}`));
+    console.timeEnd(colorette.dim(`GET ${url}`));
   };
 
   let wsPort = await portfinder.getPortPromise({ port: 32201 });
