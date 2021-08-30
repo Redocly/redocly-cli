@@ -4,7 +4,7 @@ redirectFrom:
 ---
 # Replace server URL in different environments
 
-Redocly allows you to use [custom decorators](../../cli/custom-rules.md) to modify content in the API definition during the bundling process.
+Redocly allows you to use [custom decorators](../resources/custom-rules.md) to modify content in the API definition during the bundling process.
 
 This page describes how to replace the server URL with a decorator for a given environment.
 
@@ -33,9 +33,11 @@ module.exports = {
 
 2. Save the `demo-plugin.js` file in a directory called `plugins`.
 
-<div class="attention">
-You can name the plugins directory anything you want. Make sure you use the correct name in the <code>.redocly.yaml</code> file (Step 4).
-</div>
+:::attention
+
+You can name the plugins directory anything you want. Make sure you use the correct name in the `.redocly.yaml` file (Step 4).
+
+:::
 
 ## Step 2: Add a decorator and associate it with an environment variable
 
@@ -66,9 +68,11 @@ function ReplaceServersURL() {
 
 2. Save the `replace-servers-url.js` file in a directory called `decorators`.
 
-<div class="attention">
-You can name the decorators directory anything you want. Make sure you use the correct directory name in the <code>demo-plugin.js</code> file (Step 1).
-</div>
+:::attention
+
+You can name the decorators directory anything you want. Make sure you use the correct directory name in the `demo-plugin.js` file (Step 1).
+
+:::
 
 ## Step 3: Add an environment variable
 

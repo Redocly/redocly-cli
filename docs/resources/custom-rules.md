@@ -1,3 +1,9 @@
+---
+title: Custom plugins and rules in OpenAPI CLI
+redirectFrom:
+  - /docs/cli/custom-rules/
+---
+
 # Custom plugins and rules
 
 ## Concepts
@@ -74,7 +80,7 @@ function OperationIdNotTest() {
 }
 ```
 
-See an example of a custom rule implementation in our ["Response contains property" custom rule](./guides/response-contains-property.md).
+See an example of a custom rule implementation in our ["Response contains property" custom rule](../guides/response-contains-property.md).
 
 
 ## Format of visitor
@@ -304,7 +310,7 @@ module.exports = {
 }
 ```
 
-See an example of a custom decorator implementation in our [how-to hide APIs guide](./guides/hide-apis.md).
+See an example of a custom decorator implementation in our [how-to hide APIs guide](../guides/hide-apis.md).
 
 ## Configs in plugins
 

@@ -1,6 +1,6 @@
 # Lint configuration
 
-The `lint` configuration section is part of the [Redocly configuration file](index.mdx).
+The `lint` configuration section is part of the [Redocly configuration file](configuration-file.mdx).
 It is used by the `lint` and `bundle` commands to control various options.
 
 Modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the `lint` or `bundle` commands.
@@ -155,7 +155,7 @@ If not defined, it will fall back to the `rules` section.
 If it is version OpenAPI 3.0, it will prioritize the `oas3_0Rules` section.
 If not defined, it will fall back to the `rules` section.
 
-Read about our [built-in rules](../built-in-rules.md).
+Read about our [built-in rules](../resources/built-in-rules.md).
 
 
 ## Resolving JSON references ($refs)

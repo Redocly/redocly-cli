@@ -94,7 +94,7 @@ You may want to skip specific preprocessors upon running the command.
 openapi bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
-Learn more about [preprocessors](../custom-rules.md).
+Learn more about [preprocessors](../resources/custom-rules.md).
 
 #### Skip rule
 
@@ -104,7 +104,7 @@ You may want to skip specific rules upon running the command.
 openapi bundle --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
-Learn more about [rules](../custom-rules.md).
+Learn more about [rules](../resources/custom-rules.md).
 
 #### Skip decorator
 
@@ -114,4 +114,4 @@ You may want to skip specific decorators upon running the command.
 openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
 
-Learn more about [decorators](../custom-rules.md).
+Learn more about [decorators](../resources/custom-rules.md).

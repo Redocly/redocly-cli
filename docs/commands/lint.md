@@ -183,7 +183,7 @@ openapi lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 
-Learn more about [preprocessors](../custom-rules.md).
+Learn more about [preprocessors](../resources/custom-rules.md).
 
 
 #### Skip rule
@@ -196,7 +196,7 @@ openapi lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 
-Learn more about [rules](../custom-rules.md).
+Learn more about [rules](../resources/custom-rules.md).
 
 
 #### Specify config file
