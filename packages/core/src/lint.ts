@@ -12,6 +12,8 @@ import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
+import { configTypes } from './types/redocly-yaml';
+import { defaultPlugin } from './config/builtIn';
 
 export async function lint(opts: {
   ref: string;
@@ -87,5 +89,48 @@ export async function lintDocument(opts: {
     resolvedRefMap,
     ctx,
   });
+  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
+}
+
+export async function LintDocumentConfig(opts: {
+  document: Document
+}) {
+  const { document } = opts;
+  const externalRefResolver = new BaseResolver();
+  const oasVersion = OasVersion.Version3_0; // set default version for config files.
+
+  const config = new LintConfig({
+    plugins: [defaultPlugin],
+    extends: [],
+    rules: { spec: 'error' },
+  });
+
+  const ctx: WalkContext = {
+    problems: [],
+    oasVersion: oasVersion,
+  };
+
+  // TODO: maybe need deprecate this part with preprocessors and regularRules.
+  const oasMajorVersion = openAPIMajor(oasVersion);
+  const rules = config.getRulesForOasVersion(oasMajorVersion);
+  const types = normalizeTypes(configTypes, config);
+  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
+  const regularRules = initRules(rules as any, config, 'rules', oasVersion);
+  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules], types);
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.ConfigRoot,
+    externalRefResolver
+  });
+
+  walkDocument({
+    document,
+    rootType: types.ConfigRoot,
+    normalizedVisitors,
+    resolvedRefMap,
+    ctx,
+  });
+
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
