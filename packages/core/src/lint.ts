@@ -14,7 +14,7 @@ import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { configTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
-import { defaultPlugin } from './config/builtIn';
+// import { defaultPlugin } from './config/builtIn';
 
 export async function lint(opts: {
   ref: string;
@@ -98,11 +98,6 @@ export async function lintConfig(opts: {
 }) {
   const { document } = opts;
 
-  const config = new LintConfig({
-    plugins: [defaultPlugin],
-    extends: [],
-    rules: { spec: 'error' },
-  });
   const ctx: WalkContext = {
     problems: [],
     oasVersion: OasVersion.Version3_0,
@@ -119,5 +114,5 @@ export async function lintConfig(opts: {
     ctx,
   });
 
-  return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
+  return ctx.problems;
 }
