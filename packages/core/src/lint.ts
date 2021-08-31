@@ -5,14 +5,15 @@ import {
 import { Oas3_1Types } from './types/oas3_1';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
-import { NodeType } from './types';
-import { WalkContext, walkDocument } from './walk';
+import { NodeType, NormalizedNodeType } from './types';
+import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { LintConfig, Config } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { configTypes } from './types/redocly-yaml';
+import { OasSpec } from './rules/common/spec';
 import { defaultPlugin } from './config/builtIn';
 
 export async function lint(opts: {
@@ -92,43 +93,29 @@ export async function lintDocument(opts: {
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
-export async function LintDocumentConfig(opts: {
+export async function lintConfig(opts: {
   document: Document
 }) {
   const { document } = opts;
-  const externalRefResolver = new BaseResolver();
-  const oasVersion = OasVersion.Version3_0; // set default version for config files.
 
   const config = new LintConfig({
     plugins: [defaultPlugin],
     extends: [],
     rules: { spec: 'error' },
   });
-
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: oasVersion,
+    oasVersion: OasVersion.Version3_0,
   };
-
-  // TODO: maybe need deprecate this part with preprocessors and regularRules.
-  const oasMajorVersion = openAPIMajor(oasVersion);
-  const rules = config.getRulesForOasVersion(oasMajorVersion);
-  const types = normalizeTypes(configTypes, config);
-  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
-  const regularRules = initRules(rules as any, config, 'rules', oasVersion);
-  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules], types);
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.ConfigRoot,
-    externalRefResolver
-  });
+  const types = configTypes as Record<string, NormalizedNodeType>;
+  const rules = [ { severity: 'error' as ProblemSeverity, ruleId: 'spec', visitor: OasSpec({severity: 'error'}) } ];
+  const normalizedVisitors = normalizeVisitors(rules, types);
 
   walkDocument({
     document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
-    resolvedRefMap,
+    resolvedRefMap: new Map(),
     ctx,
   });
 

@@ -1,6 +1,6 @@
 import { outdent } from 'outdent';
 
-import { lintFromString, LintDocumentConfig } from '../lint';
+import { lintFromString, lintConfig } from '../lint';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
 
@@ -45,6 +45,7 @@ describe('lint', () => {
   it('lintDocumentConfig should work', async () => {
     const document = parseYamlToDocument(
       outdent`
+      apiDefinitions: error string
       lint:
         plugins:
           - './local-plugin.js'
@@ -69,19 +70,19 @@ describe('lint', () => {
       `,
       '',
     );
-    const results = await LintDocumentConfig({document});
+    const results = await lintConfig({document});
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
           "location": Array [
             Object {
-              "pointer": "#/",
-              "reportOnKey": true,
+              "pointer": "#/apiDefinitions",
+              "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "The field \`apiDefinitions\` must be present on this level.",
+          "message": "Expected type \`object\` but got \`string\`.",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],

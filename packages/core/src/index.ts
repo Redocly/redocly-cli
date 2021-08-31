@@ -48,6 +48,6 @@ export {
   lint as validate,
   lintDocument,
   lintFromString,
-  LintDocumentConfig,
+  lintConfig,
 } from './lint';
 export { bundle, bundleDocument } from './bundle';

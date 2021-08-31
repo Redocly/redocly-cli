@@ -3,13 +3,12 @@ import { NodeType } from '.';
 const ConfigRoot: NodeType = {
   properties: {
     apiDefinitions: { type: 'object', additionalProperties: { type: 'string' } },
-    lint: 'Lint',
-    referenceDocs: 'ReferenceDocs',
+    lint: 'ConfigLint',
+    referenceDocs: 'ConfigReferenceDocs',
   },
-  required: ['apiDefinitions'],
 };
 
-const Lint: NodeType = {
+const ConfigLint: NodeType = {
   properties: {
     plugins: {
       type: 'array',
@@ -37,21 +36,14 @@ const Lint: NodeType = {
     resolve: {
       properties: {
         http: {
-          properties: {
-            headers: {
-              type: 'array',
-              items: {
-                type: 'string',
-              },
-            }
-          }
+          type: 'object',
         }
       }
     }
   }
 };
 
-const ReferenceDocs: NodeType = {
+const ConfigReferenceDocs: NodeType = {
   properties: {
     theme: {
       type: 'object',
@@ -123,6 +115,6 @@ const ReferenceDocs: NodeType = {
 
 export const configTypes: Record<string, NodeType> = {
   ConfigRoot,
-  Lint,
-  ReferenceDocs,
+  ConfigLint: ConfigLint,
+  ConfigReferenceDocs: ConfigReferenceDocs,
 };
