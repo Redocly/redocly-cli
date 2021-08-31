@@ -5,7 +5,7 @@ import {
 import { Oas3_1Types } from './types/oas3_1';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
-import { NodeType, NormalizedNodeType } from './types';
+import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { LintConfig, Config } from './config/config';
 import { normalizeTypes } from './types';
@@ -14,7 +14,7 @@ import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { configTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
-// import { defaultPlugin } from './config/builtIn';
+import { defaultPlugin } from './config/builtIn';
 
 export async function lint(opts: {
   ref: string;
@@ -94,7 +94,7 @@ export async function lintDocument(opts: {
 }
 
 export async function lintConfig(opts: {
-  document: Document
+  document: Document,
 }) {
   const { document } = opts;
 
@@ -102,8 +102,14 @@ export async function lintConfig(opts: {
     problems: [],
     oasVersion: OasVersion.Version3_0,
   };
-  const types = configTypes as Record<string, NormalizedNodeType>;
-  const rules = [ { severity: 'error' as ProblemSeverity, ruleId: 'spec', visitor: OasSpec({severity: 'error'}) } ];
+  const config = new LintConfig({
+    plugins: [defaultPlugin],
+    extends: [],
+    rules: { spec: 'error' },
+  });
+
+  const types = normalizeTypes(configTypes, config);
+  const rules = [{ severity: 'error' as ProblemSeverity, ruleId: 'spec', visitor: OasSpec({ severity: 'error' }) }];
   const normalizedVisitors = normalizeVisitors(rules, types);
 
   walkDocument({

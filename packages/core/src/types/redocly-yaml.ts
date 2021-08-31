@@ -8,6 +8,17 @@ const ConfigRoot: NodeType = {
   },
 };
 
+const ConfigHTTP: NodeType = {
+  properties: {
+    headers: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    }
+  }
+};
+
 const ConfigLint: NodeType = {
   properties: {
     plugins: {
@@ -35,9 +46,7 @@ const ConfigLint: NodeType = {
     oas3_1Decorators: { type: 'object'},
     resolve: {
       properties: {
-        http: {
-          type: 'object',
-        }
+        http: 'ConfigHTTP',
       }
     }
   }
@@ -115,6 +124,7 @@ const ConfigReferenceDocs: NodeType = {
 
 export const configTypes: Record<string, NodeType> = {
   ConfigRoot,
-  ConfigLint: ConfigLint,
-  ConfigReferenceDocs: ConfigReferenceDocs,
+  ConfigLint,
+  ConfigReferenceDocs,
+  ConfigHTTP,
 };

@@ -70,7 +70,7 @@ describe('lint', () => {
       `,
       '',
     );
-    const results = await lintConfig({document});
+    const results = await lintConfig({ document });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
