@@ -93,7 +93,7 @@ export class RedoclyClient {
 
   static async authorize(accessToken: string, verbose: boolean = false) {
     try {
-      const queryStr = `{ definitions { id } }`;
+      const queryStr = `{ viewer { id } }`;
 
       return await query(queryStr, {}, { Authorization: accessToken });
     } catch (e) {
@@ -147,7 +147,7 @@ export class RedoclyClient {
           __typename
         }
       }
-  
+
       fragment VersionDetails on DefinitionVersion {
         id
         nodeId
