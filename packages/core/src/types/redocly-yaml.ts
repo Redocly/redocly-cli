@@ -1,8 +1,11 @@
-import { NodeType } from '.';
+import { NodeType, listOf } from '.';
 
 const ConfigRoot: NodeType = {
   properties: {
-    apiDefinitions: { type: 'object', additionalProperties: { type: 'string' } },
+    apiDefinitions: {
+      properties: {},
+      additionalProperties: { properties: { type: 'string' } }
+    },
     lint: 'ConfigLint',
     referenceDocs: 'ConfigReferenceDocs',
   },
@@ -32,18 +35,18 @@ const ConfigLint: NodeType = {
       },
     },
     doNotResolveExamples: { type: 'boolean' },
-    rules: { type: 'object'},
-    oas2Rules: { type: 'object'},
-    oas3_0Rules: { type: 'object'},
-    oas3_1Rules: { type: 'object'},
-    preprocessors: { type: 'object'},
-    oas2Preprocessors: { type: 'object'},
-    oas3_0Preprocessors: { type: 'object'},
-    oas3_1Preprocessors: { type: 'object'},
-    decorators: { type: 'object'},
-    oas2Decorators: { type: 'object'},
-    oas3_0Decorators: { type: 'object'},
-    oas3_1Decorators: { type: 'object'},
+    rules: { type: 'object' },
+    oas2Rules: { type: 'object' },
+    oas3_0Rules: { type: 'object' },
+    oas3_1Rules: { type: 'object' },
+    preprocessors: { type: 'object' },
+    oas2Preprocessors: { type: 'object' },
+    oas3_0Preprocessors: { type: 'object' },
+    oas3_1Preprocessors: { type: 'object' },
+    decorators: { type: 'object' },
+    oas2Decorators: { type: 'object' },
+    oas3_0Decorators: { type: 'object' },
+    oas3_1Decorators: { type: 'object' },
     resolve: {
       properties: {
         http: 'ConfigHTTP',
@@ -52,12 +55,64 @@ const ConfigLint: NodeType = {
   }
 };
 
+const ConfigLanguage: NodeType = {
+  properties: {
+    label: { type: 'string' },
+    lang: { type: 'string' },
+  }
+};
+
+const ConfigLabels: NodeType = {
+  properties: {
+    enum: { type: 'string' },
+    enumSingleValue: { type: 'string' },
+    enumArray: { type: 'string' },
+    default: { type: 'string' },
+    deprecated: { type: 'string' },
+    example: { type: 'string' },
+    examples: { type: 'string' },
+    nullable: { type: 'string' },
+    recursive: { type: 'string' },
+    arrayOf: { type: 'string' },
+    webhook: { type: 'string' },
+    authorizations: { type: 'string' },
+    tryItAuthBasicUsername: { type: 'string' },
+    tryItAuthBasicPassword: { type: 'string' },
+  }
+};
+
+const ConfigSidebarLinks: NodeType = {
+  properties: {
+    placement: { type: 'string' },
+    label: { type: 'string' },
+    link: { type: 'string' },
+    target: { type: 'string' },
+  }
+};
+
+const ConfigTheme: NodeType = {
+  properties: {
+    breakpoints: { type: 'object', additionalProperties: { type: 'string' } },
+    codeBlock: { type: 'object', additionalProperties: { type: 'string' } },
+    colors: { type: 'object', additionalProperties: { type: 'string' } },
+    components: { type: 'object', additionalProperties: { type: 'string' } },
+    layout: { type: 'object', additionalProperties: { type: 'string' } },
+    logo: { type: 'object', additionalProperties: { type: 'string' } },
+    overrides: { type: 'object', additionalProperties: { type: 'string' } },
+    rightPanel: { type: 'object', additionalProperties: { type: 'string' } },
+    schema: { type: 'object', additionalProperties: { type: 'string' } },
+    shape: { type: 'object', additionalProperties: { type: 'string' } },
+    sidebar: { type: 'object', additionalProperties: { type: 'string' } },
+    spacing: { type: 'object', additionalProperties: { type: 'string' } },
+    typography: { type: 'object', additionalProperties: { type: 'string' } },
+    links: { properties: { color: { type: 'string' } } },
+    codeSample: { properties: { backgroundColor: { type: 'string' } } }
+  }
+}
+
 const ConfigReferenceDocs: NodeType = {
   properties: {
-    theme: {
-      type: 'object',
-      additionalProperties: { type: 'string' },
-    },
+    theme: 'ConfigTheme',
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
@@ -68,7 +123,12 @@ const ConfigReferenceDocs: NodeType = {
     expandDefaultServerVariables: { type: 'boolean' },
     expandResponses: { type: 'string' },
     expandSingleSchemaField: { type: 'boolean' },
-    generateCodeSamples: { type: 'object' },
+    generateCodeSamples: {
+      properties: {
+        skipOptionalParameters: { type: 'boolean' },
+        languages: listOf('ConfigLanguage'),
+      }
+    },
     generatedPayloadSamplesMaxDepth: { type: 'number' },
     hideDownloadButton: { type: 'boolean' },
     hideHostname: { type: 'boolean' },
@@ -80,8 +140,8 @@ const ConfigReferenceDocs: NodeType = {
     hideSchemaTitles: { type: 'boolean' },
     hideSingleRequestSampleTab: { type: 'boolean' },
     htmlTemplate: { type: 'string' },
-    jsonSampleExpandLevel: { type: 'object' },
-    labels: { type: 'object' },
+    jsonSampleExpandLevel: { type: 'string' },
+    labels: 'ConfigLabels',
     layout: { type: 'object' },
     maxDisplayedEnumValues: { type: 'number' },
     menuToggle: { type: 'boolean' },
@@ -109,7 +169,7 @@ const ConfigReferenceDocs: NodeType = {
     showExtensions: { type: 'boolean' },
     showNextButton: { type: 'boolean' },
     showRightPanelToggle: { type: 'boolean' },
-    sidebarLinks: { type: 'object', additionalProperties: { type: 'string' } },
+    sidebarLinks: 'ConfigSidebarLinks',
     sideNavStyle: { type: 'string' },
     simpleOneOfTypeLabel: { type: 'boolean' },
     sortEnumValuesAlphabetically: { type: 'boolean' },
@@ -122,9 +182,13 @@ const ConfigReferenceDocs: NodeType = {
   additionalProperties: { type: 'string' },
 };
 
-export const configTypes: Record<string, NodeType> = {
+export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
   ConfigLint,
   ConfigReferenceDocs,
   ConfigHTTP,
+  ConfigLanguage,
+  ConfigLabels,
+  ConfigSidebarLinks,
+  ConfigTheme,
 };

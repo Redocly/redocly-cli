@@ -12,7 +12,7 @@ import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
-import { configTypes } from './types/redocly-yaml';
+import { ConfigTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
 import { defaultPlugin } from './config/builtIn';
 
@@ -108,7 +108,7 @@ export async function lintConfig(opts: {
     rules: { spec: 'error' },
   });
 
-  const types = normalizeTypes(configTypes, config);
+  const types = normalizeTypes(ConfigTypes, config);
   const rules = [{ severity: 'error' as ProblemSeverity, ruleId: 'spec', visitor: OasSpec({ severity: 'error' }) }];
   const normalizedVisitors = normalizeVisitors(rules, types);
 
