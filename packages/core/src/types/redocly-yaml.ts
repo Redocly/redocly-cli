@@ -3,6 +3,7 @@ import { NodeType, listOf } from '.';
 const ConfigRoot: NodeType = {
   properties: {
     apiDefinitions: {
+      type: 'object',
       properties: {},
       additionalProperties: { properties: { type: 'string' } }
     },
