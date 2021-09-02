@@ -42,7 +42,7 @@ describe('lint', () => {
     `);
   });
 
-  it('lintDocumentConfig should work', async () => {
+  it('lintConfig should work', async () => {
     const document = parseYamlToDocument(
       outdent`
       apiDefinitions: error string

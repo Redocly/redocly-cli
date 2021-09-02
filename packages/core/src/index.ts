@@ -2,6 +2,7 @@ export { BundleOutputFormat, readFileFromUrl } from './utils';
 export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
+export { ConfigTypes } from './types/redocly-yaml';
 export {
   Oas3Definition,
   Oas3Components,

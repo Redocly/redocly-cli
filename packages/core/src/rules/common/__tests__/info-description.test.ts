@@ -29,8 +29,8 @@ describe('Oas3 info-description', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/info",
-              "reportOnKey": false,
+              "pointer": "#/info/description",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
