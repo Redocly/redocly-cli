@@ -53,6 +53,7 @@ export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: U
   if (value[fieldName] === undefined) {
     ctx.report({
       message: missingRequiredField(ctx.type.name, fieldName),
+      location: ctx.location.child([fieldName]).key(),
     });
   } else if (!value[fieldName]) {
     ctx.report({

@@ -19,8 +19,8 @@ const ConfigHTTP: NodeType = {
       items: {
         type: 'string',
       },
-    }
-  }
+    },
+  },
 };
 
 const ConfigLint: NodeType = {
@@ -51,16 +51,16 @@ const ConfigLint: NodeType = {
     resolve: {
       properties: {
         http: 'ConfigHTTP',
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 const ConfigLanguage: NodeType = {
   properties: {
     label: { type: 'string' },
     lang: { type: 'string' },
-  }
+  },
 };
 
 const ConfigLabels: NodeType = {
@@ -79,7 +79,7 @@ const ConfigLabels: NodeType = {
     authorizations: { type: 'string' },
     tryItAuthBasicUsername: { type: 'string' },
     tryItAuthBasicPassword: { type: 'string' },
-  }
+  },
 };
 
 const ConfigSidebarLinks: NodeType = {
@@ -88,7 +88,7 @@ const ConfigSidebarLinks: NodeType = {
     label: { type: 'string' },
     link: { type: 'string' },
     target: { type: 'string' },
-  }
+  },
 };
 
 const ConfigTheme: NodeType = {
@@ -107,8 +107,8 @@ const ConfigTheme: NodeType = {
     spacing: { type: 'object', additionalProperties: { type: 'string' } },
     typography: { type: 'object', additionalProperties: { type: 'string' } },
     links: { properties: { color: { type: 'string' } } },
-    codeSample: { properties: { backgroundColor: { type: 'string' } } }
-  }
+    codeSample: { properties: { backgroundColor: { type: 'string' } } },
+  },
 }
 
 const ConfigReferenceDocs: NodeType = {
@@ -128,7 +128,7 @@ const ConfigReferenceDocs: NodeType = {
       properties: {
         skipOptionalParameters: { type: 'boolean' },
         languages: listOf('ConfigLanguage'),
-      }
+      },
     },
     generatedPayloadSamplesMaxDepth: { type: 'number' },
     hideDownloadButton: { type: 'boolean' },

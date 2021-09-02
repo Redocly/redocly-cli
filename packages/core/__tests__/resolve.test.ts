@@ -195,14 +195,23 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
       .toMatchInlineSnapshot(`
       Array [
-        "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
+        "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "schemas/type-a.yaml::../openapi-with-back.yaml#/components/schemas/TypeB",
       ]
     `);
 
     expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
       Array [
+        Object {
+          "enum": Array [
+            "webhook",
+            "api_key",
+            "sftp",
+            "netsuite",
+          ],
+          "type": "string",
+        },
         Object {
           "allOf": Array [
             Object {
@@ -221,15 +230,6 @@ describe('collect refs', () => {
               "type": "object",
             },
           ],
-        },
-        Object {
-          "enum": Array [
-            "webhook",
-            "api_key",
-            "sftp",
-            "netsuite",
-          ],
-          "type": "string",
         },
         Object {
           "enum": Array [
