@@ -1,8 +1,6 @@
-# `login`, `logout`
+# `login`
 
-## `login`
-
-### Introduction
+## Introduction
 
 :::warning Note
 Before proceeding with the command, you must [generate a personal API key](../../workflows/personal-api-keys.md) first.
@@ -16,7 +14,7 @@ Also, you will be able to access your members-only (private) API definitions in 
 
 If you're having issues with the `login` command, use the `--verbose` option to display a detailed error trace (if any).
 
-### Usage
+## Usage
 
 ```bash
 openapi login [--help] [--verbose] [--version]
@@ -24,7 +22,7 @@ openapi login [--help] [--verbose] [--version]
 openapi login --verbose
 ```
 
-### Options
+## Options
 
 option      | type      | required? | default | description
 ------------|:---------:|:---------:|:-------:|------------
@@ -32,7 +30,7 @@ option      | type      | required? | default | description
 `--verbose` | `boolean` | no        | -       | Include addtional output
 `--version` | `boolean` | no        | -       | Show version number
 
-### Examples
+## Examples
 
 ```bash Successful login
 openapi login
@@ -48,32 +46,4 @@ openapi login
 
   Logging in...
   Authorization failed. Please check if you entered a valid API key.
-```
-
-## `logout`
-
-### Introduction
-
-The `logout` command clears the API key from your device.
-
-### Usage
-
-```bash
-openapi logout [--help] [--version]
-
-openapi logout --version
-```
-
-### Options
-
-option      | type      | required? | default | description
-------------|:---------:|:---------:|:-------:|------------
-`--help`    | `boolean` | no        | -       | Show help
-`--version` | `boolean` | no        | -       | Show version number
-
-### Examples
-
-```bash
-openapi logout
-Logged out from the Redocly account. ✋
 ```
