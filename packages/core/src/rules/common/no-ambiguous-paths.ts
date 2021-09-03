@@ -6,7 +6,7 @@ import { Oas2Paths } from '../../typings/swagger';
 export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
   return {
     PathMap(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
-      const seenPaths = [];
+      const seenPaths: string[] = [];
 
       for (const currentPath of Object.keys(pathMap)) {
         const ambiguousPath = seenPaths.find((seenPath) =>

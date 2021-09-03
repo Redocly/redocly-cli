@@ -1,85 +1,20 @@
-import { JsonSchema } from '@redocly/developer-portal/ui';
-import Schema from './schema.yaml';
-import { StyledContent } from '../../components/styled.elements';
+---
+title: OpenAPI CLI configuration
+description: Learn how to configure OpenAPI CLI
+---
 
+import { WideTile, Flex } from '@redocly/developer-portal/ui';
 
-# Configuration file
+# OpenAPI CLI configuration
 
-## Purpose
+Customize OpenAPI CLI by editing configuration files.
 
-The configuration file controls configuration options of the CLI tool.
-It may be passed as metadata to the API registry which can then subsequently be used to build the docs.
+<div>
 
-## Filename and location
+  <Flex justifyContent="space-between">
+    <WideTile to="./configuration-file.mdx" header="Configuration file">
+      Working with the OpenAPI CLI configuration file
+    </WideTile>
+  </Flex>
+</div>
 
-The CLI tool will search the current working directory for a configuration file named `.redocly.yaml`.
-
-## File format
-
-The configuration file is expected to be in YAML format.
-
-The contents of the YAML are according to the following structure:
-
-```yaml
-apiDefinitions:
-# a set of named keys and values of entrypoints to OpenAPI 3 definitions.
-# example
-  petstore: ./openapi/openapi.yaml
-  caretaker: ./openapi/caretaker.yaml
-
-lint:
-# the lint options
-
-referenceDocs:
-# the API reference docs options, including theme options.
-
-registry:
-# the API registry options
-
-# future products may be configured by extending this file
-```
-
-### apiDefinitions
-
-The `apiDefinitions` section's purpose is to define one or more entrypoints to your OpenAPI 3 definitions.
-Redocly supports both multi-file definitions and multiple (multi-file) definitions.
-
-This section is optional.
-
-The validation command uses the `apiDefinitions` for providing shortcuts to referencing the definition.
-
-Based on the example `.redocly.yaml` file above, here is an example usage:
-```
-openapi-cli lint petstore caretaker
-```
-
-In addition, it allows for running the command which will apply to all APIs defined:
-```
-openapi-cli lint
-```
-
-### lint
-
-The `lint` section's primary purpose is to define options for the `lint` and `bundle` commands.
-You may also import plugins and extends their configurations.
-
-Read more about the [lint configuration section](lint.md).
-
-### referenceDocs
-
-The `referenceDocs` section configures features (availability and options) and theming (style, fonts, colors).
-
-There are two products: Redoc Community Edition (CE), and Redocly API reference docs. Reference docs supports all configuration options from Redoc Community Edition plus a set of premium options.
-
-Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
-
-### registry
-
-The `registry` section is reserved for future API registry features.
-
-Read more about the [`registry` section](registry.md).
-
-# Schema reference
-<StyledContent>
-<JsonSchema schema={Schema}/>
-</StyledContent>

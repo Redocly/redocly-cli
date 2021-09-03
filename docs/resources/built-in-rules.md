@@ -1,3 +1,9 @@
+---
+title: Built-in rules in OpenAPI CLI
+redirectFrom:
+  - /docs/cli/built-in-rules/
+---
+
 # Built in rules
 
 All of our built-in rules are listed below.
