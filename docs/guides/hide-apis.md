@@ -678,7 +678,7 @@ paths:
 
 Redocly's API registry uses [OpenAPI-cli](../../../openapi-cli.mdx) under the hood.
 
-OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../custom-rules.md) to:
+OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../resources/custom-rules.md) to:
 - create your own organization's linting rules
 - transform your API definition during the bundle process (using decorators)
 
@@ -847,10 +847,12 @@ module.exports = {
 };
 ```
 
-<div class="danger">
+:::danger
+
 From a security perspective, explicitly allowing something is typically more secure than explicitly disallowing something.
-Therefore, consider <code>x-external</code> vs. <code>x-internal</code> and adjust the decorators accordingly.
-</div>
+Therefore, consider `x-external` vs. `x-internal` and adjust the decorators accordingly.
+
+:::
 
 The example above covers paths and operations, but it doesn't cover specific schema properties.
 Add another decorator, for example, `remove-internal-schema-properties`, to accomplish that.

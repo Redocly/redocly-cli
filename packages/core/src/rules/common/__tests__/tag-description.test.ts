@@ -28,8 +28,8 @@ describe('Oas3 tag-description', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/tags/0",
-              "reportOnKey": false,
+              "pointer": "#/tags/0/description",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],

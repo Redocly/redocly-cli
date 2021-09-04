@@ -10,8 +10,6 @@ tocMaxDepth: 2
 
 - Updated and improved the [introductory content](index.md) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
 
-- Exported `bundleDocument` with support for file reference types to be used in our new [Redocly OpenAPI](https://marketplace.visualstudio.com/items?itemName=Redocly.openapi-vs-code) VS Code extension.
-
 - Implemented improvements to the internal CD process.
 
 

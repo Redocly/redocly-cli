@@ -15,7 +15,7 @@ Redocly OpenAPI CLI is an open-source command-line tool used to:
 - Build production-ready reference docs (requires an Enterprise license key).
 
 :::success Tip
-You can also [extend](custom-rules.md) the functionality of Redocly OpenAPI CLI by dynamically adding
+You can also [extend](./resources/custom-rules.md) the functionality of Redocly OpenAPI CLI by dynamically adding
 or removing content during the bundling process using decorators or by defining your own rules to validate OpenAPI definitions
 :::
 
@@ -35,8 +35,6 @@ Currently, Redocly OpenAPI CLI supports these features:
 - ✅ Support for OAS 3.1 and Swagger 2.0.
 
 ## Why Redocly OpenAPI CLI?
-
-### Performance
 
 OpenAPI CLI is your all-in-one Swiss army knife when designing, defining, and working with OpenAPI definitions.
 
