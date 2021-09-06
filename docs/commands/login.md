@@ -24,10 +24,10 @@ openapi login --verbose
 
 ## Options
 
-option      | type      | required? | default | description
+Option      | Type      | Required  | Default | Description
 ------------|:---------:|:---------:|:-------:|------------
 `--help`    | `boolean` | no        | -       | Show help
-`--verbose` | `boolean` | no        | -       | Include addtional output
+`--verbose` | `boolean` | no        | -       | Include additional output
 `--version` | `boolean` | no        | -       | Show version number
 
 ## Examples

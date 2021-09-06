@@ -14,7 +14,7 @@ openapi logout --version
 
 ## Options
 
-option      | type      | required? | default | description
+Option      | Type      | Required  | Default | Description
 ------------|:---------:|:---------:|:-------:|------------
 `--help`    | `boolean` | no        | -       | Show help
 `--version` | `boolean` | no        | -       | Show version number
