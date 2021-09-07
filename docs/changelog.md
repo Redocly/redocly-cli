@@ -4,6 +4,35 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.58 (2021-09-02)
+
+### Fixes
+
+- Internal improvements to configuration types.
+
+
+----
+
+## 1.0.0-beta.57 (2021-09-01)
+
+### Fixes
+
+- Simplified the login check query to improve performance.
+
+
+----
+
+## 1.0.0-beta.56 (2021-09-01)
+
+### Features
+
+- Added a function for linting the `.redocly.yaml` configuration file.
+
+- Published [the OpenAPI CLI quickstart guide](quickstart.md) as part of our Google Season of Docs 2021 project.
+
+
+----
+
 ## 1.0.0-beta.55 (2021-08-20)
 
 ### Features
