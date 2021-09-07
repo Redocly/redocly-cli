@@ -4,7 +4,7 @@
 
 With this command, you can preview the API reference docs on your local machine.
 
-If you have a license key, you will get a preview of the premium Redocly API reference docs. If you don't, you will get a preview of Redoc community edition.
+If you have a license key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
 
 :::success Tip
 To preview docs using the premium Redocly API reference docs, you must authenticate to the API registry first via the [`login`](./login.md) command.
@@ -21,15 +21,15 @@ openapi preview-docs <entrypoint> --version
 
 ## Options
 
-option                    | type      | required?    | default     | description
+Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to generate preview for. (See [the section below](#entrypoints) for more options)
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to generate preview for. (Refer to [the entrypoints section below](#entrypoints) for more options)
 `--config`                | `string`  | no           | -           | Specify path to the config file
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
 `--port`, `-p`            | `number`  | no           | 8080        | Preview port
-`--skip-decorator`        | `array`   | no           | -           | Ignore certain decorators
-`--skip-preprocessor`     | `array`   | no           | -           | Ignore certain preprocessors
+`--skip-decorator`        | `array`   | no           | -           | Ignore [certain decorators](#skip-preprocessor-or-decorator)
+`--skip-preprocessor`     | `array`   | no           | -           | Ignore [certain preprocessors](#skip-preprocessor-or-decorator)
 `--use-community-edition` | `boolean` | no           | -           | Force using Redoc Community Edition for docs preview
 `--version`               | `boolean` | no           | -           | Show version number
 
@@ -37,7 +37,7 @@ option                    | type      | required?    | default     | description
 
 ### Entrypoints
 
-The command behaves differently depending on how you pass an entrypoint to it and whether the [configuration file](#custom-configuration-file) exists. There are the following options:
+The command behaves differently depending on how you pass a path to the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists.
 
 #### Pass entrypoint directly
 
@@ -60,7 +60,7 @@ openapi preview-docs openapi/extra/sandbox
 
 #### Pass entrypoint via configuration file
 
-Instead of a full path, you can use an alias assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
+Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint. For example, `petstore`:
 
 ```bash command
 openapi preview-docs petstore
@@ -71,7 +71,7 @@ apiDefinitions:
   petstore: ./openapi/petstore-definition.json
 ```
 
-In this case, after resolving the path behind the `petstore` alias (see the `.redocly.yaml` tab), `preview-docs` will preview the `petstore.json` definition file. The presence of the `.redocly.yaml` configuration file is mandatory.
+In this case, after resolving the path behind the `petstore` alias (example in the `.redocly.yaml` tab), `preview-docs` will preview the `petstore.json` definition file. For this approach, the `.redocly.yaml` configuration file is mandatory.
 
 ### Custom configuration file
 
@@ -83,7 +83,7 @@ openapi preview-docs --config=./another/directory/config.yaml
 
 ### Custom port for preview
 
-By default, without providing the port option, the preview starts on port `8080`, so you can access the docs at `http://localhost:8080`
+By default, without using the `port` option, the preview starts on port `8080`, so you can access the docs at `http://localhost:8080`
 
 To specify a custom port for the preview, pass the desired value using either short or long option format:
 
@@ -96,3 +96,16 @@ openapi preview-docs -port 8888 openapi/openapi.yaml
 ```
 
 Both commands will start the preview on port `8888`, so you can access the docs at `http://localhost:8888`
+
+
+### Skip preprocessor or decorator
+
+You may want to skip specific preprocessors, rules, or decorators upon running the command.
+
+```bash Skip preprocessors
+openapi bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+```
+
+```bash Skip decorators
+openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
+```
