@@ -38,7 +38,7 @@ openapi join --version
 
 Option                               | Type               | Required     | Default     | Description
 -------------------------------------|:------------------:|:------------:|:-----------:|------------
-`entrypoints`                        | `array`, wildcard  | yes          | `[]`, -     | 1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder
+`entrypoints`                        | `array`, wildcard  | yes          | -           | 1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder
 `--help`                             | `boolean`          | no           | -           | Show help
 `--lint`                             | `boolean`          | no           | `false`     | Lint definition files
 `--prefix-components-with-info-prop` | `string`           | no           | -           | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below
