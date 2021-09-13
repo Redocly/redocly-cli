@@ -3,7 +3,7 @@
 ## Introduction
 
 :::warning Note
-Before proceeding with the command, [generate a personal API key](../../workflows/personal-api-keys.md).
+Before proceeding with the command, [generate a personal API key](../../settings/personal-api-keys.md).
 :::
 
 Use the `login` command to authenticate to the API registry.

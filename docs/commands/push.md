@@ -49,7 +49,7 @@ The prerequisite for using the `push` command is an active user account in a Red
 
 To find your organization ID required for the command, log into Workflows and access the **API registry** page. In your browser's address bar, find the URL of this page. The segment after `app.redoc.ly/org/` is your organization ID. For example, if the URL is `app.redoc.ly/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `@test_docs`. Note that the organization ID can differ from the organization name. Owners can change the organization name at any time in the Workflows **Org settings** page, but the organization ID cannot be changed.
 
-To authenticate to the API registry, you can use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Org settings > API keys**).
+To authenticate to the API registry, you can use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../settings/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Org settings > API keys**).
 
 Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
 
