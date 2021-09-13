@@ -91,9 +91,9 @@ export class RedoclyClient {
     });
   }
 
-  static async authorize(accessToken: string, verbose: boolean = false) {
+  static async authorize(accessToken: string, verbose: boolean = false, queryName = '') {
     try {
-      const queryStr = `{ viewer { id } }`;
+      const queryStr = `query ${queryName}{ viewer { id } }`;
 
       return await query(queryStr, {}, { Authorization: accessToken });
     } catch (e) {
