@@ -185,16 +185,17 @@ packageVersion: string
     }: JoinDocumentContext
   ) {
     const { info } = openapi;
-    if (info && info.description) {
+    if (info?.description) {
       const xTagGroups = 'x-tagGroups';
       const groupIndex = joinedDef[xTagGroups] ? joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename) : -1;
       if (
+        typeof info.description === 'string' &&
         joinedDef.hasOwnProperty(xTagGroups) &&
         groupIndex !== -1 &&
         joinedDef[xTagGroups][groupIndex]['tags'] &&
         joinedDef[xTagGroups][groupIndex]['tags'].length
       ) {
-        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description, componentsPrefix!);
+        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description as string, componentsPrefix!);
       }
     }
   }
@@ -231,6 +232,9 @@ packageVersion: string
           const pathOperation = paths[path][operation];
           joinedDef.paths[path][operation] = pathOperation;
           potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entrypoint];
+          if (operation === '$ref') {
+            break; // do not proceed with reference, it's a string path
+          }
           const { operationId } = pathOperation;
           if (operationId) {
             if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
@@ -322,8 +326,8 @@ packageVersion: string
     const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
     if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
     if (!openapi.info) exitWithError('Info section is not found in specification. \n');
-    if (openapi.info?.description) {
-      openapi.info.description = addComponentsPrefix(openapi.info.description, componentsPrefix);
+    if (typeof openapi.info?.description === 'string') {
+      openapi.info.description = addComponentsPrefix(openapi.info.description as string, componentsPrefix);
     }
     joinedDef.openapi = openapi.openapi;
     joinedDef.info = openapi.info;

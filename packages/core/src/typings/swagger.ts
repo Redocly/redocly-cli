@@ -25,7 +25,7 @@ export interface Oas2Info {
   title: string;
   version: string;
 
-  description?: string;
+  description?: string | Referenced<string>
   termsOfService?: string;
   contact?: Oas2Contact;
   license?: Oas2License;
