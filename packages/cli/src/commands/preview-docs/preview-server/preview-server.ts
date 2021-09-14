@@ -6,6 +6,7 @@ import * as path from 'path';
 
 import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server';
 import type { IncomingMessage } from 'http';
+import { isSubdir } from 'cli/src/utils';
 
 function getPageHTML(
   htmlTemplate: string,
@@ -104,6 +105,12 @@ export default async function startPreviewServer(
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
         }[url || ''] ||
         path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${url}`);
+
+      if (!isSubdir(process.cwd(), filePath)) {
+        respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
+        console.timeEnd(colorette.dim(`GET ${request.url}`));
+        return;
+      }
 
       const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
 
