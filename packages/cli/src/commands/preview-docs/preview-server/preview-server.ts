@@ -6,7 +6,7 @@ import * as path from 'path';
 
 import { startHttpServer, startWsServer, respondWithGzip, mimeTypes } from './server';
 import type { IncomingMessage } from 'http';
-import { isSubdir } from 'cli/src/utils';
+import { isSubdir } from '../../../utils';
 
 function getPageHTML(
   htmlTemplate: string,
