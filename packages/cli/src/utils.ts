@@ -135,7 +135,13 @@ export function readYaml(filename: string) {
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  return fs.writeFileSync(filename, yaml.safeDump(data, { noRefs }));
+  const content = yaml.safeDump(data, { noRefs });
+
+  if (process.env.NODE_ENV === 'test') {
+    process.stderr.write(content);
+    return;
+  }
+  fs.writeFileSync(filename, content);
 }
 
 export function pluralize(label: string, num: number) {
