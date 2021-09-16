@@ -51,6 +51,7 @@ x-tagGroups:
   - name: bar
     tags:
       - bar_other
+components: {}
 
 openapi.yaml: join processed in <test>ms
 

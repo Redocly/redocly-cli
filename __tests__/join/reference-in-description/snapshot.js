@@ -6,8 +6,7 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
-  description:
-    $ref: ./path/to/description.md
+  description: Test description from md file
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -52,6 +51,7 @@ x-tagGroups:
   - name: bar
     tags:
       - bar_other
+components: {}
 
 openapi.yaml: join processed in <test>ms
 

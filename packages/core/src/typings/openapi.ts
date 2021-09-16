@@ -13,7 +13,7 @@ export interface Oas3Info {
   title: string;
   version: string;
 
-  description?: string | Referenced<string>;
+  description?: string;
   termsOfService?: string;
   contact?: Oas3Contact;
   license?: Oas3License;

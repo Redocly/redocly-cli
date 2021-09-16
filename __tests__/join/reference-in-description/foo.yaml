@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
   description:
-    $ref: ./path/to/description.md
+    $ref: description.md
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
