@@ -173,7 +173,7 @@ function positionsToLoc(
   return { start, end };
 }
 
-function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey: boolean) {
+export function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey: boolean) {
   const pointerSegments = parsePointer(pointer);
   if (root === undefined) {
     return undefined;

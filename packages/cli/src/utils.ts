@@ -291,3 +291,11 @@ export function slash(path: string): string {
 
   return path.replace(/\\/g, '/');
 }
+
+/**
+ * Checks if dir is subdir of parent
+ */
+export function isSubdir(parent: string, dir: string): boolean {
+  const relative = path.relative(parent, dir);
+  return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+}

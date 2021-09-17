@@ -1,3 +1,9 @@
+---
+title: Custom plugins and rules in OpenAPI CLI
+redirectFrom:
+  - /docs/cli/custom-rules/
+---
+
 # Custom plugins and rules
 
 ## Concepts
@@ -74,7 +80,7 @@ function OperationIdNotTest() {
 }
 ```
 
-See an example of a custom rule implementation in our ["Response contains property" custom rule](../resources/response-contains-property.md).
+See an example of a custom rule implementation in our ["Response contains property" custom rule](../guides/response-contains-property.md).
 
 
 ## Format of visitor
@@ -82,6 +88,7 @@ See an example of a custom rule implementation in our ["Response contains proper
 Keys of the object can be any of the following:
 
 - node type - visitor will be called on specific node type. List of available node types for each specific OAS version:
+  - OAS3.1: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
   - OAS3: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3.ts#L530
   - OAS2: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas2.ts#L367
 - `any` - visitor will be called on every node
@@ -304,7 +311,7 @@ module.exports = {
 }
 ```
 
-See an example of a custom decorator implementation in our [how-to hide APIs guide](../resources/hide-apis.md).
+See an example of a custom decorator implementation in our [how-to hide APIs guide](../guides/hide-apis.md).
 
 ## Configs in plugins
 

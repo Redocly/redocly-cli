@@ -27,8 +27,8 @@ describe('Oas3 license-url', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/info/license",
-              "reportOnKey": false,
+              "pointer": "#/info/license/url",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],

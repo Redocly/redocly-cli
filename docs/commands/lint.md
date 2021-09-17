@@ -139,13 +139,22 @@ This option is useful when you have an API design standard, but have some except
 openapi lint --generate-ignore-file
 ```
 
+To generate ignore file for multiple definitions pass them as arguments:
+
+```shell
+openapi lint v1.yaml v2.yaml --generate-ignore-file
+```
+
+
 
 This command generates a file named `.redocly.lint-ignore.yaml`.
 
 
-<div class="warning">
+:::warning
+
 This command will overwrite an existing ignore file.
-</div>
+
+:::
 
 
 Example of an ignore file:
@@ -174,7 +183,7 @@ openapi lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 
-Learn more about [preprocessors]().
+Learn more about [preprocessors](../resources/custom-rules.md).
 
 
 #### Skip rule
@@ -187,7 +196,7 @@ openapi lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 
-Learn more about [rules]().
+Learn more about [rules](../resources/custom-rules.md).
 
 
 #### Specify config file

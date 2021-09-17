@@ -4,7 +4,7 @@ redirectFrom:
 ---
 # Lint configuration
 
-The `lint` configuration section is part of the [Redocly configuration file](index.mdx).
+The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 It is used by the `lint` and `bundle` commands to control various options.
 
 Modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the `lint` or `bundle` commands.
@@ -15,7 +15,7 @@ When using our hosted Workflows product, the `.redocly.yaml` file must be in the
 
 :::
 
-Read about the [`--config` option](../commands.md) to use other file names or locations.
+Read about the [`--config` option](../commands/index.md) to use other file names or locations.
 
 From a high-level, there are a few sub-sections.
 ```yaml
@@ -124,10 +124,13 @@ lint:
       severity: error
 ```
 To know which rules support options, please read the built-in rules documentation.
-<div class="success">
+
+:::success Tip
+
 If you write custom rules, you may create rules that accept additional configuration options as well.
 Be sure to document those options for your users.
-</div>
+
+:::
 
 ## Different OpenAPI versions
 
@@ -156,7 +159,7 @@ If not defined, it will fall back to the `rules` section.
 If it is version OpenAPI 3.0, it will prioritize the `oas3_0Rules` section.
 If not defined, it will fall back to the `rules` section.
 
-Read about our [built-in rules](../built-in-rules.md).
+Read about our [built-in rules](../resources/built-in-rules.md).
 
 
 ## Resolving JSON references ($refs)

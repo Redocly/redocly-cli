@@ -15,7 +15,11 @@ Whatever you do... don't make these API security mistakes:
 
 - Do not leave any endpoint unprotected.
 
-<div class="danger">If an endpoint is discovered, your API authentication mechanism must prevent unauthorized access.</div>
+:::danger
+
+If an endpoint is discovered, your API authentication mechanism must prevent unauthorized access.
+
+:::
 
 
 ## Three approaches
@@ -617,7 +621,7 @@ This is indicated when:
 - There may be shared schemas between internal and external APIs.
 - Internal parts are only paths.
 
-We recommend our [multi-file OpenAPI structure](./multi-file-definitions.md) for organizing your API definitions.
+We recommend our [multi-file OpenAPI structure](../../resources/multi-file-definitions.md) for organizing your API definitions.
 
 This approach calls for making an additional root file (the root file is the file where the OpenAPI description begins).
 
@@ -672,9 +676,9 @@ paths:
 
 ### Using a decorator
 
-Redocly's API registry uses [OpenAPI-cli](../../openapi-cli.mdx) under the hood.
+Redocly's API registry uses [OpenAPI-cli](../../../openapi-cli.mdx) under the hood.
 
-OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../cli/custom-rules.md) to:
+OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../resources/custom-rules.md) to:
 - create your own organization's linting rules
 - transform your API definition during the bundle process (using decorators)
 
@@ -843,10 +847,12 @@ module.exports = {
 };
 ```
 
-<div class="danger">
+:::danger
+
 From a security perspective, explicitly allowing something is typically more secure than explicitly disallowing something.
-Therefore, consider <code>x-external</code> vs. <code>x-internal</code> and adjust the decorators accordingly.
-</div>
+Therefore, consider `x-external` vs. `x-internal` and adjust the decorators accordingly.
+
+:::
 
 The example above covers paths and operations, but it doesn't cover specific schema properties.
 Add another decorator, for example, `remove-internal-schema-properties`, to accomplish that.

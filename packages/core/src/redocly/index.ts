@@ -36,7 +36,7 @@ export class RedoclyClient {
 
   async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
     if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken, verbose);
+    const authDetails = await RedoclyClient.authorize(accessToken, { verbose });
     if (!authDetails) return false;
     return true;
   }
@@ -91,9 +91,10 @@ export class RedoclyClient {
     });
   }
 
-  static async authorize(accessToken: string, verbose: boolean = false) {
+  static async authorize(accessToken: string, options: { queryName?: string; verbose?: boolean }) {
+    const { queryName = '', verbose = false } = options;
     try {
-      const queryStr = `{ definitions { id } }`;
+      const queryStr = `query ${queryName}{ viewer { id } }`;
 
       return await query(queryStr, {}, { Authorization: accessToken });
     } catch (e) {
@@ -147,7 +148,7 @@ export class RedoclyClient {
           __typename
         }
       }
-  
+
       fragment VersionDetails on DefinitionVersion {
         id
         nodeId
