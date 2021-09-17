@@ -111,32 +111,10 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           }
         }
 
-        if (propSchema.constraints) {
-          const { maxLength, minLength, minValue, maxValue } = propSchema.constraints;
-          if (maxLength !== undefined && node[propName].length > maxLength) {
+        if (typeof propSchema.minimum === 'number') {
+          if (propSchema.minimum > node[propName]) {
             report({
-              message: `The length of the ${propName} field must be less or equal to ${maxLength}`,
-              location: location.child([propName]),
-            })
-          }
-
-          if (minLength !== undefined && node[propName].length < minLength) {
-            report({
-              message: `The length of the ${propName} field must be greater than or equal to ${minLength}`,
-              location: location.child([propName]),
-            })
-          }
-
-          if (maxValue !== undefined && maxValue < node[propName]) {
-            report({
-              message: `The value of the ${propName} field must be less than or equal to ${maxValue}`,
-              location: location.child([propName]),
-            })
-          }
-
-          if (minValue !== undefined && minValue > node[propName]) {
-            report({
-              message: `The value of the ${propName} field must be greater than or equal to ${minValue}`,
+              message: `The value of the ${propName} field must be greater than or equal to ${propSchema.minimum}`,
               location: location.child([propName]),
             })
           }

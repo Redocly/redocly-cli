@@ -351,54 +351,19 @@ const Schema: NodeType = {
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
     title: { type: 'string' },
-    multipleOf: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      }
-    },
+    multipleOf: { type: 'number', minimum: 0 },
     maximum: { type: 'number' },
     minimum: { type: 'number' },
     exclusiveMaximum: { type: 'boolean' },
     exclusiveMinimum: { type: 'boolean' },
-    maxLength: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      }
-    },
-    minLength: {
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      }
-    },
+    maxLength: { type: 'number', minimum: 0 },
+    minLength: { type: 'number', minimum: 0 },
     pattern: { type: 'string' },
-    maxItems: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      }
-    },
-    minItems: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      },
-    },
+    maxItems: { type: 'number', minimum: 0 },
+    minItems: { type: 'number', minimum: 0 },
     uniqueItems: { type: 'boolean' },
-    maxProperties: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      },
-    },
-    minProperties: { 
-      type: 'number',
-      constraints: {
-        minValue: 0,
-      }
-    },
+    maxProperties: { type: 'number', minimum: 0 },
+    minProperties: { type: 'number', minimum: 0 },
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
     type: {
