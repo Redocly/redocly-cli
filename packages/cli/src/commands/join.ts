@@ -15,6 +15,7 @@ import {
   getTotals,
   lintDocument,
   detectOpenAPI,
+  bundleDocument
 } from '@redocly/openapi-core';
 
 import {
@@ -57,6 +58,27 @@ packageVersion: string
   const documents = await Promise.all(
     entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref, true) as Promise<Document>)
   );
+
+  const bundleResults = await Promise.all(
+    documents.map(document => bundleDocument({
+      document,
+      config: config.lint,
+      externalRefResolver
+    }).catch(e => {
+      exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`)
+    }))
+  );
+
+  for (const { problems, bundle: document } of (bundleResults as any)) {
+    const fileTotals = getTotals(problems);
+    if (fileTotals.errors) {
+      formatProblems(problems, {
+        totals: fileTotals,
+        version: document.parsed.version
+      });
+      exitWithError(`❌ Errors encountered while bundling ${blue(document.source.absoluteRef)}: join will not proceed.\n`);
+    }
+  }
 
   for (const document of documents) {
     try {
@@ -185,7 +207,7 @@ packageVersion: string
     }: JoinDocumentContext
   ) {
     const { info } = openapi;
-    if (info && info.description) {
+    if (info?.description) {
       const xTagGroups = 'x-tagGroups';
       const groupIndex = joinedDef[xTagGroups] ? joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename) : -1;
       if (
