@@ -7,7 +7,7 @@ validating /openapi.yaml...
 
 Info object \`description\` must be non-empty string.
 
-1 | openapi: 3.0.0
+1 | openapi: 3.1.0
 2 | info:
   | ^^^^
 3 |   title: Example OpenAPI 3 definition.
