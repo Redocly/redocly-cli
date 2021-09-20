@@ -110,6 +110,15 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             }
           }
         }
+
+        if (propName === 'example' && node.type === 'array') {
+          if (!matchesJsonSchemaType(propValue, node.type, false)) {
+            report({
+              message: `Expected type \`${propName}\` (array) but got \`${propValueType}\`.`,
+              location: propLocation,
+            });
+          }
+        }
       }
     },
   };
