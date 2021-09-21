@@ -9,7 +9,7 @@ Redocly OpenAPI CLI can help you combine separate API definition files into one.
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to [this](../custom-rules.md) document.
+To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../custom-rules.md).
 :::
 
 ## Usage
@@ -24,16 +24,16 @@ openapi bundle --version
 
 ## Options
 
-option                 | type      | required?    | default     | description
+Option                 | Type      | Required?    | Default     | Description
 -----------------------|:---------:|:------------:|:-----------:|------------
-`entrypoints`          | `array`   | yes          | `[]`        | Array of API root definition filenames that need to be bundled. Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints.
-`--config`             | `string`  | no           | -           | Specify path to the config file
+`entrypoints`          | `array`   | yes          | `[]`        | Array of API root definition filenames that need to be bundled. Instead of full paths, you can use aliases assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as entrypoints.
+`--config`             | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
 `--dereferenced`, `-d` | `boolean` | no           | -           | Generate fully dereferenced bundle
 `--ext`                | `string`  | no           | `yaml`      | Specify bundled file extension.<br />**Possible values:** `json`, `yaml`, `yml`
 `--force`, `-f`        | `boolean` | no           | -           | Generate bundle output even when errors occur
-`format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
+`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
 `--help`               | `boolean` | no           | -           | Show help
-`--lint`               | `boolean` | no           | `false`     | Lint definition files
+`--lint`               | `boolean` | no           | `false`     | Lint definition files.
 `--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
 `--output`, `-o`       | `string`  | no           | -           | Name or folder for the bundle file. For example, `-o bundle.yaml` or `-o ./openapi`.<li>If you don't specify the extension, `.yaml` will be used by default.</li><li>If the specified folder doesn't exist, it will be created automatically.</li><br />**If the file specified as the bundler's output already exists, it will be overwritten**
 `--skip-decorator`     | `array`   | no           | -           | Ignore certain decorators
@@ -74,6 +74,74 @@ JSON output only works when there are no circular references.
 openapi bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
 ```
 
+### Custom configuration file
+
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file. 
+
+```bash
+openapi bundle --config=./another/directory/config.yaml
+```
+
+### Format
+
+#### Codeframe (default)
+
+```bash request
+openapi bundle pet.yaml store.yaml -o ./bundled --format=codeframe
+## equivalent to: openapi bundle pet.yaml store.yaml -o ./bundled
+```
+
+```bash output
+...
+```
+
+Please note that the problems are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
+
+Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
+
+#### Stylish
+
+```bash request
+openapi bundle pet.yaml store.yaml -o ./bundled --format=stylish
+```
+
+```bash output
+...
+```
+
+In this format, `bundle` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
+
+#### Json
+
+```bash request
+openapi bundle pet.yaml store.yaml -o ./bundled --format=json
+```
+
+```bash output
+bundling pet.yaml...
+{
+  "totals": {
+    "errors": 0,
+    "warnings": 0,
+    "ignored": 0
+  },
+  "version": "1.0.0-beta.54",
+  "problems": []
+}📦 Created a bundle for pet.yaml at bundled/pet.yaml 28ms.
+bundling store.yaml...
+{
+  "totals": {
+    "errors": 0,
+    "warnings": 0,
+    "ignored": 0
+  },
+  "version": "1.0.0-beta.54",
+  "problems": []
+}📦 Created a bundle for store.yaml at bundled/store.yaml 15ms.
+```
+
+In this format, `bundle` shows the result of bundling (including the number of errors and warnings and their descriptions) in JSON-like output.
+
 ### Skip preprocessor, rule, or decorator
 
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
@@ -89,3 +157,7 @@ openapi bundle --skip-rule=no-sibling-refs,no-parent-tags
 ```bash Skip decorators
 openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
+
+:::success Tip
+To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../custom-rules.md).
+:::
