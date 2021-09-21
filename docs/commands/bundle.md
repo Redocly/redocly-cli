@@ -31,7 +31,7 @@ Option                 | Type      | Required?    | Default     | Description
 `--dereferenced`, `-d` | `boolean` | no           | -           | Generate fully dereferenced bundle
 `--ext`                | `string`  | no           | `yaml`      | Specify bundled file extension.<br />**Possible values:** `json`, `yaml`, `yml`
 `--force`, `-f`        | `boolean` | no           | -           | Generate bundle output even when errors occur
-`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
+`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`
 `--help`               | `boolean` | no           | -           | Show help
 `--lint`               | `boolean` | no           | `false`     | Lint definition files.
 `--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
