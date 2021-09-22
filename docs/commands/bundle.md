@@ -9,7 +9,7 @@ Redocly OpenAPI CLI can help you combine separate API definition files into one.
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../custom-rules.md).
+To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../resources/custom-rules.md).
 :::
 
 ## Usage
@@ -159,5 +159,5 @@ openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../custom-rules.md).
+To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../resources/custom-rules.md).
 :::
