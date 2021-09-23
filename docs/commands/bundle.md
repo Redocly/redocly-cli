@@ -9,7 +9,7 @@ Redocly OpenAPI CLI can help you combine separate API definition files into one.
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../resources/custom-rules.md).
+To learn more about preprocessors, rules, and decorators, refer to the [custom rules](../resources/custom-rules.md) page.
 :::
 
 ## Usage
@@ -95,7 +95,7 @@ openapi bundle pet.yaml store.yaml -o ./bundled --format=codeframe
 ...
 ```
 
-Please note that the problems are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
+Note: Any errors are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
 
 Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
 
@@ -159,5 +159,5 @@ openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to the [custom rules page](../resources/custom-rules.md).
+To learn more about preprocessors, rules, and decorators, refer to the [custom rules](../resources/custom-rules.md) page.
 :::
