@@ -1,0 +1,6 @@
+*
+!package.json
+!tsconfig.build.json
+!tsconfig.json
+!package-lock.json
+!packages/*

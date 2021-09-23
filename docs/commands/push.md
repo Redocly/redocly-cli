@@ -15,7 +15,7 @@ As an alternative, you can use the OpenAPI CLI `push` command and set up your ow
 Apart from uploading your API definition file, the `push` command can automatically upload other files if they are detected or referenced in the API definition:
 
 - the `.redocly.yaml` configuration file
-- the `package.json` file (if exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/openapi-cli` version specified in the `package.json`.
+- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/openapi-cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `referenceDocs > htmlTemplate` parameter in `.redocly.yaml`.
 
 :::warning
@@ -66,7 +66,7 @@ Option           | Type      | Required?    | Default     | Description
 `branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed
 `--help`         | `boolean` | no           | -           | Show help
 `--run-id`       | `string`  | no           | -           | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.
-`--upsert`, `-u` | `boolean` | no           | -           | Create a new API and a new API definition version. See [the section](#upsert) for more information.
+`--upsert`, `-u` | `boolean` | no           | -           | Create a new API and a new API definition version. See [the Create a new API with push section](#create-a-new-api-with-push) for more information.
 `--version`      | `boolean` | no           | -           | Show version number
 
 ## Examples
@@ -161,7 +161,7 @@ For example, `@test_docs/petstore-api@v1`.
 The version of your API definition should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API definition will not be created.
 :::
 
-### Run-id
+### Run ID
 
 The `--run-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job. It is auto-populated for the following CI systems so you don't have to pass it separately:
 
@@ -169,7 +169,7 @@ The `--run-id` option can be used by Redocly Workflows to associate multiple pus
 - CircleCI
 - GitHub Actions
 
-### Create a new API with `push`
+### Create a new API with push
 
 To create a new API and a new API definition version with the `push` command, use the `--upsert` or `-u` option:
 
