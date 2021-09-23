@@ -5,6 +5,7 @@ export type ScalarSchema = {
   enum?: string[];
   isExample?: boolean;
   directResolveAs?: string;
+  minimum?: number;
 };
 
 export type NormalizedScalarSchema = {
@@ -14,6 +15,7 @@ export type NormalizedScalarSchema = {
   enum?: string[];
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
+  minimum?: number;
 };
 
 export type NodeType = {

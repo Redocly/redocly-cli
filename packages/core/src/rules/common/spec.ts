@@ -119,6 +119,15 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             });
           }
         }
+
+        if (typeof propSchema.minimum === 'number') {
+          if (propSchema.minimum > node[propName]) {
+            report({
+              message: `The value of the ${propName} field must be greater than or equal to ${propSchema.minimum}`,
+              location: location.child([propName]),
+            })
+          }
+        }
       }
     },
   };
