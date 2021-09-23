@@ -111,7 +111,7 @@ openapi bundle pet.yaml store.yaml -o ./bundled --format=stylish
 
 In this format, `bundle` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
 
-#### Json
+#### JSON
 
 ```bash request
 openapi bundle pet.yaml store.yaml -o ./bundled --format=json
