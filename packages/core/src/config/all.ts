@@ -30,6 +30,7 @@ export default {
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
     spec: 'error',
+    'schema-example': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',

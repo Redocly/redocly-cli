@@ -111,15 +111,6 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           }
         }
 
-        if (propName === 'example' && node.type === 'array') {
-          if (!matchesJsonSchemaType(propValue, node.type, false)) {
-            report({
-              message: `Expected type \`${node.type}\` but got \`${propValueType}\`.`,
-              location: propLocation,
-            });
-          }
-        }
-
         if (typeof propSchema.minimum === 'number') {
           if (propSchema.minimum > node[propName]) {
             report({

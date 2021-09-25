@@ -1,4 +1,5 @@
 import { OasSpec } from '../common/spec';
+import { SchemaExample } from '../common/schema-example';
 import { InfoDescription } from '../common/info-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license-url';
@@ -32,6 +33,7 @@ import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
+  'schema-example': SchemaExample,
   'info-description': InfoDescription as Oas2Rule,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
