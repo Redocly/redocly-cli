@@ -6,7 +6,7 @@ export const SchemaExample: any = () => {
     SchemaProperties(properties: any, { report, location }: UserContext) {
       for (let keyProp in properties) {
         const property = properties[keyProp];
-        if (property.example) {
+        if (property.example && property.type) {
           const propValueType = oasTypeOf(property.example);
           if (!matchesJsonSchemaType(property.example, property.type, false)) {
             report({
