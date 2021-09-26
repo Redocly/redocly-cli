@@ -8,7 +8,12 @@ export const SchemaExample: any = () => {
         const property = properties[keyProp];
         if (property.example && property.type) {
           const propValueType = oasTypeOf(property.example);
-          if (!matchesJsonSchemaType(property.example, property.type, false)) {
+          const isTypeArray = Array.isArray(property.type);
+          const checkResult = isTypeArray
+            ? property.type.some((type: string) => matchesJsonSchemaType(property.example, type, false))
+            : matchesJsonSchemaType(property.example, property.type, false);
+
+          if (!checkResult) {
             report({
               message: `Expected type \`${property.type}\` but got \`${propValueType}\`.`,
               location: location.child([keyProp, 'example']),
