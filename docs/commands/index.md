@@ -20,7 +20,7 @@ To define the behavior of the commands, you can use configuration files:
 - `.redocly.yaml` - define the location of your root files, linting rules, and reference docs configuration information.
 - `.redocly.lint-ignore.yaml` - ignore specific lint messages.
 
-For more information, refer to the [configuration section](../configuration/index.mdx)
+For more information, refer to the [configuration section](../configuration/index.mdx).
 
 :::attention Note
 
