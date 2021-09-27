@@ -4,7 +4,7 @@
 
 With this command, you can preview the API reference docs on your local machine.
 
-If you have a license key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
+If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
 
 :::success Tip
 To preview docs using the premium Redocly API reference docs, you must authenticate to the API registry first via the [`login`](./login.md) command.
@@ -23,7 +23,7 @@ openapi preview-docs <entrypoint> --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to generate preview for. (Refer to [the entrypoints section below](#entrypoints) for more options)
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename or configuration alias that you want to generate preview for. (Refer to [the entrypoints section below](#entrypoints) for more options)
 `--config`                | `string`  | no           | -           | Specify path to the config file
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
@@ -47,18 +47,7 @@ openapi preview-docs openapi/openapi.yaml
 
 In this case, `preview-docs` will preview the definition that was passed to the command. The configuration file is ignored.
 
-#### Pass entrypoint without extension
-
-You can omit entrypoint's file extension when executing the `preview-docs` command. In this way, you can reference either `.yaml` or `.json` file.
-
-```bash
-# preview-docs will preview either petstore.yaml or petstore.json file in the current working directory
-openapi preview-docs petstore
-# preview-docs will preview either sandbox.yaml or sandbox.json file in the openapi/extra directory
-openapi preview-docs openapi/extra/sandbox
-```
-
-#### Pass entrypoint via configuration file
+#### Pass entrypoint alias
 
 Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint. For example, `petstore`:
 
