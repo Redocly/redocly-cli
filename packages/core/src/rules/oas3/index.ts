@@ -1,6 +1,6 @@
 import { Oas3RuleSet } from '../../oas-types';
 import { OasSpec } from '../common/spec';
-import { SchemaExample } from '../common/schema-example';
+import { SchemaExampleType } from '../common/schema-example-type';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
 import { OperationParametersUnique } from '../common/operation-parameters-unique';
@@ -43,7 +43,7 @@ import { Oas3Decorator } from '../../visitors';
 
 export const rules = {
   spec: OasSpec,
-  'schema-example': SchemaExample,
+  'schema-example-type': SchemaExampleType,
   'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
