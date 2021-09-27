@@ -27,7 +27,7 @@ Option                    | Type      | Required     | Default     | Description
 `--config`                | `string`  | no           | -           | Specify path to the config file
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
-`--port`, `-p`            | `number`  | no           | 8080        | Preview port
+`--port`, `-p`            | `number`  | no           | 8080        | Preview port. You can set any port as long as it is not used by applications in your operating system.
 `--skip-decorator`        | `array`   | no           | -           | Ignore [certain decorators](#skip-preprocessor-or-decorator)
 `--skip-preprocessor`     | `array`   | no           | -           | Ignore [certain preprocessors](#skip-preprocessor-or-decorator)
 `--use-community-edition` | `boolean` | no           | -           | Force using Redoc Community Edition for docs preview
