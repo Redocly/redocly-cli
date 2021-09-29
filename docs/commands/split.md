@@ -20,7 +20,7 @@ openapi split --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to split apart into files
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition file that you want to split into a multi-file structure
 `--outDir`                | `string`  | yes          | -           | Path to the directory where you want to save split files. If the specified directory doesn't exist, it will be created automatically.
 `--help`                  | `boolean` | no           | -           | Show help
 `--version`               | `boolean` | no           | -           | Show version number
