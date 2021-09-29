@@ -20,7 +20,7 @@ openapi split --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to calculate statistics for
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to split apart into files
 `--outDir`                | `string`  | yes          | -           | Path to the directory where you want to save split files. If the specified directory doesn't exist, it will be created automatically.
 `--help`                  | `boolean` | no           | -           | Show help
 `--version`               | `boolean` | no           | -           | Show version number
