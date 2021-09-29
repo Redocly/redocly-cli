@@ -36,6 +36,7 @@ export async function handleBundle(
   config.lint.skipDecorators(argv['skip-decorator']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
+  const maxProblems = argv['max-problems'];
 
   for (const entrypoint of entrypoints) {
     try {
@@ -48,7 +49,7 @@ export async function handleBundle(
         });
 
         const fileLintTotals = getTotals(results);
-        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version });
+        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version, maxProblems });
         printLintTotals(fileLintTotals, 2);
       }
 
@@ -83,7 +84,7 @@ export async function handleBundle(
 
       formatProblems(problems, {
         format: argv.format,
-        maxProblems: argv['max-problems'],
+        maxProblems,
         totals: fileTotals,
         version,
       });
