@@ -35,7 +35,7 @@ Option                    | Type      | Required     | Default     | Description
 
 ### Entrypoint
 
-The `stats` command behaves differently depending on how you pass entrypoint to it and whether the [configuration file](#custom-configuration-file) exists. There are the following options:
+The `stats` command behaves differently depending on how you pass the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists. 
 
 #### Pass entrypoint directly
 
@@ -45,9 +45,9 @@ openapi stats openapi/openapi.yaml
 
 In this case, `stats` will show statistics for the definition that was passed to the command. The configuration file is ignored.
 
-#### Pass entrypoints via configuration file
+#### Pass entrypoint via configuration file
 
-Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
+Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints. 
 
 ```bash command
 openapi stats petstore
