@@ -84,4 +84,39 @@ describe('E2E', () => {
     }
   })
 
+  describe('bundle', () => {
+    const folderPath = join(__dirname, 'bundle');
+    const contents = readdirSync(folderPath);
+    for (const file of contents) {
+      const testPath = join(folderPath, file);
+      if (statSync(testPath).isFile()) continue;
+
+      const args = [
+        '../../../packages/cli/src/index.ts',
+        '--lint',
+        '--max-problems=1',
+        'bundle',
+        'foo.yaml',
+        'bar.yaml'
+      ];
+      it(file, () => {
+        const r = spawnSync('ts-node', args, {
+          cwd: testPath,
+          env: {
+            ...process.env,
+            NODE_ENV: 'test',
+            NO_COLOR: 'TRUE',
+          },
+        });
+
+        const out = r.stdout.toString('utf-8');
+        const err = r.stderr.toString('utf-8');
+        const result = `${out}\n${err}`;
+
+        // @ts-ignore
+        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      });
+    }
+  })
+
 });
