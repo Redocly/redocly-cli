@@ -2,12 +2,12 @@
 
 ## Introduction
 
-Redocly OpenAPI CLI can identify and report on problems found in OpenAPI definitions. This allows you to avoid bugs and make API definitions more consistent.
+Redocly OpenAPI CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, please refer to [this](../custom-rules.md) document.
+To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
 :::
 
 ## Usage
@@ -22,17 +22,17 @@ openapi lint --version
 
 ## Options
 
-option                   | type      | required?    | default     | description
+Option                   | Type      | Required?    | Default     | Description
 -------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoints`            | `array`   | no           | `[]`        | Array of API definition filenames that need to be linted. (See [the section below](#entrypoints) for more options)
+`entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the section below](#entrypoints) for more options.
 `--config`               | `string`  | no           | -           | Specify path to the config file
 `--extends`              | `array`   | no           | -           | Override extends configurations (defaults or config file settings).
-`format`                 | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
+`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
 `--generate-ignore-file` | `boolean` | no           | -           | Generate ignore file
 `--help`                 | `boolean` | no           | -           | Show help
 `--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
-`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors
-`--skip-rule`            | `array`   | no           | -           | Ignore certain rules
+`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+`--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
 `--version`              | `boolean` | no           | -           | Show version number
 
 ## Examples
@@ -50,17 +50,6 @@ openapi lint openapi/openapi.yaml
 In this case, `lint` will validate the definition(s) that was(were) passed to the command. The configuration file is ignored.
 
 The `entrypoints` argument can also use any glob format supported by your file system. For example, `openapi lint ./root-documents/*.yaml`.
-
-#### Pass entrypoints without extension
-
-You can omit entrypoint's file extension when executing the `lint` command. In this way, you can reference either `.yaml` or `.json` files.
-
-```bash
-# lint will validate either petstore.yaml or petstore.json file in the current working directory
-openapi lint petstore
-# lint will validate either sandbox.yaml or sandbox.json file in the openapi/extra directory
-openapi lint openapi/extra/sandbox
-```
 
 #### Pass entrypoints via configuration file
 
@@ -215,5 +204,5 @@ openapi lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 :::success Tip
-To learn more about preprocessors and rules, please refer to [this](../custom-rules.md) document.
+To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
 :::
