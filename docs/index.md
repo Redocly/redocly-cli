@@ -32,7 +32,7 @@ Currently, Redocly OpenAPI CLI supports these features:
 - ✅ Intuitive suggestions for misspelled types or references. No error will pass you by.
 - ✅ Easy-to-implement custom rules. Need something? Ask us or do it yourself.
 - ✅ Preview reference docs. Writing OpenAPI documents has never been easier.
-- ✅ Support for OAS 3.1 and Swagger 2.0.
+- ✅ Support for OAS 3.1, OAS 3.0, and Swagger 2.0.
 
 ## Why Redocly OpenAPI CLI?
 

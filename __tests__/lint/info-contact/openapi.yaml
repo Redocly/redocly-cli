@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0
+  contact:
+    name: qa
+    url: https://swagger.io/specification/#definitions
+    email: email@redoc.ly
+
+paths:
+  /pet/findByStatus:
+    get:
+      operationId: example
+      summary: summary example
+      responses:
+        '200':
+          description: example description

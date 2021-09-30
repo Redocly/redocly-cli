@@ -135,7 +135,13 @@ export function readYaml(filename: string) {
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  return fs.writeFileSync(filename, yaml.safeDump(data, { noRefs }));
+  const content = yaml.safeDump(data, { noRefs });
+
+  if (process.env.NODE_ENV === 'test') {
+    process.stderr.write(content);
+    return;
+  }
+  fs.writeFileSync(filename, content);
 }
 
 export function pluralize(label: string, num: number) {
@@ -204,7 +210,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
+      gray(`run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.\n`),
     );
   }
 
@@ -290,4 +296,12 @@ export function slash(path: string): string {
   }
 
   return path.replace(/\\/g, '/');
+}
+
+/**
+ * Checks if dir is subdir of parent
+ */
+export function isSubdir(parent: string, dir: string): boolean {
+  const relative = path.relative(parent, dir);
+  return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
 }

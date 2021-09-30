@@ -16,30 +16,107 @@ addSerializer({
 });
 
 describe('E2E', () => {
-  const contents = readdirSync(__dirname);
-  for (const file of contents) {
-    const testPath = join(__dirname, file);
-    if (statSync(testPath).isFile()) continue;
-    if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
 
-    it(file, () => {
-      const r = spawnSync('npx', ['ts-node', '--transpile-only', '../../packages/cli/src/index.ts', 'lint'], {
-        cwd: testPath,
-        env: {
-          ...process.env,
-          NODE_ENV: 'test',
-          NO_COLOR: 'TRUE',
-        },
+  describe('lint', () => {
+    const folderPath = join(__dirname, 'lint');
+    const contents = readdirSync(folderPath);
+    for (const file of contents) {
+      const testPath = join(folderPath, file);
+      if (statSync(testPath).isFile()) continue;
+      if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
+
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'lint'
+      ];
+      it(file, () => {
+        const r = spawnSync('ts-node', args, {
+          cwd: testPath,
+          env: {
+            ...process.env,
+            NODE_ENV: 'test',
+            NO_COLOR: 'TRUE',
+          },
+        });
+
+        const out = r.stdout.toString('utf-8');
+        const err = r.stderr.toString('utf-8');
+        const result = `${out}\n${err}`;
+
+        // @ts-ignore
+        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
+    }
+  })
 
-      const out = r.stdout.toString('utf-8');
-      const err = r.stderr.toString('utf-8');
+  describe('join', () => {
+    const folderPath = join(__dirname, 'join');
+    const contents = readdirSync(folderPath);
+    for (const file of contents) {
+      const testPath = join(folderPath, file);
+      if (statSync(testPath).isFile()) continue;
 
-      const result = `${out}\n${err}`;
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'join',
+        'foo.yaml',
+        'bar.yaml'
+      ];
+      it(file, () => {
+        const r = spawnSync('ts-node', args, {
+          cwd: testPath,
+          env: {
+            ...process.env,
+            NODE_ENV: 'test',
+            NO_COLOR: 'TRUE',
+          },
+        });
 
+        const out = r.stdout.toString('utf-8');
+        const err = r.stderr.toString('utf-8');
+        const result = `${out}\n${err}`;
 
-      // @ts-ignore
-      expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
-    });
-  }
+        // @ts-ignore
+        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      });
+    }
+  })
+
+  describe('bundle', () => {
+    const folderPath = join(__dirname, 'bundle');
+    const contents = readdirSync(folderPath);
+    for (const file of contents) {
+      const testPath = join(folderPath, file);
+      if (statSync(testPath).isFile()) continue;
+
+      const args = [
+        '../../../packages/cli/src/index.ts',
+        '--lint',
+        '--max-problems=1',
+        'bundle',
+        'foo.yaml',
+        'bar.yaml'
+      ];
+      it(file, () => {
+        const r = spawnSync('ts-node', args, {
+          cwd: testPath,
+          env: {
+            ...process.env,
+            NODE_ENV: 'test',
+            NO_COLOR: 'TRUE',
+          },
+        });
+
+        const out = r.stdout.toString('utf-8');
+        const err = r.stderr.toString('utf-8');
+        const result = `${out}\n${err}`;
+
+        // @ts-ignore
+        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      });
+    }
+  })
+
 });

@@ -4,6 +4,63 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.61 (2021-09-21)
+
+### Features
+
+- Improved validation of values for the following fields in the Schema Object: `multipleOf, maxLength, minLength, maxItems, minItems, maxProperties, minProperties`.
+
+----
+
+## 1.0.0-beta.60 (2021-09-20)
+
+### Fixes
+
+- Fixed an issue with the `join` command crashing when trying to resolve $ref.
+
+
+----
+
+## 1.0.0-beta.59 (2021-09-15)
+
+### Fixes
+
+- Resolved an issue with the `preview-docs` command not working when running `openapi-cli` in a Docker container.
+
+- Improved the security of local documentation previews by removing query parameters from the request URL.
+
+
+----
+
+## 1.0.0-beta.58 (2021-09-02)
+
+### Fixes
+
+- Internal improvements to configuration types.
+
+
+----
+
+## 1.0.0-beta.57 (2021-09-01)
+
+### Fixes
+
+- Simplified the login check query to improve performance.
+
+
+----
+
+## 1.0.0-beta.56 (2021-09-01)
+
+### Features
+
+- Added a function for linting the `.redocly.yaml` configuration file.
+
+- Published [the OpenAPI CLI quickstart guide](quickstart.md) as part of our Google Season of Docs 2021 project.
+
+
+----
+
 ## 1.0.0-beta.55 (2021-08-20)
 
 ### Features
