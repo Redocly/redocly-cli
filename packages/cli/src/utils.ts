@@ -210,7 +210,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
+      gray(`run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.\n`),
     );
   }
 
