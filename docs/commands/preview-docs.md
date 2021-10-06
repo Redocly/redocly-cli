@@ -2,7 +2,7 @@
 
 ## Introduction
 
-With this command, you can preview the API reference docs on your local machine.
+With this command, you can generate documentation previews for API definitions on your local machine.
 
 If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
 
