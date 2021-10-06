@@ -167,10 +167,10 @@ Generated ignore file with 3 problems.
 ```
 
 :::warning
-This command will overwrite an existing ignore file
+This command will overwrite an existing ignore file.
 :::
 
-To generate ignore file for multiple definitions, pass them as arguments:
+To generate an ignore file for multiple definitions, pass them as arguments:
 
 ```bash
 openapi lint v1.yaml v2.yaml --generate-ignore-file
