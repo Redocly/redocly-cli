@@ -7,7 +7,7 @@ With this command, you can preview the API reference docs on your local machine.
 If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
 
 :::success Tip
-To preview docs using the premium Redocly API reference docs, you must authenticate to the API registry first via the [`login`](./login.md) command.
+To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.
 :::
 
 ## Usage
@@ -23,11 +23,11 @@ openapi preview-docs <entrypoint> --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename or configuration alias that you want to generate preview for. (Refer to [the entrypoints section below](#entrypoints) for more options)
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition file or a configured alias for the API definition that you want to preview. Refer to [the entrypoints section](#entrypoints) for more options
 `--config`                | `string`  | no           | -           | Specify path to the config file
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
-`--port`, `-p`            | `number`  | no           | 8080        | Preview port. You can set any port as long as it is not used by applications in your operating system.
+`--port`, `-p`            | `number`  | no           | 8080        | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system.
 `--skip-decorator`        | `array`   | no           | -           | Ignore [certain decorators](#skip-preprocessor-or-decorator)
 `--skip-preprocessor`     | `array`   | no           | -           | Ignore [certain preprocessors](#skip-preprocessor-or-decorator)
 `--use-community-edition` | `boolean` | no           | -           | Force using Redoc Community Edition for docs preview
