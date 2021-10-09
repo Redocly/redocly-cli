@@ -228,7 +228,7 @@ foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 
 ❌ Validation failed with 1 error.
-run with \`--generate-ignore-file\` to add all problems to ignore file.
+run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling foo.yaml...
 📦 Created a bundle for foo.yaml at stdout <test>ms.
@@ -237,7 +237,7 @@ bar.yaml:
 
 < ... 3 more problems hidden > increase with \`--max-problems N\`
 ❌ Validation failed with 3 errors and 1 warning.
-run with \`--generate-ignore-file\` to add all problems to ignore file.
+run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling bar.yaml...
 📦 Created a bundle for bar.yaml at stdout <test>ms.
@@ -472,7 +472,7 @@ foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 
 ❌ Validation failed with 1 error.
-run with \`--generate-ignore-file\` to add all problems to ignore file.
+run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling foo.yaml...
 📦 Created a bundle for foo.yaml at stdout <test>ms.
@@ -481,7 +481,7 @@ bar.yaml:
 
 < ... 3 more problems hidden > increase with \`--max-problems N\`
 ❌ Validation failed with 3 errors and 1 warning.
-run with \`--generate-ignore-file\` to add all problems to ignore file.
+run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling bar.yaml...
 📦 Created a bundle for bar.yaml at stdout <test>ms.
