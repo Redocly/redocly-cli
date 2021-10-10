@@ -22,7 +22,7 @@ Each of the `rules` entries can be one of following:
 ## List of built in rules
 
 ### spec
-Validate against the declared OpenAPI specification (currently supports version 2 and 3.0).
+Validate against the declared OpenAPI specification (currently supports version 2.0, 3.0, and 3.1).
 
 ### boolean-parameter-prefixes
 `name` fields of Parameters with type `boolean` should have a `is` or `has` prefix.
