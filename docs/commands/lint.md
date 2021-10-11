@@ -25,12 +25,12 @@ openapi lint --version
 Option                   | Type      | Required?    | Default     | Description
 -------------------------|:---------:|:------------:|:-----------:|------------
 `entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the section below](#entrypoints) for more options.
-`--config`               | `string`  | no           | -           | Specify path to the config file
+`--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
 `--extends`              | `array`   | no           | -           | Override extends configurations (defaults or config file settings).
 `--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
-`--generate-ignore-file` | `boolean` | no           | -           | Generate ignore file
+`--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
 `--help`                 | `boolean` | no           | -           | Show help
-`--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
+`--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
 `--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
 `--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
 `--version`              | `boolean` | no           | -           | Show version number
