@@ -192,7 +192,7 @@ describe('collect refs', () => {
 
     expect(resolvedRefs).toBeDefined();
 
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
+    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)).sort())
       .toMatchInlineSnapshot(`
       Array [
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
@@ -201,7 +201,7 @@ describe('collect refs', () => {
       ]
     `);
 
-    expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
+    expect(Array.from(resolvedRefs.values()).map((val) => val.node).sort()).toMatchInlineSnapshot(`
       Array [
         Object {
           "allOf": Array [

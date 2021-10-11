@@ -6,7 +6,7 @@ import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
-import { readFileFromUrl, convertYamlToJson } from './utils';
+import { readFileFromUrl, parseYaml } from './utils';
 import { ResolveConfig } from './config/config';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -79,7 +79,7 @@ export function makeDocumentFromString(sourceString: string, absoluteRef: string
   try {
     return {
       source,
-      parsed: convertYamlToJson(sourceString, { filename: absoluteRef }),
+      parsed: parseYaml(sourceString, { filename: absoluteRef }),
     };
   } catch (e) {
     throw new YamlParseError(e, source);
@@ -133,7 +133,7 @@ export class BaseResolver {
     try {
       return {
         source,
-        parsed: convertYamlToJson(source.body, { filename: source.absoluteRef }),
+        parsed: parseYaml(source.body, { filename: source.absoluteRef }),
       };
     } catch (e) {
       throw new YamlParseError(e, source);

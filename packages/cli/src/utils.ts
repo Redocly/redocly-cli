@@ -12,8 +12,8 @@ import {
   LintConfig,
   ResolveError,
   YamlParseError,
-  convertYamlToJson,
-  convertJsonToYaml
+  parseYaml,
+  stringifyYaml
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions } from './types';
 
@@ -88,7 +88,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
       throw e;
     }
   } else {
-    return convertJsonToYaml(obj, {
+    return stringifyYaml(obj, {
       noRefs: !dereference,
     });
   }
@@ -132,11 +132,11 @@ export async function promptUser(query: string, hideUserInput = false): Promise<
 }
 
 export function readYaml(filename: string) {
-  return convertYamlToJson(fs.readFileSync(filename, 'utf-8'), { filename });
+  return parseYaml(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  const content = convertJsonToYaml(data, { noRefs });
+  const content = stringifyYaml(data, { noRefs });
 
   if (process.env.NODE_ENV === 'test') {
     process.stderr.write(content);

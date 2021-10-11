@@ -230,8 +230,8 @@ foo.yaml:
 ❌ Validation failed with 1 error.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
-bundling foo.yaml...
-📦 Created a bundle for foo.yaml at stdout <test>ms.
+bundling ./foo.yaml...
+📦 Created a bundle for ./foo.yaml at stdout <test>ms.
 bar.yaml:
   14:7  error    spec  Property \`summay\` is not expected here.
 
@@ -239,7 +239,7 @@ bar.yaml:
 ❌ Validation failed with 3 errors and 1 warning.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
-bundling bar.yaml...
-📦 Created a bundle for bar.yaml at stdout <test>ms.
+bundling ./bar.yaml...
+📦 Created a bundle for ./bar.yaml at stdout <test>ms.
 
 `;

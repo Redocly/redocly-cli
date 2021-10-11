@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { convertYamlToJson } from '@redocly/openapi-core';
+import { parseYaml } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -72,7 +72,7 @@ function isNotYaml(filename: string) {
 
 function loadFile(fileName: string) {
   try {
-    return convertYamlToJson(fs.readFileSync(fileName, 'utf8')) as Definition;
+    return parseYaml(fs.readFileSync(fileName, 'utf8')) as Definition;
   } catch (e) {
     return exitWithError(e.message);
   }

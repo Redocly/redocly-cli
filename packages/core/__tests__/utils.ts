@@ -1,13 +1,13 @@
 import * as path from 'path';
 
-import { Document, Source, NormalizedProblem, convertYamlToJson, convertJsonToYaml } from '../src';
+import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
 import { RuleConfig, LintConfig, Plugin } from '../src/config/config';
 import { Oas3RuleSet } from '../src/oas-types';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
     source: new Source(absoluteRef, body),
-    parsed: convertYamlToJson(body, { filename: absoluteRef }),
+    parsed: parseYaml(body, { filename: absoluteRef }),
   };
 }
 
@@ -39,7 +39,7 @@ export const yamlSerializer = {
     return true;
   },
   print: (val: any) => {
-    return convertJsonToYaml(val);
+    return stringifyYaml(val);
   },
 };
 

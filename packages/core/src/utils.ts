@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
 
-import { convertYamlToJson } from './js-yaml';
+import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
 
-export { convertYamlToJson, convertJsonToYaml } from './js-yaml';
+export { parseYaml, stringifyYaml } from './js-yaml';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -27,7 +27,7 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 export async function loadYaml(filename: string) {
   const contents = await fs.promises.readFile(filename, 'utf-8');
 
-  return convertYamlToJson(contents);
+  return parseYaml(contents);
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
