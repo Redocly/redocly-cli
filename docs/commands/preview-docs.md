@@ -13,9 +13,9 @@ To preview docs using the premium Redocly API reference docs, you must authentic
 ## Usage
 
 ```bash
-openapi preview-docs <entrypoint>
-openapi preview-docs <entrypoint> [--config=<path>] [--port=<value>]
-openapi preview-docs <entrypoint> [--force] [--help] [--version]
+openapi preview-docs <entrypoint> [branchName]
+openapi preview-docs <entrypoint> [--config=<path>] [--port=<value>] [branchName]
+openapi preview-docs <entrypoint> [--force] [--help] [--version] [branchName]
 openapi preview-docs <entrypoint> --version
 ```
 
@@ -24,7 +24,7 @@ openapi preview-docs <entrypoint> --version
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
 `entrypoint`              | `string`  | yes          | -           | Path to the API definition filename or configuration alias that you want to generate preview for. (Refer to [the entrypoints section below](#entrypoints) for more options)
-`--config`                | `string`  | no           | -           | Specify path to the config file
+`--config`                | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
 `--port`, `-p`            | `number`  | no           | 8080        | Preview port. You can set any port as long as it is not used by applications in your operating system.
@@ -92,9 +92,9 @@ Both commands will start the preview on port `8888`, so you can access the docs 
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-openapi bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+openapi preview-docs --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 ```bash Skip decorators
-openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
+openapi preview-docs --skip-decorator=generate-code-samples,remove-internal-operations
 ```
