@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'js-yaml';
 import { dirname } from 'path';
 import { red, blue } from 'colorette';
 
+import { convertYamlToJson, convertJsonToYaml } from '../js-yaml';
 import { notUndefined } from '../utils';
 
 import {
@@ -190,7 +190,7 @@ export class LintConfig {
     if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
       this.ignore =
-        (yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+        (convertYamlToJson(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
           string,
           Record<string, Set<string>>
         >) || {};
@@ -216,7 +216,7 @@ export class LintConfig {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
     }
-    fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.safeDump(mapped));
+    fs.writeFileSync(ignoreFile, IGNORE_BANNER + convertJsonToYaml(mapped));
   }
 
   addIgnore(problem: NormalizedProblem) {
