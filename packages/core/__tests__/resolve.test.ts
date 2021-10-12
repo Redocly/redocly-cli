@@ -201,7 +201,15 @@ describe('collect refs', () => {
       ]
     `);
 
-    expect(Array.from(resolvedRefs.values()).map((val) => val.node).sort()).toMatchInlineSnapshot(`
+    expect(
+      Array.from(resolvedRefs.values())
+        .map((val) => val.node)
+        .sort((firstEl, secondEl) => {
+          const getKey = (el: any): string => el?.allOf?.type || el?.type || '';
+
+          return getKey(firstEl).localeCompare(getKey(secondEl));
+        })
+    ).toMatchInlineSnapshot(`
       Array [
         Object {
           "allOf": Array [

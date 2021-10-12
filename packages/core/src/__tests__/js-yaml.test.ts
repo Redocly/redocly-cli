@@ -1,19 +1,19 @@
 import { parseYaml, stringifyYaml } from '../js-yaml';
 
 const yaml = `
-emptyValue:
-spaces in keys: spaces in keys
-numberString: '0123456789'
-number: 1000
-decimal: 12.34
-boolean: true
-date: 2020-01-01
-array:
-  - 1
-  - 2
-object:
-  key1: 1
-  key2: 2
+  emptyValue:
+  spaces in keys: spaces in keys
+  numberString: '0123456789'
+  number: 1000
+  decimal: 12.34
+  boolean: true
+  date: 2020-01-01
+  array:
+    - 1
+    - 2
+  object:
+    key1: 1
+    key2: 2
 `;
 
 const jsObject = {
@@ -38,6 +38,9 @@ describe('js-yaml', () => {
   });
 
   test('should throw an error for unsupported types', () => {
+    expect(() => stringifyYaml({ date: new Date() }))
+      .toThrow('unacceptable kind of an object to dump [object Date]');
+
     expect(() => stringifyYaml({ foo: () => {} }))
       .toThrow('unacceptable kind of an object to dump [object Function]');
   });
