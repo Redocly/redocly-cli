@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as url from 'url';
-import * as yaml from 'js-yaml';
+
 import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
-import { readFileFromUrl } from './utils';
+import { readFileFromUrl, parseYaml } from './utils';
 import { ResolveConfig } from './config/config';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -52,7 +52,7 @@ export class ResolveError extends Error {
   }
 }
 
-const jsYamlErrorLineColRegexp = /at line (\d+), column (\d+):/;
+const jsYamlErrorLineColRegexp = /\((\d+):(\d+)\)$/;
 
 export class YamlParseError extends Error {
   col: number;
@@ -79,7 +79,7 @@ export function makeDocumentFromString(sourceString: string, absoluteRef: string
   try {
     return {
       source,
-      parsed: yaml.safeLoad(sourceString, { filename: absoluteRef }),
+      parsed: parseYaml(sourceString, { filename: absoluteRef }),
     };
   } catch (e) {
     throw new YamlParseError(e, source);
@@ -133,7 +133,7 @@ export class BaseResolver {
     try {
       return {
         source,
-        parsed: yaml.safeLoad(source.body, { filename: source.absoluteRef }),
+        parsed: parseYaml(source.body, { filename: source.absoluteRef }),
       };
     } catch (e) {
       throw new YamlParseError(e, source);

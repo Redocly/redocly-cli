@@ -1,9 +1,10 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import * as yaml from 'js-yaml';
+import { parseYaml } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
+
 import { printExecutionTime, pathToFilename, readYaml, writeYaml, exitWithError } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
@@ -71,7 +72,7 @@ function isNotYaml(filename: string) {
 
 function loadFile(fileName: string) {
   try {
-    return yaml.safeLoad(fs.readFileSync(fileName, 'utf8')) as Definition;
+    return parseYaml(fs.readFileSync(fileName, 'utf8')) as Definition;
   } catch (e) {
     return exitWithError(e.message);
   }

@@ -1,8 +1,9 @@
-import { readdirSync, statSync, existsSync } from 'fs';
+import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { join } from 'path';
 //@ts-ignore
 import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
+import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -16,7 +17,6 @@ addSerializer({
 });
 
 describe('E2E', () => {
-
   describe('lint', () => {
     const folderPath = join(__dirname, 'lint');
     const contents = readdirSync(folderPath);
@@ -53,9 +53,13 @@ describe('E2E', () => {
   describe('join', () => {
     const folderPath = join(__dirname, 'join');
     const contents = readdirSync(folderPath);
+
     for (const file of contents) {
       const testPath = join(folderPath, file);
-      if (statSync(testPath).isFile()) continue;
+
+      if (statSync(testPath).isFile()) {
+        continue;
+      }
 
       const args = [
         '--transpile-only',
@@ -64,6 +68,7 @@ describe('E2E', () => {
         'foo.yaml',
         'bar.yaml'
       ];
+
       it(file, () => {
         const r = spawnSync('ts-node', args, {
           cwd: testPath,
@@ -87,18 +92,26 @@ describe('E2E', () => {
   describe('bundle', () => {
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath);
+
     for (const file of contents) {
       const testPath = join(folderPath, file);
-      if (statSync(testPath).isFile()) continue;
+
+      if (statSync(testPath).isFile()) {
+        continue;
+      }
+
+      const redoclyYamlFile = readFileSync(join(testPath, '.redocly.yaml'), 'utf8');
+      const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string> };
+      const entryPoints = Object.keys(redoclyYaml.apiDefinitions);
 
       const args = [
         '../../../packages/cli/src/index.ts',
         '--lint',
         '--max-problems=1',
         'bundle',
-        'foo.yaml',
-        'bar.yaml'
+        ...entryPoints
       ];
+
       it(file, () => {
         const r = spawnSync('ts-node', args, {
           cwd: testPath,
@@ -118,5 +131,4 @@ describe('E2E', () => {
       });
     }
   })
-
 });
