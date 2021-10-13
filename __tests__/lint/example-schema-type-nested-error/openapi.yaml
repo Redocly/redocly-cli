@@ -1,0 +1,96 @@
+openapi: '3.1.0'
+info:
+  version: v0
+  title: my_Api
+  description: my_api
+  contact:
+    name: my_api
+  license:
+    name: Proprietary
+    url: https://my_api.com
+servers:
+  - url: https://my_api.com
+
+paths:
+  /my_post:
+    post:
+      operationId: my_post
+      description: my post
+      summary: my_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: ID
+                  allOf:
+                    - $ref: '#/components/schemas/Test'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      example: api response
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 23.1
+    Test:
+      type: object
+      example: test example
+      properties:
+        my_list:
+          type: string
+          example: 50
+        nested:
+          allOf:
+            - $ref: '#/components/schemas/Dog'
+            - type: object
+              example: dog
+              properties:
+                huntingSkill:
+                  type: string
+                  example: 100
+                nested_schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/Category'
+    Dog:
+      type: object
+      example: test dog example
+      properties:
+        my_list:
+          type: string
+          example: 32
+        nested:
+          allOf:
+            - $ref: '#/components/schemas/Tag'
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Category ID
+          example: category example
+        ref_id:
+          allOf:
+            - $ref: '#/components/schemas/Id'
+    Id:
+      type: integer
+      example: 78.9
+    Tag:
+      type: object
+      properties:
+        name:
+          description: Tag name
+          type: string
+          example: 35
