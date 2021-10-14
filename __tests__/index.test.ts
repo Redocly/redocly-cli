@@ -43,9 +43,7 @@ describe('E2E', () => {
         const out = r.stdout.toString('utf-8');
         const err = r.stderr.toString('utf-8');
         const result = `${out}\n${err}`;
-
-        // @ts-ignore
-        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
   });
@@ -82,9 +80,7 @@ describe('E2E', () => {
         const out = r.stdout.toString('utf-8');
         const err = r.stderr.toString('utf-8');
         const result = `${out}\n${err}`;
-
-        // @ts-ignore
-        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
   });
@@ -125,18 +121,16 @@ describe('E2E', () => {
         const out = r.stdout.toString('utf-8');
         const err = r.stderr.toString('utf-8');
         const result = `${out}\n${err}`;
-
-        // @ts-ignore
-        expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+        (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
   });
 
   describe('bundle lint format', () => {
-    let args;
-    let folderPath;
+    let args: string[];
+    let folderPath: string;
 
-    function getBundleResult(params) {
+    function getBundleResult(params: string[]) {
       const result = spawnSync('ts-node', params, {
         cwd: folderPath,
         env: {
@@ -167,14 +161,14 @@ describe('E2E', () => {
     test.each(['codeframe','stylish','json'])('bundle lint: should be formatted by format: %s', (format) => {
       const params = [...args, `--format=${format}`];
       const result = getBundleResult(params);
-      expect(result).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
     });
 
     test.each(['noFormatParameter','emptyFormatValue'])('bundle lint: no format parameter or empty value should be formatted as codeframe', (format) => {
       const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
       const params = [...args, ... formatArgument];
       const result = getBundleResult(params);
-      expect(result).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
     });
   });
 });
