@@ -48,7 +48,7 @@ describe('E2E', () => {
         expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
-  })
+  });
 
   describe('join', () => {
     const folderPath = join(__dirname, 'join');
@@ -87,7 +87,7 @@ describe('E2E', () => {
         expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
-  })
+  });
 
   describe('bundle', () => {
     const folderPath = join(__dirname, 'bundle');
@@ -130,5 +130,51 @@ describe('E2E', () => {
         expect(result).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
-  })
+  });
+
+  describe('bundle lint format', () => {
+    let args;
+    let folderPath;
+
+    function getBundleResult(params) {
+      const result = spawnSync('ts-node', params, {
+        cwd: folderPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'test',
+          NO_COLOR: 'TRUE',
+        },
+      });
+      const out = result.stdout.toString('utf-8');
+      const err = result.stderr.toString('utf-8');
+      return `${out}\n${err}`;
+    }
+
+    beforeAll(() => {
+      folderPath = join(__dirname, "bundle/bundle-lint-format");
+      const redoclyYamlFile = readFileSync(join(folderPath, ".redocly.yaml"), "utf8");
+      const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string>; };
+      const entryPoints = Object.keys(redoclyYaml.apiDefinitions);
+      args = [
+        "../../../packages/cli/src/index.ts",
+        "--max-problems=1",
+        "bundle",
+        ...entryPoints,
+        "--lint",
+      ];
+    });
+
+    test.each(['codeframe','stylish','json'])('bundle lint: should be formatted by format: %s', (format) => {
+      const params = [...args, `--format=${format}`];
+      const result = getBundleResult(params);
+      expect(result).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
+    });
+
+    test.each(['noFormatParameter','emptyFormatValue'])('bundle lint: no format parameter or empty value should be formatted as codeframe', (format) => {
+      const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
+      const params = [...args, ... formatArgument];
+      const result = getBundleResult(params);
+      expect(result).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
+    });
+  });
 });

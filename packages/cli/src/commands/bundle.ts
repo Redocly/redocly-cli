@@ -49,7 +49,7 @@ export async function handleBundle(
         });
 
         const fileLintTotals = getTotals(results);
-        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version, maxProblems });
+        formatProblems(results, { format: argv.format || 'codeframe', totals: fileLintTotals, version, maxProblems });
         printLintTotals(fileLintTotals, 2);
       }
 
