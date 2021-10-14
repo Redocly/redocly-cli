@@ -153,6 +153,7 @@ describe('E2E', () => {
       args = [
         "../../../packages/cli/src/index.ts",
         "--max-problems=1",
+        "-o=/tmp/null",
         "bundle",
         "--lint",
         ...entryPoints,
