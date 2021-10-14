@@ -16,6 +16,12 @@ addSerializer({
   print: (v: any) => v as string,
 });
 
+function getEntrypoints(folderPath: string) {
+  const redoclyYamlFile = readFileSync(join(folderPath, ".redocly.yaml"), "utf8");
+  const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string>; };
+  return Object.keys(redoclyYaml.apiDefinitions);
+}
+
 describe('E2E', () => {
   describe('lint', () => {
     const folderPath = join(__dirname, 'lint');
@@ -96,10 +102,7 @@ describe('E2E', () => {
         continue;
       }
 
-      const redoclyYamlFile = readFileSync(join(testPath, '.redocly.yaml'), 'utf8');
-      const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string> };
-      const entryPoints = Object.keys(redoclyYaml.apiDefinitions);
-
+      const entryPoints = getEntrypoints(testPath);
       const args = [
         '../../../packages/cli/src/index.ts',
         '--lint',
@@ -146,15 +149,13 @@ describe('E2E', () => {
 
     beforeAll(() => {
       folderPath = join(__dirname, "bundle/bundle-lint-format");
-      const redoclyYamlFile = readFileSync(join(folderPath, ".redocly.yaml"), "utf8");
-      const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string>; };
-      const entryPoints = Object.keys(redoclyYaml.apiDefinitions);
+      const entryPoints = getEntrypoints(folderPath);
       args = [
         "../../../packages/cli/src/index.ts",
         "--max-problems=1",
         "bundle",
-        ...entryPoints,
         "--lint",
+        ...entryPoints,
       ];
     });
 
