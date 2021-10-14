@@ -108,6 +108,7 @@ describe('E2E', () => {
         '--lint',
         '--max-problems=1',
         'bundle',
+        '--format=stylish',
         ...entryPoints
       ];
 
