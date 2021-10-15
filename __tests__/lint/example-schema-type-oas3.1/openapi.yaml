@@ -22,20 +22,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Test'
+              type: object
+              additionalProperties: false
+              properties:
+                one:
+                  description: type array
+                  type:
+                    - integer
+                    - string
+                  example: test
       responses:
         '200':
           description: My 200 response
-
-components:
-  schemas:
-    Test:
-      type: object
-      properties:
-        my_list:
-          type: array
-          uniqueItems: true
-          items:
-            type: string
-          example:
-            test

@@ -5,7 +5,7 @@ exports[`E2E lint example-schema-type-array-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:34:21 at #/paths/~1my_post/post/requestBody/content/application~1json/schema/properties/my_list/example
 
-Expected type \`array\` but got \`string\`.
+Example value must conform to the schema: type must be array but got \`string\`.
 
 32 |               type: string
 33 |             example:

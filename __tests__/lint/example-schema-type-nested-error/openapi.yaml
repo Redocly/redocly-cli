@@ -1,4 +1,4 @@
-openapi: '3.1.0'
+openapi: '3.0.0'
 info:
   version: v0
   title: my_Api
@@ -12,6 +12,16 @@ servers:
   - url: https://my_api.com
 
 paths:
+  /pet:
+    parameters:
+      - name: Test
+        schema:
+          example:
+            property: 42
+          type: object
+          properties:
+            property:
+              type: string
   /my_post:
     post:
       operationId: my_post
@@ -31,20 +41,9 @@ paths:
       responses:
         '200':
           description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
+
 components:
   schemas:
-    ApiResponse:
-      type: object
-      example: api response
-      properties:
-        code:
-          type: integer
-          format: int32
-          example: 23.1
     Test:
       type: object
       example: test example
@@ -71,9 +70,6 @@ components:
         my_list:
           type: string
           example: 32
-        nested:
-          allOf:
-            - $ref: '#/components/schemas/Tag'
     Category:
       type: object
       properties:
@@ -81,16 +77,3 @@ components:
           type: number
           description: Category ID
           example: category example
-        ref_id:
-          allOf:
-            - $ref: '#/components/schemas/Id'
-    Id:
-      type: integer
-      example: 78.9
-    Tag:
-      type: object
-      properties:
-        name:
-          description: Tag name
-          type: string
-          example: 35

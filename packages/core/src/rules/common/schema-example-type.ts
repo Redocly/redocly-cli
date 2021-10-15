@@ -22,7 +22,7 @@ export const SchemaExampleType: any = () => {
             if (!valid) {
               for (let error of errors) {
                 report({
-                  message: `Expected type \`${schema.type}\` but got \`${propValueType}\`.`,
+                  message: `Example value must conform to the schema: ${error.message} but got \`${propValueType}\`.`,
                   location: {
                     ...new Location(location.child('example').source, error.instancePath),
                   },
