@@ -8,7 +8,7 @@ describe('join', () => {
     const entrypoints = ['foo.yaml'];
     await handleJoin({ entrypoints }, '1.0.0');
 
-    expect(mockStdErr).toHaveBeenCalledWith(`At least 2 entrypoints should be provided. \n\n`);
+    expect(mockStdErr).toHaveBeenCalledWith(expect.stringContaining('At least 2 entrypoints should be provided.'));
     expect(mockExit).toHaveBeenCalledWith(1);
   });
 });
