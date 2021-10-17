@@ -169,6 +169,11 @@ The `--run-id` option can be used by Redocly Workflows to associate multiple pus
 - CircleCI
 - GitHub Actions
 
+Below are possible use cases for the `--run-id` option:
+
+- CI/CD systems: mostly for internal reference
+- External systems: a parameter that can be used in reports, metrics, analytics to refer to a specific application service state.
+
 ### Create a new API with push
 
 To create a new API and a new API definition version with the `push` command, use the `--upsert` or `-u` option:
