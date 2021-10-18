@@ -35,7 +35,7 @@ export function detectOpenAPI(root: any): OasVersion {
   }
 
   if (root.openapi && typeof root.openapi !== 'string') {
-    throw new Error(`Invalid OpenAPI version: should be a string but got "number"`);
+    throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
   }
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
