@@ -26,7 +26,7 @@ Option                   | Type      | Required    | Default     | Description
 -------------------------|:---------:|:------------:|:-----------:|------------
 `entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options.
 `--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
-`--extends`              | `array`   | no           | -           | Override extends configurations (defaults or config file settings).
+`--extends`              | `array`   | no           | -           | [Extend a specific lint configuration](#extend-lint-configuration) (defaults or config file settings).
 `--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
 `--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
 `--help`                 | `boolean` | no           | -           | Show help
@@ -94,6 +94,10 @@ By default, the CLI tool looks for a `.redocly.yaml` configuration file in the c
 ```bash
 openapi lint --config=./another/directory/config.yaml
 ```
+
+### Extend lint configuration
+
+`--extends` option allows you to extend the existing lint configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the value is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one including particular rules that cover your specific needs.
 
 ### Format
 
