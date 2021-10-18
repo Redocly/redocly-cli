@@ -5,16 +5,14 @@ exports[`E2E lint no-invalid-version-oas3 1`] = `
 validating /openapi.yaml...
 Something went wrong when processing /home/runner/work/openapi-cli/openapi-cli/__tests__/lint/no-invalid-version-oas3/openapi.yaml:
 
-  - Invalid OpenAPI version: 3.1 
-.
+  - Invalid OpenAPI version: should be a string but got "number".
 
 
-/Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/oas-types.js:25
-        throw new Error(\`Invalid OpenAPI version: \${root.openapi} \\n\`);
+/Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/oas-types.js:23
+        throw new Error(\`Invalid OpenAPI version: should be a string but got "number"\`);
               ^
-Error: Invalid OpenAPI version: 3.1 
-
-    at Object.detectOpenAPI (/Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/oas-types.js:25:15)
+Error: Invalid OpenAPI version: should be a string but got "number"
+    at Object.detectOpenAPI (/Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/oas-types.js:23:15)
     at /Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/lint.js:47:40
     at Generator.next (<anonymous>)
     at /Users/andriyl/Projects/Redocly/TEST/openapi-cli/packages/core/lib/lint.js:8:71
