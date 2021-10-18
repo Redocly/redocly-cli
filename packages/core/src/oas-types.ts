@@ -34,6 +34,14 @@ export function detectOpenAPI(root: any): OasVersion {
     throw new Error('This doesn’t look like an OpenAPI document.\n');
   }
 
+  if (root.openapi &&
+    (
+      typeof root.openapi !== 'string' ||
+      !root.openapi.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/g))
+  ) {
+    throw new Error(`Invalid OpenAPI version: ${root.openapi} \n`);
+  }
+
   if (root.openapi && root.openapi.startsWith('3.0')) {
     return OasVersion.Version3_0;
   }
