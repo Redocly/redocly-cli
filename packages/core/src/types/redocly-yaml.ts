@@ -5,7 +5,7 @@ const ConfigRoot: NodeType = {
     apiDefinitions: {
       type: 'object',
       properties: {},
-      additionalProperties: { properties: { type: 'string' } }
+      additionalProperties: { properties: { type: 'string' } },
     },
     lint: 'ConfigLint',
     referenceDocs: 'ConfigReferenceDocs',
@@ -91,25 +91,420 @@ const ConfigSidebarLinks: NodeType = {
   },
 };
 
+const CommonThemeColors: NodeType = {
+  properties: {
+    main: { type: 'string' },
+    light: { type: 'string' },
+    dark: { type: 'string' },
+    contrastText: { type: 'string' },
+  },
+};
+
+const CommonColorProps: NodeType = {
+  properties: {
+    backgroundColor: { type: 'string' },
+    borderColor: { type: 'string' },
+    color: { type: 'string' },
+    tabTextColor: { type: 'string' },
+  },
+};
+
+const ThemeColors: NodeType = {
+  properties: {
+    accent: 'CommonThemeColors',
+    border: {
+      type: 'object',
+      properties: {
+        light: { type: 'string' },
+        dark: { type: 'string' },
+      },
+    },
+    error: 'CommonThemeColors',
+    http: {
+      type: 'object',
+      properties: {
+        basic: { type: 'string' },
+        delete: { type: 'string' },
+        get: { type: 'string' },
+        head: { type: 'string' },
+        link: { type: 'string' },
+        options: { type: 'string' },
+        patch: { type: 'string' },
+        post: { type: 'string' },
+        put: { type: 'string' },
+      },
+    },
+    primary: 'CommonThemeColors',
+    responses: {
+      type: 'object',
+      properties: {
+        errors: 'CommonColorProps',
+        info: 'CommonColorProps',
+        redirect: 'CommonColorProps',
+        success: 'CommonColorProps',
+      },
+    },
+    secondary: {
+      type: 'object',
+      properties: {
+        main: { type: 'string' },
+        light: { type: 'string' },
+        contrastText: { type: 'string' },
+      },
+    },
+    success: 'CommonThemeColors',
+    text: {
+      type: 'object',
+      properties: {
+        primary: { type: 'string' },
+        secondary: { type: 'string' },
+        light: { type: 'string' },
+      },
+    },
+    tonalOffset: { type: 'number' },
+    warning: 'CommonThemeColors',
+  },
+};
+
+const SizeProps: NodeType = {
+  properties: {
+    fontSize: { type: 'string' },
+    padding: { type: 'string' },
+    minWidth: { type: 'string' },
+  },
+};
+
+const Components: NodeType = {
+  properties: {
+    buttons: {
+      type: 'object',
+      properties: {
+        borderRadius: { type: 'string' },
+        hoverStyle: { type: 'string' },
+        fontWeight: { type: 'string' },
+        boxShadow: { type: 'string' },
+        hoverBoxShadow: { type: 'string' },
+        fontFamily: { type: 'string' },
+        sizes: {
+          type: 'object',
+          properties: {
+            small: 'SizeProps',
+            medium: 'SizeProps',
+            large: 'SizeProps',
+            xlarge: 'SizeProps',
+          },
+        },
+      },
+    },
+    httpBadges: {
+      type: 'object',
+      properties: {
+        borderRadius: { type: 'string' },
+        color: { type: 'string' },
+        fontFamily: { type: 'string' },
+        fontWeight: { type: 'string' },
+        sizes: {
+          type: 'object',
+          properties: {
+            medium: {
+              type: 'object',
+              properties: {
+                fontSize: { type: 'string' },
+                lineHeight: { type: 'string' },
+              },
+            },
+            small: {
+              type: 'object',
+              properties: {
+                fontSize: { type: 'string' },
+                lineHeight: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    layoutControls: {
+      type: 'object',
+      properties: {
+        top: { type: 'string' },
+      },
+    },
+    panels: {
+      type: 'object',
+      properties: {
+        borderRadius: { type: 'string' },
+      },
+    },
+    tryItButton: {
+      type: 'object',
+      properties: {
+        fullWidth: { type: 'boolean' },
+      },
+    },
+    tryItSendButton: {
+      type: 'object',
+      properties: {
+        fullWidth: { type: 'boolean' },
+      },
+    },
+  },
+};
+
+const Layout: NodeType = {
+  properties: {
+    showDarkRightPanel: { type: 'boolean' },
+    stacked: {
+      type: 'object',
+      properties: {
+        maxWidth: {
+          type: 'object',
+          properties: {
+            small: { type: 'string' },
+            medium: { type: 'string' },
+            large: { type: 'string' },
+          },
+        },
+      },
+    },
+    'three-panel': {
+      type: 'object',
+      properties: {
+        maxWidth: {
+          type: 'object',
+          properties: {
+            small: { type: 'string' },
+            medium: { type: 'string' },
+            large: { type: 'string' },
+          },
+        },
+      },
+    },
+  },
+};
+
+const Schema: NodeType = {
+  properties: {
+    breakFieldNames: { type: 'boolean' },
+    caretColor: { type: 'string' },
+    caretSize: { type: 'string' },
+    constraints: {
+      type: 'object',
+      properties: {
+        backgroundColor: { type: 'string' },
+        border: { type: 'string' },
+      },
+    },
+    defaultDetailsWidth: { type: 'string' },
+    examples: {
+      type: 'object',
+      properties: {
+        backgroundColor: { type: 'string' },
+        border: { type: 'string' },
+      },
+    },
+    labelsTextSize: { type: 'string' },
+    linesColor: { type: 'string' },
+    nestedBackground: { type: 'string' },
+    nestingSpacing: { type: 'string' },
+    requireLabelColor: { type: 'string' },
+    typeNameColor: { type: 'string' },
+    typeTitleColor: { type: 'string' },
+  },
+};
+
+const Sidebar: NodeType = {
+  properties: {
+    activeBgColor: { type: 'string' },
+    activeTextColor: { type: 'string' },
+    backgroundColor: { type: 'string' },
+    borderRadius: { type: 'string' },
+    breakPath: { type: 'boolean' },
+    caretColor: { type: 'string' },
+    caretSize: { type: 'string' },
+    fontFamily: { type: 'string' },
+    fontSize: { type: 'string' },
+    groupItems: {
+      type: 'object',
+      properties: {
+        subItemsColor: { type: 'string' },
+        textTransform: { type: 'string' },
+        fontWeight: { type: 'string' },
+      },
+    },
+    level1items: {
+      type: 'object',
+      properties: {
+        textTransform: { type: 'string' },
+      },
+    },
+    rightLineColor: { type: 'string' },
+    separatorLabelColor: { type: 'string' },
+    showAtBreakpoint: { type: 'string' },
+    spacing: {
+      type: 'object',
+      properties: {
+        unit: { type: 'number' },
+        paddingHorizontal: { type: 'string' },
+        paddingVertical: { type: 'string' },
+        offsetTop: { type: 'string' },
+        offsetLeft: { type: 'string' },
+        offsetNesting: { type: 'string' },
+      },
+    },
+    textColor: { type: 'string' },
+    width: { type: 'string' },
+  },
+};
+
+const Heading: NodeType = {
+  properties: {
+    color: { type: 'string' },
+    fontFamily: { type: 'string' },
+    fontSize: { type: 'string' },
+    fontWeight: { type: 'string' },
+    lineHeight: { type: 'string' },
+    transform: { type: 'string' },
+  },
+};
+
+const Typography: NodeType = {
+  properties: {
+    code: {
+      type: 'object',
+      properties: {
+        backgroundColor: { type: 'string' },
+        color: { type: 'string' },
+        fontFamily: { type: 'string' },
+        fontSize: { type: 'string' },
+        fontWeight: { type: 'string' },
+        lineHeight: { type: 'string' },
+        wordBreak: { type: 'string' },
+        wrap: { type: 'boolean' },
+      },
+    },
+    fieldName: {
+      type: 'object',
+      properties: {
+        fontFamily: { type: 'string' },
+        fontSize: { type: 'string' },
+        fontWeight: { type: 'string' },
+        lineHeight: { type: 'string' },
+      },
+    },
+    fontFamily: { type: 'string' },
+    fontSize: { type: 'string' },
+    fontWeightBold: { type: 'string' },
+    fontWeightLight: { type: 'string' },
+    fontWeightRegular: { type: 'string' },
+    heading1: 'Heading',
+    heading2: 'Heading',
+    heading3: 'Heading',
+    headings: {
+      type: 'object',
+      properties: {
+        fontFamily: { type: 'string' },
+        fontWeight: { type: 'string' },
+        lineHeight: { type: 'string' },
+      },
+    },
+    lineHeight: { type: 'string' },
+    links: {
+      type: 'object',
+      properties: {
+        color: { type: 'string' },
+        hover: { type: 'string' },
+        textDecoration: { type: 'string' },
+        visited: { type: 'string' },
+      },
+    },
+    optimizeSpeed: { type: 'boolean' },
+    rightPanelHeading: 'Heading',
+    smoothing: { type: 'string' },
+  },
+};
+
 const ConfigTheme: NodeType = {
   properties: {
-    breakpoints: { type: 'object', additionalProperties: { type: 'string' } },
-    codeBlock: { type: 'object', additionalProperties: { type: 'string' } },
-    colors: { type: 'object', additionalProperties: { type: 'string' } },
-    components: { type: 'object', additionalProperties: { type: 'string' } },
-    layout: { type: 'object', additionalProperties: { type: 'string' } },
-    logo: { type: 'object', additionalProperties: { type: 'string' } },
-    overrides: { type: 'object', additionalProperties: { type: 'string' } },
-    rightPanel: { type: 'object', additionalProperties: { type: 'string' } },
-    schema: { type: 'object', additionalProperties: { type: 'string' } },
-    shape: { type: 'object', additionalProperties: { type: 'string' } },
-    sidebar: { type: 'object', additionalProperties: { type: 'string' } },
-    spacing: { type: 'object', additionalProperties: { type: 'string' } },
-    typography: { type: 'object', additionalProperties: { type: 'string' } },
+    breakpoints: {
+      type: 'object',
+      properties: {
+        large: { type: 'string' },
+        medium: { type: 'string' },
+        small: { type: 'string' },
+      },
+    },
+    codeBlock: {
+      type: 'object',
+      properties: {
+        backgroundColor: { type: 'string' },
+        borderRadius: { type: 'string' },
+        tokens: {
+          type: 'object',
+          properties: {
+            color: { type: 'string' },
+            fontFamily: { type: 'string' },
+            fontSize: { type: 'string' },
+            lineHeight: { type: 'string' },
+          },
+        },
+      },
+    },
+    colors: 'ThemeColors',
+    components: 'Components',
+    layout: 'Layout',
+    logo: {
+      type: 'object',
+      properties: {
+        gutter: { type: 'string' },
+        maxHeight: { type: 'string' },
+        maxWidth: { type: 'string' },
+      },
+    },
+    overrides: {
+      type: 'object',
+      properties: {
+        DownloadButton: {
+          type: 'object',
+          properties: {
+            custom: { type: 'string' },
+          },
+        },
+        NextSectionButton: {
+          type: 'object',
+          properties: {
+            custom: { type: 'string' },
+          },
+        },
+      },
+    },
+    rightPanel: {
+      type: 'object',
+      properties: {
+        backgroundColor: { type: 'string' },
+        panelBackgroundColor: { type: 'string' },
+        panelControlsBackgroundColor: { type: 'string' },
+        showAtBreakpoint: { type: 'string' },
+        textColor: { type: 'string' },
+        width: { type: 'string' },
+      },
+    },
+    schema: 'Schema',
+    shape: { type: 'object', properties: { borderRadius: { type: 'string' } } },
+    sidebar: 'Sidebar',
+    spacing: {
+      type: 'object',
+      properties: {
+        sectionHorizontal: { type: 'number' },
+        sectionVertical: { type: 'number' },
+        unit: { type: 'number' },
+      },
+    },
+    typography: 'Typography',
     links: { properties: { color: { type: 'string' } } },
     codeSample: { properties: { backgroundColor: { type: 'string' } } },
   },
-}
+};
 
 const ConfigReferenceDocs: NodeType = {
   properties: {
@@ -143,7 +538,7 @@ const ConfigReferenceDocs: NodeType = {
     htmlTemplate: { type: 'string' },
     jsonSampleExpandLevel: { type: 'string' },
     labels: 'ConfigLabels',
-    layout: { type: 'object' },
+    layout: { type: 'string' },
     maxDisplayedEnumValues: { type: 'number' },
     menuToggle: { type: 'boolean' },
     nativeScrollbars: { type: 'boolean' },
@@ -192,4 +587,14 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigLabels,
   ConfigSidebarLinks,
   ConfigTheme,
+  ThemeColors,
+  CommonThemeColors,
+  CommonColorProps,
+  SizeProps,
+  Components,
+  Layout,
+  Schema,
+  Sidebar,
+  Heading,
+  Typography,
 };
