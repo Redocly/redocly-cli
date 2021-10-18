@@ -3,7 +3,7 @@
 exports[`E2E lint no-invalid-version-oas3 1`] = `
 
 validating /openapi.yaml...
-Something went wrong when processing /Users/andriyl/Projects/Redocly/TEST/openapi-cli/__tests__/lint/no-invalid-version-oas3/openapi.yaml:
+Something went wrong when processing /home/runner/work/openapi-cli/openapi-cli/__tests__/lint/no-invalid-version-oas3/openapi.yaml:
 
   - Invalid OpenAPI version: 3.1 
 .
