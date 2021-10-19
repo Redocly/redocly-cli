@@ -32,6 +32,13 @@ paths:
                     - string
                   example:
                     - test
+                two:
+                  description: two
+                  type:
+                    - string
+                  examples:
+                    - test
+                    - 25
       responses:
         '200':
           description: My 200 response

@@ -31,6 +31,14 @@ paths:
                     - integer
                     - string
                   example: test
+                two:
+                  description: two
+                  type:
+                    - integer
+                    - string
+                  examples:
+                    - test
+                    - 25
       responses:
         '200':
           description: My 200 response
