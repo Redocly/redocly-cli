@@ -1,6 +1,7 @@
 import { Oas3RuleSet } from '../../oas-types';
 import { OasSpec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
+import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
 import { OperationParametersUnique } from '../common/operation-parameters-unique';
@@ -38,12 +39,12 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-
 import { Oas3Decorator } from '../../visitors';
 
 export const rules = {
   spec: OasSpec,
   'no-invalid-schema-examples': NoInvalidSchemaExamples,
+  'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
