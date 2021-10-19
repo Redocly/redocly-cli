@@ -6,7 +6,7 @@
 Redocly Workflows integrates with [popular version control services](https://redoc.ly/docs/workflows/sources/) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 :::
 
-As an alternative, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This way, you can:
+To work with the API registry without granting Redocly Workflows access to your repositories, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This way, you can:
 
 - Control the frequency of API definition updates.
 - Benefit from using Redocly Workflows to preview documentation and portal builds.
