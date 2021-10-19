@@ -89,7 +89,7 @@ If you try to execute the `lint` command without entrypoints when your project d
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an [alternative path to a configuration file](#custom-configuration-file).
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an [alternative path to a configuration file](../configuration/configuration-file.mdx).
 
 ```bash
 openapi lint --config=./another/directory/config.yaml
