@@ -89,7 +89,7 @@ If you try to execute the `lint` command without entrypoints when your project d
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an [alternative path to a configuration file](#custom-configuration-file).
 
 ```bash
 openapi lint --config=./another/directory/config.yaml
@@ -157,7 +157,7 @@ openapi lint --max-problems 200
 
 ### Generate ignore file
 
-With this option, you can generate the `.redocly.lint-ignore.yaml` file that suppresses the severity of errors and warnings in the output. You will still receive visual feedback to let you know how many problems were ignored.
+With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output. You will still receive visual feedback to let you know how many problems were ignored.
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
