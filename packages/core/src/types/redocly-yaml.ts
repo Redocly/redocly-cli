@@ -1,4 +1,5 @@
 import { NodeType, listOf } from '.';
+import { omitObjectProps, pickObjectProps } from '../utils';
 
 const ConfigRoot: NodeType = {
   properties: {
@@ -109,58 +110,56 @@ const CommonColorProps: NodeType = {
   },
 };
 
+const BorderThemeColors: NodeType = {
+  properties: pickObjectProps(CommonThemeColors.properties, ['light', 'dark']),
+};
+
+const HttpColors: NodeType = {
+  properties: {
+    basic: { type: 'string' },
+    delete: { type: 'string' },
+    get: { type: 'string' },
+    head: { type: 'string' },
+    link: { type: 'string' },
+    options: { type: 'string' },
+    patch: { type: 'string' },
+    post: { type: 'string' },
+    put: { type: 'string' },
+  },
+};
+
+const ResponseColors: NodeType = {
+  properties: {
+    errors: 'CommonColorProps',
+    info: 'CommonColorProps',
+    redirect: 'CommonColorProps',
+    success: 'CommonColorProps',
+  },
+};
+
+const SecondaryColors: NodeType = {
+  properties: omitObjectProps(CommonThemeColors.properties, ['dark']),
+};
+
+const TextThemeColors: NodeType = {
+  properties: {
+    primary: { type: 'string' },
+    secondary: { type: 'string' },
+    light: { type: 'string' },
+  },
+};
+
 const ThemeColors: NodeType = {
   properties: {
     accent: 'CommonThemeColors',
-    border: {
-      type: 'object',
-      properties: {
-        light: { type: 'string' },
-        dark: { type: 'string' },
-      },
-    },
+    border: 'BorderThemeColors',
     error: 'CommonThemeColors',
-    http: {
-      type: 'object',
-      properties: {
-        basic: { type: 'string' },
-        delete: { type: 'string' },
-        get: { type: 'string' },
-        head: { type: 'string' },
-        link: { type: 'string' },
-        options: { type: 'string' },
-        patch: { type: 'string' },
-        post: { type: 'string' },
-        put: { type: 'string' },
-      },
-    },
+    http: 'HttpColors',
     primary: 'CommonThemeColors',
-    responses: {
-      type: 'object',
-      properties: {
-        errors: 'CommonColorProps',
-        info: 'CommonColorProps',
-        redirect: 'CommonColorProps',
-        success: 'CommonColorProps',
-      },
-    },
-    secondary: {
-      type: 'object',
-      properties: {
-        main: { type: 'string' },
-        light: { type: 'string' },
-        contrastText: { type: 'string' },
-      },
-    },
+    responses: 'ResponseColors',
+    secondary: 'SecondaryColors',
     success: 'CommonThemeColors',
-    text: {
-      type: 'object',
-      properties: {
-        primary: { type: 'string' },
-        secondary: { type: 'string' },
-        light: { type: 'string' },
-      },
-    },
+    text: 'TextThemeColors',
     tonalOffset: { type: 'number' },
     warning: 'CommonThemeColors',
   },
@@ -174,112 +173,118 @@ const SizeProps: NodeType = {
   },
 };
 
+const Sizes: NodeType = {
+  properties: {
+    small: 'SizeProps',
+    medium: 'SizeProps',
+    large: 'SizeProps',
+    xlarge: 'SizeProps',
+  },
+};
+
+const FontConfig: NodeType = {
+  properties: {
+    fontFamily: { type: 'string' },
+    fontSize: { type: 'string' },
+    fontWeight: { type: 'string' },
+    lineHeight: { type: 'string' },
+  },
+};
+
+const ButtonsConfig: NodeType = {
+  properties: {
+    borderRadius: { type: 'string' },
+    hoverStyle: { type: 'string' },
+    fontWeight: { type: 'string' },
+    boxShadow: { type: 'string' },
+    hoverBoxShadow: { type: 'string' },
+    fontFamily: { type: 'string' },
+    sizes: 'Sizes',
+  },
+};
+
+const BadgeFontConfig: NodeType = {
+  properties: pickObjectProps(FontConfig.properties, ['fontSize', 'lineHeight']),
+};
+
+const BadgeSizes: NodeType = {
+  properties: {
+    medium: 'BadgeFontConfig',
+    small: 'BadgeFontConfig',
+  },
+};
+
+const HttpBadgesConfig: NodeType = {
+  properties: {
+    borderRadius: { type: 'string' },
+    color: { type: 'string' },
+    fontFamily: { type: 'string' },
+    fontWeight: { type: 'string' },
+    sizes: 'BadgeSizes',
+  },
+};
+
+const LabelControls: NodeType = {
+  properties: {
+    top: { type: 'string' },
+  },
+};
+
+const Panels: NodeType = {
+  properties: {
+    borderRadius: { type: 'string' },
+  },
+};
+
+const TryItButton: NodeType = {
+  properties: {
+    fullWidth: { type: 'boolean' },
+  },
+};
+
 const Components: NodeType = {
   properties: {
-    buttons: {
-      type: 'object',
-      properties: {
-        borderRadius: { type: 'string' },
-        hoverStyle: { type: 'string' },
-        fontWeight: { type: 'string' },
-        boxShadow: { type: 'string' },
-        hoverBoxShadow: { type: 'string' },
-        fontFamily: { type: 'string' },
-        sizes: {
-          type: 'object',
-          properties: {
-            small: 'SizeProps',
-            medium: 'SizeProps',
-            large: 'SizeProps',
-            xlarge: 'SizeProps',
-          },
-        },
-      },
-    },
-    httpBadges: {
-      type: 'object',
-      properties: {
-        borderRadius: { type: 'string' },
-        color: { type: 'string' },
-        fontFamily: { type: 'string' },
-        fontWeight: { type: 'string' },
-        sizes: {
-          type: 'object',
-          properties: {
-            medium: {
-              type: 'object',
-              properties: {
-                fontSize: { type: 'string' },
-                lineHeight: { type: 'string' },
-              },
-            },
-            small: {
-              type: 'object',
-              properties: {
-                fontSize: { type: 'string' },
-                lineHeight: { type: 'string' },
-              },
-            },
-          },
-        },
-      },
-    },
-    layoutControls: {
-      type: 'object',
-      properties: {
-        top: { type: 'string' },
-      },
-    },
-    panels: {
-      type: 'object',
-      properties: {
-        borderRadius: { type: 'string' },
-      },
-    },
-    tryItButton: {
-      type: 'object',
-      properties: {
-        fullWidth: { type: 'boolean' },
-      },
-    },
-    tryItSendButton: {
-      type: 'object',
-      properties: {
-        fullWidth: { type: 'boolean' },
-      },
-    },
+    buttons: 'ButtonsConfig',
+    httpBadges: 'HttpBadgesConfig',
+    layoutControls: 'LabelControls',
+    panels: 'Panels',
+    tryItButton: 'TryItButton',
+    tryItSendButton: 'TryItButton',
+  },
+};
+
+const Breakpoints: NodeType = {
+  properties: {
+    small: { type: 'string' },
+    medium: { type: 'string' },
+    large: { type: 'string' },
+  },
+};
+
+const StackedConfig: NodeType = {
+  properties: {
+    maxWidth: 'Breakpoints',
+  },
+};
+
+const ThreePanelConfig: NodeType = {
+  properties: {
+    maxWidth: 'Breakpoints',
   },
 };
 
 const Layout: NodeType = {
   properties: {
     showDarkRightPanel: { type: 'boolean' },
-    stacked: {
-      type: 'object',
-      properties: {
-        maxWidth: {
-          type: 'object',
-          properties: {
-            small: { type: 'string' },
-            medium: { type: 'string' },
-            large: { type: 'string' },
-          },
-        },
-      },
-    },
-    'three-panel': {
-      type: 'object',
-      properties: {
-        maxWidth: {
-          type: 'object',
-          properties: {
-            small: { type: 'string' },
-            medium: { type: 'string' },
-            large: { type: 'string' },
-          },
-        },
-      },
-    },
+    stacked: 'StackedConfig',
+    'three-panel': 'ThreePanelConfig',
+  },
+};
+
+const SchemaColorsConfig: NodeType = {
+  properties: {
+    backgroundColor: { type: 'string' },
+    border: { type: 'string' },
   },
 };
 
@@ -288,21 +293,9 @@ const Schema: NodeType = {
     breakFieldNames: { type: 'boolean' },
     caretColor: { type: 'string' },
     caretSize: { type: 'string' },
-    constraints: {
-      type: 'object',
-      properties: {
-        backgroundColor: { type: 'string' },
-        border: { type: 'string' },
-      },
-    },
+    constraints: 'SchemaColorsConfig',
     defaultDetailsWidth: { type: 'string' },
-    examples: {
-      type: 'object',
-      properties: {
-        backgroundColor: { type: 'string' },
-        border: { type: 'string' },
-      },
-    },
+    examples: 'SchemaColorsConfig',
     labelsTextSize: { type: 'string' },
     linesColor: { type: 'string' },
     nestedBackground: { type: 'string' },
@@ -310,6 +303,29 @@ const Schema: NodeType = {
     requireLabelColor: { type: 'string' },
     typeNameColor: { type: 'string' },
     typeTitleColor: { type: 'string' },
+  },
+};
+
+const GroupItemsConfig: NodeType = {
+  properties: {
+    subItemsColor: { type: 'string' },
+    textTransform: { type: 'string' },
+    fontWeight: { type: 'string' },
+  },
+};
+
+const Level1Items: NodeType = {
+  properties: pickObjectProps(GroupItemsConfig.properties, ['textTransform']),
+};
+
+const SpacingConfig: NodeType = {
+  properties: {
+    unit: { type: 'number' },
+    paddingHorizontal: { type: 'string' },
+    paddingVertical: { type: 'string' },
+    offsetTop: { type: 'string' },
+    offsetLeft: { type: 'string' },
+    offsetNesting: { type: 'string' },
   },
 };
 
@@ -324,34 +340,12 @@ const Sidebar: NodeType = {
     caretSize: { type: 'string' },
     fontFamily: { type: 'string' },
     fontSize: { type: 'string' },
-    groupItems: {
-      type: 'object',
-      properties: {
-        subItemsColor: { type: 'string' },
-        textTransform: { type: 'string' },
-        fontWeight: { type: 'string' },
-      },
-    },
-    level1items: {
-      type: 'object',
-      properties: {
-        textTransform: { type: 'string' },
-      },
-    },
+    groupItems: 'GroupItemsConfig',
+    level1items: 'Level1Items',
     rightLineColor: { type: 'string' },
     separatorLabelColor: { type: 'string' },
     showAtBreakpoint: { type: 'string' },
-    spacing: {
-      type: 'object',
-      properties: {
-        unit: { type: 'number' },
-        paddingHorizontal: { type: 'string' },
-        paddingVertical: { type: 'string' },
-        offsetTop: { type: 'string' },
-        offsetLeft: { type: 'string' },
-        offsetNesting: { type: 'string' },
-      },
-    },
+    spacing: 'SpacingConfig',
     textColor: { type: 'string' },
     width: { type: 'string' },
   },
@@ -368,30 +362,33 @@ const Heading: NodeType = {
   },
 };
 
+const CodeConfig: NodeType = {
+  properties: {
+    ...FontConfig.properties,
+    backgroundColor: { type: 'string' },
+    color: { type: 'string' },
+    wordBreak: { type: 'string' },
+    wrap: { type: 'boolean' },
+  },
+};
+
+const HeadingsConfig: NodeType = {
+  properties: omitObjectProps(FontConfig.properties, ['fontSize']),
+};
+
+const LinksConfig: NodeType = {
+  properties: {
+    color: { type: 'string' },
+    hover: { type: 'string' },
+    textDecoration: { type: 'string' },
+    visited: { type: 'string' },
+  },
+};
+
 const Typography: NodeType = {
   properties: {
-    code: {
-      type: 'object',
-      properties: {
-        backgroundColor: { type: 'string' },
-        color: { type: 'string' },
-        fontFamily: { type: 'string' },
-        fontSize: { type: 'string' },
-        fontWeight: { type: 'string' },
-        lineHeight: { type: 'string' },
-        wordBreak: { type: 'string' },
-        wrap: { type: 'boolean' },
-      },
-    },
-    fieldName: {
-      type: 'object',
-      properties: {
-        fontFamily: { type: 'string' },
-        fontSize: { type: 'string' },
-        fontWeight: { type: 'string' },
-        lineHeight: { type: 'string' },
-      },
-    },
+    code: 'CodeConfig',
+    fieldName: 'FontConfig',
     fontFamily: { type: 'string' },
     fontSize: { type: 'string' },
     fontWeightBold: { type: 'string' },
@@ -400,109 +397,98 @@ const Typography: NodeType = {
     heading1: 'Heading',
     heading2: 'Heading',
     heading3: 'Heading',
-    headings: {
-      type: 'object',
-      properties: {
-        fontFamily: { type: 'string' },
-        fontWeight: { type: 'string' },
-        lineHeight: { type: 'string' },
-      },
-    },
+    headings: 'HeadingsConfig',
     lineHeight: { type: 'string' },
-    links: {
-      type: 'object',
-      properties: {
-        color: { type: 'string' },
-        hover: { type: 'string' },
-        textDecoration: { type: 'string' },
-        visited: { type: 'string' },
-      },
-    },
+    links: 'LinksConfig',
     optimizeSpeed: { type: 'boolean' },
     rightPanelHeading: 'Heading',
     smoothing: { type: 'string' },
   },
 };
 
+const TokenProps: NodeType = {
+  properties: {
+    color: { type: 'string' },
+    ...omitObjectProps(FontConfig.properties, ['fontWeight']),
+  },
+};
+
+const CodeBlock: NodeType = {
+  properties: {
+    backgroundColor: { type: 'string' },
+    borderRadius: { type: 'string' },
+    tokens: 'TokenProps',
+  },
+};
+
+const Logo: NodeType = {
+  properties: {
+    gutter: { type: 'string' },
+    maxHeight: { type: 'string' },
+    maxWidth: { type: 'string' },
+  },
+};
+
+const ButtonOverrides: NodeType = {
+  properties: {
+    custom: { type: 'string' },
+  },
+};
+
+const Overrides: NodeType = {
+  properties: {
+    DownloadButton: 'ButtonOverrides',
+    NextSectionButton: 'ButtonOverrides',
+  },
+};
+
+const RightPanel: NodeType = {
+  properties: {
+    backgroundColor: { type: 'string' },
+    panelBackgroundColor: { type: 'string' },
+    panelControlsBackgroundColor: { type: 'string' },
+    showAtBreakpoint: { type: 'string' },
+    textColor: { type: 'string' },
+    width: { type: 'string' },
+  },
+};
+
+const Shape: NodeType = {
+  properties: { borderRadius: { type: 'string' } },
+};
+
+const ThemeSpacing: NodeType = {
+  properties: {
+    sectionHorizontal: { type: 'number' },
+    sectionVertical: { type: 'number' },
+    unit: { type: 'number' },
+  },
+};
+
 const ConfigTheme: NodeType = {
   properties: {
-    breakpoints: {
-      type: 'object',
-      properties: {
-        large: { type: 'string' },
-        medium: { type: 'string' },
-        small: { type: 'string' },
-      },
-    },
-    codeBlock: {
-      type: 'object',
-      properties: {
-        backgroundColor: { type: 'string' },
-        borderRadius: { type: 'string' },
-        tokens: {
-          type: 'object',
-          properties: {
-            color: { type: 'string' },
-            fontFamily: { type: 'string' },
-            fontSize: { type: 'string' },
-            lineHeight: { type: 'string' },
-          },
-        },
-      },
-    },
+    breakpoints: 'Breakpoints',
+    codeBlock: 'CodeBlock',
     colors: 'ThemeColors',
     components: 'Components',
     layout: 'Layout',
-    logo: {
-      type: 'object',
-      properties: {
-        gutter: { type: 'string' },
-        maxHeight: { type: 'string' },
-        maxWidth: { type: 'string' },
-      },
-    },
-    overrides: {
-      type: 'object',
-      properties: {
-        DownloadButton: {
-          type: 'object',
-          properties: {
-            custom: { type: 'string' },
-          },
-        },
-        NextSectionButton: {
-          type: 'object',
-          properties: {
-            custom: { type: 'string' },
-          },
-        },
-      },
-    },
-    rightPanel: {
-      type: 'object',
-      properties: {
-        backgroundColor: { type: 'string' },
-        panelBackgroundColor: { type: 'string' },
-        panelControlsBackgroundColor: { type: 'string' },
-        showAtBreakpoint: { type: 'string' },
-        textColor: { type: 'string' },
-        width: { type: 'string' },
-      },
-    },
+    logo: 'Logo',
+    overrides: 'Overrides',
+    rightPanel: 'RightPanel',
     schema: 'Schema',
-    shape: { type: 'object', properties: { borderRadius: { type: 'string' } } },
+    shape: 'Shape',
     sidebar: 'Sidebar',
-    spacing: {
-      type: 'object',
-      properties: {
-        sectionHorizontal: { type: 'number' },
-        sectionVertical: { type: 'number' },
-        unit: { type: 'number' },
-      },
-    },
+    spacing: 'ThemeSpacing',
     typography: 'Typography',
     links: { properties: { color: { type: 'string' } } },
     codeSample: { properties: { backgroundColor: { type: 'string' } } },
+  },
+};
+
+const GenerateCodeSamples: NodeType = {
+  properties: {
+    skipOptionalParameters: { type: 'boolean' },
+    languages: listOf('ConfigLanguage'),
   },
 };
 
@@ -519,12 +505,7 @@ const ConfigReferenceDocs: NodeType = {
     expandDefaultServerVariables: { type: 'boolean' },
     expandResponses: { type: 'string' },
     expandSingleSchemaField: { type: 'boolean' },
-    generateCodeSamples: {
-      properties: {
-        skipOptionalParameters: { type: 'boolean' },
-        languages: listOf('ConfigLanguage'),
-      },
-    },
+    generateCodeSamples: 'GenerateCodeSamples',
     generatedPayloadSamplesMaxDepth: { type: 'number' },
     hideDownloadButton: { type: 'boolean' },
     hideHostname: { type: 'boolean' },
@@ -589,8 +570,41 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigTheme,
   ThemeColors,
   CommonThemeColors,
+  BorderThemeColors,
+  HttpColors,
+  ResponseColors,
+  SecondaryColors,
+  TextThemeColors,
+  Sizes,
+  ButtonsConfig,
   CommonColorProps,
+  BadgeFontConfig,
+  BadgeSizes,
+  HttpBadgesConfig,
+  LabelControls,
+  Panels,
+  TryItButton,
+  Breakpoints,
+  StackedConfig,
+  ThreePanelConfig,
+  SchemaColorsConfig,
   SizeProps,
+  Level1Items,
+  SpacingConfig,
+  FontConfig,
+  CodeConfig,
+  HeadingsConfig,
+  LinksConfig,
+  TokenProps,
+  CodeBlock,
+  Logo,
+  ButtonOverrides,
+  Overrides,
+  RightPanel,
+  Shape,
+  ThemeSpacing,
+  GenerateCodeSamples,
+  GroupItemsConfig,
   Components,
   Layout,
   Schema,

@@ -65,3 +65,19 @@ export function match(url: string, pattern: string) {
   }
   return minimatch(url, pattern);
 }
+
+export function pickObjectProps<T extends Record<string, unknown>>(
+  object: T,
+  keys: Array<string>,
+): T {
+  return Object.fromEntries(
+    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]]),
+  ) as T;
+}
+
+export function omitObjectProps<T extends Record<string, unknown>>(
+  object: T,
+  keys: Array<string>,
+): T {
+  return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
+}
