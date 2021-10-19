@@ -87,6 +87,19 @@ describe('lint', () => {
           "severity": "error",
           "suggest": Array [],
         },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/referenceDocs/layout",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`object\`.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
       ]
     `);
   });
