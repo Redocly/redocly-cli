@@ -193,12 +193,11 @@ const FontConfig: NodeType = {
 
 const ButtonsConfig: NodeType = {
   properties: {
+    ...omitObjectProps(FontConfig.properties, ['fontSize', 'lineHeight']),
     borderRadius: { type: 'string' },
     hoverStyle: { type: 'string' },
-    fontWeight: { type: 'string' },
     boxShadow: { type: 'string' },
     hoverBoxShadow: { type: 'string' },
-    fontFamily: { type: 'string' },
     sizes: 'Sizes',
   },
 };
@@ -216,10 +215,9 @@ const BadgeSizes: NodeType = {
 
 const HttpBadgesConfig: NodeType = {
   properties: {
+    ...omitObjectProps(FontConfig.properties, ['fontSize', 'lineHeight']),
     borderRadius: { type: 'string' },
     color: { type: 'string' },
-    fontFamily: { type: 'string' },
-    fontWeight: { type: 'string' },
     sizes: 'BadgeSizes',
   },
 };
@@ -331,6 +329,7 @@ const SpacingConfig: NodeType = {
 
 const Sidebar: NodeType = {
   properties: {
+    ...omitObjectProps(FontConfig.properties, ['fontWeight', 'lineHeight']),
     activeBgColor: { type: 'string' },
     activeTextColor: { type: 'string' },
     backgroundColor: { type: 'string' },
@@ -338,8 +337,6 @@ const Sidebar: NodeType = {
     breakPath: { type: 'boolean' },
     caretColor: { type: 'string' },
     caretSize: { type: 'string' },
-    fontFamily: { type: 'string' },
-    fontSize: { type: 'string' },
     groupItems: 'GroupItemsConfig',
     level1items: 'Level1Items',
     rightLineColor: { type: 'string' },
@@ -353,11 +350,8 @@ const Sidebar: NodeType = {
 
 const Heading: NodeType = {
   properties: {
+    ...FontConfig.properties,
     color: { type: 'string' },
-    fontFamily: { type: 'string' },
-    fontSize: { type: 'string' },
-    fontWeight: { type: 'string' },
-    lineHeight: { type: 'string' },
     transform: { type: 'string' },
   },
 };
@@ -389,8 +383,7 @@ const Typography: NodeType = {
   properties: {
     code: 'CodeConfig',
     fieldName: 'FontConfig',
-    fontFamily: { type: 'string' },
-    fontSize: { type: 'string' },
+    ...pickObjectProps(FontConfig.properties, ['fontSize', 'fontFamily']),
     fontWeightBold: { type: 'string' },
     fontWeightLight: { type: 'string' },
     fontWeightRegular: { type: 'string' },
