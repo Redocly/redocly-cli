@@ -24,22 +24,22 @@ openapi lint --version
 
 Option                   | Type      | Required    | Default     | Description
 -------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options.
+`entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
 `--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
-`--extends`              | `array`   | no           | -           | [Extend a specific lint configuration](#extend-lint-configuration) (defaults or config file settings).
+`--extends`              | `array`   | no           | -           | [Extend a specific lint configuration](#extend-lint-configuration) (defaults or config file settings)
 `--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
 `--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
 `--help`                 | `boolean` | no           | -           | Show help
 `--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
-`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
-`--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
+`--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
 `--version`              | `boolean` | no           | -           | Show version number
 
 ## Examples
 
 ### Entrypoints
 
-The `lint` command behaves differently depending on how you pass entrypoints to it and whether the [configuration file](#custom-configuration-file) exists. There are the following options:
+The `lint` command behaves differently depending on how you pass entrypoints to it and whether the [configuration file](#custom-configuration-file) exists. 
 
 #### Pass entrypoints directly
 
@@ -47,13 +47,13 @@ The `lint` command behaves differently depending on how you pass entrypoints to 
 openapi lint openapi/openapi.yaml
 ```
 
-In this case, `lint` will validate the definition(s) that was(were) passed to the command. The configuration file is ignored.
+In this case, `lint` will validate the definition(s) passed to the command. The configuration file is ignored.
 
 The `entrypoints` argument can also use any glob format supported by your file system. For example, `openapi lint ./root-documents/*.yaml`.
 
 #### Pass entrypoints via configuration file
 
-Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
+Instead of full paths, you can use aliases assigned in the `apiDefinitions` section of your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
 
 ```bash command
 openapi lint petstore
@@ -81,7 +81,7 @@ apiDefinitions:
   sandbox: ./openapi/sandbox.yaml
 ```
 
-In this case, if no API definitions are specified, `lint` will validates all entrypoints listed in the `apiDefinitions` within your `.redocly.yaml` file. The presence of the `.redocly.yaml` configuration file is mandatory.
+In this case, if no API definitions are specified, `lint` validates all entrypoints listed in `apiDefinitions` within your `.redocly.yaml` file. The presence of the `.redocly.yaml` configuration file is mandatory.
 
 :::warning Important
 If you try to execute the `lint` command without entrypoints when your project doesn't have any configuration files (either `.redocly.yaml` or a [custom one](#custom-configuration-file)), the `lint` command will display an error.
@@ -97,7 +97,7 @@ openapi lint --config=./another/directory/config.yaml
 
 ### Extend lint configuration
 
-`--extends` option allows you to extend the existing lint configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the value is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one including particular rules that cover your specific needs.
+The `--extends` option allows you to extend the existing lint configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the value is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one including particular rules that cover your specific needs.
 
 ### Format
 
