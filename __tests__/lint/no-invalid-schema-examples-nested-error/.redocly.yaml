@@ -3,5 +3,5 @@ apiDefinitions:
 
 lint:
   rules:
-    schema-example-type: error
+    no-invalid-schema-examples: error
   extends: []

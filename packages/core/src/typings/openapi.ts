@@ -150,6 +150,10 @@ export interface Oas3Schema {
   xml?: Oas3Xml;
 }
 
+export interface Oas3_1Schema extends Oas3Schema {
+  examples?: any[];
+}
+
 export interface Oas3Discriminator {
   propertyName: string;
   mapping?: { [name: string]: string };

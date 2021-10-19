@@ -1,21 +1,30 @@
 import { oasTypeOf } from '../utils';
 import { UserContext } from '../../walk';
 import { validateJsonSchema } from '../ajv';
-import { Oas3Schema } from '../../typings/openapi';
+import { Oas3_1Schema } from '../../typings/openapi';
 import { Location } from '../../ref-utils';
 
-export const SchemaExampleType: any = () => {
+export const NoInvalidSchemaExamples: any = () => {
   return {
     Schema: {
-      leave(schema: Oas3Schema, { report, location, resolve }: UserContext) {
+      leave(schema: Oas3_1Schema, { report, location, resolve }: UserContext) {
+        if (schema.examples) {
+          for (const example of schema.examples) {
+            validateExample(example, location.child('examples'));
+          }
+        }
         if (schema.example) {
+          validateExample(schema.example, location.child('example'));
+        }
+
+        function validateExample(example: any, dataLoc: Location) {
           try {
-            const propValueType = oasTypeOf(schema.example);
+            const propValueType = oasTypeOf(example);
             const { valid, errors } = validateJsonSchema(
-              schema.example,
+              example,
               schema,
               location.child('schema'),
-              location.child('example').pointer,
+              dataLoc.pointer,
               resolve,
               false
             );
@@ -24,7 +33,7 @@ export const SchemaExampleType: any = () => {
                 report({
                   message: `Example value must conform to the schema: ${error.message} but got \`${propValueType}\`.`,
                   location: {
-                    ...new Location(location.child('example').source, error.instancePath),
+                    ...new Location(dataLoc.source, error.instancePath),
                   },
                   from: location,
                   suggest: error.suggest,
@@ -34,7 +43,7 @@ export const SchemaExampleType: any = () => {
           } catch(e) {
             report({
               message: `Schema example validation errored: ${e.message}.`,
-              location: location.child('schema'),
+              location: dataLoc,
               from: location
             });
           }
