@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
+import * as pluralize from 'pluralize';
 
 import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
@@ -80,4 +81,8 @@ export function omitObjectProps<T extends Record<string, unknown>>(
   keys: Array<string>,
 ): T {
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
+}
+
+export function isPathPlural(path: string) {
+  return !pluralize.isSingular(path);
 }

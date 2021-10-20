@@ -29,6 +29,7 @@ import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { NoPathSegmentPlural } from '../common/no-path-segment-plural';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -61,6 +62,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
+  'no-path-segment-plural': NoPathSegmentPlural as Oas2Rule,
 };
 
 export const preprocessors = {};
