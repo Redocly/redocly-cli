@@ -37,7 +37,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-
+import { PathExcludesPattern } from '../common/path-excludes-pattern';
 import { Oas3Decorator } from '../../visitors';
 
 export const rules = {
@@ -78,7 +78,8 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers
+  'no-servers-empty-enum': NoEmptyEnumServers,
+  'path-excludes-pattern': PathExcludesPattern,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

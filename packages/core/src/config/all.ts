@@ -29,6 +29,7 @@ export default {
     'no-enum-type-mismatch': 'error',
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
+    'path-excludes-pattern': 'error',
     spec: 'error',
   },
   oas3_0Rules: {
