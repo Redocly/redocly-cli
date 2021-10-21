@@ -83,6 +83,6 @@ export function omitObjectProps<T extends Record<string, unknown>>(
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
 
-export function isPathPlural(path: string) {
-  return !pluralize.isSingular(path);
+export function isSingular(path: string) {
+  return pluralize.isSingular(path);
 }

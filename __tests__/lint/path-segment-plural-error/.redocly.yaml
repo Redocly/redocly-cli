@@ -3,5 +3,5 @@ apiDefinitions:
 
 lint:
   rules:
-    no-path-segment-plural: error
+    path-segment-plural: error
   extends: []

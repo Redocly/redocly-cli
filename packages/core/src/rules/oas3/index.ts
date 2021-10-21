@@ -37,7 +37,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-import { NoPathSegmentPlural } from '../common/no-path-segment-plural';
+import { PathSegmentPlural } from '../common/path-segment-plural';
 import { Oas3Decorator } from '../../visitors';
 
 export const rules = {
@@ -79,7 +79,7 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
-  'no-path-segment-plural': NoPathSegmentPlural,
+  'path-segment-plural': PathSegmentPlural,
 
 } as Oas3RuleSet;
 

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint no-path-segment-plural-rule 1`] = `
+exports[`E2E lint path-segment-plural 1`] = `
 
 validating /openapi.yaml...
 /openapi.yaml: validated in <test>ms

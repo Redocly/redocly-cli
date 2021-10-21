@@ -1,7 +1,0 @@
-apiDefinitions:
-  main: ./openapi.yaml
-
-lint:
-  rules:
-    no-path-segment-plural: error
-  extends: []
