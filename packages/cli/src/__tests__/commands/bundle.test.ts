@@ -1,4 +1,4 @@
-import { lint, bundle } from '@redocly/openapi-core';
+import { lint, bundle, getTotals } from '@redocly/openapi-core';
 
 import { handleBundle } from '../../commands/bundle';
 import SpyInstance = jest.SpyInstance;
@@ -17,6 +17,7 @@ describe('bundle', () => {
   afterEach(() => {
     (lint as jest.Mock).mockClear();
     (bundle as jest.Mock).mockClear();
+    (getTotals as jest.Mock).mockClear();
   });
 
   it('bundles definitions w/o linting', async () => {
@@ -83,8 +84,14 @@ describe('bundle', () => {
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
-  it.skip('exits with code 1 when bundles definitions w/linting w/errors', async () => {
-    const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
+  it('exits with code 1 when bundles definitions w/linting w/errors', async () => {
+    const entrypoints = ['foo.yaml'];
+
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 1,
+      warnings: 0,
+      ignored: 0
+    });
 
     await handleBundle(
       {
@@ -96,6 +103,8 @@ describe('bundle', () => {
       '1.0.0',
     );
 
+    expect(lint).toBeCalledTimes(entrypoints.length);
+    expect(getTotals).toBeCalledTimes(entrypoints.length * 2);
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
