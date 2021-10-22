@@ -39,6 +39,7 @@ import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
 
 import { Oas3Decorator } from '../../visitors';
+import { TagDescriptionOverride } from '../common/tag-description-override';
 
 export const rules = {
   spec: OasSpec,
@@ -85,4 +86,5 @@ export const preprocessors = {};
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,
+  'tag-description-override': TagDescriptionOverride as Oas3Decorator,
 };
