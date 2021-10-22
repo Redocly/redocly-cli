@@ -4,6 +4,22 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.63 (2021-10-12)
+
+### Features
+
+- Upgraded the `js-yaml` package from v.3 to v.4 with YAML 1.2 support. This resolves issues with parsing timestamps and example strings with leading zeros in YAML.
+
+----
+
+## 1.0.0-beta.62 (2021-09-30)
+
+### Fixes
+
+- Resolved an issue with the `--max-problems` option that was not working with the `bundle` command.
+
+----
+
 ## 1.0.0-beta.61 (2021-09-21)
 
 ### Features

@@ -53,7 +53,7 @@ export async function handleBundle(
         totals.warnings += fileLintTotals.warnings;
         totals.ignored += fileLintTotals.ignored;
 
-        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version, maxProblems });
+        formatProblems(results, { format: argv.format || 'codeframe', totals: fileLintTotals, version, maxProblems });
         printLintTotals(fileLintTotals, 2);
       }
 
