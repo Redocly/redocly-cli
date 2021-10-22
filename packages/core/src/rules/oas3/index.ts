@@ -1,6 +1,7 @@
 import { Oas3RuleSet } from '../../oas-types';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
+import { Operation4xxResponse } from '../common/operation-4xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
 import { OperationParametersUnique } from '../common/operation-parameters-unique';
 import { PathParamsDefined } from '../common/path-params-defined';
@@ -47,6 +48,7 @@ export const rules = {
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,
   'operation-2xx-response': Operation2xxResponse,
+  'operation-4xx-response': Operation4xxResponse,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
