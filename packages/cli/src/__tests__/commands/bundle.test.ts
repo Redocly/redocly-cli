@@ -104,7 +104,6 @@ describe('bundle', () => {
     );
 
     expect(lint).toBeCalledTimes(entrypoints.length);
-    expect(getTotals).toBeCalledTimes(entrypoints.length * 2);
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
