@@ -47,8 +47,12 @@ export async function handleBundle(
           ref: entrypoint,
           config,
         });
-
         const fileLintTotals = getTotals(results);
+
+        totals.errors += fileLintTotals.errors;
+        totals.warnings += fileLintTotals.warnings;
+        totals.ignored += fileLintTotals.ignored;
+
         formatProblems(results, { format: 'stylish', totals: fileLintTotals, version, maxProblems });
         printLintTotals(fileLintTotals, 2);
       }
