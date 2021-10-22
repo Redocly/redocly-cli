@@ -22,7 +22,7 @@ The contents of the YAML are according to the following structure:
 
 ```yaml
 apiDefinitions:
-# a set of named keys and values of entrypoints to OpenAPI 3 definitions.
+# a set of named keys and values of entrypoints to OpenAPI definitions.
 # example
   petstore: ./openapi/openapi.yaml
   caretaker: ./openapi/caretaker.yaml
@@ -49,12 +49,12 @@ This section is optional.
 The validation command uses the `apiDefinitions` for providing shortcuts to referencing the definition.
 
 Based on the example `.redocly.yaml` file above, here is an example usage:
-```
+```shell
 openapi-cli lint petstore caretaker
 ```
 
 In addition, it allows for running the command which will apply to all APIs defined:
-```
+```shell
 openapi-cli lint
 ```
 

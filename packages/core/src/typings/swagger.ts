@@ -1,5 +1,4 @@
 import { Referenced } from './openapi';
-//@ts-ignore
 import { Schema } from 'js-yaml';
 
 export interface Oas2Definition {

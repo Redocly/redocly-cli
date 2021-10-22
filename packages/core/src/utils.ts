@@ -1,8 +1,11 @@
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
+
+import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
+
+export { parseYaml, stringifyYaml } from './js-yaml';
 
 export type StackFrame<T> = {
   prev: StackFrame<T> | null;
@@ -23,7 +26,8 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
 export async function loadYaml(filename: string) {
   const contents = await fs.promises.readFile(filename, 'utf-8');
-  return yaml.safeLoad(contents);
+
+  return parseYaml(contents);
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
@@ -60,4 +64,20 @@ export function match(url: string, pattern: string) {
     url = url.replace(/^https?:\/\//, '');
   }
   return minimatch(url, pattern);
+}
+
+export function pickObjectProps<T extends Record<string, unknown>>(
+  object: T,
+  keys: Array<string>,
+): T {
+  return Object.fromEntries(
+    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]]),
+  ) as T;
+}
+
+export function omitObjectProps<T extends Record<string, unknown>>(
+  object: T,
+  keys: Array<string>,
+): T {
+  return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }

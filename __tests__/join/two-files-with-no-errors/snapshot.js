@@ -9,9 +9,9 @@ info:
   description: Information about API
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: https://opensource.org/licenses/MIT
 servers:
-  - url: 'https://redocly.com/v1'
+  - url: https://redocly.com/v1
 paths:
   /pets:
     get:
@@ -30,7 +30,7 @@ paths:
           description: example description
       tags:
         - foo_other
-  '/pets/{petId}':
+  /pets/{petId}:
     post:
       summary: summary example
       operationId: exampleBar

@@ -29,9 +29,11 @@ export {
   YamlParseError,
   makeDocumentFromString,
 } from './resolve';
+export { parseYaml, stringifyYaml } from './js-yaml';
 export { unescapePointer } from './ref-utils';
 export { detectOpenAPI, OasMajorVersion, openAPIMajor, OasVersion } from './oas-types';
 export { normalizeVisitors } from './visitors';
+
 export {
   WalkContext,
   walkDocument,
