@@ -24,7 +24,7 @@ If a plugin is referenced in the `.redocly.yaml` file, the `push` command will r
 Make sure that each plugin has all the required files in its folder, otherwise they will not be uploaded.
 :::
 
-By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically.
+By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. Proceed to the [Create a new API with push](#create-a-new-api-with-push) section for more details on how to create an API manually.
 
 :::warning
 Note that only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources will fail with an error.
@@ -39,14 +39,29 @@ Before proceeding with the `push` command, ensure the following prerequisites ar
 
 ## Authentication
 
-To authenticate to the API registry, use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**).
+To authenticate to the API registry, you can use several approaches:
 
-Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
+* use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
-- [Travis CI documentation](https://docs.travis-ci.com/user/environment-variables/)
-- [CircleCI documentation](https://circleci.com/docs/2.0/env-vars/)
-- [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
-- [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
+  ```bash
+  REDOCLY_AUTHORIZATION=yourPersonalApiKey openapi push ...
+  ```
+
+  Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
+
+  - [Travis CI documentation](https://docs.travis-ci.com/user/environment-variables/)
+  - [CircleCI documentation](https://circleci.com/docs/2.0/env-vars/)
+  - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
+  - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
+
+* use the [`login` command](login.md). In this case, the command will look as follows:
+
+  ```bash
+  openapi login
+  opanapi push ...
+  ```
+
+  Refer to the [`login` command documentation](login.md) for more details.
 
 ## Usage
 
