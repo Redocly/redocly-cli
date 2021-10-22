@@ -1,0 +1,7 @@
+apiDefinitions:
+  main: ./main.yaml
+
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./my-best-work.md
