@@ -1,0 +1,9 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        UpdatePet: ./update-pet-operation-description.md
+        CreateUser: ./create-user-operation-description.md
