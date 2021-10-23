@@ -68,6 +68,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "clearMocks": true,
     "collectCoverageFrom": [
       "packages/**/*.ts",
       "!packages/**/__tests__/**/*",

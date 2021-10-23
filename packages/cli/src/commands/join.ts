@@ -421,7 +421,7 @@ function formatTags(tags: string[]) {
   return tags.map((tag: string) => ({ name: tag }));
 }
 
-function addComponentsPrefix(description: string, componentsPrefix: string) {
+export function addComponentsPrefix(description: string, componentsPrefix: string) {
   return description.replace(/"(#\/components\/.*?)"/g, (match) => {
     const componentName = path.basename(match);
     return match.replace(componentName, addPrefix(componentName, componentsPrefix));
@@ -435,7 +435,7 @@ function addSecurityPrefix(security: any, componentsPrefix: string) {
   }) : security;
 }
 
-function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
+export function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
   if (!info) exitWithError('Info section is not found in specification. \n');
   if (!info[prefixArg]) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`);

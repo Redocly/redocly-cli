@@ -1,14 +1,28 @@
-import { handleJoin } from '../../commands/join';
+import { handleJoin, getInfoPrefix } from '../../commands/join';
+import { exitWithError } from '../../utils';
+jest.mock('../../utils');
 
 describe('join', () => {
-	it('should throw error when only one entrypoint is provided', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation();
-    const mockStdErr = jest.spyOn(process.stderr, 'write').mockImplementation();
+  it('should throw error when only one entrypoint is provided', async () => {
+    try {
+      const entrypoints = ['foo.yaml'];
+      await handleJoin({ entrypoints }, '1.0.0');
+    } catch {}
+    expect(exitWithError).toHaveBeenCalledWith(
+      expect.stringContaining('At least 2 entrypoints should be provided.'),
+    );
+  });
 
-    const entrypoints = ['foo.yaml'];
-    await handleJoin({ entrypoints }, '1.0.0');
+  describe('get info section prefix', () => {
+    it('should return empty string if prefix is not provided', () => {
+      const result = getInfoPrefix(null, undefined, '');
+      expect(result).toEqual('');
+    });
 
-    expect(mockStdErr).toHaveBeenCalledWith(expect.stringContaining('At least 2 entrypoints should be provided.'));
-    expect(mockExit).toHaveBeenCalledWith(1);
+    it('should exit with error if info section is not found', () => {
+      const errorMessage = 'Info section is not found in specification';
+      expect(() => getInfoPrefix(null, 'prefix', '')).toThrow(`process.exit: ${errorMessage}`);
+      expect(exitWithError).toHaveBeenCalledWith(expect.stringContaining(errorMessage));
+    });
   });
 });
