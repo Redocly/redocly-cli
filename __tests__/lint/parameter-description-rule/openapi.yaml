@@ -32,3 +32,5 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: An error response

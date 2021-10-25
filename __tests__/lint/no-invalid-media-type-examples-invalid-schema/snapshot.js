@@ -7,11 +7,12 @@ validating /openapi.yaml...
 
 Example validation errored: "nullable" cannot be used without "type".
 
-25 | application/json:
-26 |   schema:
-27 |     $ref: "#/components/schemas/Test"
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-28 |   example: {}
+25 |     application/json:
+26 |       schema:
+27 |         $ref: "#/components/schemas/Test"
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 |       example: {}
+29 | '400':
 
 referenced from openapi.yaml:26:15
 
