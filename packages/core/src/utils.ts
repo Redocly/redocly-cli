@@ -83,13 +83,5 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 }
 
 export function readFileSync(filePath: string) {
-  return fs.readFileSync(filePath, 'utf-8')
-}
-
-export function objKeysToLowerCase<T>(object: { [key: string]: T }): { [key: string]: T } {
-  const result: { [key: string]: T } = {};
-  for (const [key, value] of Object.entries(object)) {
-    result[key.toLowerCase()] = value;
-  }
-  return result;
+  return fs.readFileSync(filePath, 'utf-8');
 }

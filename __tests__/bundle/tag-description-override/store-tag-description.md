@@ -1,1 +1,1 @@
-desc: store tag description
+Create a **store** tag description.

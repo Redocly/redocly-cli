@@ -1,1 +1,1 @@
-desc: pat tag description
+Create a **pat** tag description.

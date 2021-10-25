@@ -5,5 +5,5 @@ lint:
   decorators:
     tag-description-override:
       tagNames:
-        Pet: ./pet-tag-description.md
-        Store: ./store-tag-description.md
+        pet: ./pet-tag-description.md
+        store: ./store-tag-description.md

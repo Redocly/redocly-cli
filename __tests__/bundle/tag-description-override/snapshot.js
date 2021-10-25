@@ -19,10 +19,10 @@ info:
 tags:
   - name: pet
     description: |
-      desc: pat tag description
+      Create a **pat** tag description.
   - name: store
     description: |
-      desc: store tag description
+      Create a **store** tag description.
   - name: user
     description: Operations about user
   - name: pet_model
