@@ -1,4 +1,5 @@
 import { Oas3RuleSet } from '../../oas-types';
+import { Oas3Decorator } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
@@ -37,8 +38,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-
-import { Oas3Decorator } from '../../visitors';
+import { RequestMimeType } from '../common/request-mime-type';
 
 export const rules = {
   spec: OasSpec,
@@ -78,7 +78,8 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers
+  'no-servers-empty-enum': NoEmptyEnumServers,
+  'request-mime-type': RequestMimeType,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
