@@ -83,5 +83,15 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 }
 
 export function readFileSync(filePath: string) {
-  return fs.readFileSync(filePath, 'utf-8')
+  let fileData: {
+    data?: string;
+    error: string | null;
+  } = { error: null };
+
+  try {
+    fileData.data = fs.readFileSync(filePath, 'utf-8');
+  } catch (error) {
+    fileData.error = error.code === 'ENOENT' ? `File: ${filePath} not found.` : error.message;
+  }
+  return fileData;
 }
