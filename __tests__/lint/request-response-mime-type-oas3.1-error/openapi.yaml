@@ -40,6 +40,8 @@ paths:
                   subscriptionId:
                     type: string
                     example: AAA-123-BBB-456
+        '400':
+          description: example error description
 webhooks:
   newPet:
     post:
@@ -68,3 +70,5 @@ webhooks:
                     description: The name given to a pet
                     type: string
                     example: Guru
+        '400':
+          description: error response description

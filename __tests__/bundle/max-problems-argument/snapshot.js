@@ -38,6 +38,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -52,6 +54,8 @@ paths:
       responses:
         '201':
           description: Null response
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -78,6 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -235,8 +241,8 @@ bundling ./foo.yaml...
 bar.yaml:
   14:7  error    spec  Property \`summay\` is not expected here.
 
-< ... 3 more problems hidden > increase with \`--max-problems N\`
-❌ Validation failed with 3 errors and 1 warning.
+< ... 6 more problems hidden > increase with \`--max-problems N\`
+❌ Validation failed with 3 errors and 4 warnings.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling ./bar.yaml...

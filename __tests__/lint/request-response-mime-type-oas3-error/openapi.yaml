@@ -40,6 +40,8 @@ paths:
                   subscriptionId:
                     type: string
                     example: AAA-123-BBB-456
+        '400':
+          description: example error description
       callbacks:
         orderInProgress:
           '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
@@ -69,6 +71,8 @@ paths:
                           someProp:
                             type: string
                             example: '123'
+                '400':
+                  description: example error description
 x-webhooks:
   newPet:
     post:
@@ -96,3 +100,5 @@ x-webhooks:
                   test:
                     type: string
                     example: example
+        "400":
+          description: Return a 400 status

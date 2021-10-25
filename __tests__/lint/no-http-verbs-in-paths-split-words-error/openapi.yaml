@@ -22,6 +22,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /getCustomers:
     get:
       operationId: customerId
@@ -29,6 +31,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /PUTImages:
     get:
       operationId: imageId
@@ -36,6 +40,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /GET-customers:
     get:
       operationId: getCustomerId
@@ -43,6 +49,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /my_post:
     get:
       operationId: postId
@@ -50,6 +58,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /dispute:
     get:
       operationId: disputeId
@@ -57,6 +67,8 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
   /input:
     get:
       operationId: inputId
@@ -64,3 +76,5 @@ paths:
       responses:
         '200':
           description: example description
+        '400':
+          description: example error description
