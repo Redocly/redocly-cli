@@ -23,7 +23,7 @@ paths:
         - pet
       summary: Update an existing pet
       description: |
-        text: update pet description
+        Create a pet **test** description.
       operationId: updatePet
       responses:
         '200':
@@ -40,7 +40,7 @@ paths:
         - user
       summary: Create user
       description: |
-        text: create user description
+        Create a user **test** description.
       operationId: createUser
       responses:
         '200':
