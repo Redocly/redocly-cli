@@ -107,7 +107,7 @@ If you forget to write out a success case for this API, then this rule will let 
 ### operation-4xx-response
 Operation must have at least one `4xx` response.
 
-It's likely any API may return an error. Verifies that any API operation (endpoint) has at least one error case described.
+Any API may return an error. Verifies that every API operation has at least one error case described.
 
 ### operation-operationId
 Every operation must have an `operationId` defined.
