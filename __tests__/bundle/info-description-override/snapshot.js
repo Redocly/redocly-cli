@@ -2,12 +2,21 @@
 
 exports[`E2E bundle info-description-override 1`] = `
 openapi: 3.0.0
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
 info:
   title: Example OpenAPI 3 definition.
-  version: 1
+  version: 1.0.0
   description: |
-    title: My best work
-    description: My best work description
+    This is a test API description.
+
+    # Heading test
+
+    Body [test](#) content.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
   contact:
     name: qa
     url: https://swagger.io/specification/#definitions
@@ -22,12 +31,7 @@ paths:
           description: example description
 components: {}
 
-main.yaml:
-  1:1  error    no-empty-servers  Servers must be present.
-
-< ... 2 more problems hidden > increase with \`--max-problems N\`
-❌ Validation failed with 2 errors and 1 warning.
-run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
+Woohoo! Your OpenAPI definitions are valid. 🎉
 
 bundling ./main.yaml...
 📦 Created a bundle for ./main.yaml at stdout <test>ms.

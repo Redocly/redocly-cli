@@ -4,4 +4,4 @@ apiDefinitions:
 lint:
   decorators:
     info-description-override:
-      filePath: ./my-best-work.md
+      filePath: ./test.md
