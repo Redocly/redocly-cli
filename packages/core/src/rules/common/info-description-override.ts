@@ -1,19 +1,19 @@
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
-import { readFileSync } from '../../utils';
+import { readFileAsStringSync } from '../../utils';
 
 export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePath }) => {
   return {
     Info: {
       leave(info, { report, location }) {
         if (!filePath) throw new Error(`Parameter "filePath" is not provided`);
-        const { data, error } = readFileSync(filePath);
-        if (error) {
+        try {
+          info.description = readFileAsStringSync(filePath);
+        } catch (e) {
           report({
-            message: error,
+            message: `Failed to read file. ${e.message}`,
             location: location.child('info').key(),
           });
         }
-        info.description = data;
       },
     },
   };
