@@ -81,3 +81,9 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 ): T {
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
+
+export function splitCamelCaseWithAbbreviations(str: string): string[] {
+  const camel = str.split(/(?:[-._])|([A-Z][a-z]+)/).filter(Boolean);
+  const caps = str.split(/([A-Z]{2,})/).filter((e: string) => e && e === e.toUpperCase());
+  return Array.from(new Set([...camel, ...caps])).map((item) => item.toLocaleLowerCase());
+}

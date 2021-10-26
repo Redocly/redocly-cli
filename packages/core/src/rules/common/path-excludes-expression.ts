@@ -1,24 +1,23 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { Oas2PathItem } from '../../typings/swagger';
 import { Oas3PathItem } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
-
-export const PathExcludesPattern: Oas3Rule | Oas2Rule = () => {
+export const PathExcludesExpression: Oas3Rule | Oas2Rule = ({ patterns }) => {
   return {
     PathItem(_path: Oas2PathItem | Oas3PathItem, { report, key, location }: UserContext) {
+      if (!patterns) return;
       const pathKey = key.toString();
       if (pathKey.startsWith('/')) {
         const urlParts = pathKey.split('/');
         for (const urlPart of urlParts) {
           if (urlPart && !urlPart.match(/[^{]+(?=\})/g)) {
-            const startdWIthMethod = httpMethods.filter(
-              method => urlPart.toLocaleLowerCase().startsWith(method)
+            const isHttpMethodIncluded = patterns.filter((pattern: string) =>
+              urlPart.toLocaleLowerCase().match(pattern),
             );
-            if (startdWIthMethod.length) {
+            for (const match of isHttpMethodIncluded) {
               report({
-                message: `path: \`${key}\` not allow starts with ${startdWIthMethod[0]}`,
+                message: `path: \`${pathKey}\` is invalid based on expression: ${match}`,
                 location: location.key(),
               });
             }

@@ -1,0 +1,9 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    path-excludes-expression:
+      severity: error
+      patterns:
+        - ^.*get.*$

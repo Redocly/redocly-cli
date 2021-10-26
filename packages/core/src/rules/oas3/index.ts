@@ -1,4 +1,5 @@
 import { Oas3RuleSet } from '../../oas-types';
+import { Oas3Decorator } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
@@ -37,8 +38,8 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-import { PathExcludesPattern } from '../common/path-excludes-pattern';
-import { Oas3Decorator } from '../../visitors';
+import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
+import { PathExcludesExpression } from '../common/path-excludes-expression';
 
 export const rules = {
   spec: OasSpec,
@@ -79,7 +80,8 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
-  'path-excludes-pattern': PathExcludesPattern,
+  'no-http-verbs-in-paths': NoHttpVerbsInPaths,
+  'path-excludes-expression': PathExcludesExpression,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
