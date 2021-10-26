@@ -1,10 +1,11 @@
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 import { readFileAsStringSync } from '../../utils';
+import { UserContext } from '../../walk';
 
 export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames }) => {
   return {
     Tag: {
-      leave(tag, { report, location }) {
+      leave(tag, { report, location }: UserContext) {
         if (!tagNames) throw new Error(`Parameter "tagNames" is not provided`);
         if (tagNames[tag.name]) {
           try {
