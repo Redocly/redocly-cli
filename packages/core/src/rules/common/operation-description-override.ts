@@ -1,17 +1,25 @@
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 import { Oas2Operation } from '../../typings/swagger';
 import { Oas3Operation } from '../../typings/openapi';
-import { readFileSync } from '../../utils';
+import { readFileAsStringSync } from '../../utils';
+import { UserContext } from '../../walk';
 
 export const OperationDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ operationIds }) => {
   return {
     Operation: {
-      leave(operation: Oas2Operation | Oas3Operation) {
+      leave(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
         if (!operation.operationId) return;
         if (!operationIds) throw new Error(`Parameter "operationIds" is not provided`);
         const operationId = operation.operationId;
         if (operationIds[operationId]) {
-          operation.description = readFileSync(operationIds[operationId]);
+          try {
+            operation.description = readFileAsStringSync(operationIds[operationId]);
+          } catch (e) {
+            report({
+              message: `Failed to read file. ${e.message}`,
+              location: location.child('info').key(),
+            });
+          }
         }
       },
     },
