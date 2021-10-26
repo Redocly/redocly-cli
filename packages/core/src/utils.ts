@@ -82,6 +82,6 @@ export function omitObjectProps<T extends Record<string, unknown>>(
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
 
-export function readFileSync(filePath: string) {
+export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
 }
