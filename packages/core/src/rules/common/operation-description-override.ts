@@ -9,14 +9,17 @@ export const OperationDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ op
     Operation: {
       leave(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {
         if (!operation.operationId) return;
-        if (!operationIds) throw new Error(`Parameter "operationIds" is not provided`);
+        if (!operationIds)
+          throw new Error(
+            `Parameter "operationIds" is not provided for "operation-description-override" rule`,
+          );
         const operationId = operation.operationId;
         if (operationIds[operationId]) {
           try {
             operation.description = readFileAsStringSync(operationIds[operationId]);
           } catch (e) {
             report({
-              message: `Failed to read file. ${e.message}`,
+              message: `Failed to read markdown override file for operation.\n${e.message}`,
               location: location.child('info').key(),
             });
           }
