@@ -29,6 +29,7 @@ import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 
 export const rules = {
@@ -67,5 +68,6 @@ export const rules = {
 export const preprocessors = {};
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,
+  'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
 };
