@@ -30,7 +30,10 @@ export default {
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
     'no-http-verbs-in-paths': 'error',
-    'path-excludes-expression': 'error',
+    'path-excludes-expression': {
+      severity: 'error',
+      patterns: ['^.*get.*$'],
+    },
     spec: 'error',
   },
   oas3_0Rules: {

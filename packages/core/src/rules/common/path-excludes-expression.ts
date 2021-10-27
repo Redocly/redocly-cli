@@ -6,18 +6,19 @@ import { UserContext } from '../../walk';
 export const PathExcludesExpression: Oas3Rule | Oas2Rule = ({ patterns }) => {
   return {
     PathItem(_path: Oas2PathItem | Oas3PathItem, { report, key, location }: UserContext) {
-      if (!patterns) return;
+      if (!patterns)
+        throw new Error(`Parameter "patterns" is not provided for "path-excludes-expression" rule`);
       const pathKey = key.toString();
       if (pathKey.startsWith('/')) {
         const urlParts = pathKey.split('/');
         for (const urlPart of urlParts) {
           if (urlPart && !urlPart.match(/[^{]+(?=\})/g)) {
-            const isHttpMethodIncluded = patterns.filter((pattern: string) =>
+            const matches = patterns.filter((pattern: string) =>
               urlPart.toLocaleLowerCase().match(pattern),
             );
-            for (const match of isHttpMethodIncluded) {
+            for (const match of matches) {
               report({
-                message: `path: \`${pathKey}\` is invalid based on expression: ${match}`,
+                message: `path: \`${pathKey}\` should not match pattern: \`${match}\``,
                 location: location.key(),
               });
             }
