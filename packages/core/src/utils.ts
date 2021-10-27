@@ -86,3 +86,7 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 export function isSingular(path: string) {
   return pluralize.isSingular(path);
 }
+
+export function readFileAsStringSync(filePath: string) {
+  return fs.readFileSync(filePath, 'utf-8');
+}
