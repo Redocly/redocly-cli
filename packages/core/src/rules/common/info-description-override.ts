@@ -6,12 +6,15 @@ export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePat
   return {
     Info: {
       leave(info, { report, location }: UserContext) {
-        if (!filePath) throw new Error(`Parameter "filePath" is not provided`);
+        if (!filePath)
+          throw new Error(
+            `Parameter "filePath" is not provided for "info-description-override" rule`,
+          );
         try {
           info.description = readFileAsStringSync(filePath);
         } catch (e) {
           report({
-            message: `Failed to read file. ${e.message}`,
+            message: `Failed to read markdown override file for description.\n${e.message}`,
             location: location.child('info').key(),
           });
         }
