@@ -19,8 +19,8 @@ export const OperationDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ op
             operation.description = readFileAsStringSync(operationIds[operationId]);
           } catch (e) {
             report({
-              message: `Failed to read markdown override file for operation.\n${e.message}`,
-              location: location.child('info').key(),
+              message: `Failed to read markdown override file for operation "${operationId}".\n${e.message}`,
+              location: location.child('operationId').key(),
             });
           }
         }
