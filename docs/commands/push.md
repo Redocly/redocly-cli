@@ -6,7 +6,7 @@
 Redocly Workflows integrates with [popular version control services](https://redoc.ly/docs/workflows/sources/) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 :::
 
-To work with the API registry without granting Redocly Workflows access to your repositories, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This way, you can:
+In case when you don't want or are not able to grant Redocly Workflows permissions to your repositories or when your API definitions are generated automatically from code annotations in a CI/CD pipeline, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This allows you to:
 
 - Control the frequency of API definition updates.
 - Benefit from using Redocly Workflows to preview documentation and portal builds.
@@ -41,7 +41,16 @@ Before proceeding with the `push` command, ensure the following prerequisites ar
 
 To authenticate to the API registry, you can use several approaches:
 
-* use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
+- use the [`login` command](login.md). In this case, the command will look as follows:
+
+  ```bash
+  openapi login
+  opanapi push ...
+  ```
+
+  Refer to the [`login` command documentation](login.md) for more details.
+
+- use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
   ```bash
   REDOCLY_AUTHORIZATION=yourPersonalApiKey openapi push ...
@@ -53,15 +62,6 @@ To authenticate to the API registry, you can use several approaches:
   - [CircleCI documentation](https://circleci.com/docs/2.0/env-vars/)
   - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
   - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
-
-* use the [`login` command](login.md). In this case, the command will look as follows:
-
-  ```bash
-  openapi login
-  opanapi push ...
-  ```
-
-  Refer to the [`login` command documentation](login.md) for more details.
 
 ## Usage
 
@@ -186,7 +186,7 @@ The `--run-id` option can be used by Redocly Workflows to associate multiple pus
 
 Below are possible use cases for the `--run-id` option:
 
-- CI/CD systems: mostly for internal reference
+- CI/CD systems: group pushes from a single CI job together so that each push does not trigger separate reference docs/portals rebuild.
 - External systems: a parameter that can be used in reports, metrics, analytics to refer to a specific application service state.
 
 ### Create a new API with push
