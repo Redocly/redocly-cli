@@ -87,3 +87,7 @@ export function splitCamelCaseWithAbbreviations(str: string): string[] {
   const caps = str.split(/([A-Z]{2,})/).filter((e: string) => e && e === e.toUpperCase());
   return Array.from(new Set([...camel, ...caps])).map((item) => item.toLocaleLowerCase());
 }
+
+export function readFileAsStringSync(filePath: string) {
+  return fs.readFileSync(filePath, 'utf-8');
+}

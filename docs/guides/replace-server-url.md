@@ -90,7 +90,7 @@ In this step, add the environment variable `SERVERS_URL` (defined in the previou
 
 ![Environment variables](./images/envt-variable-after.png)
 
-To create API versions for different server URLs, use the **API registry**. [Add another version](../../api-registry/guides/versions.md) of the API with a different environment variable value.
+To create API versions for different server URLs, use the **API registry**. [Add another version](../../api-registry/guides/manage-versions.md) of the API with a different environment variable value.
 
 ## Step 4: Register the plugin for Redocly use
 
