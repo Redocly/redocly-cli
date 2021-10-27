@@ -4,8 +4,8 @@ import './assert-node-version';
 
 import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
-import { promptUser } from './utils';
-import { outputExtensions } from './types';
+import { getDomainByRegion, promptUser } from './utils';
+import { outputExtensions, Region, regionChoices } from './types';
 import { RedoclyClient, OutputFormat } from "@redocly/openapi-core";
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
@@ -190,15 +190,17 @@ yargs
         type: 'boolean',
       },
       region: {
-        description: 'Specify a region (US/EU).',
-        type: 'string',
+        description: 'Specify a region.',
+        choices: regionChoices,
+        default: 'us' as Region,
       },
     }),
     async (argv) => {
+      const domain = getDomainByRegion(argv.region);
       const clientToken = await promptUser(
         green(
           `\n  🔑 Copy your API key from ${blue(
-            `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
+            `https://app.${domain}/profile`,
           )} and paste it below`,
         ),
         true,
