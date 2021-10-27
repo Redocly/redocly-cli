@@ -189,6 +189,10 @@ yargs
         description: 'Include addtional output.',
         type: 'boolean',
       },
+      region: {
+        description: 'Specify a region (US/EU).',
+        type: 'string',
+      },
     }),
     async (argv) => {
       const clientToken = await promptUser(
