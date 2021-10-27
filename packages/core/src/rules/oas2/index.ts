@@ -29,6 +29,7 @@ import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { InfoDescriptionOverride } from '../common/info-description-override';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -66,4 +67,5 @@ export const rules = {
 export const preprocessors = {};
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,
+  'info-description-override': InfoDescriptionOverride as Oas2Decorator,
 };
