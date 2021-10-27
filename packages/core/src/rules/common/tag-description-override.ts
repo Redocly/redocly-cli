@@ -5,7 +5,7 @@ import { UserContext } from '../../walk';
 export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames }) => {
   return {
     Tag: {
-      leave(tag, { report, location }: UserContext) {
+      leave(tag, { report }: UserContext) {
         if (!tagNames)
           throw new Error(
             `Parameter "tagNames" is not provided for "tag-description-override" rule`,
@@ -16,7 +16,6 @@ export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames
           } catch (e) {
             report({
               message: `Failed to read markdown override file for tag "${tag.name}".\n${e.message}`,
-              location: location.child('info').key(),
             });
           }
         }
