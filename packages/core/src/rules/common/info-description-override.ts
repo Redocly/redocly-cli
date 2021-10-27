@@ -14,8 +14,8 @@ export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePat
           info.description = readFileAsStringSync(filePath);
         } catch (e) {
           report({
-            message: `Failed to read markdown override file for description.\n${e.message}`,
-            location: location.child('info').key(),
+            message: `Failed to read markdown override file for "info.description".\n${e.message}`,
+            location: location.child('description'),
           });
         }
       },
