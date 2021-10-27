@@ -39,6 +39,8 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
+import { TagDescriptionOverride } from '../common/tag-description-override';
+import { InfoDescriptionOverride } from '../common/info-description-override';
 
 export const rules = {
   spec: OasSpec,
@@ -78,7 +80,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers
+  'no-servers-empty-enum': NoEmptyEnumServers,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
@@ -86,4 +88,6 @@ export const preprocessors = {};
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,
   'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
+  'tag-description-override': TagDescriptionOverride as Oas3Decorator,
+  'info-description-override': InfoDescriptionOverride as Oas3Decorator,
 };
