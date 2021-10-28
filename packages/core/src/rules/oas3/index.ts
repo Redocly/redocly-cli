@@ -39,6 +39,7 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
 import { RequestMimeType } from './request-mime-type';
+import { ResponseMimeType } from './response-mime-type';
 
 export const rules = {
   spec: OasSpec,
@@ -80,6 +81,7 @@ export const rules = {
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
   'request-mime-type': RequestMimeType,
+  'response-mime-type': ResponseMimeType,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
