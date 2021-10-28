@@ -99,5 +99,5 @@ export function readFileAsStringSync(filePath: string) {
 }
 
 export function isPathVariable(pathSegment: string) {
-  return pathSegment.match(/[^{]+(?=\})/g);
+  return pathSegment.startsWith('{') && pathSegment.endsWith('{');
 }
