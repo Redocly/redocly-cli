@@ -25,7 +25,7 @@ export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
         for (const method of httpMethods) {
           if (isHttpMethodIncluded(method)) {
             report({
-              message: `path: \`${pathKey}\` should not contain ${method}`,
+              message: `path \`${pathKey}\` should not contain http verb ${method}`,
               location: location.key(),
             });
           }
