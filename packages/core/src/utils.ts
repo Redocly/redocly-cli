@@ -90,3 +90,7 @@ export function isSingular(path: string) {
 export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
 }
+
+export function isPathParameter(pathSegment: string) {
+  return pathSegment.startsWith('{') && pathSegment.endsWith('}');
+}

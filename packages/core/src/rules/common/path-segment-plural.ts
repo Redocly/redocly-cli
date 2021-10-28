@@ -1,6 +1,6 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { UserContext } from '../../walk';
-import { isSingular } from '../../utils';
+import { isPathParameter, isSingular } from '../../utils';
 
 export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
   const { ignoreLastPathSegment, exceptions } = opts;
@@ -9,21 +9,23 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
       leave(_path: any, { report, key, location }: UserContext) {
         const pathKey = key.toString();
         if (pathKey.startsWith('/')) {
-          const pathParts = pathKey.split('/');
-          pathParts.shift();
-          if (ignoreLastPathSegment && pathParts.length > 1) { pathParts.pop(); }
+          const pathSegments = pathKey.split('/');
+          pathSegments.shift();
+          if (ignoreLastPathSegment && pathSegments.length > 1) {
+            pathSegments.pop();
+          }
 
-          for (const pathPart of pathParts) {
-            const isExceptions = exceptions && exceptions.includes(pathPart);
-            if (!isExceptions && !pathPart.match(/[^{]+(?=\})/g) && isSingular(pathPart)) {
+          for (const pathSegment of pathSegments) {
+            if (exceptions && exceptions.includes(pathSegment)) continue;
+            if (!isPathParameter(pathSegment) && isSingular(pathSegment)) {
               report({
-                message: `path part: \`${pathPart}\` should be plural.`,
+                message: `path segment \`${pathSegment}\` should be plural.`,
                 location: location.key(),
               });
             }
           }
         }
-      }
-    }
+      },
+    },
   };
 };
