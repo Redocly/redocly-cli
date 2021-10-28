@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
+import * as pluralize from 'pluralize';
 
 import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
@@ -92,6 +93,10 @@ export function splitCamelCaseIntoWords(str: string) {
     .filter((e: string) => e && e === e.toUpperCase())
     .map((item) => item.toLocaleLowerCase());
   return new Set([...camel, ...caps]);
+}
+
+export function isSingular(path: string) {
+  return pluralize.isSingular(path);
 }
 
 export function readFileAsStringSync(filePath: string) {

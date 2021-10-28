@@ -31,6 +31,7 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
 import { PathExcludesExpression } from '../common/path-excludes-expression';
+import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
@@ -68,6 +69,7 @@ export const rules = {
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas2Rule,
   'path-excludes-expression': PathExcludesExpression as Oas2Rule,
+  'path-segment-plural': PathSegmentPlural as Oas2Rule,
 };
 
 export const preprocessors = {};
