@@ -102,3 +102,7 @@ export function validateMimeType(
     }
   }
 }
+
+export function readFileAsStringSync(filePath: string) {
+  return fs.readFileSync(filePath, 'utf-8');
+}

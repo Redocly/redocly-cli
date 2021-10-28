@@ -1,0 +1,40 @@
+name: AWS S3 sandbox
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  test-and-deploy-s3-sandbox:
+    if: ${{ github.event.label.name == 'deploy_s3_sandbox' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "14.x"
+    - name: cache node modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+        key: npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          npm-${{ hashFiles('package-lock.json') }}
+          npm-
+
+    - name: Install npm@7
+      run: npm i -g npm@7
+    - name: Install dependencies
+      run: npm install
+    - name: Run tests
+      run: npm test
+
+    - name: Bundle into single file
+      run: npm run webpack-bundle
+
+    - name: Upload to AWS sandbox S3 bucket
+      run: npm run upload
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SANDBOX_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_S3_PATH: redocly-sandbox-openapi-cli-dist

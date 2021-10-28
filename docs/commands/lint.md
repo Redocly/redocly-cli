@@ -1,77 +1,114 @@
 # `lint`
 
-Redocly OpenAPI CLI can identify and report on problems found in OpenAPI definitions, with the goal of avoiding bugs and making APIs more consistent. The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
+## Introduction
 
-Use custom rules, plugins, preprocessors, and the built-in rules to define your API design standards. Every rule is a plugin that can be added at runtime.
+Redocly OpenAPI CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
 
+The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
-```mermaid
-graph LR
-    preprocessors[Preprocessors]
-    rules[Rules]
-    preprocessors --> rules
+:::success Tip
+To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
+:::
+
+## Usage
+
+```bash
+openapi lint
+openapi lint <entrypoints>...
+openapi lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
+openapi lint [--generate-ignore-file] [--help]
+openapi lint --version
 ```
 
+## Options
 
-### `lint` usage
+Option                   | Type      | Required    | Default     | Description
+-------------------------|:---------:|:------------:|:-----------:|------------
+`entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
+`--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
+`--extends`              | `array`   | no           | -           | [Extend a specific lint configuration](#extend-lint-configuration) (defaults or config file settings)
+`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
+`--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
+`--help`                 | `boolean` | no           | -           | Show help
+`--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
+`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
+`--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
+`--version`              | `boolean` | no           | -           | Show version number
 
+## Examples
 
-```shell
-Positionals:
-  entrypoints                                              [array] [default: []]
+### Entrypoints
 
-Options:
-  --version               Show version number.                         [boolean]
-  --help                  Show help.                                   [boolean]
-  --format                Use a specific output format.
-                        [choices: "stylish", "codeframe"] [default: "codeframe"]
-  --max-problems          Reduce output to max N problems.
-                                                         [number] [default: 100]
-  --generate-ignore-file  Generate ignore file.                        [boolean]
-  --skip-rule             Ignore certain rules.                          [array]
-  --skip-preprocessor     Ignore certain preprocessors.                  [array]
-  --config                Specify path to the config file.              [string]
-  --extends               Override extends configurations (defaults or config
-                          file settings).                                [array]
-```
+The `lint` command behaves differently depending on how you pass entrypoints to it and whether the [configuration file](#custom-configuration-file) exists. 
 
-
-The command:
-
+#### Pass entrypoints directly
 
 ```bash
 openapi lint openapi/openapi.yaml
 ```
 
+In this case, `lint` will validate the definition(s) passed to the command. The configuration file is ignored.
 
-This validates the specified entrypoint(s). If none are specified, `lint` validates all entrypoints listed in the `apiDefinitions` section of the `.redocly.yaml` file.
+The `entrypoints` argument can also use any glob format supported by your file system. For example, `openapi lint ./root-documents/*.yaml`.
 
-The `entrypoints` argument can also use any glob format supported by your file system (e.g. `openapi lint ./root-documents/*.yaml`).
+#### Pass entrypoints via configuration file
 
+Instead of full paths, you can use aliases assigned in the `apiDefinitions` section of your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
 
-### Options
+```bash command
+openapi lint petstore
+```
 
+```yaml .redocly.yaml
+apiDefinitions:
+  petstore: ./openapi/petstore-definition.json
+```
 
-#### Format
+In this case, after resolving the path behind the `petstore` alias (see the `.redocly.yaml` tab), `lint` will validate the `petstore.json` definition file. The presence of the `.redocly.yaml` configuration file is mandatory.
 
-The `lint` command supports two output formats: `stylish` and `codeframe`. Choose which format to use with the optional `--format` argument.
+#### Empty entrypoints
 
-The default format is `codeframe`.
-
-
-**Codeframe format**
-
+You can omit entrypoints completely when executing the `lint` command:
 
 ```bash
+openapi lint
+```
+
+```yaml .redocly.yaml
+apiDefinitions:
+  petstore: ./openapi/petstore.json
+  production: ./openapi/production.yaml
+  sandbox: ./openapi/sandbox.yaml
+```
+
+In this case, if no API definitions are specified, `lint` validates all entrypoints listed in `apiDefinitions` within your `.redocly.yaml` file. The presence of the `.redocly.yaml` configuration file is mandatory.
+
+:::warning Important
+If you try to execute the `lint` command without entrypoints when your project doesn't have any configuration files (either `.redocly.yaml` or a [custom one](#custom-configuration-file)), the `lint` command will display an error.
+:::
+
+### Custom configuration file
+
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an [alternative path to a configuration file](../configuration/configuration-file.mdx).
+
+```bash
+openapi lint --config=./another/directory/config.yaml
+```
+
+### Extend lint configuration
+
+The `--extends` option allows you to extend the existing lint configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the value is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one including particular rules that cover your specific needs.
+
+### Format
+
+#### Codeframe (default)
+
+```bash request
 openapi lint --format=codeframe
 ## equivalent to: openapi lint
 ```
 
-
-Example output:
-
-
-```shell
+```bash output
 [1] resources/petstore-with-errors.yaml:16:3 at #/paths/~1pets?id
 
 Don't put query string items in the path, they belong in parameters with `in: query`.
@@ -86,124 +123,90 @@ Don't put query string items in the path, they belong in parameters with `in: qu
 Error was generated by the path-not-include-query rule.
 ```
 
+Note that the problems are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
 
-Notice the output shows the `file:line:column` of code. Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
+Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
 
+#### Stylish
 
-**Stylish format**
-
-
-```bash
+```bash request
 openapi lint --format=stylish
 ```
 
-
-Example output:
-
-
-```shell
+```bash output
 openapi/core.yaml:
-  183:5  error  spec  Property `nam` is not expected here.
+  15:7   error    spec                   Property `operationIds` is not expected here.
+  22:11  error    spec                   Property `require` is not expected here.
+  14:7   warning  operation-operationId  Operation object should contain `operationId` field.
 ```
 
+In this format, `lint` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
 
-It still shows the file name, line number and column. However, the output is compressed and omits other context and suggestions.
+### Max problems
 
+With the `--max-problems` option, you can limit the number of problems displayed in the command output. If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
 
-#### Max problems
-
-With the `--max-problems` option, you can limit the amount of problems displayed in the command output.
-
-
-```bash
+```bash request
 openapi lint --max-problems 200
 ```
 
-
-If the amount of detected problems exceeds the threshold you set, the remaining problems are hidden in the output, but a feedback message lets you know how many were hidden.
-
-
-```shell
+```bash output
+...
 < ... 2 more problems hidden > increase with `--max-problems N`
 ```
 
+### Generate ignore file
 
-#### Generate ignore file
-
-Generate an ignore file to suppress error and warning severity problems in the output. When ignored, there will still be some visual feedback to let you know how many problems were ignored.
+With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output. You will still receive visual feedback to let you know how many problems were ignored.
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
-
-```shell
-openapi lint --generate-ignore-file
+```shell request
+openapi lint openapi/petstore.yaml --generate-ignore-file
 ```
 
-To generate ignore file for multiple definitions pass them as arguments:
+```bash output
+...
+Generated ignore file with 3 problems.
+```
 
-```shell
+:::warning
+This command will overwrite an existing ignore file.
+:::
+
+To generate an ignore file for multiple definitions, pass them as arguments:
+
+```bash
 openapi lint v1.yaml v2.yaml --generate-ignore-file
 ```
 
-
-
-This command generates a file named `.redocly.lint-ignore.yaml`.
-
-
-:::warning
-
-This command will overwrite an existing ignore file.
-
-:::
-
-
 Example of an ignore file:
 
-
-```yaml
+```yaml .redocly.lint-ignore.yaml file
 # This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
 # See https://redoc.ly/docs/cli/ for more information.
-openapi/core.yaml:
+openapi/petstore:
   spec:
-    - '#/tags/23'
-    - '#/tags/55'
+    - '#/paths/~1store/get/operationIds'
+    - '#/paths/~1store/get/parameters/0/require'
+  operation-operationId:
+    - '#/paths/~1store/get'
 ```
 
+The rule in the example is named `spec`, which indicates compliance with the OpenAPI spec. You can also manually add problems that should be ignored to specific rules.
 
-The rule in the example is named `spec`, which indicates compliance with the OpenAPI spec. You can manually add problems that should be ignored to specific rules.
+### Skip preprocessor or rule
 
+You may want to skip specific preprocessors or rules upon running the command.
 
-#### Skip preprocessor
-
-You may want to skip specific preprocessors upon running the command.
-
-
-```shell
+```bash Skip preprocessors
 openapi lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
-
-Learn more about [preprocessors](../resources/custom-rules.md).
-
-
-#### Skip rule
-
-You may want to skip specific rules upon running the command.
-
-
-```shell
+```bash Skip rules
 openapi lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
-
-Learn more about [rules](../resources/custom-rules.md).
-
-
-#### Specify config file
-
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
-
-
-```bash
-openapi lint --config=./another/directory/file.yaml
-```
+:::success Tip
+To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
+:::

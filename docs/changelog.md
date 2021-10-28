@@ -4,6 +4,16 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.64 (2021-10-20
+
+### Fixes
+
+- Resolved an issue with the `--format` option not working with the `bundle` command.
+
+- Resolved a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
+
+----
+
 ## 1.0.0-beta.63 (2021-10-12)
 
 ### Features
