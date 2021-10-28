@@ -38,7 +38,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-import { RequestMimeType } from '../common/request-mime-type';
+import { RequestMimeType } from './request-mime-type';
 
 export const rules = {
   spec: OasSpec,
