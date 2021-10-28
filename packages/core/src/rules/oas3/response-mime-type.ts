@@ -14,7 +14,7 @@ export const ResponseMimeType: Oas3Rule = ({ allowedValues }) => {
         for (const mime of Object.keys(response.content)) {
           if (!allowedValues.includes(mime)) {
             report({
-              message: `mimeType '${mime}' is not allowed`,
+              message: `Mime type "${mime}" is not allowed`,
               location: location.child('content').child(mime).key(),
             });
           }

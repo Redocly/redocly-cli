@@ -96,8 +96,8 @@ export function validateMimeType(
   for (const mime of value[type]) {
     if (!allowedValues.includes(mime)) {
       report({
-        message: `mimeType '${mime}' is not allowed`,
-        location: location.child(type).key(),
+        message: `Mime type "${mime}" is not allowed`,
+        location: location.child(value[type].indexOf(mime)).key(),
       });
     }
   }

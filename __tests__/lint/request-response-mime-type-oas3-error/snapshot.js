@@ -7,7 +7,7 @@ No configurations were defined in extends -- using built in recommended configur
 validating /openapi.yaml...
 [1] openapi.yaml:25:11 at #/paths/~1store~1subscribe/post/requestBody/content/application~1xml
 
-mimeType 'application/xml' is not allowed
+Mime type "application/xml" is not allowed
 
 23 | requestBody:
 24 |   content:
