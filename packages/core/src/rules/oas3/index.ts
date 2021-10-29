@@ -45,7 +45,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
-import { PathExcludesRegex } from '../common/path-excludes-regex';
+import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 
 export const rules = {
   spec: OasSpec,
@@ -87,7 +87,7 @@ export const rules = {
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths,
-  'path-excludes-regex': PathExcludesRegex,
+  'path-excludes-patterns': PathExcludesPatterns,
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural,

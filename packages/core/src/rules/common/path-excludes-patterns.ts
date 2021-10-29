@@ -3,7 +3,7 @@ import { Oas2PathItem } from '../../typings/swagger';
 import { Oas3PathItem } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-export const PathExcludesRegex: Oas3Rule | Oas2Rule = ({ patterns }) => {
+export const PathExcludesPatterns: Oas3Rule | Oas2Rule = ({ patterns }) => {
   return {
     PathItem(_path: Oas2PathItem | Oas3PathItem, { report, key, location }: UserContext) {
       if (!patterns)
@@ -13,7 +13,7 @@ export const PathExcludesRegex: Oas3Rule | Oas2Rule = ({ patterns }) => {
         const matches = patterns.filter((pattern: string) => pathKey.match(pattern));
         for (const match of matches) {
           report({
-            message: `path: \`${pathKey}\` should not match regex: \`${match}\``,
+            message: `path \`${pathKey}\` should not match regex: \`${match}\``,
             location: location.key(),
           });
         }

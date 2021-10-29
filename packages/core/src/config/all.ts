@@ -31,7 +31,7 @@ export default {
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
     'no-http-verbs-in-paths': 'error',
-    'path-excludes-regex': {
+    'path-excludes-patterns': {
       severity: 'error',
       patterns: [],
     },
