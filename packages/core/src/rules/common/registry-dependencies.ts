@@ -9,7 +9,7 @@ export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
   return {
     DefinitionRoot: {
       leave() {
-        redoclyClient = new RedoclyClient();
+        redoclyClient = new RedoclyClient(''); // FIXME: how to get a config for domain there?
         if (process.env.UPDATE_REGISTRY && redoclyClient.hasToken()) {
           redoclyClient.updateDependencies(Array.from(registryDependencies.keys()));
         }

@@ -89,7 +89,7 @@ export function makeDocumentFromString(sourceString: string, absoluteRef: string
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
-  constructor(private config: ResolveConfig = { http: { headers: [] } }) {}
+  constructor(private config: ResolveConfig = { http: { headers: [] }, domain: '' }) {} // todo: remove domain when moved to ther part of config
 
   getFiles() {
     return new Set(Array.from(this.cache.keys()));

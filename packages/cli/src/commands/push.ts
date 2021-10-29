@@ -30,8 +30,8 @@ export async function handlePush (argv: {
   upsert?: boolean;
   'run-id'?: string;
 }) {
-
-  const client = new RedoclyClient();
+  const config = await loadConfig();
+  const client = new RedoclyClient(config.resolve.domain);
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
     const clientToken = await promptUser(

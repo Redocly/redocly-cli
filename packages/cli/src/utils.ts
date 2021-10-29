@@ -15,7 +15,7 @@ import {
   parseYaml,
   stringifyYaml
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions, Region, REGION_DOMAINS } from './types';
+import { Totals, outputExtensions } from './types';
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   const { apiDefinitions } = config;
@@ -292,14 +292,4 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
   return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
-}
-
-export function getDomainByRegion(region: Region): string {
-  const domainUrl = REGION_DOMAINS[region];
-
-  if (!domainUrl) {
-    throw new Error(`The region '${region} is not supported.'`)
-  }
-
-  return domainUrl;
 }

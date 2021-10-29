@@ -17,7 +17,7 @@ export { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
 
-export { Config, LintConfig, RawConfig, IGNORE_FILE } from './config/config';
+export { Config, LintConfig, RawConfig, IGNORE_FILE, Region } from './config/config';
 export { loadConfig } from './config/load';
 export { RedoclyClient } from './redocly';
 export {

@@ -1,6 +1,13 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
-import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient, getTotals } from "@redocly/openapi-core";
+import {
+  bundle,
+  loadConfig,
+  ResolveError,
+  YamlParseError,
+  RedoclyClient,
+  getTotals,
+} from '@redocly/openapi-core';
 import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 
@@ -119,7 +126,8 @@ export async function previewDocs(argv: {
     config.lint.skipPreprocessors(argv['skip-preprocessor']);
     config.lint.skipDecorators(argv['skip-decorator']);
 
-    const redoclyClient = new RedoclyClient();
+    const domain = config.resolve.domain;
+    const redoclyClient = new RedoclyClient(domain);
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const referenceDocs = config.referenceDocs || {};
 

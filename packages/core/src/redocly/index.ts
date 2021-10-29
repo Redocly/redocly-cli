@@ -9,8 +9,11 @@ const TOKEN_FILENAME = '.redocly-config.json';
 export class RedoclyClient {
   private accessToken: string | undefined;
 
-  constructor() {
+  private readonly redoclyDomain: string;
+
+  constructor(redoclyDomain: string) {
     this.loadToken();
+    this.redoclyDomain = redoclyDomain;
   }
 
   hasToken(): boolean {
@@ -36,7 +39,7 @@ export class RedoclyClient {
 
   async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
     if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken, { verbose });
+    const authDetails = await this.authorize(accessToken, { verbose });
     if (!authDetails) return false;
     return true;
   }
@@ -85,18 +88,18 @@ export class RedoclyClient {
   }
 
   async query(queryString: string, parameters = {}, headers = {}) {
-    return query(queryString, parameters, {
+    return query(queryString, this.redoclyDomain, parameters, {
       Authorization: this.accessToken,
       ...headers,
     });
   }
 
-  static async authorize(accessToken: string, options: { queryName?: string; verbose?: boolean }) {
+  async authorize(accessToken: string, options: { queryName?: string; verbose?: boolean }) {
     const { queryName = '', verbose = false } = options;
     try {
       const queryStr = `query ${queryName}{ viewer { id } }`;
 
-      return await query(queryStr, {}, { Authorization: accessToken });
+      return await query(queryStr, this.redoclyDomain, { Authorization: accessToken });
     } catch (e) {
       if (verbose) console.log(e);
       return null;

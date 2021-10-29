@@ -24,13 +24,14 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
     rawConfig.lint.extends = customExtends;
   }
 
-  const redoclyClient = new RedoclyClient();
+  const domain = Config.resolveDomain(rawConfig.resolve?.region);
+  const redoclyClient = new RedoclyClient(domain);
   if (redoclyClient.hasToken()) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
     if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
     rawConfig.resolve.http.headers = [
       {
-        matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
+        matches: `https://api.${domain}/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
         value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',

@@ -4,9 +4,9 @@ import './assert-node-version';
 
 import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
-import { getDomainByRegion, promptUser } from './utils';
-import { outputExtensions, Region, regionChoices } from './types';
-import { RedoclyClient, OutputFormat } from "@redocly/openapi-core";
+import { promptUser } from './utils';
+import { outputExtensions, regionChoices } from './types';
+import { RedoclyClient, OutputFormat, Config, loadConfig } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -14,6 +14,7 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 const version = require('../package.json').version;
 
 yargs
@@ -192,11 +193,18 @@ yargs
       region: {
         description: 'Specify a region.',
         choices: regionChoices,
-        default: 'us' as Region,
       },
     }),
     async (argv) => {
-      const domain = getDomainByRegion(argv.region);
+      let domain: string;
+
+      if (argv.region) {
+        domain = Config.getDomainByRegion(argv.region as Region);
+      } else {
+        const config = await loadConfig();
+        domain = config.resolve.domain;
+      }
+
       const clientToken = await promptUser(
         green(
           `\n  🔑 Copy your API key from ${blue(
@@ -205,12 +213,28 @@ yargs
         ),
         true,
       );
-      const client = new RedoclyClient();
+      const client = new RedoclyClient(domain);
       client.login(clientToken, argv.verbose);
   })
-  .command('logout', 'Clear your stored credentials for the Redocly API registry.', yargs => yargs, async () => {
-    const client = new RedoclyClient();
-    client.logout();
+  .command('logout', 'Clear your stored credentials for the Redocly API registry.',
+      yargs => yargs.options({
+        region: {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
+      }),
+    async (argv) => {
+      let domain: string;
+
+      if (argv.region) {
+        domain = Config.getDomainByRegion(argv.region as Region);
+      } else {
+        const config = await loadConfig();
+        domain = config.resolve.domain;
+      }
+
+      const client = new RedoclyClient(domain);
+      client.logout();
   })
   .command('preview-docs [entrypoint]', 'Preview API reference docs for the specified definition.',
     (yargs) => yargs
