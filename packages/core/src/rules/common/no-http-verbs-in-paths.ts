@@ -2,7 +2,7 @@ import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Oas2PathItem } from '../../typings/swagger';
 import { Oas3PathItem } from '../../typings/openapi';
 import { UserContext } from '../../walk';
-import { isPathVariable, splitCamelCaseIntoWords } from '../../utils';
+import { isPathParameter, splitCamelCaseIntoWords } from '../../utils';
 
 const httpMethods = ['get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'];
 
@@ -14,7 +14,7 @@ export const NoHttpVerbsInPaths: Oas3Rule | Oas2Rule = ({ splitIntoWords }) => {
       const pathSegments = pathKey.split('/');
 
       for (const pathSegment of pathSegments) {
-        if (!pathSegment || isPathVariable(pathSegment)) continue;
+        if (!pathSegment || isPathParameter(pathSegment)) continue;
 
         const isHttpMethodIncluded = (method: string) => {
           return splitIntoWords

@@ -7,7 +7,7 @@ No configurations were defined in extends -- using built in recommended configur
 validating /openapi.yaml...
 [1] openapi.yaml:25:3 at #/paths/~1getUsers
 
-path \`/getUsers\` should not match regex: \`^\\/[a-z]\`
+path \`/getUsers\` should not match regex pattern: \`^\\/[a-z]\`
 
 23 |       '200':
 24 |         description: example description

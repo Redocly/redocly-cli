@@ -1,6 +1,6 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { UserContext } from '../../walk';
-import { isPathVariable, isSingular } from '../../utils';
+import { isPathParameter, isSingular } from '../../utils';
 
 export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
   const { ignoreLastPathSegment, exceptions } = opts;
@@ -17,7 +17,7 @@ export const PathSegmentPlural: Oas3Rule | Oas2Rule = (opts) => {
 
           for (const pathSegment of pathSegments) {
             if (exceptions && exceptions.includes(pathSegment)) continue;
-            if (!isPathVariable(pathSegment) && isSingular(pathSegment)) {
+            if (!isPathParameter(pathSegment) && isSingular(pathSegment)) {
               report({
                 message: `path segment \`${pathSegment}\` should be plural.`,
                 location: location.key(),

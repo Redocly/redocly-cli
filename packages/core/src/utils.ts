@@ -144,6 +144,6 @@ export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
 }
 
-export function isPathVariable(pathSegment: string) {
+export function isPathParameter(pathSegment: string) {
   return pathSegment.startsWith('{') && pathSegment.endsWith('{');
 }
