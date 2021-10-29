@@ -3,7 +3,7 @@ apiDefinitions:
 
 lint:
   rules:
-    path-excludes-expression:
+    path-excludes-regex:
       severity: error
       patterns:
-        - ^.*get.*$
+        - ^\/[a-z]

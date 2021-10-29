@@ -39,11 +39,11 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
-import { PathExcludesExpression } from '../common/path-excludes-expression';
 import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
+import { PathExcludesRegex } from '../common/path-excludes-regex';
 
 export const rules = {
   spec: OasSpec,
@@ -85,7 +85,7 @@ export const rules = {
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths,
-  'path-excludes-expression': PathExcludesExpression,
+  'path-excludes-regex': PathExcludesRegex,
   'path-segment-plural': PathSegmentPlural,
 } as Oas3RuleSet;
 

@@ -50,3 +50,17 @@ paths:
       responses:
         '200':
           description: example description
+  /dispute:
+    get:
+      operationId: disputeId
+      summary: dispute example
+      responses:
+        '200':
+          description: example description
+  /input:
+    get:
+      operationId: inputId
+      summary: input example
+      responses:
+        '200':
+          description: example description

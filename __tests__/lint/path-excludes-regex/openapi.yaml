@@ -15,28 +15,14 @@ info:
     email: email@redoc.ly
 
 paths:
-  /pet/findByGet:
+  /Pet:
     get:
       operationId: example
       summary: summary example
       responses:
         '200':
           description: example description
-  /getCustomers:
-    get:
-      operationId: customerId
-      summary: get customers example
-      responses:
-        '200':
-          description: example description
-  /GET-customers:
-    get:
-      operationId: getCustomerId
-      summary: get customers example
-      responses:
-        '200':
-          description: example description
-  /get_users:
+  /getUsers:
     get:
       operationId: userId
       summary: get users example

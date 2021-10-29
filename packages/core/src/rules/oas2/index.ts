@@ -30,7 +30,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
-import { PathExcludesExpression } from '../common/path-excludes-expression';
+import { PathExcludesRegex } from '../common/path-excludes-regex';
 import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
@@ -68,7 +68,7 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas2Rule,
-  'path-excludes-expression': PathExcludesExpression as Oas2Rule,
+  'path-excludes-regex': PathExcludesRegex as Oas2Rule,
   'path-segment-plural': PathSegmentPlural as Oas2Rule,
 };
 
