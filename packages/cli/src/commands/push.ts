@@ -14,6 +14,8 @@ import {
   pluralize,
   dumpBundle,
 } from '../utils';
+import { Region } from '@redocly/openapi-core/lib/config/config';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
 
 type Source = {
   files: string[];
@@ -29,9 +31,10 @@ export async function handlePush (argv: {
   branchName?: string;
   upsert?: boolean;
   'run-id'?: string;
+  region?: Region;
 }) {
-  const config = await loadConfig();
-  const client = new RedoclyClient(config.resolve.redoclyDomain);
+  const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+  const client = new RedoclyClient(redoclyDomain);
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
     const clientToken = await promptUser(

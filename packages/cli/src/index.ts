@@ -6,7 +6,7 @@ import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
 import { promptUser } from './utils';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat, Config, loadConfig } from '@redocly/openapi-core';
+import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -14,7 +14,7 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
-import { Region } from '@redocly/openapi-core/lib/config/config';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
 const version = require('../package.json').version;
 
 yargs
@@ -79,7 +79,8 @@ yargs
     .positional('branchName', { type: 'string' })
     .option({
       'upsert': { type: 'boolean', alias: 'u' },
-      'run-id': { type: 'string', requiresArg: true }
+      'run-id': { type: 'string', requiresArg: true },
+      'region': { description: 'Specify a region.', choices: regionChoices },
     }),
     (argv) => { handlePush(argv) }
   )
@@ -196,14 +197,8 @@ yargs
       },
     }),
     async (argv) => {
-      let redoclyDomain: string;
-
-      if (argv.region) {
-        redoclyDomain = Config.getRedoclyDomainByRegion(argv.region as Region);
-      } else {
-        const config = await loadConfig();
-        redoclyDomain = config.resolve.redoclyDomain;
-      }
+      const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+      process.env.REDOCLY_DOMAIN = redoclyDomain;
 
       const clientToken = await promptUser(
         green(
@@ -224,14 +219,8 @@ yargs
         },
       }),
     async (argv) => {
-      let redoclyDomain: string;
-
-      if (argv.region) {
-        redoclyDomain = Config.getRedoclyDomainByRegion(argv.region as Region);
-      } else {
-        const config = await loadConfig();
-        redoclyDomain = config.resolve.redoclyDomain;
-      }
+      const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+      process.env.REDOCLY_DOMAIN = redoclyDomain;
 
       const client = new RedoclyClient(redoclyDomain);
       client.logout();
@@ -268,7 +257,11 @@ yargs
         'config': {
           description: 'Specify path to the config file.',
           type: 'string',
-        }
+        },
+        'region': {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
       }),
     async (argv) => { previewDocs(argv) },
   )

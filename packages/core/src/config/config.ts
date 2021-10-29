@@ -129,7 +129,6 @@ export type HttpResolveConfig = {
 
 export type ResolveConfig = {
   http: HttpResolveConfig;
-  redoclyDomain: string;
 };
 
 export type RawConfig = {
@@ -403,29 +402,18 @@ export class Config {
         headers: rawConfig?.resolve?.http?.headers ?? [],
         customFetch: undefined,
       },
-      redoclyDomain: Config.resolveRedoclyDomain(rawConfig?.resolve?.region),
     };
   }
+}
 
-  static resolveRedoclyDomain(region?: Region): string {
-    if (region) {
-      return Config.getRedoclyDomainByRegion(region);
-    } else if (process.env.REDOCLY_DOMAIN) {
-      return process.env.REDOCLY_DOMAIN;
-    }
+export function getRedoclyDomainByRegion(region: Region): string {
+  const domainUrl = REGION_REDOCLY_DOMAINS[region];
 
-    return Config.getRedoclyDomainByRegion('eu');
+  if (!domainUrl) {
+    throw new Error(`The region '${region} is not supported.'`)
   }
 
-  static getRedoclyDomainByRegion(region: Region): string {
-    const domainUrl = REGION_REDOCLY_DOMAINS[region];
-
-    if (!domainUrl) {
-      throw new Error(`The region '${region} is not supported.'`)
-    }
-
-    return domainUrl;
-  }
+  return domainUrl;
 }
 
 function resolvePresets(presets: string[], plugins: Plugin[]) {

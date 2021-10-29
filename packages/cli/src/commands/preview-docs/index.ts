@@ -10,6 +10,8 @@ import {
 } from '@redocly/openapi-core';
 import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
+import { Region } from '@redocly/openapi-core/lib/config/config';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
 
 export async function previewDocs(argv: {
   port: number;
@@ -20,6 +22,7 @@ export async function previewDocs(argv: {
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
   force?: boolean;
+  region?: Region;
 }) {
   let isAuthorizedWithRedocly: boolean = false;
   let redocOptions: any = {};
@@ -126,8 +129,11 @@ export async function previewDocs(argv: {
     config.lint.skipPreprocessors(argv['skip-preprocessor']);
     config.lint.skipDecorators(argv['skip-decorator']);
 
-    const domain = config.resolve.redoclyDomain;
-    const redoclyClient = new RedoclyClient(domain);
+    const redoclyDomain = await resolveRedoclyDomain({
+      region: argv.region,
+      configPath: argv.config,
+    })
+    const redoclyClient = new RedoclyClient(redoclyDomain);
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const referenceDocs = config.referenceDocs || {};
 

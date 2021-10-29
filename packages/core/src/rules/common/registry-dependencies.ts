@@ -1,5 +1,4 @@
 import { RedoclyClient } from '../../redocly';
-
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
 export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
@@ -9,9 +8,11 @@ export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
   return {
     DefinitionRoot: {
       leave() {
-        console.warn('leave arguments', arguments);
+        if (!process.env.REDOCLY_DOMAIN) {
+          throw new Error('Domain is not set');
+        }
 
-        redoclyClient = new RedoclyClient(''); // FIXME: how to get a config for domain there?
+        redoclyClient = new RedoclyClient(process.env.REDOCLY_DOMAIN); // todo: test
 
         if (process.env.UPDATE_REGISTRY && redoclyClient.hasToken()) {
           redoclyClient.updateDependencies(Array.from(registryDependencies.keys()));
@@ -19,11 +20,13 @@ export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
       },
     },
     ref(node) {
-      console.warn('ref ' +
-        'arguments', arguments);
+      if (!process.env.REDOCLY_DOMAIN) {
+        throw new Error('Domain is not set');
+      }
+
       if (node.$ref) {
         const link = node.$ref.split('#/')[0];
-        redoclyClient = new RedoclyClient(''); // FIXME: how to get a config for domain there?
+        redoclyClient = new RedoclyClient(process.env.REDOCLY_DOMAIN); // todo: test
 
         if (redoclyClient.isRegistryURL(link)) {
           registryDependencies.add(link);
