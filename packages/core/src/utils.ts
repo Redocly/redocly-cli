@@ -84,6 +84,18 @@ export function omitObjectProps<T extends Record<string, unknown>>(
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
 
+export function splitCamelCaseIntoWords(str: string) {
+  const camel = str
+    .split(/(?:[-._])|([A-Z][a-z]+)/)
+    .filter(Boolean)
+    .map((item) => item.toLocaleLowerCase());
+  const caps = str
+    .split(/([A-Z]{2,})/)
+    .filter((e: string) => e && e === e.toUpperCase())
+    .map((item) => item.toLocaleLowerCase());
+  return new Set([...camel, ...caps]);
+}
+
 export function validateMimeType(
   { type, value }: any,
   { report, location }: UserContext,
@@ -133,5 +145,5 @@ export function readFileAsStringSync(filePath: string) {
 }
 
 export function isPathParameter(pathSegment: string) {
-  return pathSegment.startsWith('{') && pathSegment.endsWith('}');
+  return pathSegment.startsWith('{') && pathSegment.endsWith('{');
 }

@@ -38,12 +38,14 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
+import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
+import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 
 export const rules = {
   spec: OasSpec,
@@ -84,6 +86,8 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
+  'no-http-verbs-in-paths': NoHttpVerbsInPaths,
+  'path-excludes-patterns': PathExcludesPatterns,
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural,

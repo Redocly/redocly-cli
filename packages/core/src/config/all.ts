@@ -30,6 +30,11 @@ export default {
     'no-enum-type-mismatch': 'error',
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
+    'no-http-verbs-in-paths': 'error',
+    'path-excludes-patterns': {
+      severity: 'error',
+      patterns: [],
+    },
     'request-mime-type': 'error',
     spec: 'error',
   },

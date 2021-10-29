@@ -29,6 +29,8 @@ import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
+import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
+import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
@@ -67,6 +69,8 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
+  'no-http-verbs-in-paths': NoHttpVerbsInPaths as Oas2Rule,
+  'path-excludes-patterns': PathExcludesPatterns as Oas2Rule,
   'request-mime-type': RequestMimeType as Oas2Rule,
   'response-mime-type': ResponseMimeType as Oas2Rule,
   'path-segment-plural': PathSegmentPlural as Oas2Rule,

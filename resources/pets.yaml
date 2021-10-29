@@ -84,7 +84,7 @@ x-tagGroups:
       - pet_model
       - store_model
 paths:
-  /pet:
+  /petGet:
     parameters:
       - name: Accept-Language
         in: header
@@ -177,7 +177,7 @@ paths:
             }
       requestBody:
         $ref: '#/components/requestBodies/Pet'
-  '/pet/{petId}':
+  '/GETpet/{petId}':
     get:
       tags:
         - pet
@@ -301,7 +301,7 @@ paths:
             schema:
               type: string
               format: binary
-  /pet/findByStatus:
+  /pet/findByStatusPut:
     get:
       tags:
         - pet
@@ -345,7 +345,7 @@ paths:
         - petstore_auth:
             - 'write:pets'
             - 'read:pets'
-  /pet/findByTags:
+  /GETCustomers/findByTags:
     get:
       tags:
         - pet

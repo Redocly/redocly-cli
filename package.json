@@ -24,7 +24,10 @@
     "preview": "npm run cli preview-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js"
+    "upload": "node scripts/archive-and-upload-bundle.js",
+
+
+    "lint_test": "npm run cli lint -- --config resources/config.yaml --format stylish"
   },
   "workspaces": [
     "packages/*"
