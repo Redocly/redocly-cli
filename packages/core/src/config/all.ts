@@ -35,6 +35,7 @@ export default {
       severity: 'error',
       patterns: [],
     },
+    'request-mime-type': 'error',
     spec: 'error',
   },
   oas3_0Rules: {
