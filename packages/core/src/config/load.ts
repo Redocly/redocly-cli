@@ -70,6 +70,7 @@ function findConfig() {
   return undefined;
 }
 
+// todo: move to the config file
 export async function resolveRedoclyDomain({
    region,
    configPath,

@@ -198,8 +198,6 @@ yargs
     }),
     async (argv) => {
       const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
-      process.env.REDOCLY_DOMAIN = redoclyDomain;
-
       const clientToken = await promptUser(
         green(
           `\n  🔑 Copy your API key from ${blue(
@@ -220,8 +218,6 @@ yargs
       }),
     async (argv) => {
       const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
-      process.env.REDOCLY_DOMAIN = redoclyDomain;
-
       const client = new RedoclyClient(redoclyDomain);
       client.logout();
   })
