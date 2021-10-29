@@ -38,6 +38,8 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
+import { RequestMimeType } from './request-mime-type';
+import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
@@ -82,6 +84,8 @@ export const rules = {
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
   'no-servers-empty-enum': NoEmptyEnumServers,
+  'request-mime-type': RequestMimeType,
+  'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural,
 } as Oas3RuleSet;
 

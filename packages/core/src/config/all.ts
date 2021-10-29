@@ -30,6 +30,7 @@ export default {
     'no-enum-type-mismatch': 'error',
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
+    'request-mime-type': 'error',
     spec: 'error',
   },
   oas3_0Rules: {
@@ -50,5 +51,5 @@ export default {
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
     'no-servers-empty-enum': 'error',
-  }
+  },
 } as LintRawConfig;

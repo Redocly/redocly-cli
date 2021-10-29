@@ -1,0 +1,98 @@
+openapi: 3.0.0
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
+info:
+  title: Example OpenAPI 3 definition.
+  version: 1.0.0
+  description: some description
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  contact:
+    name: qa
+    url: https://swagger.io/specification/#definitions
+    email: email@redoc.ly
+
+paths:
+  /store/subscribe:
+    post:
+      summary: Subscribe to the Store events
+      description: Add subscription for a store events
+      operationId: postId
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: object
+              properties:
+                callbackUrl:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Subscription added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriptionId:
+                    type: string
+                    example: AAA-123-BBB-456
+      callbacks:
+        orderInProgress:
+          '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
+            servers:
+              - url: //callback-url.path-level/v1
+                description: Path level server 1
+            post:
+              summary: Order in Progress
+              description: A callback triggered every time an Order is updated status
+              requestBody:
+                content:
+                  application/xml:
+                    schema:
+                      type: object
+                      properties:
+                        orderId:
+                          type: string
+                          example: '123'
+              responses:
+                '200':
+                  description: Callback successfully processed and no retries will be performed
+                  content:
+                    application/xml:
+                      schema:
+                        type: object
+                        properties:
+                          someProp:
+                            type: string
+                            example: '123'
+x-webhooks:
+  newPet:
+    post:
+      summary: New pet
+      description: Information about a new pet
+      operationId: newPet
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: The name given to a pet
+                  type: string
+                  example: Guru
+      responses:
+        "200":
+          description: Return a 200 status
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  test:
+                    type: string
+                    example: example
