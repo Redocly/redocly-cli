@@ -265,10 +265,9 @@ export class RedoclyClient {
     });
   }
 
-  static isRegistryURL(link: string): boolean {
-    const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
-    if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-    const registryPath = link.replace(`https://api.${domain}/registry/`, '');
+  isRegistryURL(link: string): boolean {
+    if (!link.startsWith(`https://api.${this.redoclyDomain}/registry/`)) return false;
+    const registryPath = link.replace(`https://api.${this.redoclyDomain}/registry/`, '');
 
     const pathParts = registryPath.split('/');
 
