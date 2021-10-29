@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.1.0
 servers:
   - url: //petstore.swagger.io/v2
     description: Default server
@@ -40,42 +40,13 @@ paths:
                   subscriptionId:
                     type: string
                     example: AAA-123-BBB-456
-      callbacks:
-        orderInProgress:
-          '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-            servers:
-              - url: //callback-url.path-level/v1
-                description: Path level server 1
-            post:
-              summary: Order in Progress
-              description: A callback triggered every time an Order is updated status
-              requestBody:
-                content:
-                  application/xml:
-                    schema:
-                      type: object
-                      properties:
-                        orderId:
-                          type: string
-                          example: '123'
-              responses:
-                '200':
-                  description: Callback successfully processed and no retries will be performed
-                  content:
-                    application/xml:
-                      schema:
-                        type: object
-                        properties:
-                          someProp:
-                            type: string
-                            example: '123'
-x-webhooks:
+webhooks:
   newPet:
     post:
-      summary: New pet
-      description: Information about a new pet
+      summary: new pet
       operationId: newPet
       requestBody:
+        description: request body description
         content:
           application/xml:
             schema:
@@ -86,13 +57,14 @@ x-webhooks:
                   type: string
                   example: Guru
       responses:
-        "200":
-          description: Return a 200 status
+        '200':
+          description: response description
           content:
             application/xml:
               schema:
                 type: object
                 properties:
-                  test:
+                  name:
+                    description: The name given to a pet
                     type: string
-                    example: example
+                    example: Guru
