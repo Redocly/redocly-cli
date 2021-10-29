@@ -126,7 +126,7 @@ export async function previewDocs(argv: {
     config.lint.skipPreprocessors(argv['skip-preprocessor']);
     config.lint.skipDecorators(argv['skip-decorator']);
 
-    const domain = config.resolve.domain;
+    const domain = config.resolve.redoclyDomain;
     const redoclyClient = new RedoclyClient(domain);
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const referenceDocs = config.referenceDocs || {};

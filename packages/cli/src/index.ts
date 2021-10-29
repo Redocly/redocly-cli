@@ -196,24 +196,24 @@ yargs
       },
     }),
     async (argv) => {
-      let domain: string;
+      let redoclyDomain: string;
 
       if (argv.region) {
-        domain = Config.getDomainByRegion(argv.region as Region);
+        redoclyDomain = Config.getRedoclyDomainByRegion(argv.region as Region);
       } else {
         const config = await loadConfig();
-        domain = config.resolve.domain;
+        redoclyDomain = config.resolve.redoclyDomain;
       }
 
       const clientToken = await promptUser(
         green(
           `\n  🔑 Copy your API key from ${blue(
-            `https://app.${domain}/profile`,
+            `https://app.${redoclyDomain}/profile`,
           )} and paste it below`,
         ),
         true,
       );
-      const client = new RedoclyClient(domain);
+      const client = new RedoclyClient(redoclyDomain);
       client.login(clientToken, argv.verbose);
   })
   .command('logout', 'Clear your stored credentials for the Redocly API registry.',
@@ -224,16 +224,16 @@ yargs
         },
       }),
     async (argv) => {
-      let domain: string;
+      let redoclyDomain: string;
 
       if (argv.region) {
-        domain = Config.getDomainByRegion(argv.region as Region);
+        redoclyDomain = Config.getRedoclyDomainByRegion(argv.region as Region);
       } else {
         const config = await loadConfig();
-        domain = config.resolve.domain;
+        redoclyDomain = config.resolve.redoclyDomain;
       }
 
-      const client = new RedoclyClient(domain);
+      const client = new RedoclyClient(redoclyDomain);
       client.logout();
   })
   .command('preview-docs [entrypoint]', 'Preview API reference docs for the specified definition.',

@@ -24,7 +24,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
     rawConfig.lint.extends = customExtends;
   }
 
-  const domain = Config.resolveDomain(rawConfig.resolve?.region);
+  const domain = Config.resolveRedoclyDomain(rawConfig.resolve?.region);
   const redoclyClient = new RedoclyClient(domain);
   if (redoclyClient.hasToken()) {
     if (!rawConfig.resolve) rawConfig.resolve = {};

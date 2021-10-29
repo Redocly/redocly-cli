@@ -112,7 +112,7 @@ export type ResolveHeader =
 
 export type Region = 'us' | 'eu';
 
-const REGION_DOMAINS: {[region in Region]: string} = {
+const REGION_REDOCLY_DOMAINS: {[region in Region]: string} = {
   us: 'redoc.ly',
   eu: 'eu.redocly.com',
 };
@@ -129,7 +129,7 @@ export type HttpResolveConfig = {
 
 export type ResolveConfig = {
   http: HttpResolveConfig;
-  domain: string;
+  redoclyDomain: string;
 };
 
 export type RawConfig = {
@@ -403,22 +403,22 @@ export class Config {
         headers: rawConfig?.resolve?.http?.headers ?? [],
         customFetch: undefined,
       },
-      domain: Config.resolveDomain(rawConfig?.resolve?.region),
+      redoclyDomain: Config.resolveRedoclyDomain(rawConfig?.resolve?.region),
     };
   }
 
-  static resolveDomain(region?: Region): string {
+  static resolveRedoclyDomain(region?: Region): string {
     if (region) {
-      return Config.getDomainByRegion(region);
+      return Config.getRedoclyDomainByRegion(region);
     } else if (process.env.REDOCLY_DOMAIN) {
       return process.env.REDOCLY_DOMAIN;
     }
 
-    return Config.getDomainByRegion('eu');
+    return Config.getRedoclyDomainByRegion('eu');
   }
 
-  static getDomainByRegion(region: Region): string {
-    const domainUrl = REGION_DOMAINS[region];
+  static getRedoclyDomainByRegion(region: Region): string {
+    const domainUrl = REGION_REDOCLY_DOMAINS[region];
 
     if (!domainUrl) {
       throw new Error(`The region '${region} is not supported.'`)

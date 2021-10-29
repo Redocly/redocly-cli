@@ -31,7 +31,7 @@ export async function handlePush (argv: {
   'run-id'?: string;
 }) {
   const config = await loadConfig();
-  const client = new RedoclyClient(config.resolve.domain);
+  const client = new RedoclyClient(config.resolve.redoclyDomain);
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {
     const clientToken = await promptUser(
