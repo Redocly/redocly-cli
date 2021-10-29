@@ -31,6 +31,7 @@ import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
+import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
@@ -68,6 +69,7 @@ export const rules = {
   'path-http-verbs-order': PathHttpVerbsOrder as Oas2Rule,
   'request-mime-type': RequestMimeType as Oas2Rule,
   'response-mime-type': ResponseMimeType as Oas2Rule,
+  'path-segment-plural': PathSegmentPlural as Oas2Rule,
 };
 
 export const preprocessors = {};

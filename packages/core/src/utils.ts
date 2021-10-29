@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
+import * as pluralize from 'pluralize';
 
 import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
@@ -103,6 +104,14 @@ export function validateMimeType(
   }
 }
 
+export function isSingular(path: string) {
+  return pluralize.isSingular(path);
+}
+
 export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
+}
+
+export function isPathParameter(pathSegment: string) {
+  return pathSegment.startsWith('{') && pathSegment.endsWith('}');
 }
