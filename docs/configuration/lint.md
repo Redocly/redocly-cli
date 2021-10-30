@@ -78,6 +78,20 @@ Use this section to choose the base configuration for further extension or addin
 * **default**: `recommended`
 * **possible values**: `minimal`, `recommended`, `all`
 
+:::info
+Possible values specified above are related to built-in rules only. Custom plugins can contain additional configurations, so it can be as follows:
+
+```yaml
+lint:
+  extends:
+    - recommended
+    - my-custom-super-ruleset
+```
+
+Find more information in the [Configs in plugins](../resources/custom-rules/#configs-in-plugins) section.
+
+:::
+
 #### Examples
 
 ```yaml single value
@@ -89,7 +103,8 @@ lint:
 ```yaml multiple values
 lint:
   extends:
-    - [minimal, recommended]
+    - minimal
+    - recommended
 ```
 
 ### Resolve
@@ -150,7 +165,7 @@ Use this section to change the [severity level](#severity-levels) of any rules i
 Preprocessors run first during `lint` and `bundle`.
 
 :::info
-Preprocessors are rarely indicated, avoid if possible.
+Preprocessors are rarely indicated - avoid if possible.
 
 This section can be omitted.
 :::
@@ -264,7 +279,7 @@ Be sure to document those options for your users.
 
 ## Different OpenAPI versions
 
-Redocly OpenAPI CLI supports OpenAPI of versions 2 and 3. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
+Redocly OpenAPI CLI supports OpenAPI of versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
 ```yaml
 lint:
