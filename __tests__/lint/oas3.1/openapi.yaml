@@ -153,10 +153,10 @@ components:
           description: A human-readable explanation specific to this occurrence of the problem.
           type: string
       required:
-        - type,
-        - title,
-        - status,
-        - instance,
+        - type
+        - title
+        - status
+        - instance
         - detail
       examples:
         - type: https://developer.acme.com/codes/404
