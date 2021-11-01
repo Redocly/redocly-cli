@@ -5,6 +5,8 @@ jest.mock('node-fetch');
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
 
+jest.requireMock('@redocly/openapi-core').slash = jest.fn(); // for some reason slash is not mocked, mocking explicitly
+
 describe('push', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
 

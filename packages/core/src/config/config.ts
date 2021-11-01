@@ -4,7 +4,7 @@ import { dirname } from 'path';
 import { red, blue } from 'colorette';
 
 import { parseYaml, stringifyYaml } from '../js-yaml';
-import { notUndefined } from '../utils';
+import { notUndefined, slash } from '../utils';
 
 import {
   OasVersion,
@@ -211,7 +211,7 @@ export class LintConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = (mapped[path.relative(dir, absFileName)] = this.ignore[absFileName]);
+      const ignoredRules = (mapped[slash(path.relative(dir, absFileName))] = this.ignore[absFileName]);
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
