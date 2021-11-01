@@ -7,7 +7,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
     "warnings": 0,
     "ignored": 0
   },
-  "version": "1.0.0-beta.65",
+  "version": "1.0.0-beta.66",
   "problems": [
     {
       "ruleId": "spec",
@@ -31,7 +31,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
     "warnings": 0,
     "ignored": 0
   },
-  "version": "1.0.0-beta.65",
+  "version": "1.0.0-beta.66",
   "problems": []
 }
 ❌ Validation failed with 1 error.

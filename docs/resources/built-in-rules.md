@@ -174,6 +174,68 @@ Verifies that paths are not ambiguous as defined in the spec:
 ### paths-kebab-case
 All path items should be in kebab-case.
 
+### path-segment-plural
+
+All path segments should be plural. You can skip last segment or add exceptions using configuration:
+
+```yaml
+lint:
+  boolean-parameter-prefixes:
+    severity: {severity}
+    ignoreLastPathSegment: true
+    exceptions:
+      - v1
+```
+
+### no-http-verbs-in-paths
+
+Prevent HTTP verbs in paths like `GET /getAllCustomers`.
+Configure `splitIntoWords` to split path into words using casing before matching:
+
+```yaml
+lint:
+  no-http-verbs-in-paths:
+    severity: {severity}
+    splitIntoWords: true
+```
+
+
+### path-excludes-patterns
+
+Disallow specific regular expressions to match against paths.
+
+```yaml
+lint:
+  path-excludes-patterns:
+    severity: error
+    patterns:
+      - ^\/[a-z]
+```
+
+### request-mime-type
+
+Limit the allowed request body mime types. The rule inverses behavior for webhooks and events: it enforces responses mime types.
+
+```yaml
+lint:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+```
+
+
+### response-mime-type
+
+Limit the allowed response mime types. The rule inverses behavior for webhooks and events: it enforces requests mime types.
+
+```yaml
+lint:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+```
 
 ## Recommended config
 
