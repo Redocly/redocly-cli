@@ -147,3 +147,16 @@ export function readFileAsStringSync(filePath: string) {
 export function isPathParameter(pathSegment: string) {
   return pathSegment.startsWith('{') && pathSegment.endsWith('{');
 }
+
+
+/**
+ * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
+ */
+ export function slash(path: string): string {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+  if (isExtendedLengthPath) {
+    return path
+  }
+
+  return path.replace(/\\/g, '/');
+}
