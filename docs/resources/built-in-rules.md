@@ -4,10 +4,10 @@ redirectFrom:
   - /docs/cli/built-in-rules/
 ---
 
-# Built in rules
+# Built-in rules
 
 All of our built-in rules are listed below.
-We don't ship any built-in preprocessors or decorators.
+We don't ship any built-in preprocessors.
 To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.redocly.yaml` in your working directory.
 
 Each of the `rules` entries can be one of following:

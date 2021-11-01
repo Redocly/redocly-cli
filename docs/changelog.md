@@ -4,7 +4,47 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
-## 1.0.0-beta.64 (2021-10-20
+## 1.0.0-beta.65 (2021-10-27)
+
+### Features
+
+- OpenAPI CLI now supports three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+
+The following examples show how to add the decorators to the `.redocly.yaml` file:
+
+
+```yaml info-description-override
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./my-custom-description.md
+```
+
+```yaml tag-description-override
+lint:
+  decorators:
+    tag-description-override:
+      tagNames:
+        pet: ./my-custom-description.md
+```
+
+```yaml operation-description-override
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        updatePet: ./my-custom-description.md
+```
+
+- Improved documentation for [the lint command](./commands/lint.md).
+
+### Fixes
+
+- When used with the `--lint` parameter, the `bundle` command now returns a non-zero code when it detects an error.
+
+----
+
+## 1.0.0-beta.64 (2021-10-20)
 
 ### Fixes
 
