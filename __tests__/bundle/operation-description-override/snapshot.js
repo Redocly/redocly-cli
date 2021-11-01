@@ -45,8 +45,6 @@ paths:
       responses:
         '200':
           description: ok
-        '400':
-          description: error
 components: {}
 
 Woohoo! Your OpenAPI definitions are valid. 🎉

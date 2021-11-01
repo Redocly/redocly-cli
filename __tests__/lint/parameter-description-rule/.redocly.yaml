@@ -4,4 +4,4 @@ apiDefinitions:
 lint:
   rules:
     parameter-description: warn
-  exends: []
+  extends: []

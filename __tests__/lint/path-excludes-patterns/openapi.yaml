@@ -22,8 +22,6 @@ paths:
       responses:
         '200':
           description: example description
-        '400':
-          description: example error description
   /getUsers:
     get:
       operationId: userId
@@ -31,5 +29,3 @@ paths:
       responses:
         '200':
           description: example description
-        '400':
-          description: example error description

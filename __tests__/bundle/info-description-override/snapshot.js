@@ -29,8 +29,6 @@ paths:
       responses:
         '200':
           description: example description
-        '400':
-          description: example description
 components: {}
 
 Woohoo! Your OpenAPI definitions are valid. 🎉
