@@ -4,11 +4,11 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
-## 1.0.0-beta.65 (2021-11-01)
+## 1.0.0-beta.66 (2021-11-01)
 
 ### Features
 
-- OpenAPI CLI now suppports four new built-in rules:
+- OpenAPI CLI now suppports five new built-in rules:
   - [path-excludes-patterns](./resources/built-in-rules.md#path-segment-plural)
   - [no-http-verbs-in-paths](./resources/built-in-rules.md#no-http-verbs-in-paths)
   - [path-excludes-patterns](./resources/built-in-rules.md#path-excludes-patterns)
