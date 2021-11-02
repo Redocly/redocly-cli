@@ -2,8 +2,6 @@
 
 exports[`E2E lint no-http-verbs-in-paths-split-words-error 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:18:3 at #/paths/~1pet~1findByPut
 

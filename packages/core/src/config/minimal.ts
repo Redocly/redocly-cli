@@ -17,6 +17,7 @@ export default {
     'path-parameters-defined': 'warn',
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
+    'operation-4xx-response': 'off',
     'operation-operationId': 'warn',
     'operation-summary': 'warn',
     'operation-operationId-unique': 'warn',

@@ -2,8 +2,6 @@
 
 exports[`E2E lint path-not-include-query-error 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:14:3 at #/paths/~1ping~1items?id=###
 

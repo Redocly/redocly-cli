@@ -2,8 +2,6 @@
 
 exports[`E2E lint oas3-no-errors 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 /openapi.yaml: validated in <test>ms
 

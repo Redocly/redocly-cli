@@ -3,5 +3,5 @@ apiDefinitions:
 
 lint:
   rules:
-    path-declaration-must-exist: error
+    operation-4xx-response: warn
   extends: []

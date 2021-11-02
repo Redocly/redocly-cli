@@ -104,6 +104,11 @@ Operation must have at least one `2xx` response.
 Any API operation (endpoint) can fail but presumably it is also meant to do something constructive at some point.
 If you forget to write out a success case for this API, then this rule will let you know.
 
+### operation-4xx-response
+Operation must have at least one `4xx` response.
+
+Any API may return an error. Verifies that every API operation has at least one error case described.
+
 ### operation-operationId
 Every operation must have an `operationId` defined.
 Useful in the docs for deep-linking.
@@ -271,6 +276,7 @@ Here is the equivalent of the `recommended` configuration values:
     path-parameters-defined: error
     operation-description: off
     operation-2xx-response: warn
+    operation-4xx-response: warn
     operation-operationId: warn
     operation-summary: error
     operation-operationId-unique: error

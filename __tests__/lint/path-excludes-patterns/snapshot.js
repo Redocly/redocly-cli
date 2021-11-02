@@ -2,8 +2,6 @@
 
 exports[`E2E lint path-excludes-patterns 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:25:3 at #/paths/~1getUsers
 

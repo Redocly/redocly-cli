@@ -38,6 +38,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -52,6 +54,8 @@ paths:
       responses:
         '201':
           description: Null response
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -78,6 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -149,6 +155,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -163,6 +171,8 @@ paths:
       responses:
         '201':
           description: Null response
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -189,6 +199,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:

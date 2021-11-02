@@ -40,6 +40,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pets"
+        '400':
+          description: An error response
   /pets/model:
     get:
       summary: List all pets
@@ -59,6 +61,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Model"
+        '400':
+          description: An error response
   /pets/person:
     get:
       summary: List all pets
@@ -78,6 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/person"
+        '400':
+          description: An error response
   /:
     get:
       operationId: getEmptyOperationId
@@ -122,6 +128,8 @@ webhooks:
       responses:
         "200":
           description: Return a 200 status to indicate that the data was received successfully
+        '400':
+          description: An error response
 
 components:
   securitySchemes:

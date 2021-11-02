@@ -2,8 +2,6 @@
 
 exports[`E2E lint request-response-mime-type-oas3-error 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:25:11 at #/paths/~1store~1subscribe/post/requestBody/content/application~1xml
 
