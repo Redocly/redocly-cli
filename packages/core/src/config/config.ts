@@ -113,7 +113,6 @@ export type ResolveHeader =
 
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
-  region?: Region;
 };
 
 export type HttpResolveConfig = {
@@ -130,6 +129,7 @@ export type RawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
+  region?: Region;
 };
 
 export class LintConfig {
@@ -631,8 +631,8 @@ export async function resolveRedoclyDomain({
 
   const rawConfig: RawConfig = preloadedRawConfig || await loadRawConfig(configPath);
 
-  if (rawConfig.resolve && rawConfig.resolve.region) {
-    return getRedoclyDomainByRegion(rawConfig.resolve.region);
+  if (rawConfig.region) {
+    return getRedoclyDomainByRegion(rawConfig.region);
   }
 
   return process.env.REDOCLY_DOMAIN || getRedoclyDomainByRegion(DEFAULT_REGION);
