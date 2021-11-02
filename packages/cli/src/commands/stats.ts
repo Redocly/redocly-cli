@@ -23,6 +23,7 @@ import {
 
 import { getFallbackEntryPointsOrExit } from '../utils'
 import { printExecutionTime } from '../utils';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -65,9 +66,13 @@ export async function handleStats (argv: {
   config?: string;
   entrypoint?: string;
   format: string;
+  region?: Region;
 }) {
-  const config: Config = await loadConfig(argv.config);
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
+  const config: Config = await loadConfig(argv.config, null, argv.region);
+  const entrypoints = await getFallbackEntryPointsOrExit(
+    argv.entrypoint ? [argv.entrypoint] : [],
+    config
+  );
   const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: entrypoint });

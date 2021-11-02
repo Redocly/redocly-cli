@@ -5,6 +5,7 @@ import { loadYaml } from '../utils';
 import {
   Config,
   RawConfig,
+  Region,
   resolveRedoclyDomain,
 } from './config';
 
@@ -27,15 +28,22 @@ export async function loadRawConfig(configPath?: string): Promise<RawConfig> {
   return rawConfig;
 }
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
+// todo: check if a custom region is passed where defined
+// after adding to all the commands
+export async function loadConfig(
+  configPath?: string,
+  customExtends?: string[] | null,
+  region?: Region
+): Promise<Config> {
   const rawConfig = await loadRawConfig(configPath);
 
-  if (customExtends !== undefined) {
+  if (customExtends) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
 
   const redoclyDomain = await resolveRedoclyDomain({
+    region,
     preloadedRawConfig: rawConfig
   });
 

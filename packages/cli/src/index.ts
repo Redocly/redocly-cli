@@ -41,7 +41,11 @@ yargs
           description: 'Output directory where files will be saved.',
           required: true,
           type: 'string'
-        }
+        },
+        region: {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
       }),
     (argv) => { handleSplit(argv) }
   )
