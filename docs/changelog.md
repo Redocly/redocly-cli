@@ -4,6 +4,12 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.67 (2021-11-02)
+
+### Features
+
+- Added a new built-in rule: [operation-4xx-response](./resources/built-in-rules.md#operation-4xx-response).
+
 ## 1.0.0-beta.66 (2021-11-01)
 
 ### Features
