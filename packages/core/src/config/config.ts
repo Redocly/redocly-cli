@@ -625,7 +625,7 @@ export async function resolveRedoclyDomain({
   configPath?: string,
   preloadedRawConfig?: RawConfig,
 }): Promise<string> {
-  if (region) {
+  if (region !== undefined) {
     return getRedoclyDomainByRegion(region);
   }
 

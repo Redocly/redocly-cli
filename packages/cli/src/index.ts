@@ -72,7 +72,11 @@ yargs
           description: 'Prefix components with property value from info object.',
           requiresArg: true,
           type: 'string',
-        }
+        },
+        'region': {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
       }),
     (argv) => { handleJoin(argv, version) }
   )
@@ -127,7 +131,11 @@ yargs
           requiresArg: true,
           array: true,
           type: 'string',
-        }
+        },
+        region: {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
       }),
     (argv) => { handleLint(argv, version) }
   )

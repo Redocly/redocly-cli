@@ -27,6 +27,7 @@ import {
   exitWithError
 } from '../utils';
 import { isObject, isString } from '../js-utils';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 const COMPONENTS = 'components';
 let potentialConflictsTotal = 0;
@@ -45,14 +46,15 @@ export async function handleJoin (argv: {
   lint?: boolean,
   'prefix-tags-with-info-prop'?: string,
   'prefix-tags-with-filename'?: boolean,
-  'prefix-components-with-info-prop'?: string
+  'prefix-components-with-info-prop'?: string,
+  region?: Region,
 },
 packageVersion: string
 ) {
   const startedAt = performance.now();
   if (argv.entrypoints.length < 2) { return exitWithError(`At least 2 entrypoints should be provided. \n\n`); }
 
-  const config: Config = await loadConfig();
+  const config: Config = await loadConfig({ region: argv.region });
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(

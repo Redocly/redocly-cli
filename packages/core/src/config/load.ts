@@ -11,33 +11,20 @@ import {
 
 import { defaultPlugin } from './builtIn';
 
-export async function loadRawConfig(configPath?: string): Promise<RawConfig> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-  let rawConfig: RawConfig = {};
-
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
-
-  return rawConfig;
-}
-
 // todo: check if a custom region is passed where defined
 // after adding to all the commands
-export async function loadConfig(
+export async function loadConfig({
+  configPath,
+  customExtends,
+  region
+}: {
   configPath?: string,
-  customExtends?: string[] | null,
+  customExtends?: string[],
   region?: Region
-): Promise<Config> {
+} = {}): Promise<Config> {
   const rawConfig = await loadRawConfig(configPath);
 
-  if (customExtends) {
+  if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
@@ -71,6 +58,24 @@ export async function loadConfig(
     },
     configPath,
   );
+}
+
+export async function loadRawConfig(configPath?: string): Promise<RawConfig> {
+  if (configPath === undefined) {
+    configPath = findConfig();
+  }
+
+  let rawConfig: RawConfig = {};
+
+  if (configPath !== undefined) {
+    try {
+      rawConfig = (await loadYaml(configPath)) as RawConfig;
+    } catch (e) {
+      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
+    }
+  }
+
+  return rawConfig;
 }
 
 function findConfig() {

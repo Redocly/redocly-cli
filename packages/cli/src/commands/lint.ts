@@ -17,6 +17,7 @@ import {
 import { Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 export async function handleLint(
   argv: {
@@ -28,10 +29,15 @@ export async function handleLint(
     extends?: string[];
     config?: string;
     format: OutputFormat;
+    region?: Region;
   },
   version: string,
 ) {
-  const config: Config = await loadConfig(argv.config, argv.extends);
+  const config: Config = await loadConfig({
+    configPath: argv.config,
+    customExtends: argv.extends,
+    region: argv.region,
+  });
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);

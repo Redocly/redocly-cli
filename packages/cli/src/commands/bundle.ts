@@ -31,7 +31,7 @@ export async function handleBundle(
   },
   version: string,
 ) {
-  const config = await loadConfig(argv.config);
+  const config = await loadConfig({ configPath: argv.config });
   // to pass a domain to the RegistryDependencies decorator
   // (there might be a nicer but more complicated way)
   process.env.REDOCLY_DOMAIN = await resolveRedoclyDomain({ configPath: argv.config });

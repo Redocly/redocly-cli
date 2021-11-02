@@ -68,7 +68,10 @@ export async function handleStats (argv: {
   format: string;
   region?: Region;
 }) {
-  const config: Config = await loadConfig(argv.config, null, argv.region);
+  const config: Config = await loadConfig({
+    configPath: argv.config,
+    region: argv.region,
+  });
   const entrypoints = await getFallbackEntryPointsOrExit(
     argv.entrypoint ? [argv.entrypoint] : [],
     config

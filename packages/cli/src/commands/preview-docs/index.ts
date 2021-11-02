@@ -124,7 +124,10 @@ export async function previewDocs(argv: {
   });
 
   async function reloadConfig() {
-    let config = await loadConfig(argv.config);
+    let config = await loadConfig({
+      configPath: argv.config,
+      region: argv.region,
+    });
     config.lint.skipRules(argv['skip-rule']);
     config.lint.skipPreprocessors(argv['skip-preprocessor']);
     config.lint.skipDecorators(argv['skip-decorator']);
