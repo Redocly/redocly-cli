@@ -24,9 +24,11 @@ tocMaxDepth: 2
 ### Fixes
 
 - Resolved an issue with OAS 3.1 meta keywords reported as not expected.
-- Resolved an issue with incorrect codeframe for `info-license-url` rule
-- Resolved an issue with discriminator mapping not supported in `no-invalid-media-type-examples`
-- Resolves an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows
+- Resolved an issue with incorrect codeframe for `info-license-url` rule.
+- Resolved an issue with discriminator mapping not supported in `no-invalid-media-type-examples`.
+- Resolves an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows.
+
+----
 
 ## 1.0.0-beta.65 (2021-10-27)
 
