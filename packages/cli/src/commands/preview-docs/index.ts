@@ -11,7 +11,7 @@ import {
 import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import { Region } from '@redocly/openapi-core/lib/config/config';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 
 export async function previewDocs(argv: {
   port: number;

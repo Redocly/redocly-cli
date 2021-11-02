@@ -12,7 +12,7 @@ import {
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 
 export async function handleBundle(
   argv: {

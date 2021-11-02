@@ -99,7 +99,7 @@ export class RedoclyClient {
     try {
       const queryStr = `query ${queryName}{ viewer { id } }`;
 
-      return await query(queryStr, this.redoclyDomain, { Authorization: accessToken });
+      return await query(queryStr, this.redoclyDomain, {}, { Authorization: accessToken });
     } catch (e) {
       if (verbose) console.log(e);
       return null;

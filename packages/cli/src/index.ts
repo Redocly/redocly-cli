@@ -14,7 +14,7 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 const version = require('../package.json').version;
 
 yargs

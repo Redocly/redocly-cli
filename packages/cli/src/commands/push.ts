@@ -15,7 +15,7 @@ import {
   dumpBundle,
 } from '../utils';
 import { Region } from '@redocly/openapi-core/lib/config/config';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/load';
+import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 
 type Source = {
   files: string[];

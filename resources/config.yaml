@@ -1,0 +1,10 @@
+apiDefinitions:
+  main: ./pets.yaml
+
+lint:
+  decorators:
+    registry-dependencies:
+      severity: error
+
+resolve:
+  region: us

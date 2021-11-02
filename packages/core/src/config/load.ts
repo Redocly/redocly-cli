@@ -2,11 +2,15 @@ import * as fs from 'fs';
 
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, getRedoclyDomainByRegion, RawConfig, Region } from './config';
+import {
+  Config,
+  RawConfig,
+  resolveRedoclyDomain,
+} from './config';
 
 import { defaultPlugin } from './builtIn';
 
-async function loadRawConfig(configPath?: string): Promise<RawConfig> {
+export async function loadRawConfig(configPath?: string): Promise<RawConfig> {
   if (configPath === undefined) {
     configPath = findConfig();
   }
@@ -68,27 +72,4 @@ function findConfig() {
     return '.redocly.yml';
   }
   return undefined;
-}
-
-// todo: move to the config file
-export async function resolveRedoclyDomain({
-   region,
-   configPath,
-   preloadedRawConfig,
-}: {
-  region?: Region,
-  configPath?: string,
-  preloadedRawConfig?: RawConfig,
-}): Promise<string> {
-  if (region) {
-    return getRedoclyDomainByRegion(region);
-  }
-
-  const rawConfig: RawConfig = preloadedRawConfig || await loadRawConfig(configPath);
-
-  if (rawConfig.resolve && rawConfig.resolve.region) {
-    return getRedoclyDomainByRegion(rawConfig.resolve.region);
-  }
-
-  return process.env.REDOCLY_DOMAIN || getRedoclyDomainByRegion('eu');
 }

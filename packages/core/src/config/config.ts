@@ -21,6 +21,7 @@ import { ProblemSeverity, NormalizedProblem } from '../walk';
 
 import recommended from './recommended';
 import { NodeType } from '../types';
+import { loadRawConfig } from './load';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -109,13 +110,6 @@ export type ResolveHeader =
       envVariable: string;
       matches: string;
     };
-
-export type Region = 'us' | 'eu';
-
-const REGION_REDOCLY_DOMAINS: {[region in Region]: string} = {
-  us: 'redoc.ly',
-  eu: 'eu.redocly.com',
-};
 
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
@@ -406,16 +400,6 @@ export class Config {
   }
 }
 
-export function getRedoclyDomainByRegion(region: Region): string {
-  const domainUrl = REGION_REDOCLY_DOMAINS[region];
-
-  if (!domainUrl) {
-    throw new Error(`The region '${region} is not supported.'`)
-  }
-
-  return domainUrl;
-}
-
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
     const { pluginId, configName } = parsePresetName(presetName);
@@ -621,4 +605,45 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
       target[k] = obj[k];
     }
   }
+}
+
+export type Region = 'us' | 'eu';
+
+const DEFAULT_REGION: Region = 'eu';
+
+const REGION_REDOCLY_DOMAINS: {[region in Region]: string} = {
+  us: 'redoc.ly',
+  eu: 'eu.redocly.com',
+};
+
+export async function resolveRedoclyDomain({
+ region,
+ configPath,
+ preloadedRawConfig,
+}: {
+  region?: Region,
+  configPath?: string,
+  preloadedRawConfig?: RawConfig,
+}): Promise<string> {
+  if (region) {
+    return getRedoclyDomainByRegion(region);
+  }
+
+  const rawConfig: RawConfig = preloadedRawConfig || await loadRawConfig(configPath);
+
+  if (rawConfig.resolve && rawConfig.resolve.region) {
+    return getRedoclyDomainByRegion(rawConfig.resolve.region);
+  }
+
+  return process.env.REDOCLY_DOMAIN || getRedoclyDomainByRegion(DEFAULT_REGION);
+}
+
+function getRedoclyDomainByRegion(region: Region): string {
+  const domainUrl = REGION_REDOCLY_DOMAINS[region];
+
+  if (!domainUrl) {
+    throw new Error(`The region '${region} is not supported.'`)
+  }
+
+  return domainUrl;
 }
