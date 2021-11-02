@@ -64,7 +64,7 @@ export default async function startPreviewServer(
     console.time(colorette.dim(`GET ${request.url}`));
     const { htmlTemplate } = getOptions() || {};
 
-    if (request.url === '/') {
+    function serveIndexPage() {
       respondWithGzip(
         getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,
@@ -73,7 +73,11 @@ export default async function startPreviewServer(
           'Content-Type': 'text/html',
         },
       );
-    } else if (request.url === '/openapi.json') {
+    }
+
+    if (request.url === '/') {
+      serveIndexPage()
+    } else if (request.url?.endsWith('/openapi.json')) {
       const bundle = await getBundle();
       if (bundle === undefined) {
         respondWithGzip(
@@ -96,39 +100,45 @@ export default async function startPreviewServer(
           'Content-Type': 'application/json',
         });
       }
-    } else {
+    } else if (request.url && ['/hot.js', '/simplewebsocket.min.js'].includes(request.url)) {
       const filePath =
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
-        }[request.url || ''] ||
-        path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
+        }[request.url || '']!
 
-      if (!isSubdir(process.cwd(), filePath)) {
-        respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
-        console.timeEnd(colorette.dim(`GET ${request.url}`));
-        return;
-      }
+        const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
 
-      const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
+        const contentType = mimeTypes[extname] || 'application/octet-stream';
+        try {
+          respondWithGzip(await fsPromises.readFile(filePath), request, response, {
+            'Content-Type': contentType,
+          });
+        } catch (e) {
+          if (e.code === 'ENOENT') {
+            respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
+          } else {
+            respondWithGzip(
+              `Something went wrong: ${e.code || e.message}...\n`,
+              request,
+              response,
+              {},
+              500,
+            );
+          }
+        }
+    } else {
+      const filePath = path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
+      const { pagination } = getOptions()
 
-      const contentType = mimeTypes[extname] || 'application/octet-stream';
-      try {
-        respondWithGzip(await fsPromises.readFile(filePath), request, response, {
-          'Content-Type': contentType,
-        });
-      } catch (e) {
-        if (e.code === 'ENOENT') {
+      if (pagination !== 'none') {
+        serveIndexPage();
+      } else {
+        if (!isSubdir(process.cwd(), filePath)) {
           respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
-        } else {
-          respondWithGzip(
-            `Something went wrong: ${e.code || e.message}...\n`,
-            request,
-            response,
-            {},
-            500,
-          );
+          console.timeEnd(colorette.dim(`GET ${request.url}`));
+          return;
         }
       }
     }
