@@ -12,8 +12,7 @@ import {
   RedoclyClient,
   IGNORE_FILE,
   BundleOutputFormat,
-  getTotals,
-  slash,
+  getTotals
 } from '@redocly/openapi-core';
 import {
   promptUser,
@@ -22,6 +21,7 @@ import {
   getFallbackEntryPointsOrExit,
   pluralize,
   dumpBundle,
+  slash
 } from '../utils';
 import { Region } from '@redocly/openapi-core/lib/config/config';
 import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
