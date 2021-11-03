@@ -21,7 +21,6 @@ import { ProblemSeverity, NormalizedProblem } from '../walk';
 
 import recommended from './recommended';
 import { NodeType } from '../types';
-import { loadRawConfig } from './load';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -387,6 +386,8 @@ export class Config {
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
+  redoclyDomain: string;
+
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
@@ -397,6 +398,7 @@ export class Config {
         customFetch: undefined,
       },
     };
+    this.redoclyDomain = resolveRedoclyDomain(rawConfig.region);
   }
 }
 
@@ -616,23 +618,9 @@ const REGION_REDOCLY_DOMAINS: {[region in Region]: string} = {
   eu: 'eu.redocly.com',
 };
 
-export async function resolveRedoclyDomain({
- region,
- configPath,
- preloadedRawConfig,
-}: {
-  region?: Region,
-  configPath?: string,
-  preloadedRawConfig?: RawConfig,
-}): Promise<string> {
+export function resolveRedoclyDomain(region?: Region): string { // todo: load config instead of using this func in case a --config option is provided
   if (region !== undefined) {
     return getRedoclyDomainByRegion(region);
-  }
-
-  const rawConfig: RawConfig = preloadedRawConfig || await loadRawConfig(configPath);
-
-  if (rawConfig.region) {
-    return getRedoclyDomainByRegion(rawConfig.region);
   }
 
   return process.env.REDOCLY_DOMAIN || getRedoclyDomainByRegion(DEFAULT_REGION);

@@ -6,7 +6,7 @@ import * as yargs from 'yargs';
 import { green, blue } from 'colorette';
 import { promptUser } from './utils';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
+import { RedoclyClient, OutputFormat, loadConfig } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -14,7 +14,6 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 const version = require('../package.json').version;
 
 yargs
@@ -213,7 +212,7 @@ yargs
       },
     }),
     async (argv) => {
-      const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+      const { redoclyDomain } = await loadConfig({ region: argv.region });
       const clientToken = await promptUser(
         green(
           `\n  🔑 Copy your API key from ${blue(
@@ -233,7 +232,7 @@ yargs
         },
       }),
     async (argv) => {
-      const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+      const { redoclyDomain } = await loadConfig({ region: argv.region });
       const client = new RedoclyClient(redoclyDomain);
       client.logout();
   })

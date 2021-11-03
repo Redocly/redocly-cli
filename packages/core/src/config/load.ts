@@ -27,10 +27,13 @@ export async function loadConfig({
     rawConfig.lint.extends = customExtends;
   }
 
-  const redoclyDomain = await resolveRedoclyDomain({
-    region,
-    preloadedRawConfig: rawConfig
-  });
+  if (region) {
+    rawConfig.region = region;
+  }
+
+  const redoclyDomain = resolveRedoclyDomain(rawConfig.region);
+
+  console.warn(redoclyDomain); // fixme: remove
 
   const redoclyClient = new RedoclyClient(redoclyDomain);
   if (redoclyClient.hasToken()) {

@@ -24,7 +24,6 @@ import {
   slash
 } from '../utils';
 import { Region } from '@redocly/openapi-core/lib/config/config';
-import { resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
 
 type Source = {
   files: string[];
@@ -42,7 +41,7 @@ export async function handlePush (argv: {
   'run-id'?: string;
   region?: Region;
 }) {
-  const redoclyDomain = await resolveRedoclyDomain({ region: argv.region });
+  const { redoclyDomain } = await loadConfig({ region: argv.region });
   const client = new RedoclyClient(redoclyDomain);
   const isAuthorized = await client.isAuthorizedWithRedocly();
   if (!isAuthorized) {

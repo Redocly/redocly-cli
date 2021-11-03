@@ -12,7 +12,7 @@ import {
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
-import { Region, resolveRedoclyDomain } from '@redocly/openapi-core/lib/config/config';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 export async function handleBundle(
   argv: {
@@ -35,12 +35,6 @@ export async function handleBundle(
   const config = await loadConfig({
     configPath: argv.config,
     region: argv.region,
-  });
-  // Assigning an env variable to pass a domain to the RegistryDependencies decorator.
-  // (there might be a nicer but more complicated way)
-  process.env.REDOCLY_DOMAIN = await resolveRedoclyDomain({
-    region: argv.region,
-    configPath: argv.config,
   });
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);

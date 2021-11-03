@@ -35,10 +35,15 @@ export async function bundle(opts: {
     doc,
     externalRefResolver = new BaseResolver(opts.config.resolve),
     base = null,
+    config,
   } = opts;
   if (!(ref || doc)) {
     throw new Error('Document or reference is required.\n');
   }
+
+  // Assigning an env variable to pass a domain to the RegistryDependencies decorator.
+  // (there might be a nicer but more complicated way)
+  process.env.REDOCLY_DOMAIN = config.redoclyDomain;
 
   const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
