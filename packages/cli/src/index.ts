@@ -229,7 +229,7 @@ yargs
         region: {
           description: 'Specify a region.',
           choices: regionChoices,
-        },
+        }, // todo: remove
       }),
     async (argv) => {
       const { redoclyDomain } = await loadConfig({ region: argv.region });

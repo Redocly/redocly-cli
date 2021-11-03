@@ -33,8 +33,6 @@ export async function loadConfig({
 
   const redoclyDomain = resolveRedoclyDomain(rawConfig.region);
 
-  console.warn(redoclyDomain); // fixme: remove
-
   const redoclyClient = new RedoclyClient(redoclyDomain);
   if (redoclyClient.hasToken()) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
