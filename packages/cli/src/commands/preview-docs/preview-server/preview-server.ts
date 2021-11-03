@@ -64,7 +64,7 @@ export default async function startPreviewServer(
     console.time(colorette.dim(`GET ${request.url}`));
     const { htmlTemplate } = getOptions() || {};
 
-    function serveIndexPage() {
+    if (request.url === '/' || request.url?.endsWith('/') || path.extname(request.url!) === '') {
       respondWithGzip(
         getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,
@@ -73,10 +73,6 @@ export default async function startPreviewServer(
           'Content-Type': 'text/html',
         },
       );
-    }
-
-    if (request.url === '/') {
-      serveIndexPage()
     } else if (request.url?.endsWith('/openapi.json')) {
       const bundle = await getBundle();
       if (bundle === undefined) {
@@ -100,45 +96,39 @@ export default async function startPreviewServer(
           'Content-Type': 'application/json',
         });
       }
-    } else if (request.url && ['/hot.js', '/simplewebsocket.min.js'].includes(request.url)) {
+    } else {
       const filePath =
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
-        }[request.url || '']!
+        }[request.url || ''] ||
+        path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
 
-        const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
+      if (!isSubdir(process.cwd(), filePath)) {
+        respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
+        console.timeEnd(colorette.dim(`GET ${request.url}`));
+        return;
+      }
 
-        const contentType = mimeTypes[extname] || 'application/octet-stream';
-        try {
-          respondWithGzip(await fsPromises.readFile(filePath), request, response, {
-            'Content-Type': contentType,
-          });
-        } catch (e) {
-          if (e.code === 'ENOENT') {
-            respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
-          } else {
-            respondWithGzip(
-              `Something went wrong: ${e.code || e.message}...\n`,
-              request,
-              response,
-              {},
-              500,
-            );
-          }
-        }
-    } else {
-      const filePath = path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
-      const { pagination } = getOptions()
+      const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;
 
-      if (pagination !== 'none') {
-        serveIndexPage();
-      } else {
-        if (!isSubdir(process.cwd(), filePath)) {
+      const contentType = mimeTypes[extname] || 'application/octet-stream';
+      try {
+        respondWithGzip(await fsPromises.readFile(filePath), request, response, {
+          'Content-Type': contentType,
+        });
+      } catch (e) {
+        if (e.code === 'ENOENT') {
           respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
-          console.timeEnd(colorette.dim(`GET ${request.url}`));
-          return;
+        } else {
+          respondWithGzip(
+            `Something went wrong: ${e.code || e.message}...\n`,
+            request,
+            response,
+            {},
+            500,
+          );
         }
       }
     }
