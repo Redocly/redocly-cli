@@ -618,7 +618,7 @@ const REGION_REDOCLY_DOMAINS: {[region in Region]: string} = {
   eu: 'eu.redocly.com',
 };
 
-export function resolveRedoclyDomain(region?: Region): string { // todo: load config instead of using this func in case a --config option is provided
+export function resolveRedoclyDomain(region?: Region): string {
   if (region !== undefined) {
     return getRedoclyDomainByRegion(region);
   }
