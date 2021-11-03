@@ -81,6 +81,7 @@ export async function bundleDocument(opts: {
     problems: [],
     oasVersion: oasVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {}
   };
 
   const bundleVisitor = normalizeVisitors(
@@ -116,6 +117,7 @@ export async function bundleDocument(opts: {
     fileDependencies: externalRefResolver.getFiles(),
     rootType: types.DefinitionRoot,
     refTypes: ctx.refTypes,
+    visitorsData: ctx.visitorsData,
   };
 }
 
