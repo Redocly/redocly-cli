@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { loadConfig } from '../load';
 
-describe('resolving a redocly domain on config loading', () => {
+describe('loadConfig', () => {
   const configPath = path.join(__dirname, 'fixtures/region-config.yaml');
 
   it('should resolve a domain for the eu region by default', async () => {

@@ -5,7 +5,7 @@ import { RedoclyClient } from '../../redocly';
 jest.mock('../config');
 jest.mock('../../redocly');
 
-describe('load config using a region', () => {
+describe('loadConfig', () => {
   it('should use the passed region to init redocly client and create a config', async () => {
     const region = 'us';
     const resolvedDomain = 'some-domain';
