@@ -99,3 +99,48 @@ components:
       name: shared-a
 
 `;
+
+exports[`bundle should place referenced schema inline referenced schema name resolves to original schema name 1`] = `
+openapi: 3.0.0
+info:
+  title: My API
+  description: It ain't so wonderful, but at least it's mine.
+  version: '1.0'
+  contact:
+    email: me@theintenet.com
+    name: me
+tags:
+  - name: tag1
+servers:
+  - url: https://dev01.internet.com/api/v0
+    description: Development server.
+components:
+  schemas:
+    vendor:
+      title: vendor
+      type: object
+      description: Vendors
+      properties:
+        key:
+          type: string
+          description: System-assigned key for the vendor.
+          readOnly: true
+        id:
+          type: string
+          description: >
+            Unique identifier of the vendor.
+
+            You must specify a unique vendor ID when creating a vendor unless
+            document sequencing is configured, in which case the ID is
+            auto-generated.
+        name:
+          type: string
+          description: Name of the vendor.
+        isOneTimeUse:
+          type: boolean
+          description: One-time use
+          default: false
+    myvendor:
+      $ref: '#/components/schemas/vendor'
+
+`;

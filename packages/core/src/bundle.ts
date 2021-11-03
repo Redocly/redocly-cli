@@ -40,7 +40,8 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+  const document =
+    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
@@ -69,7 +70,11 @@ export async function bundleDocument(opts: {
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
+        ? oasVersion === OasVersion.Version3_1
+          ? Oas3_1Types
+          : Oas3Types
+        : Oas2Types,
       oasVersion,
     ),
     config,
@@ -182,7 +187,13 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         if (!componentType) {
           replaceRef(node, resolved, ctx);
         } else {
-          if (dereference) {
+          if (resolved.node.title === ctx.key && componentType === 'schemas') {
+            // if the schema name matches referenced file name we will
+            // just inline referenced schema
+            // w/o producing new schema name like (customer-2)
+            // for more details see: https://github.com/Redocly/openapi-cli/issues/349
+            replaceRef(node, resolved, ctx);
+          } else if (dereference) {
             saveComponent(componentType, resolved, ctx);
             replaceRef(node, resolved, ctx);
           } else {

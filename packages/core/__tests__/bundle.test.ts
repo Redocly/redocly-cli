@@ -10,7 +10,7 @@ import { BaseResolver } from '../src/resolve';
 describe('bundle', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
-  const testDocument =  parseYamlToDocument(
+  const testDocument = parseYamlToDocument(
     outdent`
       openapi: 3.0.0
       paths:
@@ -72,6 +72,16 @@ describe('bundle', () => {
       config: new LintConfig({}),
       document: testDocument,
       dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should place referenced schema inline referenced schema name resolves to original schema name', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
     });
 
     expect(problems).toHaveLength(0);

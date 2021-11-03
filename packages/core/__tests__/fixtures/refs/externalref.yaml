@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: My API
+  description: It ain't so wonderful, but at least it's mine.
+  version: '1.0'
+  contact:
+    email: me@theintenet.com
+    name: me
+tags:
+  - name: tag1
+servers:
+  - url: 'https://dev01.internet.com/api/v0'
+    description: Development server.
+
+components:
+  schemas:
+    vendor:
+      $ref: ./vendor.schema.yaml
+    myvendor:
+      $ref: ./vendor.schema.yaml
