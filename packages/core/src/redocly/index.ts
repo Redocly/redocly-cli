@@ -103,40 +103,6 @@ export class RedoclyClient {
     }
   }
 
-  async updateDependencies(dependencies: string[] | undefined): Promise<void> {
-    const definitionId = process.env.DEFINITION;
-    const versionId = process.env.DEFINITION;
-    const branchId = process.env.BRANCH;
-
-    if (!definitionId || !versionId || !branchId) return;
-
-    await this.query(
-      `
-    mutation UpdateBranchDependenciesFromURLs(
-      $urls: [String!]!
-      $definitionId: Int!
-      $versionId: Int!
-      $branchId: Int!
-    ) {
-      updateBranchDependenciesFromURLs(
-        definitionId: $definitionId
-        versionId: $versionId
-        branchId: $branchId
-        urls: $urls
-      ) {
-        branchName
-      }
-    }
-    `,
-      {
-        urls: dependencies || [],
-        definitionId: parseInt(definitionId, 10),
-        versionId: parseInt(versionId, 10),
-        branchId: parseInt(branchId, 10),
-      },
-    );
-  }
-
   updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
     return this.query(`
       mutation UpdateDefinitionVersion($definitionId: Int!, $versionId: Int!, $updatePatch: DefinitionVersionPatch!) {
@@ -261,20 +227,20 @@ export class RedoclyClient {
       versionName
     });
   }
+}
 
-  static isRegistryURL(link: string): boolean {
-    const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
-    if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-    const registryPath = link.replace(`https://api.${domain}/registry/`, '');
+export function isRedoclyRegistryURL(link: string): boolean {
+  const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
+  if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
+  const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
-    const pathParts = registryPath.split('/');
+  const pathParts = registryPath.split('/');
 
-    // we can be sure, that there is job UUID present
-    // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
-    // so skip this link.
-    // FIXME
-    if (pathParts.length === 7) return false;
+  // we can be sure, that there is job UUID present
+  // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
+  // so skip this link.
+  // FIXME
+  if (pathParts.length === 7) return false;
 
-    return true;
-  }
+  return true;
 }
