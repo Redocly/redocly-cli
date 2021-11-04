@@ -1,0 +1,10 @@
+openapi: 3.0.0
+paths:
+  /pet:
+    post:
+      requestBody:
+        $ref: ./requestBody.yaml
+components: 
+  schemas: 
+    requestBody:
+      $ref: ./requestBody.yaml

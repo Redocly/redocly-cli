@@ -187,10 +187,11 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         if (!componentType) {
           replaceRef(node, resolved, ctx);
         } else {
-          if (resolved.node.title === ctx.key && componentType === 'schemas') {
+          if (shouldPlaceSchemaReferenceInline(componentType, resolved, ctx)) {
             // if the schema name matches referenced file name we will
             // just inline referenced schema
-            // w/o producing new schema name like (customer-2)
+            // w/o producing new name like (customer-2)
+            // this rule works only for componentType === 'schemas'
             // for more details see: https://github.com/Redocly/openapi-cli/issues/349
             replaceRef(node, resolved, ctx);
           } else if (dereference) {
@@ -303,6 +304,16 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
 
     return name;
+  }
+
+  function shouldPlaceSchemaReferenceInline(
+    componentType: string,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
+    return refBaseName(target.location.source.absoluteRef) === ctx.key
+      && target.location.pointer.slice(2) === '' // slice(2) removes "#/"
+      && componentType === 'schemas'
   }
 
   return visitor;

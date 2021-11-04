@@ -100,7 +100,32 @@ components:
 
 `;
 
-exports[`bundle should place referenced schema inline referenced schema name resolves to original schema name 1`] = `
+exports[`bundle should not place referened schema inline when component in question is not of type "schemas" 1`] = `
+openapi: 3.0.0
+paths:
+  /pet:
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/requestBody'
+components:
+  schemas:
+    requestBody:
+      content: &ref_0
+        application/json:
+          schema:
+            type: object
+            properties:
+              a:
+                type: string
+              b:
+                type: number
+  requestBodies:
+    requestBody:
+      content: *ref_0
+
+`;
+
+exports[`bundle should place referenced schema inline when referenced schema name resolves to original schema name 1`] = `
 openapi: 3.0.0
 info:
   title: My API

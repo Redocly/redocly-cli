@@ -78,7 +78,7 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should place referenced schema inline referenced schema name resolves to original schema name', async () => {
+  it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
     const { bundle: res, problems } = await bundle({
       config: new Config({}),
       ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
@@ -87,4 +87,14 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should not place referened schema inline when component in question is not of type "schemas"', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  })
 });
