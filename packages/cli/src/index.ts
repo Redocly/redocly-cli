@@ -4,7 +4,7 @@ import './assert-node-version';
 
 import * as yargs from 'yargs';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat, loadConfig } from '@redocly/openapi-core';
+import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -213,15 +213,9 @@ yargs
     async (argv) => { handleLogin(argv) }
   )
   .command('logout', 'Clear your stored credentials for the Redocly API registry.',
-      yargs => yargs.options({
-        region: {
-          description: 'Specify a region.',
-          choices: regionChoices,
-        }, // todo: remove
-      }),
-    async (argv) => {
-      const { redoclyDomain } = await loadConfig({ region: argv.region });
-      const client = new RedoclyClient(redoclyDomain);
+      yargs => yargs,
+    async () => {
+      const client = new RedoclyClient('');
       client.logout();
   })
   .command('preview-docs [entrypoint]', 'Preview API reference docs for the specified definition.',
