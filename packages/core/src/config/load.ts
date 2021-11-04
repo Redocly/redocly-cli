@@ -11,8 +11,6 @@ import {
 
 import { defaultPlugin } from './builtIn';
 
-// todo: check if a custom region is passed where defined
-// after adding to all the commands
 export async function loadConfig({
   configPath,
   customExtends,

@@ -29,7 +29,11 @@ yargs
           description: 'Use a specific output format.',
           choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
           default: 'stylish' as OutputFormat,
-        }
+        },
+        region: {
+          description: 'Specify a region.',
+          choices: regionChoices,
+        },
       }),
     (argv) => { handleStats(argv) }
   )
@@ -41,10 +45,6 @@ yargs
           description: 'Output directory where files will be saved.',
           required: true,
           type: 'string'
-        },
-        region: {
-          description: 'Specify a region.',
-          choices: regionChoices,
         },
       }),
     (argv) => { handleSplit(argv) }
@@ -193,6 +193,10 @@ yargs
           description: 'Lint definitions',
           type: 'boolean',
           default: false,
+        },
+        region: {
+          description: 'Specify a region.',
+          choices: regionChoices,
         },
       }),
     (argv) => { handleBundle(argv, version) }

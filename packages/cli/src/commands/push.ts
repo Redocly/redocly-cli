@@ -5,7 +5,15 @@ import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
 
-import { bundle, Config, loadConfig, RedoclyClient, IGNORE_FILE, BundleOutputFormat, getTotals, slash } from '@redocly/openapi-core';
+import {
+  bundle,
+  Config,
+  loadConfig,
+  RedoclyClient,
+  IGNORE_FILE,
+  BundleOutputFormat,
+  getTotals
+} from '@redocly/openapi-core';
 import {
   promptUser,
   exitWithError,
@@ -90,7 +98,7 @@ export async function handlePush (argv: {
 
   async function collectAndUploadFiles(branch: string) {
     let source: Source = { files: [], branchName: branch };
-    const filesToUpload = await collectFilesToUpload(entrypoint!);
+    const filesToUpload = await collectFilesToUpload(entrypoint!, argv.region);
     const filesHash = hashFiles(filesToUpload.files);
 
     process.stdout.write(`Uploading ${filesToUpload.files.length} ${pluralize('file', filesToUpload.files.length)}:\n`);
@@ -134,9 +142,9 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(entrypoint: string) {
+async function collectFilesToUpload(entrypoint: string, region?: Region) {
   let files: { filePath: string, keyOnS3: string, contents?: Buffer }[] = [];
-  const config: Config = await loadConfig();
+  const config: Config = await loadConfig({ region });
   const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
   const entrypointPath = entrypoints[0];
 
