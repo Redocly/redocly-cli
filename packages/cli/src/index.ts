@@ -3,8 +3,6 @@
 import './assert-node-version';
 
 import * as yargs from 'yargs';
-import { green, blue } from 'colorette';
-import { promptUser } from './utils';
 import { outputExtensions, regionChoices } from './types';
 import { RedoclyClient, OutputFormat, loadConfig } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';

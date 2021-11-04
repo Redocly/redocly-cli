@@ -27,7 +27,13 @@ export const getTotals = jest.fn(() => ({ errors: 0 }));
 export const formatProblems = jest.fn();
 
 export const __baseResolver = {
-  resolveDocument: jest.fn()
+  resolveDocument: jest.fn(() => Promise.resolve({
+    source: {
+      absoluteRef: ''
+    },
+    parsed: '',
+  }
+  ))
 };
 export const BaseResolver = jest.fn(() => __baseResolver);
 
@@ -45,3 +51,4 @@ export const resolveDocument = jest.fn();
 export const Stats = jest.fn();
 export const normalizeVisitors = jest.fn();
 export const walkDocument = jest.fn();
+export const bundleDocument = jest.fn(() => Promise.resolve({}));
