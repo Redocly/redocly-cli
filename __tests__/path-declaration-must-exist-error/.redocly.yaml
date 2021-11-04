@@ -1,7 +1,0 @@
-apiDefinitions:
-  main: ./openapi.yaml
-
-lint:
-  rules:
-    path-declaration-must-exist: error
-  exends: []

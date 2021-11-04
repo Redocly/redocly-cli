@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi",
-  "version": "1.0.0-beta.58",
+  "version": "1.0.0-beta.67",
   "description": "",
   "private": true,
   "engines": {
@@ -24,7 +24,8 @@
     "preview": "npm run cli preview-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js"
+    "upload": "node scripts/archive-and-upload-bundle.js",
+    "lint_test": "npm run cli lint -- --config resources/config.yaml --format stylish"
   },
   "workspaces": [
     "packages/*"
@@ -47,11 +48,6 @@
     "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "printWidth": 100
-  },
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "jest": "^26.6.3",

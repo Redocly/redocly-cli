@@ -1,15 +1,13 @@
-import * as yaml from 'js-yaml';
 import * as path from 'path';
 
-import { Document, Source } from '../src/resolve';
-import { NormalizedProblem } from '../src/walk';
+import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
 import { RuleConfig, LintConfig, Plugin } from '../src/config/config';
 import { Oas3RuleSet } from '../src/oas-types';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
     source: new Source(absoluteRef, body),
-    parsed: yaml.safeLoad(body, { filename: absoluteRef }),
+    parsed: parseYaml(body, { filename: absoluteRef }),
   };
 }
 
@@ -41,7 +39,7 @@ export const yamlSerializer = {
     return true;
   },
   print: (val: any) => {
-    return yaml.safeDump(val);
+    return stringifyYaml(val);
   },
 };
 

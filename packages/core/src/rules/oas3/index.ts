@@ -1,6 +1,8 @@
 import { Oas3RuleSet } from '../../oas-types';
+import { Oas3Decorator } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
+import { Operation4xxResponse } from '../common/operation-4xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
 import { OperationParametersUnique } from '../common/operation-parameters-unique';
 import { PathParamsDefined } from '../common/path-params-defined';
@@ -37,8 +39,14 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
 import { NoEmptyEnumServers } from './no-servers-empty-enum';
-
-import { Oas3Decorator } from '../../visitors';
+import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
+import { RequestMimeType } from './request-mime-type';
+import { ResponseMimeType } from './response-mime-type';
+import { PathSegmentPlural } from '../common/path-segment-plural';
+import { OperationDescriptionOverride } from '../common/operation-description-override';
+import { TagDescriptionOverride } from '../common/tag-description-override';
+import { InfoDescriptionOverride } from '../common/info-description-override';
+import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 
 export const rules = {
   spec: OasSpec,
@@ -47,6 +55,7 @@ export const rules = {
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,
   'operation-2xx-response': Operation2xxResponse,
+  'operation-4xx-response': Operation4xxResponse,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
@@ -78,11 +87,19 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers
+  'no-servers-empty-enum': NoEmptyEnumServers,
+  'no-http-verbs-in-paths': NoHttpVerbsInPaths,
+  'path-excludes-patterns': PathExcludesPatterns,
+  'request-mime-type': RequestMimeType,
+  'response-mime-type': ResponseMimeType,
+  'path-segment-plural': PathSegmentPlural,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,
+  'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
+  'tag-description-override': TagDescriptionOverride as Oas3Decorator,
+  'info-description-override': InfoDescriptionOverride as Oas3Decorator,
 };

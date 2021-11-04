@@ -1,0 +1,47 @@
+openapi: 3.0.3
+info:
+  title: test
+  version: 1.0.0
+  description: test
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https
+paths:
+  /test:
+    post:
+      summary: test
+      operationId: doTest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackURL:
+                  type: string
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: An error response
+      callbacks:
+        notification:
+          '{$request.body#/callbackURL}':
+            post:
+              summary: 'Creation completed'
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+              responses:
+                '200':
+                  description: OK
+                '400':
+                  description: An error response

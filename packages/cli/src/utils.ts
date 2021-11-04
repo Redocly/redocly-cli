@@ -2,7 +2,6 @@ import { basename, dirname, extname, join, resolve } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from "perf_hooks";
 import * as glob from 'glob-promise';
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
@@ -13,6 +12,8 @@ import {
   LintConfig,
   ResolveError,
   YamlParseError,
+  parseYaml,
+  stringifyYaml
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions } from './types';
 
@@ -87,7 +88,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
       throw e;
     }
   } else {
-    return yaml.safeDump(obj, {
+    return stringifyYaml(obj, {
       noRefs: !dereference,
     });
   }
@@ -131,11 +132,17 @@ export async function promptUser(query: string, hideUserInput = false): Promise<
 }
 
 export function readYaml(filename: string) {
-  return yaml.safeLoad(fs.readFileSync(filename, 'utf-8'), { filename });
+  return parseYaml(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
-  return fs.writeFileSync(filename, yaml.safeDump(data, { noRefs }));
+  const content = stringifyYaml(data, { noRefs });
+
+  if (process.env.NODE_ENV === 'test') {
+    process.stderr.write(content);
+    return;
+  }
+  fs.writeFileSync(filename, content);
 }
 
 export function pluralize(label: string, num: number) {
@@ -204,7 +211,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
   if (totals.errors > 0) {
     process.stderr.write(
-      gray(`run with \`--generate-ignore-file\` to add all problems to ignore file.\n`),
+      gray(`run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.\n`),
     );
   }
 
@@ -277,19 +284,6 @@ export function printUnusedWarnings(config: LintConfig) {
 export function exitWithError(message: string) {
   process.stderr.write(red(message)+ '\n\n');
   process.exit(1);
-}
-
-
-/**
- * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
- */
-export function slash(path: string): string {
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
-  if (isExtendedLengthPath) {
-    return path
-  }
-
-  return path.replace(/\\/g, '/');
 }
 
 /**

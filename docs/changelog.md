@@ -4,6 +4,126 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.67 (2021-11-02)
+
+### Features
+
+- Added a new built-in rule: [operation-4xx-response](./resources/built-in-rules.md#operation-4xx-response).
+
+## 1.0.0-beta.66 (2021-11-01)
+
+### Features
+
+- OpenAPI CLI now suppports five new built-in rules:
+  - [path-excludes-patterns](./resources/built-in-rules.md#path-segment-plural)
+  - [no-http-verbs-in-paths](./resources/built-in-rules.md#no-http-verbs-in-paths)
+  - [path-excludes-patterns](./resources/built-in-rules.md#path-excludes-patterns)
+  - [request-mime-type](./resources/built-in-rules.md#request-mime-type)
+  - [response-mime-type](./resources/built-in-rules.md#response-mime-type)
+
+### Fixes
+
+- Resolved an issue with OAS 3.1 meta keywords reported as not expected.
+- Resolved an issue with incorrect codeframe for `info-license-url` rule.
+- Resolved an issue with discriminator mapping not supported in `no-invalid-media-type-examples`.
+- Resolves an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows.
+
+----
+
+## 1.0.0-beta.65 (2021-10-27)
+
+### Features
+
+- OpenAPI CLI now supports three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+
+The following examples show how to add the decorators to the `.redocly.yaml` file:
+
+
+```yaml info-description-override
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./my-custom-description.md
+```
+
+```yaml tag-description-override
+lint:
+  decorators:
+    tag-description-override:
+      tagNames:
+        pet: ./my-custom-description.md
+```
+
+```yaml operation-description-override
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        updatePet: ./my-custom-description.md
+```
+
+- Improved documentation for [the lint command](./commands/lint.md).
+
+### Fixes
+
+- When used with the `--lint` parameter, the `bundle` command now returns a non-zero code when it detects an error.
+
+----
+
+## 1.0.0-beta.64 (2021-10-20)
+
+### Fixes
+
+- Resolved an issue with the `--format` option not working with the `bundle` command.
+
+- Resolved a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
+
+----
+
+## 1.0.0-beta.63 (2021-10-12)
+
+### Features
+
+- Upgraded the `js-yaml` package from v.3 to v.4 with YAML 1.2 support. This resolves issues with parsing timestamps and example strings with leading zeros in YAML.
+
+----
+
+## 1.0.0-beta.62 (2021-09-30)
+
+### Fixes
+
+- Resolved an issue with the `--max-problems` option that was not working with the `bundle` command.
+
+----
+
+## 1.0.0-beta.61 (2021-09-21)
+
+### Features
+
+- Improved validation of values for the following fields in the Schema Object: `multipleOf, maxLength, minLength, maxItems, minItems, maxProperties, minProperties`.
+
+----
+
+## 1.0.0-beta.60 (2021-09-20)
+
+### Fixes
+
+- Fixed an issue with the `join` command crashing when trying to resolve $ref.
+
+
+----
+
+## 1.0.0-beta.59 (2021-09-15)
+
+### Fixes
+
+- Resolved an issue with the `preview-docs` command not working when running `openapi-cli` in a Docker container.
+
+- Improved the security of local documentation previews by removing query parameters from the request URL.
+
+
+----
+
 ## 1.0.0-beta.58 (2021-09-02)
 
 ### Fixes

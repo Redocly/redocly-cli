@@ -1,7 +1,0 @@
-apiDefinitions:
-  main: ./openapi.yaml
-
-lint:
-  rules:
-    parameter-description: warn
-  exends: []

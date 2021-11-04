@@ -1,0 +1,2 @@
+apiDefinitions:
+  main: ./openapi.yaml

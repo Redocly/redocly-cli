@@ -1,6 +1,0 @@
-apiDefinitions:
-  main: ./openapi.yaml
-
-lint:
-  rules:
-    info-description: off
