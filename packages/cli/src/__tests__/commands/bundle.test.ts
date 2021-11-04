@@ -1,4 +1,4 @@
-import { lint, bundle, getTotals } from '@redocly/openapi-core';
+import { lint, bundle, getTotals, loadConfig } from '@redocly/openapi-core';
 
 import { handleBundle } from '../../commands/bundle';
 import SpyInstance = jest.SpyInstance;
@@ -105,6 +105,24 @@ describe('bundle', () => {
 
     expect(lint).toBeCalledTimes(entrypoints.length);
     expect(processExitMock).toHaveBeenCalledWith(1);
+  });
+
+  it('uses passed region for config resolving', async () => {
+    const region = 'us';
+    (loadConfig as jest.Mock).mockClear();
+
+    await handleBundle(
+      {
+        entrypoints: ['foo.yaml'],
+        ext: 'yaml',
+        format: 'codeframe',
+        lint: true,
+        region
+      },
+      '1.0.0',
+    );
+
+    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }),);
   });
 
 });
