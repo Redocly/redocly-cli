@@ -12,7 +12,8 @@ import {
   RedoclyClient,
   IGNORE_FILE,
   BundleOutputFormat,
-  getTotals
+  getTotals,
+  slash,
 } from '@redocly/openapi-core';
 import {
   promptUser,
