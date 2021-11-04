@@ -14,6 +14,7 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
+import { handleLogin } from './commands/login';
 const version = require('../package.json').version;
 
 yargs
@@ -211,19 +212,8 @@ yargs
         choices: regionChoices,
       },
     }),
-    async (argv) => {
-      const { redoclyDomain } = await loadConfig({ region: argv.region });
-      const clientToken = await promptUser(
-        green(
-          `\n  🔑 Copy your API key from ${blue(
-            `https://app.${redoclyDomain}/profile`,
-          )} and paste it below`,
-        ),
-        true,
-      );
-      const client = new RedoclyClient(redoclyDomain);
-      client.login(clientToken, argv.verbose);
-  })
+    async (argv) => { handleLogin(argv) }
+  )
   .command('logout', 'Clear your stored credentials for the Redocly API registry.',
       yargs => yargs.options({
         region: {
