@@ -122,7 +122,7 @@ describe('bundle', () => {
       '1.0.0',
     );
 
-    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }),);
+    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }));
   });
 
 });
