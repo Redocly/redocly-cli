@@ -7,7 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { Location, refBaseName } from './ref-utils';
+import { isRef, Location, refBaseName } from './ref-utils';
 import type { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -187,14 +187,7 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         if (!componentType) {
           replaceRef(node, resolved, ctx);
         } else {
-          if (shouldPlaceSchemaReferenceInline(componentType, resolved, ctx)) {
-            // if the schema name matches referenced file name we will
-            // just inline referenced schema
-            // w/o producing new name like (customer-2)
-            // this rule works only for componentType === 'schemas'
-            // for more details see: https://github.com/Redocly/openapi-cli/issues/349
-            replaceRef(node, resolved, ctx);
-          } else if (dereference) {
+          if (dereference) {
             saveComponent(componentType, resolved, ctx);
             replaceRef(node, resolved, ctx);
           } else {
@@ -261,6 +254,21 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
   }
 
+  function isEqualOrEqualRef(
+    node: any,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
+    if (
+      isRef(node) &&
+      ctx.resolve(node).location?.absolutePointer === target.location.absolutePointer
+    ) {
+      return true;
+    }
+
+    return isEqual(node, target.node);
+  }
+
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
@@ -277,20 +285,20 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
       if (
         !componentsGroup ||
         !componentsGroup[name] ||
-        isEqual(componentsGroup[name], target.node)
+        isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
         return name;
       }
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       return name;
     }
 
     const prevName = name;
     let serialId = 2;
-    while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
+    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       name = `${prevName}-${serialId}`;
       serialId++;
     }
@@ -304,16 +312,6 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
 
     return name;
-  }
-
-  function shouldPlaceSchemaReferenceInline(
-    componentType: string,
-    target: { node: any; location: Location },
-    ctx: UserContext,
-  ) {
-    return refBaseName(target.location.source.absoluteRef) === ctx.key
-      && target.location.pointer.slice(2) === '' // slice(2) removes "#/"
-      && componentType === 'schemas'
   }
 
   return visitor;

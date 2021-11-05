@@ -177,5 +177,11 @@ components:
       type: string
     A:
       type: string
+    test:
+      $ref: '#/components/schemas/rename-2'
+    rename:
+      type: string
+    rename-2:
+      type: number
 
 `;

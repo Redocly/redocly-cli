@@ -27,3 +27,9 @@ components:
       $ref: ./simple.yaml
     A:
       $ref: ./definitions.yaml#/$defs/A
+    test:
+      $ref: ./rename.yaml
+    rename:
+      type: string
+    rename-2:
+      $ref: ./rename.yaml
