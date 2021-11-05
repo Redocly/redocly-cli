@@ -2,7 +2,6 @@
 
 exports[`E2E lint path-not-include-query-error 1`] = `
 
-Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:14:3 at #/paths/~1ping~1items?id=###
 

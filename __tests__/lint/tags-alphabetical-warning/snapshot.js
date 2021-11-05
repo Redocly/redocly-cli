@@ -2,7 +2,6 @@
 
 exports[`E2E lint tags-alphabetical-warning 1`] = `
 
-Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:34:5 at #/tags/0
 

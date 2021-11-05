@@ -2,7 +2,6 @@
 
 exports[`E2E lint operation-4xx-response-warning 1`] = `
 
-Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:11:7 at #/paths/~1ping/get/responses
 
