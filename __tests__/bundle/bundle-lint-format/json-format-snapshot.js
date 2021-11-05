@@ -34,7 +34,6 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
   "version": "1.0.0-beta.67",
   "problems": []
 }
-Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 ❌ Validation failed with 1 error.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 

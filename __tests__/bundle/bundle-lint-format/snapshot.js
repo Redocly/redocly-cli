@@ -21,7 +21,6 @@ paths:
           application/json: null
 components: {}
 
-Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 openapi.yaml:
   20:11  error    spec  Expected type \`MediaType\` (object) but got \`null\`
 

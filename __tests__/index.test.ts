@@ -23,7 +23,7 @@ function getEntrypoints(folderPath: string) {
 }
 
 describe('E2E', () => {
-  describe.only('lint', () => {
+  describe('lint', () => {
     const folderPath = join(__dirname, 'lint');
     const contents = readdirSync(folderPath);
     for (const file of contents) {
