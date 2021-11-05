@@ -23,7 +23,7 @@ describe('RedoclyClient', () => {
     );
   });
 
-  it.only('receives auth header using a passed Redocly domain', async () => {
+  it('receives auth header using a passed Redocly domain', async () => {
     await redoclyClient.getAuthorizationHeader();
 
     expect(query).toHaveBeenCalledWith(
