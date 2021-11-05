@@ -213,7 +213,7 @@ yargs
     async (argv) => { handleLogin(argv) }
   )
   .command('logout', 'Clear your stored credentials for the Redocly API registry.',
-      yargs => yargs,
+    yargs => yargs,
     async () => {
       const client = new RedoclyClient('');
       client.logout();

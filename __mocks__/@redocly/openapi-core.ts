@@ -43,10 +43,7 @@ export enum OasMajorVersion {
   Version2 = 'oas2',
   Version3 = 'oas3',
 }
-
-export const normalizeTypes = jest.fn(() => ({
-  DefinitionRoot: ''
-}));
+export const normalizeTypes = jest.fn(() => ({ DefinitionRoot: '' }));
 export const resolveDocument = jest.fn();
 export const Stats = jest.fn();
 export const normalizeVisitors = jest.fn();

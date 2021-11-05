@@ -1,5 +1,6 @@
 import { handlePush } from '../../commands/push'
 import { loadConfig, RedoclyClient } from '@redocly/openapi-core';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 jest.mock('fs');
 jest.mock('node-fetch');
@@ -49,21 +50,21 @@ describe('push', () => {
   });
 
   it('uses region option', async () => {
-    const region = 'us';
+    const passedRegion = 'some-region';
     const redoclyDomain = 'some-domain';
 
     redoclyClient.getDefinitionVersion.mockImplementationOnce(() => ({ version: '1.0.0' }));
     (loadConfig as jest.Mock).mockImplementationOnce(async () => ({ redoclyDomain }));
 
     await handlePush({
-      region,
+      region: (passedRegion as Region),
       upsert: true,
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
     });
 
-    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }));
+    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region: passedRegion }));
     expect(RedoclyClient).toHaveBeenCalledWith(redoclyDomain);
 
     (loadConfig as jest.Mock).mockClear();

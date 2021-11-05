@@ -2,6 +2,7 @@ import { lint, bundle, getTotals, loadConfig } from '@redocly/openapi-core';
 
 import { handleBundle } from '../../commands/bundle';
 import SpyInstance = jest.SpyInstance;
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
@@ -108,7 +109,7 @@ describe('bundle', () => {
   });
 
   it('uses passed region for config resolving', async () => {
-    const region = 'us';
+    const passedRegion = 'some-region';
     (loadConfig as jest.Mock).mockClear();
 
     await handleBundle(
@@ -117,12 +118,12 @@ describe('bundle', () => {
         ext: 'yaml',
         format: 'codeframe',
         lint: true,
-        region
+        region: (passedRegion as Region)
       },
       '1.0.0',
     );
 
-    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }));
+    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region: passedRegion }));
   });
 
 });

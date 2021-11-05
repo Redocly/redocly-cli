@@ -1,6 +1,6 @@
 import { loadConfig } from '@redocly/openapi-core';
 import { previewDocs } from '../../commands/preview-docs';
-import startPreviewServer from '../../commands/preview-docs/preview-server/preview-server';
+import { Region } from '@redocly/openapi-core/lib/config/config';
 
 jest.mock('../../utils');
 jest.mock('@redocly/openapi-core');
@@ -8,7 +8,7 @@ jest.mock('../../commands/preview-docs/preview-server/preview-server');
 
 describe('preview-docs', () => {
   it('uses a passed region to load a config', async () => {
-    const region = 'us';
+    const passedRegion = 'some-region';
 
     (loadConfig as jest.Mock).mockClear();
 
@@ -16,12 +16,11 @@ describe('preview-docs', () => {
     jest.useFakeTimers();
 
     await previewDocs({
-      region,
+      region: (passedRegion as Region),
       entrypoint: 'foo.yaml',
       port: 8080,
     });
 
-    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region }));
-    expect(startPreviewServer).toHaveBeenCalled();
+    expect(loadConfig).toHaveBeenCalledWith(expect.objectContaining({ region: passedRegion }));
   })
 });
