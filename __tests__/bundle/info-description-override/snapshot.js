@@ -31,6 +31,7 @@ paths:
           description: example description
 components: {}
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 Woohoo! Your OpenAPI definitions are valid. 🎉
 
 bundling ./main.yaml...

@@ -2,6 +2,7 @@
 
 exports[`E2E lint no-invalid-media-type-examples-invalid-schema 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:27:17 at #/paths/~1test/get/responses/202/content/application~1json/schema
 

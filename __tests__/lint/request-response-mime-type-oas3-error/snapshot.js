@@ -2,6 +2,7 @@
 
 exports[`E2E lint request-response-mime-type-oas3-error 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:25:11 at #/paths/~1store~1subscribe/post/requestBody/content/application~1xml
 

@@ -2,6 +2,7 @@
 
 exports[`E2E lint no-unresolved-refs-error 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:19:17 at #/paths/~1pet~1findByStatus/get/responses/200/content/application~1json/schema
 

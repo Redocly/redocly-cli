@@ -2,6 +2,7 @@
 
 exports[`E2E lint no-invalid-media-type-examples-recursion 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.json...
 [1] openapi.json:26:28 at #/paths/~1test/get/responses/202/content/application~1json/example
 

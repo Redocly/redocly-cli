@@ -2,6 +2,7 @@
 
 exports[`E2E lint path-parameters-defined-error 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:11:17 at #/paths/~1user~1{id}/get/parameters/0/name
 

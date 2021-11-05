@@ -236,6 +236,7 @@ components:
       items:
         $ref: '#/components/schemas/Pet'
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 

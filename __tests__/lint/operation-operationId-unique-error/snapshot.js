@@ -2,6 +2,7 @@
 
 exports[`E2E lint operation-operationId-unique-error 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:16:7 at #/paths/~1pong/get/getUserById
 

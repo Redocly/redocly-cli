@@ -2,6 +2,7 @@
 
 exports[`E2E lint no-unused-components-warning 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:18:5 at #/components/schemas/Category
 

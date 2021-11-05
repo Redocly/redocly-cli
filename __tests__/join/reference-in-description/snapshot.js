@@ -2,6 +2,7 @@
 
 exports[`E2E join reference-in-description 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 openapi: 3.0.0
 info:
   version: 1.0.0

@@ -2,6 +2,7 @@
 
 exports[`E2E bundle lint format bundle lint: no format parameter or empty value should be formatted as codeframe 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 [1] openapi.yaml:20:11 at #/paths/~1my_post/post/requestBody/content/application~1json
 
 Expected type \`MediaType\` (object) but got \`null\`

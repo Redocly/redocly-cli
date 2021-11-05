@@ -2,6 +2,7 @@
 
 exports[`E2E lint info-description-not-present-warning 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:2:1 at #/info/description
 

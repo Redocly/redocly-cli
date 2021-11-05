@@ -2,6 +2,7 @@
 
 exports[`E2E lint no-http-verbs-in-paths-split-words-error 1`] = `
 
+Warning: invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key
 validating /openapi.yaml...
 [1] openapi.yaml:18:3 at #/paths/~1pet~1findByPut
 
