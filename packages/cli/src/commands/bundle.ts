@@ -12,6 +12,7 @@ import {
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
 
 export async function handleBundle(
   argv: {
@@ -27,6 +28,7 @@ export async function handleBundle(
     config?: string;
     lint?: boolean;
     format: OutputFormat;
+    metafile?: string,
   },
   version: string,
 ) {
@@ -58,7 +60,7 @@ export async function handleBundle(
       }
 
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
-      const { bundle: result, problems } = await bundle({
+      const { bundle: result, problems, ...meta } = await bundle({
         config,
         ref: entrypoint,
         dereference: argv.dereferenced,
@@ -92,6 +94,16 @@ export async function handleBundle(
         totals: fileTotals,
         version,
       });
+
+      if (argv.metafile) {
+        if (entrypoints.length > 1) {
+          process.stderr.write(
+            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`),
+          );
+        } {
+          writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
+        }
+      }
 
       const elapsed = getExecutionTime(startedAt);
       if (fileTotals.errors > 0) {
