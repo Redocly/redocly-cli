@@ -106,11 +106,14 @@ paths:
   /pet:
     post:
       requestBody:
-        $ref: '#/components/requestBodies/requestBody'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestBody'
 components:
   schemas:
     requestBody:
-      content: &ref_0
+      content:
         application/json:
           schema:
             type: object
@@ -119,14 +122,11 @@ components:
                 type: string
               b:
                 type: number
-  requestBodies:
-    requestBody:
-      content: *ref_0
 
 `;
 
 exports[`bundle should place referenced schema inline when referenced schema name resolves to original schema name 1`] = `
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: My API
   description: It ain't so wonderful, but at least it's mine.
@@ -134,11 +134,17 @@ info:
   contact:
     email: me@theintenet.com
     name: me
-tags:
-  - name: tag1
-servers:
-  - url: https://dev01.internet.com/api/v0
-    description: Development server.
+paths:
+  /test:
+    get:
+      summary: test
+      responses:
+        '200':
+          description: test
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vendor'
 components:
   schemas:
     vendor:
@@ -167,5 +173,9 @@ components:
           default: false
     myvendor:
       $ref: '#/components/schemas/vendor'
+    simple:
+      type: string
+    A:
+      type: string
 
 `;
