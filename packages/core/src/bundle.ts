@@ -1,4 +1,5 @@
 import isEqual = require('lodash.isequal');
+import { sep as platformDependentSeparator } from 'path';
 import { BaseResolver, resolveDocument, Document } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';

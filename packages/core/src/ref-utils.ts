@@ -60,8 +60,8 @@ export function pointerBaseName(pointer: string) {
   return parts[parts.length - 1];
 }
 
-export function refBaseName(ref: string) {
-  const parts = ref.split(platformDependentSeparator);
+export function refBaseName(ref: string, sep = platformDependentSeparator) {
+  const parts = ref.split(sep);
   return parts[parts.length - 1].split('.')[0];
 }
 
