@@ -165,6 +165,10 @@ Use this section to change the [severity level](#severity-levels) of any rules i
 Preprocessors run first during `lint` and `bundle`.
 
 :::info
+Preprocessors will run during `bundle` only when the `--lint` flag is supplied
+:::
+
+:::info
 Preprocessors are rarely indicated - avoid if possible.
 
 This section can be omitted.
