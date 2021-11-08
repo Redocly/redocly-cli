@@ -32,7 +32,7 @@ describe('login', () => {
     );
   });
 
-  it('log user it to domain taken from config', async () => {
+  it('log user in to domain taken from config', async () => {
     (RedoclyClient as jest.Mock).mockClear();
 
     await handleLogin({});
