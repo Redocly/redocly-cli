@@ -96,5 +96,37 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should pull hosted schema', async () => {
+    const fetchMock = jest.fn(
+      () => Promise.resolve({
+        ok: true,
+        text: () => 'External schema content',
+        headers: {
+          get: () => ''
+        }
+      })
+    );
+
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      externalRefResolver: new BaseResolver({
+        http: {
+          customFetch: fetchMock,
+          headers: []
+        }
+      }),
+      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml')
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://someexternal.schema",
+      {
+        headers: {}
+      }
+    );
+    expect(res.parsed).toMatchSnapshot();
   })
 });
