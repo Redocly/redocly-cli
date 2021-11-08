@@ -1,0 +1,5 @@
+lint:
+  decorators:
+    hide-internals: on
+  extends:
+    - recommended

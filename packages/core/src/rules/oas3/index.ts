@@ -47,6 +47,7 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
+import { HideInternals } from '../common/hide-internals';
 
 export const rules = {
   spec: OasSpec,
@@ -102,4 +103,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
   'tag-description-override': TagDescriptionOverride as Oas3Decorator,
   'info-description-override': InfoDescriptionOverride as Oas3Decorator,
+  'hide-internals': HideInternals as Oas3Decorator,
 };

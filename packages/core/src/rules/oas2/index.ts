@@ -38,6 +38,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
+import { HideInternals } from '../common/hide-internals';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -84,4 +85,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
   'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
+  'hide-internals': HideInternals as Oas2Decorator,
 };
