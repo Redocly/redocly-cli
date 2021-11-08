@@ -8,7 +8,6 @@ Redocly Workflows integrates with [popular version control services](https://red
 
 In case when you don't want or are not able to grant Redocly Workflows permissions to your repositories or when your API definitions are generated automatically from code annotations in a CI/CD pipeline, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This allows you to:
 
-- Control the frequency of API definition updates.
 - Benefit from using Redocly Workflows to preview documentation and portal builds.
 - Manage versions in the API registry.
 
