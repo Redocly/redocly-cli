@@ -39,6 +39,7 @@
     "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
+    "dedent": "^0.7.0",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
@@ -47,6 +48,7 @@
     "yargs": "17.0.1"
   },
   "devDependencies": {
+    "@types/dedent": "^0.7.0",
     "@types/yargs": "16.0.2",
     "typescript": "^4.0.3"
   }

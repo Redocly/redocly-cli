@@ -2,15 +2,17 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
 import { yellow, red, green, gray } from 'colorette';
-import { query } from './query';
+import { RegistryApi } from './registry-api';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
 export class RedoclyClient {
   private accessToken: string | undefined;
+  registryApi: RegistryApi;
 
   constructor() {
     this.loadToken();
+    this.registryApi = new RegistryApi(this.accessToken);
   }
 
   hasToken(): boolean {
@@ -36,9 +38,8 @@ export class RedoclyClient {
 
   async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
     if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken, { verbose });
-    if (!authDetails) return false;
-    return true;
+
+    return this.registryApi.setAccessToken(accessToken).authStatus(verbose);
   }
 
   async getAuthorizationHeader(): Promise<string | undefined> {
@@ -82,184 +83,6 @@ export class RedoclyClient {
       unlinkSync(credentialsPath);
     }
     process.stdout.write('Logged out from the Redocly account. ✋\n');
-  }
-
-  async query(queryString: string, parameters = {}, headers = {}) {
-    return query(queryString, parameters, {
-      Authorization: this.accessToken,
-      ...headers,
-    });
-  }
-
-  static async authorize(accessToken: string, options: { queryName?: string; verbose?: boolean }) {
-    const { queryName = '', verbose = false } = options;
-    try {
-      const queryStr = `query ${queryName}{ viewer { id } }`;
-
-      return await query(queryStr, {}, { Authorization: accessToken });
-    } catch (e) {
-      if (verbose) console.log(e);
-      return null;
-    }
-  }
-
-  async updateDependencies(dependencies: string[] | undefined): Promise<void> {
-    const definitionId = process.env.DEFINITION;
-    const versionId = process.env.DEFINITION;
-    const branchId = process.env.BRANCH;
-
-    if (!definitionId || !versionId || !branchId) return;
-
-    await this.query(
-      `
-    mutation UpdateBranchDependenciesFromURLs(
-      $urls: [String!]!
-      $definitionId: Int!
-      $versionId: Int!
-      $branchId: Int!
-    ) {
-      updateBranchDependenciesFromURLs(
-        definitionId: $definitionId
-        versionId: $versionId
-        branchId: $branchId
-        urls: $urls
-      ) {
-        branchName
-      }
-    }
-    `,
-      {
-        urls: dependencies || [],
-        definitionId: parseInt(definitionId, 10),
-        versionId: parseInt(versionId, 10),
-        branchId: parseInt(branchId, 10),
-      },
-    );
-  }
-
-  updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
-    return this.query(`
-      mutation UpdateDefinitionVersion($definitionId: Int!, $versionId: Int!, $updatePatch: DefinitionVersionPatch!) {
-        updateDefinitionVersionByDefinitionIdAndId(input: {definitionId: $definitionId, id: $versionId, patch: $updatePatch}) {
-          definitionVersion {
-            ...VersionDetails
-            __typename
-          }
-          __typename
-        }
-      }
-
-      fragment VersionDetails on DefinitionVersion {
-        id
-        nodeId
-        uuid
-        definitionId
-        name
-        description
-        sourceType
-        source
-        registryAccess
-        __typename
-      }
-    `,
-      {
-        definitionId,
-        versionId,
-        updatePatch,
-      },
-    );
-  }
-
-  getOrganizationId(organizationId: string) {
-    return this.query(`
-      query ($organizationId: String!) {
-        organizationById(id: $organizationId) {
-          id
-        }
-      }
-    `, {
-      organizationId
-    });
-  }
-
-  getDefinitionByName(name: string, organizationId: string) {
-    return this.query(`
-      query ($name: String!, $organizationId: String!) {
-        definition: definitionByOrganizationIdAndName(name: $name, organizationId: $organizationId) {
-          id
-        }
-      }
-    `, {
-      name,
-      organizationId
-    });
-  }
-
-  createDefinition(organizationId: string, name: string) {
-    return this.query(`
-      mutation CreateDefinition($organizationId: String!, $name: String!) {
-        def: createDefinition(input: {organizationId: $organizationId, name: $name }) {
-          definition {
-            id
-            nodeId
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      name
-    })
-  }
-
-  createDefinitionVersion(definitionId: string, name: string, sourceType: string, source: any) {
-    return this.query(`
-      mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON) {
-        createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source }) {
-          definitionVersion {
-            id
-          }
-        }
-      }
-    `, {
-      definitionId,
-      name,
-      sourceType,
-      source
-    });
-  }
-
-  getSignedUrl(organizationId: string, filesHash: string, fileName: string) {
-    return this.query(`
-      query ($organizationId: String!, $filesHash: String!, $fileName: String!) {
-        signFileUploadCLI(organizationId: $organizationId, filesHash: $filesHash, fileName: $fileName) {
-          signedFileUrl
-          uploadedFilePath
-        }
-      }
-    `, {
-      organizationId,
-      filesHash,
-      fileName
-    })
-  }
-
-  getDefinitionVersion(organizationId: string, definitionName: string, versionName: string) {
-    return this.query(`
-      query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
-        version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
-          id
-          definitionId
-          defaultBranch {
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      definitionName,
-      versionName
-    });
   }
 
   static isRegistryURL(link: string): boolean {
