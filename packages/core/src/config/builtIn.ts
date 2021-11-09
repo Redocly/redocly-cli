@@ -11,9 +11,6 @@ export const builtInConfigs: Record<string, LintRawConfig> = {
   all,
   'redocly-registry': {
     decorators: { 'registry-dependencies': 'on' }
-  },
-  'hide-internals': {
-    decorators: { 'hide-internals': 'on' }
   }
 };
 

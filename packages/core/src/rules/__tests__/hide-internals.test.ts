@@ -15,7 +15,7 @@ describe('oas3 hide-internals', () => {
   it('removes internal paths', async () => {
     const { bundle: res } = await bundle({
       config: new Config(
-        { lint: makeConfig({}) },
+        { lint: makeConfig({}, { 'hide-internals': 'on' }) },
         path.join(__dirname, 'fixtures/hide-internals/.redocly.yaml')
       ),
       ref: path.join(__dirname, 'fixtures/hide-internals/internal-path.yaml')
