@@ -84,20 +84,20 @@ export class RedoclyClient {
     }
     process.stdout.write('Logged out from the Redocly account. ✋\n');
   }
+}
 
-  static isRegistryURL(link: string): boolean {
-    const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
-    if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-    const registryPath = link.replace(`https://api.${domain}/registry/`, '');
+export function isRedoclyRegistryURL(link: string): boolean {
+  const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
+  if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
+  const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
-    const pathParts = registryPath.split('/');
+  const pathParts = registryPath.split('/');
 
-    // we can be sure, that there is job UUID present
-    // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
-    // so skip this link.
-    // FIXME
-    if (pathParts.length === 7) return false;
+  // we can be sure, that there is job UUID present
+  // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
+  // so skip this link.
+  // FIXME
+  if (pathParts.length === 7) return false;
 
-    return true;
-  }
+  return true;
 }

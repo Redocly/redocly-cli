@@ -86,6 +86,7 @@ export async function handleStats (argv: {
   const ctx: WalkContext = {
     problems: [],
     oasVersion: oasVersion,
+    visitorsData: {},
   }
 
   const resolvedRefMap = await resolveDocument({

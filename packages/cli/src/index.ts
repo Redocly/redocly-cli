@@ -180,6 +180,10 @@ yargs
           type: 'boolean',
           default: false,
         },
+        metafile: {
+          description: 'Produce metadata about the bundle',
+          type: 'string',
+        },
       }),
     (argv) => { handleBundle(argv, version) }
   )
