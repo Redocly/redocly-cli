@@ -53,6 +53,13 @@ export async function handleBundle(
       const startedAt = performance.now();
 
       if (argv.lint) {
+        if (config.lint.recommendedFallback) {
+          process.stderr.write(
+            `No configurations were defined in extends -- using built in ${blue(
+              'recommended',
+            )} configuration by default.\n\n`,
+          );
+        }
         const results = await lint({
           ref: entrypoint,
           config,
