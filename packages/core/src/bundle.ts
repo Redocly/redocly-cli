@@ -7,11 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-<<<<<<< HEAD
 import { isRef, Location, refBaseName } from './ref-utils';
-=======
-import { Location, refBaseName } from './ref-utils';
->>>>>>> e241d1a (More generic fix + tests)
 import type { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -296,11 +292,7 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
-<<<<<<< HEAD
     if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
-=======
-    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
->>>>>>> e241d1a (More generic fix + tests)
       return name;
     }
 

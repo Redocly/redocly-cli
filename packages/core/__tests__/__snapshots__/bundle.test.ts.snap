@@ -100,7 +100,6 @@ components:
 
 `;
 
-<<<<<<< HEAD
 exports[`bundle should not place referened schema inline when component in question is not of type "schemas" 1`] = `
 openapi: 3.0.0
 paths:
@@ -184,7 +183,9 @@ components:
       type: string
     rename-2:
       type: number
-=======
+
+`;
+
 exports[`bundle should pull hosted schema 1`] = `
 openapi: 3.0.3
 info:
@@ -222,6 +223,5 @@ components:
           items:
             $ref: '#/components/schemas/someexternal'
     someexternal: External schema content
->>>>>>> e241d1a (More generic fix + tests)
 
 `;
