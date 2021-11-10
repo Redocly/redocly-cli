@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as dedent from 'dedent';
 import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
@@ -117,10 +116,11 @@ export async function handlePush(argv: {
     }
 
     if (error.message === 'API_VERSION_NOT_FOUND') {
-      exitWithError(dedent`The definition version ${blue(name)}/${blue(
+      exitWithError(`The definition version ${blue(name)}/${blue(
         version,
-      )} does not exist in organization ${blue(organizationId)}!
-      ${yellow('Suggestion:')} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
+      )} does not exist in organization ${blue(organizationId)}!\n${yellow(
+        'Suggestion:',
+      )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
     `);
     }
 
