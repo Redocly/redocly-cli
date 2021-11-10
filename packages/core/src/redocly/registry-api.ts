@@ -1,6 +1,6 @@
 import fetch, { RequestInit } from 'node-fetch';
-
 import { RegistryApiTypes } from './registry-api-types';
+const version = require('../../package.json').version;
 
 export class RegistryApi {
   private readonly baseUrl = `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry`;
@@ -12,7 +12,10 @@ export class RegistryApi {
       throw new Error('Unauthorized');
     }
 
-    const headers = Object.assign({}, options.headers || {}, { authorization: this.accessToken });
+    const headers = Object.assign({}, options.headers || {}, {
+      authorization: this.accessToken,
+      'x-redocly-cli-version': version,
+    });
 
     const response = await fetch(`${this.baseUrl}${path}`, Object.assign({}, options, { headers }));
 
