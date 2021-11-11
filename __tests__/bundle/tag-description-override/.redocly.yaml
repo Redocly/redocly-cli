@@ -7,3 +7,4 @@ lint:
       tagNames:
         pet: ./pet-tag-description.md
         store: ./store-tag-description.md
+  extends: []

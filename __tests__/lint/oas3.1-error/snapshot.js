@@ -1,4 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`E2E lint oas3.1-error 1`] = `
 
 validating /openapi.yaml...

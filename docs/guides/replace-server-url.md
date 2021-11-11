@@ -33,11 +33,13 @@ module.exports = {
 
 2. Save the `demo-plugin.js` file in a directory called `plugins`.
 
+
 :::attention
 
 You can name the plugins directory anything you want. Make sure you use the correct name in the `.redocly.yaml` file (Step 4).
 
 :::
+
 
 ## Step 2: Add a decorator and associate it with an environment variable
 
@@ -64,6 +66,7 @@ function ReplaceServersURL() {
   }
 };
 ```
+
 `SERVERS_URL` is the environment variable to be defined in the API version settings.
 
 2. Save the `replace-servers-url.js` file in a directory called `decorators`.

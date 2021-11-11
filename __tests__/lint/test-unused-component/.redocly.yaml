@@ -4,3 +4,4 @@ apiDefinitions:
 lint:
   rules:
     info-description: off
+  extends: []

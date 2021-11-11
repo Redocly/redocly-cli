@@ -32,6 +32,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "An error"
           }
         }
       }

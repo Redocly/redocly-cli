@@ -24,6 +24,8 @@ paths:
       responses:
         '202':
           description: Accepted
+        '400':
+          description: An error response
       callbacks:
         notification:
           '{$request.body#/callbackURL}':
@@ -41,3 +43,5 @@ paths:
               responses:
                 '200':
                   description: OK
+                '400':
+                  description: An error response

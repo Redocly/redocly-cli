@@ -99,3 +99,129 @@ components:
       name: shared-a
 
 `;
+
+exports[`bundle should not place referened schema inline when component in question is not of type "schemas" 1`] = `
+openapi: 3.0.0
+paths:
+  /pet:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestBody'
+components:
+  schemas:
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              a:
+                type: string
+              b:
+                type: number
+
+`;
+
+exports[`bundle should place referenced schema inline when referenced schema name resolves to original schema name 1`] = `
+openapi: 3.1.0
+info:
+  title: My API
+  description: It ain't so wonderful, but at least it's mine.
+  version: '1.0'
+  contact:
+    email: me@theintenet.com
+    name: me
+paths:
+  /test:
+    get:
+      summary: test
+      responses:
+        '200':
+          description: test
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vendor'
+components:
+  schemas:
+    vendor:
+      title: vendor
+      type: object
+      description: Vendors
+      properties:
+        key:
+          type: string
+          description: System-assigned key for the vendor.
+          readOnly: true
+        id:
+          type: string
+          description: >
+            Unique identifier of the vendor.
+
+            You must specify a unique vendor ID when creating a vendor unless
+            document sequencing is configured, in which case the ID is
+            auto-generated.
+        name:
+          type: string
+          description: Name of the vendor.
+        isOneTimeUse:
+          type: boolean
+          description: One-time use
+          default: false
+    myvendor:
+      $ref: '#/components/schemas/vendor'
+    simple:
+      type: string
+    A:
+      type: string
+    test:
+      $ref: '#/components/schemas/rename-2'
+    rename:
+      type: string
+    rename-2:
+      type: number
+
+`;
+
+exports[`bundle should pull hosted schema 1`] = `
+openapi: 3.0.3
+info:
+  title: bugtest
+  version: '1.0'
+  description: Demo
+  license:
+    name: DEMO
+    url: https://demo.com
+servers:
+  - url: http://demo.com/api
+paths:
+  /customer:
+    summary: Customer scope
+    get:
+      summary: Get demo no refs
+      operationId: GetCustomer
+      description: Returns Demo No Refs
+      responses:
+        '200':
+          description: Demo No Refs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        customerName:
+          type: string
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/someexternal'
+    someexternal: External schema content
+
+`;

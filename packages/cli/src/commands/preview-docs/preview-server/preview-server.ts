@@ -46,7 +46,7 @@ function getPageHTML(
         ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/');"
         : ''
     }
-    window[window.__REDOC_EXPORT].init("openapi.json", ${JSON.stringify(redocOptions)}, container)
+    window[window.__REDOC_EXPORT].init("/openapi.json", ${JSON.stringify(redocOptions)}, container)
   </script>`,
   });
 }
@@ -64,7 +64,7 @@ export default async function startPreviewServer(
     console.time(colorette.dim(`GET ${request.url}`));
     const { htmlTemplate } = getOptions() || {};
 
-    if (request.url === '/') {
+    if (request.url?.endsWith('/') || path.extname(request.url!) === '') {
       respondWithGzip(
         getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,

@@ -10,7 +10,7 @@ import { BaseResolver } from '../src/resolve';
 describe('bundle', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 
-  const testDocument =  parseYamlToDocument(
+  const testDocument = parseYamlToDocument(
     outdent`
       openapi: 3.0.0
       paths:
@@ -77,4 +77,56 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
   });
+
+  it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not place referened schema inline when component in question is not of type "schemas"', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should pull hosted schema', async () => {
+    const fetchMock = jest.fn(
+      () => Promise.resolve({
+        ok: true,
+        text: () => 'External schema content',
+        headers: {
+          get: () => ''
+        }
+      })
+    );
+
+    const { bundle: res, problems } = await bundle({
+      config: new Config({}),
+      externalRefResolver: new BaseResolver({
+        http: {
+          customFetch: fetchMock,
+          headers: []
+        }
+      }),
+      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml')
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://someexternal.schema",
+      {
+        headers: {}
+      }
+    );
+    expect(res.parsed).toMatchSnapshot();
+  })
 });

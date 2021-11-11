@@ -26,6 +26,9 @@
                 "example": {}
               }
             }
+          },
+          "400": {
+            "description": "Error"
           }
         }
       }

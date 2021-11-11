@@ -7,7 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { Location, refBaseName } from './ref-utils';
+import { isRef, Location, refBaseName } from './ref-utils';
 import type { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -40,7 +40,8 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+  const document =
+    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
@@ -69,7 +70,11 @@ export async function bundleDocument(opts: {
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
+        ? oasVersion === OasVersion.Version3_1
+          ? Oas3_1Types
+          : Oas3Types
+        : Oas2Types,
       oasVersion,
     ),
     config,
@@ -249,6 +254,21 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
   }
 
+  function isEqualOrEqualRef(
+    node: any,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
+    if (
+      isRef(node) &&
+      ctx.resolve(node).location?.absolutePointer === target.location.absolutePointer
+    ) {
+      return true;
+    }
+
+    return isEqual(node, target.node);
+  }
+
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
@@ -265,20 +285,20 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
       if (
         !componentsGroup ||
         !componentsGroup[name] ||
-        isEqual(componentsGroup[name], target.node)
+        isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
         return name;
       }
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       return name;
     }
 
     const prevName = name;
     let serialId = 2;
-    while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
+    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       name = `${prevName}-${serialId}`;
       serialId++;
     }

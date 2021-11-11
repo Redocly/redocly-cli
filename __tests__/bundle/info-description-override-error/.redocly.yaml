@@ -5,3 +5,4 @@ lint:
   decorators:
     info-description-override:
       filePath: ./test.md
+  extends: []

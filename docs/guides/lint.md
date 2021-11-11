@@ -2,6 +2,7 @@
 redirectFrom:
   - /docs/cli/configuration/lint/
 ---
+
 # Lint configuration
 
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
@@ -18,6 +19,7 @@ When using our hosted Workflows product, the `.redocly.yaml` file must be in the
 Read about the [`--config` option](../commands/index.md) to use other file names or locations.
 
 From a high-level, there are a few sub-sections.
+
 ```yaml
 lint:
   plugins:
@@ -31,21 +33,6 @@ lint:
     # This section is where you choose the base configurations.
     # You may override specific settings in the subsequent sections.
     - recommended # This is the default (and built in) configuration. If it is too strict, try `minimal`.
-
-  resolve:
-    # Use this when you have external links in your definition that are not publicly accessible.
-    # Not required for Redocly API registry links.
-    # We recommend using environment variables for when possible.
-    http:
-      headers:
-        - matches: https://api.example.com/v2/**
-          name: X-API-KEY
-          value: <direct value>
-          envVariable: <name of env variable to be used as value>
-        - matches: https://example.com/*/test.yaml
-          name: Authorization
-          value: <direct value>
-          envVariable: <name of env variable to be used as value>
 
   preprocessors:
     # Preprocessors are rarely indicated -- avoid if possible.
@@ -166,7 +153,7 @@ Read about our [built-in rules](../resources/built-in-rules.md).
 
 The OpenAPI specification supports $refs in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require $refs in unsupported places.
 
-Starting with version `beta-30`, OpenAPI CLI automatically resolves all $refs by default, even in places where they are not allowed by the specification. This includes primitive values like `string` (e.g. in `description` fields) and examples.
+Starting with version `1.0.0-beta-30`, OpenAPI CLI automatically resolves all $refs by default, even in places where they are not allowed by the specification. This includes primitive values like `string` (e.g. in `description` fields) and examples.
 
 To disable resolving $refs in examples, use the `doNotResolveExamples` configuration option in the `lint` section of `.redocly.yaml`. This does not affect $ref resolution in other parts of the API definition.
 
@@ -180,51 +167,4 @@ lint:
   rules:
     (...)
 ```
-
-
-## Resolving external links
-
-Redocly will automatically resolve any API registry link or public URL.
-However, you may want to resolve links that are not API registry links or publicly accessible.
-
-Define a `resolve` section to accomplish that.
-
-Currently, OpenAPI CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section.
-
-It should be structured like this:
-
-```yaml
-lint:
-  resolve:
-    http:
-      headers:
-        - # header configuration
-```
-
-Then, add your header definitions.
-
-| Property | Description | Examples |
-| --- | --- | --- |
-| matches | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json`|
-| name | HTTP header name. | `Authorization` or `X-API-KEY`|
-| value | The value of the header. Mutually exclusive with `envVariable`. | `123-abc`|
-| envVariable | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. |`SECRET_KEY`|
-
-Here is a structured example:
-
-```yaml
-lint:
-  resolve:
-    http:
-      headers:
-        - matches: https://api.example.com/v2/**
-          name: X-API-KEY
-          envVariable: SECRET_KEY
-        - matches: https://example.com/*/test.yaml
-          name: Authorization
-          envVariable: SECRET_AUTH
-```
-
-The first match will win in the event that a URL matches multiple patterns.
-Therefore, only the header from the first match will be used in the request.
 
