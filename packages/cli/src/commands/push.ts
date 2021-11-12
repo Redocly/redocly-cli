@@ -158,6 +158,7 @@ async function collectFilesToUpload(entrypoint: string) {
   const { bundle: openapiBundle, problems } = await bundle({
     config,
     ref: entrypointPath,
+    skipRedoclyRegistryRefs: true,
   });
 
   const fileTotals = getTotals(problems);

@@ -13,6 +13,7 @@ import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
 import { OasRef } from './typings/openapi';
+import { isRedoclyRegistryURL } from './redocly';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -29,6 +30,7 @@ export async function bundle(opts: {
   config: Config;
   dereference?: boolean;
   base?: string;
+  skipRedoclyRegistryRefs?: boolean;
 }) {
   const {
     ref,
@@ -63,8 +65,16 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
+  skipRedoclyRegistryRefs?: boolean;
 }) {
-  const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
+  const {
+    document,
+    config,
+    customTypes,
+    externalRefResolver,
+    dereference = false,
+    skipRedoclyRegistryRefs = false,
+  } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const rules = config.getRulesForOasVersion(oasMajorVersion);
@@ -86,7 +96,7 @@ export async function bundleDocument(opts: {
     problems: [],
     oasVersion: oasVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
-    visitorsData: {}
+    visitorsData: {},
   };
 
   const bundleVisitor = normalizeVisitors(
@@ -95,7 +105,7 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, document),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document),
       },
       ...decorators,
     ],
@@ -167,7 +177,12 @@ function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootDocument: Document) {
+function makeBundleVisitor(
+  version: OasMajorVersion,
+  dereference: boolean,
+  skipRedoclyRegistryRefs: boolean,
+  rootDocument: Document,
+) {
   let components: Record<string, Record<string, any>>;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -185,6 +200,11 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         ) {
           return;
         }
+
+        if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+          return;
+        }
+
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           replaceRef(node, resolved, ctx);
