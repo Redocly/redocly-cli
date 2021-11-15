@@ -8,10 +8,11 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved an issue with hot reloading when running preview of reference docs with `openapi preview-docs`
-- Resolved an issue with page refresh when pagination is set to `item` or `section`
-- Resolved an issue with inlining external schema when components' names match
-- Resolved an issue with fetching hosted schema on Windows when bundling OAS definition
+- Resolved an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
+- Resolved an issue with page refresh when pagination is set to `item` or `section`.
+- Resolved an issue with inlining external schema when components' names match.
+- Resolved an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Resolved an issue for `no-server-trailing-slash` when server url is a root.
 
 ## 1.0.0-beta.67 (2021-11-02)
 
