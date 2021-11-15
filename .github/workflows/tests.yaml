@@ -23,7 +23,7 @@ jobs:
         restore-keys: |
           npm-${{ hashFiles('package-lock.json') }}
           npm-
-    - run: npm i -g npm@7.23.0
+    - run: npm i -g npm@7.0.2
     - run: npm install
     - run: npm test && npm run e2e
       env:
