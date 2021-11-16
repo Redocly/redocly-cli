@@ -63,6 +63,7 @@
     "webpack-cli": "^3.3.12"
   },
   "jest": {
+    "clearMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
       "packages/**/*.ts",
