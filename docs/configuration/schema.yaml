@@ -30,34 +30,6 @@ properties:
         description: Choose the base configuration. Defaults to `recommended`. You may also use `minimal` or add your own plugins.
         items:
           type: string
-      resolve:
-        type: object
-        description: >
-          Use this when you have external links in your definition that are not publicly accessible (except for Redocly API registry links).
-          We recommend using environment variables where possible.
-        properties:
-          http:
-            type: object
-            description: Description of URL pattern matches and the corresponding headers to use when resolving references.
-            properties:
-              headers:
-                type: array
-                minItems: 1
-                items:
-                  type: object
-                  properties:
-                    matches:
-                      type: string
-                      description: The URL pattern to match. For example, `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`
-                    name:
-                      type: string
-                      description: The header name. For example, `X-API-KEY`.
-                    value:
-                      type: string
-                      description: The value of the header. We recommend to use `envVariable` instead for any secrets.
-                    envVariable:
-                      type: string
-                      description: The environment variable name which will be resolved and should contain the value.
       preprocessors:
         type: array
         description: >
@@ -87,7 +59,6 @@ properties:
                       - off
                     description: The severity level if the problem occurs.
                 additionalProperties: true
-
       rules:
         type: array
         description: >
@@ -119,8 +90,6 @@ properties:
                       - off
                     description: The severity level if the problem occurs.
                 additionalProperties: true
-
-
       decorators:
         type: array
         description: >
@@ -148,6 +117,34 @@ properties:
                       - off
                     description: The severity level if the problem occurs.
                 additionalProperties: true
+  resolve:
+    type: object
+    description: >
+      Use this when you have external links in your definition that are not publicly accessible (except for Redocly API registry links).
+      We recommend using environment variables where possible.
+    properties:
+      http:
+        type: object
+        description: Description of URL pattern matches and the corresponding headers to use when resolving references.
+        properties:
+          headers:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              properties:
+                matches:
+                  type: string
+                  description: The URL pattern to match. For example, `https://api.example.com/v2/**` or `https://example.com/*/test.yaml`
+                name:
+                  type: string
+                  description: The header name. For example, `X-API-KEY`.
+                value:
+                  type: string
+                  description: The value of the header. We recommend to use `envVariable` instead for any secrets.
+                envVariable:
+                  type: string
+                  description: The environment variable name which will be resolved and should contain the value.
   referenceDocs:
     type: object
     description: These configurations are used when previewing or building the docs.

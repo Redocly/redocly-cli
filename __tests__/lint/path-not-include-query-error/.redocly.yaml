@@ -4,4 +4,4 @@ apiDefinitions:
 lint:
   rules:
     path-not-include-query: error
-  exends: []
+  extends: []

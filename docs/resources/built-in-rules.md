@@ -4,10 +4,10 @@ redirectFrom:
   - /docs/cli/built-in-rules/
 ---
 
-# Built in rules
+# Built-in rules
 
 All of our built-in rules are listed below.
-We don't ship any built-in preprocessors or decorators.
+We don't ship any built-in preprocessors.
 To change your settings for any given rule, just add or modify a corresponding item in the `rules` section of the `.redocly.yaml` in your working directory.
 
 Each of the `rules` entries can be one of following:
@@ -104,6 +104,11 @@ Operation must have at least one `2xx` response.
 Any API operation (endpoint) can fail but presumably it is also meant to do something constructive at some point.
 If you forget to write out a success case for this API, then this rule will let you know.
 
+### operation-4xx-response
+Operation must have at least one `4xx` response.
+
+Any API may return an error. Verifies that every API operation has at least one error case described.
+
 ### operation-operationId
 Every operation must have an `operationId` defined.
 Useful in the docs for deep-linking.
@@ -174,6 +179,68 @@ Verifies that paths are not ambiguous as defined in the spec:
 ### paths-kebab-case
 All path items should be in kebab-case.
 
+### path-segment-plural
+
+All path segments should be plural. You can skip last segment or add exceptions using configuration:
+
+```yaml
+lint:
+  boolean-parameter-prefixes:
+    severity: {severity}
+    ignoreLastPathSegment: true
+    exceptions:
+      - v1
+```
+
+### no-http-verbs-in-paths
+
+Prevent HTTP verbs in paths like `GET /getAllCustomers`.
+Configure `splitIntoWords` to split path into words using casing before matching:
+
+```yaml
+lint:
+  no-http-verbs-in-paths:
+    severity: {severity}
+    splitIntoWords: true
+```
+
+
+### path-excludes-patterns
+
+Disallow specific regular expressions to match against paths.
+
+```yaml
+lint:
+  path-excludes-patterns:
+    severity: error
+    patterns:
+      - ^\/[a-z]
+```
+
+### request-mime-type
+
+Limit the allowed request body mime types. The rule inverses behavior for webhooks and events: it enforces responses mime types.
+
+```yaml
+lint:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+```
+
+
+### response-mime-type
+
+Limit the allowed response mime types. The rule inverses behavior for webhooks and events: it enforces requests mime types.
+
+```yaml
+lint:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+```
 
 ## Recommended config
 
@@ -209,6 +276,7 @@ Here is the equivalent of the `recommended` configuration values:
     path-parameters-defined: error
     operation-description: off
     operation-2xx-response: warn
+    operation-4xx-response: warn
     operation-operationId: warn
     operation-summary: error
     operation-operationId-unique: error

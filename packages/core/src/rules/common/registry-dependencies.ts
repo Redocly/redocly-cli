@@ -1,24 +1,22 @@
-import { RedoclyClient } from '../../redocly';
+import { UserContext } from '../../walk';
+import { isRedoclyRegistryURL } from '../../redocly';
 
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
 export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
-  let redoclyClient: RedoclyClient;
   let registryDependencies = new Set<string>();
 
   return {
     DefinitionRoot: {
-      leave() {
-        redoclyClient = new RedoclyClient();
-        if (process.env.UPDATE_REGISTRY && redoclyClient.hasToken()) {
-          redoclyClient.updateDependencies(Array.from(registryDependencies.keys()));
-        }
+      leave(_: any, ctx: UserContext) {
+        const data = ctx.getVisitorData();
+        data.links = Array.from(registryDependencies);
       },
     },
     ref(node) {
       if (node.$ref) {
         const link = node.$ref.split('#/')[0];
-        if (RedoclyClient.isRegistryURL(link)) {
+        if (isRedoclyRegistryURL(link)) {
           registryDependencies.add(link);
         }
       }

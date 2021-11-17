@@ -7,12 +7,13 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { Location, refBaseName } from './ref-utils';
+import { isRef, Location, refBaseName } from './ref-utils';
 import type { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
 import { OasRef } from './typings/openapi';
+import { isRedoclyRegistryURL } from './redocly';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -29,6 +30,7 @@ export async function bundle(opts: {
   config: Config;
   dereference?: boolean;
   base?: string;
+  skipRedoclyRegistryRefs?: boolean;
 }) {
   const {
     ref,
@@ -40,7 +42,8 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+  const document =
+    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
@@ -62,14 +65,26 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
+  skipRedoclyRegistryRefs?: boolean;
 }) {
-  const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
+  const {
+    document,
+    config,
+    customTypes,
+    externalRefResolver,
+    dereference = false,
+    skipRedoclyRegistryRefs = false,
+  } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
+        ? oasVersion === OasVersion.Version3_1
+          ? Oas3_1Types
+          : Oas3Types
+        : Oas2Types,
       oasVersion,
     ),
     config,
@@ -81,6 +96,7 @@ export async function bundleDocument(opts: {
     problems: [],
     oasVersion: oasVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
   };
 
   const bundleVisitor = normalizeVisitors(
@@ -89,7 +105,7 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, document),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document),
       },
       ...decorators,
     ],
@@ -116,6 +132,7 @@ export async function bundleDocument(opts: {
     fileDependencies: externalRefResolver.getFiles(),
     rootType: types.DefinitionRoot,
     refTypes: ctx.refTypes,
+    visitorsData: ctx.visitorsData,
   };
 }
 
@@ -160,7 +177,12 @@ function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootDocument: Document) {
+function makeBundleVisitor(
+  version: OasMajorVersion,
+  dereference: boolean,
+  skipRedoclyRegistryRefs: boolean,
+  rootDocument: Document,
+) {
   let components: Record<string, Record<string, any>>;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -178,6 +200,11 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         ) {
           return;
         }
+
+        if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+          return;
+        }
+
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           replaceRef(node, resolved, ctx);
@@ -249,6 +276,21 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
   }
 
+  function isEqualOrEqualRef(
+    node: any,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
+    if (
+      isRef(node) &&
+      ctx.resolve(node).location?.absolutePointer === target.location.absolutePointer
+    ) {
+      return true;
+    }
+
+    return isEqual(node, target.node);
+  }
+
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
@@ -265,20 +307,20 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
       if (
         !componentsGroup ||
         !componentsGroup[name] ||
-        isEqual(componentsGroup[name], target.node)
+        isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
         return name;
       }
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       return name;
     }
 
     const prevName = name;
     let serialId = 2;
-    while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
+    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       name = `${prevName}-${serialId}`;
       serialId++;
     }

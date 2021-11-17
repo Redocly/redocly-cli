@@ -1,0 +1,8 @@
+apiDefinitions:
+  main: ./main.yaml
+
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./test.md
+  extends: []

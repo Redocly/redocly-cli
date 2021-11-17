@@ -12,11 +12,13 @@ export default {
     'no-identical-paths': 'error',
     'no-ambiguous-paths': 'error',
     'no-path-trailing-slash': 'error',
+    'path-segment-plural': 'error',
     'path-declaration-must-exist': 'error',
     'path-not-include-query': 'error',
     'path-parameters-defined': 'error',
     'operation-description': 'error',
     'operation-2xx-response': 'error',
+    'operation-4xx-response': 'error',
     'operation-operationId': 'error',
     'operation-summary': 'error',
     'operation-operationId-unique': 'error',
@@ -29,6 +31,12 @@ export default {
     'no-enum-type-mismatch': 'error',
     'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
+    'no-http-verbs-in-paths': 'error',
+    'path-excludes-patterns': {
+      severity: 'error',
+      patterns: [],
+    },
+    'request-mime-type': 'error',
     spec: 'error',
     'no-invalid-schema-examples': 'error',
     'no-invalid-parameter-examples': 'error',
@@ -51,5 +59,5 @@ export default {
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
     'no-servers-empty-enum': 'error',
-  }
+  },
 } as LintRawConfig;

@@ -38,6 +38,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -52,6 +54,8 @@ paths:
       responses:
         '201':
           description: Null response
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -78,6 +82,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -149,6 +155,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -163,6 +171,8 @@ paths:
       responses:
         '201':
           description: Null response
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -189,6 +199,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pets'
+        '400':
+          description: An error response
         default:
           description: unexpected error
           content:
@@ -224,6 +236,8 @@ components:
       items:
         $ref: '#/components/schemas/Pet'
 
+No configurations were defined in extends -- using built in recommended configuration by default.
+
 foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 
@@ -232,6 +246,8 @@ run \`openapi lint --generate-ignore-file\` to add all problems to the ignore fi
 
 bundling ./foo.yaml...
 📦 Created a bundle for ./foo.yaml at stdout <test>ms.
+No configurations were defined in extends -- using built in recommended configuration by default.
+
 bar.yaml:
   14:7  error    spec  Property \`summay\` is not expected here.
 

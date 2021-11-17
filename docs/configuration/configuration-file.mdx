@@ -22,19 +22,23 @@ The contents of the YAML are according to the following structure:
 
 ```yaml
 apiDefinitions:
-# a set of named keys and values of entrypoints to OpenAPI definitions.
-# example
+# A set of named keys and values of entrypoints to OpenAPI definitions.
+# Example:
   petstore: ./openapi/openapi.yaml
   caretaker: ./openapi/caretaker.yaml
 
 lint:
-# the lint options
+# The lint command options
+
+resolve:
+# Configuration for resolving external links in your definition that are not publicly accessible.
+# Not required for Redocly API registry links.
 
 referenceDocs:
-# the API reference docs options, including theme options.
+# The API reference docs options, including theme options.
 
 registry:
-# the API registry options
+# The API registry options
 
 # future products may be configured by extending this file
 ```
@@ -63,7 +67,51 @@ openapi-cli lint
 The `lint` section's primary purpose is to define options for the `lint` and `bundle` commands.
 You may also import plugins and extends their configurations.
 
-Read more about the [lint configuration section](lint.md).
+Read more about the [lint configuration section](../guides/lint.md).
+
+### resolve
+
+Redocly will automatically resolve any API registry link or public URL in your API definitions. However, you may want to resolve links that are not API registry links or publicly accessible. To accomplish that, add the `resolve` section to the configuration file.
+
+OpenAPI CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section.
+
+We recommend using environment variables whenever possible.
+
+#### Resolving external links
+
+The `resolve` section should be structured like this:
+
+```yaml
+resolve:
+  http:
+    headers:
+      - # header configuration
+```
+
+The `headers` section supports fields listed in the following table.
+
+| Property | Description | Examples |
+| --- | --- | --- |
+| matches | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json`|
+| name | HTTP header name. | `Authorization` or `X-API-KEY`|
+| value | The value of the header. Mutually exclusive with `envVariable`. | `123-abc`|
+| envVariable | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. |`SECRET_KEY`|
+
+Here is a structured example for adding header definitions:
+
+```yaml
+resolve:
+  http:
+    headers:
+      - matches: https://api.example.com/v2/**
+        name: X-API-KEY
+        envVariable: SECRET_KEY
+      - matches: https://example.com/*/test.yaml
+        name: Authorization
+        envVariable: SECRET_AUTH
+```
+
+The first match will win in the event that a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
 ### referenceDocs
 
@@ -79,7 +127,8 @@ The `registry` section is reserved for future API registry features.
 
 Read more about the [`registry` section](registry.md).
 
-# Schema reference
+## Schema reference
+
 <StyledContent>
 <JsonSchema schema={Schema}/>
 </StyledContent>
