@@ -1,8 +1,6 @@
 import { Oas3RuleSet } from '../../oas-types';
 import { Oas3Decorator } from '../../visitors';
 import { OasSpec } from '../common/spec';
-import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
-import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
@@ -49,11 +47,11 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
+import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
+import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 
 export const rules = {
   spec: OasSpec,
-  'no-invalid-schema-examples': NoInvalidSchemaExamples,
-  'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
@@ -97,6 +95,8 @@ export const rules = {
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural,
+  'no-invalid-schema-examples': NoInvalidSchemaExamples,
+  'no-invalid-parameter-examples': NoInvalidParameterExamples,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
