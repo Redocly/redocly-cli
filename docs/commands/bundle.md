@@ -36,7 +36,7 @@ Option                 | Type      | Required?    | Default     | Description
 `--help`               | `boolean` | no           | -           | Show help
 `--lint`               | `boolean` | no           | `false`     | Lint definition files.
 `--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
-`--metafile`           | `string`  | no           | -           | Path for bundle metadata file. For example, `--metafile ./bundle.metadata.json`
+`--metafile`           | `string`  | no           | -           | Path for the bundle metadata file. For example, `--metafile ./bundle.metadata.json`
 `--output`, `-o`       | `string`  | no           | -           | Name or folder for the bundle file. For example, `-o bundle.yaml` or `-o ./openapi`.<li>If you don't specify the extension, `.yaml` will be used by default.</li><li>If the specified folder doesn't exist, it will be created automatically.</li><br />**If the file specified as the bundler's output already exists, it will be overwritten**
 `--skip-decorator`     | `array`   | no           | -           | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
 `--skip-preprocessor`  | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
