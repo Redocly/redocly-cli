@@ -3,7 +3,9 @@
 ## Introduction
 
 :::attention
-Redocly Workflows integrates with [popular version control services](https://redoc.ly/docs/workflows/sources/) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
+
+Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
+
 :::
 
 In case when you don't want or are not able to grant Redocly Workflows permissions to your repositories or when your API definitions are generated automatically from code annotations in a CI/CD pipeline, you can use the OpenAPI CLI `push` command and set up your own CI pipeline to update API definitions without granting Redocly Workflows access to your repositories. This allows you to:
@@ -18,15 +20,19 @@ Apart from uploading your API definition file, the `push` command can automatica
 - the HTML template and the full contents of the folder specified as the `referenceDocs > htmlTemplate` parameter in `.redocly.yaml`.
 
 :::attention
+
 If a plugin is referenced in the `.redocly.yaml` file, the `push` command will recursively scan the folder containing the plugin and upload all `.js`, `.json`, `.mjs` and `.ts` files.
 
 Make sure that each plugin has all the required files in its folder, otherwise they will not be uploaded.
+
 :::
 
-By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. Proceed to the [Create a new API with push](#create-a-new-api-with-push) section for more details on how to create an API.
+By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. Proceed to the [Upsert an API with push](#upsert-an-api-with-push) section for more details on how to create an API.
 
 :::warning
+
 Note that only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources will fail with an error.
+
 :::
 
 ## Prerequisites
@@ -34,7 +40,7 @@ Note that only API definitions with a CI source can be updated with the `push` c
 Before proceeding with the `push` command, ensure the following prerequisites are met:
 
 1. Active user account in a Redocly Workflows organization.
-1. Active [personal API key or organization API key](../../workflows/personal-api-keys.md).
+1. Active [personal API key or organization API key](../../settings/personal-api-keys.md).
 
 ## Authentication
 
@@ -49,7 +55,7 @@ To authenticate to the API registry, you can use several approaches:
 
   Refer to the [`login` command documentation](login.md) for more details.
 
-- set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
+- set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](../../settings/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
   ```bash
   REDOCLY_AUTHORIZATION=yourPersonalApiKey openapi push ...
@@ -62,12 +68,13 @@ To authenticate to the API registry, you can use several approaches:
   - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
   - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
 
+
 ## Usage
 
 ```bash
 openapi push <entrypoint> <destination> [branchName]
 openapi push [--upsert] <entrypoint> <destination> [branchName]
-openapi push 
+openapi push
 openapi push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-name@api-version> [branchName]
 ```
 
@@ -75,7 +82,7 @@ openapi push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-
 
 Option           | Type      | Required?    | Default     | Description
 -----------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`     | `string`  | yes          | -           | Path to the API definition filename that you want to push to the Redocly API registry. See [the Entrypoints section](#entrypoints) for more options.
+`entrypoint`     | `string`  | yes          | -           | Path to the API definition filename that you want to push to the Redocly API registry. See [the Entrypoint section](#entrypoint) for more options.
 `destination`    | `string`  | yes          | -           | Organization id, API name and API version that define the location in the Redocly API registry where to push your API definition.<br />**Format:** `@organization-id/api-name@api-version`. See [the Destination section](#destination) for more information.
 `branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed
 `--help`         | `boolean` | no           | -           | Show help
@@ -87,7 +94,7 @@ Option           | Type      | Required?    | Default     | Description
 
 ### Entrypoint
 
-The command behaves differently depending on how you pass an entrypoint to it and whether the [configuration file](#custom-configuration-file) exists. There are the following options:
+The command behaves differently depending on how you pass an entrypoint to it and whether the configuration file exists.
 
 #### Pass entrypoint directly
 
@@ -134,7 +141,9 @@ To find your organization ID required for the command:
 For example, if the URL is `app.redoc.ly/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `@test_docs`.
 
 :::warning Note
+
 The organization ID can differ from the organization name. Owners can change the organization name at any time in the Workflows **Settings** page, but the organization ID cannot be changed.
+
 :::
 
 #### API name
@@ -146,14 +155,12 @@ To find your API name required for the command:
 1. Check the list of APIs displayed on this page.
 1. Inspect the title of each list item to the left of the **New version** and **Edit API** action buttons. This title is an API name.
 
+When using the `push` command, you would provide the API name after the [Organization ID](#organization-id) separated with the forward slash (`/`). For example: `@test_docs/petstore-api`.
+
 :::attention
-When using the `push` command, you would provide the API name after the [Organization ID](#organization-id) separated with the forward slash (`/`).
 
-For example, `@test_docs/petstore-api`.
-:::
-
-:::info
 The name of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
+
 :::
 
 #### API version
@@ -165,14 +172,12 @@ To find your API version required for the command:
 1. Check the list of APIs displayed on this page.
 1. Inspect the subtitle of each list item to the bottom of the [API name](#api-name). This subtitle is an API version.
 
+When using the `push` command, you would provide the API version after the [API name](#api-name) separated with the "at" symbol (`@`). For example: `@test_docs/petstore-api@v1`.
+
 :::attention
-When using the `push` command, you would provide the API version after the [API name](#api-name) separated with the "at" symbol (`@`).
 
-For example, `@test_docs/petstore-api@v1`.
-:::
-
-:::info
 The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
+
 :::
 
 ### Run ID
