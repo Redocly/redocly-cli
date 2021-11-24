@@ -17,13 +17,13 @@ Apart from uploading your API definition file, the `push` command can automatica
 - the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/openapi-cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `referenceDocs > htmlTemplate` parameter in `.redocly.yaml`.
 
-:::warning
+:::attention
 If a plugin is referenced in the `.redocly.yaml` file, the `push` command will recursively scan the folder containing the plugin and upload all `.js`, `.json`, `.mjs` and `.ts` files.
 
 Make sure that each plugin has all the required files in its folder, otherwise they will not be uploaded.
 :::
 
-By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. Proceed to the [Create a new API with push](#create-a-new-api-with-push) section for more details on how to create an API manually.
+By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. Proceed to the [Create a new API with push](#create-a-new-api-with-push) section for more details on how to create an API.
 
 :::warning
 Note that only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources will fail with an error.
@@ -49,7 +49,7 @@ To authenticate to the API registry, you can use several approaches:
 
   Refer to the [`login` command documentation](login.md) for more details.
 
-- use the `REDOCLY_AUTHORIZATION` environment variable. It can be set to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
+- set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](../../workflows/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
   ```bash
   REDOCLY_AUTHORIZATION=yourPersonalApiKey openapi push ...
@@ -80,7 +80,7 @@ Option           | Type      | Required?    | Default     | Description
 `branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed
 `--help`         | `boolean` | no           | -           | Show help
 `--run-id`       | `string`  | no           | -           | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.
-`--upsert`, `-u` | `boolean` | no           | -           | Create a new API and a new API definition version. See [the Create a new API with push section](#create-a-new-api-with-push) for more information.
+`--upsert`, `-u` | `boolean` | no           | -           | Upsert an API to the API registry. See [the Create a new API with push section](#create-a-new-api-with-push) for more information.
 `--version`      | `boolean` | no           | -           | Show version number
 
 ## Examples
@@ -153,7 +153,7 @@ For example, `@test_docs/petstore-api`.
 :::
 
 :::info
-The name of your API definition should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API definition will not be created.
+The name of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
 :::
 
 #### API version
@@ -172,7 +172,7 @@ For example, `@test_docs/petstore-api@v1`.
 :::
 
 :::info
-The version of your API definition should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API definition will not be created.
+The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
 :::
 
 ### Run ID
@@ -188,23 +188,19 @@ Below are possible use cases for the `--run-id` option:
 - CI/CD systems: group pushes from a single CI job together so that each push does not trigger separate reference docs/portals rebuild.
 - External systems: a parameter that can be used in reports, metrics, analytics to refer to a specific application service state.
 
-### Create a new API with push
+### Upsert an API with push
 
-To create a new API and a new API definition version with the `push` command, use the `--upsert` or `-u` option:
+To upsert an API/version with the `push` command, use the `--upsert` or `-u` option:
 
 ```bash
 openapi push -u test-api-v1.yaml @redocly/test-api@v1 main
 ```
 
-:::warning
-Before executing the `push` command with the `--upsert` option, ensure that the corresponding organization (that you are supposed to push API definitions to) exists in your Redocly API Registry.
-:::
-
 ### Set up CI from Redocly Workflows
 
 The Redocly Workflows interface can help you get started with the `push` command.
 
-1. In **API Registry**, select **Add API**.
+1. In **API registry**, select **Add API**.
 1. In the **Definition name** step, provide a name for your new API definition.
 1. In the **Choose source** step, select **Upload from CI/CD**. This will generate syntax for the `push` command that you can copy and use to upload a new API definition file. Alternatively, use the `openapi push -u` command directly from the command-line interface.
 
