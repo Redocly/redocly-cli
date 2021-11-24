@@ -80,7 +80,7 @@ Option           | Type      | Required?    | Default     | Description
 `branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed
 `--help`         | `boolean` | no           | -           | Show help
 `--run-id`       | `string`  | no           | -           | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.
-`--upsert`, `-u` | `boolean` | no           | -           | Upsert an API to the API registry. See [the Create a new API with push section](#create-a-new-api-with-push) for more information.
+`--upsert`, `-u` | `boolean` | no           | -           | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.
 `--version`      | `boolean` | no           | -           | Show version number
 
 ## Examples
