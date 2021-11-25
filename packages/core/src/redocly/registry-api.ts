@@ -3,22 +3,26 @@ import { RegistryApiTypes } from './registry-api-types';
 const version = require('../../package.json').version;
 
 export class RegistryApi {
-  private readonly baseUrl = `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry`;
+  private readonly baseUrl = this.getBaseUrl();
 
-  constructor(private accessToken?: string) {}
+  constructor(private accessToken?: string, private domain?: string) {}
 
-  private async request(path = '', options: RequestInit = {}) {
+  getBaseUrl() {
+    return `https://api.${this.domain || 'redoc.ly'}/registry`;
+  }
+
+  private async request(path = '', options: RequestInit = {}, accessToken?: string) {
+
     if (!this.accessToken) {
       throw new Error('Unauthorized');
     }
 
     const headers = Object.assign({}, options.headers || {}, {
-      authorization: this.accessToken,
+      authorization: accessToken || this.accessToken,
       'x-redocly-cli-version': version,
     });
 
     const response = await fetch(`${this.baseUrl}${path}`, Object.assign({}, options, { headers }));
-
     if (response.status === 401) {
       throw new Error('Unauthorized');
     }
@@ -31,15 +35,9 @@ export class RegistryApi {
     return response;
   }
 
-  setAccessToken(accessToken: string) {
-    this.accessToken = accessToken;
-    return this;
-  }
-
-  async authStatus(verbose = false) {
+  async authStatus(accessToken: string, verbose = false) {
     try {
-      const response = await this.request();
-
+      const response = await this.request('', {}, accessToken);
       return response.ok;
     } catch (error) {
       if (verbose) {

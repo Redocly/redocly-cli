@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, RawConfig } from './config';
+import { Config, DOMAINS, RawConfig, Region } from './config';
 
 import { defaultPlugin } from './builtIn';
 
@@ -10,34 +9,32 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   if (configPath === undefined) {
     configPath = findConfig();
   }
-  let rawConfig: RawConfig = {};
+  let rawConfig = await getRawConfigContent(configPath);
 
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
   }
 
   const redoclyClient = new RedoclyClient();
-  if (redoclyClient.hasToken()) {
+  const tokens = await redoclyClient.getTokens();
+
+  if (tokens.length) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
     if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
-    rawConfig.resolve.http.headers = [
-      {
-        matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
+    rawConfig.resolve.http.headers = [...(rawConfig.resolve.http.headers ?? [])];
+
+    for (const item of tokens) {
+      const domain = DOMAINS[item.region as Region];
+      rawConfig.resolve.http.headers.push({
+        matches: `https://api.${domain}/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
-        value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',
-      },
-      ...(rawConfig.resolve.http.headers ?? []),
-    ];
+        value: item.token,
+      });
+    }
   }
+
   return new Config(
     {
       ...rawConfig,
@@ -57,4 +54,16 @@ function findConfig() {
     return '.redocly.yml';
   }
   return undefined;
+}
+
+export async function getRawConfigContent(configPath = findConfig()) {
+  let rawConfig: RawConfig = {};
+  if (configPath !== undefined) {
+    try {
+      rawConfig = (await loadYaml(configPath)) as RawConfig;
+    } catch (e) {
+      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
+    }
+  }
+  return rawConfig;
 }

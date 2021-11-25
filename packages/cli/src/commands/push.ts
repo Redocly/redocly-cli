@@ -14,15 +14,17 @@ import {
   BundleOutputFormat,
   getTotals,
   slash,
+  Region,
 } from '@redocly/openapi-core';
 import {
-  promptUser,
   exitWithError,
   printExecutionTime,
   getFallbackEntryPointsOrExit,
   pluralize,
   dumpBundle,
 } from '../utils';
+import { promptClientToken } from './login';
+import { getRawConfigContent } from '../../../core/src/config/load';
 
 export async function handlePush(argv: {
   entrypoint?: string;
@@ -30,16 +32,14 @@ export async function handlePush(argv: {
   branchName?: string;
   upsert?: boolean;
   'run-id'?: string;
+  region?: Region;
 }) {
-  const client = new RedoclyClient();
+  const region = argv.region || (await getRawConfigContent()).region;
+  const client = new RedoclyClient(region);
   const isAuthorized = await client.isAuthorizedWithRedocly();
+
   if (!isAuthorized) {
-    const clientToken = await promptUser(
-      green(
-        `\n  🔑 Copy your API key from ${blue('https://app.redoc.ly/profile')} and paste it below`,
-      ),
-      true,
-    );
+    const clientToken = await promptClientToken(client.getDomain());
     await client.login(clientToken);
   }
 

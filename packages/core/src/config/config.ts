@@ -123,11 +123,18 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
+export type Region = 'us' | 'eu';
+export const DOMAINS: { [region in Region]: string } = {
+  us: 'redoc.ly',
+  eu: 'eu.redocly.com',
+};
+
 export type RawConfig = {
   referenceDocs?: any;
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
+  region?: Region;
 };
 
 export class LintConfig {
