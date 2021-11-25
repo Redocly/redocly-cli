@@ -7,6 +7,7 @@ import { DOMAINS, Region } from '../config/config';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 const DEFAULT_REGION = 'us';
+const DEFAULT_DOMAIN = 'redoc.ly';
 
 export class RedoclyClient {
   private accessTokens: { us?: string; eu?: string; } | undefined;
@@ -17,7 +18,7 @@ export class RedoclyClient {
   constructor(region?: Region) {
     this.region = region || DEFAULT_REGION;
     this.loadTokens();
-    this.setDomain();
+    this.setDomain(region);
     this.registryApi = new RegistryApi(this.getTokenByRegion(), this.domain);
   }
 
@@ -25,14 +26,14 @@ export class RedoclyClient {
     return this.accessTokens && this.accessTokens[this.region];
   }
 
-  setDomain() {
-    this.domain = this.region !== DEFAULT_REGION
-      ? DOMAINS[this.region]
+  setDomain(region?: Region) {
+    this.domain = region
+      ? DOMAINS[region]
       : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
   }
 
   getDomain() {
-    return this.domain || 'redoc.ly';
+    return this.domain || DEFAULT_DOMAIN;
   }
 
   hasTokens(): boolean {
@@ -106,7 +107,7 @@ export class RedoclyClient {
 }
 
 export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
+  const domain = process.env.REDOCLY_DOMAIN || DEFAULT_DOMAIN;
   if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
   const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 

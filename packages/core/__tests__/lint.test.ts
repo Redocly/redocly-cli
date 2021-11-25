@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import { detectOpenAPI } from '../src/oas-types';
 import { parseYamlToDocument } from './utils';
 
-describe.only('lint', () => {
+describe('lint', () => {
 	it('detect OpenAPI should throw an error when version is not string', () => {
 
 	const testDocument = parseYamlToDocument(
