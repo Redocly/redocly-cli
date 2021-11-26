@@ -12,18 +12,18 @@ OpenAPI CLI toolbox with rich validation and bundling features.
 
 Currently, @redocly/openapi-cli supports these features:
 
-- [x] Multifile validation. No need to bundle your file before validation.
-- [x] Lightning-fast validation. Lint a 1 Mb file in less than one second.
+- [x] Multi-file validation. No need to bundle your file before validation.
+- [x] Lightning-fast validation. Lint a 1 MB file in less than one second.
 - [x] Built-in rules for common validations.
 - [x] Configurable severity levels for each rule.
 - [x] Human-readable error messages with codeframes and stylish format options.
 - [x] Intuitive suggestions for misspelled types or references.
 - [x] Easy to implement custom rules.
-- [x] Bundle a multifile definition into a single file.
+- [x] Bundle a multi-file definition into a single file.
 - [x] Decorators to modify a validated definition during bundling.
 - [x] Preview reference docs for local development.
 - [x] Support for OpenAPI 2 (fka Swagger) and OpenAPI 3.0.
-- [x] Basic Support for OpenAPI 3.1
+- [x] Basic support for OpenAPI 3.1
 
 ## What makes this tool different
 
@@ -36,17 +36,20 @@ Unlike other OpenAPI linters, `@redocly/openapi-cli` defines the possible type t
 ```
 npx @redocly/openapi-cli lint path-to-root-file.yaml
 ```
-OR
+
+Alternatively, install it globally with `npm`:
 
 ```
 npm install @redocly/openapi-cli -g
 ```
-and you can use it like:
+
+Then you can use it as `openapi [command] [options]`, for example:
+
 ```openapi lint path-to-root-file.yaml```
 
 ### Docker
 
-To give the docker container access to the OpenAPI definition files, you need to
+To give the Docker container access to the OpenAPI definition files, you need to
 mount the containing directory as a volume. Assuming the OAS definition is rooted
 in the current working directory, you need the following command:
 
