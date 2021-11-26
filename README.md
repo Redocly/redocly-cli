@@ -36,6 +36,13 @@ Unlike other OpenAPI linters, `@redocly/openapi-cli` defines the possible type t
 ```
 npx @redocly/openapi-cli lint path-to-root-file.yaml
 ```
+OR
+
+```
+npm install @redocly/openapi-cli -g
+```
+and you can use it like:
+```openapi lint path-to-root-file.yaml```
 
 ### Docker
 
