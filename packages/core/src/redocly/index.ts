@@ -33,16 +33,15 @@ export class RedoclyClient {
   }
 
   loadTokens(): void {
-    if (process.env.REDOCLY_AUTHORIZATION) {
-      this.accessTokens = {};
-      for (const domain in DOMAINS) {
-        this.accessTokens[domain as Region] = process.env.REDOCLY_AUTHORIZATION;
-      }
-      return;
-    }
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     const credentials = this.readCredentialsFile(credentialsPath);
     if (Object.keys(credentials).length > 0) { this.accessTokens = credentials; };
+    if (process.env.REDOCLY_AUTHORIZATION) {
+      this.accessTokens = {
+        ...this.accessTokens,
+        [this.region]: process.env.REDOCLY_AUTHORIZATION
+      }
+    }
   }
 
   async getValidTokens() {
@@ -82,11 +81,11 @@ export class RedoclyClient {
       process.exit(1);
     }
 
-    this.accessTokens = { [this.region]: accessToken };
     const credentials = {
       ...this.readCredentialsFile(credentialsPath),
       [this.region!]: accessToken,
     };
+    this.accessTokens = credentials;
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
     process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
   }
