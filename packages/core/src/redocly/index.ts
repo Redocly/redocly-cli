@@ -11,29 +11,21 @@ const DEFAULT_DOMAIN = 'redoc.ly';
 
 export class RedoclyClient {
   private accessTokens: { us?: string; eu?: string; } | undefined;
-  private domain: string | undefined;
   private region: Region;
+  domain: string;
   registryApi: RegistryApi;
 
   constructor(region?: Region) {
     this.region = region || DEFAULT_REGION;
     this.loadTokens();
-    this.setDomain(region);
+    this.domain = region
+      ? DOMAINS[region]
+      : process.env.REDOCLY_DOMAIN || DEFAULT_DOMAIN;
     this.registryApi = new RegistryApi(this.getTokenByRegion(), this.domain);
   }
 
   getTokenByRegion() {
     return this.accessTokens && this.accessTokens[this.region];
-  }
-
-  setDomain(region?: Region) {
-    this.domain = region
-      ? DOMAINS[region]
-      : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
-  }
-
-  getDomain() {
-    return this.domain || DEFAULT_DOMAIN;
   }
 
   hasTokens(): boolean {

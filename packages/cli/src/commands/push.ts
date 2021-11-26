@@ -38,7 +38,7 @@ export async function handlePush(argv: {
   const isAuthorized = await client.isAuthorizedWithRedocly();
 
   if (!isAuthorized) {
-    const clientToken = await promptClientToken(client.getDomain());
+    const clientToken = await promptClientToken(client.domain);
     await client.login(clientToken);
   }
 

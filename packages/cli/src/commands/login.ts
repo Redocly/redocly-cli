@@ -14,6 +14,6 @@ export function promptClientToken(domain: string) {
 export async function handleLogin(argv: { verbose?: boolean; region?: Region }) {
   const region = argv.region || (await getRawConfigContent()).region;
   const client = new RedoclyClient(region);
-  const clientToken = await promptClientToken(client.getDomain());
+  const clientToken = await promptClientToken(client.domain);
   client.login(clientToken, argv.verbose);
 }
