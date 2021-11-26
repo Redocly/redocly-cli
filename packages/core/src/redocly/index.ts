@@ -41,9 +41,8 @@ export class RedoclyClient {
       return;
     }
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    if (existsSync(credentialsPath)) {
-      this.accessTokens = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
-    }
+    const credentials = this.readCredentialsFile(credentialsPath);
+    if (Object.keys(credentials).length > 0) { this.accessTokens = credentials; };
   }
 
   async getValidTokens() {
@@ -60,6 +59,10 @@ export class RedoclyClient {
 
   async isAuthorizedWithRedocly(): Promise<boolean> {
     return this.hasTokens() && !!(await this.getValidTokens()).length;
+  }
+
+  readCredentialsFile(credentialsPath: string) {
+    return existsSync(credentialsPath) ? JSON.parse(readFileSync(credentialsPath, 'utf-8')) : {};
   }
 
   async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
@@ -81,7 +84,7 @@ export class RedoclyClient {
 
     this.accessTokens = { [this.region]: accessToken };
     const credentials = {
-      ...(existsSync(credentialsPath) && JSON.parse(readFileSync(credentialsPath, 'utf-8'))),
+      ...this.readCredentialsFile(credentialsPath),
       [this.region!]: accessToken,
     };
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
