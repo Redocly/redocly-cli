@@ -1,8 +1,6 @@
-import { RedoclyClient } from '@redocly/openapi-core';
+import { Region, RedoclyClient, getRawConfigContent } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
 import { promptUser } from '../utils';
-import { getRawConfigContent } from '../../../core/src/config/load';
-import { Region } from '@redocly/openapi-core';
 
 export function promptClientToken(domain: string) {
   return promptUser(

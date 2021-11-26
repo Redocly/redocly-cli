@@ -80,7 +80,6 @@ export class RedoclyClient {
     process.stdout.write(gray('\n  Logging in...\n'));
 
     const authorized = await this.verifyToken(accessToken, verbose);
-
     if (!authorized) {
       process.stdout.write(
         red('Authorization failed. Please check if you entered a valid API key.\n'),

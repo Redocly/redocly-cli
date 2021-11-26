@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-
 import {
   bundle,
   Config,
@@ -15,6 +14,7 @@ import {
   getTotals,
   slash,
   Region,
+  getRawConfigContent,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -24,7 +24,6 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
-import { getRawConfigContent } from '../../../core/src/config/load';
 
 export async function handlePush(argv: {
   entrypoint?: string;

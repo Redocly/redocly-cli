@@ -12,8 +12,7 @@ export class RegistryApi {
   }
 
   private async request(path = '', options: RequestInit = {}, accessToken?: string) {
-
-    if (!this.accessToken) {
+    if (!this.accessToken && !accessToken) {
       throw new Error('Unauthorized');
     }
 
