@@ -45,7 +45,14 @@ export class RedoclyClient {
   loadTokens(): void {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     const credentials = this.readCredentialsFile(credentialsPath);
-    if (Object.keys(credentials).length > 0) { this.accessTokens = credentials; }
+    if (Object.keys(credentials).length > 0) {
+      this.accessTokens = {
+        ...this.accessTokens,
+        ...(credentials.token && !credentials[this.region] && {
+          [this.region]: credentials.token
+        })
+      }
+    }
     if (process.env.REDOCLY_AUTHORIZATION) {
       this.accessTokens = {
         ...this.accessTokens,
