@@ -9,8 +9,15 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   if (configPath === undefined) {
     configPath = findConfig();
   }
-  let rawConfig = await getRawConfigContent(configPath);
+  let rawConfig: RawConfig = {};
 
+  if (configPath !== undefined) {
+    try {
+      rawConfig = (await loadYaml(configPath)) as RawConfig;
+    } catch (e) {
+      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
+    }
+  }
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -61,16 +68,4 @@ function findConfig() {
     return '.redocly.yml';
   }
   return undefined;
-}
-
-export async function getRawConfigContent(configPath = findConfig()) {
-  let rawConfig: RawConfig = {};
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
-  return rawConfig;
 }

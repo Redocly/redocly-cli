@@ -392,6 +392,7 @@ export class Config {
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
+  region?: Region;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
@@ -402,6 +403,7 @@ export class Config {
         customFetch: undefined,
       },
     };
+    this.region = rawConfig.region;
   }
 }
 

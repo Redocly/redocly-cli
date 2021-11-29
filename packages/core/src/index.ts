@@ -18,7 +18,7 @@ export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
 
 export { Config, LintConfig, RawConfig, IGNORE_FILE, Region } from './config/config';
-export { loadConfig, getRawConfigContent } from './config/load';
+export { loadConfig } from './config/load';
 export { RedoclyClient } from './redocly';
 export {
   Source,

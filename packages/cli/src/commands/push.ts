@@ -14,7 +14,6 @@ import {
   getTotals,
   slash,
   Region,
-  getRawConfigContent,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -33,7 +32,7 @@ export async function handlePush(argv: {
   'run-id'?: string;
   region?: Region;
 }) {
-  const region = argv.region || (await getRawConfigContent()).region;
+  const region = argv.region || (await loadConfig()).region;
   const client = new RedoclyClient(region);
   const isAuthorized = await client.isAuthorizedWithRedocly();
 

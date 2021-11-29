@@ -1,4 +1,4 @@
-import { Region, RedoclyClient, getRawConfigContent } from '@redocly/openapi-core';
+import { Region, RedoclyClient, loadConfig } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
 import { promptUser } from '../utils';
 
@@ -12,7 +12,7 @@ export function promptClientToken(domain: string) {
 }
 
 export async function handleLogin(argv: { verbose?: boolean; region?: Region }) {
-  const region = argv.region || (await getRawConfigContent()).region;
+  const region = argv.region || (await loadConfig()).region;
   const client = new RedoclyClient(region);
   const clientToken = await promptClientToken(client.domain);
   client.login(clientToken, argv.verbose);

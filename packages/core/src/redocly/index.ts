@@ -16,12 +16,22 @@ export class RedoclyClient {
   registryApi: RegistryApi;
 
   constructor(region?: Region) {
-    this.region = region || DEFAULT_REGION;
+    this.region = this.loadRegion(region);
     this.loadTokens();
     this.domain = region
       ? DOMAINS[region]
       : process.env.REDOCLY_DOMAIN || DEFAULT_DOMAIN;
     this.registryApi = new RegistryApi(this.getTokenByRegion(), this.domain);
+  }
+
+  loadRegion(region?: Region) {
+    if (region && !DOMAINS[region]) {
+      process.stdout.write(
+        red(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".\n`),
+      );
+      process.exit(1);
+    }
+    return region || DEFAULT_REGION;
   }
 
   getTokenByRegion() {
@@ -35,7 +45,7 @@ export class RedoclyClient {
   loadTokens(): void {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     const credentials = this.readCredentialsFile(credentialsPath);
-    if (Object.keys(credentials).length > 0) { this.accessTokens = credentials; };
+    if (Object.keys(credentials).length > 0) { this.accessTokens = credentials; }
     if (process.env.REDOCLY_AUTHORIZATION) {
       this.accessTokens = {
         ...this.accessTokens,
