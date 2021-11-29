@@ -4,6 +4,12 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.69 (2021-11-16)
+
+### Features
+
+- `--extends` and `--metafile` options for [bundle](./commands/bundle.md#options) command
+
 ## 1.0.0-beta.68 (2021-11-15)
 
 ### Fixes
