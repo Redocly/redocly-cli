@@ -47,7 +47,7 @@ export class RedoclyClient {
     const credentials = this.readCredentialsFile(credentialsPath);
     if (Object.keys(credentials).length > 0) {
       this.accessTokens = {
-        ...this.accessTokens,
+        ...credentials,
         ...(credentials.token && !credentials[this.region] && {
           [this.region]: credentials.token
         })
