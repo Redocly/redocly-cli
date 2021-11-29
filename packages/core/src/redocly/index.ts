@@ -3,11 +3,9 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { red, green, gray } from 'colorette';
 import { RegistryApi } from './registry-api';
-import { DOMAINS, Region } from '../config/config';
+import { DEFAULT_DOMAIN, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
 
 const TOKEN_FILENAME = '.redocly-config.json';
-const DEFAULT_REGION = 'us';
-const DEFAULT_DOMAIN = 'redoc.ly';
 
 export class RedoclyClient {
   private accessTokens: { us?: string; eu?: string; } | undefined;

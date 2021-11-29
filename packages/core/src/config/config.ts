@@ -123,9 +123,11 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
+export const DEFAULT_REGION = 'us';
+export const DEFAULT_DOMAIN = 'redoc.ly';
 export type Region = 'us' | 'eu';
 export const DOMAINS: { [region in Region]: string } = {
-  us: 'redoc.ly',
+  us: DEFAULT_DOMAIN,
   eu: 'eu.redocly.com',
 };
 
