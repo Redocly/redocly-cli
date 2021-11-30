@@ -1,42 +1,40 @@
-import fetch, { RequestInit } from 'node-fetch';
+import fetch, { RequestInit, HeadersInit } from 'node-fetch';
 import { RegistryApiTypes } from './registry-api-types';
+import { AccessTokens, Region, DEFAULT_REGION, DOMAINS } from '../config/config';
+import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
 
 export class RegistryApi {
-  private readonly baseUrl = this.getBaseUrl();
+  constructor(private accessTokens: AccessTokens, private region: Region) {}
 
-  constructor(private accessToken?: string, private domain?: string) {}
-
-  getBaseUrl() {
-    return `https://api.${this.domain || 'redoc.ly'}/registry`;
+  get accessToken() {
+    return isNotEmptyObject(this.accessTokens) && this.accessTokens[this.region];
   }
 
-  private async request(path = '', options: RequestInit = {}, accessToken?: string) {
-    if (!this.accessToken && !accessToken) {
-      throw new Error('Unauthorized');
-    }
+  getBaseUrl(region: Region = DEFAULT_REGION) {
+    return `https://api.${DOMAINS[region]}/registry`;
+  }
 
-    const headers = Object.assign({}, options.headers || {}, {
-      authorization: accessToken || this.accessToken,
-      'x-redocly-cli-version': version,
-    });
+  setAccessTokens(accessTokens: AccessTokens) {
+    this.accessTokens = accessTokens;
+    return this;
+  }
 
-    const response = await fetch(`${this.baseUrl}${path}`, Object.assign({}, options, { headers }));
-    if (response.status === 401) {
-      throw new Error('Unauthorized');
-    }
-
+  private async request(path = '', options: RequestInit = {}, region?: Region) {
+    const headers = Object.assign({}, options.headers || {}, { 'x-redocly-cli-version': version });
+    if (!headers.hasOwnProperty('authorization')) { throw new Error('Unauthorized'); }
+    const response = await fetch(`${this.getBaseUrl(region)}${path}`, Object.assign({}, options, { headers }));
+    if (response.status === 401) { throw new Error('Unauthorized'); }
     if (response.status === 404) {
       const body: RegistryApiTypes.NotFoundProblemResponse = await response.json();
       throw new Error(body.code);
     }
-
     return response;
   }
 
-  async authStatus(accessToken: string, verbose = false) {
+  async authStatus(accessToken: string, region: Region, verbose = false) {
     try {
-      const response = await this.request('', {}, accessToken);
+      const response = await this.request('', { headers: { authorization: accessToken }}, region);
       return response.ok;
     } catch (error) {
       if (verbose) {
@@ -58,13 +56,17 @@ export class RegistryApi {
       `/${organizationId}/${name}/${version}/prepare-file-upload`,
       {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          authorization: this.accessToken,
+        } as HeadersInit,
         body: JSON.stringify({
           filesHash,
           filename,
           isUpsert,
         }),
       },
+      this.region
     );
 
     if (response.ok) {
@@ -85,14 +87,19 @@ export class RegistryApi {
   }: RegistryApiTypes.PushApiParams) {
     const response = await this.request(`/${organizationId}/${name}/${version}`, {
       method: 'PUT',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        authorization: this.accessToken
+      } as HeadersInit,
       body: JSON.stringify({
         rootFilePath,
         filePaths,
         branch,
         isUpsert,
       }),
-    });
+    },
+      this.region
+    );
 
     if (response.ok) {
       return;

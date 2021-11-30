@@ -124,10 +124,10 @@ export type ResolveConfig = {
 };
 
 export const DEFAULT_REGION = 'us';
-export const DEFAULT_DOMAIN = 'redoc.ly';
 export type Region = 'us' | 'eu';
+export type AccessTokens = {[region in Region]?: string };
 export const DOMAINS: { [region in Region]: string } = {
-  us: DEFAULT_DOMAIN,
+  us: 'redoc.ly',
   eu: 'eu.redocly.com',
 };
 

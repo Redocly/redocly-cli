@@ -160,3 +160,7 @@ export function isPathParameter(pathSegment: string) {
 
   return path.replace(/\\/g, '/');
 }
+
+export function isNotEmptyObject(obj: any) {
+  return !!obj && Object.keys(obj).length > 0;
+}

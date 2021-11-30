@@ -34,7 +34,7 @@ export async function handlePush(argv: {
 }) {
   const region = argv.region || (await loadConfig()).region;
   const client = new RedoclyClient(region);
-  const isAuthorized = await client.isAuthorizedWithRedocly();
+  const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
 
   if (!isAuthorized) {
     const clientToken = await promptClientToken(client.domain);
