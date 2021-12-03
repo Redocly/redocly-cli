@@ -242,6 +242,29 @@ lint:
       - application/json
 ```
 
+### no-invalid-schema-examples
+
+Verifies that example value conforms to the schema type. Disallows additional properties by default.
+
+```yaml
+lint:
+  no-invalid-schema-examples:
+    severity: error
+    disallowAdditionalProperties: false
+```
+
+
+### no-invalid-parameter-examples
+
+Verifies that parameter example value conforms to the schema type. Disallows additional properties by default.
+
+```yaml
+lint:
+  no-invalid-parameter-examples:
+    severity: error
+    disallowAdditionalProperties: false
+```
+
 ## Recommended config
 
 There are three built-in configurations:
