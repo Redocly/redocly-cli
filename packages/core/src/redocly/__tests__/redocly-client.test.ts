@@ -3,7 +3,9 @@ import { RedoclyClient } from '../index';
 describe('RedoclyClient', () => {
   const REDOCLY_DOMAIN_US = 'redoc.ly';
   const REDOCLY_DOMAIN_EU = 'eu.redocly.com';
+  const REDOCLY_AUTHORIZATION_TOKEN = 'redocly-auth-token';
   const testRedoclyDomain = 'redoclyDomain.com';
+  const testToken = 'test-token';
 
   afterEach(() => {
     delete process.env.REDOCLY_DOMAIN;
@@ -54,4 +56,43 @@ describe('RedoclyClient', () => {
     ]);
     spy.mockRestore();
   });
+
+  it('should set correct accessTokens - backward compatibility: default US region', () => {
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient();
+    expect(client.setAccessTokens).toBeCalledWith(
+      expect.objectContaining({ us: testToken })
+    );
+    spy.mockRestore();
+  });
+
+  it('should set correct accessTokens - backward compatibility: EU region', () => {
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient('eu');
+    expect(client.setAccessTokens).toBeCalledWith(
+      expect.objectContaining({ eu: testToken })
+    );
+    spy.mockRestore();
+  });
+
+  it('should set correct accessTokens - REDOCLY_AUTHORIZATION env', () => {
+    process.env.REDOCLY_AUTHORIZATION = REDOCLY_AUTHORIZATION_TOKEN;
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation();
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient();
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(1, { "us": REDOCLY_AUTHORIZATION_TOKEN });
+    spy.mockRestore();
+  });
+
+  it('should set correct accessTokens prioritizing REDOCLY_AUTHORIZATION env over token in file', () => {
+    process.env.REDOCLY_AUTHORIZATION = REDOCLY_AUTHORIZATION_TOKEN;
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient();
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { "us": REDOCLY_AUTHORIZATION_TOKEN });
+    spy.mockRestore();
+  });
+
 });
