@@ -89,6 +89,7 @@ Option           | Type      | Required?    | Default     | Description
 `--run-id`       | `string`  | no           | -           | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.
 `--upsert`, `-u` | `boolean` | no           | -           | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.
 `--version`      | `boolean` | no           | -           | Show version number
+`--region,-r`|`string`  | no        | `us`    | Provide a region <br />Possible values: `us`, `eu`
 
 ## Examples
 
