@@ -3,7 +3,7 @@ export const __redoclyClient = {
   isAuthorizedWithRedoclyByRegion: jest.fn().mockResolvedValue(true),
   login: jest.fn(),
   registryApi: {
-    setAccessToken: jest.fn(),
+    setAccessTokens: jest.fn(),
     authStatus: jest.fn(),
     prepareFileUpload: jest.fn().mockResolvedValue({
       signedUploadUrl: 'signedUploadUrl',

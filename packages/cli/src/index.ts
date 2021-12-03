@@ -91,7 +91,7 @@ yargs
         .option({
           upsert: { type: 'boolean', alias: 'u' },
           'run-id': { type: 'string', requiresArg: true },
-          region: { description: 'Specify a region.', choices: regionChoices },
+          region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
         }),
     (argv) => {
       handlePush(argv);
@@ -225,6 +225,7 @@ yargs
         },
         region: {
           description: 'Specify a region.',
+          alias: 'r',
           choices: regionChoices,
         },
       }),
