@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- `--extends` and `--metafile` options for [bundle](./commands/bundle.md#options) command
+- Implemented new `--extends` and `--metafile` options for the [bundle](./commands/bundle.md#options) command.
 
 ## 1.0.0-beta.68 (2021-11-15)
 
