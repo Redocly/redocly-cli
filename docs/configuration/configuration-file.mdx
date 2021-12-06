@@ -30,6 +30,9 @@ apiDefinitions:
 lint:
 # The lint command options
 
+region: eu
+# Configuration for optional AWS region selection when logging into Redocly services.
+
 resolve:
 # Configuration for resolving external links in your definition that are not publicly accessible.
 # Not required for Redocly API registry links.
@@ -68,6 +71,42 @@ The `lint` section's primary purpose is to define options for the `lint` and `bu
 You may also import plugins and extends their configurations.
 
 Read more about the [lint configuration section](../guides/lint.md).
+
+
+### region
+
+For optimized performance or for compliance purposes, you can specify which region to use when logging into Redocly services (such as the API registry). Supported regions are `us` (used by default) and `eu`. 
+
+You should log into the region that corresponds to your Redocly Workflows organization. If you're a member of multiple organizations in different regions, it's technically possible to log into two different regions at the same time, but it's neither the most common nor the recommended use-case. 
+
+Every supported region uses its own domain.
+
+Region | Domain      
+-----|:---------
+`us` | api.redoc.ly
+`eu` | api.eu.redocly.com
+
+
+To configure which domain will be used, you can use any of the following:
+
+- the `REDOCLY_DOMAIN` environment variable
+
+`export REDOCLY_DOMAIN={domain}`
+
+- the `--region` option with `login` and `push` commands
+
+`openapi login --region=eu`
+
+- the `region` top-level property in the `.redocly.yaml` configuration file
+
+```yaml
+apiDefinitions:
+  main: ./openapi.yaml
+region: eu
+lint:
+  extends: []
+```
+
 
 ### resolve
 
