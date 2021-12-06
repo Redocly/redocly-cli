@@ -244,7 +244,7 @@ lint:
 
 ### no-invalid-schema-examples
 
-Verifies that example value conforms to the schema type. Disallows additional properties by default.
+Verifies that schema example value conforms to the schema. Disallows additional properties by default.
 
 ```yaml
 lint:
@@ -256,7 +256,7 @@ lint:
 
 ### no-invalid-parameter-examples
 
-Verifies that parameter example value conforms to the schema type. Disallows additional properties by default.
+Verifies that parameter example value conforms to the schema. Disallows additional properties by default.
 
 ```yaml
 lint:
