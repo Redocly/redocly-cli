@@ -1,8 +1,6 @@
-import { RedoclyClient } from '@redocly/openapi-core';
+import { RedoclyClient } from '../src/redocly';
 
-jest.unmock('@redocly/openapi-core');
-
-describe('login', () => {
+describe('loginnnnnn', () => {
   it('should call login with setAccessTokens function', async () => {
     const client = new RedoclyClient();
     Object.defineProperty(client, 'registryApi', {
