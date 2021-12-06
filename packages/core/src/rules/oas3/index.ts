@@ -47,6 +47,8 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
+import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
+import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 
 export const rules = {
   spec: OasSpec,
@@ -93,6 +95,8 @@ export const rules = {
   'request-mime-type': RequestMimeType,
   'response-mime-type': ResponseMimeType,
   'path-segment-plural': PathSegmentPlural,
+  'no-invalid-schema-examples': NoInvalidSchemaExamples,
+  'no-invalid-parameter-examples': NoInvalidParameterExamples,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
