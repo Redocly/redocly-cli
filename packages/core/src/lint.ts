@@ -72,6 +72,7 @@ export async function lintDocument(opts: {
   const ctx: WalkContext = {
     problems: [],
     oasVersion: oasVersion,
+    visitorsData: {},
   };
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
@@ -101,6 +102,7 @@ export async function lintConfig(opts: {
   const ctx: WalkContext = {
     problems: [],
     oasVersion: OasVersion.Version3_0,
+    visitorsData: {},
   };
   const config = new LintConfig({
     plugins: [defaultPlugin],

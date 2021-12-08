@@ -33,6 +33,7 @@ export type UserContext = {
   key: string | number;
   parent: any;
   oasVersion: OasVersion;
+  getVisitorData: () => Record<string, unknown>;
 };
 
 export type Loc = {
@@ -77,6 +78,7 @@ export type NormalizedProblem = {
 export type WalkContext = {
   problems: NormalizedProblem[];
   oasVersion: OasVersion;
+  visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;
 };
 
@@ -141,6 +143,7 @@ export function walkDocument<T>(opts: {
               key,
               parentLocations: {},
               oasVersion: ctx.oasVersion,
+              getVisitorData: getVisitorDataFn.bind(undefined, ruleId)
             },
             { node: resolvedNode, location: resolvedLocation, error },
           );
@@ -325,6 +328,7 @@ export function walkDocument<T>(opts: {
               key,
               parentLocations: {},
               oasVersion: ctx.oasVersion,
+              getVisitorData: getVisitorDataFn.bind(undefined, ruleId)
             },
             { node: resolvedNode, location: resolvedLocation, error },
           );
@@ -357,6 +361,7 @@ export function walkDocument<T>(opts: {
           ignoreNextVisitorsOnNode: () => {
             ignoreNextVisitorsOnNode = true;
           },
+          getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
         },
         collectParents(context),
         context,
@@ -407,6 +412,11 @@ export function walkDocument<T>(opts: {
           return { ...currentLocation, reportOnKey: false, ...loc };
         }),
       });
+    }
+
+    function getVisitorDataFn(ruleId: string) {
+      ctx.visitorsData[ruleId] = ctx.visitorsData[ruleId] || {};
+      return ctx.visitorsData[ruleId];
     }
   }
 }

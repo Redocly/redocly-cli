@@ -21,8 +21,8 @@ jobs:
           npm-${{ hashFiles('package-lock.json') }}
           npm-
 
-    - name: Install npm@7
-      run: npm i -g npm@7
+    - name: Install npm@7.0.2
+      run: npm i -g npm@7.0.2
     - name: Install dependencies
       run: npm install
     - name: Run tests
