@@ -1,6 +1,6 @@
 import { RedoclyClient } from '../src/redocly';
 
-describe('loginnnnnn', () => {
+describe('login', () => {
   it('should call login with setAccessTokens function', async () => {
     const client = new RedoclyClient();
     Object.defineProperty(client, 'registryApi', {

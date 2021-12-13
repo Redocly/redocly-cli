@@ -60,7 +60,11 @@ export class RedoclyClient {
     }
   }
 
-  async getValidTokens() {
+  async getValidTokens(): Promise<{
+    region: string;
+    token: string;
+    valid: boolean;
+  }[]> {
     return (await Promise.all(
       Object.entries(this.accessTokens).map(async ([key, value]) => {
         return { region: key, token: value, valid: await this.verifyToken(value, key as Region) }

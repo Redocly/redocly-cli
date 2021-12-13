@@ -57,6 +57,14 @@ describe('RedoclyClient', () => {
     spy.mockRestore();
   });
 
+  it('should not call setAccessTokens by default', () => {
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({}));
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient();
+    expect(client.setAccessTokens).not.toHaveBeenCalled()
+    spy.mockRestore();
+  });
+
   it('should set correct accessTokens - backward compatibility: default US region', () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
@@ -95,4 +103,12 @@ describe('RedoclyClient', () => {
     spy.mockRestore();
   });
 
+  it('should set correct accessTokens prioritizing REDOCLY_AUTHORIZATION env over EU token', () => {
+    process.env.REDOCLY_AUTHORIZATION = REDOCLY_AUTHORIZATION_TOKEN;
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ us: testToken }));
+    jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
+    const client = new RedoclyClient('eu');
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { "eu": REDOCLY_AUTHORIZATION_TOKEN });
+    spy.mockRestore();
+  });
 });
