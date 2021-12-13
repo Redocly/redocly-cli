@@ -1,0 +1,8 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    no-path-trailing-slash: off
+    paths-kebab-case: error
+  extends: []
