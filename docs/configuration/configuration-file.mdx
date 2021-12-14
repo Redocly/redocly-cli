@@ -75,13 +75,13 @@ Read more about the [lint configuration section](../guides/lint.md).
 
 ### region
 
-For optimized performance or for compliance purposes, you can specify which region to use when logging into Redocly services (such as the API registry). Supported regions are `us` (used by default) and `eu`. 
+For optimized performance or for compliance purposes, you can specify which region to use when logging into Redocly services (such as the API registry). Supported regions are `us` (used by default) and `eu`.
 
-You should log into the region that corresponds to your Redocly Workflows organization. If you're a member of multiple organizations in different regions, it's technically possible to log into two different regions at the same time, but it's neither the most common nor the recommended use-case. 
+You should log into the region that corresponds to your Redocly Workflows organization. If you're a member of multiple organizations in different regions, it's technically possible to log into two different regions at the same time, but it's neither the most common nor the recommended use-case.
 
 Every supported region uses its own domain.
 
-Region | Domain      
+Region | Domain
 -----|:---------
 `us` | api.redoc.ly
 `eu` | api.eu.redocly.com
@@ -91,7 +91,9 @@ To configure which domain will be used, you can use any of the following:
 
 - the `REDOCLY_DOMAIN` environment variable
 
-`export REDOCLY_DOMAIN={domain}`
+```sh
+export REDOCLY_DOMAIN={domain}
+```
 
 - the `--region` option with `login` and `push` commands
 
