@@ -4,6 +4,12 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.71 (2021-11-16)
+
+### Fixes
+
+- Resolved a backward compatibility issue with REDOCLY_DOMAIN in EU region introduced in the previous release.
+
 ## 1.0.0-beta.70 (2021-12-14)
 
 ### Features

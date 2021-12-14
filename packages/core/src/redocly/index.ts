@@ -30,7 +30,17 @@ export class RedoclyClient {
       );
       process.exit(1);
     }
+
+    if (process.env.REDOCLY_DOMAIN) {
+      return (Object.keys(DOMAINS).find(
+        (region) => DOMAINS[region as Region] === process.env.REDOCLY_DOMAIN,
+      ) || DEFAULT_REGION) as Region;
+    }
     return region || DEFAULT_REGION;
+  }
+
+  getRegion(): Region {
+    return this.region;
   }
 
   hasTokens(): boolean {
