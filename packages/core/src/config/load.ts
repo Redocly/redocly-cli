@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, RawConfig } from './config';
+import { Config, DOMAINS, RawConfig, Region } from './config';
 
 import { defaultPlugin } from './builtIn';
 
@@ -25,19 +24,31 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   }
 
   const redoclyClient = new RedoclyClient();
-  if (redoclyClient.hasToken()) {
+  const tokens = await redoclyClient.getTokens();
+
+  if (tokens.length) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
     if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
-    rawConfig.resolve.http.headers = [
-      {
-        matches: `https://api.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/registry/**`,
+    rawConfig.resolve.http.headers = [...(rawConfig.resolve.http.headers ?? [])];
+
+    for (const item of tokens) {
+      const domain = DOMAINS[item.region as Region];
+      rawConfig.resolve.http.headers.push({
+        matches: `https://api.${domain}/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
-        value: (redoclyClient && (await redoclyClient.getAuthorizationHeader())) || '',
+        value: item.token,
       },
-      ...(rawConfig.resolve.http.headers ?? []),
-    ];
+      //support redocly.com domain for future compatibility
+      ...(item.region === 'us' ? [{
+        matches: `https://api.redocly.com/registry/**`,
+        name: 'Authorization',
+        envVariable: undefined,
+        value: item.token,
+      }] : []));
+    }
   }
+
   return new Config(
     {
       ...rawConfig,

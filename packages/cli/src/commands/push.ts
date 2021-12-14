@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
-
 import {
   bundle,
   Config,
@@ -14,15 +13,16 @@ import {
   BundleOutputFormat,
   getTotals,
   slash,
+  Region,
 } from '@redocly/openapi-core';
 import {
-  promptUser,
   exitWithError,
   printExecutionTime,
   getFallbackEntryPointsOrExit,
   pluralize,
   dumpBundle,
 } from '../utils';
+import { promptClientToken } from './login';
 
 export async function handlePush(argv: {
   entrypoint?: string;
@@ -30,16 +30,13 @@ export async function handlePush(argv: {
   branchName?: string;
   upsert?: boolean;
   'run-id'?: string;
+  region?: Region;
 }) {
-  const client = new RedoclyClient();
-  const isAuthorized = await client.isAuthorizedWithRedocly();
+  const region = argv.region || (await loadConfig()).region;
+  const client = new RedoclyClient(region);
+  const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
-    const clientToken = await promptUser(
-      green(
-        `\n  🔑 Copy your API key from ${blue('https://app.redoc.ly/profile')} and paste it below`,
-      ),
-      true,
-    );
+    const clientToken = await promptClientToken(client.domain);
     await client.login(clientToken);
   }
 

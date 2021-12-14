@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 
 import './assert-node-version';
-
 import * as yargs from 'yargs';
-import { green, blue } from 'colorette';
-import { promptUser } from './utils';
-import { outputExtensions } from './types';
+import { outputExtensions, regionChoices } from './types';
 import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
@@ -14,6 +11,7 @@ import { handleJoin } from './commands/join';
 import { handlePush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
+import { handleLogin } from './commands/login';
 const version = require('../package.json').version;
 
 yargs
@@ -93,6 +91,7 @@ yargs
         .option({
           upsert: { type: 'boolean', alias: 'u' },
           'run-id': { type: 'string', requiresArg: true },
+          region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
         }),
     (argv) => {
       handlePush(argv);
@@ -221,22 +220,16 @@ yargs
     async (yargs) =>
       yargs.options({
         verbose: {
-          description: 'Include addtional output.',
+          description: 'Include additional output.',
           type: 'boolean',
         },
+        region: {
+          description: 'Specify a region.',
+          alias: 'r',
+          choices: regionChoices,
+        },
       }),
-    async (argv) => {
-      const clientToken = await promptUser(
-        green(
-          `\n  🔑 Copy your API key from ${blue(
-            `https://app.${process.env.REDOCLY_DOMAIN || 'redoc.ly'}/profile`,
-          )} and paste it below`,
-        ),
-        true,
-      );
-      const client = new RedoclyClient();
-      client.login(clientToken, argv.verbose);
-    },
+    handleLogin,
   )
   .command(
     'logout',

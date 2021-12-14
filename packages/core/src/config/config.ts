@@ -123,11 +123,20 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
+export const DEFAULT_REGION = 'us';
+export type Region = 'us' | 'eu';
+export type AccessTokens = {[region in Region]?: string };
+export const DOMAINS: { [region in Region]: string } = {
+  us: 'redoc.ly',
+  eu: 'eu.redocly.com',
+};
+
 export type RawConfig = {
   referenceDocs?: any;
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
+  region?: Region;
 };
 
 export class LintConfig {
@@ -385,6 +394,7 @@ export class Config {
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
+  region?: Region;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
@@ -395,6 +405,7 @@ export class Config {
         customFetch: undefined,
       },
     };
+    this.region = rawConfig.region;
   }
 }
 

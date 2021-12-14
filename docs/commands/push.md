@@ -84,11 +84,13 @@ Option           | Type      | Required?    | Default     | Description
 -----------------|:---------:|:------------:|:-----------:|------------
 `entrypoint`     | `string`  | yes          | -           | Path to the API definition filename that you want to push to the Redocly API registry. See [the Entrypoint section](#entrypoint) for more options.
 `destination`    | `string`  | yes          | -           | Organization id, API name and API version that define the location in the Redocly API registry where to push your API definition.<br />**Format:** `@organization-id/api-name@api-version`. See [the Destination section](#destination) for more information.
-`branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed
-`--help`         | `boolean` | no           | -           | Show help
+`branchName`     | `string`  | no           | `main`      | Set the default branch where API definitions will be pushed.
+`--help`         | `boolean` | no           | -           | Show help.
 `--run-id`       | `string`  | no           | -           | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.
 `--upsert`, `-u` | `boolean` | no           | -           | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.
-`--version`      | `boolean` | no           | -           | Show version number
+`--version`      | `boolean` | no           | -           | Show version number.
+`--region,-r`    | `string`  | no           | `us`        | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
+
 
 ## Examples
 

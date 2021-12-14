@@ -1,66 +1,105 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { yellow, red, green, gray } from 'colorette';
+import { red, green, gray } from 'colorette';
 import { RegistryApi } from './registry-api';
+import { AccessTokens, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
+import { isNotEmptyObject } from '../utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
 export class RedoclyClient {
-  private accessToken: string | undefined;
+  private accessTokens: AccessTokens = {};
+  private region: Region;
+  domain: string;
   registryApi: RegistryApi;
 
-  constructor() {
-    this.loadToken();
-    this.registryApi = new RegistryApi(this.accessToken);
+  constructor(region?: Region) {
+    this.region = this.loadRegion(region);
+    this.loadTokens();
+    this.domain = region
+      ? DOMAINS[region]
+      : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+    this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
-  hasToken(): boolean {
-    return !!this.accessToken;
-  }
-
-  loadToken(): void {
-    if (process.env.REDOCLY_AUTHORIZATION) {
-      this.accessToken = process.env.REDOCLY_AUTHORIZATION;
-      return;
+  loadRegion(region?: Region) {
+    if (region && !DOMAINS[region]) {
+      process.stdout.write(
+        red(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".\n`),
+      );
+      process.exit(1);
     }
+    return region || DEFAULT_REGION;
+  }
 
+  hasTokens(): boolean {
+    return isNotEmptyObject(this.accessTokens);
+  }
+
+  setAccessTokens(accessTokens: AccessTokens) {
+    this.accessTokens = accessTokens;
+  }
+
+  loadTokens(): void {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    if (existsSync(credentialsPath)) {
-      const credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
-      this.accessToken = credentials && credentials.token;
+    const credentials = this.readCredentialsFile(credentialsPath);
+    if (isNotEmptyObject(credentials)) {
+      this.setAccessTokens({
+        ...credentials,
+        ...(credentials.token && !credentials[this.region] && {
+          [this.region]: credentials.token
+        })
+      })
     }
+    if (process.env.REDOCLY_AUTHORIZATION) {
+      this.setAccessTokens({
+        ...this.accessTokens,
+        [this.region]: process.env.REDOCLY_AUTHORIZATION
+      })
+    }
+  }
+
+  async getValidTokens(): Promise<{
+    region: string;
+    token: string;
+    valid: boolean;
+  }[]> {
+    return (await Promise.all(
+      Object.entries(this.accessTokens).map(async ([key, value]) => {
+        return { region: key, token: value, valid: await this.verifyToken(value, key as Region) }
+      })
+    )).filter(item => Boolean(item.valid));
+  }
+
+  async getTokens() {
+    return this.hasTokens() ? await this.getValidTokens() : [];
+  }
+
+  async isAuthorizedWithRedoclyByRegion(): Promise<boolean> {
+    if (!this.hasTokens()) return false;
+    const accessToken = this.accessTokens[this.region];
+    return !!accessToken && await this.verifyToken(accessToken, this.region);
   }
 
   async isAuthorizedWithRedocly(): Promise<boolean> {
-    return this.hasToken() && !!(await this.getAuthorizationHeader());
+    return this.hasTokens() && isNotEmptyObject(await this.getValidTokens());
   }
 
-  async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
+  readCredentialsFile(credentialsPath: string) {
+    return existsSync(credentialsPath) ? JSON.parse(readFileSync(credentialsPath, 'utf-8')) : {};
+  }
+
+  async verifyToken(accessToken: string, region: Region, verbose: boolean = false): Promise<boolean> {
     if (!accessToken) return false;
-
-    return this.registryApi.setAccessToken(accessToken).authStatus(verbose);
-  }
-
-  async getAuthorizationHeader(): Promise<string | undefined> {
-    // print this only if there is token but invalid
-    if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
-      process.stderr.write(
-        `${yellow(
-          'Warning:',
-        )} invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key\n`,
-      );
-      return undefined;
-    }
-    return this.accessToken;
+    return this.registryApi.authStatus(accessToken, region, verbose);
   }
 
   async login(accessToken: string, verbose: boolean = false) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(gray('\n  Logging in...\n'));
 
-    const authorized = await this.verifyToken(accessToken, verbose);
-
+    const authorized = await this.verifyToken(accessToken, this.region, verbose);
     if (!authorized) {
       process.stdout.write(
         red('Authorization failed. Please check if you entered a valid API key.\n'),
@@ -68,11 +107,12 @@ export class RedoclyClient {
       process.exit(1);
     }
 
-    this.accessToken = accessToken;
     const credentials = {
-      token: accessToken,
+      ...this.readCredentialsFile(credentialsPath),
+      [this.region!]: accessToken,
     };
-
+    this.accessTokens = credentials;
+    this.registryApi.setAccessTokens(credentials);
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
     process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
   }
@@ -87,7 +127,7 @@ export class RedoclyClient {
 }
 
 export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
+  const domain = process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
   if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
   const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
