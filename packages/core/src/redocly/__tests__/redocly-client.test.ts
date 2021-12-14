@@ -44,6 +44,12 @@ describe('RedoclyClient', () => {
     expect(client.domain).toBe(REDOCLY_DOMAIN_US);
   });
 
+  it('should resolve domain by US region when REDOCLY_DOMAIN consists EU domain', () => {
+    process.env.REDOCLY_DOMAIN = REDOCLY_DOMAIN_EU;
+    const client = new RedoclyClient();
+    expect(client.getRegion()).toBe('eu');
+  });
+
   it('should resolve valid tokens data', async () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
       return { us: "accessToken", eu: "eu-accessToken" }

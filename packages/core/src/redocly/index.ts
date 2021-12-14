@@ -36,8 +36,11 @@ export class RedoclyClient {
         (region) => DOMAINS[region as Region] === process.env.REDOCLY_DOMAIN,
       ) || DEFAULT_REGION) as Region;
     }
-
     return region || DEFAULT_REGION;
+  }
+
+  getRegion(): Region {
+    return this.region;
   }
 
   hasTokens(): boolean {
