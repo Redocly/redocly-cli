@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { red, green, gray } from 'colorette';
+import { red, green, gray, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
 import { AccessTokens, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
 import { isNotEmptyObject } from '../utils';
@@ -46,6 +46,27 @@ export class RedoclyClient {
   hasTokens(): boolean {
     return isNotEmptyObject(this.accessTokens);
   }
+
+  // <backward compatibility: old versions of portal>
+  hasToken() {
+    return !!this.accessTokens[this.region];
+  }
+
+  async getAuthorizationHeader(): Promise<string | undefined> {
+    const token = this.accessTokens[this.region];
+    // print this only if there is token but invalid
+    if (token && !this.isAuthorizedWithRedoclyByRegion()) {
+      process.stderr.write(
+        `${yellow(
+          'Warning:',
+        )} invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key\n`,
+      );
+      return undefined;
+    }
+
+    return token;
+  }
+  // </backward compatibility: portal>
 
   setAccessTokens(accessTokens: AccessTokens) {
     this.accessTokens = accessTokens;
