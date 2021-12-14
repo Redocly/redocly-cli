@@ -126,10 +126,16 @@ export type ResolveConfig = {
 export const DEFAULT_REGION = 'us';
 export type Region = 'us' | 'eu';
 export type AccessTokens = {[region in Region]?: string };
+const REDOCLY_DOMAIN = process.env.REDOCLY_DOMAIN;
 export const DOMAINS: { [region in Region]: string } = {
   us: 'redoc.ly',
   eu: 'eu.redocly.com',
 };
+
+// FIXME: temporary fix for our lab environments
+if (REDOCLY_DOMAIN?.endsWith('.redocly.host')) {
+  DOMAINS[REDOCLY_DOMAIN.split('.')[0] as Region] = REDOCLY_DOMAIN;
+}
 
 export type RawConfig = {
   referenceDocs?: any;
