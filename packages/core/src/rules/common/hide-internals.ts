@@ -1,95 +1,36 @@
-import { Oas3Rule, Oas2Rule } from '../../visitors';
+import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 import { UserContext } from '../../walk';
+import { isPlainObject } from '../../utils';
+const DEFAULT_HIDDEN_TAG = 'x-internal';
 
-const DEFAUTL_HIDDEN_TAG = 'x-internal';
-
-export const HideInternals: Oas3Rule | Oas2Rule = (opts) => {
-  const { hiddenTag } = opts || { hiddenTag: DEFAUTL_HIDDEN_TAG }
+export const HideInternals: Oas3Decorator | Oas2Decorator = ({ hideTag }) => {
+  const hiddenTag = hideTag || DEFAULT_HIDDEN_TAG;
+  const hiddenTypes = [
+    'PathItem',
+    'SchemaProperties',
+    'Parameter',
+    'Response',
+    'Examples',
+    'MediaType',
+    'Server',
+    'Link',
+    'Callback'
+  ];
   return {
-    PathItem: {
-      leave(pathItem: any, ctx: UserContext) {
-        // delete if the path itself is marked with x-internal
-        if (pathItem[hiddenTag]) {
-          delete ctx.parent[ctx.key];
-        }
-
-        // delete any operations inside of a path marked with x-internal
-        const operations = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
-        for (const operation of operations) {
-          if (pathItem[operation] && pathItem[operation][hiddenTag]) {
-            delete pathItem[operation];
+    any: {
+      leave(node, { parent, key, type }: UserContext) {
+        if (hiddenTypes.includes(type.name) && node[hiddenTag]) {
+          if (type.name === 'SchemaProperties') {
+            for (const propertyName of Object.keys(node)) {
+              if (node[propertyName][hiddenTag]) { delete node[propertyName]; }
+            }
+          } else {
+            if (isPlainObject(node)) { delete parent[key]; }
+            if (Array.isArray(node)) { parent.splice(key, 1); }
           }
         }
-
-        // delete the path if there are no operations remaining in it
-        if (Object.keys(pathItem).length === 0) {
-          delete ctx.parent[ctx.key];
-        }
-      }
+        if (isPlainObject(node) && Object.keys(node).length === 0) { delete parent[key]; }
+      },
     },
-    SchemaProperties: {
-      leave(properties: Record<string, any>, ctx: UserContext) {
-        for (const propertyName of Object.keys(properties)) {
-          if (properties[propertyName][hiddenTag]) {
-            delete properties[propertyName];
-          }
-        }
-
-        // TODO: Check this code
-        if (Object.keys(properties).length === 0) {
-          delete ctx.parent[ctx.key];
-        }
-      }
-    },
-    Parameter: {
-      leave(parameter: any, ctx: UserContext) {
-        if (parameter[hiddenTag]) {
-          ctx.parent.splice(ctx.key, 1)
-        }
-      }
-      // Do not delete operation if there are no parameters
-    },
-    Response: {
-      leave(response: any, ctx: UserContext) {
-        if(response[hiddenTag]) {
-          delete ctx.parent[ctx.key]
-        }
-      }
-    },
-    Examples: {
-      leave(example: any, ctx: UserContext) {
-        if (example[hiddenTag]) {
-          delete ctx.parent[ctx.key]
-        }
-      }
-    },
-    MediaType: {
-      leave(mediaType: any, ctx: UserContext) {
-        if (mediaType[hiddenTag]) {
-          delete ctx.parent[ctx.key]
-        }
-      }
-    },
-    Server: {
-      leave(server: any, ctx: UserContext) {
-        if (server[hiddenTag]) {
-          ctx.parent.splice(ctx.key, 1)
-        }
-      }
-    },
-    Link: {
-      leave(link: any, ctx: UserContext) {
-        if (link[hiddenTag]) {
-          delete ctx.parent[ctx.key]
-        }
-      }
-    },
-    Callback: {
-      leave(callback: any, ctx: UserContext) {
-        if (callback[hiddenTag]) {
-          delete ctx.parent[ctx.key]
-        }
-      }
-    }
   }
 };
