@@ -30,11 +30,13 @@ Option                 | Type      | Required?    | Default     | Description
 `--config`             | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
 `--dereferenced`, `-d` | `boolean` | no           | -           | Generate fully dereferenced bundle
 `--ext`                | `string`  | no           | `yaml`      | Specify bundled file extension.<br />**Possible values:** `json`, `yaml`, `yml`
+`--extends`            | `array`   | no           | -           | Can be used in combination with `--lint` to [Extend a specific configuration](./lint.md#extend-configuration) (defaults or config file settings)
 `--force`, `-f`        | `boolean` | no           | -           | Generate bundle output even when errors occur
 `--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`
 `--help`               | `boolean` | no           | -           | Show help
 `--lint`               | `boolean` | no           | `false`     | Lint definition files.
 `--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
+`--metafile`           | `string`  | no           | -           | Path for the bundle metadata file. For example, `--metafile ./bundle.metadata.json`
 `--output`, `-o`       | `string`  | no           | -           | Name or folder for the bundle file. For example, `-o bundle.yaml` or `-o ./openapi`.<li>If you don't specify the extension, `.yaml` will be used by default.</li><li>If the specified folder doesn't exist, it will be created automatically.</li><br />**If the file specified as the bundler's output already exists, it will be overwritten**
 `--skip-decorator`     | `array`   | no           | -           | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
 `--skip-preprocessor`  | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
@@ -76,7 +78,7 @@ openapi bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file. 
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi bundle --config=./another/directory/config.yaml

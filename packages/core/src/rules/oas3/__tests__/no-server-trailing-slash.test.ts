@@ -58,4 +58,23 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('oas3-no-server-trailing-slash: should not report on server object with no trailing slash if the url is root', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          servers:
+            - url: /
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ 'no-server-trailing-slash': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

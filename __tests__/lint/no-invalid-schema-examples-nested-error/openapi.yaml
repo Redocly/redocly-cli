@@ -1,0 +1,79 @@
+openapi: '3.0.0'
+info:
+  version: v0
+  title: my_Api
+  description: my_api
+  contact:
+    name: my_api
+  license:
+    name: Proprietary
+    url: https://my_api.com
+servers:
+  - url: https://my_api.com
+
+paths:
+  /pet:
+    parameters:
+      - name: Test
+        schema:
+          example:
+            property: 42
+          type: object
+          properties:
+            property:
+              type: string
+  /my_post:
+    post:
+      operationId: my_post
+      description: my post
+      summary: my_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: ID
+                  allOf:
+                    - $ref: '#/components/schemas/Test'
+      responses:
+        '200':
+          description: successful operation
+
+components:
+  schemas:
+    Test:
+      type: object
+      example: test example
+      properties:
+        my_list:
+          type: string
+          example: 50
+        nested:
+          allOf:
+            - $ref: '#/components/schemas/Dog'
+            - type: object
+              example: dog
+              properties:
+                huntingSkill:
+                  type: string
+                  example: 100
+                nested_schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/Category'
+    Dog:
+      type: object
+      example: test dog example
+      properties:
+        my_list:
+          type: string
+          example: 32
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Category ID
+          example: category example

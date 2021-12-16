@@ -39,6 +39,8 @@ paths:
                     key2: 2
 components: {}
 
+No configurations were defined in extends -- using built in recommended configuration by default.
+
 Woohoo! Your OpenAPI definitions are valid. 🎉
 
 bundling ./openapi.yaml...
