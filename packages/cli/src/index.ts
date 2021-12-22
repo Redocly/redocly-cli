@@ -251,6 +251,12 @@ yargs
           default: 8080,
           description: 'Preview port.',
         },
+        host: {
+          alias: 'h',
+          type: 'string',
+          default: '127.0.0.1',
+          description: 'Preview host.',
+        },
         'skip-preprocessor': {
           description: 'Ignore certain preprocessors.',
           array: true,
