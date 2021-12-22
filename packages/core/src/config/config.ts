@@ -136,6 +136,9 @@ export const DOMAINS: { [region in Region]: string } = {
 if (REDOCLY_DOMAIN?.endsWith('.redocly.host')) {
   DOMAINS[REDOCLY_DOMAIN.split('.')[0] as Region] = REDOCLY_DOMAIN;
 }
+if (REDOCLY_DOMAIN === 'redoc.online') {
+  DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
+}
 
 export type RawConfig = {
   referenceDocs?: any;
