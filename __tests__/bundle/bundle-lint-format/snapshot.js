@@ -21,6 +21,8 @@ paths:
           application/json: null
 components: {}
 
+No configurations were defined in extends -- using built in recommended configuration by default.
+
 openapi.yaml:
   20:11  error    spec  Expected type \`MediaType\` (object) but got \`null\`
 

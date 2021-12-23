@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E spec-error-if-minimum-not-correct 1`] = `
+exports[`E2E lint spec-error-if-minimum-not-correct 1`] = `
 
 No configurations were defined in extends -- using built in recommended configuration by default.
 

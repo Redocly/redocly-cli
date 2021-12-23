@@ -38,6 +38,8 @@ export default {
     },
     'request-mime-type': 'error',
     spec: 'error',
+    'no-invalid-schema-examples': 'error',
+    'no-invalid-parameter-examples': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',

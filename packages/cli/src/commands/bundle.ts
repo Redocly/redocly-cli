@@ -1,4 +1,11 @@
-import { bundle, formatProblems, getTotals, loadConfig, OutputFormat, lint } from '@redocly/openapi-core';
+import {
+  bundle,
+  formatProblems,
+  getTotals,
+  loadConfig,
+  OutputFormat,
+  lint,
+} from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -7,11 +14,12 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  printLintTotals
+  printLintTotals,
 } from '../utils';
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
 
 export async function handleBundle(
   argv: {
@@ -27,10 +35,12 @@ export async function handleBundle(
     config?: string;
     lint?: boolean;
     format: OutputFormat;
+    metafile?: string;
+    extends?: string[];
   },
   version: string,
 ) {
-  const config = await loadConfig(argv.config);
+  const config = await loadConfig(argv.config, argv.extends);
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);
@@ -43,6 +53,13 @@ export async function handleBundle(
       const startedAt = performance.now();
 
       if (argv.lint) {
+        if (config.lint.recommendedFallback) {
+          process.stderr.write(
+            `No configurations were defined in extends -- using built in ${blue(
+              'recommended',
+            )} configuration by default.\n\n`,
+          );
+        }
         const results = await lint({
           ref: entrypoint,
           config,
@@ -53,12 +70,21 @@ export async function handleBundle(
         totals.warnings += fileLintTotals.warnings;
         totals.ignored += fileLintTotals.ignored;
 
-        formatProblems(results, { format: argv.format || 'codeframe', totals: fileLintTotals, version, maxProblems });
+        formatProblems(results, {
+          format: argv.format || 'codeframe',
+          totals: fileLintTotals,
+          version,
+          maxProblems,
+        });
         printLintTotals(fileLintTotals, 2);
       }
 
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
-      const { bundle: result, problems } = await bundle({
+      const {
+        bundle: result,
+        problems,
+        ...meta
+      } = await bundle({
         config,
         ref: entrypoint,
         dereference: argv.dereferenced,
@@ -92,6 +118,17 @@ export async function handleBundle(
         totals: fileTotals,
         version,
       });
+
+      if (argv.metafile) {
+        if (entrypoints.length > 1) {
+          process.stderr.write(
+            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`),
+          );
+        }
+        {
+          writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
+        }
+      }
 
       const elapsed = getExecutionTime(startedAt);
       if (fileTotals.errors > 0) {

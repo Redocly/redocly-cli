@@ -4,6 +4,54 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.73 (2021-11-16)
+
+### Fixes
+
+- Resolved another backward compatibility issue with older versions of portal.
+
+## 1.0.0-beta.72 (2021-11-16)
+
+### Fixes
+
+- Resolved another backward compatibility issue with regions: save old config key to support old portal versions.
+
+## 1.0.0-beta.71 (2021-11-16)
+
+### Fixes
+
+- Resolved a backward compatibility issue with REDOCLY_DOMAIN in EU region introduced in the previous release.
+
+## 1.0.0-beta.70 (2021-12-14)
+
+### Features
+
+- Implemented support for the [region](./configuration/configuration-file.mdx#region) option with `login`, `push`, and other commands.
+- OpenAPI CLI supports two new built-in rules:
+  - [no-invalid-schema-examples](./resources/built-in-rules.md#no-invalid-schema-examples)
+  - [no-invalid-parameter-examples](./resources/built-in-rules.md#no-invalid-parameter-examples)
+
+### Fixes
+
+- Resolved an issue with the built-in `paths-kebab-case` rule that disallowed paths with trailing slashes.
+- Resolved a validation issue with the `example` property when the schema is an array.
+
+## 1.0.0-beta.69 (2021-11-16)
+
+### Features
+
+- Implemented new `--extends` and `--metafile` options for the [bundle](./commands/bundle.md#options) command.
+
+## 1.0.0-beta.68 (2021-11-15)
+
+### Fixes
+
+- Resolved an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
+- Resolved an issue with page refresh when pagination is set to `item` or `section`.
+- Resolved an issue with inlining external schema when components' names match.
+- Resolved an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Resolved an issue for `no-server-trailing-slash` when server url is a root.
+
 ## 1.0.0-beta.67 (2021-11-02)
 
 ### Features
