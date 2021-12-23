@@ -92,6 +92,7 @@ yargs
           upsert: { type: 'boolean', alias: 'u' },
           'run-id': { type: 'string', requiresArg: true },
           region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
+          'skip-bundle': { description: 'Skip creating bundle before upload', type:'boolean' },
         }),
     (argv) => {
       handlePush(argv);

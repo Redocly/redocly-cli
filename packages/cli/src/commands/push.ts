@@ -31,6 +31,7 @@ export async function handlePush(argv: {
   upsert?: boolean;
   'run-id'?: string;
   region?: Region;
+  'skip-bundle'?: boolean;
 }) {
   const region = argv.region || (await loadConfig()).region;
   const client = new RedoclyClient(region);
@@ -42,6 +43,7 @@ export async function handlePush(argv: {
 
   const startedAt = performance.now();
   const { entrypoint, destination, branchName, upsert } = argv;
+  const skipBundle = argv['skip-bundle']
 
   if (!validateDestination(destination!)) {
     exitWithError(
@@ -56,7 +58,7 @@ export async function handlePush(argv: {
   try {
     let rootFilePath = '';
     const filePaths: string[] = [];
-    const filesToUpload = await collectFilesToUpload(entrypoint!);
+    const filesToUpload = await collectFilesToUpload(entrypoint!, skipBundle);
     const filesHash = hashFiles(filesToUpload.files);
 
     process.stdout.write(
@@ -144,36 +146,40 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(entrypoint: string) {
+async function collectFilesToUpload(entrypoint: string, skipBundle?: boolean) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
   const entrypointPath = entrypoints[0];
 
-  process.stdout.write('Bundling definition\n');
-
-  const { bundle: openapiBundle, problems } = await bundle({
-    config,
-    ref: entrypointPath,
-    skipRedoclyRegistryRefs: true,
-  });
-
-  const fileTotals = getTotals(problems);
-
-  if (fileTotals.errors === 0) {
-    process.stdout.write(
-      `Created a bundle for ${blue(entrypoint)} ${
-        fileTotals.warnings > 0 ? 'with warnings' : ''
-      }\n`,
-    );
+  if (skipBundle) {
+    files.push(getFileEntry(entrypointPath));
   } else {
-    exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`);
-  }
+    process.stdout.write('Bundling definition\n');
 
-  const fileExt = path.extname(entrypointPath).split('.').pop();
-  files.push(
-    getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
-  );
+    const { bundle: openapiBundle, problems } = await bundle({
+      config,
+      ref: entrypointPath,
+      skipRedoclyRegistryRefs: true,
+    });
+
+    const fileTotals = getTotals(problems);
+
+    if (fileTotals.errors === 0) {
+      process.stdout.write(
+        `Created a bundle for ${blue(entrypoint)} ${
+          fileTotals.warnings > 0 ? 'with warnings' : ''
+        }\n`,
+      );
+    } else {
+      exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`);
+    }
+
+    const fileExt = path.extname(entrypointPath).split('.').pop();
+    files.push(
+      getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
+    );
+  }
 
   if (fs.existsSync('package.json')) {
     files.push(getFileEntry('package.json'));
