@@ -209,16 +209,15 @@ export function walkDocument<T>(opts: {
             if (!activatedOn.skipped) {
               visitedBySome = true;
               enteredContexts.add(context);
-              const ignoreNextVisitorsOnNode = visitWithContext(
+              const { ignoreNextVisitorsOnNode, isDeleted } = visitWithContext(
                 visit,
                 resolvedNode,
                 context,
                 ruleId,
                 severity,
               );
-              if (ignoreNextVisitorsOnNode) {
-                break;
-              }
+              if (ignoreNextVisitorsOnNode) break;
+              if (isDeleted) return;
             }
           }
         }
@@ -232,7 +231,9 @@ export function walkDocument<T>(opts: {
           const itemsType = type.items;
           if (itemsType !== undefined) {
             for (let i = 0; i < resolvedNode.length; i++) {
+              const item = resolvedNode[i];
               walkNode(resolvedNode[i], itemsType, resolvedLocation.child([i]), resolvedNode, i);
+              if (item !== resolvedNode[i]) i--;
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {
@@ -342,6 +343,7 @@ export function walkDocument<T>(opts: {
     ) {
       const report = reportFn.bind(undefined, ruleId, severity);
       let ignoreNextVisitorsOnNode = false;
+      let isDeleted = false;
 
       visit(
         node,
@@ -354,15 +356,13 @@ export function walkDocument<T>(opts: {
           key,
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
-          ignoreNextVisitorsOnNode: () => {
-            ignoreNextVisitorsOnNode = true;
-          },
+          ignoreNextVisitorsOnNode: () => { ignoreNextVisitorsOnNode = true; },
+          ignoreRemoved: () => { isDeleted = true; },
         },
         collectParents(context),
         context,
       );
-
-      return ignoreNextVisitorsOnNode;
+      return { ignoreNextVisitorsOnNode, isDeleted };
     }
 
     function resolve<T>(
