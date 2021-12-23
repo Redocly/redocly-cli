@@ -175,9 +175,7 @@ const Schema: NodeType = {
     examples: { type: 'array' },
     example: { isExample: true },
     deprecated: { type: 'boolean' },
-    const: {
-      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
-    },
+    const: null,
     $comment: { type: 'string' },
   },
 };
