@@ -58,8 +58,8 @@ export function respondWithGzip(
   }
 }
 
-export function startHttpServer(port: number, handler: http.RequestListener) {
-  return http.createServer(handler).listen(port);
+export function startHttpServer(port: number, host: string, handler: http.RequestListener) {
+  return http.createServer(handler).listen(port, host);
 }
 
 export function startWsServer(port: number) {

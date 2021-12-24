@@ -53,6 +53,7 @@ function getPageHTML(
 
 export default async function startPreviewServer(
   port: number,
+  host: string,
   {
     getBundle,
     getOptions,
@@ -137,10 +138,10 @@ export default async function startPreviewServer(
 
   let wsPort = await portfinder.getPortPromise({ port: 32201 });
 
-  const server = startHttpServer(port, handler);
+  const server = startHttpServer(port, host, handler);
   server.on('listening', () => {
     process.stdout.write(
-      `\n  🔎  Preview server running at ${colorette.blue(`http://127.0.0.1:${port}\n`)}`,
+      `\n  🔎  Preview server running at ${colorette.blue(`http://${host}:${port}\n`)}`,
     );
   });
 

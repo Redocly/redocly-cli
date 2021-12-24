@@ -1,11 +1,19 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
-import { bundle, loadConfig, ResolveError, YamlParseError, RedoclyClient, getTotals } from "@redocly/openapi-core";
+import {
+  bundle,
+  loadConfig,
+  ResolveError,
+  YamlParseError,
+  RedoclyClient,
+  getTotals,
+} from '@redocly/openapi-core';
 import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 
 export async function previewDocs(argv: {
   port: number;
+  host: string;
   'use-community-edition'?: boolean;
   config?: string;
   entrypoint?: string;
@@ -18,8 +26,11 @@ export async function previewDocs(argv: {
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config)
-  const entrypoint = entrypoints[0]
+  const entrypoints = await getFallbackEntryPointsOrExit(
+    argv.entrypoint ? [argv.entrypoint] : [],
+    config,
+  );
+  const entrypoint = entrypoints[0];
 
   let cachedBundle: any;
   const deps = new Set<string>();
@@ -31,7 +42,11 @@ export async function previewDocs(argv: {
   async function updateBundle() {
     process.stdout.write('\nBundling...\n\n');
     try {
-      const { bundle: openapiBundle, problems, fileDependencies } = await bundle({
+      const {
+        bundle: openapiBundle,
+        problems,
+        fileDependencies,
+      } = await bundle({
         ref: entrypoint,
         config,
       });
@@ -47,11 +62,11 @@ export async function previewDocs(argv: {
         process.stdout.write(
           fileTotals.errors === 0
             ? `Created a bundle for ${entrypoint} ${
-              fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
-            }\n`
+                fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
+              }\n`
             : colorette.yellow(
-            `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,
-            ),
+                `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,
+              ),
         );
       }
 
@@ -74,7 +89,7 @@ export async function previewDocs(argv: {
     );
   }
 
-  const hotClients = await startPreviewServer(argv.port, {
+  const hotClients = await startPreviewServer(argv.port, argv.host, {
     getBundle,
     getOptions: () => redocOptions,
     useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
