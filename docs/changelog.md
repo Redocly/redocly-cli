@@ -4,12 +4,21 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.75 (2021-12-24)
+
+### Features
+
+- Implemented a `--host` argument to `preview-docs` cli command
+
+### Fixes
+
+- Resolved an issue with continuous deployment to Docker Hub
+
 ## 1.0.0-beta.74 (2021-12-22)
 
 ### Fixes
 
-- internal domain fix
-- "const" is not handled correctly in lint
+- Resolved an issue with `const` not handled correctly in lint.
 
 ## 1.0.0-beta.73 (2021-12-16)
 
