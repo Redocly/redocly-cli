@@ -34,6 +34,7 @@ export type RuleConfig =
       severity?: ProblemSeverity;
     } & Record<string, any>);
 
+type HideInternalsDecorator = { tagToHide: string };
 export type PreprocessorConfig =
   | ProblemSeverity
   | 'off'
@@ -41,7 +42,8 @@ export type PreprocessorConfig =
   | {
       severity?: ProblemSeverity;
       options?: Record<string, any>;
-    };
+    }
+  | HideInternalsDecorator;
 
 export type DecoratorConfig = PreprocessorConfig;
 
