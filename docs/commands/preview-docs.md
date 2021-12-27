@@ -14,7 +14,7 @@ To preview docs using the premium Redocly API reference docs, you must first aut
 
 ```bash
 openapi preview-docs <entrypoint> [branchName]
-openapi preview-docs <entrypoint> [--config=<path>] [--port=<value>] [branchName]
+openapi preview-docs <entrypoint> [--config=<path>] [--port=<value>] [--host=<host>] [branchName]
 openapi preview-docs <entrypoint> [--force] [--help] [--version] [branchName]
 openapi preview-docs <entrypoint> --version
 ```
@@ -28,6 +28,7 @@ Option                    | Type      | Required     | Default     | Description
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
 `--port`, `-p`            | `number`  | no           | 8080        | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system.
+`--host`, `-h`            | `string`  | no           | 127.0.0.1   | Specify the host where the documentation preview can be accessed.
 `--skip-decorator`        | `array`   | no           | -           | Ignore [certain decorators](#skip-preprocessor-or-decorator)
 `--skip-preprocessor`     | `array`   | no           | -           | Ignore [certain preprocessors](#skip-preprocessor-or-decorator)
 `--use-community-edition` | `boolean` | no           | -           | Force using Redoc Community Edition for docs preview
@@ -85,6 +86,22 @@ openapi preview-docs -port 8888 openapi/openapi.yaml
 ```
 
 Both commands will start the preview on port `8888`, so you can access the docs at `http://localhost:8888`
+
+### Custom host for preview
+
+By default, without using the `host` option, the preview starts on host `127.0.0.1`, so you can access the docs at `http://127.0.0.1:8080` or `http://localhost:8080`
+
+To specify a custom host for the preview, pass the desired value using either short or long option format:
+
+```bash short format
+openapi preview-docs -h 0.0.0.0 openapi/openapi.yaml
+```
+
+```bash long format
+openapi preview-docs --host 0.0.0.0 openapi/openapi.yaml
+```
+
+Both commands will start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
 
 
 ### Skip preprocessor or decorator
