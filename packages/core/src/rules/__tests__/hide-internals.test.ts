@@ -1,26 +1,43 @@
-import path = require('path');
-
-import { bundle } from '../../bundle'
-import { Config } from '../../config/config';
-
-import { yamlSerializer } from '../../../__tests__/utils';
-
+import { outdent } from 'outdent';
+import { bundleDocument } from '../../bundle'
+import { BaseResolver } from '../../resolve';
+import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
 import { makeConfig } from './config';
 
 describe('oas3 hide-internals', () => {
   expect.addSnapshotSerializer(yamlSerializer);
+	const testDocument = parseYamlToDocument(
+		outdent`
+			openapi: 3.0.0
+			paths:
+        /pet:
+          get:
+            parameters:
+              - $ref: '#/components/parameters/x'
+			components:
+        parameters:
+          x:
+            name: x
+		`);
 
-  // FIXME: this test produces incorrect snapshot.
-  // Please check why 'hide-internals' decorator is not called with `openapi bundle` command
-  it('removes internal paths', async () => {
-    const { bundle: res } = await bundle({
-      config: new Config(
-        { lint: makeConfig({}, { 'hide-internals': 'on' }) },
-        path.join(__dirname, 'fixtures/hide-internals/.redocly.yaml')
-      ),
-      ref: path.join(__dirname, 'fixtures/hide-internals/internal-path.yaml')
+  it('should use `tagToHide` option to remove internal paths', async () => {
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'hide-internals': { 'tagToHide': 'hideit' } })
     });
+    expect(res.parsed).toMatchInlineSnapshot(`
+                                             openapi: 3.0.0
+                                             paths:
+                                               /pet:
+                                                 get:
+                                                   parameters:
+                                                     - $ref: '#/components/parameters/x'
+                                             components:
+                                               parameters:
+                                                 x:
+                                                   name: x
 
-    expect(res.parsed).toMatchSnapshot();
-  })
+                                             `);
+  });
 });

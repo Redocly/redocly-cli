@@ -65,3 +65,28 @@ lint:
       tagNames:
         pet: ./my-custom-description.md
 ```
+
+### hide-internals
+
+Using `x-internal` tag by default to hide nodes:
+```
+  PathItem
+  Operation
+  Schema
+  Response
+  RequestBody
+  Example
+  MediaType
+  Server
+  Callback
+  Parameter
+```
+
+The `tagToHide` option uses to define name of tag.
+
+```yaml
+lint:
+  decorators:
+    hide-internals:
+      tagToHide: 'hideit'
+```

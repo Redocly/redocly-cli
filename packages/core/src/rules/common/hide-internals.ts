@@ -15,8 +15,8 @@ const HIDDEN_TYPES = [
   'Parameter',
 ];
 
-export const HideInternals: Oas3Decorator | Oas2Decorator = ({ hideTag }) => {
-  const hiddenTag = hideTag || DEFAULT_HIDDEN_TAG;
+export const HideInternals: Oas3Decorator | Oas2Decorator = ({ tagToHide }) => {
+  const hiddenTag = tagToHide || DEFAULT_HIDDEN_TAG;
   const isEmptyObject = (obj: any) => isPlainObject(obj) && Object.keys(obj).length === 0;
   const isEmptyArray = (arr: any) => Array.isArray(arr) && arr.length === 0;
 
