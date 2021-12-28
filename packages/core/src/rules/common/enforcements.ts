@@ -73,6 +73,24 @@ const _rules: {} = {
         break;
     }
     return isOrdered;
+  },
+  mutuallyExclusive: (node: any, properties: Array<string>) => {
+    let counter = 0;
+    Object.keys(node).forEach(prop => {
+      if (properties.includes(prop)) {
+        counter++;
+      }
+    });
+    return counter < 2;
+  },
+  mutuallyRequired: (node: any, properties: Array<string>) => {
+    let counter = 0;
+    Object.keys(node).forEach(prop => {
+      if (properties.includes(prop)) {
+        counter++;
+      }
+    });
+    return counter === properties.length;
   }
 }
 
@@ -86,14 +104,15 @@ export const Enforcements:any = (opts: any) => {
       // get props and rules:
       const onProps = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
       const rulesToApply = Object.keys(_rules).filter((rule: string) => opts[key][rule] !== undefined)
-        .map((rule: string) => ({name: rule, conditions: opts[key][rule], description: opts[key].description}));
+        .map((rule: string) => ({name: rule, conditions: enforcement[rule], description: enforcement.description}));
+      const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
 
        // form rule for each property:
       onProps.forEach((onProp: string) => {
         const parts = onProp.split('.');
         if (parts.length < 2) return; // property should have parent node
 
-        const lastProp: string = parts.pop() as string; // property on which we will do the lint
+        const lastProp: string | null = hasMutuallyRule ? null : parts.pop() as string; // property on which we will do the lint
         const lastNode: string = parts.pop() as string; // node that have this property
 
         if (parts.length === 0) {
@@ -103,8 +122,9 @@ export const Enforcements:any = (opts: any) => {
               ...result,
               ...{
                 [lastNode]: function(node: any, { report, location }: any) {
+                  const value = hasMutuallyRule ? node : node[lastProp as string];
                   // @ts-ignore
-                  const lintResult = _rules[rule.name](node[lastProp], rule.conditions);
+                  const lintResult = _rules[rule.name](value, rule.conditions);
                   if (!lintResult) {
                     report({
                       message: rule.description,
@@ -122,8 +142,9 @@ export const Enforcements:any = (opts: any) => {
               if (index === 0) {
                 // @ts-ignore
                 res = {[lastNode]: function(node: any, { report, location }: any) {
+                    const value = hasMutuallyRule ? node : node[lastProp as string];
                     // @ts-ignore
-                    const lintResult = _rules[rule.name](node[lastProp], rule.conditions);
+                    const lintResult = _rules[rule.name](value, rule.conditions);
                     if (!lintResult) {
                       report({
                         message: rule.description,
