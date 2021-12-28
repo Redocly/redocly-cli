@@ -43,7 +43,7 @@ export async function handleBundle(
 ) {
   const config = await loadConfig(argv.config, argv.extends);
   const cleanComponents = argv['clean-components'];
-  if (cleanComponents && !config.rawConfig.lint!.decorators!.hasOwnProperty('clean-components')) {
+  if (cleanComponents && !config.rawConfig.lint?.decorators?.hasOwnProperty('clean-components')) {
     config.lint.addOas3Decorator('clear-unused-components');
   }
   config.lint.skipRules(argv['skip-rule']);

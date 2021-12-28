@@ -1,0 +1,13 @@
+openapi: 3.1.0
+
+paths:
+  /pet:
+    x-internal: true
+    get:
+      parameters:
+        - $ref: '#/components/parameters/x'
+
+components:
+  parameters:
+    x:
+      name: x
