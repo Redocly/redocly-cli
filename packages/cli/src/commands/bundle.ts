@@ -37,13 +37,19 @@ export async function handleBundle(
     format: OutputFormat;
     metafile?: string;
     extends?: string[];
+    'clean-components'?: boolean
   },
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
+  const cleanComponents = argv['clean-components'];
+  if (cleanComponents && !config.rawConfig.lint!.decorators!.hasOwnProperty('clean-components')) {
+    config.lint.addOas3Decorator('clear-unused-components');
+  }
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);
+
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -80,6 +86,7 @@ export async function handleBundle(
       }
 
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
+
       const {
         bundle: result,
         problems,

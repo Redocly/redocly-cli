@@ -209,6 +209,11 @@ yargs
           array: true,
           type: 'string',
         },
+        'clean-components': {
+          description: 'Clean unused components',
+          type: 'boolean',
+          default: false,
+        }
       }),
     (argv) => {
       handleBundle(argv, version);

@@ -397,6 +397,14 @@ export class LintConfig {
       }
     }
   }
+
+  addOas3Decorator(decorator: string) {
+    for (const version of Object.values(OasVersion)) {
+      if (version.startsWith('oas3')) {
+        this.decorators[version][decorator] = 'on';
+      }
+    }
+  }
 }
 
 export class Config {
