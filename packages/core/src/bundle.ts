@@ -136,7 +136,7 @@ export async function bundleDocument(opts: {
   };
 }
 
-function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
+export function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
   switch (version) {
     case OasMajorVersion.Version3:
       switch (typeName) {
