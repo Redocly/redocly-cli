@@ -1,5 +1,5 @@
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
-import { isPlainObject } from '../../utils';
+import { isEmptyArray, isEmptyObject } from '../../utils';
 
 const DEFAULT_HIDDEN_TAG = 'x-internal';
 const HIDDEN_TYPES = [
@@ -17,8 +17,6 @@ const HIDDEN_TYPES = [
 
 export const HideInternals: Oas3Decorator | Oas2Decorator = ({ tagToHide }) => {
   const hiddenTag = tagToHide || DEFAULT_HIDDEN_TAG;
-  const isEmptyObject = (obj: any) => isPlainObject(obj) && Object.keys(obj).length === 0;
-  const isEmptyArray = (arr: any) => Array.isArray(arr) && arr.length === 0;
 
   function getKeysForRemove(obj: any) {
     const keysForRemove = [];
