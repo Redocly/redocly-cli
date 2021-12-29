@@ -193,3 +193,46 @@ describe('oas3 hide-internals', () => {
       `);
   });
 });
+
+describe('oas2 hide-internals', () => {
+  it('should clean types - base test', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        swagger: '2.0'
+        host: api.instagram.com
+        paths:
+          '/geographies/{geo-id}/media/recent':
+            get:
+              parameters:
+                - description: The geography ID.
+                  x-internal: true
+                  in: path
+                  name: geo-id
+                  required: true
+                  type: string
+                - description: Max number of media to return.
+                  x-internal: true
+                  format: int32
+                  in: query
+                  name: count
+                  required: false
+                  type: integer
+              responses:
+                '200':
+                  x-internal: true
+                  description: List of recent media entries.
+      `);
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'hide-internals': 'on' })
+    });
+    expect(res.parsed).toMatchInlineSnapshot(
+    `
+    swagger: '2.0'
+    host: api.instagram.com
+
+    `
+    );
+  });
+});
