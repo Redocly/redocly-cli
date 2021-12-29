@@ -209,7 +209,7 @@ yargs
           array: true,
           type: 'string',
         },
-        'clean-components': {
+        'remove-unused-components': {
           description: 'Clean unused components',
           type: 'boolean',
           default: false,

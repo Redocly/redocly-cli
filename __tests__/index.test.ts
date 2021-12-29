@@ -107,7 +107,7 @@ describe('E2E', () => {
 
   describe('bundle', () => {
     const excludeFolders = [
-      'bundle-clean-components',
+      'bundle-remove-unused-components',
       'bundle-lint-format',
     ];
     const folderPath = join(__dirname, 'bundle');
@@ -179,18 +179,18 @@ describe('E2E', () => {
     });
   });
 
-  describe('bundle with option: clean-components', () => {
-    it('should clean unused components', () => {
-      const folderPath = join(__dirname, "bundle/bundle-clean-components");
+  describe('bundle with option: remove-unused-components', () => {
+    it('should remove unused components', () => {
+      const folderPath = join(__dirname, "bundle/bundle-remove-unused-components");
       const entryPoints = getEntrypoints(folderPath);
       const args = [
         "../../../packages/cli/src/index.ts",
         "bundle",
-        "--clean-components",
+        "--remove-unused-components",
         ...entryPoints,
       ];
       const result = getBundleResult(args, folderPath);
-      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'bundle-clean-components-snapshot.js'));
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'bundle-remove-unused-components-snapshot.js'));
     });
   });
 

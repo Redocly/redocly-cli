@@ -66,7 +66,7 @@ lint:
         pet: ./my-custom-description.md
 ```
 
-### hide-internals
+### hide-x-internal
 
 Using `x-internal` tag by default to hide nodes:
 ```
@@ -91,6 +91,6 @@ lint:
       tagToHide: 'hideit'
 ```
 
-### clear-unused-components
+### remove-unused-components
 
-Remove unused components. A good point to use with `hide-internals` decorator.
+Remove unused components. We recommend to use it with `hide-x-internal` decorator.

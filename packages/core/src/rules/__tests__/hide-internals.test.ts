@@ -4,7 +4,7 @@ import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
 import { makeConfig } from './config';
 
-describe('oas3 hide-internals', () => {
+describe('oas3 hide-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 	const testDocument = parseYamlToDocument(
 		outdent`
@@ -25,7 +25,7 @@ describe('oas3 hide-internals', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'hide-internals': { 'tagToHide': 'hideit' } })
+      config: makeConfig({}, { 'hide-x-internal': { 'tagToHide': 'hideit' } })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `
@@ -38,13 +38,13 @@ describe('oas3 hide-internals', () => {
     `);
   });
 
-  it('should clean unused components', async () => {
+  it('should remove unused components', async () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: makeConfig({}, {
-        'hide-internals': { 'tagToHide': 'hideit' },
-        'clear-unused-components': 'on'
+        'hide-x-internal': { 'tagToHide': 'hideit' },
+        'remove-unused-components': 'on'
       })
     });
     expect(res.parsed).toMatchInlineSnapshot(
@@ -109,7 +109,7 @@ describe('oas3 hide-internals', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'hide-internals': 'on' })
+        config: makeConfig({}, { 'hide-x-internal': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
@@ -178,7 +178,7 @@ describe('oas3 hide-internals', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'hide-internals': 'on' })
+        config: makeConfig({}, { 'hide-x-internal': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
@@ -194,7 +194,7 @@ describe('oas3 hide-internals', () => {
   });
 });
 
-describe('oas2 hide-internals', () => {
+describe('oas2 hide-x-internal', () => {
   it('should clean types - base test', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
@@ -225,7 +225,7 @@ describe('oas2 hide-internals', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'hide-internals': 'on' })
+      config: makeConfig({}, { 'hide-x-internal': 'on' })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `

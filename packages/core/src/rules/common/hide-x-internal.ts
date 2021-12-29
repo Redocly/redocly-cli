@@ -15,7 +15,7 @@ const HIDDEN_TYPES = [
   'Parameter',
 ];
 
-export const HideInternals: Oas3Decorator | Oas2Decorator = ({ tagToHide }) => {
+export const HideXInternal: Oas3Decorator | Oas2Decorator = ({ tagToHide }) => {
   const hiddenTag = tagToHide || DEFAULT_HIDDEN_TAG;
 
   function getKeysForRemove(obj: any) {

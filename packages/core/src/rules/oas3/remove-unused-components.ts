@@ -3,7 +3,7 @@ import { Location, parsePointer } from '../../ref-utils';
 import { Oas3Components } from '../../typings/openapi'
 import { isEmptyObject } from '../../utils';
 
-export const ClearUnusedComponents: Oas3Rule = () => {
+export const RemoveUnusedComponents: Oas3Rule = () => {
   let components = new Map<string, { used: boolean; parent: keyof Oas3Components; name: string }>();
 
   function registerComponent(location: Location, parent: keyof Oas3Components, name: string): void {

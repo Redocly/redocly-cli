@@ -37,14 +37,15 @@ export async function handleBundle(
     format: OutputFormat;
     metafile?: string;
     extends?: string[];
-    'clean-components'?: boolean
+    'remove-unused-components'?: boolean
   },
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
-  const cleanComponents = argv['clean-components'];
-  if (cleanComponents && !config.rawConfig.lint?.decorators?.hasOwnProperty('clean-components')) {
-    config.lint.addOas3Decorator('clear-unused-components');
+  const removeUnusedComponentsArgv = 'remove-unused-components';
+  const cleanComponents = argv[removeUnusedComponentsArgv];
+  if (cleanComponents && !config.rawConfig.lint?.decorators?.hasOwnProperty(removeUnusedComponentsArgv)) {
+    config.lint.addOas3Decorator(removeUnusedComponentsArgv);
   }
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);

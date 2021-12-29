@@ -3,4 +3,4 @@ apiDefinitions:
 
 lint:
   decorators:
-    hide-internals: on
+    hide-x-internal: on

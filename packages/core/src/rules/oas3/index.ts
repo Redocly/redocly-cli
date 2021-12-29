@@ -49,8 +49,8 @@ import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
-import { HideInternals } from '../common/hide-internals';
-import { ClearUnusedComponents } from './clear-unused-components';
+import { HideXInternal } from '../common/hide-x-internal';
+import { RemoveUnusedComponents } from './remove-unused-components';
 
 export const rules = {
   spec: OasSpec,
@@ -108,6 +108,6 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
   'tag-description-override': TagDescriptionOverride as Oas3Decorator,
   'info-description-override': InfoDescriptionOverride as Oas3Decorator,
-  'hide-internals': HideInternals as Oas3Decorator,
-  'clear-unused-components': ClearUnusedComponents as Oas3Decorator,
+  'hide-x-internal': HideXInternal as Oas3Decorator,
+  'remove-unused-components': RemoveUnusedComponents as Oas3Decorator,
 };
