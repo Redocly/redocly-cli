@@ -131,4 +131,65 @@ describe('oas3 hide-internals', () => {
       `
       );
   });
+
+  it('should clean types: Schema, Response, RequestBody, MediaType, Callback', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /pet:
+            post:
+              requestBody:
+                x-internal: true
+                content:
+                  application/x-www-form-urlencoded:
+                    schema:
+                      type: object
+          /store/order:
+            post:
+              operationId: storeOrder
+              parameters:
+                - name: api_key
+                  schema:
+                    x-internal: true
+                    type: string
+              responses:
+                '200':
+                  x-internal: true
+                  content:
+                    application/json:
+                      examples:
+                        response:
+                          value: OK
+              requestBody:
+                content:
+                  application/x-www-form-urlencoded:
+                    x-internal: true
+                    schema:
+                      type: object
+              callbacks:
+                orderInProgress:
+                  x-internal: true
+                  '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
+                    servers:
+                      - url: //callback-url.path-level/v1
+                        description: Path level server
+      `);
+      const { bundle: res } = await bundleDocument({
+        document: testDoc,
+        externalRefResolver: new BaseResolver(),
+        config: makeConfig({}, { 'hide-internals': 'on' })
+      });
+      expect(res.parsed).toMatchInlineSnapshot(
+      `
+      openapi: 3.1.0
+      paths:
+        /store/order:
+          post:
+            operationId: storeOrder
+            parameters:
+              - name: api_key
+
+      `);
+  });
 });
