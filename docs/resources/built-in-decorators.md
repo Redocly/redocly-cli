@@ -90,3 +90,7 @@ lint:
     hide-internals:
       tagToHide: 'hideit'
 ```
+
+### clear-unused-components
+
+Remove unused components. A good point to use with `hide-internals` decorator.
