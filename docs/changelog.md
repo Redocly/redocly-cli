@@ -4,6 +4,13 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+
+## 1.0.0-beta.76 (2021-12-28)
+
+### Features
+
+- Export mapTypeToComponent function
+
 ## 1.0.0-beta.75 (2021-12-24)
 
 ### Features
