@@ -159,5 +159,5 @@ export async function handleBundle(
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.on('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
+  process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
 }

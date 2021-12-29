@@ -8,9 +8,14 @@ jest.mock('../../utils');
 
 describe('bundle', () => {
   let processExitMock: SpyInstance;
+  let exitCb: any;
 
   beforeAll(() => {
     processExitMock = jest.spyOn(process, 'exit').mockImplementation();
+    jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
+      exitCb = cb;
+      return process.on(_e, cb);
+    });
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
@@ -48,6 +53,7 @@ describe('bundle', () => {
       '1.0.0',
     );
 
+    exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -81,6 +87,7 @@ describe('bundle', () => {
       '1.0.0',
     );
 
+    exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -104,6 +111,7 @@ describe('bundle', () => {
     );
 
     expect(lint).toBeCalledTimes(entrypoints.length);
+    exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
