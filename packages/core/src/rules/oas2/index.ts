@@ -54,7 +54,7 @@ export const rules = {
   'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
   'operation-2xx-response': Operation2xxResponse as Oas2Rule,
   'operation-4xx-response': Operation4xxResponse as Oas2Rule,
-  'enforcements': Enforcements,
+  'enforcements': Enforcements as Oas2Rule,
   'operation-operationId-unique': OperationIdUnique as Oas2Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
   'path-parameters-defined': PathParamsDefined as Oas2Rule,

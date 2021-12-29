@@ -1,38 +1,38 @@
 const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
 
-export default {
-  pattern: (value: string, pattern: string) => {
+export const rules = {
+  pattern: (value: string, pattern: string): boolean => {
     if (!value) return true; // property doesn't exist, no need to lint it with this rule
     const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];
     pattern = pattern.slice(1).replace(regexOptions[0],'');
     const regx = new RegExp(pattern, regexOptions[0].slice(1));
     return !!value.match(regx);
   },
-  enum: (value: string, keys: any) => {
+  enum: (value: string, keys: any): boolean => {
     if (!value) return true; // property doesn't exist, no need to lint it with this rule
     return keys.includes(value);
   },
-  defined: (value: string, _val: boolean = true) => {
+  defined: (value: string, _val: boolean = true): boolean => {
     const isDefined = typeof value !== 'undefined';
     return _val ? isDefined : !isDefined;
   },
-  undefined: (value: any, _val: boolean = true) => {
+  undefined: (value: any, _val: boolean = true): boolean => {
     const isUndefined = typeof value === 'undefined';
     return _val ? isUndefined : !isUndefined;
   },
-  nonEmpty: (value: string, _val: boolean = true) => {
+  nonEmpty: (value: string, _val: boolean = true): boolean => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     return _val ? !isEmpty : isEmpty;
   },
-  length: (value: string | Array<any>, length: number) => {
+  length: (value: string | Array<any>, length: number): boolean => {
     if (!value) return true; // property doesn't exist, no need to lint it with this rule
     return value.length === length;
   },
-  casing: (value: string, style: string) => {
+  casing: (value: string, style: string): boolean => {
     if (!value) return true; // property doesn't exist, no need to lint it with this rule
     if (!cases.includes(style)) {
       // report wrong style name:
-      return;
+      return false;
     }
     let matchCase = false;
     switch (style) {
@@ -51,7 +51,7 @@ export default {
     }
     return matchCase;
   },
-  sortOrder: (value: Array<string>, _val: 'asc' | 'desc') => {
+  sortOrder: (value: Array<string>, _val: 'asc' | 'desc'): boolean => {
     if (!value || value.length === 1) return true;
     let isOrdered = true;
     switch (_val) {
@@ -74,7 +74,7 @@ export default {
     }
     return isOrdered;
   },
-  mutuallyExclusive: (node: any, properties: Array<string>) => {
+  mutuallyExclusive: (node: any, properties: Array<string>): boolean => {
     let counter = 0;
     Object.keys(node).forEach(prop => {
       if (properties.includes(prop)) {
@@ -83,7 +83,7 @@ export default {
     });
     return counter < 2;
   },
-  mutuallyRequired: (node: any, properties: Array<string>) => {
+  mutuallyRequired: (node: any, properties: Array<string>): boolean => {
     let counter = 0;
     Object.keys(node).forEach(prop => {
       if (properties.includes(prop)) {
