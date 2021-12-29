@@ -106,8 +106,12 @@ describe('E2E', () => {
   });
 
   describe('bundle', () => {
+    const excludeFolders = [
+      'bundle-clean-components',
+      'bundle-lint-format',
+    ];
     const folderPath = join(__dirname, 'bundle');
-    const contents = readdirSync(folderPath);
+    const contents = readdirSync(folderPath).filter(folder => !excludeFolders.includes(folder));
 
     for (const file of contents) {
       const testPath = join(folderPath, file);
