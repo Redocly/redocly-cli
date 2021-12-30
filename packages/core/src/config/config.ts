@@ -34,16 +34,13 @@ export type RuleConfig =
       severity?: ProblemSeverity;
     } & Record<string, any>);
 
-type HideInternalsDecorator = { tagToHide: string };
 export type PreprocessorConfig =
   | ProblemSeverity
   | 'off'
   | 'on'
-  | {
+  | ({
       severity?: ProblemSeverity;
-      options?: Record<string, any>;
-    }
-  | HideInternalsDecorator;
+    } & Record<string, any>);
 
 export type DecoratorConfig = PreprocessorConfig;
 
@@ -398,11 +395,9 @@ export class LintConfig {
     }
   }
 
-  addOas3Decorator(decorator: string) {
+  addDecorator(decorator: string) {
     for (const version of Object.values(OasVersion)) {
-      if (version.startsWith('oas3')) {
-        this.decorators[version][decorator] = 'on';
-      }
+      this.decorators[version][decorator] = 'on';
     }
   }
 }
