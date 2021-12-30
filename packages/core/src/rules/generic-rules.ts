@@ -1,5 +1,26 @@
 const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
 
+const getCounts = (node: any, properties: Array<string>): number => {
+  let counter = 0;
+  for (const prop of Object.keys(node)) {
+    if (properties.includes(prop)) {
+      counter++;
+    }
+  }
+  return counter;
+}
+
+const isOrdered = (value: Array<string>, direction: 'asc' | 'desc'): boolean => {
+  let result = true;
+  for (let i=1; i<value.length; i++) {
+    result = direction === 'asc' ? value[i] >= value[i-1] : value[i] <= value[i-1];
+    if (!result) {
+      break;
+    }
+  }
+  return result;
+}
+
 export const rules = {
   pattern: (value: string, pattern: string): boolean => {
     if (!value) return true; // property doesn't exist, no need to lint it with this rule
@@ -53,43 +74,12 @@ export const rules = {
   },
   sortOrder: (value: Array<string>, _val: 'asc' | 'desc'): boolean => {
     if (!value || value.length === 1) return true;
-    let isOrdered = true;
-    switch (_val) {
-      case 'asc':
-        for (let i=1; i<value.length; i++) {
-          if (value[i] < value[i-1]) {
-            isOrdered = false;
-            break;
-          }
-        }
-        break;
-      case 'desc':
-        for (let i=1; i<value.length; i++) {
-          if (value[i] > value[i-1]) {
-            isOrdered = false;
-            break;
-          }
-        }
-        break;
-    }
-    return isOrdered;
+    return isOrdered(value, _val);
   },
   mutuallyExclusive: (node: any, properties: Array<string>): boolean => {
-    let counter = 0;
-    Object.keys(node).forEach(prop => {
-      if (properties.includes(prop)) {
-        counter++;
-      }
-    });
-    return counter < 2;
+    return getCounts(node, properties)  < 2;
   },
   mutuallyRequired: (node: any, properties: Array<string>): boolean => {
-    let counter = 0;
-    Object.keys(node).forEach(prop => {
-      if (properties.includes(prop)) {
-        counter++;
-      }
-    });
-    return counter === properties.length;
+    return getCounts(node, properties) === properties.length;
   }
 }

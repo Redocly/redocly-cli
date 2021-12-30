@@ -13,7 +13,7 @@ const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rul
   return {
     [lastNodeName]: function(node: any, { report, location }: UserContext) {
       for (let prop in propsToRules) {
-        propsToRules[prop].forEach((rule: Rule) => {
+        for (const rule of propsToRules[prop]) {
           const value = prop === '__all' ? node : node[prop];
           const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
           if (!lintResult) {
@@ -23,13 +23,13 @@ const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rul
               forceSeverity: rule.severity
             });
           }
-        });
+        }
       }
     }
   }
 }
 
-export const Enforcements:  Oas3Rule | Oas2Rule = (opts: any) => {
+export const Enforcements: Oas3Rule | Oas2Rule = (opts: any) => {
   let visitors = {};
   let rulesMap: {[key: string]: any} = {};
 
@@ -47,17 +47,19 @@ export const Enforcements:  Oas3Rule | Oas2Rule = (opts: any) => {
         }));
       const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
        // form rule for each property:
-      onProps.forEach((onProp: string) => {
+      for (const onProp of onProps) {
         const parts = onProp.split('.');
-        if (parts.length === 1 && !hasMutuallyRule) return; // property should have parent node
+        if (parts.length === 1 && !hasMutuallyRule) break; // property should have parent node
 
-        const lastProp: string = hasMutuallyRule ? '__all' : parts.pop() as string; // property on which we will do the lint
-        const key = parts.join('.');
-        if (!rulesMap[key]) {
-          rulesMap[key] = {};
+        // get property on which we will do the lint, '__all' means all the properties
+        const lastProp: string = hasMutuallyRule ? '__all' : parts.pop() as string;
+
+        const path = parts.join('.');
+        if (!rulesMap[path]) {
+          rulesMap[path] = {};
         }
-        rulesMap[key][lastProp] = rulesToApply;
-      });
+        rulesMap[path][lastProp] = rulesToApply;
+      }
     }
   }
 
