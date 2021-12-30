@@ -66,31 +66,19 @@ lint:
         pet: ./my-custom-description.md
 ```
 
-### hide-x-internal
+### remove-x-internal
 
-Using `x-internal` tag by default to hide nodes:
-```
-  PathItem
-  Operation
-  Schema
-  Response
-  RequestBody
-  Example
-  MediaType
-  Server
-  Callback
-  Parameter
-```
+Using a specific property (`x-internal` by default ) to remove any node.
 
-The `tagToHide` option uses to define name of tag.
+The `internalPropertyName` option uses to define name of tag.
 
 ```yaml
 lint:
   decorators:
-    hide-internals:
-      tagToHide: 'hideit'
+    remove-x-internal:
+      internalPropertyName: 'hideit'
 ```
 
 ### remove-unused-components
 
-Remove unused components. We recommend to use it with `hide-x-internal` decorator.
+Remove unused components. We recommend using it with `remove-x-internal` decorator.

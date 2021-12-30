@@ -25,7 +25,7 @@ describe('oas3 hide-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'hide-x-internal': { 'tagToHide': 'hideit' } })
+      config: makeConfig({}, { 'remove-x-internal': { 'tagToHide': 'hideit' } })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `
@@ -43,7 +43,7 @@ describe('oas3 hide-x-internal', () => {
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: makeConfig({}, {
-        'hide-x-internal': { 'tagToHide': 'hideit' },
+        'remove-x-internal': { 'tagToHide': 'hideit' },
         'remove-unused-components': 'on'
       })
     });
@@ -109,18 +109,22 @@ describe('oas3 hide-x-internal', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'hide-x-internal': 'on' })
+        config: makeConfig({}, { 'remove-x-internal': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
       openapi: 3.1.0
       paths:
+        /pet:
+          put: {}
         /store/order:
           post:
             operationId: placeOrder
             responses:
               '200':
                 description: successful operation
+                content:
+                  application/json: {}
       components:
         parameters:
           x:
@@ -179,17 +183,22 @@ describe('oas3 hide-x-internal', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'hide-x-internal': 'on' })
+        config: makeConfig({}, { 'remove-x-internal': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
       openapi: 3.1.0
       paths:
+        /pet:
+          post:
+            summary: test
         /store/order:
           post:
             operationId: storeOrder
             parameters:
               - name: api_key
+            requestBody: {}
+      components: {}
 
       `);
   });
@@ -226,12 +235,15 @@ describe('oas2 hide-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'hide-x-internal': 'on' })
+      config: makeConfig({}, { 'remove-x-internal': 'on' })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `
     swagger: '2.0'
     host: api.instagram.com
+    paths:
+      /geographies/{geo-id}/media/recent:
+        get: {}
 
     `
     );

@@ -51,7 +51,7 @@ import { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import { Location } from './ref-utils';
 export type VisitFunction<T> = (
   node: T,
-  ctx: UserContext & { ignoreNextVisitorsOnNode: () => void, ignoreRemoved: () => void },
+  ctx: UserContext & { ignoreNextVisitorsOnNode: () => void },
   parents?: any,
   context?: any,
 ) => void;

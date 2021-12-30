@@ -212,7 +212,7 @@ export function walkDocument<T>(opts: {
             if (!activatedOn.skipped) {
               visitedBySome = true;
               enteredContexts.add(context);
-              const { ignoreNextVisitorsOnNode, isDeleted } = visitWithContext(
+              const { ignoreNextVisitorsOnNode } = visitWithContext(
                 visit,
                 resolvedNode,
                 context,
@@ -220,7 +220,6 @@ export function walkDocument<T>(opts: {
                 severity,
               );
               if (ignoreNextVisitorsOnNode) break;
-              if (isDeleted) return;
             }
           }
         }
@@ -347,7 +346,6 @@ export function walkDocument<T>(opts: {
     ) {
       const report = reportFn.bind(undefined, ruleId, severity);
       let ignoreNextVisitorsOnNode = false;
-      let isDeleted = false;
 
       visit(
         node,
@@ -361,13 +359,12 @@ export function walkDocument<T>(opts: {
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
           ignoreNextVisitorsOnNode: () => { ignoreNextVisitorsOnNode = true; },
-          ignoreRemoved: () => { isDeleted = true; },
           getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
         },
         collectParents(context),
         context,
       );
-      return { ignoreNextVisitorsOnNode, isDeleted };
+      return { ignoreNextVisitorsOnNode };
     }
 
     function resolve<T>(
