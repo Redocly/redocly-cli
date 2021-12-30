@@ -18,7 +18,7 @@ const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rul
           if (!lintResult) {
             report({
               message: rule.description,
-              location: location.key(),
+              location: prop === '__all' ? location.key() : location.child(prop).key()
             });
           }
         });
