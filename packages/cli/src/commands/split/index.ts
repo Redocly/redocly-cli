@@ -270,7 +270,6 @@ function iteratePaths(
           };
         }
       }
-
       writeYaml(pathData, pathFile);
       paths[oasPath] = {
         $ref: slash(path.relative(openapiDir, pathFile))
@@ -330,4 +329,8 @@ function iterateComponents(
       removeEmptyComponents(openapi, componentType);
     }
   }
+}
+
+export {
+  iteratePaths,
 }
