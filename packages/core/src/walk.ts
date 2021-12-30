@@ -233,9 +233,7 @@ export function walkDocument<T>(opts: {
           const itemsType = type.items;
           if (itemsType !== undefined) {
             for (let i = 0; i < resolvedNode.length; i++) {
-              const item = resolvedNode[i];
               walkNode(resolvedNode[i], itemsType, resolvedLocation.child([i]), resolvedNode, i);
-              if (item !== resolvedNode[i]) i--;
             }
           }
         } else if (typeof resolvedNode === 'object' && resolvedNode !== null) {

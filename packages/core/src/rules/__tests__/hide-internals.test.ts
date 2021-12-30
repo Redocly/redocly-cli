@@ -248,4 +248,48 @@ describe('oas2 hide-x-internal', () => {
     `
     );
   });
+
+  it('should remove unused components', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        swagger: '2.0'
+        host: api.instagram.com
+        paths:
+          '/locations/{location-id}':
+            get:
+              description: Get information about a location.
+              responses:
+                '200':
+                  description: Location information response.
+                  x-internal: true
+                  schema:
+                    $ref: '#/definitions/MediaListResponse'
+        definitions:
+          MediaListResponse:
+            properties:
+              data:
+                description: List of media entries
+            type: object
+      `);
+
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, {
+        'remove-x-internal': 'on',
+        'remove-unused-components': 'on',
+      })
+    });
+    expect(res.parsed).toMatchInlineSnapshot(
+    `
+    swagger: '2.0'
+    host: api.instagram.com
+    paths:
+      /locations/{location-id}:
+        get:
+          description: Get information about a location.
+
+    `
+    );
+  });
 });
