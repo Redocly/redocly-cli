@@ -76,7 +76,7 @@ The `internalPropertyName` option uses to define name of tag.
 lint:
   decorators:
     remove-x-internal:
-      internalPropertyName: 'hideit'
+      internalPropertyName: 'removeit'
 ```
 
 ### remove-unused-components

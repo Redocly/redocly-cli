@@ -11,7 +11,7 @@ describe('oas3 hide-x-internal', () => {
       openapi: 3.0.0
       paths:
         /pet:
-          hideit: true
+          removeit: true
           get:
             parameters:
               - $ref: '#/components/parameters/x'
@@ -21,11 +21,11 @@ describe('oas3 hide-x-internal', () => {
             name: x
 		`);
 
-  it('should use `tagToHide` option to remove internal paths', async () => {
+  it('should use `internalPropertyName` option to remove internal paths', async () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'remove-x-internal': { 'tagToHide': 'hideit' } })
+      config: makeConfig({}, { 'remove-x-internal': { 'internalPropertyName': 'removeit' } })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `
@@ -43,7 +43,7 @@ describe('oas3 hide-x-internal', () => {
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: makeConfig({}, {
-        'remove-x-internal': { 'tagToHide': 'hideit' },
+        'remove-x-internal': { 'internalPropertyName': 'removeit' },
         'remove-unused-components': 'on'
       })
     });
