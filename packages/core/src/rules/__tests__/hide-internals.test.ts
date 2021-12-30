@@ -8,14 +8,14 @@ describe('oas3 hide-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
 	const testDocument = parseYamlToDocument(
 		outdent`
-			openapi: 3.0.0
-			paths:
+      openapi: 3.0.0
+      paths:
         /pet:
           hideit: true
           get:
             parameters:
               - $ref: '#/components/parameters/x'
-			components:
+      components:
         parameters:
           x:
             name: x
