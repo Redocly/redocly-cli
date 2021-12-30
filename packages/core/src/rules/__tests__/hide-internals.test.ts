@@ -139,6 +139,7 @@ describe('oas3 hide-x-internal', () => {
         paths:
           /pet:
             post:
+              summary: test
               requestBody:
                 x-internal: true
                 content:
