@@ -1,11 +1,12 @@
 import { rules as genericRules } from '../generic-rules';
-import { UserContext } from '../../walk';
+import { UserContext, ProblemSeverity } from '../../walk';
 import { Oas2Rule, Oas3Rule } from '../../visitors';
 
 type Rule = {
   name: string,
   conditions: any,
-  description: string
+  description: string,
+  severity: ProblemSeverity
 }
 
 const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rule>}) => {
@@ -18,7 +19,8 @@ const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rul
           if (!lintResult) {
             report({
               message: rule.description,
-              location: prop === '__all' ? location.key() : location.child(prop).key()
+              location: prop === '__all' ? location.key() : location.child(prop).key(),
+              forceSeverity: rule.severity
             });
           }
         });
@@ -37,7 +39,12 @@ export const Enforcements:  Oas3Rule | Oas2Rule = (opts: any) => {
     if (enforcement.on) {
       const onProps: Array<string> = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
       const rulesToApply: Array<Rule> = Object.keys(genericRules).filter((rule: string) => enforcement[rule] !== undefined)
-        .map((rule: string) => ({name: rule, conditions: enforcement[rule], description: enforcement.description}));
+        .map((rule: string) => ({
+          name: rule,
+          conditions: enforcement[rule],
+          description: enforcement.description,
+          severity: enforcement.severity || 'error'
+        }));
       const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
        // form rule for each property:
       onProps.forEach((onProp: string) => {
