@@ -55,14 +55,19 @@ export const Enforcements:  Oas3Rule | Oas2Rule = (opts: any) => {
   }
 
   for (let path in rulesMap) {
+    let visitor = {};
     const pathParts = path.split('.');
     const lastNode = pathParts.pop() as string;
-    let visitor = pathParts.reverse().reduce((res, key, index) => {
-      if (index === 0) {
-        res = formRule(lastNode, rulesMap[path]);
-      }
-      return {[key]: res}
-    }, {});
+    if (pathParts.length) {
+      visitor = pathParts.reverse().reduce((res, key, index) => {
+        if (index === 0) {
+          res = formRule(lastNode, rulesMap[path]);
+        }
+        return {[key]: res}
+      }, {});
+    } else {
+      visitor = formRule(lastNode, rulesMap[path]);
+    }
 
     visitors = {
       ...visitors,
