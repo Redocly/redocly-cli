@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - Operation.operationId
+        description: Operation id sould be snake_case
+        casing: snake_case
+  extends: []

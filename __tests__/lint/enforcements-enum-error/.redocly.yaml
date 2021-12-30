@@ -1,0 +1,13 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - Operation.summary
+        description: Operation summary value should be among of predefined values
+        enum:
+          - test summary
+          - test example
+  extends: []

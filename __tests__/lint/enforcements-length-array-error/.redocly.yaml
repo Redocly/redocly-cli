@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - Operation.tags
+        description: Operation tags should have 4 items
+        length: 4
+  extends: []

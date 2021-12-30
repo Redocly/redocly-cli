@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - Operation.tags
+        description: Operation tags should be ordered in ASC direction
+        sortOrder: asc
+  extends: []

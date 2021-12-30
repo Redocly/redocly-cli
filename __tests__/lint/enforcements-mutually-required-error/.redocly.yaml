@@ -1,0 +1,13 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - PathItem.Operation
+        description: Operation should have summary and security fields simultaneously
+        mutuallyRequired:
+          - summary
+          - security
+  extends: []

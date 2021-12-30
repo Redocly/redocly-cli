@@ -1,0 +1,13 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    enforcements:
+      - on:
+          - PathItem.Operation
+        description: Operation should not have summary and tags fields simultaneously
+        mutuallyExclusive:
+          - summary
+          - tags
+  extends: []
