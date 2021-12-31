@@ -4,12 +4,12 @@ import { Oas3Components } from '../../typings/openapi'
 import { isEmptyObject } from '../../utils';
 
 export const RemoveUnusedComponents: Oas3Rule = () => {
-  let components = new Map<string, { used: boolean; parent: keyof Oas3Components; name: string }>();
+  let components = new Map<string, { used: boolean; componentType?: keyof Oas3Components; name: string }>();
 
-  function registerComponent(location: Location, parent: keyof Oas3Components, name: string): void {
+  function registerComponent(location: Location, componentType: keyof Oas3Components, name: string): void {
     components.set(location.absolutePointer, {
       used: components.get(location.absolutePointer)?.used || false,
-      parent,
+      componentType,
       name,
     });
   }
@@ -23,7 +23,6 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
         if (!resolvedRef.location) return;
         components.set(resolvedRef.location.absolutePointer, {
           used: true,
-          parent: parsePointer(resolvedRef.location.pointer)[1] as keyof Oas3Components,
           name: key.toString(),
         });
       }
@@ -31,12 +30,12 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
     DefinitionRoot: {
       leave(root) {
         components.forEach(usageInfo => {
-          const { used, parent, name } = usageInfo;
-          if (!used) {
-            let componentChild = root.components![parent];
+          const { used, componentType, name } = usageInfo;
+          if (!used && componentType) {
+            let componentChild = root.components![componentType];
             delete componentChild![name];
             if (isEmptyObject(componentChild)) {
-              delete root.components![parent];
+              delete root.components![componentType];
             }
           }
         });
@@ -48,7 +47,7 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
         if (!schema.allOf) {
           registerComponent(
             location,
-            parsePointer(location.pointer)[1] as keyof Oas3Components,
+            'schemas',
             key.toString()
           );
         }

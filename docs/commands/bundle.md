@@ -42,7 +42,7 @@ Option                 | Type      | Required?    | Default     | Description
 `--skip-preprocessor`  | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
 `--skip-rule`          | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
 `--version`            | `boolean` | no           | -           | Show version number
-`--remove-unused-components` | `boolean` | no     | -           | Remove unused components
+`--remove-unused-components` | `boolean` | no     | -           | Remove unused components.
 
 ## Examples
 

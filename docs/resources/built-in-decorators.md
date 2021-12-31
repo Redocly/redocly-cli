@@ -68,9 +68,9 @@ lint:
 
 ### remove-x-internal
 
-Using a specific property (`x-internal` by default ) to remove any node.
+Remove all nodes that have a specific `internalPropertyName` property (`x-internal` by default ).
 
-The `internalPropertyName` option uses to define name of tag.
+Remove additional remnants from components by also using the `remove-unused-components` decorator.
 
 ```yaml
 lint:
@@ -81,4 +81,4 @@ lint:
 
 ### remove-unused-components
 
-Remove unused components. We recommend using it with `remove-x-internal` decorator.
+Removes unused components.

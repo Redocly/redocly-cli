@@ -43,10 +43,10 @@ export async function handleBundle(
 ) {
   const config = await loadConfig(argv.config, argv.extends);
   const removeUnusedComponentsArgv = 'remove-unused-components';
-  const removeComponents = argv[removeUnusedComponentsArgv];
-  if (removeComponents && !config.rawConfig.lint?.decorators?.hasOwnProperty(removeUnusedComponentsArgv)) {
+  if (argv[removeUnusedComponentsArgv] && !config.rawConfig.lint?.decorators?.hasOwnProperty(removeUnusedComponentsArgv)) {
     config.lint.addDecorator(removeUnusedComponentsArgv);
   }
+
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);

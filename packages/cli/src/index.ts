@@ -210,7 +210,7 @@ yargs
           type: 'string',
         },
         'remove-unused-components': {
-          description: 'Remove unused components',
+          description: 'Remove unused components.',
           type: 'boolean',
           default: false,
         }

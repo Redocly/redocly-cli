@@ -383,13 +383,10 @@ export const Oas2Types: Record<string, NodeType> = {
   Schema,
   Xml,
   SchemaProperties,
-
   NamedSchemas: mapOf('Schema'),
   NamedResponses: mapOf('Response'),
   NamedParameters: mapOf('Parameter'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
-
   SecurityScheme,
-
   XCodeSample,
 };
