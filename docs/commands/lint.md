@@ -27,7 +27,7 @@ Option                   | Type      | Required    | Default     | Description
 `entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
 `--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
 `--extends`              | `array`   | no           | -           | [Extend a specific configuration](#extend-configuration) (defaults or config file settings)
-`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`
+`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
 `--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
 `--help`                 | `boolean` | no           | -           | Show help
 `--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
@@ -141,6 +141,28 @@ openapi/core.yaml:
 ```
 
 In this format, `lint` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
+
+#### Checkstyle
+
+```bash request
+openapi lint --format=checkstyle
+```
+
+```bash output
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="4.3">
+<file name="openapi/core.yaml">
+<error line="15" column="7" severity="error" message="Property `operationIds` is not expected here." source="spec" />
+<error line="22" column="11" severity="error" message="Property `require` is not expected here." source="spec" />
+<error line="14" column="7" severity="warning" message="Operation object should contain `operationId` field." source="operation-operationId" />
+</file>
+</checkstyle>
+```
+
+In this format, `lint` uses the [Checkstyle](https://checkstyle.org/) XML report format.
+Due to the limitations of this format, only file name, line, column, severity,
+and rule ID (in the `source` attribute) are included. All other information is
+omitted.
 
 ### Max problems
 
