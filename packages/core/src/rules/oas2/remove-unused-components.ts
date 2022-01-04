@@ -1,5 +1,5 @@
 import { Oas2Rule } from '../../visitors';
-import { Location, parsePointer } from '../../ref-utils';
+import { Location } from '../../ref-utils';
 import { Oas2Components } from '../../typings/swagger';
 import { isEmptyObject } from '../../utils';
 
@@ -27,7 +27,6 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
         });
       }
     },
-
     DefinitionRoot: {
       leave(root) {
         let rootComponents = new Set<keyof Oas2Components>();
@@ -45,43 +44,26 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
         }
       },
     },
-
     NamedSchemas: {
       Schema(schema, { location, key }) {
         if (!schema.allOf) {
-          registerComponent(
-            location,
-            parsePointer(location.pointer)[0] as keyof Oas2Components,
-            key.toString()
-          );
+          registerComponent(location, 'definitions', key.toString());
         }
       },
     },
     NamedParameters: {
       Parameter(_parameter, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[0] as keyof Oas2Components,
-          key.toString()
-        );
+        registerComponent(location, 'parameters', key.toString());
       },
     },
     NamedResponses: {
       Response(_response, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[0] as keyof Oas2Components,
-          key.toString()
-        );
+        registerComponent(location, 'responses', key.toString());
       },
     },
     NamedSecuritySchemes: {
       SecurityScheme(_securityScheme, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[0] as keyof Oas2Components,
-          key.toString()
-        );
+        registerComponent(location, 'securityDefinitions', key.toString());
       },
     }
   };

@@ -42,10 +42,7 @@ export async function handleBundle(
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
-  const removeUnusedComponentsArgv = 'remove-unused-components';
-  if (argv[removeUnusedComponentsArgv] && !config.rawConfig.lint?.decorators?.hasOwnProperty(removeUnusedComponentsArgv)) {
-    config.lint.addDecorator(removeUnusedComponentsArgv);
-  }
+  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components')
 
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
@@ -96,6 +93,7 @@ export async function handleBundle(
         config,
         ref: entrypoint,
         dereference: argv.dereferenced,
+        removeUnusedComponents
       });
 
       const fileTotals = getTotals(problems);

@@ -68,18 +68,13 @@ lint:
 
 ### remove-x-internal
 
-Remove all nodes that have a specific `internalPropertyName` property (`x-internal` by default).
+Remove all nodes that have a specific `internalFlagProperty` property (`x-internal` by default).
 
-Remove additional remnants from components by also using the `remove-unused-components` decorator.
+Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
 
 ```yaml
 lint:
   decorators:
     remove-x-internal:
-      internalPropertyName: 'removeit'
+      internalFlagProperty: 'removeit'
 ```
-
-### remove-unused-components
-
-Removes unused components.
-Also can be used as a CLI argument `--remove-unused-components` to the `bundle` command.

@@ -41,7 +41,6 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 import { RemoveXInternal } from '../common/remove-x-internal';
-import { RemoveUnusedComponents } from './remove-unused-components';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -90,6 +89,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
   'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
-  'remove-x-internal': RemoveXInternal as Oas2Decorator,
-  'remove-unused-components': RemoveUnusedComponents as Oas2Decorator,
+  'remove-x-internal': RemoveXInternal as Oas2Decorator
 };

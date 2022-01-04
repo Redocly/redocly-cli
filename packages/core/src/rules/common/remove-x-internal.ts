@@ -4,8 +4,8 @@ import { UserContext } from '../../walk';
 
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 
-export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalPropertyName }) => {
-  const hiddenTag = internalPropertyName || DEFAULT_INTERNAL_PROPERTY_NAME;
+export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagProperty }) => {
+  const hiddenTag = internalFlagProperty || DEFAULT_INTERNAL_PROPERTY_NAME;
 
   function removeInternal(node: any, ctx: UserContext) {
     const { parent, key } = ctx;

@@ -14,6 +14,8 @@ import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
 import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -31,6 +33,7 @@ export async function bundle(opts: {
   dereference?: boolean;
   base?: string;
   skipRedoclyRegistryRefs?: boolean;
+  removeUnusedComponents?: boolean;
 }) {
   const {
     ref,
@@ -66,6 +69,7 @@ export async function bundleDocument(opts: {
   externalRefResolver: BaseResolver;
   dereference?: boolean;
   skipRedoclyRegistryRefs?: boolean;
+  removeUnusedComponents?: boolean;
 }) {
   const {
     document,
@@ -74,6 +78,7 @@ export async function bundleDocument(opts: {
     externalRefResolver,
     dereference = false,
     skipRedoclyRegistryRefs = false,
+    removeUnusedComponents = false,
   } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
@@ -92,12 +97,23 @@ export async function bundleDocument(opts: {
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const decorators = initRules(rules as any, config, 'decorators', oasVersion);
+
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {},
   };
+
+  if (removeUnusedComponents) {
+    decorators.push({
+      severity: 'error',
+      ruleId: 'remove-unused-components',
+      visitor: oasMajorVersion === OasMajorVersion.Version2
+        ? RemoveUnusedComponentsOas2({})
+        : RemoveUnusedComponentsOas3({})
+    })
+  }
 
   const bundleVisitor = normalizeVisitors(
     [

@@ -1,5 +1,5 @@
 import { Oas3Rule } from '../../visitors';
-import { Location, parsePointer } from '../../ref-utils';
+import { Location } from '../../ref-utils';
 import { Oas3Components } from '../../typings/openapi'
 import { isEmptyObject } from '../../utils';
 
@@ -45,57 +45,33 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
     NamedSchemas: {
       Schema(schema, { location, key }) {
         if (!schema.allOf) {
-          registerComponent(
-            location,
-            'schemas',
-            key.toString()
-          );
+          registerComponent(location, 'schemas', key.toString());
         }
       },
     },
     NamedParameters: {
       Parameter(_parameter, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[1] as keyof Oas3Components,
-          key.toString()
-        );
+        registerComponent(location, 'parameters', key.toString());
       },
     },
     NamedResponses: {
       Response(_response, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[1] as keyof Oas3Components,
-          key.toString()
-        );
+        registerComponent(location, 'responses', key.toString());
       },
     },
     NamedExamples: {
       Example(_example, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[1] as keyof Oas3Components,
-          key.toString()
-        );
+        registerComponent(location, 'examples', key.toString());
       },
     },
     NamedRequestBodies: {
       RequestBody(_requestBody, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[1] as keyof Oas3Components,
-          key.toString()
-        );
+        registerComponent(location, 'requestBodies', key.toString());
       },
     },
     NamedHeaders: {
       Header(_header, { location, key }) {
-        registerComponent(
-          location,
-          parsePointer(location.pointer)[1] as keyof Oas3Components,
-          key.toString()
-        );
+        registerComponent(location, 'headers', key.toString());
       },
     },
   };

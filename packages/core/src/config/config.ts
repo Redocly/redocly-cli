@@ -394,12 +394,6 @@ export class LintConfig {
       }
     }
   }
-
-  addDecorator(decorator: string) {
-    for (const version of Object.values(OasVersion)) {
-      this.decorators[version][decorator] = 'on';
-    }
-  }
 }
 
 export class Config {
