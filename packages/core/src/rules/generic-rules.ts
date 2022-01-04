@@ -23,17 +23,17 @@ const isOrdered = (value: Array<string>, direction: 'asc' | 'desc'): boolean => 
 
 export const rules = {
   pattern: (value: string, pattern: string): boolean => {
-    if (!value) return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];
     pattern = pattern.slice(1).replace(regexOptions[0],'');
     const regx = new RegExp(pattern, regexOptions[0].slice(1));
     return !!value.match(regx);
   },
-  enum: (value: string, keys: any): boolean => {
-    if (!value) return true; // property doesn't exist, no need to lint it with this rule
+  enum: (value: string, keys: Array<string>): boolean => {
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return keys.includes(value);
   },
-  defined: (value: string, _val: boolean = true): boolean => {
+  defined: (value: string | undefined, _val: boolean = true): boolean => {
     const isDefined = typeof value !== 'undefined';
     return _val ? isDefined : !isDefined;
   },
@@ -41,16 +41,16 @@ export const rules = {
     const isUndefined = typeof value === 'undefined';
     return _val ? isUndefined : !isUndefined;
   },
-  nonEmpty: (value: string, _val: boolean = true): boolean => {
+  nonEmpty: (value: string | undefined | null, _val: boolean = true): boolean => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     return _val ? !isEmpty : isEmpty;
   },
   length: (value: string | Array<any>, length: number): boolean => {
-    if (!value) return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return value.length === length;
   },
   casing: (value: string, style: string): boolean => {
-    if (!value) return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     if (!cases.includes(style)) {
       // report wrong style name:
       return false;
@@ -73,11 +73,11 @@ export const rules = {
     return matchCase;
   },
   sortOrder: (value: Array<string>, _val: 'asc' | 'desc'): boolean => {
-    if (!value || value.length === 1) return true;
+    if (typeof value === 'undefined' || value.length === 1) return true;
     return isOrdered(value, _val);
   },
   mutuallyExclusive: (node: any, properties: Array<string>): boolean => {
-    return getCounts(node, properties)  < 2;
+    return getCounts(node, properties) < 2;
   },
   mutuallyRequired: (node: any, properties: Array<string>): boolean => {
     return getCounts(node, properties) === properties.length;
