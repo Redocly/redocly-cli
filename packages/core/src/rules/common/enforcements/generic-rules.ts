@@ -1,25 +1,4 @@
-const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
-
-const getCounts = (node: any, properties: string[]): number => {
-  let counter = 0;
-  for (const prop of Object.keys(node)) {
-    if (properties.includes(prop)) {
-      counter++;
-    }
-  }
-  return counter;
-}
-
-const isOrdered = (value: string[], direction: 'asc' | 'desc'): boolean => {
-  let result = true;
-  for (let i=1; i<value.length; i++) {
-    result = direction === 'asc' ? value[i] >= value[i-1] : value[i] <= value[i-1];
-    if (!result) {
-      break;
-    }
-  }
-  return result;
-}
+import { isOrdered, getCounts } from './utils';
 
 export const rules = {
   pattern: (value: string, pattern: string): boolean => {
@@ -51,6 +30,7 @@ export const rules = {
   },
   casing: (value: string, style: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
     if (!cases.includes(style)) {
       // report wrong style name:
       return false;

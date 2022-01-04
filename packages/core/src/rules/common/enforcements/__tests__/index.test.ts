@@ -1,4 +1,4 @@
-import { Enforcements } from '../enforcements';
+import { Enforcements } from '../.';
 
 const opts = {
   '0': {
