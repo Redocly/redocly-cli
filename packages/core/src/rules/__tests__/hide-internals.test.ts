@@ -6,8 +6,8 @@ import { makeConfig } from './config';
 
 describe('oas3 hide-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
-	const testDocument = parseYamlToDocument(
-		outdent`
+  const testDocument = parseYamlToDocument(
+    outdent`
       openapi: 3.0.0
       paths:
         /pet:
@@ -19,7 +19,7 @@ describe('oas3 hide-x-internal', () => {
         parameters:
           x:
             name: x
-		`);
+    `);
 
   it('should use `internalFlagProperty` option to remove internal paths', async () => {
     const { bundle: res } = await bundleDocument({
