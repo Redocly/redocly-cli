@@ -1,6 +1,6 @@
 const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
 
-const getCounts = (node: any, properties: Array<string>): number => {
+const getCounts = (node: any, properties: string[]): number => {
   let counter = 0;
   for (const prop of Object.keys(node)) {
     if (properties.includes(prop)) {
@@ -10,7 +10,7 @@ const getCounts = (node: any, properties: Array<string>): number => {
   return counter;
 }
 
-const isOrdered = (value: Array<string>, direction: 'asc' | 'desc'): boolean => {
+const isOrdered = (value: string[], direction: 'asc' | 'desc'): boolean => {
   let result = true;
   for (let i=1; i<value.length; i++) {
     result = direction === 'asc' ? value[i] >= value[i-1] : value[i] <= value[i-1];
@@ -29,7 +29,7 @@ export const rules = {
     const regx = new RegExp(pattern, regexOptions[0].slice(1));
     return !!value.match(regx);
   },
-  enum: (value: string, keys: Array<string>): boolean => {
+  enum: (value: string, keys: string[]): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return keys.includes(value);
   },
@@ -45,7 +45,7 @@ export const rules = {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     return _val ? !isEmpty : isEmpty;
   },
-  length: (value: string | Array<any>, length: number): boolean => {
+  length: (value: string | any[], length: number): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return value.length === length;
   },
@@ -72,14 +72,14 @@ export const rules = {
     }
     return matchCase;
   },
-  sortOrder: (value: Array<string>, _val: 'asc' | 'desc'): boolean => {
+  sortOrder: (value: string[], _val: 'asc' | 'desc'): boolean => {
     if (typeof value === 'undefined' || value.length === 1) return true;
     return isOrdered(value, _val);
   },
-  mutuallyExclusive: (node: any, properties: Array<string>): boolean => {
+  mutuallyExclusive: (node: any, properties: string[]): boolean => {
     return getCounts(node, properties) < 2;
   },
-  mutuallyRequired: (node: any, properties: Array<string>): boolean => {
+  mutuallyRequired: (node: any, properties: string[]): boolean => {
     return getCounts(node, properties) === properties.length;
   }
 }

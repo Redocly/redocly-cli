@@ -9,10 +9,15 @@ type Rule = {
   severity: ProblemSeverity
 }
 
-const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rule>}) => {
+/** Sets the value at path of object. If a portion of path doesn't exist, it's created.  */
+const objectSet = (path: string[], value: object = {}) => {
+  return path.reverse().reduce((acc, key) => ({[key]: acc}), value);
+}
+
+const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Rule[]}) => {
   return {
     [lastNodeName]: function(node: any, { report, location }: UserContext) {
-      for (let prop in propsToRules) {
+      for (const prop of Object.keys(propsToRules)) {
         for (const rule of propsToRules[prop]) {
           const value = prop === '__all' ? node : node[prop];
           const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
@@ -29,16 +34,19 @@ const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Array<Rul
   }
 }
 
-export const Enforcements: Oas3Rule | Oas2Rule = (opts: any) => {
+export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
   let visitors = {};
   let rulesMap: {[key: string]: any} = {};
 
-  for (let key in opts) {
-    const enforcement = opts[key];
+  // As 'enforcements' rule has an array of sub-rules,
+  // that array spreads into an 'opts' object on init rules phase,
+  // that is why we need to iterate through 'opts' values
+  const enforcements: any[] = Object.values(opts);
 
+  for (const enforcement of enforcements) {
     if (enforcement.on) {
-      const onProps: Array<string> = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
-      const rulesToApply: Array<Rule> = Object.keys(genericRules).filter((rule: string) => enforcement[rule] !== undefined)
+      const onProps: string[] = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
+      const rulesToApply: Rule[] = Object.keys(genericRules).filter((rule: string) => enforcement[rule] !== undefined)
         .map((rule: string) => ({
           name: rule,
           conditions: enforcement[rule],
@@ -63,17 +71,12 @@ export const Enforcements: Oas3Rule | Oas2Rule = (opts: any) => {
     }
   }
 
-  for (let path in rulesMap) {
+  for (let path of Object.keys(rulesMap)) {
     let visitor = {};
     const pathParts = path.split('.');
     const lastNode = pathParts.pop() as string;
     if (pathParts.length) {
-      visitor = pathParts.reverse().reduce((res, key, index) => {
-        if (index === 0) {
-          res = formRule(lastNode, rulesMap[path]);
-        }
-        return {[key]: res}
-      }, {});
+      visitor = objectSet(pathParts, formRule(lastNode, rulesMap[path]));
     } else {
       visitor = formRule(lastNode, rulesMap[path]);
     }
