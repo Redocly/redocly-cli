@@ -5,8 +5,7 @@ swagger: '2.0'
 host: api.instagram.com
 paths:
   /locations/{location-id}:
-    get:
-      description: Get information about a location.
+    post: {}
 
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
