@@ -32,7 +32,7 @@ Option                 | Type      | Required?    | Default     | Description
 `--ext`                | `string`  | no           | `yaml`      | Specify bundled file extension.<br />**Possible values:** `json`, `yaml`, `yml`
 `--extends`            | `array`   | no           | -           | Can be used in combination with `--lint` to [Extend a specific configuration](./lint.md#extend-configuration) (defaults or config file settings)
 `--force`, `-f`        | `boolean` | no           | -           | Generate bundle output even when errors occur
-`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`
+`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
 `--help`               | `boolean` | no           | -           | Show help
 `--lint`               | `boolean` | no           | `false`     | Lint definition files.
 `--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
@@ -144,6 +144,26 @@ bundling store.yaml...
 ```
 
 In this format, `bundle` shows the result of bundling (including the number of errors and warnings and their descriptions) in JSON-like output.
+
+#### Checkstyle
+
+```bash request
+openapi bundle pet.yaml -o ./bundled --lint --format=checkstyle
+```
+
+```bash output
+bundling pet.yaml...
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="4.3">
+<file name="pet.yaml">
+</file>
+</checkstyle>
+📦 Created a bundle for pet.yaml at bundled/pet.yaml 35ms.
+```
+
+In this format, `bundle` uses the [Checkstyle](https://checkstyle.org/) XML report format.
+Due to the limitations of this format, only file name, line, column, severity,
+and rule ID (in the `source` attribute) are included. All other information is omitted.
 
 ### Skip preprocessor, rule, or decorator
 

@@ -165,7 +165,7 @@ describe('E2E', () => {
       ];
     });
 
-    test.each(['codeframe','stylish','json'])('bundle lint: should be formatted by format: %s', (format) => {
+    test.each(['codeframe','stylish','json','checkstyle'])('bundle lint: should be formatted by format: %s', (format) => {
       const params = [...args, `--format=${format}`];
       const result = getBundleResult(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
