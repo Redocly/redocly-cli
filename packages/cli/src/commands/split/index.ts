@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml } from '@redocly/openapi-core';
+import { parseYaml, slash } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -266,14 +266,13 @@ function iteratePaths(
           fs.writeFileSync(sampleFileName, sample.source);
           // @ts-ignore
           sample.source = {
-            $ref: path.relative(pathsDir, sampleFileName)
+            $ref: slash(path.relative(pathsDir, sampleFileName))
           };
         }
       }
-
       writeYaml(pathData, pathFile);
       paths[oasPath] = {
-        $ref: path.relative(openapiDir, pathFile)
+        $ref: slash(path.relative(openapiDir, pathFile))
       };
     }
   }
@@ -330,4 +329,8 @@ function iterateComponents(
       removeEmptyComponents(openapi, componentType);
     }
   }
+}
+
+export {
+  iteratePaths,
 }
