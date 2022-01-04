@@ -129,28 +129,17 @@ export function formatProblems(
     }
     case 'checkstyle': {
       const groupedByFile = groupByFiles(problems);
-      const writeln = (line: string) => process.stdout.write(`${line}\n`);
 
-      writeln('<?xml version="1.0" encoding="UTF-8"?>');
-      writeln('<checkstyle version="4.3">');
+      process.stdout.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+      process.stdout.write('<checkstyle version="4.3">\n');
 
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
-        writeln(`<file name="${xmlEscape(path.relative(cwd, file))}">`);
-        for (let i = 0; i < fileProblems.length; i++) {
-          const problem = fileProblems[i];
-          const { line, col } = problem.location[0].start;
-          const severity = problem.severity == 'warn' ? 'warning' : 'error';
-          const message = xmlEscape(problem.message);
-          const source = xmlEscape(problem.ruleId);
-          writeln(
-            `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />`,
-          );
-        }
-
-        writeln(`</file>`);
+        process.stdout.write(`<file name="${xmlEscape(path.relative(cwd, file))}">\n`);
+        fileProblems.forEach(formatCheckstyle);
+        process.stdout.write(`</file>\n`);
       }
 
-      writeln(`</checkstyle>`);
+      process.stdout.write(`</checkstyle>\n`);
       break;
     }
   }
@@ -230,6 +219,16 @@ export function formatProblems(
     return `  ${`${start.line}:${start.col}`.padEnd(
       locationPad,
     )}  ${severityName}  ${problem.ruleId.padEnd(ruleIdPad)}  ${problem.message}`;
+  }
+
+  function formatCheckstyle(problem: OnlyLineColProblem) {
+    const { line, col } = problem.location[0].start;
+    const severity = problem.severity == 'warn' ? 'warning' : 'error';
+    const message = xmlEscape(problem.message);
+    const source = xmlEscape(problem.ruleId);
+    process.stdout.write(
+      `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`,
+    );
   }
 }
 

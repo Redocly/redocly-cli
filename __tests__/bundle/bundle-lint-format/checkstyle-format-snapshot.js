@@ -7,6 +7,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: chec
 <error line="20" column="11" severity="error" message="Expected type \`MediaType\` (object) but got \`null\`" source="spec" />
 </file>
 </checkstyle>
+
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 ❌ Validation failed with 1 error.
