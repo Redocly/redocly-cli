@@ -159,12 +159,10 @@ openapi lint --format=checkstyle
 </checkstyle>
 ```
 
-Writes linting results to standard output in the [Checkstyle] XML report format.
-Due to the limitations of this format, only file name, line, column, severity
+In this format, `lint` uses the [Checkstyle](https://checkstyle.org/) XML report format.
+Due to the limitations of this format, only file name, line, column, severity,
 and rule ID (in the `source` attribute) are included. All other information is
 omitted.
-
-[Checkstyle]: https://checkstyle.org/
 
 ### Max problems
 

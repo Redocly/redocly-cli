@@ -160,11 +160,9 @@ bundling pet.yaml...
 📦 Created a bundle for pet.yaml at bundled/pet.yaml 35ms.
 ```
 
-In this format, `bundle` shows the result of bundling in the [Checkstyle] XML
-report format. Note: this format will only report linting results, so it only
-makes sense to be used in conjunction with the `--lint` option.
-
-[Checkstyle]: https://checkstyle.org/
+In this format, `bundle` uses the [Checkstyle](https://checkstyle.org/) XML report format.
+Due to the limitations of this format, only file name, line, column, severity,
+and rule ID (in the `source` attribute) are included. All other information is omitted.
 
 ### Skip preprocessor, rule, or decorator
 
