@@ -103,15 +103,21 @@ describe('oas3 enforcements', () => {
     describe('sortOrder', () => {
       it('value should be ordered in ASC direction',  () => {
         expect(genericRules.sortOrder(['example', 'foo', 'test'], 'asc')).toBeTruthy();
+        expect(genericRules.sortOrder(['example', 'foo', 'test'], {direction: 'asc'})).toBeTruthy();
         expect(genericRules.sortOrder(['example'], 'asc')).toBeTruthy();
         expect(genericRules.sortOrder(['example', 'test', 'foo'], 'asc')).toBeFalsy();
         expect(genericRules.sortOrder(['example', 'foo', 'test'], 'desc')).toBeFalsy();
+        expect(genericRules.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'asc', property: 'name'})).toBeTruthy();
+        expect(genericRules.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'desc', property: 'name'})).toBeFalsy();
       });
       it('value should be ordered in DESC direction',  () => {
         expect(genericRules.sortOrder(['test', 'foo', 'example'], 'desc')).toBeTruthy();
+        expect(genericRules.sortOrder(['test', 'foo', 'example'], {direction: 'desc'})).toBeTruthy();
         expect(genericRules.sortOrder(['example'], 'desc')).toBeTruthy();
         expect(genericRules.sortOrder(['example', 'test', 'foo'], 'desc')).toBeFalsy();
         expect(genericRules.sortOrder(['test', 'foo', 'example'], 'asc')).toBeFalsy();
+        expect(genericRules.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'desc', property: 'name'})).toBeTruthy();
+        expect(genericRules.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'asc', property: 'name'})).toBeFalsy();
       });
     });
 

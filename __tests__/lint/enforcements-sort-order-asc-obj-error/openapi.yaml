@@ -19,9 +19,11 @@ paths:
       operationId: example-id
       summary: summary example
       tags:
-        - baz
-        - bar
-        - foo
+        - name: baz
+          type: baz type
+        - name: bar
+          type: bar type
+        - name: foo
       responses:
         '200':
           description: example description

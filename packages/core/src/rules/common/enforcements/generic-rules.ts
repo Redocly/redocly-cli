@@ -1,4 +1,4 @@
-import { isOrdered, getCounts } from './utils';
+import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
 export const rules = {
   pattern: (value: string, pattern: string): boolean => {
@@ -52,8 +52,8 @@ export const rules = {
     }
     return matchCase;
   },
-  sortOrder: (value: string[], _val: 'asc' | 'desc'): boolean => {
-    if (typeof value === 'undefined' || value.length === 1) return true;
+  sortOrder: (value: any[], _val: OrderOptions | OrderDirection): boolean => {
+    if (typeof value === 'undefined') return true;
     return isOrdered(value, _val);
   },
   mutuallyExclusive: (node: any, properties: string[]): boolean => {

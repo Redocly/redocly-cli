@@ -1,12 +1,19 @@
 import { ProblemSeverity, UserContext } from '../../../walk';
 import { rules as genericRules } from './generic-rules';
 
+export type OrderDirection = 'asc' | 'desc';
+
+export type OrderOptions = {
+  direction: OrderDirection;
+  property?: string;
+};
+
 export type Rule = {
-  name: string,
-  conditions: any,
-  description: string,
-  severity: ProblemSeverity
-}
+  name: string;
+  conditions: any;
+  description: string;
+  severity: ProblemSeverity;
+};
 
 /** Sets the value at path of object. If a portion of path doesn't exist, it's created.  */
 export const objectSet = (path: string[], value: any) => {
@@ -43,10 +50,23 @@ export const getCounts = (node: any, properties: string[]): number => {
   return counter;
 }
 
-export const isOrdered = (value: string[], direction: 'asc' | 'desc'): boolean => {
+export const isOrdered = (value: any[], options: OrderOptions | OrderDirection): boolean => {
+  const direction = (options as OrderOptions).direction || options as OrderDirection;
+  const property = (options as OrderOptions).property;
   let result = true;
   for (let i=1; i<value.length; i++) {
-    result = direction === 'asc' ? value[i] >= value[i-1] : value[i] <= value[i-1];
+    let currValue = value[i];
+    let prevVal = value[i-1];
+
+    if (property) {
+      if (!value[i][property] || !value[i-1][property]) {
+        return false; // property doesn't exist, so collection is not ordered
+      }
+      currValue = value[i][property];
+      prevVal = value[i-1][property]
+    }
+
+    result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
     if (!result) {
       break;
     }

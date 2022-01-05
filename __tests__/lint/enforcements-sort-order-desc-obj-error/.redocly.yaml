@@ -7,5 +7,7 @@ lint:
       - on:
           - Operation.tags
         description: Operation tags should be ordered in DESC direction
-        sortOrder: desc
+        sortOrder:
+          direction: desc
+          property: name
   extends: []
