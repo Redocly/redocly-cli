@@ -20,22 +20,22 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
             x-internal: true
             get:
               operationId: petGet
-			`);
-		const { bundle: res } = await bundleDocument({
+      `);
+    const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: makeConfig({}, { 'filter-for-permission': 'on' })
-		});
-		expect(res.parsed).toMatchInlineSnapshot(
-		`
-		openapi: 3.0.0
-		components: {}
+    });
+    expect(res.parsed).toMatchInlineSnapshot(
+    `
+    openapi: 3.0.0
+    components: {}
 
-		`);
-	});
+    `);
+  });
 
   it('should use environment variables', async () => {
-		process.env.FILTER_BY_PERMISSION_PROPERTY = 'x-permission';
+    process.env.FILTER_BY_PERMISSION_PROPERTY = 'x-permission';
     process.env.FILTER_BY_PERMISSION_VALUE = 'guest';
     const testDocument = parseYamlToDocument(
       outdent`
@@ -46,22 +46,22 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
             get:
               parameters:
                 - $ref: '#/components/parameters/x'
-			`);
+      `);
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
       config: makeConfig({}, { 'filter-for-permission': 'on' })
     });
-		expect(res.parsed).toMatchInlineSnapshot(
-		`
-		openapi: 3.0.0
-		components: {}
+    expect(res.parsed).toMatchInlineSnapshot(
+    `
+    openapi: 3.0.0
+    components: {}
 
-		`);
-	});
+    `);
+  });
 
   it('should use `internalFlagProperty` and default value of `permissionValue`', async () => {
-  	const testDocument = parseYamlToDocument(
+    const testDocument = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
         paths:
@@ -89,13 +89,12 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
         x:
           name: x
 
-    `
-    );
+    `);
   });
 
   it('should use `internalFlagProperty` and `permissionValue`', async () => {
-		const testDocument = parseYamlToDocument(
-			outdent`
+    const testDocument = parseYamlToDocument(
+      outdent`
         openapi: 3.0.0
         paths:
           /pet:
@@ -103,27 +102,27 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
             get:
               parameters:
                 - $ref: '#/components/parameters/x'
-			`);
+      `);
 
     const { bundle: res } = await bundleDocument({
-			document: testDocument,
-			externalRefResolver: new BaseResolver(),
-			config: makeConfig({}, { 'filter-for-permission': {
-				'permissionProperty': 'x-audience',
-				'permissionValue': 'user'
-			}})
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'filter-for-permission': {
+        'permissionProperty': 'x-audience',
+        'permissionValue': 'user'
+      }})
     });
     expect(res.parsed).toMatchInlineSnapshot(
-		`
-		openapi: 3.0.0
-		components: {}
+    `
+    openapi: 3.0.0
+    components: {}
 
-		`);
-	});
+    `);
+  });
 
-	it('should handle node property as array', async () => {
-		const testDocument = parseYamlToDocument(
-			outdent`
+  it('should handle node property as array', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
         openapi: 3.0.0
         paths:
           /pet:
@@ -133,23 +132,23 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
             get:
               parameters:
                 - $ref: '#/components/parameters/x'
-			`);
+      `);
 
-  		const { bundle: res } = await bundleDocument({
-  			document: testDocument,
-  			externalRefResolver: new BaseResolver(),
-  			config: makeConfig({}, { 'filter-for-permission': {
-  				'permissionProperty': 'x-audience',
-  				'permissionValue': 'user'
-  			}})
-  		});
-  		expect(res.parsed).toMatchInlineSnapshot(
-  		`
-  		openapi: 3.0.0
-  		components: {}
+      const { bundle: res } = await bundleDocument({
+        document: testDocument,
+        externalRefResolver: new BaseResolver(),
+        config: makeConfig({}, { 'filter-for-permission': {
+          'permissionProperty': 'x-audience',
+          'permissionValue': 'user'
+        }})
+      });
+      expect(res.parsed).toMatchInlineSnapshot(
+      `
+      openapi: 3.0.0
+      components: {}
 
-  		`);
-  	});
+      `);
+    });
 
   it('should clean types: Server, Operation, Parameter, PathItem, Example', async () => {
     const testDoc = parseYamlToDocument(
