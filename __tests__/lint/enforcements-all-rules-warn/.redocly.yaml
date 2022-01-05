@@ -14,6 +14,8 @@ lint:
         defined: false
         nonEmpty: false
         length: 16
+        minLength: 20
+        maxLength: 10
       - on:
           - PathItem.Operation
         description: Operation fields example warn

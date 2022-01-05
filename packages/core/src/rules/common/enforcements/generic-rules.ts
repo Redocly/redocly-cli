@@ -2,7 +2,7 @@ import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
 type RunsOnAllProps = 'mutuallyExclusive' | 'mutuallyRequired';
 type RunsOnSingleProp = 'pattern' | 'enum' | 'defined' | 'undefined'
-  | 'nonEmpty' | 'length' | 'casing' | 'sortOrder';
+  | 'nonEmpty' | 'length' | 'minLength' | 'maxLength' | 'casing' | 'sortOrder';
 
 export const rules: {[key in RunsOnSingleProp | RunsOnAllProps]: any} = {
   pattern: (value: string, pattern: string): boolean => {
@@ -31,6 +31,14 @@ export const rules: {[key in RunsOnSingleProp | RunsOnAllProps]: any} = {
   length: (value: string | any[], length: number): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return value.length === length;
+  },
+  minLength: (value: string | any[], length: number): boolean => {
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    return value.length >= length;
+  },
+  maxLength: (value: string | any[], length: number): boolean => {
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    return value.length <= length;
   },
   casing: (value: string, style: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule

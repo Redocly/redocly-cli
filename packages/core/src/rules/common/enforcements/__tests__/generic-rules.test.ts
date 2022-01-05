@@ -73,6 +73,30 @@ describe('oas3 enforcements', () => {
       });
     });
 
+    describe('minLength', () => {
+      it('value should have less or equal than 5 symbols length',  () => {
+        expect(genericRules.minLength('test', 5)).toBeFalsy();
+        expect(genericRules.minLength([1, 2, 3, 4], 5)).toBeFalsy();
+        expect(genericRules.minLength([1, 2, 3, 4, 5], 5)).toBeTruthy();
+        expect(genericRules.minLength([1, 2, 3, 4, 5, 6], 5)).toBeTruthy();
+        expect(genericRules.minLength('example', 5)).toBeTruthy();
+        expect(genericRules.minLength([], 5)).toBeFalsy();
+        expect(genericRules.minLength('', 5)).toBeFalsy();
+      });
+    });
+
+    describe('maxLength', () => {
+      it('value should have more or equal than 5 symbols length',  () => {
+        expect(genericRules.maxLength('test', 5)).toBeTruthy();
+        expect(genericRules.maxLength([1, 2, 3, 4], 5)).toBeTruthy();
+        expect(genericRules.maxLength([1, 2, 3, 4, 5], 5)).toBeTruthy();
+        expect(genericRules.maxLength([1, 2, 3, 4, 5, 6], 5)).toBeFalsy();
+        expect(genericRules.maxLength('example', 5)).toBeFalsy();
+        expect(genericRules.maxLength([], 5)).toBeTruthy();
+        expect(genericRules.maxLength('', 5)).toBeTruthy();
+      });
+    });
+
     describe('casing', () => {
       it('value should be camelCase',  () => {
         expect(genericRules.casing('testExample', 'camelCase')).toBeTruthy();
