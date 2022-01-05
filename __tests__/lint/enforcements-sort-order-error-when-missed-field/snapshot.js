@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint enforcements-sort-order-missed-field-error 1`] = `
+exports[`E2E lint enforcements-sort-order-error-when-missed-field 1`] = `
 
 validating /openapi.yaml...
 [1] openapi.yaml:21:7 at #/paths/~1pet~1findByStatus/get/tags

@@ -12,30 +12,35 @@ export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
   const enforcements: any[] = Object.values(opts);
 
   for (const enforcement of enforcements) {
-    if (enforcement.on) {
-      const onProps: string[] = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
-      const rulesToApply: Rule[] = Object.keys(genericRules).filter((rule: string) => enforcement[rule] !== undefined)
+    if (!enforcement.on) {
+      continue;
+    }
+    const onProps: string[] = Array.isArray(enforcement.on) ? enforcement.on : [enforcement.on];
+
+    const rulesToApply: Rule[] =
+      Object.keys(genericRules)
+        .filter((rule: string) => enforcement[rule] !== undefined)
         .map((rule: string) => ({
           name: rule,
           conditions: enforcement[rule],
           description: enforcement.description,
           severity: enforcement.severity || 'error'
         }));
-      const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
-       // form rule for each property:
-      for (const onProp of onProps) {
-        const parts = onProp.split('.');
-        if (parts.length === 1 && !hasMutuallyRule) break; // property should have parent node
 
-        // get property on which we will do the lint, 'ALL_PROPS' means on all the properties
-        const lastProp: string = hasMutuallyRule ? ALL_PROPS : parts.pop() as string;
+    const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
+    // form rule for each property:
+    for (const onProp of onProps) {
+      const parts = onProp.split('.');
+      if (parts.length === 1 && !hasMutuallyRule) break; // property should have parent node
 
-        const path = parts.join('.');
-        if (!rulesMap[path]) {
-          rulesMap[path] = {};
-        }
-        rulesMap[path][lastProp] = rulesToApply;
+      // get property on which we will do the lint, 'ALL_PROPS' means on all the properties
+      const lastProp: string = hasMutuallyRule ? ALL_PROPS : parts.pop() as string;
+
+      const path = parts.join('.');
+      if (!rulesMap[path]) {
+        rulesMap[path] = {};
       }
+      rulesMap[path][lastProp] = rulesToApply;
     }
   }
 

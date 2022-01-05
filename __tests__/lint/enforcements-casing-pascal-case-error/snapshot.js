@@ -5,7 +5,7 @@ exports[`E2E lint enforcements-casing-pascal-case-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:19:7 at #/paths/~1pet~1findByStatus/get/operationId
 
-Operation id sould be camelCase
+Operation id should be PascalCase
 
 17 | /pet/findByStatus:
 18 |   get:

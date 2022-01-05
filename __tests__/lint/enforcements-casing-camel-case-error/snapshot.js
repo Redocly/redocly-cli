@@ -5,11 +5,11 @@ exports[`E2E lint enforcements-casing-camel-case-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:19:7 at #/paths/~1pet~1findByStatus/get/operationId
 
-Operation id sould be camelCase
+Operation id should be camelCase
 
 17 | /pet/findByStatus:
 18 |   get:
-19 |     operationId: exampleId
+19 |     operationId: ExampleId
    |     ^^^^^^^^^^^
 20 |     summary: summary example
 21 |     tags:

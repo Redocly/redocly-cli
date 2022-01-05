@@ -6,6 +6,6 @@ lint:
     enforcements:
       - on:
           - Operation.operationId
-        description: Operation id sould be camelCase
-        casing: PascalCase
+        description: Operation id should be camelCase
+        casing: camelCase
   extends: []
