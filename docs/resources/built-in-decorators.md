@@ -68,14 +68,31 @@ lint:
 
 ### filter-for-permission
 
-Remove all nodes that have a specific `permissionProperty` property (`x-internal` by default) and `permissionValue`.
+Remove all nodes that have a specific `permissionProperty` property (`x-internal` by default) and `permissionValue` (`true` by default).
 
 Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
+
+You may use env variables to define properties:
+```
+    permissionProperty: process.env.FILTER_BY_PERMISSION_PROPERTY
+    permissionValue: process.env.FILTER_BY_PERMISSION_VALUE
+```
 
 ```yaml
 lint:
   decorators:
     filter-for-permission:
-      permissionProperty: 'x-internal'
-      permissionValue: true
+      permissionProperty: 'x-permission'
+      permissionValue: 'guest'
+```
+
+Property can be defined as a `string` or `array of strings` inside of any node in the definition:
+
+```
+sample:
+  type: string
+  x-permission:
+    - guest
+    - customer
+    - admin
 ```
