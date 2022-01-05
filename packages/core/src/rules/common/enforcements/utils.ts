@@ -15,6 +15,8 @@ export type Rule = {
   severity: ProblemSeverity;
 };
 
+export const ALL_PROPS = '__all';
+
 /** Sets the value at path of object. If a portion of path doesn't exist, it's created.  */
 export const objectSet = (path: string[], value: any) => {
   return path.reverse().reduce((acc, key) => ({[key]: acc}), value);
@@ -25,12 +27,12 @@ export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Ru
     [lastNodeName]: function(node: any, { report, location }: UserContext) {
       for (const prop of Object.keys(propsToRules)) {
         for (const rule of propsToRules[prop]) {
-          const value = prop === '__all' ? node : node[prop];
+          const value = prop === ALL_PROPS ? node : node[prop];
           const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
           if (!lintResult) {
             report({
               message: rule.description,
-              location: prop === '__all' ? location.key() : location.child(prop).key(),
+              location: prop === ALL_PROPS ? location.key() : location.child(prop).key(),
               forceSeverity: rule.severity
             });
           }

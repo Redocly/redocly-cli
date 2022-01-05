@@ -1,5 +1,5 @@
 import { rules as genericRules } from './generic-rules';
-import { Rule, formRule, objectSet } from './utils';
+import { ALL_PROPS, Rule, formRule, objectSet } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
@@ -27,8 +27,8 @@ export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
         const parts = onProp.split('.');
         if (parts.length === 1 && !hasMutuallyRule) break; // property should have parent node
 
-        // get property on which we will do the lint, '__all' means all the properties
-        const lastProp: string = hasMutuallyRule ? '__all' : parts.pop() as string;
+        // get property on which we will do the lint, 'ALL_PROPS' means on all the properties
+        const lastProp: string = hasMutuallyRule ? ALL_PROPS : parts.pop() as string;
 
         const path = parts.join('.');
         if (!rulesMap[path]) {
