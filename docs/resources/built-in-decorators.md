@@ -66,15 +66,16 @@ lint:
         pet: ./my-custom-description.md
 ```
 
-### remove-x-internal
+### filter-for-permission
 
-Remove all nodes that have a specific `internalFlagProperty` property (`x-internal` by default).
+Remove all nodes that have a specific `permissionProperty` property (`x-internal` by default) and `permissionValue`.
 
 Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
 
 ```yaml
 lint:
   decorators:
-    remove-x-internal:
-      internalFlagProperty: 'removeit'
+    filter-for-permission:
+      permissionProperty: 'x-internal'
+      permissionValue: true
 ```

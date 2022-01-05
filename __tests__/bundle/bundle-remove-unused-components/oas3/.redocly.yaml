@@ -3,4 +3,4 @@ apiDefinitions:
 
 lint:
   decorators:
-    remove-x-internal: on
+    filter-for-permission: on

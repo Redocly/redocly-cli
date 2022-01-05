@@ -4,28 +4,82 @@ import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
 import { makeConfig } from './config';
 
-describe('oas3 hide-x-internal', () => {
+describe('oas3 filter-by-permission: remove internal paths', () => {
   expect.addSnapshotSerializer(yamlSerializer);
-  const testDocument = parseYamlToDocument(
-    outdent`
-      openapi: 3.0.0
-      paths:
-        /pet:
-          removeit: true
-          get:
-            parameters:
-              - $ref: '#/components/parameters/x'
-      components:
-        parameters:
-          x:
-            name: x
-    `);
+  beforeEach(() => {
+    delete process.env.FILTER_BY_PERMISSION_PROPERTY;
+    delete process.env.FILTER_BY_PERMISSION_VALUE;
+  });
 
-  it('should use `internalFlagProperty` option to remove internal paths', async () => {
+  it('should use default values of `permissionProperty` and `permissionValue`', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-internal: true
+            get:
+              operationId: petGet
+			`);
+		const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'filter-for-permission': 'on' })
+		});
+		expect(res.parsed).toMatchInlineSnapshot(
+		`
+		openapi: 3.0.0
+		components: {}
+
+		`);
+	});
+
+  it('should use environment variables', async () => {
+		process.env.FILTER_BY_PERMISSION_PROPERTY = 'x-permission';
+    process.env.FILTER_BY_PERMISSION_VALUE = 'guest';
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-permission: guest
+            get:
+              parameters:
+                - $ref: '#/components/parameters/x'
+			`);
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'remove-x-internal': { 'internalFlagProperty': 'removeit' } })
+      config: makeConfig({}, { 'filter-for-permission': 'on' })
+    });
+		expect(res.parsed).toMatchInlineSnapshot(
+		`
+		openapi: 3.0.0
+		components: {}
+
+		`);
+	});
+
+  it('should use `internalFlagProperty` and default value of `permissionValue`', async () => {
+  	const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-audience: true
+            get:
+              parameters:
+                - $ref: '#/components/parameters/x'
+        components:
+          parameters:
+            x:
+              name: x
+      `);
+
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'filter-for-permission': { 'permissionProperty': 'x-audience' } })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `
@@ -35,8 +89,67 @@ describe('oas3 hide-x-internal', () => {
         x:
           name: x
 
-    `);
+    `
+    );
   });
+
+  it('should use `internalFlagProperty` and `permissionValue`', async () => {
+		const testDocument = parseYamlToDocument(
+			outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-audience: user
+            get:
+              parameters:
+                - $ref: '#/components/parameters/x'
+			`);
+
+    const { bundle: res } = await bundleDocument({
+			document: testDocument,
+			externalRefResolver: new BaseResolver(),
+			config: makeConfig({}, { 'filter-for-permission': {
+				'permissionProperty': 'x-audience',
+				'permissionValue': 'user'
+			}})
+    });
+    expect(res.parsed).toMatchInlineSnapshot(
+		`
+		openapi: 3.0.0
+		components: {}
+
+		`);
+	});
+
+	it('should handle node property as array', async () => {
+		const testDocument = parseYamlToDocument(
+			outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-audience:
+              - user
+              - admin
+            get:
+              parameters:
+                - $ref: '#/components/parameters/x'
+			`);
+
+  		const { bundle: res } = await bundleDocument({
+  			document: testDocument,
+  			externalRefResolver: new BaseResolver(),
+  			config: makeConfig({}, { 'filter-for-permission': {
+  				'permissionProperty': 'x-audience',
+  				'permissionValue': 'user'
+  			}})
+  		});
+  		expect(res.parsed).toMatchInlineSnapshot(
+  		`
+  		openapi: 3.0.0
+  		components: {}
+
+  		`);
+  	});
 
   it('should clean types: Server, Operation, Parameter, PathItem, Example', async () => {
     const testDoc = parseYamlToDocument(
@@ -92,7 +205,7 @@ describe('oas3 hide-x-internal', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'remove-x-internal': 'on' })
+        config: makeConfig({}, { 'filter-for-permission': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
@@ -166,7 +279,7 @@ describe('oas3 hide-x-internal', () => {
       const { bundle: res } = await bundleDocument({
         document: testDoc,
         externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'remove-x-internal': 'on' })
+        config: makeConfig({}, { 'filter-for-permission': 'on' })
       });
       expect(res.parsed).toMatchInlineSnapshot(
       `
@@ -218,7 +331,7 @@ describe('oas2 hide-x-internal', () => {
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'remove-x-internal': 'on' })
+      config: makeConfig({}, { 'filter-for-permission': 'on' })
     });
     expect(res.parsed).toMatchInlineSnapshot(
     `

@@ -40,7 +40,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
-import { RemoveXInternal } from '../common/remove-x-internal';
+import { FilterForPermission } from '../common/filter-for-permission';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -89,5 +89,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
   'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
-  'remove-x-internal': RemoveXInternal as Oas2Decorator
+  'filter-for-permission': FilterForPermission as Oas2Decorator
 };
