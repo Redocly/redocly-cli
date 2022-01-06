@@ -9,5 +9,6 @@ paths:
 
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
+🧹 Removed 6 unused components.
 
 `;
