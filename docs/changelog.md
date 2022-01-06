@@ -5,6 +5,12 @@ tocMaxDepth: 2
 # OpenAPI CLI changelog
 
 
+## 1.0.0-beta.78 (2022-01-06)
+
+### Features
+
+- Added `remove-x-internal` built-in decorator.
+- Added `--remove-unused-components` option to the bundle command.
 
 ## 1.0.0-beta.77 (2022-01-06)
 
