@@ -4,7 +4,7 @@ import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
 import { makeConfig } from './config';
 
-describe('oas3 hide-x-internal', () => {
+describe('oas3 remove-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
   const testDocument = parseYamlToDocument(
     outdent`
@@ -187,7 +187,7 @@ describe('oas3 hide-x-internal', () => {
   });
 });
 
-describe('oas2 hide-x-internal', () => {
+describe('oas2 remove-x-internal', () => {
   it('should clean types - base test', async () => {
     const testDoc = parseYamlToDocument(
       outdent`
