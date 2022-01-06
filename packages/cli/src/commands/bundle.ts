@@ -37,13 +37,17 @@ export async function handleBundle(
     format: OutputFormat;
     metafile?: string;
     extends?: string[];
+    'remove-unused-components'?: boolean
   },
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
+  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components')
+
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);
+
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -80,6 +84,7 @@ export async function handleBundle(
       }
 
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
+
       const {
         bundle: result,
         problems,
@@ -88,6 +93,7 @@ export async function handleBundle(
         config,
         ref: entrypoint,
         dereference: argv.dereferenced,
+        removeUnusedComponents
       });
 
       const fileTotals = getTotals(problems);
@@ -148,6 +154,13 @@ export async function handleBundle(
       } else {
         process.stderr.write(
           `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
+        );
+      }
+
+      const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
+      if (removedCount) {
+        process.stderr.write(
+          gray(`🧹 Removed ${removedCount} unused components.\n`),
         );
       }
     } catch (e) {

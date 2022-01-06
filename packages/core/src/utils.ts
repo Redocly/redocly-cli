@@ -40,6 +40,14 @@ export function isPlainObject(value: any): value is object {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+export function isEmptyObject(value: any): value is object {
+  return isPlainObject(value) && Object.keys(value).length === 0;
+}
+
+export function isEmptyArray(value: any) {
+  return Array.isArray(value) && value.length === 0;
+}
+
 export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   const headers: Record<string, string> = {};
   for (const header of config.headers) {
