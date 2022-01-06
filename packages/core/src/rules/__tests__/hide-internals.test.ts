@@ -60,7 +60,7 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
     `);
   });
 
-  it('should use `internalFlagProperty` and default value of `permissionValue`', async () => {
+  it('should use `permissionProperty` and default value of `permissionValue`', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -92,7 +92,7 @@ describe('oas3 filter-by-permission: remove internal paths', () => {
     `);
   });
 
-  it('should use `internalFlagProperty` and `permissionValue`', async () => {
+  it('should use `permissionProperty` and `permissionValue`', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
