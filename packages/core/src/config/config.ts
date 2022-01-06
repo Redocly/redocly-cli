@@ -38,10 +38,9 @@ export type PreprocessorConfig =
   | ProblemSeverity
   | 'off'
   | 'on'
-  | {
+  | ({
       severity?: ProblemSeverity;
-      options?: Record<string, any>;
-    };
+    } & Record<string, any>);
 
 export type DecoratorConfig = PreprocessorConfig;
 

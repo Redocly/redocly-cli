@@ -22,6 +22,20 @@ function getEntrypoints(folderPath: string) {
   return Object.keys(redoclyYaml.apiDefinitions);
 }
 
+function getBundleResult(params: string[], folderPath: string) {
+  const result = spawnSync('ts-node', params, {
+    cwd: folderPath,
+    env: {
+      ...process.env,
+      NODE_ENV: 'test',
+      NO_COLOR: 'TRUE',
+    },
+  });
+  const out = result.stdout.toString('utf-8');
+  const err = result.stderr.toString('utf-8');
+  return `${out}\n${err}`;
+}
+
 describe('E2E', () => {
   describe('lint', () => {
     const folderPath = join(__dirname, 'lint');
@@ -92,8 +106,12 @@ describe('E2E', () => {
   });
 
   describe('bundle', () => {
+    const excludeFolders = [
+      'bundle-remove-unused-components',
+      'bundle-lint-format',
+    ];
     const folderPath = join(__dirname, 'bundle');
-    const contents = readdirSync(folderPath);
+    const contents = readdirSync(folderPath).filter(folder => !excludeFolders.includes(folder));
 
     for (const file of contents) {
       const testPath = join(folderPath, file);
@@ -134,20 +152,6 @@ describe('E2E', () => {
     let args: string[];
     let folderPath: string;
 
-    function getBundleResult(params: string[]) {
-      const result = spawnSync('ts-node', params, {
-        cwd: folderPath,
-        env: {
-          ...process.env,
-          NODE_ENV: 'test',
-          NO_COLOR: 'TRUE',
-        },
-      });
-      const out = result.stdout.toString('utf-8');
-      const err = result.stderr.toString('utf-8');
-      return `${out}\n${err}`;
-    }
-
     beforeAll(() => {
       folderPath = join(__dirname, "bundle/bundle-lint-format");
       const entryPoints = getEntrypoints(folderPath);
@@ -163,15 +167,30 @@ describe('E2E', () => {
 
     test.each(['codeframe','stylish','json','checkstyle'])('bundle lint: should be formatted by format: %s', (format) => {
       const params = [...args, `--format=${format}`];
-      const result = getBundleResult(params);
+      const result = getBundleResult(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
     });
 
     test.each(['noFormatParameter','emptyFormatValue'])('bundle lint: no format parameter or empty value should be formatted as codeframe', (format) => {
       const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
       const params = [...args, ... formatArgument];
-      const result = getBundleResult(params);
+      const result = getBundleResult(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
+    });
+  });
+
+  describe('bundle with option: remove-unused-components', () => {
+    test.each(['oas2','oas3'])('%s: should remove unused components', (type) => {
+      const folderPath = join(__dirname, `bundle/bundle-remove-unused-components/${type}`);
+      const entryPoints = getEntrypoints(folderPath);
+      const args = [
+        "../../../../packages/cli/src/index.ts",
+        "bundle",
+        "--remove-unused-components",
+        ...entryPoints,
+      ];
+      const result = getBundleResult(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'remove-unused-components-snapshot.js'));
     });
   });
 });

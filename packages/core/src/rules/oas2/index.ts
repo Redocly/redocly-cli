@@ -1,3 +1,4 @@
+import { Oas2Decorator, Oas2Rule } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
@@ -26,7 +27,6 @@ import { OperationSingularTag } from '../common/operation-singular-tag';
 import { OperationSecurityDefined } from '../common/operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
-import { Oas2Decorator, Oas2Rule } from '../../visitors';
 import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
@@ -40,6 +40,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { OperationDescriptionOverride } from '../common/operation-description-override';
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
+import { RemoveXInternal } from '../common/remove-x-internal';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -88,4 +89,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
   'tag-description-override': TagDescriptionOverride as Oas2Decorator,
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
+  'remove-x-internal': RemoveXInternal as Oas2Decorator
 };

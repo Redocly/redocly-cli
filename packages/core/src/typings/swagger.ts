@@ -20,6 +20,13 @@ export interface Oas2Definition {
   externalDocs?: Oas2ExternalDocs;
 }
 
+export interface Oas2Components {
+  definitions?: { [name: string]: Record<string, Oas2Schema> };
+  securityDefinitions?: { [name: string]: Record<string, Oas2SecurityScheme> };
+  responses?: { [name: string]: Record<string, Oas2Response> };
+  parameters?: { [name: string]: Record<string, Oas2Parameter> };
+}
+
 export interface Oas2Info {
   title: string;
   version: string;

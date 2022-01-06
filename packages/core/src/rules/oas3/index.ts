@@ -49,6 +49,7 @@ import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
+import { RemoveXInternal } from '../common/remove-x-internal';
 
 export const rules = {
   spec: OasSpec,
@@ -106,4 +107,5 @@ export const decorators = {
   'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
   'tag-description-override': TagDescriptionOverride as Oas3Decorator,
   'info-description-override': InfoDescriptionOverride as Oas3Decorator,
+  'remove-x-internal': RemoveXInternal as Oas3Decorator
 };

@@ -65,3 +65,16 @@ lint:
       tagNames:
         pet: ./my-custom-description.md
 ```
+
+### remove-x-internal
+
+Remove all nodes that have a specific `internalFlagProperty` property (`x-internal` by default).
+
+Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
+
+```yaml
+lint:
+  decorators:
+    remove-x-internal:
+      internalFlagProperty: 'removeit'
+```
