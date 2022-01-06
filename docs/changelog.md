@@ -5,6 +5,13 @@ tocMaxDepth: 2
 # OpenAPI CLI changelog
 
 
+
+## 1.0.0-beta.77 (2022-01-06)
+
+### Fixes
+
+- Resolved an issue with backslashes in $refs to paths on split command from windows.
+
 ## 1.0.0-beta.76 (2021-12-28)
 
 ### Features
