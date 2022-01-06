@@ -157,7 +157,7 @@ export async function handleBundle(
         );
       }
 
-      const removedCount = meta.visitorsData['remove-unused-components']?.removedCount;
+      const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
       if (removedCount) {
         process.stderr.write(
           gray(`🧹 Removed ${removedCount} unused components.\n`),
