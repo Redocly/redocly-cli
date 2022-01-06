@@ -10,7 +10,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed an issue with backslashes in `$refs` to paths on the `split` command on Windows.
+- Fixed an issue with backslashes in `$refs` to paths with the `split` command in a Windows environment.
 
 ## 1.0.0-beta.76 (2021-12-28)
 
