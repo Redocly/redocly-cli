@@ -122,6 +122,35 @@ describe('oas3 enforcements', () => {
         expect(genericRules.casing('TestExample', 'snake_case')).toBeFalsy();
         expect(genericRules.casing('test-example', 'snake_case')).toBeFalsy();
       });
+      it('value should be MACRO_CASE',  () => {
+        expect(genericRules.casing('TEST_EXAMPLE', 'MACRO_CASE')).toBeTruthy();
+        expect(genericRules.casing('TEST_EXAMPLE_', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('_TEST_EXAMPLE', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('TEST__EXAMPLE', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('TEST-EXAMPLE', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('testExample', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('TestExample', 'MACRO_CASE')).toBeFalsy();
+        expect(genericRules.casing('test-example', 'MACRO_CASE')).toBeFalsy();
+      });
+      it('value should be COBOL-CASE',  () => {
+        expect(genericRules.casing('TEST-EXAMPLE', 'COBOL-CASE')).toBeTruthy();
+        expect(genericRules.casing('TEST-EXAMPLE-', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('0TEST-EXAMPLE', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('-TEST-EXAMPLE', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('TEST--EXAMPLE', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('TEST_EXAMPLE', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('testExample', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('TestExample', 'COBOL-CASE')).toBeFalsy();
+        expect(genericRules.casing('test-example', 'COBOL-CASE')).toBeFalsy();
+      });
+      it('value should be flatcase',  () => {
+        expect(genericRules.casing('testexample', 'flatcase')).toBeTruthy();
+        expect(genericRules.casing('testexample_', 'flatcase')).toBeFalsy();
+        expect(genericRules.casing('0testexample', 'flatcase')).toBeFalsy();
+        expect(genericRules.casing('testExample', 'flatcase')).toBeFalsy();
+        expect(genericRules.casing('TestExample', 'flatcase')).toBeFalsy();
+        expect(genericRules.casing('test-example', 'flatcase')).toBeFalsy();
+      });
     });
 
     describe('sortOrder', () => {

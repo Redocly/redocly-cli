@@ -42,11 +42,6 @@ export const rules: {[key in RunsOnSingleProp | RunsOnAllProps]: any} = {
   },
   casing: (value: string, style: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
-    const cases = ['camelCase', 'kebab-case', 'snake_case', 'PascalCase'];
-    if (!cases.includes(style)) {
-      // report wrong style name:
-      return false;
-    }
     let matchCase = false;
     switch (style) {
       case 'camelCase':
@@ -60,6 +55,15 @@ export const rules: {[key in RunsOnSingleProp | RunsOnAllProps]: any} = {
         break;
       case 'PascalCase':
         matchCase = !!(value.match(/^[A-Z][a-zA-Z0-9]+$/g));
+        break;
+      case 'MACRO_CASE':
+        matchCase = !!(value.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g));
+        break;
+      case 'COBOL-CASE':
+        matchCase = !!(value.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g));
+        break;
+      case 'flatcase':
+        matchCase = !!(value.match(/^[a-z][a-z0-9]+$/g));
         break;
     }
     return matchCase;
