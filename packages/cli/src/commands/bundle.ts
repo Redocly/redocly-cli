@@ -156,6 +156,13 @@ export async function handleBundle(
           `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
         );
       }
+
+      const removedCount = meta.visitorsData['remove-unused-components']?.removedCount;
+      if (removedCount) {
+        process.stderr.write(
+          gray(`🧹 Removed ${removedCount} unused components.\n`),
+        );
+      }
     } catch (e) {
       handleError(e, entrypoint);
     }

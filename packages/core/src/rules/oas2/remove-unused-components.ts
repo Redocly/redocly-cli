@@ -28,13 +28,17 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
       }
     },
     DefinitionRoot: {
-      leave(root) {
+      leave(root, ctx) {
+        const data = ctx.getVisitorData() as { removedCount: number };
+        data.removedCount = 0;
+
         let rootComponents = new Set<keyof Oas2Components>();
         components.forEach(usageInfo => {
           const { used, name, componentType } = usageInfo;
           if (!used && componentType) {
             rootComponents.add(componentType);
             delete root[componentType]![name];
+            data.removedCount++;
           }
         });
         for (const component of rootComponents) {

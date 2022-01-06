@@ -28,12 +28,16 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
       }
     },
     DefinitionRoot: {
-      leave(root) {
+      leave(root, ctx) {
+        const data = ctx.getVisitorData() as { removedCount: number };
+        data.removedCount = 0;
+
         components.forEach(usageInfo => {
           const { used, componentType, name } = usageInfo;
           if (!used && componentType) {
             let componentChild = root.components![componentType];
             delete componentChild![name];
+            data.removedCount++;
             if (isEmptyObject(componentChild)) {
               delete root.components![componentType];
             }
