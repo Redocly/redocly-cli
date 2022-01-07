@@ -16,29 +16,29 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved an issue with backslashes in $refs to paths on split command from windows.
+- Fixed an issue with backslashes in `$refs` to paths with the `split` command in a Windows environment.
 
 ## 1.0.0-beta.76 (2021-12-28)
 
 ### Features
 
-- Export mapTypeToComponent function
+- Exported `mapTypeToComponent` function.
 
 ## 1.0.0-beta.75 (2021-12-24)
 
 ### Features
 
-- Implemented a `--host` argument to `preview-docs` cli command
+- Added a `--host` argument to the `preview-docs` cli command.
 
 ### Fixes
 
-- Resolved an issue with continuous deployment to Docker Hub
+- Fixed an issue with continuous deployment to Docker Hub.
 
 ## 1.0.0-beta.74 (2021-12-22)
 
 ### Fixes
 
-- Resolved an issue with `const` not handled correctly in lint.
+- Fixed an issue with `const` not handled correctly in lint.
 
 ## 1.0.0-beta.73 (2021-12-16)
 
@@ -50,27 +50,27 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved another backward compatibility issue with regions: save old config key to support old portal versions.
+- Fixed another backward compatibility issue with regions: save old config key to support old portal versions.
 
 ## 1.0.0-beta.71 (2021-12-16)
 
 ### Fixes
 
-- Resolved a backward compatibility issue with REDOCLY_DOMAIN in EU region introduced in the previous release.
+- Fixed a backward compatibility issue with `REDOCLY_DOMAIN` in the EU region introduced in the previous release.
 
 ## 1.0.0-beta.70 (2021-12-14)
 
 ### Features
 
-- Implemented support for the [region](./configuration/configuration-file.mdx#region) option with `login`, `push`, and other commands.
-- OpenAPI CLI supports two new built-in rules:
+- Added support for the [region](./configuration/configuration-file.mdx#region) option with the `login`, `push`, and other commands.
+- Added two new built-in rules:
   - [no-invalid-schema-examples](./resources/built-in-rules.md#no-invalid-schema-examples)
   - [no-invalid-parameter-examples](./resources/built-in-rules.md#no-invalid-parameter-examples)
 
 ### Fixes
 
-- Resolved an issue with the built-in `paths-kebab-case` rule that disallowed paths with trailing slashes.
-- Resolved a validation issue with the `example` property when the schema is an array.
+- Fixed an issue with the built-in `paths-kebab-case` rule that disallowed paths with trailing slashes.
+- Fixed a validation issue with the `example` property when the schema is an array.
 
 ## 1.0.0-beta.69 (2021-11-16)
 
@@ -82,11 +82,11 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
-- Resolved an issue with page refresh when pagination is set to `item` or `section`.
-- Resolved an issue with inlining external schema when components' names match.
-- Resolved an issue with fetching hosted schema on Windows when bundling OAS definitions.
-- Resolved an issue for `no-server-trailing-slash` when server url is a root.
+- Fixed an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
+- Fixed an issue with page refresh when pagination is set to `item` or `section`.
+- Fixed an issue with inlining external schema when components' names match.
+- Fixed an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Fixed an issue for `no-server-trailing-slash` when server url is a root.
 
 ## 1.0.0-beta.67 (2021-11-02)
 
@@ -98,7 +98,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- OpenAPI CLI now suppports five new built-in rules:
+- Added five new built-in rules:
   - [path-excludes-patterns](./resources/built-in-rules.md#path-segment-plural)
   - [no-http-verbs-in-paths](./resources/built-in-rules.md#no-http-verbs-in-paths)
   - [path-excludes-patterns](./resources/built-in-rules.md#path-excludes-patterns)
@@ -107,10 +107,10 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved an issue with OAS 3.1 meta keywords reported as not expected.
-- Resolved an issue with incorrect codeframe for `info-license-url` rule.
-- Resolved an issue with discriminator mapping not supported in `no-invalid-media-type-examples`.
-- Resolves an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows.
+- Fixed an issue with OAS 3.1 meta keywords reported as not expected.
+- Fixed an issue with incorrect codeframe for `info-license-url` rule.
+- Fixed an issue with discriminator mapping not supported in `no-invalid-media-type-examples`.
+- Fixed an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows.
 
 ----
 
@@ -118,7 +118,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- OpenAPI CLI now supports three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
 
 The following examples show how to add the decorators to the `.redocly.yaml` file:
 
@@ -150,7 +150,7 @@ lint:
 
 ### Fixes
 
-- When used with the `--lint` parameter, the `bundle` command now returns a non-zero code when it detects an error.
+- Fixed the the `bundle` command to return a non-zero code when it detects an error when used with the `--lint` option.
 
 ----
 
@@ -158,9 +158,9 @@ lint:
 
 ### Fixes
 
-- Resolved an issue with the `--format` option not working with the `bundle` command.
+- Fixed an issue with the `--format` option not working with the `bundle` command.
 
-- Resolved a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
+- Fixed a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
 
 ----
 
