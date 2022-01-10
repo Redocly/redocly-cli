@@ -20,9 +20,11 @@ describe('oas3 assertions', () => {
     describe('enum', () => {
       it('value should be among predefined keys',  () => {
         expect(genericRules.enum('test', ['test', 'example'])).toBeTruthy();
+        expect(genericRules.enum({test: 1}, ['test', 'example'])).toBeTruthy();
       });
       it('value should not be among predefined keys',  () => {
         expect(genericRules.enum('test', ['foo', 'example'])).toBeFalsy();
+        expect(genericRules.enum({test: 1, foo: 2}, ['test', 'example'])).toBeFalsy();
       });
     });
 

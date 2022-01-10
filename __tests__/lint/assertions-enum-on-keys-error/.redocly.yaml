@@ -1,0 +1,12 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - MediaTypeMap.$keys
+        description: Only application/json can be used
+        enum:
+          - application/json
+  extends: []
