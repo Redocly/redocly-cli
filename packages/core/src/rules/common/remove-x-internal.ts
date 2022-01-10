@@ -17,6 +17,8 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
           const resolved = ctx.resolve(node[i]);
           if (resolved.node?.[hiddenTag]) {
             node.splice(i, 1);
+            didDelete = true;
+            i--;
           }
         }
         if (node[i]?.[hiddenTag]) {
@@ -32,6 +34,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
           const resolved = ctx.resolve(node[key]);
           if (resolved.node?.[hiddenTag]) {
             delete node[key];
+            didDelete = true;
           }
         }
         if (node[key]?.[hiddenTag]) {
