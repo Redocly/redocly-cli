@@ -294,17 +294,17 @@ describe('oas3 remove-x-internal', () => {
             description: Retrieves the specified product.
             operationId: get-product
             parameters:
-              - &ref_0
-                in: path
-                name: product_id
-                description: The ID of the product.
-                required: true
-                schema:
-                  type: string
-                  format: uuid
+              - $ref: '#/components/parameters/ProductID'
       components:
         parameters:
-          ProductID: *ref_0
+          ProductID:
+            in: path
+            name: product_id
+            description: The ID of the product.
+            required: true
+            schema:
+              type: string
+              format: uuid
 
       `);
   });

@@ -1,6 +1,7 @@
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 import { isEmptyArray, isEmptyObject, isPlainObject } from '../../utils';
 import { UserContext } from '../../walk';
+import { isRef } from '../../ref-utils';
 
 const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 
@@ -12,10 +13,13 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
     let didDelete = false;
     if (Array.isArray(node)) {
       for (let i = 0; i < node.length; i++) {
-        if (node[i]["$ref"]) {
-          node[i] = ctx.resolve({ $ref: node[i]["$ref"] }).node;
+        if (isRef(node[i])) {
+          const resolved = ctx.resolve(node[i]);
+          if (resolved.node?.[hiddenTag]) {
+            node.splice(i, 1);
+          }
         }
-        if (node[i] && node[i][hiddenTag]) {
+        if (node[i]?.[hiddenTag]) {
           node.splice(i, 1);
           didDelete = true;
           i--;
@@ -24,10 +28,13 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
     } else if (isPlainObject(node)) {
       for (const key of Object.keys(node)) {
         node = node as any;
-        if (node[key]["$ref"]) {
-          node[key] = ctx.resolve({ $ref: node[key]["$ref"] }).node;
+        if (isRef(node[key])) {
+          const resolved = ctx.resolve(node[key]);
+          if (resolved.node?.[hiddenTag]) {
+            delete node[key];
+          }
         }
-        if (node[key][hiddenTag]) {
+        if (node[key]?.[hiddenTag]) {
           delete node[key];
           didDelete = true;
         }
