@@ -1,0 +1,34 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - PathItem.Operation.summary
+        description: Operation summary example warn
+        severity: warn
+        pattern: '/test example/'
+        enum:
+          - summary test example
+        defined: false
+        nonEmpty: false
+        length: 16
+        minLength: 20
+        maxLength: 10
+      - on:
+          - PathItem.Operation.$keys
+        description: Operation fields example warn
+        severity: warn
+        mutuallyExclusive:
+          - summary
+          - operationId
+        mutuallyRequired:
+          - summary
+          - security
+      - on:
+          - PathItem.Operation.tags
+        description: Operation tags example warn
+        severity: warn
+        sortOrder: asc
+  extends: []

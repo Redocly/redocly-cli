@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - Operation.operationId
+        description: Operation id sould be kebab-case
+        casing: kebab-case
+  extends: []

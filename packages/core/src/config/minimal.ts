@@ -18,7 +18,7 @@ export default {
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
     'operation-4xx-response': 'off',
-    'enforcements': 'warn',
+    'assertions': 'warn',
     'operation-operationId': 'warn',
     'operation-summary': 'warn',
     'operation-operationId-unique': 'warn',

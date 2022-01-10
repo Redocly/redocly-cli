@@ -14,7 +14,7 @@ import { NoEnumTypeMismatch } from '../common/no-enum-type-mismatch';
 import { NoPathTrailingSlash } from '../common/no-path-trailing-slash';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
-import { Enforcements } from '../common/enforcements';
+import { Assertions } from '../common/assertions';
 import { OperationIdUnique } from '../common/operation-operationId-unique';
 import { OperationParametersUnique } from '../common/operation-parameters-unique';
 import { PathParamsDefined } from '../common/path-params-defined';
@@ -54,7 +54,7 @@ export const rules = {
   'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
   'operation-2xx-response': Operation2xxResponse as Oas2Rule,
   'operation-4xx-response': Operation4xxResponse as Oas2Rule,
-  'enforcements': Enforcements as Oas2Rule,
+  'assertions': Assertions as Oas2Rule,
   'operation-operationId-unique': OperationIdUnique as Oas2Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
   'path-parameters-defined': PathParamsDefined as Oas2Rule,

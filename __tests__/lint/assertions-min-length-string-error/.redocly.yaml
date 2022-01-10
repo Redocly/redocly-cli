@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - Info.description
+        description: Info description should be minimum 20 chars length
+        minLength: 20
+  extends: []

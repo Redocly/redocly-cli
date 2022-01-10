@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - Operation.secutity
+        description: Operation security should be defined
+        defined: true
+  extends: []

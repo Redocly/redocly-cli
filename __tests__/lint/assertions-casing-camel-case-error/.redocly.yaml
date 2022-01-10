@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - Operation.operationId
+        description: Operation id should be camelCase
+        casing: camelCase
+  extends: []

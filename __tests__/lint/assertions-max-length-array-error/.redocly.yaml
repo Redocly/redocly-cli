@@ -1,0 +1,11 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - Operation.tags
+        description: Operation tags should have maximum 4 items
+        maxLength: 2
+  extends: []
