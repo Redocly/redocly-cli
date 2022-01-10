@@ -34,7 +34,7 @@ export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
     const shouldRunOnKeys: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnKeys && !rule.runsOnValues);
     const shouldRunOnValues: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnValues && !rule.runsOnKeys);
 
-    const pathsEndsWithAllKeys: number = onProps.map(item => item.endsWith(ALL_KEYS)).length;
+    const pathsEndsWithAllKeys: number = onProps.filter(item => item.endsWith(ALL_KEYS)).length;
     if (onProps.length > 1 && pathsEndsWithAllKeys > 0 && pathsEndsWithAllKeys < onProps.length) {
       // we can't use $keys and regular property in one assertion, throw an error:
       throw new Error(`'${ALL_KEYS}' and properties can't be used together.`);
