@@ -12,9 +12,15 @@ export const rules: {[key: string]: any} = {
     const regx = new RegExp(pattern, regexOptions[0].slice(1));
     return !!value.match(regx);
   },
-  enum: (value: string, keys: string[]): boolean => {
+  enum: (value: string | {[key: string]: any}, keys: string[]): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
-    return keys.includes(value);
+    const values = typeof value === 'string' ? [value] : Object.keys(value);
+    for (let _val of values) {
+      if (!keys.includes(_val)) {
+        return false;
+      }
+    }
+    return true;
   },
   defined: (value: string | undefined, _val: boolean = true): boolean => {
     const isDefined = typeof value !== 'undefined';
