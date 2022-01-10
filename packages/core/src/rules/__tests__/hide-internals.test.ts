@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { bundleDocument } from '../../bundle'
+import { bundleDocument } from '../../bundle';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
 import { makeConfig } from './config';
@@ -19,23 +19,23 @@ describe('oas3 remove-x-internal', () => {
         parameters:
           x:
             name: x
-    `);
+    `,
+  );
 
   it('should use `internalFlagProperty` option to remove internal paths', async () => {
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'remove-x-internal': { 'internalFlagProperty': 'removeit' } })
+      config: makeConfig({}, { 'remove-x-internal': { internalFlagProperty: 'removeit' } }),
     });
-    expect(res.parsed).toMatchInlineSnapshot(
-    `
-    openapi: 3.0.0
-    components:
-      parameters:
-        x:
-          name: x
+    expect(res.parsed).toMatchInlineSnapshot(`
+          openapi: 3.0.0
+          components:
+            parameters:
+              x:
+                name: x
 
-    `);
+        `);
   });
 
   it('should clean types: Server, Operation, Parameter, PathItem, Example', async () => {
@@ -88,14 +88,14 @@ describe('oas3 remove-x-internal', () => {
               name: x
             y:
               name: y
-      `);
-      const { bundle: res } = await bundleDocument({
-        document: testDoc,
-        externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'remove-x-internal': 'on' })
-      });
-      expect(res.parsed).toMatchInlineSnapshot(
-      `
+      `,
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'remove-x-internal': 'on' }),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.1.0
       paths:
         /pet:
@@ -115,8 +115,7 @@ describe('oas3 remove-x-internal', () => {
           'y':
             name: 'y'
 
-      `
-      );
+      `);
   });
 
   it('should clean types: Schema, Response, RequestBody, MediaType, Callback', async () => {
@@ -162,14 +161,15 @@ describe('oas3 remove-x-internal', () => {
                     servers:
                       - url: //callback-url.path-level/v1
                         description: Path level server
-      `);
-      const { bundle: res } = await bundleDocument({
-        document: testDoc,
-        externalRefResolver: new BaseResolver(),
-        config: makeConfig({}, { 'remove-x-internal': 'on' })
-      });
-      expect(res.parsed).toMatchInlineSnapshot(
-      `
+      `,
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'remove-x-internal': 'on' }),
+    });
+
+    expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.1.0
       paths:
         /pet:
@@ -184,6 +184,90 @@ describe('oas3 remove-x-internal', () => {
       components: {}
 
       `);
+  });
+
+  it('should remove refs', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.1
+        info:
+          version: 1.0.0
+          title: Test API
+        paths:
+          /test1:
+            get:
+              parameters:
+                - $ref: '#/components/parameters/Internal'
+                - in: query
+                  name: inline
+                  schema:
+                    type: string
+                - in: query
+                  name: inline-internal
+                  schema:
+                    type: string
+                  x-internal: true
+          /test2:
+            get:
+              parameters:
+                - $ref: '#/components/parameters/Public'
+                - $ref: '#/components/parameters/Internal'
+              requestBody:
+                $ref: '#/components/requestBodies/Public'
+        components:
+          requestBodies:
+            Public:
+              content:
+                application/json:
+                  schema:
+                    type: string
+              required: true
+              x-internal: true
+          parameters:
+            Public:
+              in: path
+              name: product_id
+              schema:
+                type: string
+            Internal:
+              in: header
+              name: X-Vendor
+              schema:
+                type: string
+              x-internal: true
+      `,
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: makeConfig({}, { 'remove-x-internal': 'on' }),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.1
+      info:
+        version: 1.0.0
+        title: Test API
+      paths:
+        /test1:
+          get:
+            parameters:
+              - in: query
+                name: inline
+                schema:
+                  type: string
+        /test2:
+          get:
+            parameters:
+              - $ref: '#/components/parameters/Public'
+      components:
+        parameters:
+          Public:
+            in: path
+            name: product_id
+            schema:
+              type: string
+
+    `);
   });
 });
 
@@ -214,21 +298,20 @@ describe('oas2 remove-x-internal', () => {
                 '200':
                   x-internal: true
                   description: List of recent media entries.
-      `);
+      `,
+    );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
-      config: makeConfig({}, { 'remove-x-internal': 'on' })
+      config: makeConfig({}, { 'remove-x-internal': 'on' }),
     });
-    expect(res.parsed).toMatchInlineSnapshot(
-    `
-    swagger: '2.0'
-    host: api.instagram.com
-    paths:
-      /geographies/{geo-id}/media/recent:
-        get: {}
+    expect(res.parsed).toMatchInlineSnapshot(`
+          swagger: '2.0'
+          host: api.instagram.com
+          paths:
+            /geographies/{geo-id}/media/recent:
+              get: {}
 
-    `
-    );
+        `);
   });
 });
