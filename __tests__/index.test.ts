@@ -13,8 +13,12 @@ expect.extend({
 
 addSerializer({
   test: (val: any) => typeof val === 'string',
-  print: (v: any) => v as string,
+  print: (v: any) => cleanUpVersion(v),
 });
+
+function cleanUpVersion(str: string): string {
+  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
+}
 
 function getEntrypoints(folderPath: string) {
   const redoclyYamlFile = readFileSync(join(folderPath, ".redocly.yaml"), "utf8");
