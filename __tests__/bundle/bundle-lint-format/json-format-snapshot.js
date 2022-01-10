@@ -7,6 +7,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
     "warnings": 0,
     "ignored": 0
   },
+  "version": "<version>",
   "problems": [
     {
       "ruleId": "spec",
@@ -30,6 +31,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
     "warnings": 0,
     "ignored": 0
   },
+  "version": "<version>",
   "problems": []
 }
 No configurations were defined in extends -- using built in recommended configuration by default.

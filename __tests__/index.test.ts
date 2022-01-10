@@ -17,7 +17,7 @@ addSerializer({
 });
 
 function cleanUpVersion(str: string): string {
-  return str.replace(/"version":\s(\".*\"),\s*/g, '');
+  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
 }
 
 function getEntrypoints(folderPath: string) {
