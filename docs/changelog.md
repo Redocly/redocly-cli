@@ -4,6 +4,11 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.79 (2022-01-10)
+
+### Fixes
+
+- Fixed an issue with `remove-x-internal` decorator doesn't remove references to `x-internal` components.
 
 ## 1.0.0-beta.78 (2022-01-06)
 
