@@ -1,10 +1,10 @@
 import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
-type RunsOnAllProps = 'mutuallyExclusive' | 'mutuallyRequired';
-type RunsOnSingleProp = 'pattern' | 'enum' | 'defined' | 'undefined'
-  | 'nonEmpty' | 'length' | 'minLength' | 'maxLength' | 'casing' | 'sortOrder';
+export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum'];
+export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
+  'length', 'minLength', 'maxLength', 'casing', 'sortOrder'];
 
-export const rules: {[key in RunsOnSingleProp | RunsOnAllProps]: any} = {
+export const rules: {[key: string]: any} = {
   pattern: (value: string, pattern: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];

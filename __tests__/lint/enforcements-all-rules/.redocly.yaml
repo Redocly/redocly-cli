@@ -16,7 +16,7 @@ lint:
         minLength: 10
         maxLength: 20
       - on:
-          - PathItem.Operation
+          - PathItem.Operation.$keys
         description: Operation fields example error
         mutuallyExclusive:
           - summary

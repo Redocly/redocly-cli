@@ -1,5 +1,5 @@
-import { rules as genericRules } from './generic-rules';
-import { ALL_PROPS, Rule, formRule, objectSet } from './utils';
+import { rules as genericRules, runOnKeysMap, runOnValuesMap } from './generic-rules';
+import { ALL_KEYS, Rule, formRule, objectSet } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
@@ -20,21 +20,46 @@ export const Enforcements: Oas3Rule | Oas2Rule = (opts: object) => {
     const rulesToApply: Rule[] =
       Object.keys(genericRules)
         .filter((rule: string) => enforcement[rule] !== undefined)
-        .map((rule: string) => ({
-          name: rule,
-          conditions: enforcement[rule],
-          description: enforcement.description,
-          severity: enforcement.severity || 'error'
-        }));
+        .map((rule: string) => {
+          return {
+            name: rule,
+            conditions: enforcement[rule],
+            description: enforcement.description,
+            severity: enforcement.severity || 'error',
+            runsOnKeys: runOnKeysMap.includes(rule),
+            runsOnValues: runOnValuesMap.includes(rule)
+          }
+        });
 
-    const hasMutuallyRule = !!(enforcement.mutuallyExclusive || enforcement.mutuallyRequired);
+    const shouldRunOnKeys: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnKeys && !rule.runsOnValues);
+    const shouldRunOnValues: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnValues && !rule.runsOnKeys);
+
+    const pathsEndsWithAllKeys: number = onProps.map(item => item.endsWith(ALL_KEYS)).length;
+    if (onProps.length > 1 && pathsEndsWithAllKeys > 0 && pathsEndsWithAllKeys < onProps.length) {
+      // we can't use $keys and regular property in one assertion, throw an error:
+      throw new Error(`'${ALL_KEYS}' and properties can't be used together.`);
+    }
+
     // form rule for each property:
     for (const onProp of onProps) {
       const parts = onProp.split('.');
-      if (parts.length === 1 && !hasMutuallyRule) break; // property should have parent node
 
-      // get property on which we will do the lint, 'ALL_PROPS' means on all the properties
-      const lastProp: string = hasMutuallyRule ? ALL_PROPS : parts.pop() as string;
+      if (parts.length < 2) {
+        // Path should have the right format NodeName.property
+        throw new Error(`Path to the property should contain parent node name and the property itself. 
+          Please use '${ALL_KEYS}' or provide a property.`);
+      }
+
+      // get property on which we will do the lint:
+      const lastProp = parts.pop() as string;
+
+      if (shouldRunOnValues && lastProp === ALL_KEYS) {
+        throw new Error(`${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`);
+      }
+
+      if (shouldRunOnKeys && lastProp !== ALL_KEYS) {
+        throw new Error(`${shouldRunOnKeys.name} can't be used on a single property. Please use '${ALL_KEYS}'.`);
+      }
 
       const path = parts.join('.');
       if (!rulesMap[path]) {

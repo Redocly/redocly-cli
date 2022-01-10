@@ -5,7 +5,7 @@ lint:
   rules:
     enforcements:
       - on:
-          - PathItem.Operation
+          - PathItem.Operation.$keys
         description: Operation should have summary and security fields simultaneously
         mutuallyRequired:
           - summary

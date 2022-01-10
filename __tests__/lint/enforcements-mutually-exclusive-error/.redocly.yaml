@@ -5,7 +5,7 @@ lint:
   rules:
     enforcements:
       - on:
-          - PathItem.Operation
+          - PathItem.Operation.$keys
         description: Operation should not have summary and tags fields simultaneously
         mutuallyExclusive:
           - summary

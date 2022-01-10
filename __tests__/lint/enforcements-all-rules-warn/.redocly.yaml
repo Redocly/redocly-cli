@@ -17,7 +17,7 @@ lint:
         minLength: 20
         maxLength: 10
       - on:
-          - PathItem.Operation
+          - PathItem.Operation.$keys
         description: Operation fields example warn
         severity: warn
         mutuallyExclusive:

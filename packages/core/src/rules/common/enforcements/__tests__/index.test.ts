@@ -8,7 +8,7 @@ const opts = {
     pattern: '/example/'
   },
   '1': {
-    on: [ 'PathItem.Operation' ],
+    on: [ 'PathItem.Operation.$keys' ],
     description: 'example warn text',
     severity: 'warn',
     mutuallyExclusive: [ 'summary', 'security' ]
