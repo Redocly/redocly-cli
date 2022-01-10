@@ -185,6 +185,129 @@ describe('oas3 remove-x-internal', () => {
 
       `);
   });
+
+  it('should clean refs', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.1
+        info:
+          version: 1.0.0
+          title: Products API
+          description: Manages products.
+        paths:
+          /products:
+            get:
+              summary: List products
+              description: Retrieves a paginated list of products.
+              operationId: list-products
+              parameters:
+                - $ref: '#/components/parameters/Vendor'
+                - in: query
+                  name: filter[owner_id]
+                  description: Allows filtering by owner_id.
+                  schema:
+                    type: string
+                - in: query
+                  name: filter[external_id]
+                  description: Allows filtering by external_id.
+                  schema:
+                    type: string
+                  x-internal: true
+              responses:
+                '200':
+                  description: Successful response.
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+          /products/{product_id}:
+            get:
+              summary: Get product
+              description: Retrieves the specified product.
+              operationId: get-product
+              parameters:
+                - $ref: '#/components/parameters/ProductID'
+                - $ref: '#/components/parameters/Vendor'
+              requestBody:
+                $ref: '#/components/requestBodies/UserArray'
+        components:
+          requestBodies:
+            UserArray:
+              content:
+                application/json:
+                  schema:
+                    type: array
+              description: List of user object
+              required: true
+              x-internal: true
+          parameters:
+            ProductID:
+              in: path
+              name: product_id
+              description: The ID of the product.
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Vendor:
+              in: header
+              name: X-Vendor
+              description: The vendor.
+              schema:
+                type: string
+              x-internal: true
+      `);
+      const { bundle: res } = await bundleDocument({
+        document: testDoc,
+        externalRefResolver: new BaseResolver(),
+        config: makeConfig({}, { 'remove-x-internal': 'on' })
+      });
+      expect(res.parsed).toMatchInlineSnapshot(
+      `
+      openapi: 3.0.1
+      info:
+        version: 1.0.0
+        title: Products API
+        description: Manages products.
+      paths:
+        /products:
+          get:
+            summary: List products
+            description: Retrieves a paginated list of products.
+            operationId: list-products
+            parameters:
+              - in: query
+                name: filter[owner_id]
+                description: Allows filtering by owner_id.
+                schema:
+                  type: string
+            responses:
+              '200':
+                description: Successful response.
+                content:
+                  application/json:
+                    schema:
+                      type: object
+        /products/{product_id}:
+          get:
+            summary: Get product
+            description: Retrieves the specified product.
+            operationId: get-product
+            parameters:
+              - &ref_0
+                in: path
+                name: product_id
+                description: The ID of the product.
+                required: true
+                schema:
+                  type: string
+                  format: uuid
+      components:
+        parameters:
+          ProductID: *ref_0
+
+      `);
+  });
 });
 
 describe('oas2 remove-x-internal', () => {
