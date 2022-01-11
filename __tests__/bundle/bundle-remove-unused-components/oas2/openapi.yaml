@@ -20,6 +20,9 @@ paths:
           x-internal: true
           schema:
             $ref: '#/definitions/MediaListResponse'
+        '401':
+          schema:
+            $ref: 'ref.yaml'
 parameters:
   AccountId:
     description: The account ID

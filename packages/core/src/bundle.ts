@@ -1,5 +1,5 @@
 import isEqual = require('lodash.isequal');
-import { BaseResolver, resolveDocument, Document } from './resolve';
+import { BaseResolver, resolveDocument, Document, ResolvedRefMap } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
@@ -115,24 +115,24 @@ export async function bundleDocument(opts: {
     })
   }
 
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.DefinitionRoot,
+    externalRefResolver,
+  });
+
   const bundleVisitor = normalizeVisitors(
     [
       ...preprocessors,
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document, resolvedRefMap),
       },
       ...decorators,
     ],
     types,
   );
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.DefinitionRoot,
-    externalRefResolver,
-  });
 
   walkDocument({
     document,
@@ -198,6 +198,7 @@ function makeBundleVisitor(
   dereference: boolean,
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
+  resolvedRefMap: ResolvedRefMap
 ) {
   let components: Record<string, Record<string, any>>;
 
@@ -230,6 +231,7 @@ function makeBundleVisitor(
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
+            replaceInlineRef(node, resolved, ctx);
           }
         }
       },
@@ -265,6 +267,17 @@ function makeBundleVisitor(
         }
       },
     };
+  }
+
+  function replaceInlineRef(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+    const newRefId = ctx.location.source.absoluteRef + '::' + node.$ref;
+    resolvedRefMap.set(newRefId, {
+      document: rootDocument,
+      isRemote: false,
+      node: resolved.node,
+      nodePointer: node.$ref,
+      resolved: true,
+    });
   }
 
   function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
