@@ -15,16 +15,18 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
   }
 
   return {
-    ref(ref, { type, resolve, key }) {
-      if (
-        ['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)
-      ) {
-        const resolvedRef = resolve(ref);
-        if (!resolvedRef.location) return;
-        components.set(resolvedRef.location.absolutePointer, {
-          used: true,
-          name: key.toString(),
-        });
+    ref: {
+      leave(ref, { type, resolve, key }) {
+        if (
+          ['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)
+        ) {
+          const resolvedRef = resolve(ref);
+          if (!resolvedRef.location) return;
+          components.set(resolvedRef.location.absolutePointer, {
+            used: true,
+            name: key.toString(),
+          });
+        }
       }
     },
     DefinitionRoot: {
