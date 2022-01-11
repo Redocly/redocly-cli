@@ -8,7 +8,8 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed an issue with `remove-x-internal` decorator doesn't remove references to `x-internal` components.
+- Fixed the `remove-x-internal` decorator to remove references to removed `x-internal` components.
+- Fixed the `remove-unused-components` decorator that strips remotely referenced components.
 
 ## 1.0.0-beta.78 (2022-01-06)
 
