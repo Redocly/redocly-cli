@@ -29,6 +29,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: 'ref.yaml'
 components:
   parameters:
     x:

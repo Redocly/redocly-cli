@@ -7,7 +7,7 @@ import {
   VisitFunction,
 } from './visitors';
 
-import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source } from './resolve';
+import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source, makeRefId } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
 import { NormalizedNodeType, isNamedType } from './types';
@@ -370,10 +370,8 @@ export function walkDocument<T>(opts: {
       from: string = currentLocation.source.absoluteRef,
     ): ResolveResult<T> {
       if (!isRef(ref)) return { location, node: ref };
-      const refId = from + '::' + ref.$ref;
-
+      const refId = makeRefId(from, ref.$ref);
       const resolvedRef = resolvedRefMap.get(refId);
-
       if (!resolvedRef) {
         return {
           location: undefined,

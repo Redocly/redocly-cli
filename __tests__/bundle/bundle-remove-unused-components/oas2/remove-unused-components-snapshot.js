@@ -5,7 +5,14 @@ swagger: '2.0'
 host: api.instagram.com
 paths:
   /locations/{location-id}:
-    post: {}
+    post:
+      responses:
+        '401':
+          schema:
+            $ref: '#/definitions/ref'
+definitions:
+  ref:
+    type: string
 
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
