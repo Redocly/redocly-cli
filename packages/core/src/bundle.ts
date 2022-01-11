@@ -1,5 +1,5 @@
 import isEqual = require('lodash.isequal');
-import { BaseResolver, resolveDocument, Document, ResolvedRefMap } from './resolve';
+import { BaseResolver, resolveDocument, Document, ResolvedRefMap, makeRefId } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
@@ -231,7 +231,7 @@ function makeBundleVisitor(
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
-            replaceInlineRef(node, resolved, ctx);
+            resolveBundledComponent(node, resolved, ctx);
           }
         }
       },
@@ -269,8 +269,8 @@ function makeBundleVisitor(
     };
   }
 
-  function replaceInlineRef(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    const newRefId = ctx.location.source.absoluteRef + '::' + node.$ref;
+  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref)
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
       isRemote: false,

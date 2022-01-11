@@ -74,6 +74,10 @@ export type Document = {
   parsed: any;
 };
 
+export function makeRefId(absoluteRef: string, pointer: string) {
+  return absoluteRef + '::' + pointer;
+}
+
 export function makeDocumentFromString(sourceString: string, absoluteRef: string) {
   const source = new Source(absoluteRef, sourceString);
   try {
