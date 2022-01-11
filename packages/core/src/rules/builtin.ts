@@ -11,8 +11,3 @@ export const preprocessors = {
   oas3: oas3.preprocessors,
   oas2: oas2.preprocessors,
 };
-
-export const decorators = {
-  oas3: oas3.decorators,
-  oas2: oas2.decorators,
-};

@@ -1,4 +1,4 @@
-import { Oas2Decorator, Oas2Rule } from '../../visitors';
+import { Oas2Rule } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
@@ -27,7 +27,6 @@ import { OperationSingularTag } from '../common/operation-singular-tag';
 import { OperationSecurityDefined } from '../common/operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
-import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
@@ -37,10 +36,6 @@ import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
-import { OperationDescriptionOverride } from '../common/operation-description-override';
-import { TagDescriptionOverride } from '../common/tag-description-override';
-import { InfoDescriptionOverride } from '../common/info-description-override';
-import { RemoveXInternal } from '../common/remove-x-internal';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -84,10 +79,3 @@ export const rules = {
 };
 
 export const preprocessors = {};
-export const decorators = {
-  'registry-dependencies': RegistryDependencies as Oas2Decorator,
-  'operation-description-override': OperationDescriptionOverride as Oas2Decorator,
-  'tag-description-override': TagDescriptionOverride as Oas2Decorator,
-  'info-description-override': InfoDescriptionOverride as Oas2Decorator,
-  'remove-x-internal': RemoveXInternal as Oas2Decorator
-};
