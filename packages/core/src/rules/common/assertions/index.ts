@@ -26,6 +26,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
             conditions: assertion[rule],
             description: assertion.description,
             severity: assertion.severity || 'error',
+            suggest: assertion.suggest || [],
             runsOnKeys: runOnKeysMap.includes(rule),
             runsOnValues: runOnValuesMap.includes(rule)
           }
@@ -46,8 +47,8 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
 
       if (parts.length < 2) {
         // Path should have the right format NodeName.property
-        throw new Error(`Path to the property should contain parent node name and the property itself. 
-          Please use '${ALL_KEYS}' or provide a property.`);
+        throw new Error(`Path to the property should contain parent node name and the property itself. ` +
+          `Please use '${ALL_KEYS}' or provide a property.`);
       }
 
       // get property on which we will do the lint:

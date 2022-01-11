@@ -13,6 +13,7 @@ export type Rule = {
   conditions: any;
   description?: string;
   severity?: ProblemSeverity;
+  suggest?: string[];
   runsOnKeys: boolean;
   runsOnValues: boolean;
 };
@@ -35,7 +36,8 @@ export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Ru
             report({
               message: rule.description  || `The assertion under '${rule.name}' rule doesn't meet required conditions`,
               location: prop === ALL_KEYS ? location.key() : location.child(prop).key(),
-              forceSeverity: rule.severity
+              forceSeverity: rule.severity,
+              suggest: rule.suggest
             });
           }
         }
