@@ -327,10 +327,8 @@ export async function resolveDocument(opts: {
           document: undefined,
           error: error,
         };
-
-        const refId = document.source.absoluteRef + '::' + ref.$ref;
+        const refId = makeRefId(document.source.absoluteRef, ref.$ref);
         resolvedRefMap.set(refId, resolvedRef);
-
         return resolvedRef;
       }
 
@@ -371,13 +369,11 @@ export async function resolveDocument(opts: {
 
       resolvedRef.node = target;
       resolvedRef.document = targetDoc;
-      const refId = document.source.absoluteRef + '::' + ref.$ref;
-
+      const refId = makeRefId(document.source.absoluteRef, ref.$ref);
       if (resolvedRef.document && isRef(target)) {
         resolvedRef = await followRef(resolvedRef.document, target, pushRef(refStack, target));
       }
       resolvedRefMap.set(refId, resolvedRef);
-
       return { ...resolvedRef };
     }
   }
