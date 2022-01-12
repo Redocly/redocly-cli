@@ -31,11 +31,11 @@ describe('Oas3 assertions', () => {
 
     describe('getCounts', () => {
       it('should return the right counts', () => {
-        const obj = { foo: '1', bar: '2', baz: '3' }
-        expect(getCounts(obj, ['foo'])).toBe(1);
-        expect(getCounts(obj, ['foo', 'bar', 'baz'])).toBe(3);
-        expect(getCounts(obj, ['foo', 'test', 'baz'])).toBe(2);
-        expect(getCounts(obj, ['example', 'test'])).toBe(0);
+        const arr = ['foo', 'bar', 'baz']
+        expect(getCounts(arr, ['foo'])).toBe(1);
+        expect(getCounts(arr, ['foo', 'bar', 'baz'])).toBe(3);
+        expect(getCounts(arr, ['foo', 'test', 'baz'])).toBe(2);
+        expect(getCounts(arr, ['example', 'test'])).toBe(0);
       });
     });
 

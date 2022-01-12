@@ -11,20 +11,20 @@ describe('oas3 assertions', () => {
     describe('pattern', () => {
       it('value should match regex pattern',  () => {
         expect(genericRules.pattern('test string', '/test/')).toBeTruthy();
-      });
-      it('value should not match regex pattern',  () => {
         expect(genericRules.pattern('test string', '/test me/')).toBeFalsy();
+        expect(genericRules.pattern(['test string', 'test me'], '/test/')).toBeTruthy();
+        expect(genericRules.pattern(['test string', 'test me'], '/test me/')).toBeFalsy();
       });
     });
 
     describe('enum', () => {
       it('value should be among predefined keys',  () => {
         expect(genericRules.enum('test', ['test', 'example'])).toBeTruthy();
-        expect(genericRules.enum({test: 1}, ['test', 'example'])).toBeTruthy();
-      });
-      it('value should not be among predefined keys',  () => {
+        expect(genericRules.enum(['test'], ['test', 'example'])).toBeTruthy();
+        expect(genericRules.enum(['test', 'example'], ['test', 'example'])).toBeTruthy();
+        expect(genericRules.enum(['test', 'example', 'foo'], ['test', 'example'])).toBeFalsy();
         expect(genericRules.enum('test', ['foo', 'example'])).toBeFalsy();
-        expect(genericRules.enum({test: 1, foo: 2}, ['test', 'example'])).toBeFalsy();
+        expect(genericRules.enum(['test', 'foo'], ['test', 'example'])).toBeFalsy();
       });
     });
 
@@ -91,6 +91,8 @@ describe('oas3 assertions', () => {
 
     describe('casing', () => {
       it('value should be camelCase',  () => {
+        expect(genericRules.casing(['testExample', 'fooBar'], 'camelCase')).toBeTruthy();
+        expect(genericRules.casing(['testExample', 'FooBar'], 'camelCase')).toBeFalsy();
         expect(genericRules.casing('testExample', 'camelCase')).toBeTruthy();
         expect(genericRules.casing('TestExample', 'camelCase')).toBeFalsy();
         expect(genericRules.casing('test-example', 'camelCase')).toBeFalsy();
@@ -98,24 +100,32 @@ describe('oas3 assertions', () => {
       });
       it('value should be PascalCase',  () => {
         expect(genericRules.casing('TestExample', 'PascalCase')).toBeTruthy();
+        expect(genericRules.casing(['TestExample', 'FooBar'], 'PascalCase')).toBeTruthy();
+        expect(genericRules.casing(['TestExample', 'fooBar'], 'PascalCase')).toBeFalsy();
         expect(genericRules.casing('testExample', 'PascalCase')).toBeFalsy();
         expect(genericRules.casing('test-example', 'PascalCase')).toBeFalsy();
         expect(genericRules.casing('test_example', 'PascalCase')).toBeFalsy();
       });
       it('value should be kebab-case',  () => {
         expect(genericRules.casing('test-example', 'kebab-case')).toBeTruthy();
+        expect(genericRules.casing(['test-example', 'foo-bar'], 'kebab-case')).toBeTruthy();
+        expect(genericRules.casing(['test-example', 'foo_bar'], 'kebab-case')).toBeFalsy();
         expect(genericRules.casing('testExample', 'kebab-case')).toBeFalsy();
         expect(genericRules.casing('TestExample', 'kebab-case')).toBeFalsy();
         expect(genericRules.casing('test_example', 'kebab-case')).toBeFalsy();
       });
       it('value should be snake_case',  () => {
         expect(genericRules.casing('test_example', 'snake_case')).toBeTruthy();
+        expect(genericRules.casing(['test_example', 'foo_bar'], 'snake_case')).toBeTruthy();
+        expect(genericRules.casing(['test_example', 'foo-bar'], 'snake_case')).toBeFalsy();
         expect(genericRules.casing('testExample', 'snake_case')).toBeFalsy();
         expect(genericRules.casing('TestExample', 'snake_case')).toBeFalsy();
         expect(genericRules.casing('test-example', 'snake_case')).toBeFalsy();
       });
       it('value should be MACRO_CASE',  () => {
         expect(genericRules.casing('TEST_EXAMPLE', 'MACRO_CASE')).toBeTruthy();
+        expect(genericRules.casing(['TEST_EXAMPLE', 'FOO_BAR'], 'MACRO_CASE')).toBeTruthy();
+        expect(genericRules.casing(['TEST_EXAMPLE', 'FOO-BAR'], 'MACRO_CASE')).toBeFalsy();
         expect(genericRules.casing('TEST_EXAMPLE_', 'MACRO_CASE')).toBeFalsy();
         expect(genericRules.casing('_TEST_EXAMPLE', 'MACRO_CASE')).toBeFalsy();
         expect(genericRules.casing('TEST__EXAMPLE', 'MACRO_CASE')).toBeFalsy();
@@ -126,6 +136,8 @@ describe('oas3 assertions', () => {
       });
       it('value should be COBOL-CASE',  () => {
         expect(genericRules.casing('TEST-EXAMPLE', 'COBOL-CASE')).toBeTruthy();
+        expect(genericRules.casing(['TEST-EXAMPLE', 'FOO-BAR'], 'COBOL-CASE')).toBeTruthy();
+        expect(genericRules.casing(['TEST-EXAMPLE', 'FOO_BAR'], 'COBOL-CASE')).toBeFalsy();
         expect(genericRules.casing('TEST-EXAMPLE-', 'COBOL-CASE')).toBeFalsy();
         expect(genericRules.casing('0TEST-EXAMPLE', 'COBOL-CASE')).toBeFalsy();
         expect(genericRules.casing('-TEST-EXAMPLE', 'COBOL-CASE')).toBeFalsy();
@@ -137,6 +149,8 @@ describe('oas3 assertions', () => {
       });
       it('value should be flatcase',  () => {
         expect(genericRules.casing('testexample', 'flatcase')).toBeTruthy();
+        expect(genericRules.casing(['testexample', 'foobar'], 'flatcase')).toBeTruthy();
+        expect(genericRules.casing(['testexample', 'foo_bar'], 'flatcase')).toBeFalsy();
         expect(genericRules.casing('testexample_', 'flatcase')).toBeFalsy();
         expect(genericRules.casing('0testexample', 'flatcase')).toBeFalsy();
         expect(genericRules.casing('testExample', 'flatcase')).toBeFalsy();
@@ -168,20 +182,20 @@ describe('oas3 assertions', () => {
 
     describe('mutuallyExclusive', () => {
       it('node should not have more than one property from predefined list',  () => {
-        expect(genericRules.mutuallyExclusive(fakeNode, ['foo', 'test'])).toBeTruthy();
-        expect(genericRules.mutuallyExclusive(fakeNode, [])).toBeTruthy();
-        expect(genericRules.mutuallyExclusive(fakeNode, ['foo', 'bar'])).toBeFalsy();
-        expect(genericRules.mutuallyExclusive(fakeNode, ['foo', 'bar', 'test'])).toBeFalsy();
+        expect(genericRules.mutuallyExclusive(Object.keys(fakeNode), ['foo', 'test'])).toBeTruthy();
+        expect(genericRules.mutuallyExclusive(Object.keys(fakeNode), [])).toBeTruthy();
+        expect(genericRules.mutuallyExclusive(Object.keys(fakeNode), ['foo', 'bar'])).toBeFalsy();
+        expect(genericRules.mutuallyExclusive(Object.keys(fakeNode), ['foo', 'bar', 'test'])).toBeFalsy();
       });
     });
 
     describe('mutuallyRequired', () => {
       it('node should have all the properties from predefined list',  () => {
-        expect(genericRules.mutuallyRequired(fakeNode, ['foo', 'bar'])).toBeTruthy();
-        expect(genericRules.mutuallyRequired(fakeNode, ['foo', 'bar', 'baz'])).toBeTruthy();
-        expect(genericRules.mutuallyRequired(fakeNode, [])).toBeTruthy();
-        expect(genericRules.mutuallyRequired(fakeNode, ['foo', 'test'])).toBeFalsy();
-        expect(genericRules.mutuallyRequired(fakeNode, ['foo', 'bar', 'test'])).toBeFalsy();
+        expect(genericRules.mutuallyRequired(Object.keys(fakeNode), ['foo', 'bar'])).toBeTruthy();
+        expect(genericRules.mutuallyRequired(Object.keys(fakeNode), ['foo', 'bar', 'baz'])).toBeTruthy();
+        expect(genericRules.mutuallyRequired(Object.keys(fakeNode), [])).toBeTruthy();
+        expect(genericRules.mutuallyRequired(Object.keys(fakeNode), ['foo', 'test'])).toBeFalsy();
+        expect(genericRules.mutuallyRequired(Object.keys(fakeNode), ['foo', 'bar', 'test'])).toBeFalsy();
       });
     });
   });

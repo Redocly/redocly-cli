@@ -1,20 +1,27 @@
 import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
-export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum'];
+export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum', 'pattern',
+  'minLength', 'maxLength', 'casing', 'sortOrder'];
 export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
   'minLength', 'maxLength', 'casing', 'sortOrder'];
 
 export const rules: {[key: string]: any} = {
-  pattern: (value: string, pattern: string): boolean => {
+  pattern: (value: string | string[], pattern: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    const values = typeof value === 'string' ? [value] : value;
     const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];
     pattern = pattern.slice(1).replace(regexOptions[0],'');
     const regx = new RegExp(pattern, regexOptions[0].slice(1));
-    return !!value.match(regx);
+    for (let _val of values) {
+      if (!_val.match(regx)) {
+        return false;
+      }
+    }
+    return true;
   },
-  enum: (value: string | {[key: string]: any}, keys: string[]): boolean => {
+  enum: (value: string | string[], keys: string[]): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
-    const values = typeof value === 'string' ? [value] : Object.keys(value);
+    const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
       if (!keys.includes(_val)) {
         return false;
@@ -42,42 +49,48 @@ export const rules: {[key: string]: any} = {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
     return value.length <= length;
   },
-  casing: (value: string, style: string): boolean => {
+  casing: (value: string | string[], style: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
-    let matchCase = false;
-    switch (style) {
-      case 'camelCase':
-        matchCase = !!(value.match(/^[a-z][a-zA-Z0-9]+$/g));
-        break;
-      case 'kebab-case':
-        matchCase = !!(value.match(/^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g));
-        break;
-      case 'snake_case':
-        matchCase = !!(value.match(/^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g));
-        break;
-      case 'PascalCase':
-        matchCase = !!(value.match(/^[A-Z][a-zA-Z0-9]+$/g));
-        break;
-      case 'MACRO_CASE':
-        matchCase = !!(value.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g));
-        break;
-      case 'COBOL-CASE':
-        matchCase = !!(value.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g));
-        break;
-      case 'flatcase':
-        matchCase = !!(value.match(/^[a-z][a-z0-9]+$/g));
-        break;
+    const values = typeof value === 'string' ? [value] : value;
+    for (let _val of values) {
+      let matchCase = false;
+      switch (style) {
+        case 'camelCase':
+          matchCase = !!(_val.match(/^[a-z][a-zA-Z0-9]+$/g));
+          break;
+        case 'kebab-case':
+          matchCase = !!(_val.match(/^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g));
+          break;
+        case 'snake_case':
+          matchCase = !!(_val.match(/^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g));
+          break;
+        case 'PascalCase':
+          matchCase = !!(_val.match(/^[A-Z][a-zA-Z0-9]+$/g));
+          break;
+        case 'MACRO_CASE':
+          matchCase = !!(_val.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g));
+          break;
+        case 'COBOL-CASE':
+          matchCase = !!(_val.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g));
+          break;
+        case 'flatcase':
+          matchCase = !!(_val.match(/^[a-z][a-z0-9]+$/g));
+          break;
+      }
+      if (!matchCase) {
+        return false;
+      }
     }
-    return matchCase;
+    return true;
   },
   sortOrder: (value: any[], _val: OrderOptions | OrderDirection): boolean => {
     if (typeof value === 'undefined') return true;
     return isOrdered(value, _val);
   },
-  mutuallyExclusive: (node: any, properties: string[]): boolean => {
-    return getCounts(node, properties) < 2;
+  mutuallyExclusive: (keys: string[], properties: string[]): boolean => {
+    return getCounts(keys, properties) < 2;
   },
-  mutuallyRequired: (node: any, properties: string[]): boolean => {
-    return getCounts(node, properties) === properties.length;
+  mutuallyRequired: (keys: string[], properties: string[]): boolean => {
+    return getCounts(keys, properties) === properties.length;
   }
 }

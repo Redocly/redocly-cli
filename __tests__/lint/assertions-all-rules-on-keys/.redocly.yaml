@@ -1,0 +1,27 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - on:
+          - ResponsesMap.$keys
+        description: ResponsesMap example error
+        pattern: '/^\d+$/'
+        enum:
+          - '200'
+          - '404'
+        minLength: 2
+        mutuallyExclusive:
+          - '200'
+          - '401'
+        mutuallyRequired:
+          - '200'
+          - '404'
+        sortOrder: asc
+      - on:
+          - Operation.$keys
+        description: Operation example error
+        maxLength: 10
+        casing: camelCase
+  extends: []

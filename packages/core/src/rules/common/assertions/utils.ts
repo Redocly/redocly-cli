@@ -30,7 +30,7 @@ export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Ru
     [lastNodeName]: function(node: any, { report, location }: UserContext) {
       for (const prop of Object.keys(propsToRules)) {
         for (const rule of propsToRules[prop]) {
-          const value = prop === ALL_KEYS ? node : node[prop];
+          const value = prop === ALL_KEYS ? Object.keys(node) : node[prop];
           const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
           if (!lintResult) {
             report({
@@ -46,10 +46,10 @@ export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Ru
   }
 }
 
-export const getCounts = (node: any, properties: string[]): number => {
+export const getCounts = (keys: string[], properties: string[]): number => {
   let counter = 0;
-  for (const prop of Object.keys(node)) {
-    if (properties.includes(prop)) {
+  for (const key of keys) {
+    if (properties.includes(key)) {
       counter++;
     }
   }
