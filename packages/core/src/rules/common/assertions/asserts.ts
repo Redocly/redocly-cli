@@ -5,9 +5,9 @@ export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum', 'p
 export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
   'minLength', 'maxLength', 'casing', 'sortOrder'];
 
-export const rules: {[key: string]: any} = {
+export const asserts: {[key: string]: any} = {
   pattern: (value: string | string[], pattern: string): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];
     pattern = pattern.slice(1).replace(regexOptions[0],'');
@@ -20,7 +20,7 @@ export const rules: {[key: string]: any} = {
     return true;
   },
   enum: (value: string | string[], keys: string[]): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
       if (!keys.includes(_val)) {
@@ -42,15 +42,15 @@ export const rules: {[key: string]: any} = {
     return _val ? !isEmpty : isEmpty;
   },
   minLength: (value: string | any[], length: number): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     return value.length >= length;
   },
   maxLength: (value: string | any[], length: number): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     return value.length <= length;
   },
   casing: (value: string | string[], style: string): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
       let matchCase = false;

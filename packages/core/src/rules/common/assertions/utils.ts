@@ -1,14 +1,14 @@
 import { ProblemSeverity, UserContext } from '../../../walk';
-import { rules as genericRules } from './generic-rules';
+import { asserts } from './asserts';
 
 export type OrderDirection = 'asc' | 'desc';
 
 export type OrderOptions = {
   direction: OrderDirection;
-  property?: string;
+  property: string;
 };
 
-export type Rule = {
+export type Assert = {
   name: string;
   conditions: any;
   message?: string;
@@ -25,19 +25,19 @@ export const objectSet = (path: string[], value: any) => {
   return path.reverse().reduce((acc, key) => ({[key]: acc}), value);
 }
 
-export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Rule[]}) => {
+export const formVisitor = (lastNodeName: string, propsToAsserts:  {[key: string]: Assert[]}) => {
   return {
     [lastNodeName]: function(node: any, { report, location }: UserContext) {
-      for (const prop of Object.keys(propsToRules)) {
-        for (const rule of propsToRules[prop]) {
+      for (const prop of Object.keys(propsToAsserts)) {
+        for (const assert of propsToAsserts[prop]) {
           const value = prop === ALL_KEYS ? Object.keys(node) : node[prop];
-          const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
+          const lintResult = (asserts as {[key: string]: any})[assert.name](value, assert.conditions);
           if (!lintResult) {
             report({
-              message: rule.message  || `The assertion under '${rule.name}' doesn't meet required conditions`,
+              message: assert.message  || `The assertion '${assert.name}' doesn't meet required conditions`,
               location: prop === ALL_KEYS ? location.key() : location.child(prop).key(),
-              forceSeverity: rule.severity,
-              suggest: rule.suggest
+              forceSeverity: assert.severity,
+              suggest: assert.suggest
             });
           }
         }

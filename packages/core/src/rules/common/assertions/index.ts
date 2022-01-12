@@ -1,12 +1,12 @@
-import { rules as genericRules, runOnKeysMap, runOnValuesMap } from './generic-rules';
-import { ALL_KEYS, Rule, formRule, objectSet } from './utils';
+import { asserts, runOnKeysMap, runOnValuesMap } from './asserts';
+import { ALL_KEYS, Assert, formVisitor, objectSet } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   let visitors = {};
-  let rulesMap: {[key: string]: any} = {};
+  let assertsMap: {[key: string]: any} = {};
 
-  // As 'Assertions' has an array of rules,
+  // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase,
   // that is why we need to iterate through 'opts' values
   const assertions: any[] = Object.values(opts);
@@ -17,23 +17,23 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
     }
     const onProps: string[] = Array.isArray(assertion.on) ? assertion.on : [assertion.on];
 
-    const rulesToApply: Rule[] =
-      Object.keys(genericRules)
-        .filter((rule: string) => assertion[rule] !== undefined)
-        .map((rule: string) => {
+    const assertsToApply: Assert[] =
+      Object.keys(asserts)
+        .filter((assert: string) => assertion[assert] !== undefined)
+        .map((assert: string) => {
           return {
-            name: rule,
-            conditions: assertion[rule],
+            name: assert,
+            conditions: assertion[assert],
             message: assertion.message,
             severity: assertion.severity || 'error',
             suggest: assertion.suggest || [],
-            runsOnKeys: runOnKeysMap.includes(rule),
-            runsOnValues: runOnValuesMap.includes(rule)
+            runsOnKeys: runOnKeysMap.includes(assert),
+            runsOnValues: runOnValuesMap.includes(assert)
           }
         });
 
-    const shouldRunOnKeys: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnKeys && !rule.runsOnValues);
-    const shouldRunOnValues: Rule | undefined = rulesToApply.find((rule: Rule) => rule.runsOnValues && !rule.runsOnKeys);
+    const shouldRunOnKeys: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnKeys && !assert.runsOnValues);
+    const shouldRunOnValues: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnValues && !assert.runsOnKeys);
 
     const pathsEndsWithAllKeys: number = onProps.filter(item => item.endsWith(ALL_KEYS)).length;
     if (onProps.length > 1 && pathsEndsWithAllKeys > 0 && pathsEndsWithAllKeys < onProps.length) {
@@ -41,7 +41,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
       throw new Error(`'${ALL_KEYS}' and properties can't be used together.`);
     }
 
-    // form rule for each property:
+    // form assert for each property:
     for (const onProp of onProps) {
       const parts = onProp.split('.');
 
@@ -63,21 +63,21 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
       }
 
       const path = parts.join('.');
-      if (!rulesMap[path]) {
-        rulesMap[path] = {};
+      if (!assertsMap[path]) {
+        assertsMap[path] = {};
       }
-      rulesMap[path][lastProp] = rulesToApply;
+      assertsMap[path][lastProp] = assertsToApply;
     }
   }
 
-  for (let path of Object.keys(rulesMap)) {
+  for (let path of Object.keys(assertsMap)) {
     let visitor = {};
     const pathParts = path.split('.');
     const lastNode = pathParts.pop() as string;
     if (pathParts.length) {
-      visitor = objectSet(pathParts, formRule(lastNode, rulesMap[path]));
+      visitor = objectSet(pathParts, formVisitor(lastNode, assertsMap[path]));
     } else {
-      visitor = formRule(lastNode, rulesMap[path]);
+      visitor = formVisitor(lastNode, assertsMap[path]);
     }
 
     visitors = {

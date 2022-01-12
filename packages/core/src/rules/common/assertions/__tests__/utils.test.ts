@@ -1,4 +1,4 @@
-import { Rule, objectSet, formRule, getCounts, isOrdered } from '../utils';
+import { Assert, objectSet, formVisitor, getCounts, isOrdered } from '../utils';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {
@@ -20,7 +20,7 @@ describe('Oas3 assertions', () => {
 
     describe('formRule', () => {
       it('should return the visitor object', () => {
-        const visitor = formRule('test', {} as { [key: string]: Rule[] });
+        const visitor = formVisitor('test', {} as { [key: string]: Assert[] });
         expect(visitor).toMatchInlineSnapshot(`
           Object {
             "test": [Function],
