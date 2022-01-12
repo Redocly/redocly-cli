@@ -2,7 +2,7 @@ import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
 export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum'];
 export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
-  'length', 'minLength', 'maxLength', 'casing', 'sortOrder'];
+  'minLength', 'maxLength', 'casing', 'sortOrder'];
 
 export const rules: {[key: string]: any} = {
   pattern: (value: string, pattern: string): boolean => {
@@ -33,10 +33,6 @@ export const rules: {[key: string]: any} = {
   nonEmpty: (value: string | undefined | null, _val: boolean = true): boolean => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     return _val ? !isEmpty : isEmpty;
-  },
-  length: (value: string | any[], length: number): boolean => {
-    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule
-    return value.length === length;
   },
   minLength: (value: string | any[], length: number): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this rule

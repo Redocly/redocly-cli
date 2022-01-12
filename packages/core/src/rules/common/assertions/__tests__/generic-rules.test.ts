@@ -65,16 +65,6 @@ describe('oas3 assertions', () => {
       });
     });
 
-    describe('length', () => {
-      it('value should be 4 symbols length',  () => {
-        expect(genericRules.length('test', 4)).toBeTruthy();
-        expect(genericRules.length([1, 2, 3, 4], 4)).toBeTruthy();
-        expect(genericRules.length('example', 4)).toBeFalsy();
-        expect(genericRules.length([], 4)).toBeFalsy();
-        expect(genericRules.length('', 4)).toBeFalsy();
-      });
-    });
-
     describe('minLength', () => {
       it('value should have less or equal than 5 symbols length',  () => {
         expect(genericRules.minLength('test', 5)).toBeFalsy();

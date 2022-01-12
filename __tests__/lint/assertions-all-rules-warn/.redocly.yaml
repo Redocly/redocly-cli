@@ -13,7 +13,6 @@ lint:
           - summary test example
         defined: false
         nonEmpty: false
-        length: 16
         minLength: 20
         maxLength: 10
       - on:

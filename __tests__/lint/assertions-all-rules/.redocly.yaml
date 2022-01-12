@@ -12,7 +12,6 @@ lint:
           - summary example
         defined: true
         nonEmpty: true
-        length: 15
         minLength: 10
         maxLength: 20
       - on:
