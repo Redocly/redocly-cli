@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.summary
-        description: Operation summary should have 'test' word
+        message: Operation summary should have 'test' word
         pattern: '/test/'
   extends: []

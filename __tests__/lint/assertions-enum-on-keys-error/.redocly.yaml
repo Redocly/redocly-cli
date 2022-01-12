@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - MediaTypeMap.$keys
-        description: Only application/json can be used
+        message: Only application/json can be used
         enum:
           - application/json
   extends: []

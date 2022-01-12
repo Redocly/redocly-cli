@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.operationId
-        description: Operation id should be camelCase
+        message: Operation id should be camelCase
         casing: camelCase
   extends: []

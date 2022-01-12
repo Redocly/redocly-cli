@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.secutity
-        description: Operation security should be defined
+        message: Operation security should be defined
         defined: true
   extends: []

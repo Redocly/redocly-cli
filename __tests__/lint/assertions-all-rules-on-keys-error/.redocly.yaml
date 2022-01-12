@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - ResponsesMap.$keys
-        description: ResponsesMap example error
+        message: ResponsesMap example error
         pattern: '/test/'
         enum:
           - '200'
@@ -21,7 +21,7 @@ lint:
         sortOrder: desc
       - on:
           - Operation.$keys
-        description: Operation example error
+        message: Operation example error
         maxLength: 2
         casing: MACRO_CASE
   extends: []

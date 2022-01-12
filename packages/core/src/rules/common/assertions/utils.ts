@@ -11,7 +11,7 @@ export type OrderOptions = {
 export type Rule = {
   name: string;
   conditions: any;
-  description?: string;
+  message?: string;
   severity?: ProblemSeverity;
   suggest?: string[];
   runsOnKeys: boolean;
@@ -34,7 +34,7 @@ export const formRule = (lastNodeName: string, propsToRules:  {[key: string]: Ru
           const lintResult = (genericRules as {[key: string]: any})[rule.name](value, rule.conditions);
           if (!lintResult) {
             report({
-              message: rule.description  || `The assertion under '${rule.name}' rule doesn't meet required conditions`,
+              message: rule.message  || `The assertion under '${rule.name}' doesn't meet required conditions`,
               location: prop === ALL_KEYS ? location.key() : location.child(prop).key(),
               forceSeverity: rule.severity,
               suggest: rule.suggest

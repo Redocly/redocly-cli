@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Info.description
-        description: Info description should be maximum 10 chars length
+        message: Info description should be maximum 10 chars length
         maxLength: 10
   extends: []

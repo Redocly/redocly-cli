@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.operationId
-        description: Operation id sould be snake_case
+        message: Operation id sould be snake_case
         casing: snake_case
   extends: []

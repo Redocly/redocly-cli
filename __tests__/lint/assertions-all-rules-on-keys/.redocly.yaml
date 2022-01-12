@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - ResponsesMap.$keys
-        description: ResponsesMap example error
+        message: ResponsesMap example error
         pattern: '/^\d+$/'
         enum:
           - '200'
@@ -21,7 +21,7 @@ lint:
         sortOrder: asc
       - on:
           - Operation.$keys
-        description: Operation example error
+        message: Operation example error
         maxLength: 10
         casing: camelCase
   extends: []

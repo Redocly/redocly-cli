@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.operationId
-        description: Operation id should be PascalCase
+        message: Operation id should be PascalCase
         casing: PascalCase
   extends: []

@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - Operation.tags
-        description: Operation tags should be ordered in DESC direction
+        message: Operation tags should be ordered in DESC direction
         sortOrder:
           direction: desc
           property: address

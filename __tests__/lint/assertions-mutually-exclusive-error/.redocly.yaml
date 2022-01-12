@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - PathItem.Operation.$keys
-        description: Operation should not have summary and tags fields simultaneously
+        message: Operation should not have summary and tags fields simultaneously
         mutuallyExclusive:
           - summary
           - tags

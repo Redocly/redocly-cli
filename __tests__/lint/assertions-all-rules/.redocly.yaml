@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - PathItem.Operation.summary
-        description: Operation summary example error
+        message: Operation summary example error
         pattern: '/example/'
         enum:
           - summary example
@@ -16,7 +16,7 @@ lint:
         maxLength: 20
       - on:
           - PathItem.Operation.$keys
-        description: Operation fields example error
+        message: Operation fields example error
         mutuallyExclusive:
           - summary
           - security
@@ -25,7 +25,7 @@ lint:
           - operationId
       - on:
           - PathItem.Operation.tags
-        description: Operation tags example error
+        message: Operation tags example error
         severity: warn
         sortOrder: desc
   extends: []

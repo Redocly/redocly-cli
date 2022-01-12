@@ -6,7 +6,7 @@ lint:
     assertions:
       - on:
           - Operation.summary
-        description: Operation summary value should be among of predefined values
+        message: Operation summary value should be among of predefined values
         enum:
           - test summary
           - test example

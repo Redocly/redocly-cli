@@ -24,7 +24,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
           return {
             name: rule,
             conditions: assertion[rule],
-            description: assertion.description,
+            message: assertion.message,
             severity: assertion.severity || 'error',
             suggest: assertion.suggest || [],
             runsOnKeys: runOnKeysMap.includes(rule),

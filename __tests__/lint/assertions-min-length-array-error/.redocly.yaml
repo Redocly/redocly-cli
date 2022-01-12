@@ -6,6 +6,6 @@ lint:
     assertions:
       - on:
           - Operation.tags
-        description: Operation tags should have minimum 4 items
+        message: Operation tags should have minimum 4 items
         minLength: 4
   extends: []
