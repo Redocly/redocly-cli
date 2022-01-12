@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-import { makeConfig } from '../../__tests__/config';
+import { makeConfig } from '../../../config/config';
 
 describe('Oas3 info-description', () => {
   it('should report on info with no description', async () => {

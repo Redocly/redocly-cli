@@ -21,6 +21,7 @@ import { ProblemSeverity, NormalizedProblem } from '../walk';
 
 import recommended from './recommended';
 import { NodeType } from '../types';
+import { defaultPlugin } from './builtIn';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -622,4 +623,13 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
       target[k] = obj[k];
     }
   }
+}
+
+export function makeConfig(rules: Record<string, RuleConfig>, decorators?:  Record<string, DecoratorConfig>) {
+  return new LintConfig({
+    plugins: [defaultPlugin],
+    extends: [],
+    rules,
+    decorators,
+  });
 }

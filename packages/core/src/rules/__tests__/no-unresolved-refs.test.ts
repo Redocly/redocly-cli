@@ -1,11 +1,9 @@
 import path = require('path');
 import { outdent } from 'outdent';
-
 import { lintDocument } from '../../lint';
 import { BaseResolver } from '../../resolve';
-
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../__tests__/utils';
-import { makeConfig } from './config';
+import { makeConfig } from '../../config/config';
 
 describe('oas3 boolean-parameter-prefixes', () => {
   it('should report on unresolved $ref', async () => {

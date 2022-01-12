@@ -1,7 +1,7 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
-import { makeConfig } from '../../__tests__/config';
+import { makeConfig } from '../../../config/config';
 import { BaseResolver } from '../../../resolve';
 
 describe('no-identical-paths', () => {
