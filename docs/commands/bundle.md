@@ -2,7 +2,7 @@
 
 ## Introduction
 
-API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools do not support that multi-file approach, and require a single-file API definition.
+API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
 
 Redocly OpenAPI CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
 
@@ -24,25 +24,25 @@ openapi bundle --version
 
 ## Options
 
-Option                 | Type      | Required?    | Default     | Description
------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoints`          | `array`   | yes          | `[]`        | Array of API root definition filenames that need to be bundled. Instead of full paths, you can use aliases assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as entrypoints.
-`--config`             | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
-`--dereferenced`, `-d` | `boolean` | no           | -           | Generate fully dereferenced bundle
-`--ext`                | `string`  | no           | `yaml`      | Specify bundled file extension.<br />**Possible values:** `json`, `yaml`, `yml`
-`--extends`            | `array`   | no           | -           | Can be used in combination with `--lint` to [Extend a specific configuration](./lint.md#extend-configuration) (defaults or config file settings)
-`--force`, `-f`        | `boolean` | no           | -           | Generate bundle output even when errors occur
-`--format`             | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
-`--help`               | `boolean` | no           | -           | Show help
-`--lint`               | `boolean` | no           | `false`     | Lint definition files.
-`--max-problems`       | `number`  | no           | 100         | Truncate output to display the specified maximum number of problems
-`--metafile`           | `string`  | no           | -           | Path for the bundle metadata file. For example, `--metafile ./bundle.metadata.json`
-`--output`, `-o`       | `string`  | no           | -           | Name or folder for the bundle file. For example, `-o bundle.yaml` or `-o ./openapi`.<li>If you don't specify the extension, `.yaml` will be used by default.</li><li>If the specified folder doesn't exist, it will be created automatically.</li><br />**If the file specified as the bundler's output already exists, it will be overwritten**
-`--skip-decorator`     | `array`   | no           | -           | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
-`--skip-preprocessor`  | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
-`--skip-rule`          | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator) below
-`--version`            | `boolean` | no           | -           | Show version number
-`--remove-unused-components` | `boolean` | no     | -           | Remove unused components.
+Option | Type | Description
+-- | -- | --
+entrypoints | [string] | List of API root definition filenames or aliases assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file. Default values are all aliases defined in the `apiDefinitions` section within your configuration file.
+--config | string | Specify path to the [config file](#custom-configuration-file).
+--dereferenced, -d | boolean | Generate fully dereferenced bundle.
+--ext | string | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.
+--extends | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration).  Default values are taken from the configuration file.
+--force, -f | boolean | Generate bundle output even when errors occur.
+--format | string | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.
+--help | boolean | Show help.
+--lint | boolean | Lint definition files. Default value is `false`.
+--max-problems | integer | Truncate output to display the specified maximum number of problems. Default value is `100`.
+--metafile | string | Path for the bundle metadata file.
+--output, -o | string | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.**
+--skip-decorator | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
+--skip-preprocessor | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
+--skip-rule | [string] | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
+--version | boolean | Show version number.
+
 
 ## Examples
 
@@ -98,7 +98,7 @@ openapi bundle pet.yaml store.yaml -o ./bundled --format=codeframe
 ...
 ```
 
-Note: Any errors are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
+Note: Errors display in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
 
 Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
 
@@ -112,7 +112,8 @@ openapi bundle pet.yaml store.yaml -o ./bundled --format=stylish
 ...
 ```
 
-In this format, `bundle` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
+In this format, `bundle` shows the filename, line number, and column where the problem occurred.
+The compressed output omits other contexts and suggestions.
 
 #### JSON
 
@@ -162,8 +163,9 @@ bundling pet.yaml...
 ```
 
 In this format, `bundle` uses the [Checkstyle](https://checkstyle.org/) XML report format.
-Due to the limitations of this format, only file name, line, column, severity,
-and rule ID (in the `source` attribute) are included. All other information is omitted.
+Due to the limitations of this format, the output _only_ includes the filename, line, column, severity,
+and rule ID (in the `source` attribute).
+All other information is omitted.
 
 ### Skip preprocessor, rule, or decorator
 
