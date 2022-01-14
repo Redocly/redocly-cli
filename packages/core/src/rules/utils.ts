@@ -1,5 +1,8 @@
 import levenshtein = require('js-levenshtein');
 import { UserContext } from '../walk';
+import { Location } from '../ref-utils';
+import { validateJsonSchema } from './ajv';
+import { Oas3Schema, Referenced } from '../typings/openapi';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -20,7 +23,7 @@ export function oasTypeOf(value: unknown) {
  */
 export function matchesJsonSchemaType(value: unknown, type: string, nullable: boolean): boolean {
   if (nullable && value === null) {
-    return value === null
+    return value === null;
   }
 
   switch (type) {
@@ -79,4 +82,42 @@ export function getSuggest(given: string, variants: string[]): string[] {
 
   // if (bestMatch.distance <= 4) return bestMatch.string;
   return distances.map((d) => d.variant);
+}
+
+export function validateExample(
+  example: any,
+  schema: Referenced<Oas3Schema>,
+  dataLoc: Location,
+  { resolve, location, report }: UserContext,
+  disallowAdditionalProperties: boolean,
+) {
+  try {
+    const { valid, errors } = validateJsonSchema(
+      example,
+      schema,
+      location.child('schema'),
+      dataLoc.pointer,
+      resolve,
+      disallowAdditionalProperties,
+    );
+    if (!valid) {
+      for (let error of errors) {
+        report({
+          message: `Example value must conform to the schema: ${error.message}.`,
+          location: {
+            ...new Location(dataLoc.source, error.instancePath),
+            reportOnKey: error.keyword === 'additionalProperties',
+          },
+          from: location,
+          suggest: error.suggest,
+        });
+      }
+    }
+  } catch (e) {
+    report({
+      message: `Example validation errored: ${e.message}.`,
+      location: location.child('schema'),
+      from: location,
+    });
+  }
 }

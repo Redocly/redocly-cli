@@ -1,5 +1,5 @@
 import isEqual = require('lodash.isequal');
-import { BaseResolver, resolveDocument, Document } from './resolve';
+import { BaseResolver, resolveDocument, Document, ResolvedRefMap, makeRefId } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
@@ -7,12 +7,15 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { Location, refBaseName } from './ref-utils';
+import { isRef, Location, refBaseName } from './ref-utils';
 import type { Config, LintConfig } from './config/config';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
 import { OasRef } from './typings/openapi';
+import { isRedoclyRegistryURL } from './redocly';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -29,6 +32,8 @@ export async function bundle(opts: {
   config: Config;
   dereference?: boolean;
   base?: string;
+  skipRedoclyRegistryRefs?: boolean;
+  removeUnusedComponents?: boolean;
 }) {
   const {
     ref,
@@ -40,7 +45,8 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+  const document =
+    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
@@ -62,14 +68,28 @@ export async function bundleDocument(opts: {
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
+  skipRedoclyRegistryRefs?: boolean;
+  removeUnusedComponents?: boolean;
 }) {
-  const { document, config, customTypes, externalRefResolver, dereference = false } = opts;
+  const {
+    document,
+    config,
+    customTypes,
+    externalRefResolver,
+    dereference = false,
+    skipRedoclyRegistryRefs = false,
+    removeUnusedComponents = false,
+  } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
+        ? oasVersion === OasVersion.Version3_1
+          ? Oas3_1Types
+          : Oas3Types
+        : Oas2Types,
       oasVersion,
     ),
     config,
@@ -77,11 +97,29 @@ export async function bundleDocument(opts: {
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const decorators = initRules(rules as any, config, 'decorators', oasVersion);
+
   const ctx: BundleContext = {
     problems: [],
     oasVersion: oasVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
   };
+
+  if (removeUnusedComponents) {
+    decorators.push({
+      severity: 'error',
+      ruleId: 'remove-unused-components',
+      visitor: oasMajorVersion === OasMajorVersion.Version2
+        ? RemoveUnusedComponentsOas2({})
+        : RemoveUnusedComponentsOas3({})
+    })
+  }
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.DefinitionRoot,
+    externalRefResolver,
+  });
 
   const bundleVisitor = normalizeVisitors(
     [
@@ -89,18 +127,12 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, document),
+        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document, resolvedRefMap),
       },
       ...decorators,
     ],
     types,
   );
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.DefinitionRoot,
-    externalRefResolver,
-  });
 
   walkDocument({
     document,
@@ -116,10 +148,11 @@ export async function bundleDocument(opts: {
     fileDependencies: externalRefResolver.getFiles(),
     rootType: types.DefinitionRoot,
     refTypes: ctx.refTypes,
+    visitorsData: ctx.visitorsData,
   };
 }
 
-function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
+export function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
   switch (version) {
     case OasMajorVersion.Version3:
       switch (typeName) {
@@ -160,7 +193,13 @@ function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
 
 // function oas3Move
 
-function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootDocument: Document) {
+function makeBundleVisitor(
+  version: OasMajorVersion,
+  dereference: boolean,
+  skipRedoclyRegistryRefs: boolean,
+  rootDocument: Document,
+  resolvedRefMap: ResolvedRefMap
+) {
   let components: Record<string, Record<string, any>>;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
@@ -178,6 +217,11 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
         ) {
           return;
         }
+
+        if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+          return;
+        }
+
         const componentType = mapTypeToComponent(ctx.type.name, version);
         if (!componentType) {
           replaceRef(node, resolved, ctx);
@@ -187,6 +231,7 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
             replaceRef(node, resolved, ctx);
           } else {
             node.$ref = saveComponent(componentType, resolved, ctx);
+            resolveBundledComponent(node, resolved, ctx);
           }
         }
       },
@@ -224,6 +269,17 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     };
   }
 
+  function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref)
+    resolvedRefMap.set(newRefId, {
+      document: rootDocument,
+      isRemote: false,
+      node: resolved.node,
+      nodePointer: node.$ref,
+      resolved: true,
+    });
+  }
+
   function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
     if (!isPlainObject(resolved.node)) {
       ctx.parent[ctx.key] = resolved.node;
@@ -249,6 +305,21 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
     }
   }
 
+  function isEqualOrEqualRef(
+    node: any,
+    target: { node: any; location: Location },
+    ctx: UserContext,
+  ) {
+    if (
+      isRef(node) &&
+      ctx.resolve(node).location?.absolutePointer === target.location.absolutePointer
+    ) {
+      return true;
+    }
+
+    return isEqual(node, target.node);
+  }
+
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
@@ -265,20 +336,20 @@ function makeBundleVisitor(version: OasMajorVersion, dereference: boolean, rootD
       if (
         !componentsGroup ||
         !componentsGroup[name] ||
-        isEqual(componentsGroup[name], target.node)
+        isEqualOrEqualRef(componentsGroup[name], target, ctx)
       ) {
         return name;
       }
     }
 
     name = refBaseName(fileRef) + (name ? `_${name}` : '');
-    if (!componentsGroup[name] || isEqual(componentsGroup[name], target.node)) {
+    if (!componentsGroup[name] || isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       return name;
     }
 
     const prevName = name;
     let serialId = 2;
-    while (componentsGroup[name] && !isEqual(componentsGroup[name], target.node)) {
+    while (componentsGroup[name] && !isEqualOrEqualRef(componentsGroup[name], target, ctx)) {
       name = `${prevName}-${serialId}`;
       serialId++;
     }

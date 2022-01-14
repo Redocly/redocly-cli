@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'js-yaml';
 import { dirname } from 'path';
 import { red, blue } from 'colorette';
 
-import { notUndefined } from '../utils';
+import { parseYaml, stringifyYaml } from '../js-yaml';
+import { notUndefined, slash } from '../utils';
 
 import {
   OasVersion,
@@ -38,10 +38,9 @@ export type PreprocessorConfig =
   | ProblemSeverity
   | 'off'
   | 'on'
-  | {
+  | ({
       severity?: ProblemSeverity;
-      options?: Record<string, any>;
-    };
+    } & Record<string, any>);
 
 export type DecoratorConfig = PreprocessorConfig;
 
@@ -123,11 +122,29 @@ export type ResolveConfig = {
   http: HttpResolveConfig;
 };
 
+export const DEFAULT_REGION = 'us';
+export type Region = 'us' | 'eu';
+export type AccessTokens = {[region in Region]?: string };
+const REDOCLY_DOMAIN = process.env.REDOCLY_DOMAIN;
+export const DOMAINS: { [region in Region]: string } = {
+  us: 'redoc.ly',
+  eu: 'eu.redocly.com',
+};
+
+// FIXME: temporary fix for our lab environments
+if (REDOCLY_DOMAIN?.endsWith('.redocly.host')) {
+  DOMAINS[REDOCLY_DOMAIN.split('.')[0] as Region] = REDOCLY_DOMAIN;
+}
+if (REDOCLY_DOMAIN === 'redoc.online') {
+  DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
+}
+
 export type RawConfig = {
   referenceDocs?: any;
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
+  region?: Region;
 };
 
 export class LintConfig {
@@ -190,7 +207,7 @@ export class LintConfig {
     if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
       // TODO: parse errors
       this.ignore =
-        (yaml.safeLoad(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+        (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
           string,
           Record<string, Set<string>>
         >) || {};
@@ -211,12 +228,12 @@ export class LintConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = (mapped[path.relative(dir, absFileName)] = this.ignore[absFileName]);
+      const ignoredRules = (mapped[slash(path.relative(dir, absFileName))] = this.ignore[absFileName]);
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
     }
-    fs.writeFileSync(ignoreFile, IGNORE_BANNER + yaml.safeDump(mapped));
+    fs.writeFileSync(ignoreFile, IGNORE_BANNER + stringifyYaml(mapped));
   }
 
   addIgnore(problem: NormalizedProblem) {
@@ -384,6 +401,8 @@ export class Config {
   apiDefinitions: Record<string, string>;
   lint: LintConfig;
   resolve: ResolveConfig;
+  licenseKey?: string;
+  region?: Region;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apiDefinitions = rawConfig.apiDefinitions || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
@@ -394,6 +413,7 @@ export class Config {
         customFetch: undefined,
       },
     };
+    this.region = rawConfig.region;
   }
 }
 

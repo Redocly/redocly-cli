@@ -1,0 +1,73 @@
+openapi: 3.0.0
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
+info:
+  version: 1.0.0
+  title: Petstore
+  termsOfService: 'http://swagger.io/terms/'
+  description: Info Description
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /pet/findByStatus:
+    get:
+      tags:
+        - pet
+      summary: Finds Pets by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      parameters:
+        - name: status
+          in: query
+          description: Status values that need to be considered for filter
+          required: true
+          style: form
+          schema:
+            type: array
+            minItems: -1
+            maxItems: -3
+            maxLength: -4
+            minLength: -2
+            items:
+              type: string
+              enum:
+                - available
+                - pending
+                - sold
+              default: available
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dog'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dog'
+        '400':
+          description: Invalid status value
+components:
+  schemas:
+    Dog:
+      description: A representation of a dog
+      allOf:
+        - type: object
+          properties:
+            packSize:
+              type: integer
+              format: int32
+              description: The size of the pack the dog is from
+              default: 1
+              minimum: 1
+              multipleOf: -5
+              maxProperties: -3
+              minProperties: -8
+          required:
+            - packSize

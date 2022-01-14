@@ -1,5 +1,4 @@
 import { Referenced } from './openapi';
-//@ts-ignore
 import { Schema } from 'js-yaml';
 
 export interface Oas2Definition {
@@ -19,6 +18,13 @@ export interface Oas2Definition {
   security?: Oas2SecurityRequirement[];
   tags?: Oas2Tag[];
   externalDocs?: Oas2ExternalDocs;
+}
+
+export interface Oas2Components {
+  definitions?: { [name: string]: Record<string, Oas2Schema> };
+  securityDefinitions?: { [name: string]: Record<string, Oas2SecurityScheme> };
+  responses?: { [name: string]: Record<string, Oas2Response> };
+  parameters?: { [name: string]: Record<string, Oas2Parameter> };
 }
 
 export interface Oas2Info {

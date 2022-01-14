@@ -46,13 +46,14 @@ function getPageHTML(
         ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/');"
         : ''
     }
-    window[window.__REDOC_EXPORT].init("openapi.json", ${JSON.stringify(redocOptions)}, container)
+    window[window.__REDOC_EXPORT].init("/openapi.json", ${JSON.stringify(redocOptions)}, container)
   </script>`,
   });
 }
 
 export default async function startPreviewServer(
   port: number,
+  host: string,
   {
     getBundle,
     getOptions,
@@ -64,7 +65,7 @@ export default async function startPreviewServer(
     console.time(colorette.dim(`GET ${request.url}`));
     const { htmlTemplate } = getOptions() || {};
 
-    if (request.url === '/') {
+    if (request.url?.endsWith('/') || path.extname(request.url!) === '') {
       respondWithGzip(
         getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,
@@ -137,10 +138,10 @@ export default async function startPreviewServer(
 
   let wsPort = await portfinder.getPortPromise({ port: 32201 });
 
-  const server = startHttpServer(port, handler);
+  const server = startHttpServer(port, host, handler);
   server.on('listening', () => {
     process.stdout.write(
-      `\n  🔎  Preview server running at ${colorette.blue(`http://127.0.0.1:${port}\n`)}`,
+      `\n  🔎  Preview server running at ${colorette.blue(`http://${host}:${port}\n`)}`,
     );
   });
 

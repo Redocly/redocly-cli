@@ -46,7 +46,7 @@ function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
-export type OutputFormat = 'codeframe' | 'stylish' | 'json';
+export type OutputFormat = 'codeframe' | 'stylish' | 'json' | 'checkstyle';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -111,7 +111,7 @@ export function formatProblems(
         process.stderr.write(`${formatCodeframe(problem, i)}\n`);
       }
       break;
-    case 'stylish':
+    case 'stylish': {
       const groupedByFile = groupByFiles(problems);
       for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
         groupedByFile,
@@ -126,6 +126,22 @@ export function formatProblems(
         process.stderr.write('\n');
       }
       break;
+    }
+    case 'checkstyle': {
+      const groupedByFile = groupByFiles(problems);
+
+      process.stdout.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+      process.stdout.write('<checkstyle version="4.3">\n');
+
+      for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
+        process.stdout.write(`<file name="${xmlEscape(path.relative(cwd, file))}">\n`);
+        fileProblems.forEach(formatCheckstyle);
+        process.stdout.write(`</file>\n`);
+      }
+
+      process.stdout.write(`</checkstyle>\n`);
+      break;
+    }
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -204,6 +220,16 @@ export function formatProblems(
       locationPad,
     )}  ${severityName}  ${problem.ruleId.padEnd(ruleIdPad)}  ${problem.message}`;
   }
+
+  function formatCheckstyle(problem: OnlyLineColProblem) {
+    const { line, col } = problem.location[0].start;
+    const severity = problem.severity == 'warn' ? 'warning' : 'error';
+    const message = xmlEscape(problem.message);
+    const source = xmlEscape(problem.ruleId);
+    process.stdout.write(
+      `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`,
+    );
+  }
 }
 
 function formatFrom(cwd: string, location?: LocationObject) {
@@ -261,3 +287,22 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
 
   return fileGroups;
 };
+
+function xmlEscape(s: string): string {
+  return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
+    switch (char) {
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&apos;';
+      default:
+        return `&#${char.charCodeAt(0)};`;
+    }
+  });
+}

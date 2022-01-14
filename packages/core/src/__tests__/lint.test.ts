@@ -1,8 +1,11 @@
 import { outdent } from 'outdent';
 
-import { lintFromString, lintConfig } from '../lint';
+import { lintFromString, lintConfig, lintDocument } from '../lint';
+import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
+// todo create general utils for tests and move this config.
+import { makeConfig } from '../rules/__tests__/config';
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -87,7 +90,61 @@ describe('lint', () => {
           "severity": "error",
           "suggest": Array [],
         },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/referenceDocs/layout",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`object\`.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
       ]
     `);
+  });
+
+  it("'const' can have any type", async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: "3.1.0"
+      info:
+        version: 1.0.0
+        title: Swagger Petstore
+        description: Information about Petstore
+        license:
+          name: MIT
+          url: https://opensource.org/licenses/MIT
+      servers:
+        - url: http://petstore.swagger.io/v1
+      paths:
+        /pets:
+          get:
+            summary: List all pets
+            operationId: listPets
+            tags:
+              - pets
+            responses:
+              200:
+                description: An paged array of pets
+                content:
+                  application/json:
+                    schema:
+                      type: string
+                      const: ABC
+        `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ spec: 'error', }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 });

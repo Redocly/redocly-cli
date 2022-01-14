@@ -97,6 +97,13 @@ const Operation: NodeType = {
 
 const Schema: NodeType = {
   properties: {
+    $id: { type: 'string' },
+    id: { type: 'string' },
+    $schema: { type: 'string' },
+    definitions: 'NamedSchemas',
+    $defs: 'NamedSchemas',
+    $vocabulary: { type: 'string' },
+
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
     myArbitraryKeyword: { type: 'boolean' },
@@ -168,9 +175,7 @@ const Schema: NodeType = {
     examples: { type: 'array' },
     example: { isExample: true },
     deprecated: { type: 'boolean' },
-    const: {
-      enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
-    },
+    const: null,
     $comment: { type: 'string' },
   },
 };

@@ -1,4 +1,11 @@
-import { bundle, formatProblems, getTotals, loadConfig, OutputFormat, lint } from '@redocly/openapi-core';
+import {
+  bundle,
+  formatProblems,
+  getTotals,
+  loadConfig,
+  OutputFormat,
+  lint,
+} from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -7,11 +14,12 @@ import {
   handleError,
   printUnusedWarnings,
   saveBundle,
-  printLintTotals
+  printLintTotals,
 } from '../utils';
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
+import { writeFileSync } from 'fs';
 
 export async function handleBundle(
   argv: {
@@ -27,36 +35,65 @@ export async function handleBundle(
     config?: string;
     lint?: boolean;
     format: OutputFormat;
+    metafile?: string;
+    extends?: string[];
+    'remove-unused-components'?: boolean
   },
   version: string,
 ) {
-  const config = await loadConfig(argv.config);
+  const config = await loadConfig(argv.config, argv.extends);
+  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components')
+
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   config.lint.skipDecorators(argv['skip-decorator']);
+
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
+  const maxProblems = argv['max-problems'];
 
   for (const entrypoint of entrypoints) {
     try {
       const startedAt = performance.now();
 
       if (argv.lint) {
+        if (config.lint.recommendedFallback) {
+          process.stderr.write(
+            `No configurations were defined in extends -- using built in ${blue(
+              'recommended',
+            )} configuration by default.\n\n`,
+          );
+        }
         const results = await lint({
           ref: entrypoint,
           config,
         });
-
         const fileLintTotals = getTotals(results);
-        formatProblems(results, { format: 'stylish', totals: fileLintTotals, version });
+
+        totals.errors += fileLintTotals.errors;
+        totals.warnings += fileLintTotals.warnings;
+        totals.ignored += fileLintTotals.ignored;
+
+        formatProblems(results, {
+          format: argv.format || 'codeframe',
+          totals: fileLintTotals,
+          version,
+          maxProblems,
+        });
         printLintTotals(fileLintTotals, 2);
       }
 
       process.stderr.write(gray(`bundling ${entrypoint}...\n`));
-      const { bundle: result, problems } = await bundle({
+
+      const {
+        bundle: result,
+        problems,
+        ...meta
+      } = await bundle({
         config,
         ref: entrypoint,
         dereference: argv.dereferenced,
+        removeUnusedComponents
       });
 
       const fileTotals = getTotals(problems);
@@ -83,10 +120,21 @@ export async function handleBundle(
 
       formatProblems(problems, {
         format: argv.format,
-        maxProblems: argv['max-problems'],
+        maxProblems,
         totals: fileTotals,
         version,
       });
+
+      if (argv.metafile) {
+        if (entrypoints.length > 1) {
+          process.stderr.write(
+            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`),
+          );
+        }
+        {
+          writeFileSync(argv.metafile, JSON.stringify(meta), 'utf-8');
+        }
+      }
 
       const elapsed = getExecutionTime(startedAt);
       if (fileTotals.errors > 0) {
@@ -108,11 +156,21 @@ export async function handleBundle(
           `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
         );
       }
+
+      const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
+      if (removedCount) {
+        process.stderr.write(
+          gray(`🧹 Removed ${removedCount} unused components.\n`),
+        );
+      }
     } catch (e) {
       handleError(e, entrypoint);
     }
   }
 
   printUnusedWarnings(config.lint);
-  process.exit(totals.errors === 0 || argv.force ? 0 : 1);
+
+  // defer process exit to allow STDOUT pipe to flush
+  // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
+  process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
 }

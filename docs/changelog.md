@@ -4,6 +4,216 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.79 (2022-01-10)
+
+### Fixes
+
+- Fixed the `remove-x-internal` decorator to remove references to removed `x-internal` components.
+- Fixed the `remove-unused-components` decorator that strips remotely referenced components.
+
+## 1.0.0-beta.78 (2022-01-06)
+
+### Features
+
+- Added `remove-x-internal` built-in decorator.
+- Added `--remove-unused-components` option to the bundle command.
+
+## 1.0.0-beta.77 (2022-01-06)
+
+### Fixes
+
+- Fixed an issue with backslashes in `$refs` to paths with the `split` command in a Windows environment.
+
+## 1.0.0-beta.76 (2021-12-28)
+
+### Features
+
+- Exported `mapTypeToComponent` function.
+
+## 1.0.0-beta.75 (2021-12-24)
+
+### Features
+
+- Added a `--host` argument to the `preview-docs` cli command.
+
+### Fixes
+
+- Fixed an issue with continuous deployment to Docker Hub.
+
+## 1.0.0-beta.74 (2021-12-22)
+
+### Fixes
+
+- Fixed an issue with `const` not handled correctly in lint.
+
+## 1.0.0-beta.73 (2021-12-16)
+
+### Fixes
+
+- Resolved another backward compatibility issue with older versions of portal.
+
+## 1.0.0-beta.72 (2021-12-16)
+
+### Fixes
+
+- Fixed another backward compatibility issue with regions: save old config key to support old portal versions.
+
+## 1.0.0-beta.71 (2021-12-16)
+
+### Fixes
+
+- Fixed a backward compatibility issue with `REDOCLY_DOMAIN` in the EU region introduced in the previous release.
+
+## 1.0.0-beta.70 (2021-12-14)
+
+### Features
+
+- Added support for the [region](./configuration/configuration-file.mdx#region) option with the `login`, `push`, and other commands.
+- Added two new built-in rules:
+  - [no-invalid-schema-examples](./resources/built-in-rules.md#no-invalid-schema-examples)
+  - [no-invalid-parameter-examples](./resources/built-in-rules.md#no-invalid-parameter-examples)
+
+### Fixes
+
+- Fixed an issue with the built-in `paths-kebab-case` rule that disallowed paths with trailing slashes.
+- Fixed a validation issue with the `example` property when the schema is an array.
+
+## 1.0.0-beta.69 (2021-11-16)
+
+### Features
+
+- Implemented new `--extends` and `--metafile` options for the [bundle](./commands/bundle.md#options) command.
+
+## 1.0.0-beta.68 (2021-11-15)
+
+### Fixes
+
+- Fixed an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
+- Fixed an issue with page refresh when pagination is set to `item` or `section`.
+- Fixed an issue with inlining external schema when components' names match.
+- Fixed an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Fixed an issue for `no-server-trailing-slash` when server url is a root.
+
+## 1.0.0-beta.67 (2021-11-02)
+
+### Features
+
+- Added a new built-in rule: [operation-4xx-response](./resources/built-in-rules.md#operation-4xx-response).
+
+## 1.0.0-beta.66 (2021-11-01)
+
+### Features
+
+- Added five new built-in rules:
+  - [path-excludes-patterns](./resources/built-in-rules.md#path-segment-plural)
+  - [no-http-verbs-in-paths](./resources/built-in-rules.md#no-http-verbs-in-paths)
+  - [path-excludes-patterns](./resources/built-in-rules.md#path-excludes-patterns)
+  - [request-mime-type](./resources/built-in-rules.md#request-mime-type)
+  - [response-mime-type](./resources/built-in-rules.md#response-mime-type)
+
+### Fixes
+
+- Fixed an issue with OAS 3.1 meta keywords reported as not expected.
+- Fixed an issue with incorrect codeframe for `info-license-url` rule.
+- Fixed an issue with discriminator mapping not supported in `no-invalid-media-type-examples`.
+- Fixed an issue with ignore file generated in windows not working on other systems, and in Redocly Workflows.
+
+----
+
+## 1.0.0-beta.65 (2021-10-27)
+
+### Features
+
+- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+
+The following examples show how to add the decorators to the `.redocly.yaml` file:
+
+
+```yaml info-description-override
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./my-custom-description.md
+```
+
+```yaml tag-description-override
+lint:
+  decorators:
+    tag-description-override:
+      tagNames:
+        pet: ./my-custom-description.md
+```
+
+```yaml operation-description-override
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        updatePet: ./my-custom-description.md
+```
+
+- Improved documentation for [the lint command](./commands/lint.md).
+
+### Fixes
+
+- Fixed the the `bundle` command to return a non-zero code when it detects an error when used with the `--lint` option.
+
+----
+
+## 1.0.0-beta.64 (2021-10-20)
+
+### Fixes
+
+- Fixed an issue with the `--format` option not working with the `bundle` command.
+
+- Fixed a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
+
+----
+
+## 1.0.0-beta.63 (2021-10-12)
+
+### Features
+
+- Upgraded the `js-yaml` package from v.3 to v.4 with YAML 1.2 support. This resolves issues with parsing timestamps and example strings with leading zeros in YAML.
+
+----
+
+## 1.0.0-beta.62 (2021-09-30)
+
+### Fixes
+
+- Resolved an issue with the `--max-problems` option that was not working with the `bundle` command.
+
+----
+
+## 1.0.0-beta.61 (2021-09-21)
+
+### Features
+
+- Improved validation of values for the following fields in the Schema Object: `multipleOf, maxLength, minLength, maxItems, minItems, maxProperties, minProperties`.
+
+----
+
+## 1.0.0-beta.60 (2021-09-20)
+
+### Fixes
+
+- Fixed an issue with the `join` command crashing when trying to resolve $ref.
+
+
+----
+
+## 1.0.0-beta.59 (2021-09-15)
+
+### Fixes
+
+- Resolved an issue with the `preview-docs` command not working when running `openapi-cli` in a Docker container.
+
+- Improved the security of local documentation previews by removing query parameters from the request URL.
+
+
+----
+
 ## 1.0.0-beta.58 (2021-09-02)
 
 ### Fixes

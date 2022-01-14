@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi",
-  "version": "1.0.0-beta.60",
+  "version": "1.0.0-beta.79",
   "description": "",
   "private": true,
   "engines": {
@@ -24,7 +24,8 @@
     "preview": "npm run cli preview-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js"
+    "upload": "node scripts/archive-and-upload-bundle.js",
+    "deploy-local": "npm run compile && ENV=local npm run upload"
   },
   "workspaces": [
     "packages/*"
@@ -47,11 +48,6 @@
     "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "printWidth": 100
-  },
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "jest": "^26.6.3",
@@ -67,6 +63,7 @@
     "webpack-cli": "^3.3.12"
   },
   "jest": {
+    "clearMocks": true,
     "preset": "ts-jest",
     "clearMocks": true,
     "collectCoverageFrom": [

@@ -4,4 +4,4 @@ apiDefinitions:
 lint:
   rules:
     path-declaration-must-exist: error
-  exends: []
+  extends: []

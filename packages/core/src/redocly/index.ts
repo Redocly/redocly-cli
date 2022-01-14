@@ -1,49 +1,61 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { yellow, red, green, gray } from 'colorette';
-import { query } from './query';
+import { red, green, gray, yellow } from 'colorette';
+import { RegistryApi } from './registry-api';
+import { AccessTokens, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
+import { isNotEmptyObject } from '../utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
 export class RedoclyClient {
-  private accessToken: string | undefined;
+  private accessTokens: AccessTokens = {};
+  private region: Region;
+  domain: string;
+  registryApi: RegistryApi;
 
-  constructor() {
-    this.loadToken();
+  constructor(region?: Region) {
+    this.region = this.loadRegion(region);
+    this.loadTokens();
+    this.domain = region
+      ? DOMAINS[region]
+      : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+    this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
-  hasToken(): boolean {
-    return !!this.accessToken;
-  }
-
-  loadToken(): void {
-    if (process.env.REDOCLY_AUTHORIZATION) {
-      this.accessToken = process.env.REDOCLY_AUTHORIZATION;
-      return;
+  loadRegion(region?: Region) {
+    if (region && !DOMAINS[region]) {
+      process.stdout.write(
+        red(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".\n`),
+      );
+      process.exit(1);
     }
 
-    const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    if (existsSync(credentialsPath)) {
-      const credentials = JSON.parse(readFileSync(credentialsPath, 'utf-8'));
-      this.accessToken = credentials && credentials.token;
+    if (process.env.REDOCLY_DOMAIN) {
+      return (Object.keys(DOMAINS).find(
+        (region) => DOMAINS[region as Region] === process.env.REDOCLY_DOMAIN,
+      ) || DEFAULT_REGION) as Region;
     }
+    return region || DEFAULT_REGION;
   }
 
-  async isAuthorizedWithRedocly(): Promise<boolean> {
-    return this.hasToken() && !!(await this.getAuthorizationHeader());
+  getRegion(): Region {
+    return this.region;
   }
 
-  async verifyToken(accessToken: string, verbose: boolean = false): Promise<boolean> {
-    if (!accessToken) return false;
-    const authDetails = await RedoclyClient.authorize(accessToken, { verbose });
-    if (!authDetails) return false;
-    return true;
+  hasTokens(): boolean {
+    return isNotEmptyObject(this.accessTokens);
+  }
+
+  // <backward compatibility: old versions of portal>
+  hasToken() {
+    return !!this.accessTokens[this.region];
   }
 
   async getAuthorizationHeader(): Promise<string | undefined> {
+    const token = this.accessTokens[this.region];
     // print this only if there is token but invalid
-    if (this.accessToken && !(await this.verifyToken(this.accessToken))) {
+    if (token && !this.isAuthorizedWithRedoclyByRegion()) {
       process.stderr.write(
         `${yellow(
           'Warning:',
@@ -51,15 +63,74 @@ export class RedoclyClient {
       );
       return undefined;
     }
-    return this.accessToken;
+
+    return token;
+  }
+  // </backward compatibility: portal>
+
+  setAccessTokens(accessTokens: AccessTokens) {
+    this.accessTokens = accessTokens;
+  }
+
+  loadTokens(): void {
+    const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
+    const credentials = this.readCredentialsFile(credentialsPath);
+    if (isNotEmptyObject(credentials)) {
+      this.setAccessTokens({
+        ...credentials,
+        ...(credentials.token && !credentials[this.region] && {
+          [this.region]: credentials.token
+        })
+      })
+    }
+    if (process.env.REDOCLY_AUTHORIZATION) {
+      this.setAccessTokens({
+        ...this.accessTokens,
+        [this.region]: process.env.REDOCLY_AUTHORIZATION
+      })
+    }
+  }
+
+  async getValidTokens(): Promise<{
+    region: string;
+    token: string;
+    valid: boolean;
+  }[]> {
+    return (await Promise.all(
+      Object.entries(this.accessTokens).map(async ([key, value]) => {
+        return { region: key, token: value, valid: await this.verifyToken(value, key as Region) }
+      })
+    )).filter(item => Boolean(item.valid));
+  }
+
+  async getTokens() {
+    return this.hasTokens() ? await this.getValidTokens() : [];
+  }
+
+  async isAuthorizedWithRedoclyByRegion(): Promise<boolean> {
+    if (!this.hasTokens()) return false;
+    const accessToken = this.accessTokens[this.region];
+    return !!accessToken && await this.verifyToken(accessToken, this.region);
+  }
+
+  async isAuthorizedWithRedocly(): Promise<boolean> {
+    return this.hasTokens() && isNotEmptyObject(await this.getValidTokens());
+  }
+
+  readCredentialsFile(credentialsPath: string) {
+    return existsSync(credentialsPath) ? JSON.parse(readFileSync(credentialsPath, 'utf-8')) : {};
+  }
+
+  async verifyToken(accessToken: string, region: Region, verbose: boolean = false): Promise<boolean> {
+    if (!accessToken) return false;
+    return this.registryApi.authStatus(accessToken, region, verbose);
   }
 
   async login(accessToken: string, verbose: boolean = false) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(gray('\n  Logging in...\n'));
 
-    const authorized = await this.verifyToken(accessToken, verbose);
-
+    const authorized = await this.verifyToken(accessToken, this.region, verbose);
     if (!authorized) {
       process.stdout.write(
         red('Authorization failed. Please check if you entered a valid API key.\n'),
@@ -67,11 +138,13 @@ export class RedoclyClient {
       process.exit(1);
     }
 
-    this.accessToken = accessToken;
     const credentials = {
-      token: accessToken,
+      ...this.readCredentialsFile(credentialsPath),
+      [this.region!]: accessToken,
+      token: accessToken, // FIXME: backward compatibility, remove on 1.0.0
     };
-
+    this.accessTokens = credentials;
+    this.registryApi.setAccessTokens(credentials);
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
     process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
   }
@@ -83,198 +156,20 @@ export class RedoclyClient {
     }
     process.stdout.write('Logged out from the Redocly account. ✋\n');
   }
+}
 
-  async query(queryString: string, parameters = {}, headers = {}) {
-    return query(queryString, parameters, {
-      Authorization: this.accessToken,
-      ...headers,
-    });
-  }
+export function isRedoclyRegistryURL(link: string): boolean {
+  const domain = process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+  if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
+  const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
-  static async authorize(accessToken: string, options: { queryName?: string; verbose?: boolean }) {
-    const { queryName = '', verbose = false } = options;
-    try {
-      const queryStr = `query ${queryName}{ viewer { id } }`;
+  const pathParts = registryPath.split('/');
 
-      return await query(queryStr, {}, { Authorization: accessToken });
-    } catch (e) {
-      if (verbose) console.log(e);
-      return null;
-    }
-  }
+  // we can be sure, that there is job UUID present
+  // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
+  // so skip this link.
+  // FIXME
+  if (pathParts.length === 7) return false;
 
-  async updateDependencies(dependencies: string[] | undefined): Promise<void> {
-    const definitionId = process.env.DEFINITION;
-    const versionId = process.env.DEFINITION;
-    const branchId = process.env.BRANCH;
-
-    if (!definitionId || !versionId || !branchId) return;
-
-    await this.query(
-      `
-    mutation UpdateBranchDependenciesFromURLs(
-      $urls: [String!]!
-      $definitionId: Int!
-      $versionId: Int!
-      $branchId: Int!
-    ) {
-      updateBranchDependenciesFromURLs(
-        definitionId: $definitionId
-        versionId: $versionId
-        branchId: $branchId
-        urls: $urls
-      ) {
-        branchName
-      }
-    }
-    `,
-      {
-        urls: dependencies || [],
-        definitionId: parseInt(definitionId, 10),
-        versionId: parseInt(versionId, 10),
-        branchId: parseInt(branchId, 10),
-      },
-    );
-  }
-
-  updateDefinitionVersion(definitionId: number, versionId: number, updatePatch: object): Promise<void> {
-    return this.query(`
-      mutation UpdateDefinitionVersion($definitionId: Int!, $versionId: Int!, $updatePatch: DefinitionVersionPatch!) {
-        updateDefinitionVersionByDefinitionIdAndId(input: {definitionId: $definitionId, id: $versionId, patch: $updatePatch}) {
-          definitionVersion {
-            ...VersionDetails
-            __typename
-          }
-          __typename
-        }
-      }
-
-      fragment VersionDetails on DefinitionVersion {
-        id
-        nodeId
-        uuid
-        definitionId
-        name
-        description
-        sourceType
-        source
-        registryAccess
-        __typename
-      }
-    `,
-      {
-        definitionId,
-        versionId,
-        updatePatch,
-      },
-    );
-  }
-
-  getOrganizationId(organizationId: string) {
-    return this.query(`
-      query ($organizationId: String!) {
-        organizationById(id: $organizationId) {
-          id
-        }
-      }
-    `, {
-      organizationId
-    });
-  }
-
-  getDefinitionByName(name: string, organizationId: string) {
-    return this.query(`
-      query ($name: String!, $organizationId: String!) {
-        definition: definitionByOrganizationIdAndName(name: $name, organizationId: $organizationId) {
-          id
-        }
-      }
-    `, {
-      name,
-      organizationId
-    });
-  }
-
-  createDefinition(organizationId: string, name: string) {
-    return this.query(`
-      mutation CreateDefinition($organizationId: String!, $name: String!) {
-        def: createDefinition(input: {organizationId: $organizationId, name: $name }) {
-          definition {
-            id
-            nodeId
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      name
-    })
-  }
-
-  createDefinitionVersion(definitionId: string, name: string, sourceType: string, source: any) {
-    return this.query(`
-      mutation CreateVersion($definitionId: Int!, $name: String!, $sourceType: DvSourceType!, $source: JSON) {
-        createDefinitionVersion(input: {definitionId: $definitionId, name: $name, sourceType: $sourceType, source: $source }) {
-          definitionVersion {
-            id
-          }
-        }
-      }
-    `, {
-      definitionId,
-      name,
-      sourceType,
-      source
-    });
-  }
-
-  getSignedUrl(organizationId: string, filesHash: string, fileName: string) {
-    return this.query(`
-      query ($organizationId: String!, $filesHash: String!, $fileName: String!) {
-        signFileUploadCLI(organizationId: $organizationId, filesHash: $filesHash, fileName: $fileName) {
-          signedFileUrl
-          uploadedFilePath
-        }
-      }
-    `, {
-      organizationId,
-      filesHash,
-      fileName
-    })
-  }
-
-  getDefinitionVersion(organizationId: string, definitionName: string, versionName: string) {
-    return this.query(`
-      query ($organizationId: String!, $definitionName: String!, $versionName: String!) {
-        version: definitionVersionByOrganizationDefinitionAndName(organizationId: $organizationId, definitionName: $definitionName, versionName: $versionName) {
-          id
-          definitionId
-          defaultBranch {
-            name
-          }
-        }
-      }
-    `, {
-      organizationId,
-      definitionName,
-      versionName
-    });
-  }
-
-  static isRegistryURL(link: string): boolean {
-    const domain = process.env.REDOCLY_DOMAIN || 'redoc.ly';
-    if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-    const registryPath = link.replace(`https://api.${domain}/registry/`, '');
-
-    const pathParts = registryPath.split('/');
-
-    // we can be sure, that there is job UUID present
-    // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
-    // so skip this link.
-    // FIXME
-    if (pathParts.length === 7) return false;
-
-    return true;
-  }
+  return true;
 }
