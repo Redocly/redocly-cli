@@ -1,11 +1,14 @@
 import * as fs from 'fs';
 import { RedoclyClient } from '../redocly';
-import { loadYaml } from '../utils';
+import { isEmptyArray, loadYaml } from '../utils';
 import { Config, DOMAINS, RawConfig, Region } from './config';
-
 import { defaultPlugin } from './builtIn';
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
+export async function loadConfig(
+  configPath?: string,
+  customExtends?: string[],
+  enableDecorators?: string[]
+): Promise<Config> {
   if (configPath === undefined) {
     configPath = findConfig();
   }
@@ -18,9 +21,24 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
+
+  const addLintProperty = () => {
+    if (!rawConfig.hasOwnProperty('lint')) {
+      rawConfig.lint = {};
+    }
+  }
+
   if (customExtends !== undefined) {
-    rawConfig.lint = rawConfig.lint || {};
-    rawConfig.lint.extends = customExtends;
+    addLintProperty();
+    rawConfig.lint!.extends = customExtends;
+  }
+
+  if (enableDecorators && !isEmptyArray(enableDecorators)) {
+    addLintProperty();
+    rawConfig.lint!.decorators = {};
+    for (const decorator of enableDecorators) {
+      rawConfig.lint!.decorators[decorator] = 'on';
+    }
   }
 
   const redoclyClient = new RedoclyClient();

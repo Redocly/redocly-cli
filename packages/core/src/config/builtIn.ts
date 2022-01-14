@@ -2,7 +2,6 @@ import recommended from './recommended';
 import all from './all';
 import minimal from './minimal';
 import { LintRawConfig, Plugin } from './config';
-
 import * as builtinRules from '../rules/builtin';
 
 export const builtInConfigs: Record<string, LintRawConfig> = {

@@ -213,7 +213,12 @@ yargs
           description: 'Remove unused components.',
           type: 'boolean',
           default: false,
-        }
+        },
+        'enable-decorators': {
+          description: 'Enable decorators.',
+          array: true,
+          type: 'string',
+        },
       }),
     (argv) => {
       handleBundle(argv, version);

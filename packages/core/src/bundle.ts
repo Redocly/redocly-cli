@@ -18,7 +18,6 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oa
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
-
 export enum OasVersion {
   Version2 = 'oas2',
   Version3_0 = 'oas3_0',
@@ -45,9 +44,7 @@ export async function bundle(opts: {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document =
-    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
-
+  const document = doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
   if (document instanceof Error) {
     throw document;
   }
