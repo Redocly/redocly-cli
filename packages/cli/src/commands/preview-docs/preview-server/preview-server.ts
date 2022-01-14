@@ -13,7 +13,6 @@ function getPageHTML(
   redocOptions: object = {},
   useRedocPro: boolean,
   wsPort: number,
-  oauth = false,
 ) {
   let templateSrc = readFileSync(htmlTemplate, 'utf-8');
 
@@ -37,11 +36,6 @@ function getPageHTML(
       ? 'https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/redocly-reference-docs.min.js'
       : 'https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js'
   }"></script>
-  ${
-    useRedocPro && oauth
-      ? `<script src="https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/oauth2-redirect.js"></script>`
-      : ''
-  }
 `,
     redocHTML: `
   <div id="redoc"></div>
@@ -70,17 +64,10 @@ export default async function startPreviewServer(
   const handler = async (request: IncomingMessage, response: any) => {
     console.time(colorette.dim(`GET ${request.url}`));
     const { htmlTemplate } = getOptions() || {};
-    const isOAuthRedirect = request.url?.endsWith('/oauth2-redirect.html');
 
-    if (request.url?.endsWith('/') || path.extname(request.url!) === '' || isOAuthRedirect) {
+    if (request.url?.endsWith('/') || path.extname(request.url!) === '') {
       respondWithGzip(
-        getPageHTML(
-          htmlTemplate || defaultTemplate,
-          getOptions(),
-          useRedocPro,
-          wsPort,
-          isOAuthRedirect,
-        ),
+        getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
         request,
         response,
         {
@@ -115,6 +102,7 @@ export default async function startPreviewServer(
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
+          '/oauth2-redirect.html': path.join(__dirname, 'oauth2-redirect.html'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
         }[request.url || ''] ||
         path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
