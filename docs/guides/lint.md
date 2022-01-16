@@ -3,75 +3,237 @@ redirectFrom:
   - /docs/cli/configuration/lint/
 ---
 
-# Lint configuration
+## Introduction
 
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
-It is used by the `lint` and `bundle` commands to control various options.
+The `lint` and `bundle` commands use this section to control various options.
 
-Modify (or create) the `.redocly.yaml` file in the directory from which you are going to run the `lint` or `bundle` commands.
-
-:::attention
-
-When using our hosted Workflows product, the `.redocly.yaml` file must be in the root of the repository.
-
-:::
-
-Read about the [`--config` option](../commands/index.md) to use other file names or locations.
-
-From a high-level, there are a few sub-sections.
+The `lint` configuration section consists of several sub-sections (each section is described after this block):
 
 ```yaml
 lint:
   plugins:
-    # This section is where you can import local plugins.
-    # We don't support community plugins.
-    # You don't need to import our built-in plugins and rules.
-    # Omit this section if you don't have custom plugins.
     - './local-plugin.js'
-
   extends:
-    # This section is where you choose the base configurations.
-    # You may override specific settings in the subsequent sections.
-    - recommended # This is the default (and built in) configuration. If it is too strict, try `minimal`.
-
+    - recommended
+  resolve:
+    http:
+      headers:
+        - matches: https://api.example.com/v2/**
+          name: X-API-KEY
+          value: <direct value>
+          envVariable: <name of env variable to be used as value>
+        - matches: https://example.com/*/test.yaml
+          name: Authorization
+          value: <direct value>
+          envVariable: <name of env variable to be used as value>
   preprocessors:
-    # Preprocessors are rarely indicated -- avoid if possible.
-    # This section can be omitted.
-
   rules:
-    # Override any rules that are available from the extends configuration.
-    # Severity options are "error", "warn" or "off".
-    no-sibling-refs: error # Uses syntactic sugar to define the severity level of an option.
-    # Alternative verbose configuration
     no-sibling-refs:
       severity: error
-    # Some rules may have additional configuration options. Use the verbose configuration style in those cases.
-    # This boolean parameter prefixes example overrides the default "prefixes".
     boolean-parameter-prefixes:
       severity: error
       prefixes: ['should', 'is', 'has']
-
   decorators:
-    # Decorators modify the the definition after validation is complete, only in the bundling process.
-    # This section can be omitted if you don't use decorators.
   ...
 ```
 
+## Sub-sections
+
+### Plugins
+
+Use this section to import local plugins.
+
+* **type**: `array of strings`
+
+:::warning
+You don't need to import built-in plugins and rules.
+
+Community plugins are not supported.
+:::
+
+:::success
+Omit this section if you don't have custom plugins.
+:::
+
+#### Examples
+
+```yaml single value
+lint:
+  plugins:
+    - './local-plugin.js'
+```
+
+```yaml multiple values
+lint:
+  plugins:
+    - ['./local-plugin.js', './another-local-plugin.js']
+```
+
+### Extends
+
+Use this section to choose the base configuration for further extension or adding your own plugins. You may override specific settings in the subsequent sections.
+
+* **type**: `array of strings`
+* **default**: `recommended`
+* **possible values**: `minimal`, `recommended`, `all`
+
+:::info
+Possible values specified above are related to built-in rules only. Custom plugins can contain additional configurations, so it can be as follows:
+
+```yaml
+lint:
+  extends:
+    - recommended
+    - my-custom-super-ruleset
+```
+
+Find more information in the [Configs in plugins](../resources/custom-rules/#configs-in-plugins) section.
+
+:::
+
+#### Examples
+
+```yaml single value
+lint:
+  extends:
+    - minimal
+```
+
+```yaml multiple values
+lint:
+  extends:
+    - minimal
+    - recommended
+```
+
+### Resolve
+
+Use this section to specify external links in your definition that are not publicly accessible (except for Redocly API registry links).
+
+* **type**: `object`
+
+Redocly automatically resolves any API registry link or public URL. However, you may want to resolve links that are not API registry links or publicly accessible.
+
+Currently, OpenAPI CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section:
+
+```yaml
+lint:
+  resolve:
+    http:
+      headers:
+        - # header configuration
+```
+
+#### Header configuration
+
+| Property      | Description | Examples |
+| ------------- | ----------- | -------- |
+| `matches`     | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json` |
+| `name`        | HTTP header name.           | `Authorization` or `X-API-KEY` |
+| `value`       | The value of the header. Mutually exclusive with `envVariable`. | `123-abc` |
+| `envVariable` | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. | `SECRET_KEY` |
+
+:::success
+It is recommeded to use environment variables where possible.
+:::
+
+#### Example
+
+```yaml multiple values
+lint:
+  resolve:
+    http:
+      headers:
+        - matches: https://api.example.com/v2/**
+          name: X-API-KEY
+          envVariable: SECRET_KEY
+        - matches: https://example.com/*/test.yaml
+          name: Authorization
+          envVariable: SECRET_AUTH
+```
+
+The first match will win in the event when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
+
+### Preprocessors
+
+Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
+
+* **type**: `array of objects`
+* **possible values**: `error`, `warn`, `off`
+
+Preprocessors run first during `lint` and `bundle`.
+
+:::info
+Linting happens only when the `--lint` flag is supplied
+:::
+
+:::info
+Preprocessors are rarely indicated - avoid if possible.
+
+This section can be omitted.
+:::
+
+### Rules
+
+Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
+
+* **type**: `array of objects`
+* **possible values**: `error`, `warn`, `off`
+
+For `lint` command: rules run *after* preprocessors.
+For `bundle` command: rules run *between* preprocessors and decorators.
+
+#### Examples
+
+```yaml short version
+lint:
+  rules:
+    no-sibling-refs: error
+```
+
+```yaml verbose version
+lint:
+  rules:
+    no-sibling-refs:
+      severity: error
+```
+
+```yaml rules with additional configuration
+# Use verbose configuration version to define additional configuration
+# The boolean-parameter-prefixes example overrides the default "prefixes".
+lint:
+  rules:
+    boolean-parameter-prefixes:
+      severity: error
+      prefixes: ['should', 'is', 'has']
+```    
+
+### Decorators
+
+Use this section to enable or disable decorators. They modify the definition in the bundling process after validation is complete.
+
+* **type**: `array of objects`
+* **possible values**: `error`, `warn`, `off`
+
+For `bundle` command: decorators run *after* linting.
+
+:::info
+Linting happens only when the `--lint` flag is supplied
+:::
+
+:::success
+Omit this section if you don't use decorators.
+:::
 
 ## Severity levels
 
-This applies to the preprocessors, rules, and decorators subsections of the lint configuration.
+* **applied to**: [`preprocessors`](#preprocessors), [`rules`](#rules), [`decorators`](#decorators)
+* **possible values**: `error`, `warn`, `off`
 
-This file excerpt shows utilizing syntactic sugar to control the problem severity.
+### Examples
 
-The severity level options are:
-- off
-- warn
-- error
-
-**Example**
-
-```yaml
+```yaml short version
 lint:
   extends:
     - recommended
@@ -80,12 +242,7 @@ lint:
     no-unused-components: error
 ```
 
-When using the short syntax, you're unable to configure additional options for any given rule.
-Not all rules have additional options.
-See the rules documentation for more information.
-This is exactly the same as the settings above.
-
-```yaml
+```yaml verbose version
 lint:
   extends:
     - recommended
@@ -96,9 +253,18 @@ lint:
       severity: error
 ```
 
+:::warning
+With the short version, you can't configure [additional options](#additional-rule-options) for any given rule (if it supports them).
+:::
+
+:::info
+See the [rules documentation](../resources/built-in-rules.md) for more information.
+:::
+
 ## Additional rule options
 
-In this example, we define additional rule options for the `boolean-parameter-prefixes` rule.
+The example below shows additional rule options for the `boolean-parameter-prefixes` rule:
+
 ```yaml
 lint:
   extends:
@@ -110,7 +276,7 @@ lint:
     no-unused-components:
       severity: error
 ```
-To know which rules support options, please read the built-in rules documentation.
+To know which rules support options, please read the [built-in rules documentation](../resources/built-in-rules.md).
 
 :::success Tip
 
@@ -121,9 +287,7 @@ Be sure to document those options for your users.
 
 ## Different OpenAPI versions
 
-Redocly OpenAPI CLI supports versions 2 and 3 of OpenAPI.
-However, you may need to configure different rules based on the version.
-You can do that by using additional configuration sections.
+Redocly OpenAPI CLI supports OpenAPI of versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
 ```yaml
 lint:
@@ -138,26 +302,24 @@ lint:
     boolean-parameter-prefixes: error
 ```
 
-In this example, the OpenAPI specification version is identified.
+In this example, the OpenAPI specification version is identified:
 
-If it is version 2 (formerly known as Swagger), it will prioritize the `oas2Rules` section.
-If not defined, it will fall back to the `rules` section.
+* If it is version 2 (formerly known as Swagger), it will prioritize the `oas2Rules` section.
+* If it is version 3 (OpenAPI 3.x), it will prioritize the `oas3_0Rules` section.
 
-If it is version OpenAPI 3.0, it will prioritize the `oas3_0Rules` section.
-If not defined, it will fall back to the `rules` section.
+:::info
+If the version is not defined, it will fall back to the `rules` section.
+:::
 
-Read about our [built-in rules](../resources/built-in-rules.md).
-
+Read more about [built-in rules](../resources/built-in-rules.md).
 
 ## Resolving JSON references ($refs)
 
-The OpenAPI specification supports $refs in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require $refs in unsupported places.
+The OpenAPI specification supports `$refs` in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require `$refs` in unsupported places.
 
-Starting with version `1.0.0-beta-30`, OpenAPI CLI automatically resolves all $refs by default, even in places where they are not allowed by the specification. This includes primitive values like `string` (e.g. in `description` fields) and examples.
+Starting from version `beta-30` onward, OpenAPI CLI automatically resolves all `$refs` by default, even in places where they are not allowed by the specification. This includes primitive values, for example `string`, in description and examples fields.
 
-To disable resolving $refs in examples, use the `doNotResolveExamples` configuration option in the `lint` section of `.redocly.yaml`. This does not affect $ref resolution in other parts of the API definition.
-
-**Example**
+To disable resolving `$refs` in examples, use the `doNotResolveExamples` configuration option in the `lint` section of `.redocly.yaml`. This does not affect `$ref` resolution in other parts of the API definition:
 
 ```yaml
 lint:
@@ -167,4 +329,3 @@ lint:
   rules:
     (...)
 ```
-
