@@ -36,9 +36,9 @@ lint:
   ...
 ```
 
-# Sub-sections
+## Sub-sections
 
-## Plugins
+### Plugins
 
 Use this section to import local plugins.
 
@@ -54,7 +54,7 @@ Community plugins are not supported.
 Omit this section if you don't have custom plugins.
 :::
 
-### Examples
+#### Examples
 
 ```yaml single value
 lint:
@@ -68,7 +68,7 @@ lint:
     - ['./local-plugin.js', './another-local-plugin.js']
 ```
 
-## Extends
+### Extends
 
 Use this section to choose the base configuration for further extension or adding your own plugins. You may override specific settings in the subsequent sections.
 
@@ -90,7 +90,7 @@ Find more information in the [Configs in plugins](../resources/custom-rules/#con
 
 :::
 
-### Examples
+#### Examples
 
 ```yaml single value
 lint:
@@ -105,7 +105,7 @@ lint:
     - recommended
 ```
 
-## Resolve
+### Resolve
 
 Use this section to specify external links in your definition that are not publicly accessible (except for Redocly API registry links).
 
@@ -123,7 +123,7 @@ lint:
         - # header configuration
 ```
 
-### Header configuration
+#### Header configuration
 
 | Property      | Description | Examples |
 | ------------- | ----------- | -------- |
@@ -136,7 +136,7 @@ lint:
 It is recommeded to use environment variables where possible.
 :::
 
-### Example
+#### Example
 
 ```yaml multiple values
 lint:
@@ -153,7 +153,7 @@ lint:
 
 The first match will win in the event when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
-## Preprocessors
+### Preprocessors
 
 Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
 
@@ -172,7 +172,7 @@ Preprocessors are rarely indicated - avoid if possible.
 This section can be omitted.
 :::
 
-## Rules
+### Rules
 
 Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
 
@@ -182,7 +182,7 @@ Use this section to change the [severity level](#severity-levels) of any rules i
 For `lint` command: rules run *after* preprocessors.
 For `bundle` command: rules run *between* preprocessors and decorators.
 
-### Examples
+#### Examples
 
 ```yaml short version
 lint:
@@ -207,7 +207,7 @@ lint:
       prefixes: ['should', 'is', 'has']
 ```    
 
-## Decorators
+### Decorators
 
 Use this section to enable or disable decorators. They modify the definition in the bundling process after validation is complete.
 
@@ -224,12 +224,12 @@ Linting happens only when the `--lint` flag is supplied
 Omit this section if you don't use decorators.
 :::
 
-## Severity levels
+### Severity levels
 
 * **applied to**: [`preprocessors`](#preprocessors), [`rules`](#rules), [`decorators`](#decorators)
 * **possible values**: `error`, `warn`, `off`
 
-### Examples
+#### Examples
 
 ```yaml short version
 lint:
@@ -259,7 +259,7 @@ With the short version, you can't configure [additional options](#additional-rul
 See the [rules documentation](../resources/built-in-rules.md) for more information.
 :::
 
-## Additional rule options
+### Additional rule options
 
 The example below shows additional rule options for the `boolean-parameter-prefixes` rule:
 
@@ -283,7 +283,7 @@ Be sure to document those options for your users.
 
 :::
 
-## Different OpenAPI versions
+### Different OpenAPI versions
 
 Redocly OpenAPI CLI supports OpenAPI of versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
@@ -311,7 +311,7 @@ If the version is not defined, it will fall back to the `rules` section.
 
 Read more about [built-in rules](../resources/built-in-rules.md).
 
-## Resolving JSON references ($refs)
+### Resolving JSON references ($refs)
 
 The OpenAPI specification supports `$refs` in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require `$refs` in unsupported places.
 
