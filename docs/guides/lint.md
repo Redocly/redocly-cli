@@ -3,7 +3,7 @@ redirectFrom:
   - /docs/cli/configuration/lint/
 ---
 
-## Introduction
+# Introduction
 
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 The `lint` and `bundle` commands use this section to control various options.
@@ -27,20 +27,18 @@ lint:
           name: Authorization
           value: <direct value>
           envVariable: <name of env variable to be used as value>
-  preprocessors:
   rules:
     no-sibling-refs:
       severity: error
     boolean-parameter-prefixes:
       severity: error
       prefixes: ['should', 'is', 'has']
-  decorators:
   ...
 ```
 
-## Sub-sections
+# Sub-sections
 
-### Plugins
+## Plugins
 
 Use this section to import local plugins.
 
@@ -56,7 +54,7 @@ Community plugins are not supported.
 Omit this section if you don't have custom plugins.
 :::
 
-#### Examples
+### Examples
 
 ```yaml single value
 lint:
@@ -70,7 +68,7 @@ lint:
     - ['./local-plugin.js', './another-local-plugin.js']
 ```
 
-### Extends
+## Extends
 
 Use this section to choose the base configuration for further extension or adding your own plugins. You may override specific settings in the subsequent sections.
 
@@ -92,7 +90,7 @@ Find more information in the [Configs in plugins](../resources/custom-rules/#con
 
 :::
 
-#### Examples
+### Examples
 
 ```yaml single value
 lint:
@@ -107,7 +105,7 @@ lint:
     - recommended
 ```
 
-### Resolve
+## Resolve
 
 Use this section to specify external links in your definition that are not publicly accessible (except for Redocly API registry links).
 
@@ -125,7 +123,7 @@ lint:
         - # header configuration
 ```
 
-#### Header configuration
+### Header configuration
 
 | Property      | Description | Examples |
 | ------------- | ----------- | -------- |
@@ -138,7 +136,7 @@ lint:
 It is recommeded to use environment variables where possible.
 :::
 
-#### Example
+### Example
 
 ```yaml multiple values
 lint:
@@ -155,7 +153,7 @@ lint:
 
 The first match will win in the event when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
-### Preprocessors
+## Preprocessors
 
 Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
 
@@ -174,7 +172,7 @@ Preprocessors are rarely indicated - avoid if possible.
 This section can be omitted.
 :::
 
-### Rules
+## Rules
 
 Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
 
@@ -184,7 +182,7 @@ Use this section to change the [severity level](#severity-levels) of any rules i
 For `lint` command: rules run *after* preprocessors.
 For `bundle` command: rules run *between* preprocessors and decorators.
 
-#### Examples
+### Examples
 
 ```yaml short version
 lint:
@@ -209,7 +207,7 @@ lint:
       prefixes: ['should', 'is', 'has']
 ```    
 
-### Decorators
+## Decorators
 
 Use this section to enable or disable decorators. They modify the definition in the bundling process after validation is complete.
 
