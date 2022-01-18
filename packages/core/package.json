@@ -49,5 +49,12 @@
     "@types/node-fetch": "^2.5.7",
     "@types/pluralize": "^0.0.29",
     "typescript": "^4.0.5"
+  },
+  "jest": {
+    "clearMocks": true,
+    "preset": "ts-jest",
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ]
   }
 }

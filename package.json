@@ -25,7 +25,9 @@
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js",
-    "deploy-local": "npm run compile && ENV=local npm run upload"
+    "deploy-local": "npm run compile && ENV=local npm run upload",
+    "test-cli": "jest --coverage --projects ./packages/cli --coverageReporters lcov text-summary",
+    "test-core": "jest --coverage --projects ./packages/core --coverageReporters lcov text-summary"
   },
   "workspaces": [
     "packages/*"
@@ -66,11 +68,15 @@
     "clearMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
-      "packages/**/*.ts",
+      "packages/cli/**/*.ts",
+      "packages/core/**/*.ts",
       "!packages/**/__tests__/**/*",
       "!packages/cli/src/index.ts",
-      "!packages/cli/**/*.ts",
-      "!packages/cli/src/format/format.ts"
+      "!**/node_modules/**"
+    ],
+    "projects": [
+      "./cli",
+      "./core"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",
