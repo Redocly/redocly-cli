@@ -23,9 +23,9 @@ message | `string` | Problem message displayed if the assertion is false.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | The severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
 enum | [`string`] | Asserts value is within a predefined list of values. See [enum example](#enum-example).
-pattern | `string` | Asserts value matches a regex pattern. See [regex pattern example](#regex-pattern-example).
+pattern | `string` | Asserts value matches a regex pattern. See [regex pattern example](#pattern-example).
 casing | `string` | Asserts a casing style from this possible list: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
-mutuallyExclusive | [`string`] | Asserts list of properties (key names only) are mutually exclusive. Use `$keys` in the `on` when this is enabled (for example, `Operation.$keys`). See [mutuallyExclusive example](#mutuallyexclusie-example).
+mutuallyExclusive | [`string`] | Asserts list of properties (key names only) are mutually exclusive. Use `$keys` in the `on` when this is enabled (for example, `Operation.$keys`). See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [`string`] | Asserts list of properties (key names only) are mutually required. Use `$keys` in the `on` when this is enabled (for example, `Operation.$keys`). See [mutuallyRequired example](#mutuallyrequired-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 undefined | `boolean` | Asserts a property is undefined. See [undefined example](#undefined-example).
@@ -77,7 +77,7 @@ lint:
         defined: true
         minLength: 20
         maxLength: 60
-        pattern: /^\.$/
+        pattern: /[^\.]$/
       
 ```
 
