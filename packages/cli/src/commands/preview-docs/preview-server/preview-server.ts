@@ -102,6 +102,7 @@ export default async function startPreviewServer(
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
+          '/oauth2-redirect.html': path.join(__dirname, 'oauth2-redirect.html'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
         }[request.url || ''] ||
         path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
