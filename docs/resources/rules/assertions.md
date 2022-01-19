@@ -18,7 +18,9 @@ assertions | [[Assertion object]](#assertion-object) | A list of assertions to e
 
 Property | Type | Description
 -- | -- | --
-on | `string` \| [`string`] | **REQUIRED.** The node type, or list of node types, to the lint targets. Nodes are traversed with a dot `.` between nodes, and can start from any [OpenAPI node type](#openapi-node-types). A special value `$keys` can be used to target the keys of any map (for example, `ResponseMap.$keys`).
+subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the the lint subjects to its evaluation. Use with `context` for more control.
+property | `string` \| [`string`] | The [OpenAPI node type](#openapi-node-types)'s corresponding property name. If not provided, assertions will evaluate against the key names for the subject node type.
+context | [Context object](#context-object) | The context influences the execution flow including nesting and filters. See [Context example](#context-example). If no context is provided, it executes for all instances of the given type.
 message | `string` | Problem message displayed if the assertion is false.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | The severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
@@ -27,12 +29,23 @@ pattern | `string` | Asserts value matches a regex pattern. See [regex pattern e
 casing | `string` | Asserts a casing style from this possible list: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
 mutuallyExclusive | [`string`] | Asserts list of properties (key names only) are mutually exclusive. Use `$keys` in the `on` when this is enabled (for example, `Operation.$keys`). See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [`string`] | Asserts list of properties (key names only) are mutually required. Use `$keys` in the `on` when this is enabled (for example, `Operation.$keys`). See [mutuallyRequired example](#mutuallyrequired-example).
+required | [`string`] | Asserts all listed values are defined. See [required example](#required-example).
+disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 undefined | `boolean` | Asserts a property is undefined. See [undefined example](#undefined-example).
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
 sortOrder | `string` \| [Sort Order object](#sort-order-object) | Asserts a sort order to a list (array) of strings or a list of objects by one of the object's property values. See [sortOrder example](#sortorder-example).
+
+## Context object
+
+Property | Type | Description
+-- | -- | --
+type | `string` | **REQUIRED.** One of the [OpenAPI node types](#openapi-node-types).
+filterKeys | [`string`] | The list of key names to continue evaluation with respect to the subject.
+
+See the [context example](#context-example).
 
 ## Sort Order object
 
@@ -61,36 +74,64 @@ The following shows how to write that configuration:
 lint:
   rules:
     assertions:
-      - on:
-          - Tag.description
-          - Operation.description
-          - Info.description
-        message: Description must be at least 30 characters and end with a full stop.
+      - subject: Tag
+        property: description
+        message: Tag description must be at least 30 characters and end with a full stop.
         severity: error
         defined: true
         minLength: 30
         pattern: /\.$/
-      - on:
-          - Operation.summary
-        message: Operation summary must be at least 20 characters and not end with a full stop.
+      - subject: Operation
+        property: description
+        message: Operation description must be at least 30 characters and end with a full stop.
+        severity: error
+        defined: true
+        minLength: 30
+        pattern: /\.$/
+      - subject: Info
+        property: description
+        message: Info description must be at least 30 characters and end with a full stop.
+        severity: error
+        defined: true
+        minLength: 30
+        pattern: /\.$/
+      - subject: Operation
+        property: summary
+        message: Operation summary must be between 20 and 60 characters and not end with a full stop.
         severity: error
         defined: true
         minLength: 20
         maxLength: 60
         pattern: /[^\.]$/
-      
+```
+
+### `context` example
+
+The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an application/pdf content type.
+Without the `context`, the assertion would evaluate every MediaTypeMap including:
+- Responses with all codes including others than 200 or 201
+- Responses for all HTTP methods including delete, get, post, and more.
+To restrict the evaluation, use the context feature to limit where context is used.
+
+```yaml
+- context:
+    - type: Operation
+      filterKeys: [put]
+    - type: ResponsesMap
+      filterKeys: [201, 200]
+  subject: MediaTypeMap
+  disallowed: ['application/pdf']
 ```
 
 ### `enum` example
 
 The following example asserts that only `application/json` can be used as a key of the media type map.
-Append `$keys` to the `on` node value to run on the node's keys.
 
 ```yaml keys
 lint:
   rules:
     assertions:
-      - on: MediaTypeMap.$keys
+      - subject: MediaTypeMap
         message: Only application/json can be used
         severity: error
         enum:
@@ -103,7 +144,8 @@ The following example asserts that the operation summary must match one of the l
 lint:
   rules:
     assertions:
-      - on: Operation.summary
+      - subject: Operation
+        property: summary
         message: Summary must be one of the predefined values
         suggest:
           - change to 'My resource'
@@ -122,7 +164,8 @@ The following example asserts that the operation summary contains "test".
 lint:
   rules:
     assertions:
-      - on: Operation.summary
+      - subject: Operation
+        property: summary
         message: Summary should match a regex
         severity: error
         pattern: /test/
@@ -136,7 +179,7 @@ The following example asserts the casing style is `PascalCase` for named Example
 lint:
   rules:
     assertions:
-      - on: NamedExamples.$keys
+      - subject: NamedExamples
         message: NamedExamples key must be in PascalCase
         severity: error
         casing: PascalCase
@@ -156,13 +199,12 @@ Casing supports these styles:
 
 The following example asserts the operation `description` and `externalDocs` must be mutually exclusive.
 This assert runs only on node's keys.
-Append `$keys` to the `on` node value to run on the node's keys.
 
 ```yaml
 lint:
   rules:
     assertions:
-      - on: Operation.$keys
+      - subject: Operation
         message: "Operation must not define both properties together: description and externalDocs"
         severity: error
         mutuallyExclusive:
@@ -174,13 +216,12 @@ lint:
 
 The following example asserts that a response body schema must have both `amount` and `currency` properties (and not either one by itself).
 This assertion runs only on node's keys.
-Append `$keys` to the `on` node value to run on the node's keys.
 
 ```yaml Schema example
 lint:
   rules:
     assertions:
-      # - on: Operation.Response.$keys check this
+      - subject: Response
         message: The created_at and updated_at properties are mutually required
         severity: error
         mutuallyRequired:
@@ -188,18 +229,59 @@ lint:
           - updated_at
 ```
 
-The following example asserts that `PUT` requests have both `200` and `201` responses defined.
+The following example asserts that when `PUT` requests have either `200` or `201` defined that both `200` and `201` responses defined.
 
 ```yaml Response example
 lint:
   rules:
     assertions:
-      - on: PathItem.put.responses.$keys
-        message: Must define 200 and 201 responses for PUT requests.
+      - subject: ResponseMap
+        context:
+          - type: Operation
+            filterKeys:
+              - put
+        message: Must mutually define 200 and 201 responses for PUT requests.
         severity: error
         mutuallyRequired:
           - '200'
           - '201'
+```
+
+### `required` example
+
+The following example asserts that `PUT` requests have both `200` and `201` responses defined.
+The difference between `mutuallyRequired` is that neither `200` and `201` need to be defined for it to meet `mutuallyRequired` evaluations.
+
+```yaml Response example
+lint:
+  rules:
+    assertions:
+      - subject: ResponseMap
+        context:
+          - type: Operation
+            filterKeys:
+              - put
+        message: Must define 200 and 201 responses for PUT requests.
+        severity: error
+        required:
+          - '200'
+          - '201'
+```
+
+### `disallowed` example
+
+The following example asserts that `x-code-samples` and `x-internal` are not defined.
+
+```yaml
+lint:
+  rules:
+    assertions:
+      - subject: Operation
+        message: x-codeSamples and x-internal must not be defined
+        severity: error
+        disallowed:
+          - x-code-samples
+          - x-internal
 ```
 
 ### `defined` example
@@ -210,7 +292,8 @@ The following example asserts that `x-codeSamples` is defined.
 lint:
   rules:
     assertions:
-      - on: Operation.x-codeSamples
+      - subject: Operation
+        property: x-codeSamples
         message: x-codeSamples must be defined
         severity: error
         defined: true
@@ -224,7 +307,8 @@ The following example asserts that `x-code-samples` is undefined.
 lint:
   rules:
     assertions:
-      - on: Operation.x-code-samples
+      - subject: Operation
+        property: x-code-samples
         message: x-code-samples is deprecated
         suggest: 
           - x-codeSamples instead of x-code-samples
@@ -240,7 +324,8 @@ The following example asserts that the operation summary is not empty.
 lint:
   rules:
     assertions:
-      - on: Operation.summary
+      - subject: Operation
+        property: summary
         message: Operation summary should not be empty
         severity: error
         nonEmpty: true
@@ -254,7 +339,8 @@ The following example asserts that the minimum length of each operation summary 
 lint:
   rules:
     assertions:
-      - on: Operation.summary
+      - subject: Operation
+        property: summary
         message: Operation summary must have minimum of 20 chars length
         severity: error
         minLength: 20
@@ -268,8 +354,9 @@ The following example asserts that the maximum length of each operation summary 
 lint:
   rules:
     assertions:
-      - on: Operation.summary
-        message: Operation summary must have maximum of 20 characters
+      - subject: Operation
+        property: summary
+        message: Operation summary must have a maximum of 20 characters
         severity: error
         maxLength: 20
 ```
@@ -284,7 +371,12 @@ The following example asserts that the status schema's enum list is in alphabeti
 lint:
   rules:
     assertions:
-      - on: Schema.status.enum
+      - subject: Schema
+        property: enum
+        context:
+          - type: Schema
+            filterKeys: 
+              - status
         message: The status enums should be in alphabetical order
         suggest:
           - alphabetize the list of status enums
@@ -300,13 +392,15 @@ The `property` field is **REQUIRED** to sort collections based on that property'
 lint:
   rules:
     assertions:
-      - on: Operation.tags
+      - subject: Tag
+        property: name
         message: Tags should be ordered by name in alphabetical order
         severity: error
         sortOrder:
           direction: asc
           property: name
 ```
+<!-- TODO: Does the sortOrder need a property "property" now? -->
 
 ## OpenAPI node types
 
