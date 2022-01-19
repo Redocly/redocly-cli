@@ -1,7 +1,6 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
-import { makeConfig } from '../../../config/config';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
 describe('Oas3 no-unused-components', () => {

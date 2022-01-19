@@ -1,8 +1,7 @@
 import { outdent } from 'outdent';
 import { bundleDocument } from '../../bundle';
 import { BaseResolver } from '../../resolve';
-import { parseYamlToDocument, yamlSerializer } from '../../../__tests__/utils';
-import { makeConfig } from '../../config/config';
+import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../../__tests__/utils';
 
 describe('oas3 remove-x-internal', () => {
   expect.addSnapshotSerializer(yamlSerializer);
