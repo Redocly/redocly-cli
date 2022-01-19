@@ -1,0 +1,27 @@
+swagger: "2.0"
+host: "petstore.swagger.io"
+basePath: "/v2"
+securityDefinitions:
+  basicAuth:
+    type: basic
+    name: Authorization
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /pet:
+    get:
+      summary: "Add a new pet to the store"
+      operationId: "addPet"
+      consumes:
+        - "application/json"
+        - "application/xml"
+      produces:
+        - "application/xml"
+        - "application/json"
+      responses:
+        "405":
+          description: "Invalid input"
+      security:
+        - basicAuth: []
