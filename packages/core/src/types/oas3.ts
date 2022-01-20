@@ -1,6 +1,5 @@
 import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
-
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
 const DefinitionRoot: NodeType = {
@@ -496,6 +495,7 @@ const SecuritySchemeFlows: NodeType = {
   },
 };
 
+
 const SecurityScheme: NodeType = {
   properties: {
     type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect'] },
@@ -508,22 +508,33 @@ const SecurityScheme: NodeType = {
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
-    if (!value?.type) {
-      return ['type'];
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in'];
+      case 'http':
+        return ['type', 'scheme'];
+      case 'oauth2':
+        return ['type', 'flows'];
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl'];
+      default:
+        return ['type'];
     }
-
-    if (value.type === 'apiKey') {
-      return ['type', 'name', 'in'];
-    } else if (value.type === 'http') {
-      return ['type', 'scheme'];
-    } else if (value.type === 'oauth2') {
-      return ['type', 'flows'];
-    } else if (value.type === 'openIdConnect') {
-      return ['type', 'openIdConnectUrl'];
-    }
-
-    return ['type'];
   },
+  allowed(value) {
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in'];
+      case 'http':
+        return ['type', 'scheme', 'bearerFormat'];
+      case 'oauth2':
+        return ['type', 'flows'];
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl'];
+      default:
+        return undefined;
+    }
+  }
 };
 
 export const Oas3Types: Record<string, NodeType> = {

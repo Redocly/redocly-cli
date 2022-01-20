@@ -2,6 +2,5 @@ apiDefinitions:
   main: ./openapi.yaml
 
 lint:
-  rules:
-    operation-security-defined: error
-  extends: []
+  extends:
+    - recommended

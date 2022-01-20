@@ -1,4 +1,11 @@
 swagger: "2.0"
+info:
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: "Swagger Petstore"
+  description: "This is a sample"
+  version: "1.0.0"
 host: "petstore.swagger.io"
 basePath: "/v2"
 securityDefinitions:
@@ -13,6 +20,7 @@ paths:
   /pet:
     get:
       summary: "Add a new pet to the store"
+      description: ""
       operationId: "addPet"
       consumes:
         - "application/json"
@@ -21,6 +29,8 @@ paths:
         - "application/xml"
         - "application/json"
       responses:
+        '201':
+          description: Pet updated
         "405":
           description: "Invalid input"
       security:
