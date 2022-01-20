@@ -29,9 +29,7 @@ yargs
           default: 'stylish' as OutputFormat,
         },
       }),
-    (argv) => {
-      handleStats(argv);
-    },
+    handleStats,
   )
   .command(
     'split [entrypoint]',
@@ -44,9 +42,7 @@ yargs
           type: 'string',
         },
       }),
-    (argv) => {
-      handleSplit(argv);
-    },
+    handleSplit,
   )
   .command(
     'join [entrypoints...]',
@@ -93,9 +89,7 @@ yargs
           'run-id': { type: 'string', requiresArg: true },
           region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
         }),
-    (argv) => {
-      handlePush(argv);
-    },
+    handlePush,
   )
   .command(
     'lint [entrypoints...]',
@@ -286,9 +280,7 @@ yargs
           type: 'string',
         },
       }),
-    async (argv) => {
-      previewDocs(argv);
-    },
+    previewDocs,
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
