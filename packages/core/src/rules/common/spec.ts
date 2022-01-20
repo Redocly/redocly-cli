@@ -26,11 +26,22 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
 
       const required =
         typeof type.required === 'function' ? type.required(node, key) : type.required;
+
       for (let propName of required || []) {
         if (!(node as object).hasOwnProperty(propName)) {
           report({
             message: `The field \`${propName}\` must be present on this level.`,
             location: [{ reportOnKey: true }],
+          });
+        }
+      }
+
+      const allowed = typeof type.allowed === 'function' ? type.allowed(node) : [];
+      for (let allowedProp of allowed) {
+        if ((node as object).hasOwnProperty(allowedProp) && Object.keys(node).length > 1) {
+          report({
+            message: `The field \`${allowedProp}\` only must be present on this level.`,
+            location: location.child([allowedProp]),
           });
         }
       }

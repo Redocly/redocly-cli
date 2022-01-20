@@ -330,10 +330,7 @@ const SecurityScheme: NodeType = {
     scopes: { type: 'object', additionalProperties: { type: 'string' } },
   },
   required(value) {
-    if (!value?.type) {
-      return ['type'];
-    }
-
+    if (!value?.type) { return ['type']; }
     if (value.type === 'apiKey') {
       return ['type', 'name', 'in'];
     } else if (value.type === 'http') {
@@ -353,9 +350,11 @@ const SecurityScheme: NodeType = {
         return ['type', 'flow'];
       }
     }
-
     return ['type'];
   },
+  allowed(value) {
+    return value.type === 'basic' ? ['type'] : [];
+  }
 };
 
 const SecurityRequirement: NodeType = {

@@ -27,13 +27,7 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
         }
       },
     },
-    SecurityScheme(securityScheme: Oas2SecurityScheme | Oas3SecurityScheme, { key, report, location }: UserContext) {
-      if (securityScheme.type === 'basic' && Object.keys(securityScheme).length > 1) {
-        report({
-          message: 'type `basic` does not support additional properties.',
-          location: location.child('securityScheme').key(),
-        });
-      }
+    SecurityScheme(_securityScheme: Oas2SecurityScheme | Oas3SecurityScheme, { key }: UserContext) {
       referencedSchemes.set(key.toString(), { defined: true, from: [] });
     },
     SecurityRequirement(requirements, { location }) {
