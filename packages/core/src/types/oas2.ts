@@ -353,7 +353,7 @@ const SecurityScheme: NodeType = {
     return ['type'];
   },
   allowed(value) {
-    return value.type === 'basic' ? ['type'] : [];
+    return value.type === 'basic' ? ['type'] : undefined;
   }
 };
 

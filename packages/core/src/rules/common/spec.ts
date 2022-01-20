@@ -2,6 +2,7 @@ import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
+import { isPlainObject } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
@@ -36,13 +37,15 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
       }
 
-      const allowed = typeof type.allowed === 'function' ? type.allowed(node) : [];
-      for (let allowedProp of allowed) {
-        if ((node as object).hasOwnProperty(allowedProp) && Object.keys(node).length > 1) {
-          report({
-            message: `The field \`${allowedProp}\` only must be present on this level.`,
-            location: location.child([allowedProp]),
-          });
+      const allowed = type.allowed && type.allowed(node);
+      if (allowed && isPlainObject(node)) {
+        for (const propName in node) {
+          if (!allowed.includes(propName)) {
+            report({
+              message: `The field \`${propName}\` is not allowed on this level.`,
+              location: location.child([propName])
+            });
+          }
         }
       }
 
