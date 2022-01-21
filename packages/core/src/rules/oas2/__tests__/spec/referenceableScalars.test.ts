@@ -1,8 +1,7 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
-import { makeConfig } from '../../../__tests__/config';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {

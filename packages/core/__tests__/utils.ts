@@ -1,8 +1,9 @@
 import * as path from 'path';
 
 import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
-import { RuleConfig, LintConfig, Plugin } from '../src/config/config';
+import { RuleConfig, LintConfig, Plugin, DecoratorConfig } from '../src/config/config';
 import { Oas3RuleSet } from '../src/oas-types';
+import { defaultPlugin } from '../src/config/builtIn';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
@@ -60,5 +61,14 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
     ],
     extends: [],
     rules: rulesConf,
+  });
+}
+
+export function makeConfig(rules: Record<string, RuleConfig>, decorators?:  Record<string, DecoratorConfig>) {
+  return new LintConfig({
+    plugins: [defaultPlugin],
+    extends: [],
+    rules,
+    decorators,
   });
 }

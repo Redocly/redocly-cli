@@ -1,5 +1,4 @@
 import { Oas3RuleSet } from '../../oas-types';
-import { Oas3Decorator } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
@@ -32,7 +31,6 @@ import { PathsKebabCase } from '../common/paths-kebab-case';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoEmptyServers } from './no-empty-servers';
 import { ValidContentExamples } from './no-invalid-media-type-examples';
-import { RegistryDependencies } from '../common/registry-dependencies';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
 import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
@@ -43,13 +41,9 @@ import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
-import { OperationDescriptionOverride } from '../common/operation-description-override';
-import { TagDescriptionOverride } from '../common/tag-description-override';
-import { InfoDescriptionOverride } from '../common/info-description-override';
 import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
-import { RemoveXInternal } from '../common/remove-x-internal';
 
 export const rules = {
   spec: OasSpec,
@@ -101,11 +95,3 @@ export const rules = {
 } as Oas3RuleSet;
 
 export const preprocessors = {};
-
-export const decorators = {
-  'registry-dependencies': RegistryDependencies as Oas3Decorator,
-  'operation-description-override': OperationDescriptionOverride as Oas3Decorator,
-  'tag-description-override': TagDescriptionOverride as Oas3Decorator,
-  'info-description-override': InfoDescriptionOverride as Oas3Decorator,
-  'remove-x-internal': RemoveXInternal as Oas3Decorator
-};
