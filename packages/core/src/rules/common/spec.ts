@@ -42,7 +42,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         for (const propName in node) {
           if (!allowed.includes(propName)) {
             report({
-              message: `The field \`${propName}\` is not allowed on this level.`,
+              message: `The field \`${propName}\` is not allowed here.`,
               location: location.child([propName])
             });
           }
