@@ -5,7 +5,7 @@ exports[`E2E lint operation-security-scheme-basic-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:14:11 at #/securityDefinitions/basicAuth/name
 
-The field \`name\` is not allowed on this level.
+The field \`name\` is not allowed here.
 
 12 | basicAuth:
 13 |   type: basic
