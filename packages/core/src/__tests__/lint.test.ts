@@ -3,9 +3,7 @@ import { outdent } from 'outdent';
 import { lintFromString, lintConfig, lintDocument } from '../lint';
 import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../__tests__/utils';
-// todo create general utils for tests and move this config.
-import { makeConfig } from '../rules/__tests__/config';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
