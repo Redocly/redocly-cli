@@ -56,13 +56,13 @@ Omit this section if you don't have custom plugins.
 
 #### Examples
 
-```yaml single value
+```yaml Import a single plugin
 lint:
   plugins:
     - './local-plugin.js'
 ```
 
-```yaml multiple values
+```yaml Import multiple plugins
 lint:
   plugins:
     - ['./local-plugin.js', './another-local-plugin.js']
@@ -92,13 +92,13 @@ Find more information in the [Configs in plugins](../resources/custom-rules/#con
 
 #### Examples
 
-```yaml single value
+```yaml Single value
 lint:
   extends:
     - minimal
 ```
 
-```yaml multiple values
+```yaml Multiple values
 lint:
   extends:
     - minimal
@@ -133,7 +133,7 @@ lint:
 | `envVariable` | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. | `SECRET_KEY` |
 
 :::success
-It is recommeded to use environment variables where possible.
+It is recommended to use environment variables where possible.
 :::
 
 #### Example
@@ -151,11 +151,11 @@ lint:
           envVariable: SECRET_AUTH
 ```
 
-The first match will win in the event when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
+The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
 ### Preprocessors
 
-Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also receive [additional configurations](#additional-rule-options).
+Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also support [additional configurations](#additional-rule-options).
 
 * **type**: `array of objects`
 * **possible values**: `error`, `warn`, `off`
@@ -184,20 +184,20 @@ For `bundle` command: rules run *between* preprocessors and decorators.
 
 #### Examples
 
-```yaml short version
+```yaml Short syntax
 lint:
   rules:
     no-sibling-refs: error
 ```
 
-```yaml verbose version
+```yaml Verbose syntax
 lint:
   rules:
     no-sibling-refs:
       severity: error
 ```
 
-```yaml rules with additional configuration
+```yaml Rules with additional configuration
 # Use verbose configuration version to define additional configuration
 # The boolean-parameter-prefixes example overrides the default "prefixes".
 lint:
@@ -231,7 +231,7 @@ Omit this section if you don't use decorators.
 
 #### Examples
 
-```yaml short version
+```yaml Short syntax
 lint:
   extends:
     - recommended
@@ -240,7 +240,7 @@ lint:
     no-unused-components: error
 ```
 
-```yaml verbose version
+```yaml Verbose syntax
 lint:
   extends:
     - recommended
@@ -285,7 +285,7 @@ Be sure to document those options for your users.
 
 ### Different OpenAPI versions
 
-Redocly OpenAPI CLI supports OpenAPI of versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
+Redocly OpenAPI CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
 ```yaml
 lint:
