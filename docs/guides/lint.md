@@ -8,7 +8,7 @@ redirectFrom:
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 The `lint` and `bundle` commands use this section to control various options.
 
-The `lint` configuration section consists of several sub-sections (each section is described after this block):
+The `lint` configuration section consists of several sub-sections. The following code block shows an example `lint` section. Sub-sections are described further in the text.
 
 ```yaml
 lint:
@@ -40,7 +40,7 @@ lint:
 
 ### Plugins
 
-Use this section to import local plugins.
+Use this section to import local plugins. If you don't have any custom plugins, omit this section.
 
 * **type**: `array of strings`
 
@@ -48,10 +48,6 @@ Use this section to import local plugins.
 You don't need to import built-in plugins and rules.
 
 Community plugins are not supported.
-:::
-
-:::success
-Omit this section if you don't have custom plugins.
 :::
 
 #### Examples
@@ -138,7 +134,7 @@ It is recommended to use environment variables where possible.
 
 #### Example
 
-```yaml multiple values
+```yaml
 lint:
   resolve:
     http:
@@ -155,7 +151,7 @@ The first match takes precedence when a URL matches multiple patterns. Therefore
 
 ### Preprocessors
 
-Use this section to change the [severity level](#severity-levels) of any rules in your extended configurations. Some rules may also support [additional configurations](#additional-rule-options).
+As preprocessors are rarely indicated, omit this section.
 
 * **type**: `array of objects`
 * **possible values**: `error`, `warn`, `off`
@@ -164,12 +160,6 @@ Preprocessors run first during `lint` and `bundle`.
 
 :::info
 Linting happens only when the `--lint` flag is supplied
-:::
-
-:::info
-Preprocessors are rarely indicated - avoid if possible.
-
-This section can be omitted.
 :::
 
 ### Rules
@@ -198,7 +188,7 @@ lint:
 ```
 
 ```yaml Rules with additional configuration
-# Use verbose configuration version to define additional configuration
+# Use verbose configuration syntax to define additional configuration
 # The boolean-parameter-prefixes example overrides the default "prefixes".
 lint:
   rules:
@@ -209,7 +199,7 @@ lint:
 
 ### Decorators
 
-Use this section to enable or disable decorators. They modify the definition in the bundling process after validation is complete.
+Use this section to enable or disable decorators. They modify the definition in the bundling process after validation is complete. If you don't use decorators, omit this section.
 
 * **type**: `array of objects`
 * **possible values**: `error`, `warn`, `off`
@@ -220,16 +210,14 @@ For `bundle` command: decorators run *after* linting.
 Linting happens only when the `--lint` flag is supplied
 :::
 
-:::success
-Omit this section if you don't use decorators.
-:::
-
 ### Severity levels
 
 * **applied to**: [`preprocessors`](#preprocessors), [`rules`](#rules), [`decorators`](#decorators)
 * **possible values**: `error`, `warn`, `off`
 
 #### Examples
+
+With the short configuration syntax, you can't configure [additional options](#additional-rule-options) for any given rule (if it supports them).
 
 ```yaml Short syntax
 lint:
@@ -251,10 +239,6 @@ lint:
       severity: error
 ```
 
-:::warning
-With the short version, you can't configure [additional options](#additional-rule-options) for any given rule (if it supports them).
-:::
-
 :::info
 See the [rules documentation](../resources/built-in-rules.md) for more information.
 :::
@@ -274,7 +258,8 @@ lint:
     no-unused-components:
       severity: error
 ```
-To know which rules support options, please read the [built-in rules documentation](../resources/built-in-rules.md).
+
+To know which rules support options, read the [built-in rules documentation](../resources/built-in-rules.md).
 
 :::success Tip
 
