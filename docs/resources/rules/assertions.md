@@ -19,8 +19,8 @@ assertions | [[Assertion object]](#assertion-object) | A list of assertions to e
 Property | Type | Description
 -- | -- | --
 subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the the lint subjects to its evaluation. Use with `context` for more control.
-property | `string` \| [`string`] | The [OpenAPI node type](#openapi-node-types)'s corresponding property name. If not provided, assertions will evaluate against the key names for the subject node type.
-context | [Context object](#context-object) | The context influences the execution flow including nesting and filters. See [Context example](#context-example). If no context is provided, it executes for all instances of the given type.
+property | `string` \| [`string`] \| null | The [OpenAPI node type](#openapi-node-types)'s corresponding property name. If a list of properties is provided, the assertion will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
+context | [Context object](#context-object) | The context influences evaluation for assertions. With `matchParentKeys` or `excludeParentKeys` it evaluates the subset of subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example). 
 message | `string` | Problem message displayed if the assertion is false.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | The severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
@@ -36,27 +36,21 @@ undefined | `boolean` | Asserts a property is undefined. See [undefined example]
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-sortOrder | `string` \| [Sort Order object](#sort-order-object) | Asserts a sort order to a list (array) of strings or a list of objects by one of the object's property values. See [sortOrder example](#sortorder-example).
+sortOrder | `string` |  Asserts values are sorted in ascending or descending order using one of these possible values: `asc` or `desc`. Asserts either sort order to a list (array) of strings or a collection of objects by one of the object's `property` values (the `property` is **REQUIRED** when sorting a collection of objects). See [sortOrder example](#sortorder-example).
 
 ## Context object
 
 Property | Type | Description
 -- | -- | --
 type | `string` | **REQUIRED.** One of the [OpenAPI node types](#openapi-node-types).
-filterKeys | [`string`] | The list of key names to continue evaluation with respect to the subject.
+matchParentKeys | [`string`] | The list of parent object key names to evaluate with respect to the subject.
+excludeParentKeys | [`string`] | The list of parent object key names to not evaluate with respect to the subject.
 
 See the [context example](#context-example).
 
-## Sort Order object
-
-Property | Type | Description
--- | -- | --
-direction | `string` | **REQUIRED.** Asserts values are sorted in ascending or descending order using one of these possible values: `asc` or `desc`.
-property | `string` | **REQUIRED.** The name of the property in the collection of objects that will hold values to assess the sort order.
-
 ## Examples
 
-The following example shows two assertions each multiple asserts (`defined`, `minLength`, `maxLength`, `pattern`).
+The following example shows four assertions each multiple asserts (`defined`, `minLength`, `maxLength`, `pattern`).
 
 The `Operation`, `Tag`, and `Info` properties must:
 - be defined
@@ -105,6 +99,60 @@ lint:
         pattern: /[^\.]$/
 ```
 
+### `property` example
+
+The following example asserts that every path item has a GET operation defined.
+
+```yaml
+lint:
+  rules:
+    assertions:
+      - subject: PathItem
+        property: get
+        message: Every path item must have a GET operation.
+        defined: true
+```
+
+A different way to declare the same assertion is to require that the PathItem has a required key `get`.
+Notice the removal of the `property` property.
+
+```yaml
+lint:
+  rules:
+    assertions:
+      - subject: PathItem
+        message: Every path item must have a GET operation.
+        required: 
+          - get
+```
+
+The following example asserts that Tags have both name and description defined.
+
+```yaml
+lint:
+  rules:
+    assertions:
+      - subject: Tag
+        property:
+          - name
+          - description
+        message: Every tag must have a name and description.
+        defined: true
+```
+
+Another way to compose that rule using the subject's keys.
+
+```yaml
+lint:
+  rules:
+    assertions:
+      - subject: Tag
+        message: Every tag must have a name and description.
+        required:
+          - name
+          - description
+```
+
 ### `context` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an application/pdf content type.
@@ -116,9 +164,9 @@ To restrict the evaluation, use the context feature to limit where context is us
 ```yaml
 - context:
     - type: Operation
-      filterKeys: [put]
+      matchParentKeys: [put]
     - type: ResponsesMap
-      filterKeys: [201, 200]
+      matchParentKeys: [201, 200]
   subject: MediaTypeMap
   disallowed: ['application/pdf']
 ```
@@ -238,7 +286,7 @@ lint:
       - subject: ResponseMap
         context:
           - type: Operation
-            filterKeys:
+            matchParentKeys:
               - put
         message: Must mutually define 200 and 201 responses for PUT requests.
         severity: error
@@ -259,7 +307,7 @@ lint:
       - subject: ResponseMap
         context:
           - type: Operation
-            filterKeys:
+            matchParentKeys:
               - put
         message: Must define 200 and 201 responses for PUT requests.
         severity: error
@@ -375,7 +423,7 @@ lint:
         property: enum
         context:
           - type: Schema
-            filterKeys: 
+            matchParentKeys: 
               - status
         message: The status enums should be in alphabetical order
         suggest:
@@ -386,7 +434,7 @@ lint:
 
 The following example asserts the tag names (tags are a collection) are sorted in alphabetical order.
 
-The `property` field is **REQUIRED** to sort collections based on that property's value. 
+The `property` field is **REQUIRED** to assert sort order on collections based on that property's value for the given subject. 
 
 ```yaml
 lint:
@@ -396,11 +444,8 @@ lint:
         property: name
         message: Tags should be ordered by name in alphabetical order
         severity: error
-        sortOrder:
-          direction: asc
-          property: name
+        sortOrder: asc
 ```
-<!-- TODO: Does the sortOrder need a property "property" now? -->
 
 ## OpenAPI node types
 
