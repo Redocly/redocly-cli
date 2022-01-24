@@ -151,7 +151,7 @@ The first match takes precedence when a URL matches multiple patterns. Therefore
 
 ### Preprocessors
 
-As preprocessors are rarely indicated, omit this section.
+As preprocessors are rarely indicated, you can omit this section in most cases.
 
 * **type**: `array of objects`
 * **possible values**: `error`, `warn`, `off`
@@ -159,7 +159,7 @@ As preprocessors are rarely indicated, omit this section.
 Preprocessors run first during `lint` and `bundle`.
 
 :::info
-Linting happens only when the `--lint` flag is supplied
+For the `bundle` command, linting happens only when the `--lint` flag is used.
 :::
 
 ### Rules
