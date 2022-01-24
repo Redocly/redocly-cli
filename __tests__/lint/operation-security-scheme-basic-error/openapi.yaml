@@ -12,6 +12,7 @@ securityDefinitions:
   basicAuth:
     type: basic
     name: Authorization
+    x-internal: true
   bearerAuth:
     type: apiKey
     name: Authorization

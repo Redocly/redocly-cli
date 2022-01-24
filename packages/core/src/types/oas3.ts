@@ -524,13 +524,15 @@ const SecurityScheme: NodeType = {
   allowed(value) {
     switch (value?.type) {
       case 'apiKey':
-        return ['type', 'name', 'in'];
+        return ['type', 'name', 'in', 'description'];
       case 'http':
-        return ['type', 'scheme', 'bearerFormat'];
+        return ['type', 'scheme', 'bearerFormat', 'description'];
       case 'oauth2':
-        return ['type', 'flows'];
+        return ['type', 'flows', 'description'];
       case 'openIdConnect':
-        return ['type', 'openIdConnectUrl'];
+        return ['type', 'openIdConnectUrl', 'description'];
+      case 'mutualTLS':
+        return ['type', 'description'];
       default:
         return undefined;
     }

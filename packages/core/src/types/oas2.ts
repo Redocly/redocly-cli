@@ -326,15 +326,14 @@ const SecurityScheme: NodeType = {
       case 'oauth2':
         switch (value?.flow) {
           case 'implicit':
-            return ['type', 'flow', 'authorizationUrl'];
+            return ['type', 'flow', 'authorizationUrl', 'scopes'];
           case 'accessCode':
-            return ['type', 'flow', 'authorizationUrl', 'tokenUrl'];
+            return ['type', 'flow', 'authorizationUrl', 'tokenUrl', 'scopes'];
           case 'application':
-            return ['type', 'flow', 'tokenUrl'];
           case 'password':
-            return ['type', 'flow', 'tokenUrl'];
+            return ['type', 'flow', 'tokenUrl', 'scopes'];
           default:
-            return ['type', 'flow'];
+            return ['type', 'flow', 'scopes'];
         }
       default:
         return ['type'];
@@ -343,15 +342,26 @@ const SecurityScheme: NodeType = {
   allowed(value) {
     switch (value?.type) {
       case 'basic':
-        return ['type'];
+        return ['type', 'description'];
       case 'apiKey':
-        return ['type', 'name', 'in'];
+        return ['type', 'name', 'in', 'description'];
       case 'oauth2':
-        return ['type', 'authorizationUrl', 'flow', 'scopes'];
+        switch (value?.flow) {
+          case 'implicit':
+            return ['type', 'flow', 'authorizationUrl', 'description', 'scopes'];
+          case 'accessCode':
+            return ['type', 'flow', 'authorizationUrl', 'tokenUrl', 'description', 'scopes'];
+          case 'application':
+          case 'password':
+            return ['type', 'flow', 'tokenUrl', 'description', 'scopes'];
+          default:
+            return ['type', 'authorizationUrl', 'flow', 'scopes', 'description'];
+        }
       default:
         return undefined;
     }
-  }
+  },
+  extensions: 'x-',
 };
 
 const SecurityRequirement: NodeType = {
