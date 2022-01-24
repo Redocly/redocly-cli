@@ -1,8 +1,7 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
-import { makeConfig } from '../../__tests__/config';
 
 describe('Oas3 as3-no-servers-empty-enum', () => {
   it('oas3-no-servers-empty-enum: should report on server object with empty enum and unknown enum value', async () => {
