@@ -30,7 +30,7 @@ paths:
                   decimal: 12.34
                   numberWithLeadingZero: 127
                   boolean: true
-                  date: 2020-01-01
+                  date: '2020-01-01'
                   array:
                     - 1
                     - 2
