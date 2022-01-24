@@ -45,9 +45,11 @@ Use this section to import local plugins. If you don't have any custom plugins, 
 * **type**: `array of strings`
 
 :::warning
+
 You don't need to import built-in plugins and rules.
 
 Community plugins are not supported.
+
 :::
 
 #### Examples
@@ -72,7 +74,6 @@ Use this section to choose the base configuration for further extension or addin
 * **default**: `recommended`
 * **possible values**: `minimal`, `recommended`, `all`
 
-:::info
 Possible values specified above are related to built-in rules only. Custom plugins can contain additional configurations, so it can be as follows:
 
 ```yaml
@@ -84,7 +85,6 @@ lint:
 
 Find more information in the [Configs in plugins](../resources/custom-rules/#configs-in-plugins) section.
 
-:::
 
 #### Examples
 
@@ -129,7 +129,9 @@ lint:
 | `envVariable` | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. | `SECRET_KEY` |
 
 :::success
+
 It is recommended to use environment variables where possible.
+
 :::
 
 #### Example
@@ -159,7 +161,9 @@ As preprocessors are rarely indicated, you can omit this section in most cases.
 Preprocessors run first during `lint` and `bundle`.
 
 :::info
+
 For the `bundle` command, linting happens only when the `--lint` flag is used.
+
 :::
 
 ### Rules
@@ -207,7 +211,9 @@ Use this section to enable or disable decorators. They modify the definition in 
 For `bundle` command: decorators run *after* linting.
 
 :::info
-Linting happens only when the `--lint` flag is supplied
+
+For the `bundle` command, linting happens only when the `--lint` flag is used.
+
 :::
 
 ### Severity levels
@@ -240,7 +246,9 @@ lint:
 ```
 
 :::info
+
 See the [rules documentation](../resources/built-in-rules.md) for more information.
+
 :::
 
 ### Additional rule options
@@ -291,7 +299,9 @@ In this example, the OpenAPI specification version is identified:
 * If it is version 3 (OpenAPI 3.x), it will prioritize the `oas3_0Rules` section.
 
 :::info
+
 If the version is not defined, it will fall back to the `rules` section.
+
 :::
 
 Read more about [built-in rules](../resources/built-in-rules.md).
