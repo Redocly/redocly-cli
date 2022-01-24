@@ -4,6 +4,13 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.80 (2022-01-24)
+
+### Fixes
+
+- Fixed an issue with date-time conversion in YAML files.
+- Fixed an issue with the `oauth2-redirect.html` file being absent when served by `preview-docs` command.
+
 ## 1.0.0-beta.79 (2022-01-10)
 
 ### Fixes
