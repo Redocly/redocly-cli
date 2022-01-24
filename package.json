@@ -69,9 +69,7 @@
     "collectCoverageFrom": [
       "packages/**/*.ts",
       "!packages/**/__tests__/**/*",
-      "!packages/cli/src/index.ts",
-      "!packages/cli/**/*.ts",
-      "!packages/cli/src/format/format.ts"
+      "!packages/cli/src/index.ts"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",
