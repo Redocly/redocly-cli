@@ -15,5 +15,4 @@ const DEFAULT_SCHEMA_WITHOUT_TIMESTAMP = JSON_SCHEMA.extend({
 export const parseYaml = (str: string, opts?: LoadOptions): unknown =>
   load(str, {schema: DEFAULT_SCHEMA_WITHOUT_TIMESTAMP, ...opts});
 
-export const stringifyYaml = (obj: any, opts?: DumpOptions): string =>
-  dump(obj, {schema: DEFAULT_SCHEMA_WITHOUT_TIMESTAMP, ...opts});
+export const stringifyYaml = (obj: any, opts?: DumpOptions): string => dump(obj, opts);
