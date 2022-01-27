@@ -36,6 +36,7 @@ import { PathExcludesPatterns } from '../common/path-excludes-patterns';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
 import { PathSegmentPlural } from '../common/path-segment-plural';
+import { ResponseContainsProperty } from './response-contains-property';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -76,6 +77,7 @@ export const rules = {
   'request-mime-type': RequestMimeType as Oas2Rule,
   'response-mime-type': ResponseMimeType as Oas2Rule,
   'path-segment-plural': PathSegmentPlural as Oas2Rule,
+  'response-contains-property': ResponseContainsProperty as Oas2Rule,
 };
 
 export const preprocessors = {};
