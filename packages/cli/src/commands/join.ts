@@ -248,28 +248,30 @@ packageVersion: string
       for (const path of Object.keys(paths)) {
         if (!joinedDef.paths.hasOwnProperty(path)) { joinedDef.paths[path] = {}; }
         if (!potentialConflicts.paths.hasOwnProperty(path)) { potentialConflicts.paths[path] = {}; }
-        for (const operation of Object.keys(paths[path])) {
+        for (const operationOrMetadata of Object.keys(paths[path])) {
           // @ts-ignore
-          const pathOperation = paths[path][operation];
-          joinedDef.paths[path][operation] = pathOperation;
-          potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entrypoint];
-          const { operationId } = pathOperation;
+          const pathOperationOrMetadata = paths[path][operationOrMetadata];
+          joinedDef.paths[path][operationOrMetadata] = pathOperationOrMetadata;
+          potentialConflicts.paths[path][operationOrMetadata] = [...(potentialConflicts.paths[path][operationOrMetadata] || []), entrypoint];
+          const { operationId } = pathOperationOrMetadata;
           if (operationId) {
             if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
             potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entrypoint];
           }
-          let { tags, security } = joinedDef.paths[path][operation];
-          if (tags) {
-            joinedDef.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix });
-          } else {
-            joinedDef.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix || entrypointFilename)];
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags(['other']), potentialConflicts, tagsPrefix: tagsPrefix || entrypointFilename, componentsPrefix });
-          }
-          if (!security && openapi.hasOwnProperty('security')) {
-            joinedDef.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix!);
-          } else if (pathOperation.security) {
-            joinedDef.paths[path][operation].security = addSecurityPrefix(pathOperation.security, componentsPrefix!);
+          if (typeof joinedDef.paths[path][operationOrMetadata] === 'object') {
+            let { tags, security } = joinedDef.paths[path][operationOrMetadata];
+            if (tags) {
+              joinedDef.paths[path][operationOrMetadata].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
+              populateTags({ entrypoint, entrypointFilename, tags: formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix });
+            } else {
+              joinedDef.paths[path][operationOrMetadata].tags = [addPrefix('other', tagsPrefix || entrypointFilename)];
+              populateTags({ entrypoint, entrypointFilename, tags: formatTags(['other']), potentialConflicts, tagsPrefix: tagsPrefix || entrypointFilename, componentsPrefix });
+            }
+            if (!security && openapi.hasOwnProperty('security')) {
+              joinedDef.paths[path][operationOrMetadata].security = addSecurityPrefix(openapi.security, componentsPrefix!);
+            } else if (pathOperationOrMetadata.security) {
+              joinedDef.paths[path][operationOrMetadata].security = addSecurityPrefix(pathOperationOrMetadata.security, componentsPrefix!);
+            }
           }
         }
       }
