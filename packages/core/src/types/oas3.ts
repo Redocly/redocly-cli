@@ -536,7 +536,8 @@ const SecurityScheme: NodeType = {
       default:
         return undefined;
     }
-  }
+  },
+  extensionsPrefix: 'x-',
 };
 
 export const Oas3Types: Record<string, NodeType> = {

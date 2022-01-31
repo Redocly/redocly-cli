@@ -355,13 +355,13 @@ const SecurityScheme: NodeType = {
           case 'password':
             return ['type', 'flow', 'tokenUrl', 'description', 'scopes'];
           default:
-            return ['type', 'authorizationUrl', 'flow', 'scopes', 'description'];
+            return ['type', 'authorizationUrl', 'tokenUrl', 'flow', 'scopes', 'description'];
         }
       default:
         return undefined;
     }
   },
-  extensions: 'x-',
+  extensionsPrefix: 'x-',
 };
 
 const SecurityRequirement: NodeType = {

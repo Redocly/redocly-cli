@@ -40,12 +40,12 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       const allowed = type.allowed?.(node);
       if (allowed && isPlainObject(node)) {
         for (const propName in node) {
-          if (allowed.includes(propName) || (type.extensions && propName.startsWith(type.extensions))) {
+          if (allowed.includes(propName) || (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix))) {
             continue;
           }
           report({
             message: `The field \`${propName}\` is not allowed here.`,
-            location: location.child([propName])
+            location: location.child([propName]).key()
           });
         }
       }
