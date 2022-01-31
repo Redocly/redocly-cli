@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { red, green, gray, yellow } from 'colorette';
+import { green, gray, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
 import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS } from '../config/config';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
@@ -33,14 +33,7 @@ export class RedoclyClient {
 
   loadRegion(region?: Region) {
     if (region && !DOMAINS[region]) {
-      process.stdout.write(
-        red(
-          `Invalid argument: region in config file.\nGiven: ${green(
-            region,
-          )}, choices: "us", "eu".\n`,
-        ),
-      );
-      process.exit(1);
+      throw new Error(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".`);
     }
 
     if (process.env.REDOCLY_DOMAIN) {
@@ -169,10 +162,7 @@ export class RedoclyClient {
     try {
       await this.verifyToken(accessToken, this.region, verbose);
     } catch (err) {
-      process.stdout.write(
-        red('Authorization failed. Please check if you entered a valid API key.\n'),
-      );
-      process.exit(1);
+      throw new Error('Authorization failed. Please check if you entered a valid API key.');
     }
 
     const credentials = {
