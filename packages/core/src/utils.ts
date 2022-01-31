@@ -153,7 +153,7 @@ export function readFileAsStringSync(filePath: string) {
 }
 
 export function isPathParameter(pathSegment: string) {
-  return pathSegment.startsWith('{') && pathSegment.endsWith('{');
+  return pathSegment.startsWith('{') && pathSegment.endsWith('}');
 }
 
 
