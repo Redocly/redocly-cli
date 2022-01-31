@@ -83,7 +83,7 @@ lint:
     - my-custom-super-ruleset
 ```
 
-Find more information in the [Configs in plugins](../resources/custom-rules/#configs-in-plugins) section.
+Find more information in the [Configs in plugins](../resources/custom-rules.md#configs-in-plugins) section.
 
 
 #### Examples
