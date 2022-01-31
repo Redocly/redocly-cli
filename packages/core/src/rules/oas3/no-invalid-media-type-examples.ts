@@ -24,7 +24,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
           if (isRef(example)) {
             const resolved = resolve<Oas3Example>(example);
             if (!resolved.location) return;
-            location = resolved.location.child('value');
+            location = isMultiple ? resolved.location.child('value') : resolved.location;
             example = resolved.node;
           }
           validateExample(

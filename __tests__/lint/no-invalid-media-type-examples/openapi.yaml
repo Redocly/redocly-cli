@@ -11,6 +11,14 @@ servers:
 
 paths:
   /pet:
+    get:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+            example:
+              $ref: './example.yaml'
     post:
       requestBody:
         content:
