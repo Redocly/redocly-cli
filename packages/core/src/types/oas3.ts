@@ -429,7 +429,17 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme'];
       case 'oauth2':
-        return ['type', 'flows'];
+        switch (value?.flows) {
+          case 'implicit':
+            return ['type', 'flows', 'authorizationUrl', 'scopes'];
+          case 'accessCode':
+            return ['type', 'flows', 'authorizationUrl', 'tokenUrl', 'scopes'];
+          case 'application':
+          case 'password':
+            return ['type', 'flows', 'tokenUrl', 'scopes'];
+          default:
+            return ['type', 'flows', 'scopes'];
+        }
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl'];
       default:
@@ -443,17 +453,16 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme', 'bearerFormat', 'description'];
       case 'oauth2':
-        switch (value?.flow) {
+        switch (value?.flows) {
           case 'implicit':
-            return ['type', 'authorizationUrl', 'refreshUrl', 'description', 'scopes'];
+            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'description', 'scopes'];
           case 'password':
-            return ['type', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
           case 'clientCredentials':
-            return ['type', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
+            return ['type', 'flows', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
           case 'authorizationCode':
-            return ['type', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
           default:
-            return ['type', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
         }
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl', 'description'];

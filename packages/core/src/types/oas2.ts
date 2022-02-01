@@ -351,7 +351,7 @@ const SecurityScheme: NodeType = {
           case 'password':
             return ['type', 'flow', 'tokenUrl', 'description', 'scopes'];
           default:
-            return ['type', 'authorizationUrl', 'tokenUrl', 'flow', 'description', 'scopes'];
+            return ['type', 'flow', 'tokenUrl', 'authorizationUrl', 'description', 'scopes'];
         }
       default:
         return ['type', 'description'];
