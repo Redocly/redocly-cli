@@ -20,36 +20,20 @@ const DefinitionRoot: NodeType = {
 
 const License: NodeType = {
   properties: {
-    name: {
-      type: 'string',
-    },
-    url: {
-      type: 'string',
-    },
-    identifier: {
-      type: 'string',
-    },
+    name: { type: 'string' },
+    url: { type: 'string' },
+    identifier: { type: 'string' },
   },
   required: ['name'],
 };
 
 const Info: NodeType = {
   properties: {
-    title: {
-      type: 'string',
-    },
-    version: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    termsOfService: {
-      type: 'string',
-    },
-    summary: {
-      type: 'string',
-    },
+    title: { type: 'string' },
+    version: { type: 'string' },
+    description: { type: 'string' },
+    termsOfService: { type: 'string' },
+    summary: { type: 'string' },
     contact: 'Contact',
     license: 'License',
   },
@@ -86,9 +70,7 @@ const Operation: NodeType = {
     servers: listOf('Server'),
     requestBody: 'RequestBody',
     responses: 'ResponsesMap',
-    deprecated: {
-      type: 'boolean',
-    },
+    deprecated: { type: 'boolean' },
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
@@ -103,7 +85,6 @@ const Schema: NodeType = {
     definitions: 'NamedSchemas',
     $defs: 'NamedSchemas',
     $vocabulary: { type: 'string' },
-
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
     myArbitraryKeyword: { type: 'boolean' },
@@ -147,7 +128,6 @@ const Schema: NodeType = {
     unevaluatedItems: 'Schema',
     unevaluatedProperties: 'Schema',
     summary: { type: 'string' },
-
     properties: 'SchemaProperties',
     items: (value: any) => {
       if (Array.isArray(value)) {
@@ -168,7 +148,6 @@ const Schema: NodeType = {
     contentEncoding: { type: 'string' },
     contentMediaType: { type: 'string' },
     default: null,
-
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
     xml: 'Xml',
@@ -185,29 +164,54 @@ const SecurityScheme: NodeType = {
     type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'] },
     description: { type: 'string' },
     name: { type: 'string' },
-    in: { type: 'string' },
+    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
     flows: 'SecuritySchemeFlows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
-    if (!value?.type) {
-      return ['type'];
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in'];
+      case 'http':
+        return ['type', 'scheme'];
+      case 'oauth2':
+        return ['type', 'flows'];
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl'];
+      default:
+        return ['type'];
     }
-
-    if (value.type === 'apiKey') {
-      return ['type', 'name', 'in'];
-    } else if (value.type === 'http') {
-      return ['type', 'scheme'];
-    } else if (value.type === 'oauth2') {
-      return ['type', 'flows'];
-    } else if (value.type === 'openIdConnect') {
-      return ['type', 'openIdConnectUrl'];
-    }
-
-    return ['type'];
   },
+  allowed(value) {
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in', 'description'];
+      case 'http':
+        return ['type', 'scheme', 'bearerFormat', 'description'];
+      case 'oauth2':
+        switch (value?.flow) {
+          case 'implicit':
+            return ['type', 'authorizationUrl', 'refreshUrl', 'description', 'scopes'];
+          case 'password':
+            return ['type', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
+          case 'clientCredentials':
+            return ['type', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
+          case 'authorizationCode':
+            return ['type', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+          default:
+            return ['type', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+        }
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl', 'description'];
+      case 'mutualTLS':
+        return ['type', 'description'];
+      default:
+        return ['type', 'description'];
+    }
+  },
+  extensionsPrefix: 'x-',
 };
 
 export const Oas3_1Types: Record<string, NodeType> = {

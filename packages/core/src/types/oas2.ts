@@ -74,9 +74,7 @@ const PathItem: NodeType = {
 const Operation: NodeType = {
   properties: {
     tags: { type: 'array', items: { type: 'string' } },
-    summary: {
-      type: 'string',
-    },
+    summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
@@ -190,9 +188,7 @@ const ResponsesMap: NodeType = {
 
 const Response: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
+    description: { type: 'string' },
     schema: 'Schema',
     headers: mapOf('Header'),
     examples: 'Examples',
@@ -313,7 +309,7 @@ const SecurityScheme: NodeType = {
     type: { enum: ['basic', 'apiKey', 'oauth2'] },
     description: { type: 'string' },
     name: { type: 'string' },
-    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
+    in: { type: 'string', enum: ['query', 'header'] },
     flow: { enum: ['implicit', 'password', 'application', 'accessCode'] },
     authorizationUrl: { type: 'string' },
     tokenUrl: { type: 'string' },
@@ -355,10 +351,10 @@ const SecurityScheme: NodeType = {
           case 'password':
             return ['type', 'flow', 'tokenUrl', 'description', 'scopes'];
           default:
-            return ['type', 'authorizationUrl', 'tokenUrl', 'flow', 'scopes', 'description'];
+            return ['type', 'authorizationUrl', 'tokenUrl', 'flow', 'description', 'scopes'];
         }
       default:
-        return undefined;
+        return ['type', 'description'];
     }
   },
   extensionsPrefix: 'x-',
