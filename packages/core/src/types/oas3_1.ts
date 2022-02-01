@@ -180,11 +180,11 @@ const SecurityScheme: NodeType = {
         switch (value?.flows) {
           case 'implicit':
             return ['type', 'flows', 'authorizationUrl', 'scopes'];
-          case 'accessCode':
-            return ['type', 'flows', 'authorizationUrl', 'tokenUrl', 'scopes'];
-          case 'application':
           case 'password':
+          case 'clientCredentials':
             return ['type', 'flows', 'tokenUrl', 'scopes'];
+          case 'authorizationCode':
+            return ['type', 'flows', 'authorizationUrl', 'tokenUrl', 'scopes'];
           default:
             return ['type', 'flows', 'scopes'];
         }
