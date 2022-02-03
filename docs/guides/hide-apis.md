@@ -676,7 +676,7 @@ paths:
 
 ### Using a decorator
 
-Redocly's API registry uses [OpenAPI-cli](../../../openapi-cli.mdx) under the hood.
+Redocly's API registry uses [OpenAPI-cli](../../../pages/openapi-cli/index.mdx) under the hood.
 
 OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../resources/custom-rules.md) to:
 - create your own organization's linting rules
