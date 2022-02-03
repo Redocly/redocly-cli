@@ -177,17 +177,7 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme'];
       case 'oauth2':
-        switch (value?.flows) {
-          case 'implicit':
-            return ['type', 'flows', 'authorizationUrl', 'scopes'];
-          case 'password':
-          case 'clientCredentials':
-            return ['type', 'flows', 'tokenUrl', 'scopes'];
-          case 'authorizationCode':
-            return ['type', 'flows', 'authorizationUrl', 'tokenUrl', 'scopes'];
-          default:
-            return ['type', 'flows', 'scopes'];
-        }
+        return ['type', 'flows'];
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl'];
       default:
@@ -201,7 +191,7 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme', 'bearerFormat', 'description'];
       case 'oauth2':
-        switch (value?.flow) {
+        switch (value?.flows) {
           case 'implicit':
             return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'description', 'scopes'];
           case 'password':

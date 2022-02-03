@@ -371,7 +371,7 @@ const ImplicitFlow: NodeType = {
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     authorizationUrl: { type: 'string' },
   },
-  required: ['authorizationUrl', 'scopes'],
+  required: ['authorizationUrl', 'scopes']
 };
 
 const PasswordFlow: NodeType = {
@@ -429,17 +429,7 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme'];
       case 'oauth2':
-        switch (value?.flows) {
-          case 'implicit':
-            return ['type', 'flows', 'authorizationUrl', 'scopes'];
-          case 'password':
-          case 'clientCredentials':
-            return ['type', 'flows', 'tokenUrl', 'scopes'];
-          case 'authorizationCode':
-            return ['type', 'flows', 'authorizationUrl', 'tokenUrl', 'scopes'];
-          default:
-            return ['type', 'flows', 'scopes'];
-        }
+        return ['type', 'flows'];
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl'];
       default:
@@ -453,17 +443,7 @@ const SecurityScheme: NodeType = {
       case 'http':
         return ['type', 'scheme', 'bearerFormat', 'description'];
       case 'oauth2':
-        switch (value?.flows) {
-          case 'implicit':
-            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'description', 'scopes'];
-          case 'password':
-          case 'clientCredentials':
-            return ['type', 'flows', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
-          case 'authorizationCode':
-            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
-          default:
-            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
-        }
+        return ['type', 'flows', 'description'];
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl', 'description'];
       default:
