@@ -42,6 +42,7 @@
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
+    "https-proxy-agent": "^5.0.0",
     "portfinder": "^1.0.26",
     "simple-websocket": "^9.0.0",
     "yargs": "17.0.1"
