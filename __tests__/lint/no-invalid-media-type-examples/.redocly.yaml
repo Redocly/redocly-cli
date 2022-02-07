@@ -1,0 +1,7 @@
+apiDefinitions:
+  main: ./openapi.yaml
+
+lint:
+  extends: []
+  rules:
+    no-invalid-media-type-examples: error
