@@ -28,7 +28,6 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
 export async function loadYaml(filename: string) {
   const contents = await fs.promises.readFile(filename, 'utf-8');
-
   return parseYaml(contents);
 }
 
