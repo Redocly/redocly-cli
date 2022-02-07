@@ -1,11 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
-import { red, blue } from 'colorette';
-
+import { red, blue, green, yellow } from 'colorette';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { notUndefined, slash } from '../utils';
-
 import {
   OasVersion,
   Oas3PreprocessorsSet,
@@ -16,9 +14,7 @@ import {
   Oas2DecoratorsSet,
   Oas3RuleSet
 } from '../oas-types';
-
 import { ProblemSeverity, NormalizedProblem } from '../walk';
-
 import recommended from './recommended';
 import { NodeType } from '../types';
 
@@ -140,12 +136,26 @@ if (REDOCLY_DOMAIN === 'redoc.online') {
   DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
 }
 
-export type RawConfig = {
-  referenceDocs?: any;
+export type DeprecatedRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
+  referenceDocs?: any;
+}
+
+export type Api = {
+  root: string;
+  lint?: LintRawConfig;
+  'features.openapi'?: any;
+};
+
+export type RawConfig = {
+  apis?: Record<string, Api>;
+  lint?: LintRawConfig;
+  resolve?: RawResolveConfig;
+  region?: Region;
+  'features.openapi'?: any;
 };
 
 export class LintConfig {
@@ -398,16 +408,16 @@ export class LintConfig {
 }
 
 export class Config {
-  referenceDocs: any;
-  apiDefinitions: Record<string, string>;
+  apis: Record<string, Api>;
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
+  'features.openapi': any;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
-    this.apiDefinitions = rawConfig.apiDefinitions || {};
-    this.lint = new LintConfig(rawConfig.lint || {}, configFile);
-    this.referenceDocs = rawConfig.referenceDocs || {};
+    this.apis = rawConfig.apis || {};
+    this.lint = new LintConfig(rawConfig.lint|| {}, configFile);
+    this['features.openapi'] = rawConfig['features.openapi'] || {};
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
@@ -421,7 +431,6 @@ export class Config {
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
     const { pluginId, configName } = parsePresetName(presetName);
-
     const plugin = plugins.find((p) => p.id === pluginId);
     if (!plugin) {
       throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
@@ -623,4 +632,70 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
       target[k] = obj[k];
     }
   }
+}
+
+export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+  return entrypointAlias
+    ? {
+        ...config,
+        lint: getMergedLintConfig(config, entrypointAlias),
+        'features.openapi': {
+          ...config['features.openapi'],
+          ...config.apis[entrypointAlias]?.['features.openapi'],
+        },
+        // TODO: merge everything else here
+      }
+    : config;
+}
+
+export function getMergedLintConfig(
+  config: Config,
+  entrypointAlias?: string
+): LintConfig {
+  const localLint = entrypointAlias 
+    ? config.apis[entrypointAlias]?.lint
+    : {};
+  const mergedLint = {
+    ...config.rawConfig.lint,
+    // Preserve external additions to the lint config:
+    ...config.lint,
+    ...localLint,
+    rules: { ...config.rawConfig.lint?.rules, ...localLint?.rules },
+    preprocessors: { ...config.rawConfig.lint?.preprocessors, ...localLint?.preprocessors },
+    decorators: { ...config.rawConfig.lint?.decorators, ...localLint?.decorators },
+  };
+  return new LintConfig(mergedLint);
+}
+
+function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
+  let apis: Record<string, Api> = {};
+  for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
+    apis[apiName] = { root: apiPath };
+  }
+  return apis;
+}
+
+export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
+  if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions) {
+    throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
+  }
+  if ((rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs) {
+    throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
+  }
+  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
+  if (apiDefinitions) {
+    process.stdout.write(
+      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead.\n`
+    );
+  }
+  if (referenceDocs) {
+    process.stdout.write(
+      `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead.\n`
+    );
+  }
+  return {
+    'features.openapi': referenceDocs,
+    apis: transformApiDefinitionsToApis(apiDefinitions),
+    ...rest,
+  };
 }

@@ -1,23 +1,12 @@
 import * as fs from 'fs';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, DOMAINS, RawConfig, Region } from './config';
-
+import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-  let rawConfig: RawConfig = {};
+  const rawConfig = await getConfig(configPath);
 
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -48,7 +37,6 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       }] : []));
     }
   }
-
   return new Config(
     {
       ...rawConfig,
@@ -77,4 +65,14 @@ export function findConfig(): string | undefined {
     `);
   }
   return existingConfigFiles[0];
+}
+
+export async function getConfig(configPath: string | undefined = findConfig()) {
+  if (!configPath) return {};
+  try {
+    const rawConfig = (await loadYaml(configPath)) as RawConfig;
+    return transformConfig(rawConfig);
+  } catch (e) {
+    throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
+  }
 }
