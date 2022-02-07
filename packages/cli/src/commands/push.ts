@@ -147,8 +147,7 @@ function getFilesList(dir: string, files?: any): string[] {
 async function collectFilesToUpload(entrypoint: string) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const config: Config = await loadConfig();
-  const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
-  const entrypointPath = entrypoints[0];
+  const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 
   process.stdout.write('Bundling definition\n');
 
@@ -183,8 +182,8 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
-    if (config.referenceDocs.htmlTemplate) {
-      const dir = getFolder(config.referenceDocs.htmlTemplate);
+    if (config['features.openapi'].htmlTemplate) {
+      const dir = getFolder(config['features.openapi'].htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }

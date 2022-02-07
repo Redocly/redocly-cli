@@ -1,6 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`E2E lint no-undefined-server-variable-error-recommended-config 1`] = `
+The apiDefinitions field is deprecated. Use apis instead.
 
 validating /openapi.yaml...
 [1] openapi.yaml:7:5 at #/servers/0/url

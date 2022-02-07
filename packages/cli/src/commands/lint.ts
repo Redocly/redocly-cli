@@ -4,6 +4,7 @@ import {
   getTotals,
   lint,
   loadConfig,
+  getMergedConfig,
   OutputFormat,
 } from '@redocly/openapi-core';
 import {
@@ -35,27 +36,29 @@ export async function handleLint(
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+
   if (argv['generate-ignore-file']) {
     config.lint.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
-  if (config.lint.recommendedFallback) {
-    process.stderr.write(
-      `No configurations were defined in extends -- using built in ${blue(
-        'recommended',
-      )} configuration by default.\n\n`,
-    );
-  }
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const entryPoint of entrypoints) {
+  for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
-      process.stderr.write(gray(`validating ${entryPoint.replace(process.cwd(), '')}...\n`));
+      const resolvedConfig = getMergedConfig(config, alias);
+      if (resolvedConfig.lint.recommendedFallback) {
+        process.stderr.write(
+          `No configurations were defined in extends -- using built in ${
+            blue('recommended')
+          } configuration by default.\n\n`,
+        );
+      }
+      process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
-        ref: entryPoint,
-        config,
+        ref: path,
+        config: resolvedConfig,
       });
 
       const fileTotals = getTotals(results);
@@ -78,10 +81,10 @@ export async function handleLint(
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${entryPoint.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
+      process.stderr.write(gray(`${path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
       totals.errors++;
-      handleError(e, entryPoint);
+      handleError(e, path);
     }
   }
 

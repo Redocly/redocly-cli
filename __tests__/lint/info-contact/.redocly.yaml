@@ -1,7 +1,11 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 
 lint:
   rules:
     info-contact: warn
   extends: []
+
+
+
