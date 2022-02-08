@@ -282,19 +282,13 @@ function iteratePathItem(
           fs.writeFileSync(sampleFileName, sample.source);
           // @ts-ignore
           sample.source = {
-            $ref:
-              rootDocObj === PATHS
-                ? slash(path.relative(checkDir, sampleFileName))
-                : path.relative(checkDir, sampleFileName),
+            $ref: createRefPath(rootDocObj, checkDir, sampleFileName)
           };
         }
       }
       writeYaml(pathData, pathFile);
       docObj[oasPath] = {
-        $ref:
-          rootDocObj === PATHS
-            ? slash(path.relative(openapiDir, pathFile))
-            : path.relative(openapiDir, pathFile),
+        $ref: createRefPath(rootDocObj, openapiDir, pathFile)
       };
     }
 
@@ -353,6 +347,10 @@ function iterateComponents(
       removeEmptyComponents(openapi, componentType);
     }
   }
+}
+
+function createRefPath(rootDocObj: string, from: string, to: string) {
+  return rootDocObj === PATHS ? slash(path.relative(from, to)) : path.relative(from, to);
 }
 
 export { iteratePathItem };
