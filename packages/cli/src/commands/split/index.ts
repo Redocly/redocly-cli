@@ -257,7 +257,7 @@ function iteratePathItem(
       : openapi[xWEBHOOKS];
 
   if (docObj) {
-    const checkDir = customDir ? customDir : path.join(openapiDir, rootDocObj);
+    const checkDir = customDir || path.join(openapiDir, rootDocObj);
     fs.mkdirSync(checkDir, { recursive: true });
 
     for (const oasPath of Object.keys(docObj)) {
