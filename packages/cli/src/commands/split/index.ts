@@ -249,12 +249,7 @@ function iteratePathItem(
   rootDocObj: string,
   customDir?: string,
 ) {
-  const docObj =
-    rootDocObj === PATHS
-      ? openapi.paths
-      : openapi[WEBHOOKS]
-      ? openapi[WEBHOOKS]
-      : openapi[xWEBHOOKS];
+  const docObj = rootDocObj === PATHS ? openapi.paths : (openapi[WEBHOOKS] ? openapi[WEBHOOKS] : openapi[xWEBHOOKS]);
 
   if (docObj) {
     const checkDir = customDir || path.join(openapiDir, rootDocObj);
