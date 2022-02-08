@@ -103,7 +103,6 @@ const Schema: NodeType = {
     definitions: 'NamedSchemas',
     $defs: 'NamedSchemas',
     $vocabulary: { type: 'string' },
-
     externalDocs: 'ExternalDocs',
     discriminator: 'Discriminator',
     myArbitraryKeyword: { type: 'boolean' },
@@ -140,35 +139,31 @@ const Schema: NodeType = {
     then: 'Schema',
     else: 'Schema',
     dependentSchemas: listOf('Schema'),
-    prefixItems: { type: 'array' },
+    prefixItems: listOf('Schema'),
     contains: 'Schema',
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
     unevaluatedItems: 'Schema',
     unevaluatedProperties: 'Schema',
     summary: { type: 'string' },
-
     properties: 'SchemaProperties',
     items: (value: any) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
+      } else if (typeof value === 'boolean') {
+        return { type: 'boolean' };
       } else {
         return 'Schema';
       }
     },
     additionalProperties: (value: any) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
+      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
     description: { type: 'string' },
     format: { type: 'string' },
     contentEncoding: { type: 'string' },
     contentMediaType: { type: 'string' },
     default: null,
-
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
     xml: 'Xml',
