@@ -21,6 +21,22 @@ servers:
         - b
         default: b
 paths:
+  /pets/items:
+    get:
+      operationId: getTest
+      summary: Get Test! Foo! Etc!
+      responses:
+        200:
+          description: "200"
+          content:
+            application/json:
+              schema:
+                type: array
+                prefixItems:
+                  - type: "string"
+                items: false
+        400:
+          description: An error response
   /pets:
     get:
       summary: List all pets
