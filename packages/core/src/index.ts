@@ -5,12 +5,15 @@ export { Oas2Types } from './types/oas2';
 export { ConfigTypes } from './types/redocly-yaml';
 export {
   Oas3Definition,
+  Oas3_1Definition,
   Oas3Components,
   Oas3PathItem,
   Oas3Paths,
   Oas3ComponentName,
   Oas3Schema,
+  Oas3_1Schema,
   Oas3Tag,
+  Oas3_1Webhooks
 } from './typings/openapi';
 export { Oas2Definition } from './typings/swagger';
 export { StatsAccumulator, StatsName } from './typings/common';

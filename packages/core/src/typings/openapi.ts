@@ -7,6 +7,7 @@ export interface Oas3Definition {
   security?: Oas3SecurityRequirement[];
   tags?: Oas3Tag[];
   externalDocs?: Oas3ExternalDocs;
+  'x-webhooks'?: Oas3_1Webhooks;
 }
 
 export interface Oas3Info {
@@ -152,6 +153,14 @@ export interface Oas3Schema {
 
 export interface Oas3_1Schema extends Oas3Schema {
   examples?: any[];
+}
+
+export interface Oas3_1Definition extends Oas3Definition {
+  webhooks?: Oas3_1Webhooks;
+}
+
+export interface Oas3_1Webhooks {
+  [webhook: string]: Referenced<Oas3PathItem>;
 }
 
 export interface Oas3Discriminator {

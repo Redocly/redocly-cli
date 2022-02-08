@@ -1,14 +1,17 @@
 import {
   Oas3Schema,
+  Oas3_1Schema,
   Oas3Definition,
+  Oas3_1Definition,
   Oas3Components,
   Oas3PathItem,
   Oas3Paths,
   Oas3ComponentName,
+  Oas3_1Webhooks,
   Oas2Definition
 } from "@redocly/openapi-core";
-export { Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3Schema }
-export type Definition = Oas3Definition | Oas2Definition;
+export { Oas3_1Definition, Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3_1Schema, Oas3Schema, Oas3_1Webhooks }
+export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
 }
@@ -18,6 +21,8 @@ export interface refObj {
 
 export const COMPONENTS = 'components';
 export const PATHS = 'paths';
+export const WEBHOOKS = 'webhooks';
+export const xWEBHOOKS = 'x-webhooks';
 export const componentsPath = `#/${COMPONENTS}/`;
 
 enum OPENAPI3_METHOD {
