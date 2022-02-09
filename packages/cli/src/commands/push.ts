@@ -148,7 +148,7 @@ async function collectFilesToUpload(entrypoint: string) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
-  const entrypointPath = entrypoints[0];
+  const entrypointPath = entrypoints[0].path;
 
   process.stdout.write('Bundling definition\n');
 
@@ -170,9 +170,9 @@ async function collectFilesToUpload(entrypoint: string) {
     exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`);
   }
 
-  const fileExt = path.extname(entrypointPath).split('.').pop();
+  const fileExt = path.extname(entrypointPath.path).split('.').pop();
   files.push(
-    getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
+    getFileEntry(entrypointPath.path, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
   );
 
   if (fs.existsSync('package.json')) {
@@ -200,7 +200,7 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   return {
     files,
-    root: path.resolve(entrypointPath),
+    root: path.resolve(entrypointPath.path),
   };
 
   function filterPluginFilesByExt(files: string[]) {

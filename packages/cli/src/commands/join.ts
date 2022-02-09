@@ -56,7 +56,7 @@ packageVersion: string
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
-    entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref, true) as Promise<Document>)
+    entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref.path, true) as Promise<Document>)
   );
 
   const bundleResults = await Promise.all(

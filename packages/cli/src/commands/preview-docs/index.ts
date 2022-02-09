@@ -47,7 +47,7 @@ export async function previewDocs(argv: {
         problems,
         fileDependencies,
       } = await bundle({
-        ref: entrypoint,
+        ref: entrypoint.path,
         config,
       });
       const removed = [...deps].filter((x) => !fileDependencies.has(x));
@@ -72,7 +72,7 @@ export async function previewDocs(argv: {
 
       return openapiBundle.parsed;
     } catch (e) {
-      handleError(e, entrypoint);
+      handleError(e, entrypoint.path);
     }
   }
 
@@ -95,7 +95,7 @@ export async function previewDocs(argv: {
     useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
   });
 
-  const watchPaths = [entrypoint, config.configFile!].filter((e) => !!e);
+  const watchPaths = [entrypoint.path, config.configFile!].filter((e) => !!e);
   const watcher = chockidar.watch(watchPaths, {
     disableGlobbing: true,
     ignoreInitial: true,
@@ -124,7 +124,7 @@ export async function previewDocs(argv: {
 
   watcher.on('ready', () => {
     process.stdout.write(
-      `\n  👀  Watching ${colorette.blue(entrypoint)} and all related resources for changes\n\n`,
+      `\n  👀  Watching ${colorette.blue(entrypoint.path)} and all related resources for changes\n\n`,
     );
   });
 
