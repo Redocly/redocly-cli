@@ -3,7 +3,7 @@ redirectFrom:
   - /docs/cli/configuration/lint/
 ---
 
-# Introduction
+# Manage the lint configuration
 
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 The `lint` and `bundle` commands use this section to control various options.
@@ -199,7 +199,7 @@ lint:
     boolean-parameter-prefixes:
       severity: error
       prefixes: ['should', 'is', 'has']
-```    
+```
 
 ### Decorators
 
@@ -306,7 +306,7 @@ If the version is not defined, it will fall back to the `rules` section.
 
 Read more about [built-in rules](../resources/built-in-rules.md).
 
-### Resolving JSON references ($refs)
+### Resolve JSON references ($refs)
 
 The OpenAPI specification supports `$refs` in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require `$refs` in unsupported places.
 

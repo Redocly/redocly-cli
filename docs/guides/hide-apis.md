@@ -22,11 +22,11 @@ If an endpoint is discovered, your API authentication mechanism must prevent una
 :::
 
 
-## Three approaches
+## Supported approaches
 
 1. Separate API definitions.
 1. Separate root API files.
-1. Using a decorator to remove content prior to publishing.
+1. Remove content with a decorator before publishing.
 
 The best approach is indicated by the granularity level required.
 
@@ -38,7 +38,7 @@ The best approach is indicated by the granularity level required.
 |Schema properties|Decorator|
 
 
-### Separate API definitions
+### 1. Separate API definitions
 
 This is indicated only when:
 - There are no shared schemas between internal and external APIs.
@@ -615,7 +615,7 @@ components:
 </details>
 
 
-### Separate root API files
+### 2. Separate root API files
 
 This is indicated when:
 - There may be shared schemas between internal and external APIs.
@@ -674,11 +674,11 @@ paths:
 - You still have to maintain an extra file (but it's much easier than maintaining two separate complete API definitions).
 - The approach only works if the granularity-level of "path item" works for your use case.
 
-### Using a decorator
+### 3. Remove content with a decorator
 
-Redocly's API registry uses [OpenAPI-cli](../../../pages/openapi-cli/index.mdx) under the hood.
+Redocly's API registry uses [OpenAPI CLI](../../../pages/openapi-cli/index.mdx) under the hood.
 
-OpenAPI-cli is a very powerful tool that allows you [create custom plugins](../resources/custom-rules.md) to:
+OpenAPI CLI is a very powerful tool that allows you [create custom plugins](../resources/custom-rules.md) to:
 - create your own organization's linting rules
 - transform your API definition during the bundle process (using decorators)
 
@@ -689,7 +689,7 @@ There are three steps to accomplish this:
 1. Add a custom plugin (see our `demo-plugin.js`).
 1. Adjust your `.redocly.yaml` configuration file to register and use the plugin.
 
-#### 1. Marking paths and operations with `x-internal: true`
+#### Step 1: Mark paths and operations with `x-internal: true`
 
 ```yaml Operation marked as internal
 delete:
@@ -744,7 +744,7 @@ post:
           $ref: ../components/headers/ExpiresAfter.yaml
 ```
 
-#### 2. Add a plugin
+#### Step 2: Add a plugin
 
 This example organizes the plugin into a `plugins` directory (you can name it anything though).
 Therefore, to follow along, place this `demo-plugin.js` file inside of a `plugins` directory.
@@ -858,7 +858,7 @@ The example above covers paths and operations, but it doesn't cover specific sch
 Add another decorator, for example, `remove-internal-schema-properties`, to accomplish that.
 
 
-#### 3. Register the plugin in `.redocly.yaml`
+#### Step 3: Register the plugin in `.redocly.yaml`
 
 It requires making a change to your `.redocly.yaml` file to register your plugin and run it.
 
