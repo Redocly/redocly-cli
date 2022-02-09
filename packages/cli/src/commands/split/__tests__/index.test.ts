@@ -1,6 +1,6 @@
 // import { iteratePathItems } from '../index';
-import * as path from 'path';
-import * as openapiCore from '@redocly/openapi-core';
+// import * as path from 'path';
+// import * as openapiCore from '@redocly/openapi-core';
 // import {
 //   ComponentsFiles,
 // } from '../types';
@@ -16,9 +16,10 @@ describe('#split', () => {
     // const openapi = require("./fixtures/spec.json");
     // const openapiDir = 'test';
     // const componentsFiles: ComponentsFiles = {};
-
-    jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
-    jest.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
+    console.log("test");
+    
+    // jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
+    // jest.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     // iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
     // iteratePathItems(require("./fixtures/spec.json"), openapiDir, componentsFiles, PATHS);
     // expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
