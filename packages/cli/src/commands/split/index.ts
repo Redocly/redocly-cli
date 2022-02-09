@@ -51,8 +51,6 @@ function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir:
   iterateComponents(openapi, openapiDir, componentsFiles);
   iteratePathItems(openapi, openapiDir, componentsFiles, PATHS);
   iteratePathItems(openapi, openapiDir, componentsFiles, WEBHOOKS);
-  // iteratePathItems(openapi.paths, openapiDir, componentsFiles);
-  // iteratePathItems(openapi['x-webhooks'] || openapi.webhooks , openapiDir, componentsFiles); 
 
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
