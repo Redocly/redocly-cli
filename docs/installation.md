@@ -1,8 +1,8 @@
-# Installing OpenAPI CLI
+# Install OpenAPI CLI
 
 You can install and use OpenAPI CLI in several ways:
 
-## Installing globally
+## Global installation
 
 ### npm
 
@@ -39,7 +39,7 @@ success Installed "@redocly/openapi-cli@1.0.0-beta.54" with binaries:
 ✨  Done in 6.90s.
 ```
 
-## Verifying global installation
+## Verify the global installation
 
 After installing it globally, run `openapi --version` to confirm that the installation was successful:
 
@@ -48,7 +48,7 @@ openapi --version
 1.0.0-beta.54
 ```
 
-## Installing in runtime
+## Runtime installation
 
 ### npx
 
@@ -65,7 +65,7 @@ npx @redocly/openapi-cli@latest lint petstore.yaml
 ```
 
 ```shell output (lint failed)
-npx @redocly/openapi-cli@latest lint petstore.yaml 
+npx @redocly/openapi-cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
@@ -105,7 +105,7 @@ You have 2 warnings.
 ```
 
 ```shell output (lint succeeded)
-npx @redocly/openapi-cli@latest lint petstore.yaml 
+npx @redocly/openapi-cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
@@ -125,12 +125,12 @@ docker run --rm -v $PWD:/spec redocly/openapi-cli lint petstore.yaml
 ```shell output (lint succeeded)
 Unable to find image 'redocly/openapi-cli:latest' locally
 latest: Pulling from redocly/openapi-cli
-540db60ca938: Pull complete 
-fe289da0f830: Pull complete 
-c5a1e48e74e5: Pull complete 
-63ccc02b1289: Pull complete 
-4b42ba54a874: Pull complete 
-3f76218e8e91: Pull complete 
+540db60ca938: Pull complete
+fe289da0f830: Pull complete
+c5a1e48e74e5: Pull complete
+63ccc02b1289: Pull complete
+4b42ba54a874: Pull complete
+3f76218e8e91: Pull complete
 Digest: sha256:fa95c9a8b9e282b21779e8ffa86ed28b87f9d97517e46d96af7a6676d47b0430
 Status: Downloaded newer image for redocly/openapi-cli:latest
 No configurations were defined in extends -- using built in recommended configuration by default.
@@ -143,7 +143,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 ## Post-installation
 
-### Setting up tab completion
+### Set up tab completion
 
 To set up tab completion for the terminal, generate the completion script with the command:
 
