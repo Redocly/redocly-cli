@@ -8,9 +8,10 @@ import {
   Oas3Paths,
   Oas3ComponentName,
   Oas3_1Webhooks,
-  Oas2Definition
+  Oas2Definition,
+  Referenced
 } from "@redocly/openapi-core";
-export { Oas3_1Definition, Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3_1Schema, Oas3Schema, Oas3_1Webhooks }
+export { Oas3_1Definition, Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3_1Schema, Oas3Schema, Oas3_1Webhooks, Referenced }
 export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;

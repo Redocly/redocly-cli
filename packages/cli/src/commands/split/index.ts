@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -21,11 +21,9 @@ import {
   OPENAPI3_COMPONENT,
   COMPONENTS,
   componentsPath,
-  PATHS,
   OPENAPI3_METHOD_NAMES,
   OPENAPI3_COMPONENT_NAMES,
-  WEBHOOKS,
-  xWEBHOOKS,
+  Referenced
 } from './types';
 
 export async function handleSplit (argv: {
@@ -49,8 +47,10 @@ function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir:
 
   const componentsFiles: ComponentsFiles = {};
   iterateComponents(openapi, openapiDir, componentsFiles);
-  iteratePathItems(openapi, openapiDir, componentsFiles, PATHS);
-  iteratePathItems(openapi, openapiDir, componentsFiles, WEBHOOKS);
+  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
+  const webhooks = (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
+  // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
+  iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
 
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
@@ -243,55 +243,51 @@ function gatherComponentsFiles(
 }
 
 function iteratePathItems(
-  openapi: Oas3Definition | Oas3_1Definition,
+  pathItems: Record<string,  Referenced<Oas3PathItem>> | undefined,
   openapiDir: string,
+  outDir: string,
   componentsFiles: object,
-  rootDocObj: string,
+  codeSamplesPathPrefix: string = '',
 ) {
-  const docObj =
-    rootDocObj === PATHS
-      ? openapi.paths
-      : (openapi as Oas3_1Definition)[WEBHOOKS] || (openapi as Oas3Definition)[xWEBHOOKS];
+  if (!pathItems) return;
+  fs.mkdirSync(outDir, { recursive: true });
 
-  if (docObj) {
-    const checkDir = path.join(openapiDir, rootDocObj);
-    fs.mkdirSync(checkDir, { recursive: true });
+  for (const pathName of Object.keys(pathItems)) {
+    const pathFile = path.join(outDir, pathToFilename(pathName));
+    const pathData = pathItems[pathName];
 
-    for (const oasPath of Object.keys(docObj)) {
-      const pathFile = path.join(checkDir, pathToFilename(oasPath)) + '.yaml';
-      const pathData: Oas3PathItem = docObj[oasPath] as Oas3PathItem;
+    if (isRef(pathData)) continue;
 
-      for (const method of OPENAPI3_METHOD_NAMES) {
-        const methodData = pathData[method];
-        const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
-        if (!methodDataXCode || !Array.isArray(methodDataXCode)) {
-          continue;
-        }
-        for (const sample of methodDataXCode) {
-          if (sample.source && (sample.source as any).$ref) continue;
-          const sampleFileName = path.join(
-            openapiDir,
-            'code_samples',
-            sample.lang,
-            pathToFilename(oasPath),
-            method + langToExt(sample.lang),
-          );
-
-          fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
-          fs.writeFileSync(sampleFileName, sample.source);
-          // @ts-ignore
-          sample.source = {
-            $ref: slash(path.relative(checkDir, sampleFileName)),
-          };
-        }
+    for (const method of OPENAPI3_METHOD_NAMES) {
+      const methodData = pathData[method];
+      const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
+      if (!methodDataXCode || !Array.isArray(methodDataXCode)) {
+        continue;
       }
-      writeYaml(pathData, pathFile);
-      docObj[oasPath] = {
-        $ref: slash(path.relative(openapiDir, pathFile)),
-      };
-    }
+      for (const sample of methodDataXCode) {
+        if (sample.source && (sample.source as any).$ref) continue;
+        const sampleFileName = path.join(
+          openapiDir,
+          'code_samples',
+          sample.lang,
+          codeSamplesPathPrefix + pathToFilename(pathName),
+          method + langToExt(sample.lang),
+        );
 
-    traverseDirectoryDeep(checkDir, traverseDirectoryDeepCallback, componentsFiles);
+        fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
+        fs.writeFileSync(sampleFileName, sample.source);
+        // @ts-ignore
+        sample.source = {
+          $ref: slash(path.relative(outDir, sampleFileName))
+        };
+      }
+    }
+    writeYaml(pathData, pathFile);
+    pathItems[pathName] = {
+      $ref: slash(path.relative(outDir, pathFile))
+    };
+
+    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
 }
 
