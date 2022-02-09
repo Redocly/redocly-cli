@@ -170,9 +170,9 @@ async function collectFilesToUpload(entrypoint: string) {
     exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`);
   }
 
-  const fileExt = path.extname(entrypointPath.path).split('.').pop();
+  const fileExt = path.extname(entrypointPath).split('.').pop();
   files.push(
-    getFileEntry(entrypointPath.path, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
+    getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
   );
 
   if (fs.existsSync('package.json')) {
@@ -200,7 +200,7 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   return {
     files,
-    root: path.resolve(entrypointPath.path),
+    root: path.resolve(entrypointPath),
   };
 
   function filterPluginFilesByExt(files: string[]) {
