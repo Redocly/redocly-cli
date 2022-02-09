@@ -13,7 +13,8 @@ export {
   Oas3Schema,
   Oas3_1Schema,
   Oas3Tag,
-  Oas3_1Webhooks
+  Oas3_1Webhooks,
+  Referenced
 } from './typings/openapi';
 export { Oas2Definition } from './typings/swagger';
 export { StatsAccumulator, StatsName } from './typings/common';
@@ -33,7 +34,7 @@ export {
   makeDocumentFromString,
 } from './resolve';
 export { parseYaml, stringifyYaml } from './js-yaml';
-export { unescapePointer } from './ref-utils';
+export { unescapePointer, isRef } from './ref-utils';
 export { detectOpenAPI, OasMajorVersion, openAPIMajor, OasVersion } from './oas-types';
 export { normalizeVisitors } from './visitors';
 
