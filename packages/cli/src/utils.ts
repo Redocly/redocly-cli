@@ -18,16 +18,18 @@ import {
 import { Totals, outputExtensions } from './types';
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
-  const { apiDefinitions } = config;
-  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0;
-  const res = shouldFallbackToAllDefinitions
-    ? Object.values(apiDefinitions).map((fileName) => resolve(getConfigDirectory(config), fileName))
-    : await expandGlobsInEntrypoints(argsEntrypoints!, config);
-
-  if (!isNotEmptyArray(res)) {
-    process.stderr.write('error: missing required argument `entrypoints`.\n');
-    process.exit(1);
-  }
+  const { apis } = config;
+  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
+  const res = !shouldFallbackToAllDefinitions
+    ? Object.keys(apis).map((fileName) => ({
+        path: resolve(getConfigDirectory(config), apis[fileName].root),
+        alias: fileName
+      }))
+    : (await expandGlobsInEntrypoints(argsEntrypoints!, config)).map(entrypoint => ({ path: entrypoint }));
+  // if (!isNotEmptyArray(res)) {
+  //   process.stderr.write('error: missing required argument `entrypoints`.\n');
+  //   process.exit(1);
+  // }
   return res;
 }
 
@@ -39,7 +41,7 @@ function isNotEmptyArray(args?: string[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
 function getAliasOrPath(config: Config, aliasOrPath: string) {
-  return config.apiDefinitions[aliasOrPath] || aliasOrPath;
+  return config.apis[aliasOrPath]?.root || aliasOrPath;
 }
 
 async function expandGlobsInEntrypoints(args: string[], config: Config) {

@@ -139,9 +139,19 @@ if (REDOCLY_DOMAIN === 'redoc.online') {
   DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
 }
 
-export type RawConfig = {
-  referenceDocs?: any;
+
+export type DeprecatedRawConfig = {
   apiDefinitions?: Record<string, string>;
+  referenceDocs?: any;
+  lint?: LintRawConfig;
+  resolve?: RawResolveConfig;
+  region?: Region;
+}
+
+export type RawConfig = {
+  //'features.openapi': any;
+  referenceDocs?: any;
+  apis?: any;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
@@ -396,16 +406,18 @@ export class LintConfig {
   }
 }
 
+//TODO: TS for apis
+
 export class Config {
   referenceDocs: any;
-  apiDefinitions: Record<string, string>;
+  apis: Record<string, any>;
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
-    this.apiDefinitions = rawConfig.apiDefinitions || {};
-    this.lint = new LintConfig(rawConfig.lint || {}, configFile);
+    this.apis = rawConfig.apis || {};
+    this.lint = new LintConfig(rawConfig.lint|| {}, configFile);
     this.referenceDocs = rawConfig.referenceDocs || {};
     this.resolve = {
       http: {

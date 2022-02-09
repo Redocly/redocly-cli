@@ -65,7 +65,7 @@ export async function handleBundle(
           );
         }
         const results = await lint({
-          ref: entrypoint,
+          ref: entrypoint.path,
           config,
         });
         const fileLintTotals = getTotals(results);
@@ -91,14 +91,14 @@ export async function handleBundle(
         ...meta
       } = await bundle({
         config,
-        ref: entrypoint,
+        ref: entrypoint.path,
         dereference: argv.dereferenced,
         removeUnusedComponents
       });
 
       const fileTotals = getTotals(problems);
       const { outputFile, ext } = getOutputFileName(
-        entrypoint,
+        entrypoint.path,
         entrypoints.length,
         argv.output,
         argv.ext,
@@ -140,20 +140,20 @@ export async function handleBundle(
       if (fileTotals.errors > 0) {
         if (argv.force) {
           process.stderr.write(
-            `❓ Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} with errors ${green(
+            `❓ Created a bundle for ${blue(entrypoint.path)} at ${blue(outputFile)} with errors ${green(
               elapsed,
             )}.\n${yellow('Errors ignored because of --force')}.\n`,
           );
         } else {
           process.stderr.write(
             `❌ Errors encountered while bundling ${blue(
-              entrypoint,
+              entrypoint.path,
             )}: bundle not created (use --force to ignore errors).\n`,
           );
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
+          `📦 Created a bundle for ${blue(entrypoint.path)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
         );
       }
 
@@ -164,7 +164,7 @@ export async function handleBundle(
         );
       }
     } catch (e) {
-      handleError(e, entrypoint);
+      handleError(e, entrypoint.path);
     }
   }
 

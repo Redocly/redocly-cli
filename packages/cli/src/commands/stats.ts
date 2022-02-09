@@ -70,7 +70,7 @@ export async function handleStats (argv: {
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
   const entrypoint = entrypoints[0];
   const externalRefResolver = new BaseResolver(config.resolve);
-  const { bundle: document } = await bundle({ config, ref: entrypoint });
+  const { bundle: document } = await bundle({ config, ref: entrypoint.path });
   const lintConfig: LintConfig = config.lint;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
@@ -111,6 +111,6 @@ export async function handleStats (argv: {
     ctx,
   });
 
-  printStats(statsAccumulator, entrypoint, argv.format);
-  printExecutionTime('stats', startedAt, entrypoint);
+  printStats(statsAccumulator, entrypoint.path, argv.format);
+  printExecutionTime('stats', startedAt, entrypoint.path);
 }

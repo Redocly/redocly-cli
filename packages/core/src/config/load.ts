@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, DOMAINS, RawConfig, Region } from './config';
+import { Config, DeprecatedRawConfig, DOMAINS, RawConfig, Region } from './config';
 import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
@@ -50,12 +50,11 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   );
 }
 
-function configTransformer(rawConfig: RawConfig) {
+function transformConfig(rawConfig: DeprecatedRawConfig) {
   if (!rawConfig.apiDefinitions) return rawConfig;
 
-  const config = {} as any;
-  const keysToChange = ['apiDefinitions', 'referenceDocs'];
-
+  const config: RawConfig = {};
+  //const keysToChange = ['apiDefinitions', 'referenceDocs'];
   for (const [key, value] of Object.entries(rawConfig)) {
     if (key === 'apiDefinitions') {
       config.apis = {};
@@ -63,8 +62,8 @@ function configTransformer(rawConfig: RawConfig) {
         config.apis[apiName+'@latest'] = { 'root': apiPath };
       }
     }
-    if (key === 'referenceDocs') { config['features.openapi'] = value; }
-    if (!keysToChange.includes(key)) { config[key] = value; }
+    //if (key === 'referenceDocs') { config['features.openapi'] = value; }
+    //if (!keysToChange.includes(key)) { config[key] = value; }
   }
   return config;
 }
@@ -79,7 +78,7 @@ export async function getConfig(path?: string) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-  return configTransformer(rawConfig);
+  return transformConfig(rawConfig);
 }
 
 function findConfig() {
