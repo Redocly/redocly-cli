@@ -152,7 +152,8 @@ resolve:
         envVariable: SECRET_AUTH
 ```
 
-The first match will win in the event that a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
+The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
+
 
 ### referenceDocs
 
