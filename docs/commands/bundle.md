@@ -58,11 +58,11 @@ openapi bundle openapi/openapi.yaml --output dist/openapi.json
 
 This command creates one bundled file for each of the specified entrypoints in the `dist/` folder. Bundled files are in JSON format.
 
-```bash request
+```bash Command
 openapi bundle --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
 ```
 
-```bash output
+```bash Output
 dist/openapi.json
 dist/petstore.json
 ```
@@ -89,13 +89,9 @@ openapi bundle --config=./another/directory/config.yaml
 
 #### Codeframe (default)
 
-```bash request
+```bash
 openapi bundle pet.yaml store.yaml -o ./bundled --format=codeframe
 ## equivalent to: openapi bundle pet.yaml store.yaml -o ./bundled
-```
-
-```bash output
-...
 ```
 
 Note: Errors display in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
@@ -104,24 +100,21 @@ Depending on the terminal emulator you use, it may be possible to directly click
 
 #### Stylish
 
-```bash request
+```bash
 openapi bundle pet.yaml store.yaml -o ./bundled --format=stylish
 ```
 
-```bash output
-...
-```
-
 In this format, `bundle` shows the filename, line number, and column where the problem occurred.
+
 The compressed output omits other contexts and suggestions.
 
 #### JSON
 
-```bash request
+```bash Command
 openapi bundle pet.yaml store.yaml -o ./bundled --format=json
 ```
 
-```bash output
+```bash Output
 bundling pet.yaml...
 {
   "totals": {
@@ -148,11 +141,11 @@ In this format, `bundle` shows the result of bundling (including the number of e
 
 #### Checkstyle
 
-```bash request
+```bash Command
 openapi bundle pet.yaml -o ./bundled --lint --format=checkstyle
 ```
 
-```bash output
+```bash Output
 bundling pet.yaml...
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="4.3">

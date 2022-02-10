@@ -54,7 +54,8 @@ The solution is the multi-file approach, where you define the main structure of 
 
 Compare the following examples:
 
-#### Single-file approach
+<details>
+<summary>Single-file approach</summary>
 
 ```yaml openapi.yaml
 openapi: "3.0.0"
@@ -130,11 +131,13 @@ paths:
                     tag:
                       type: string
 ```
-----
 
-#### Multi-file approach
+</details>
 
-```yaml openapi.yaml
+<details>
+<summary>Multi-file approach</summary>
+
+```yaml Main openapi.yaml file
 openapi: "3.0.0"
 info:
   version: 1.0.0
@@ -157,7 +160,8 @@ components:
   responses:
     $ref: "./responses/_index.yaml"
 ```
-```yaml ./paths/pets.yaml
+
+```yaml Referenced ./paths/pets.yaml file
 get:
   summary: Info for a specific pet
   operationId: showPetById
@@ -175,7 +179,8 @@ get:
     default:
       $ref: "../responses/UnexpectedError.yaml"
 ```
-```yaml ./schemas/Pet.yaml
+
+```yaml Referenced ./schemas/Pet.yaml file
 type: object
 required:
 - id
@@ -189,6 +194,8 @@ name:
 tag:
   type: string
 ```
+
+</details>
 
 :::info Note
 Please note that the definitions above are not complete and are used as a demonstration for you to grasp the basic idea of the multi-file approach.

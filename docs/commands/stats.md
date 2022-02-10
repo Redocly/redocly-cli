@@ -35,7 +35,7 @@ Option                    | Type      | Required     | Default     | Description
 
 ### Entrypoint
 
-The `stats` command behaves differently depending on how you pass the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists. 
+The `stats` command behaves differently depending on how you pass the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists.
 
 #### Pass entrypoint directly
 
@@ -47,13 +47,13 @@ In this case, `stats` will show statistics for the definition that was passed to
 
 #### Pass entrypoint via configuration file
 
-Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints. 
+Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints.
 
-```bash command
+```bash Command
 openapi stats petstore
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 apiDefinitions:
   petstore: ./openapi/petstore-definition.json
 ```
@@ -62,7 +62,7 @@ In this case, after resolving the path behind the `petstore` alias (see the `.re
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file. 
+By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi stats --config=./another/directory/config.yaml
@@ -72,21 +72,21 @@ openapi stats --config=./another/directory/config.yaml
 
 #### Stylish (default)
 
-```bash request
+```bash Request
 openapi stats pet.yaml
 ```
 
-```bash output
+```bash Output
 Document: pet.yaml stats:
 
-🚗 References: 3 
-📦 External Documents: 0 
-📈 Schemas: 3 
-👉 Parameters: 2 
-🔗 Links: 0 
-➡️ Path Items: 2 
-👷 Operations: 3 
-🔖 Tags: 1 
+🚗 References: 3
+📦 External Documents: 0
+📈 Schemas: 3
+👉 Parameters: 2
+🔗 Links: 0
+➡️ Path Items: 2
+👷 Operations: 3
+🔖 Tags: 1
 
 pet.yaml: stats processed in 6ms
 ```
@@ -95,11 +95,11 @@ In this format, `stats` shows the statistics for the metrics mentioned in the [I
 
 #### JSON
 
-```bash request
+```bash Command
 openapi stats pet.yaml --format=json
 ```
 
-```bash output
+```bash Output
 Document: pet.yaml stats:
 
 {

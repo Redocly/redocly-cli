@@ -50,13 +50,13 @@ In this case, `preview-docs` will preview the definition that was passed to the 
 
 #### Pass entrypoint alias
 
-Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint. For example, `petstore`:
+Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint.
 
-```bash command
+```bash Command
 openapi preview-docs petstore
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 apiDefinitions:
   petstore: ./openapi/petstore-definition.json
 ```
@@ -77,11 +77,11 @@ By default, without using the `port` option, the preview starts on port `8080`, 
 
 To specify a custom port for the preview, pass the desired value using either short or long option format:
 
-```bash short format
+```bash Short format
 openapi preview-docs -p 8888 openapi/openapi.yaml
 ```
 
-```bash long format
+```bash Long format
 openapi preview-docs -port 8888 openapi/openapi.yaml
 ```
 
@@ -93,11 +93,11 @@ By default, without using the `host` option, the preview starts on host `127.0.0
 
 To specify a custom host for the preview, pass the desired value using either short or long option format:
 
-```bash short format
+```bash Short format
 openapi preview-docs -h 0.0.0.0 openapi/openapi.yaml
 ```
 
-```bash long format
+```bash Long format
 openapi preview-docs --host 0.0.0.0 openapi/openapi.yaml
 ```
 

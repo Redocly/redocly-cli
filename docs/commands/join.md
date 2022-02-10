@@ -50,11 +50,11 @@ Option                               | Type               | Required     | Defau
 
 ### Array of paths
 
-```bash request
+```bash Command
 openapi join first-api.yaml second-api.json
 ```
 
-```bash output
+```bash Output
 openapi join first-api.yaml second-api.json
 
 openapi.yaml: join processed in 56ms
@@ -102,18 +102,18 @@ Path names and component names must be unique in all input files, but their cont
 
 If the `join` command detects any conflicting content while trying to combine the input files, it displays informative messages about the conflicts and exits without creating an output file. To prevent this, use optional parameters to add prefixes to tags and components.
 
-```bash example of conflicts
-Conflict on tags => all : pets in files: petstore.yaml,test.yaml 
+```bash
+Conflict on tags => all : pets in files: petstore.yaml,test.yaml
 
     1 conflict(s) on tags.
-    Suggestion: please use prefix-tags-with-filename or prefix-tags-with-info-prop to prevent naming conflicts. 
+    Suggestion: please use prefix-tags-with-filename or prefix-tags-with-info-prop to prevent naming conflicts.
 
-Conflict on paths => /pets : get in files: petstore.yaml,test.yaml 
-Conflict on paths => /pets : post in files: petstore.yaml,test.yaml 
-Conflict on paths => operationIds : listPets in files: petstore.yaml,test.yaml 
-Conflict on paths => operationIds : createPets in files: petstore.yaml,test.yaml 
-Conflict on paths => operationIds : showPetById in files: petstore.yaml,test.yaml 
-Conflict on paths => /pets/{petId} : get in files: petstore.yaml,test.yaml 
+Conflict on paths => /pets : get in files: petstore.yaml,test.yaml
+Conflict on paths => /pets : post in files: petstore.yaml,test.yaml
+Conflict on paths => operationIds : listPets in files: petstore.yaml,test.yaml
+Conflict on paths => operationIds : createPets in files: petstore.yaml,test.yaml
+Conflict on paths => operationIds : showPetById in files: petstore.yaml,test.yaml
+Conflict on paths => /pets/{petId} : get in files: petstore.yaml,test.yaml
 
 openapi.yaml: join processed in 49ms
 ```
@@ -126,11 +126,11 @@ The output file preserves the original tag names as the value of the `x-displayN
 
 #### Usage
 
-```bash request
+```bash Command
 openapi join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
 
-```yaml output file example
+```yaml Output file example
 - name: First Document title_endpoints
   description: endpoints tag description
   x-displayName: endpoints
@@ -149,11 +149,11 @@ The output file preserves the original tag names as the value of the `x-displayN
 
 #### Usage
 
-```bash request
+```bash Command
 openapi join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
 
-```yaml output file example
+```yaml Output file example
 - name: first-api_endpoints
   description: endpoints tag description
   x-displayName: endpoints
@@ -169,11 +169,11 @@ If any of the input files have conflicting component names, this option can be u
 
 #### Usage
 
-```bash request
+```bash Command
 openapi join first-api.yaml second-api.json --prefix-components-with-info-prop version
 ```
 
-```yaml output file example
+```yaml Output file example
 components:
   schemas:
     1.0.1_Pet:
