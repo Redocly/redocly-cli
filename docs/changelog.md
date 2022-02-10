@@ -4,6 +4,19 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.81 (2022-02-10)
+
+### Fixes
+
+- Fixed an issue on `additionalProperty` for securityDefinitions.basic.
+- Fixed `no-invalid-media-type-examples` doesn't work with example that uses.
+- Fixed an issue with lint incorrectly reports boolean schemas for array items as invalid.
+- Fixed an issue isPathParameter failed due to a wrong brace.
+
+### Features
+
+- Added ability working behind proxy.
+
 ## 1.0.0-beta.80 (2022-01-24)
 
 ### Fixes
