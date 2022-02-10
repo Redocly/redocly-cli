@@ -254,7 +254,7 @@ function iteratePathItems(
 
   for (const pathName of Object.keys(pathItems)) {
     const pathFile = `${path.join(outDir, pathToFilename(pathName))}.yaml`;
-    const pathData = pathItems[pathName];
+    const pathData = pathItems[pathName] as Oas3PathItem;
 
     if (isRef(pathData)) continue;
     
