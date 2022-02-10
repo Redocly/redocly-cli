@@ -1,0 +1,6 @@
+apiDefinitions:
+  main: ./oas3.yaml
+
+lint:
+  extends:
+    - recommended
