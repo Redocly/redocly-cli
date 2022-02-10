@@ -18,6 +18,24 @@ import { Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
+export function mergeLintConfigs(entrypoint: any, config: any) {
+  if (!entrypoint.alias) return config;
+  let mergedLint = config.apis[entrypoint.alias]?.lint || {};
+  mergedLint.plugins = config.lint.plugins;
+  mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
+  //TODO: fix types
+  for (const [key, value] of Object.entries(config.rawConfig.lint as any) as any) {
+    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
+      mergedLint[key] = { ...value, ...(mergedLint[key] || {}) }
+    }
+    if (key === 'extends') {
+      mergedLint[key] = Array.from(new Set([...value, ...(mergedLint[key] || [])]));
+    }
+  }
+  config.lint = new LintConfig(mergedLint);
+  return config;
+}
+
 export async function handleLint(
   argv: {
     entrypoints: string[];
@@ -51,24 +69,6 @@ export async function handleLint(
     );
   }
 
-  function mergeLintConfigs(entrypoint: any) {
-    if (!entrypoint.alias) return config;
-    let mergedLint = config.apis[entrypoint.alias]?.lint || {};
-    mergedLint.plugins = config.lint.plugins;
-    mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
-    //TODO: fix types
-    for (const [key, value] of Object.entries(config.rawConfig.lint as any) as any) {
-      if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
-        mergedLint[key] = { ...value, ...(mergedLint[key] || {}) }
-      }
-      if (key === 'extends') {
-        mergedLint[key] = Array.from(new Set([...value, ...(mergedLint[key] || [])]));
-      }
-    }
-    config.lint = new LintConfig(mergedLint);
-    return config;
-  }
-
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const entryPoint of entrypoints) {
     try {
@@ -76,7 +76,7 @@ export async function handleLint(
       process.stderr.write(gray(`validating ${entryPoint.path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: entryPoint.path,
-        config: mergeLintConfigs(entryPoint)
+        config: mergeLintConfigs(entryPoint, config)
       });
 
       const fileTotals = getTotals(results);

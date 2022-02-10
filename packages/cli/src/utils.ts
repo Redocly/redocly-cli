@@ -20,7 +20,7 @@ import { Totals, outputExtensions } from './types';
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
   const { apis } = config;
   const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
-  const res = !shouldFallbackToAllDefinitions
+  const res = shouldFallbackToAllDefinitions
     ? Object.keys(apis).map((fileName) => ({
         path: resolve(getConfigDirectory(config), apis[fileName].root),
         alias: fileName

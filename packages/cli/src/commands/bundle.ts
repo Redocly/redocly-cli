@@ -20,6 +20,7 @@ import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
+import { mergeLintConfigs } from './lint';
 
 export async function handleBundle(
   argv: {
@@ -42,7 +43,7 @@ export async function handleBundle(
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
-  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components')
+  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
 
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
@@ -53,6 +54,9 @@ export async function handleBundle(
   const maxProblems = argv['max-problems'];
 
   for (const entrypoint of entrypoints) {
+
+    console.log('entrypoint:::', entrypoint);
+
     try {
       const startedAt = performance.now();
 
@@ -90,7 +94,7 @@ export async function handleBundle(
         problems,
         ...meta
       } = await bundle({
-        config,
+        config: mergeLintConfigs(entrypoint, config),
         ref: entrypoint.path,
         dereference: argv.dereferenced,
         removeUnusedComponents
