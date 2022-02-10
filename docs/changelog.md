@@ -6,16 +6,18 @@ tocMaxDepth: 2
 
 ## 1.0.0-beta.81 (2022-02-10)
 
-### Fixes
-
-- Fixed an issue on `additionalProperty` for securityDefinitions.basic.
-- Fixed `no-invalid-media-type-examples` doesn't work with example that uses.
-- Fixed an issue with lint incorrectly reports boolean schemas for array items as invalid.
-- Fixed an issue isPathParameter failed due to a wrong brace.
-
 ### Features
 
-- Added ability working behind proxy.
+- Added support for using OpenAPI CLI behind a proxy server.
+
+### Fixes
+
+- Fixed an issue with the `lint` command not reporting errors when `securityDefinitions.basic` contains the unsupported `additionalProperty` in OAS2.
+- Fixed an issue with the `no-invalid-media-type-examples` built-in rule that didn't work on examples containing a `$ref`.
+- Fixed an issue with the `lint` command incorrectly reporting boolean schemas for array items as invalid.
+- Fixed an issue with `isPathParameter` failing because of an incorrect brace.
+
+----
 
 ## 1.0.0-beta.80 (2022-01-24)
 
@@ -24,6 +26,8 @@ tocMaxDepth: 2
 - Fixed an issue with date-time conversion in YAML files.
 - Fixed an issue with the `oauth2-redirect.html` file being absent when served by `preview-docs` command.
 
+----
+
 ## 1.0.0-beta.79 (2022-01-10)
 
 ### Fixes
@@ -31,12 +35,16 @@ tocMaxDepth: 2
 - Fixed the `remove-x-internal` decorator to remove references to removed `x-internal` components.
 - Fixed the `remove-unused-components` decorator that strips remotely referenced components.
 
+----
+
 ## 1.0.0-beta.78 (2022-01-06)
 
 ### Features
 
-- Added `remove-x-internal` built-in decorator.
-- Added `--remove-unused-components` option to the bundle command.
+- Added the `remove-x-internal` built-in decorator.
+- Added the `--remove-unused-components` option to the `bundle` command.
+
+----
 
 ## 1.0.0-beta.77 (2022-01-06)
 
@@ -44,27 +52,35 @@ tocMaxDepth: 2
 
 - Fixed an issue with backslashes in `$refs` to paths with the `split` command in a Windows environment.
 
+----
+
 ## 1.0.0-beta.76 (2021-12-28)
 
 ### Features
 
 - Exported `mapTypeToComponent` function.
 
+----
+
 ## 1.0.0-beta.75 (2021-12-24)
 
 ### Features
 
-- Added a `--host` argument to the `preview-docs` cli command.
+- Added the `--host` option to the `preview-docs` CLI command.
 
 ### Fixes
 
 - Fixed an issue with continuous deployment to Docker Hub.
 
+----
+
 ## 1.0.0-beta.74 (2021-12-22)
 
 ### Fixes
 
-- Fixed an issue with `const` not handled correctly in lint.
+- Fixed an issue with `const` not handled correctly by the `lint` command.
+
+----
 
 ## 1.0.0-beta.73 (2021-12-16)
 
@@ -72,17 +88,23 @@ tocMaxDepth: 2
 
 - Resolved another backward compatibility issue with older versions of portal.
 
+----
+
 ## 1.0.0-beta.72 (2021-12-16)
 
 ### Fixes
 
 - Fixed another backward compatibility issue with regions: save old config key to support old portal versions.
 
+----
+
 ## 1.0.0-beta.71 (2021-12-16)
 
 ### Fixes
 
 - Fixed a backward compatibility issue with `REDOCLY_DOMAIN` in the EU region introduced in the previous release.
+
+----
 
 ## 1.0.0-beta.70 (2021-12-14)
 
@@ -98,11 +120,15 @@ tocMaxDepth: 2
 - Fixed an issue with the built-in `paths-kebab-case` rule that disallowed paths with trailing slashes.
 - Fixed a validation issue with the `example` property when the schema is an array.
 
+----
+
 ## 1.0.0-beta.69 (2021-11-16)
 
 ### Features
 
 - Implemented new `--extends` and `--metafile` options for the [bundle](./commands/bundle.md#options) command.
+
+----
 
 ## 1.0.0-beta.68 (2021-11-15)
 
@@ -114,11 +140,15 @@ tocMaxDepth: 2
 - Fixed an issue with fetching hosted schema on Windows when bundling OAS definitions.
 - Fixed an issue for `no-server-trailing-slash` when server url is a root.
 
+----
+
 ## 1.0.0-beta.67 (2021-11-02)
 
 ### Features
 
 - Added a new built-in rule: [operation-4xx-response](./resources/built-in-rules.md#operation-4xx-response).
+
+----
 
 ## 1.0.0-beta.66 (2021-11-01)
 
