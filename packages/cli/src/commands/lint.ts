@@ -53,7 +53,7 @@ export async function handleLint(
 
   function mergeLintConfigs(entrypoint: any) {
     if (!entrypoint.alias) return config;
-    let mergedLint = config.apis[entrypoint.alias].lint;
+    let mergedLint = config.apis[entrypoint.alias]?.lint || {};
     mergedLint.plugins = config.lint.plugins;
     mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
     //TODO: fix types
