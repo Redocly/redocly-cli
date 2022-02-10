@@ -1,6 +1,5 @@
 import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
-
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
 const DefinitionRoot: NodeType = {
@@ -29,24 +28,16 @@ const Tag: NodeType = {
 
 const ExternalDocs: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
-    url: {
-      type: 'string',
-    },
+    description: { type: 'string' },
+    url: { type: 'string' },
   },
   required: ['url'],
 };
 
 const Server: NodeType = {
   properties: {
-    url: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
+    url: { type: 'string' },
+    description: { type: 'string' },
     variables: mapOf('ServerVariable'),
   },
   required: ['url'],
@@ -58,9 +49,7 @@ const ServerVariable: NodeType = {
       type: 'array',
       items: { type: 'string' },
     },
-    default: {
-      type: 'string',
-    },
+    default: { type: 'string' },
     description: null,
   },
   required: ['default'],
@@ -73,18 +62,10 @@ const SecurityRequirement: NodeType = {
 
 const Info: NodeType = {
   properties: {
-    title: {
-      type: 'string',
-    },
-    version: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    termsOfService: {
-      type: 'string',
-    },
+    title: { type: 'string' },
+    version: { type: 'string' },
+    description: { type: 'string' },
+    termsOfService: { type: 'string' },
     contact: 'Contact',
     license: 'License',
   },
@@ -93,26 +74,16 @@ const Info: NodeType = {
 
 const Contact: NodeType = {
   properties: {
-    name: {
-      type: 'string',
-    },
-    url: {
-      type: 'string',
-    },
-    email: {
-      type: 'string',
-    },
+    name: { type: 'string' },
+    url: { type: 'string' },
+    email: { type: 'string' },
   },
 };
 
 const License: NodeType = {
   properties: {
-    name: {
-      type: 'string',
-    },
-    url: {
-      type: 'string',
-    },
+    name: { type: 'string' },
+    url: { type: 'string' },
   },
   required: ['name'],
 };
@@ -133,12 +104,8 @@ const PathItem: NodeType = {
     $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
     servers: listOf('Server'),
     parameters: listOf('Parameter'),
-    summary: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
+    summary: { type: 'string' },
+    description: { type: 'string' },
     get: 'Operation',
     put: 'Operation',
     post: 'Operation',
@@ -152,33 +119,17 @@ const PathItem: NodeType = {
 
 const Parameter: NodeType = {
   properties: {
-    name: {
-      type: 'string',
-    },
-    in: {
-      enum: ['query', 'header', 'path', 'cookie'],
-    },
-    description: {
-      type: 'string',
-    },
-    required: {
-      type: 'boolean',
-    },
-    deprecated: {
-      type: 'boolean',
-    },
-    allowEmptyValue: {
-      type: 'boolean',
-    },
+    name: { type: 'string' },
+    in: { enum: ['query', 'header', 'path', 'cookie'] },
+    description: { type: 'string' },
+    required: { type: 'boolean' },
+    deprecated: { type: 'boolean' },
+    allowEmptyValue: { type: 'boolean' },
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
-    explode: {
-      type: 'boolean',
-    },
-    allowReserved: {
-      type: 'boolean',
-    },
+    explode: { type: 'boolean' },
+    allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
     examples: mapOf('Example'),
@@ -207,9 +158,7 @@ const Operation: NodeType = {
     servers: listOf('Server'),
     requestBody: 'RequestBody',
     responses: 'ResponsesMap',
-    deprecated: {
-      type: 'boolean',
-    },
+    deprecated: { type: 'boolean' },
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
@@ -227,12 +176,8 @@ const XCodeSample: NodeType = {
 
 const RequestBody: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
-    required: {
-      type: 'boolean',
-    },
+    description: { type: 'string' },
+    required: { type: 'boolean' },
     content: 'MediaTypeMap',
   },
   required: ['content'],
@@ -255,59 +200,35 @@ const MediaType: NodeType = {
 const Example: NodeType = {
   properties: {
     value: { isExample: true },
-    summary: {
-      type: 'string',
-    },
-    description: {
-      type: 'string',
-    },
-    externalValue: {
-      type: 'string',
-    },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    externalValue: { type: 'string' },
   },
 };
 
 const Encoding: NodeType = {
   properties: {
-    contentType: {
-      type: 'string',
-    },
+    contentType: { type: 'string' },
     headers: mapOf('Header'),
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
-    explode: {
-      type: 'boolean',
-    },
-    allowReserved: {
-      type: 'boolean',
-    },
+    explode: { type: 'boolean' },
+    allowReserved: { type: 'boolean' },
   },
 };
 
 const Header: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
-    required: {
-      type: 'boolean',
-    },
-    deprecated: {
-      type: 'boolean',
-    },
-    allowEmptyValue: {
-      type: 'boolean',
-    },
+    description: { type: 'string' },
+    required: { type: 'boolean' },
+    deprecated: { type: 'boolean' },
+    allowEmptyValue: { type: 'boolean' },
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
-    explode: {
-      type: 'boolean',
-    },
-    allowReserved: {
-      type: 'boolean',
-    },
+    explode: { type: 'boolean' },
+    allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
     examples: mapOf('Example'),
@@ -316,18 +237,14 @@ const Header: NodeType = {
 };
 
 const ResponsesMap: NodeType = {
-  properties: {
-    default: 'Response',
-  },
+  properties: { default: 'Response' },
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
 };
 
 const Response: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
+    description: { type: 'string' },
     headers: mapOf('Header'),
     content: 'MediaTypeMap',
     links: mapOf('Link'),
@@ -391,9 +308,7 @@ const Schema: NodeType = {
     description: { type: 'string' },
     format: { type: 'string' },
     default: null,
-
     nullable: { type: 'boolean' },
-
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
     xml: 'Xml',
@@ -456,7 +371,7 @@ const ImplicitFlow: NodeType = {
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     authorizationUrl: { type: 'string' },
   },
-  required: ['authorizationUrl', 'scopes'],
+  required: ['authorizationUrl', 'scopes']
 };
 
 const PasswordFlow: NodeType = {
@@ -501,29 +416,41 @@ const SecurityScheme: NodeType = {
     type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect'] },
     description: { type: 'string' },
     name: { type: 'string' },
-    in: { type: 'string' },
+    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
     flows: 'SecuritySchemeFlows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
-    if (!value?.type) {
-      return ['type'];
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in'];
+      case 'http':
+        return ['type', 'scheme'];
+      case 'oauth2':
+        return ['type', 'flows'];
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl'];
+      default:
+        return ['type'];
     }
-
-    if (value.type === 'apiKey') {
-      return ['type', 'name', 'in'];
-    } else if (value.type === 'http') {
-      return ['type', 'scheme'];
-    } else if (value.type === 'oauth2') {
-      return ['type', 'flows'];
-    } else if (value.type === 'openIdConnect') {
-      return ['type', 'openIdConnectUrl'];
-    }
-
-    return ['type'];
   },
+  allowed(value) {
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in', 'description'];
+      case 'http':
+        return ['type', 'scheme', 'bearerFormat', 'description'];
+      case 'oauth2':
+        return ['type', 'flows', 'description'];
+      case 'openIdConnect':
+        return ['type', 'openIdConnectUrl', 'description'];
+      default:
+        return ['type', 'description'];
+    }
+  },
+  extensionsPrefix: 'x-',
 };
 
 export const Oas3Types: Record<string, NodeType> = {
