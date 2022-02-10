@@ -3,7 +3,7 @@ redirectFrom:
   - /docs/cli/configuration/lint/
 ---
 
-# Introduction
+# Manage the lint configuration
 
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 The `lint` and `bundle` commands use this section to control various options.
@@ -16,17 +16,6 @@ lint:
     - './local-plugin.js'
   extends:
     - recommended
-  resolve:
-    http:
-      headers:
-        - matches: https://api.example.com/v2/**
-          name: X-API-KEY
-          value: <direct value>
-          envVariable: <name of env variable to be used as value>
-        - matches: https://example.com/*/test.yaml
-          name: Authorization
-          value: <direct value>
-          envVariable: <name of env variable to be used as value>
   rules:
     no-sibling-refs:
       severity: error
@@ -83,7 +72,7 @@ lint:
     - my-custom-super-ruleset
 ```
 
-Find more information in the [Configs in plugins](../resources/custom-rules/#configs-in-plugins) section.
+Find more information in the [Configs in plugins](../resources/custom-rules.md#configs-in-plugins) section.
 
 
 #### Examples
@@ -101,55 +90,6 @@ lint:
     - recommended
 ```
 
-### Resolve
-
-Use this section to specify external links in your definition that are not publicly accessible (except for Redocly API registry links).
-
-* **type**: `object`
-
-Redocly automatically resolves any API registry link or public URL. However, you may want to resolve links that are not API registry links or publicly accessible.
-
-Currently, OpenAPI CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section:
-
-```yaml
-lint:
-  resolve:
-    http:
-      headers:
-        - # header configuration
-```
-
-#### Header configuration
-
-| Property      | Description | Examples |
-| ------------- | ----------- | -------- |
-| `matches`     | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json` |
-| `name`        | HTTP header name.           | `Authorization` or `X-API-KEY` |
-| `value`       | The value of the header. Mutually exclusive with `envVariable`. | `123-abc` |
-| `envVariable` | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. | `SECRET_KEY` |
-
-:::success
-
-It is recommended to use environment variables where possible.
-
-:::
-
-#### Example
-
-```yaml
-lint:
-  resolve:
-    http:
-      headers:
-        - matches: https://api.example.com/v2/**
-          name: X-API-KEY
-          envVariable: SECRET_KEY
-        - matches: https://example.com/*/test.yaml
-          name: Authorization
-          envVariable: SECRET_AUTH
-```
-
-The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
 ### Preprocessors
 
@@ -199,7 +139,7 @@ lint:
     boolean-parameter-prefixes:
       severity: error
       prefixes: ['should', 'is', 'has']
-```    
+```
 
 ### Decorators
 
@@ -306,7 +246,7 @@ If the version is not defined, it will fall back to the `rules` section.
 
 Read more about [built-in rules](../resources/built-in-rules.md).
 
-### Resolving JSON references ($refs)
+### Resolve JSON references ($refs)
 
 The OpenAPI specification supports `$refs` in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require `$refs` in unsupported places.
 

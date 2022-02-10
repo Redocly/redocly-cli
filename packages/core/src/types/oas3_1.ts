@@ -121,7 +121,7 @@ const Schema: NodeType = {
     then: 'Schema',
     else: 'Schema',
     dependentSchemas: listOf('Schema'),
-    prefixItems: { type: 'array' },
+    prefixItems: listOf('Schema'),
     contains: 'Schema',
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
@@ -132,16 +132,14 @@ const Schema: NodeType = {
     items: (value: any) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
+      } else if (typeof value === 'boolean') {
+        return { type: 'boolean' };
       } else {
         return 'Schema';
       }
     },
     additionalProperties: (value: any) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
+      return typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
     },
     description: { type: 'string' },
     format: { type: 'string' },
