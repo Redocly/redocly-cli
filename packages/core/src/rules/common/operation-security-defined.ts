@@ -1,6 +1,8 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
 import { UserContext } from '../../walk';
+import { Oas2SecurityScheme } from '../../typings/swagger';
+import { Oas3SecurityScheme } from '../../typings/openapi';
 
 export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
   let referencedSchemes = new Map<
@@ -25,11 +27,8 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
         }
       },
     },
-    SecurityScheme(_securityScheme: object, { key }: UserContext) {
-      referencedSchemes.set(key.toString(), {
-        defined: true,
-        from: [],
-      });
+    SecurityScheme(_securityScheme: Oas2SecurityScheme | Oas3SecurityScheme, { key }: UserContext) {
+      referencedSchemes.set(key.toString(), { defined: true, from: [] });
     },
     SecurityRequirement(requirements, { location }) {
       for (const requirement of Object.keys(requirements)) {

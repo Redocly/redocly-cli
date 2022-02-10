@@ -12,12 +12,10 @@ const DefinitionRoot: NodeType = {
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
     paths: 'PathMap',
-
     definitions: 'NamedSchemas',
     parameters: 'NamedParameters',
     responses: 'NamedResponses',
     securityDefinitions: 'NamedSecuritySchemes',
-
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
@@ -62,7 +60,6 @@ const PathMap: NodeType = {
 const PathItem: NodeType = {
   properties: {
     $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
-
     get: 'Operation',
     put: 'Operation',
     post: 'Operation',
@@ -70,7 +67,6 @@ const PathItem: NodeType = {
     options: 'Operation',
     head: 'Operation',
     patch: 'Operation',
-
     parameters: listOf('Parameter'),
   },
 };
@@ -78,9 +74,7 @@ const PathItem: NodeType = {
 const Operation: NodeType = {
   properties: {
     tags: { type: 'array', items: { type: 'string' } },
-    summary: {
-      type: 'string',
-    },
+    summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
@@ -119,11 +113,8 @@ const Parameter: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'path', 'formData', 'body'] },
     description: { type: 'string' },
     required: { type: 'boolean' },
-
     schema: 'Schema',
-
     type: { type: 'string', enum: ['string', 'number', 'integer', 'boolean', 'array', 'file'] },
-
     format: { type: 'string' },
     allowEmptyValue: { type: 'boolean' },
     items: 'ParameterItems',
@@ -197,9 +188,7 @@ const ResponsesMap: NodeType = {
 
 const Response: NodeType = {
   properties: {
-    description: {
-      type: 'string',
-    },
+    description: { type: 'string' },
     schema: 'Schema',
     headers: mapOf('Header'),
     examples: 'Examples',
@@ -217,7 +206,6 @@ const Header: NodeType = {
     description: { type: 'string' },
     type: { type: 'string', enum: ['string', 'number', 'integer', 'boolean', 'array'] },
     format: { type: 'string' },
-
     items: 'ParameterItems',
     collectionFormat: { type: 'string', enum: ['csv', 'ssv', 'tsv', 'pipes', 'multi'] },
     default: null,
@@ -277,7 +265,6 @@ const Schema: NodeType = {
       type: 'string',
       enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
     },
-
     items: (value: any) => {
       if (Array.isArray(value)) {
         return listOf('Schema');
@@ -294,7 +281,6 @@ const Schema: NodeType = {
         return 'Schema';
       }
     },
-
     discriminator: { type: 'string' },
     readOnly: { type: 'boolean' },
     xml: 'Xml',
@@ -323,39 +309,55 @@ const SecurityScheme: NodeType = {
     type: { enum: ['basic', 'apiKey', 'oauth2'] },
     description: { type: 'string' },
     name: { type: 'string' },
-    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
+    in: { type: 'string', enum: ['query', 'header'] },
     flow: { enum: ['implicit', 'password', 'application', 'accessCode'] },
     authorizationUrl: { type: 'string' },
     tokenUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } },
   },
   required(value) {
-    if (!value?.type) {
-      return ['type'];
+    switch (value?.type) {
+      case 'apiKey':
+        return ['type', 'name', 'in'];
+      case 'oauth2':
+        switch (value?.flow) {
+          case 'implicit':
+            return ['type', 'flow', 'authorizationUrl', 'scopes'];
+          case 'accessCode':
+            return ['type', 'flow', 'authorizationUrl', 'tokenUrl', 'scopes'];
+          case 'application':
+          case 'password':
+            return ['type', 'flow', 'tokenUrl', 'scopes'];
+          default:
+            return ['type', 'flow', 'scopes'];
+        }
+      default:
+        return ['type'];
     }
-
-    if (value.type === 'apiKey') {
-      return ['type', 'name', 'in'];
-    } else if (value.type === 'http') {
-      return ['type', 'scheme'];
-    } else if (value.type === 'oauth2') {
-      if (!value?.flow) {
-        return ['type', 'flow'];
-      } else if (value.flow === 'implicit') {
-        return ['type', 'flow', 'authorizationUrl'];
-      } else if (value.flow === 'accessCode') {
-        return ['type', 'flow', 'authorizationUrl', 'tokenUrl'];
-      } else if (value.flow === 'application') {
-        return ['type', 'flow', 'tokenUrl'];
-      } else if (value.flow === 'password') {
-        return ['type', 'flow', 'tokenUrl'];
-      } else {
-        return ['type', 'flow'];
-      }
-    }
-
-    return ['type'];
   },
+  allowed(value) {
+    switch (value?.type) {
+      case 'basic':
+        return ['type', 'description'];
+      case 'apiKey':
+        return ['type', 'name', 'in', 'description'];
+      case 'oauth2':
+        switch (value?.flow) {
+          case 'implicit':
+            return ['type', 'flow', 'authorizationUrl', 'description', 'scopes'];
+          case 'accessCode':
+            return ['type', 'flow', 'authorizationUrl', 'tokenUrl', 'description', 'scopes'];
+          case 'application':
+          case 'password':
+            return ['type', 'flow', 'tokenUrl', 'description', 'scopes'];
+          default:
+            return ['type', 'flow', 'tokenUrl', 'authorizationUrl', 'description', 'scopes'];
+        }
+      default:
+        return ['type', 'description'];
+    }
+  },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityRequirement: NodeType = {
