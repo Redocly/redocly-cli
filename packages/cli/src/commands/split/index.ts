@@ -253,11 +253,11 @@ function iteratePathItems(
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const pathName of Object.keys(pathItems)) {
-    const pathFile = path.join(outDir, pathToFilename(pathName));
+    const pathFile = `${path.join(outDir, pathToFilename(pathName))}.yaml`;
     const pathData = pathItems[pathName];
 
     if (isRef(pathData)) continue;
-
+    
     for (const method of OPENAPI3_METHOD_NAMES) {
       const methodData = pathData[method];
       const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
@@ -284,7 +284,7 @@ function iteratePathItems(
     }
     writeYaml(pathData, pathFile);
     pathItems[pathName] = {
-      $ref: slash(path.relative(outDir, pathFile))
+      $ref: slash(path.relative(openapiDir, pathFile))
     };
 
     traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
