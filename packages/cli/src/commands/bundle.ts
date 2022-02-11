@@ -54,9 +54,6 @@ export async function handleBundle(
   const maxProblems = argv['max-problems'];
 
   for (const entrypoint of entrypoints) {
-
-    console.log('entrypoint:::', entrypoint);
-
     try {
       const startedAt = performance.now();
 
