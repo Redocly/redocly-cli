@@ -14,6 +14,7 @@ import {
   getTotals,
   slash,
   Region,
+  getProxyAgent,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -23,7 +24,6 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
-const HttpsProxyAgent = require('https-proxy-agent');
 
 export async function handlePush(argv: {
   entrypoint?: string;
@@ -248,15 +248,13 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
       : filePathOrBuffer.byteLength;
   let readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
-  const proxy = process.env.REDOCLY_PROXY;
-  const agent = proxy ? new HttpsProxyAgent(proxy) : undefined
 
   return fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Length': fileSizeInBytes.toString(),
     },
-    agent,
+    agent: getProxyAgent(),
     body: readStream,
   });
 }

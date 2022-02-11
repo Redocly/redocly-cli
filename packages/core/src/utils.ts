@@ -7,6 +7,8 @@ import { parseYaml } from './js-yaml';
 import { HttpResolveConfig } from './config/config';
 import { UserContext } from './walk';
 
+const HttpsProxyAgent = require('https-proxy-agent');
+
 export { parseYaml, stringifyYaml } from './js-yaml';
 
 export type StackFrame<T> = {
@@ -171,4 +173,9 @@ export function isPathParameter(pathSegment: string) {
 
 export function isNotEmptyObject(obj: any) {
   return !!obj && Object.keys(obj).length > 0;
+}
+
+export function getProxyAgent() {
+  const proxy = process.env.REDOCLY_PROXY;
+  return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }

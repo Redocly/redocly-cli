@@ -1,9 +1,8 @@
 import fetch, { RequestInit, HeadersInit } from 'node-fetch';
 import { RegistryApiTypes } from './registry-api-types';
 import { AccessTokens, Region, DEFAULT_REGION, DOMAINS } from '../config/config';
-import { isNotEmptyObject } from '../utils';
+import { getProxyAgent, isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
-const HttpsProxyAgent = require('https-proxy-agent');
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
@@ -24,11 +23,9 @@ export class RegistryApi {
   private async request(path = '', options: RequestInit = {}, region?: Region) {
     const headers = Object.assign({}, options.headers || {}, { 'x-redocly-cli-version': version });
     if (!headers.hasOwnProperty('authorization')) { throw new Error('Unauthorized'); }
-    const proxy = process.env.REDOCLY_PROXY;
-    const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
-      Object.assign({}, options, { headers, agent }),
+      Object.assign({}, options, { headers, agent: getProxyAgent() }),
     );
     if (response.status === 401) { throw new Error('Unauthorized'); }
     if (response.status === 404) {
