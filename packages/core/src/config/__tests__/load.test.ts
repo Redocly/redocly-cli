@@ -1,5 +1,7 @@
-import { loadConfig } from '../load';
+import { loadConfig, findConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
+
+const fs = require('fs')
 
 describe('loadConfig', () => {
   it('should resolve config http header by US region', async () => {
@@ -31,5 +33,32 @@ describe('loadConfig', () => {
       "envVariable": undefined,
       "value": "accessToken"
     }]);
+  });
+});
+
+describe('findConfig', () => {
+  it('should find redocly.yaml', async () => {
+    jest.spyOn(fs, 'existsSync').mockImplementation(
+      name => name === 'redocly.yaml'
+    );
+    const configName = findConfig();
+    expect(configName).toStrictEqual('redocly.yaml');
+  });
+  it('should find .redocly.yaml', async () => {
+    jest.spyOn(fs, 'existsSync').mockImplementation(
+      name => name === '.redocly.yaml'
+    );
+    const configName = findConfig();
+    expect(configName).toStrictEqual('.redocly.yaml');
+  });
+  it('should throw an error when found multiple config files', async () => {
+    jest.spyOn(fs, 'existsSync').mockImplementation(
+      name => name === 'redocly.yaml' || name === '.redocly.yaml'
+    );
+    expect(findConfig).toThrow(`
+      Multiple configuration files are not allowed. 
+      Found the following files: redocly.yaml, .redocly.yaml. 
+      Please use 'redocly.yaml' instead.
+    `);
   });
 });
