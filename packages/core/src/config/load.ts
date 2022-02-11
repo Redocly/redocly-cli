@@ -1,12 +1,11 @@
 import * as fs from 'fs';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, DeprecatedRawConfig, DOMAINS, RawConfig, Region } from './config';
+import { Api, Config, DeprecatedRawConfig, DOMAINS, RawConfig, Region } from './config';
 import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   const rawConfig = await getConfig(configPath);
-
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -37,7 +36,6 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       }] : []));
     }
   }
-
   return new Config(
     {
       ...rawConfig,
@@ -50,22 +48,40 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   );
 }
 
-function transformConfig(rawConfig: DeprecatedRawConfig) {
-  if (!rawConfig.apiDefinitions) return rawConfig;
-
-  const config: RawConfig = {};
-  //const keysToChange = ['apiDefinitions', 'referenceDocs'];
-  for (const [key, value] of Object.entries(rawConfig)) {
-    if (key === 'apiDefinitions') {
-      config.apis = {};
-      for (const [apiName, apiPath] of Object.entries(value)) {
-        config.apis[apiName+'@latest'] = { 'root': apiPath };
-      }
-    }
-    //if (key === 'referenceDocs') { config['features.openapi'] = value; }
-    //if (!keysToChange.includes(key)) { config[key] = value; }
+function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
+  const apis: Record<string, Api> = {};
+  for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
+    apis[apiName] = { root: apiPath };
   }
-  return config;
+  return apis;
+}
+
+function decorateWithLatest(rawConfig: RawConfig): RawConfig {
+  let apis: Record<string, Api> = {};
+  for (const [key, value] of Object.entries(rawConfig.apis || {})) {
+    const [name, version] = key.split('@');
+    apis[`${name}@${version || 'latest'}`] = value;
+  }
+  return { ...rawConfig, apis };
+}
+
+function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
+  if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions ||
+    (rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs
+  ) {
+    throw new Error('Do not use old & new config syntax simultaneously');
+  }
+  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
+  if (apiDefinitions || referenceDocs) {
+    // TODO: add link to docs.
+    // TODO: show warning without throwing error.
+    throw new Error('apiDefinitions & referenceDocs fields are deprecated. Use apis & features.openapi instead (see  docs: /.//) ');
+  }
+  return {
+    'features.openapi': referenceDocs,
+    apis: transformApiDefinitionsToApis(apiDefinitions),
+    ...rest
+  }
 }
 
 export async function getConfig(path?: string) {
@@ -78,7 +94,7 @@ export async function getConfig(path?: string) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-  return transformConfig(rawConfig);
+  return decorateWithLatest(transformConfig(rawConfig));
 }
 
 function findConfig() {
