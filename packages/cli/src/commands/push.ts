@@ -183,8 +183,8 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
-    if (config.referenceDocs.htmlTemplate) {
-      const dir = getFolder(config.referenceDocs.htmlTemplate);
+    if (config['features.openapi'].htmlTemplate) {
+      const dir = getFolder(config['features.openapi'].htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }

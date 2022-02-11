@@ -136,7 +136,7 @@ export async function previewDocs(argv: {
 
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
-    const referenceDocs = config.referenceDocs || {};
+    const referenceDocs = config['features.openapi'] || {};
 
     redocOptions = {
       ...referenceDocs,

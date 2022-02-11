@@ -140,22 +140,26 @@ if (REDOCLY_DOMAIN === 'redoc.online') {
   DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
 }
 
-
 export type DeprecatedRawConfig = {
   apiDefinitions?: Record<string, string>;
-  referenceDocs?: any;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
+  referenceDocs?: any;
 }
 
+export type Api = {
+  root: string;
+  lint?: LintRawConfig;
+  'features.openapi'?: any;
+};
+
 export type RawConfig = {
-  //'features.openapi': any;
-  referenceDocs?: any;
-  apis?: any;
+  apis?: Record<string, Api>;
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
+  'features.openapi'?: any;
 };
 
 export class LintConfig {
@@ -407,19 +411,17 @@ export class LintConfig {
   }
 }
 
-//TODO: TS for apis
-
 export class Config {
-  referenceDocs: any;
-  apis: Record<string, any>;
+  apis: Record<string, Api>;
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
+  'features.openapi': any;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.lint = new LintConfig(rawConfig.lint|| {}, configFile);
-    this.referenceDocs = rawConfig.referenceDocs || {};
+    this['features.openapi'] = rawConfig['features.openapi'] || {};
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
@@ -433,7 +435,6 @@ export class Config {
 function resolvePresets(presets: string[], plugins: Plugin[]) {
   return presets.map((presetName) => {
     const { pluginId, configName } = parsePresetName(presetName);
-
     const plugin = plugins.find((p) => p.id === pluginId);
     if (!plugin) {
       throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
