@@ -84,7 +84,7 @@ export async function handleBundle(
         printLintTotals(fileLintTotals, 2);
       }
 
-      process.stderr.write(gray(`bundling ${entrypoint}...\n`));
+      process.stderr.write(gray(`bundling ${entrypoint.path}...\n`));
 
       const {
         bundle: result,

@@ -160,7 +160,6 @@ describe('E2E', () => {
 
     for (const file of contents) {
       const testPath = join(folderPath, file);
-
       if (statSync(testPath).isFile()) {
         continue;
       }
