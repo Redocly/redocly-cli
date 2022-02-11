@@ -6,6 +6,7 @@ import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
   const rawConfig = await getConfig(configPath);
+
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -56,15 +57,6 @@ function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = 
   return apis;
 }
 
-function decorateWithLatest(rawConfig: RawConfig): RawConfig {
-  let apis: Record<string, Api> = {};
-  for (const [key, value] of Object.entries(rawConfig.apis || {})) {
-    const [name, version] = key.split('@');
-    apis[`${name}@${version || 'latest'}`] = value;
-  }
-  return { ...rawConfig, apis };
-}
-
 function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
   if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions ||
     (rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs
@@ -72,16 +64,16 @@ function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig 
     throw new Error('Do not use old & new config syntax simultaneously');
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  if (apiDefinitions || referenceDocs) {
-    // TODO: add link to docs.
-    // TODO: show warning without throwing error.
-    throw new Error('apiDefinitions & referenceDocs fields are deprecated. Use apis & features.openapi instead (see  docs: /.//) ');
-  }
+  // if (apiDefinitions || referenceDocs) {
+  //   // TODO: add link to docs.
+  //   // TODO: show warning without throwing error.
+  //   throw new Error('apiDefinitions & referenceDocs fields are deprecated. Use apis & features.openapi instead (see  docs: /.//) ');
+  // }
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
     ...rest
-  }
+  };
 }
 
 export async function getConfig(path?: string) {
@@ -94,7 +86,7 @@ export async function getConfig(path?: string) {
       throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
     }
   }
-  return decorateWithLatest(transformConfig(rawConfig));
+  return transformConfig(rawConfig);
 }
 
 function findConfig() {
