@@ -18,6 +18,8 @@ import { Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
+//TODO: should be moved to core - Config.
+
 export function mergeLintConfigs(entrypoint: any, config: any) {
   if (!entrypoint.alias) return config;
   let mergedLint = config.apis[entrypoint.alias]?.lint || {};
@@ -53,6 +55,7 @@ export async function handleLint(
   config.lint.skipRules(argv['skip-rule']);
   config.lint.skipPreprocessors(argv['skip-preprocessor']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+
   if (argv['generate-ignore-file']) {
     config.lint.ignore = {}; // clear ignore
   }
