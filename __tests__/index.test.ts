@@ -22,8 +22,8 @@ function cleanUpVersion(str: string): string {
 
 function getEntrypoints(folderPath: string) {
   const redoclyYamlFile = readFileSync(join(folderPath, ".redocly.yaml"), "utf8");
-  const redoclyYaml = parseYaml(redoclyYamlFile) as { apiDefinitions: Record<string, string>; };
-  return Object.keys(redoclyYaml.apiDefinitions);
+  const redoclyYaml = parseYaml(redoclyYamlFile) as { apis: Record<string, string>; };
+  return Object.keys(redoclyYaml.apis);
 }
 
 function getCommandOutput(params: string[], folderPath: string) {
