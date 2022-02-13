@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { green, yellow } from 'colorette';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
 import { Api, Config, DeprecatedRawConfig, DOMAINS, LintConfig, LintRawConfig, RawConfig, Region } from './config';
@@ -81,11 +82,16 @@ function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig 
     throw new Error('Do not use old & new config syntax simultaneously');
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  // if (apiDefinitions || referenceDocs) {
-  //   // TODO: add link to docs.
-  //   // TODO: show warning without throwing error.
-  //   throw new Error('apiDefinitions & referenceDocs fields are deprecated. Use apis & features.openapi instead (see  docs: /.//) ');
-  // }
+  if (apiDefinitions) {
+    process.stdout.write(
+      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead.\n`
+    );
+  }
+  if (referenceDocs) {
+    process.stdout.write(
+      `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead.\n`
+    );
+  }
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
