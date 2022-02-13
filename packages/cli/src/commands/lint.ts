@@ -2,8 +2,9 @@ import {
   Config,
   formatProblems,
   getTotals,
-  lint, LintConfig,
+  lint,
   loadConfig,
+  mergeLintConfigs,
   OutputFormat,
 } from '@redocly/openapi-core';
 import {
@@ -17,26 +18,6 @@ import {
 import { Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
-
-//TODO: should be moved to core - Config.
-
-export function mergeLintConfigs(entrypoint: any, config: any) {
-  if (!entrypoint.alias) return config;
-  let mergedLint = config.apis[entrypoint.alias]?.lint || {};
-  mergedLint.plugins = config.lint.plugins;
-  mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
-  //TODO: fix types
-  for (const [key, value] of Object.entries(config.rawConfig.lint as any) as any) {
-    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
-      mergedLint[key] = { ...value, ...(mergedLint[key] || {}) }
-    }
-    if (key === 'extends') {
-      mergedLint[key] = Array.from(new Set([...value, ...(mergedLint[key] || [])]));
-    }
-  }
-  config.lint = new LintConfig(mergedLint);
-  return config;
-}
 
 export async function handleLint(
   argv: {
@@ -74,12 +55,14 @@ export async function handleLint(
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const entryPoint of entrypoints) {
+    const { path, alias } = entryPoint;
+
     try {
       const startedAt = performance.now();
-      process.stderr.write(gray(`validating ${entryPoint.path.replace(process.cwd(), '')}...\n`));
+      process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
-        ref: entryPoint.path,
-        config: mergeLintConfigs(entryPoint, config)
+        ref: path,
+        config: mergeLintConfigs(config, alias),
       });
 
       const fileTotals = getTotals(results);
@@ -102,10 +85,10 @@ export async function handleLint(
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${entryPoint.path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
+      process.stderr.write(gray(`${path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
       totals.errors++;
-      handleError(e, entryPoint.path);
+      handleError(e, path);
     }
   }
 

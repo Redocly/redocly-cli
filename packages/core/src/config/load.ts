@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Api, Config, DeprecatedRawConfig, DOMAINS, RawConfig, Region } from './config';
+import { Api, Config, DeprecatedRawConfig, DOMAINS, LintConfig, LintRawConfig, RawConfig, Region } from './config';
 import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
@@ -87,6 +87,23 @@ export async function getConfig(path?: string) {
     }
   }
   return transformConfig(rawConfig);
+}
+
+export function mergeLintConfigs(config: Config, entrypointAlias?: string): Config {
+  if (!entrypointAlias) return config;
+  let mergedLint = config.apis[entrypointAlias]?.lint || {};
+  mergedLint.plugins = config.lint.plugins;
+  mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
+  for (const [key, value] of Object.entries(config.rawConfig.lint as LintRawConfig)) {
+    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
+      mergedLint[key] = { ...(value as any), ...(mergedLint[key] || {}) }
+    }
+    if (key === 'extends') {
+      mergedLint[key] = Array.from(new Set([...(value as any), ...(mergedLint[key] || [])]));
+    }
+  }
+  config.lint = new LintConfig(mergedLint);
+  return config;
 }
 
 function findConfig() {

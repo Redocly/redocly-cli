@@ -15,9 +15,9 @@ import {
   parseYaml,
   stringifyYaml
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions } from './types';
+import { Totals, outputExtensions, Entrypoint } from './types';
 
-export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
+export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
@@ -25,11 +25,11 @@ export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | u
         path: resolve(getConfigDirectory(config), apis[fileName].root),
         alias: fileName
       }))
-    : (await expandGlobsInEntrypoints(argsEntrypoints!, config)).map(entrypoint => ({ path: entrypoint }));
-  // if (!isNotEmptyArray(res)) {
-  //   process.stderr.write('error: missing required argument `entrypoints`.\n');
-  //   process.exit(1);
-  // }
+    : (await expandGlobsInEntrypoints(argsEntrypoints!, config))
+  if (!isNotEmptyArray(res)) {
+    process.stderr.write('error: missing required argument `entrypoints`.\n');
+    process.exit(1);
+  }
   return res;
 }
 
@@ -37,11 +37,14 @@ function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-function isNotEmptyArray(args?: string[]): boolean {
+function isNotEmptyArray(args?: string[] | object[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
-function getAliasOrPath(config: Config, aliasOrPath: string) {
-  return config.apis[aliasOrPath]?.root || aliasOrPath;
+
+function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+  return config.apis[aliasOrPath]
+    ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
+    : { path: aliasOrPath };
 }
 
 async function expandGlobsInEntrypoints(args: string[], config: Config) {
