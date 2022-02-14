@@ -48,21 +48,30 @@ registry:
 
 ### apiDefinitions
 
-The `apiDefinitions` section's purpose is to define one or more entrypoints to your OpenAPI 3 definitions.
+The `apiDefinitions` section's purpose is to set one or more entrypoints for your OpenAPI 3 definitions.
 Redocly supports both multi-file definitions and multiple (multi-file) definitions.
 
 This section is optional.
 
-The validation command uses the `apiDefinitions` for providing shortcuts to referencing the definition.
+Define your entrypoints in the following format:
 
-Based on the example `.redocly.yaml` file above, here is an example usage:
+`definitionId: target`
+
+The `definitionId` is an alias for the API definition. Use any custom name of your choice. We recommend names that are easy to remember and identify. The names are case-sensitive.
+
+The `target` is the path to your OpenAPI definition.
+
+The [validation command](../commands/lint.md) uses the aliases from the `apiDefinitions` section as shortcuts for referencing API definitions.
+You can tell the `lint` command to validate specific API definitions by using their aliases from the `apiDefinitions` section, like in the following example:
+
 ```shell
-openapi-cli lint petstore caretaker
+openapi lint petstore caretaker
 ```
 
-In addition, it allows for running the command which will apply to all APIs defined:
+On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apiDefinitions` section:
+
 ```shell
-openapi-cli lint
+openapi lint
 ```
 
 ### lint
@@ -97,7 +106,9 @@ export REDOCLY_DOMAIN={domain}
 
 - the `--region` option with `login` and `push` commands
 
-`openapi login --region=eu`
+```sh
+openapi login --region=eu
+```
 
 - the `region` top-level property in the `.redocly.yaml` configuration file
 

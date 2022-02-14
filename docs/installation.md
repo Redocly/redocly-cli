@@ -10,11 +10,11 @@ You can install and use OpenAPI CLI in several ways:
 This is the recommended method
 :::
 
-```shell command
+```shell Command
 npm i -g @redocly/openapi-cli@latest
 ```
 
-```shell output
+```shell Output
 npm i -g @redocly/openapi-cli@latest
 added 1 package, removed 1 package, changed 87 packages, and audited 89 packages in 4s
 found 0 vulnerabilities
@@ -22,11 +22,11 @@ found 0 vulnerabilities
 
 ### yarn
 
-```shell command
+```shell Command
 yarn global add @redocly/openapi-cli
 ```
 
-```shell output
+```shell Output
 yarn global add @redocly/openapi-cli
 yarn global v1.22.11
 [1/4] 🔍  Resolving packages...
@@ -56,15 +56,15 @@ openapi --version
 `npx` is npm's package runner. It will install and run a command at the same time without installing it globally.
 :::
 
-```shell command
+```shell Command
 npx @redocly/openapi-cli <command> [options]
 ```
 
-```shell example with lint command
+```shell Example with lint command
 npx @redocly/openapi-cli@latest lint petstore.yaml
 ```
 
-```shell output (lint failed)
+```shell Output (lint failed)
 npx @redocly/openapi-cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
@@ -104,7 +104,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 You have 2 warnings.
 ```
 
-```shell output (lint succeeded)
+```shell Output (lint succeeded)
 npx @redocly/openapi-cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
@@ -118,11 +118,11 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 To give the Docker container access to the OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the OAS definition is rooted in the current working directory, the command will be the following:
 
-```shell example with lint command
+```shell Example with lint command
 docker run --rm -v $PWD:/spec redocly/openapi-cli lint petstore.yaml
 ```
 
-```shell output (lint succeeded)
+```shell Output (lint succeeded)
 Unable to find image 'redocly/openapi-cli:latest' locally
 latest: Pulling from redocly/openapi-cli
 540db60ca938: Pull complete
@@ -147,11 +147,11 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 To set up tab completion for the terminal, generate the completion script with the command:
 
-```shell command
+```shell Command
 openapi completion
 ```
 
-```shell output
+```shell Output
 ###-begin-openapi-completions-###
 #
 # yargs command completion script
@@ -184,7 +184,7 @@ complete -o default -F _openapi_yargs_completions openapi
 
 The command output contains installation instructions. For example, to install the completion script in `bash`, use:
 
-```shell command
+```shell Command
 openapi completion >> ~/.bashrc
 ```
 

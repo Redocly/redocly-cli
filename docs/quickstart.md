@@ -327,7 +327,7 @@ Open the `openapi` directory. See? That's where the magic took place:
 └── openapi.yaml
 ```
 
-With the `split` command, you can easily switch to a [multi-file structure](./index.md#multi-file-approach) in a blink of an eye even if your definition file became extremely lengthy.
+With the `split` command, you can easily switch to a [multi-file structure](./index.md#bundling) in a blink of an eye even if your definition file became extremely lengthy.
 
 ### bundle - pull constituent parts of the OpenAPI definition into a single file
 

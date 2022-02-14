@@ -108,13 +108,13 @@ In this case, `push` will upload only the definition that was passed to the comm
 
 #### Pass entrypoint via configuration file
 
-Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint. For example, `petstore`:
+Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint.
 
-```bash request
+```bash Command
 openapi push petstore @openapi-org/petstore-api@v1
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 apiDefinitions:
   petstore: ./openapi/petstore.yaml
 ```

@@ -53,13 +53,13 @@ The `entrypoints` argument can also use any glob format supported by your file s
 
 #### Pass entrypoints via configuration file
 
-Instead of full paths, you can use aliases assigned in the `apiDefinitions` section of your `.redocly.yaml` configuration file as entrypoints. For example, `petstore`:
+Instead of full paths, you can use aliases assigned in the `apiDefinitions` section of your `.redocly.yaml` configuration file as entrypoints.
 
-```bash command
+```bash Command
 openapi lint petstore
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 apiDefinitions:
   petstore: ./openapi/petstore-definition.json
 ```
@@ -68,13 +68,13 @@ In this case, after resolving the path behind the `petstore` alias (see the `.re
 
 #### Empty entrypoints
 
-You can omit entrypoints completely when executing the `lint` command:
+You can omit entrypoints completely when executing the `lint` command.
 
-```bash
+```bash Command
 openapi lint
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 apiDefinitions:
   petstore: ./openapi/petstore.json
   production: ./openapi/production.yaml
@@ -103,12 +103,12 @@ The `--extends` option allows you to extend the existing configuration. This opt
 
 #### Codeframe (default)
 
-```bash request
+```bash Command
 openapi lint --format=codeframe
 ## equivalent to: openapi lint
 ```
 
-```bash output
+```bash Output
 [1] resources/petstore-with-errors.yaml:16:3 at #/paths/~1pets?id
 
 Don't put query string items in the path, they belong in parameters with `in: query`.
@@ -129,11 +129,11 @@ Depending on the terminal emulator you use, it may be possible to directly click
 
 #### Stylish
 
-```bash request
+```bash Command
 openapi lint --format=stylish
 ```
 
-```bash output
+```bash Output
 openapi/core.yaml:
   15:7   error    spec                   Property `operationIds` is not expected here.
   22:11  error    spec                   Property `require` is not expected here.
@@ -144,11 +144,11 @@ In this format, `lint` shows the file name, line number, and column where the pr
 
 #### Checkstyle
 
-```bash request
+```bash Command
 openapi lint --format=checkstyle
 ```
 
-```bash output
+```bash Output
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="4.3">
 <file name="openapi/core.yaml">
@@ -168,11 +168,11 @@ omitted.
 
 With the `--max-problems` option, you can limit the number of problems displayed in the command output. If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
 
-```bash request
+```bash Command
 openapi lint --max-problems 200
 ```
 
-```bash output
+```bash Output
 ...
 < ... 2 more problems hidden > increase with `--max-problems N`
 ```
@@ -183,11 +183,11 @@ With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppr
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
-```shell request
+```shell Command
 openapi lint openapi/petstore.yaml --generate-ignore-file
 ```
 
-```bash output
+```bash Output
 ...
 Generated ignore file with 3 problems.
 ```
