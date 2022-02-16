@@ -54,9 +54,7 @@ export async function handleLint(
   }
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const entryPoint of entrypoints) {
-    const { path, alias } = entryPoint;
-
+  for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));

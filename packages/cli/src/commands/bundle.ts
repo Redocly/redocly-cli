@@ -51,8 +51,7 @@ export async function handleBundle(
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
 
-  for (const entrypoint of entrypoints) {
-    const { path, alias } = entrypoint;
+  for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
 
