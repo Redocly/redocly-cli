@@ -1,6 +1,6 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -12,6 +12,7 @@ import {
   Oas2Definition,
   Oas3Schema,
   Oas3Definition,
+  Oas3_1Definition,
   Oas3Components,
   Oas3ComponentName,
   ComponentsFiles,
@@ -20,19 +21,19 @@ import {
   OPENAPI3_COMPONENT,
   COMPONENTS,
   componentsPath,
-  PATHS,
   OPENAPI3_METHOD_NAMES,
-  OPENAPI3_COMPONENT_NAMES
-} from './types'
+  OPENAPI3_COMPONENT_NAMES,
+  Referenced
+} from './types';
 
 export async function handleSplit (argv: {
-  entrypoint?: string;
+  entrypoint: string;
   outDir: string
 }) {
   const startedAt = performance.now();
   const { entrypoint, outDir } = argv;
   validateDefinitionFileName(entrypoint!);
-  const openapi = readYaml(entrypoint!) as Oas3Definition;
+  const openapi = readYaml(entrypoint!) as Oas3Definition | Oas3_1Definition;
   splitDefinition(openapi, outDir);
   process.stderr.write(
     `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')}
@@ -41,23 +42,16 @@ export async function handleSplit (argv: {
   printExecutionTime('split', startedAt, entrypoint!);
 }
 
-function splitDefinition(openapi: Oas3Definition, openapiDir: string) {
+function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir: string) {
   fs.mkdirSync(openapiDir, { recursive: true });
-  const pathsDir = path.join(openapiDir, PATHS);
-  fs.mkdirSync(pathsDir, { recursive: true });
 
   const componentsFiles: ComponentsFiles = {};
-  iteratePaths(openapi, pathsDir, openapiDir);
   iterateComponents(openapi, openapiDir, componentsFiles);
+  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
+  const webhooks = (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
+  // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
+  iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
 
-  function traverseDirectoryDeepCallback(filename: string, directory: string) {
-    if (isNotYaml(filename)) return;
-    const pathData = readYaml(filename);
-    replace$Refs(pathData, directory, componentsFiles);
-    writeYaml(pathData, filename);
-  }
-
-  traverseDirectoryDeep(pathsDir, traverseDirectoryDeepCallback);
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
 }
@@ -82,7 +76,7 @@ function validateDefinitionFileName(fileName: string) {
   if (!fs.existsSync(fileName)) exitWithError(`File ${blue(fileName)} does not exist \n`);
   const file = loadFile(fileName);
   if ((file as Oas2Definition).swagger) exitWithError('OpenAPI 2 is not supported by this command');
-  if (!(file as Oas3Definition).openapi) exitWithError('File does not conform to the OpenAPI Specification. OpenAPI version is not specified');
+  if (!(file as Oas3Definition | Oas3_1Definition).openapi) exitWithError('File does not conform to the OpenAPI Specification. OpenAPI version is not specified');
   return true;
 }
 
@@ -100,17 +94,28 @@ function langToExt(lang: string) {
   return langObj[lang];
 }
 
-function traverseDirectoryDeep(directory: string, callback: any) {
+function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {
   if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) return;
   const files = fs.readdirSync(directory);
   for (const f of files) {
     const filename = path.join(directory, f);
     if (fs.statSync(filename).isDirectory()) {
-      traverseDirectoryDeep(filename, callback);
+      traverseDirectoryDeep(filename, callback, componentsFiles);
     } else {
-      callback(filename, directory);
+      callback(filename, directory, componentsFiles);
     }
   }
+}
+
+function traverseDirectoryDeepCallback(
+  filename: string,
+  directory: string,
+  componentsFiles: object,
+) {
+  if (isNotYaml(filename)) return;
+  const pathData = readYaml(filename);
+  replace$Refs(pathData, directory, componentsFiles);
+  writeYaml(pathData, filename);
 }
 
 function crawl(object: any, visitor: any) {
@@ -199,7 +204,7 @@ function doesFileDiffer(filename: string, componentData: any) {
   return fs.existsSync(filename) && !isEqual(readYaml(filename), componentData);
 }
 
-function removeEmptyComponents(openapi: Oas3Definition, componentType: Oas3ComponentName) {
+function removeEmptyComponents(openapi: Oas3Definition | Oas3_1Definition, componentType: Oas3ComponentName) {
   if (openapi.components && isEmptyObject(openapi.components[componentType])) {
     delete openapi.components[componentType];
   }
@@ -237,49 +242,57 @@ function gatherComponentsFiles(
   componentsFiles[componentType][componentName] = { inherits, filename };
 }
 
-function iteratePaths(
-  openapi: Oas3Definition,
-  pathsDir: string,
-  openapiDir: string
+function iteratePathItems(
+  pathItems: Record<string,  Referenced<Oas3PathItem>> | undefined,
+  openapiDir: string,
+  outDir: string,
+  componentsFiles: object,
+  codeSamplesPathPrefix: string = '',
 ) {
-  const { paths } = openapi;
-  if (paths) {
-    for (const oasPath of Object.keys(paths)) {
-      const pathFile = path.join(pathsDir, pathToFilename(oasPath)) + '.yaml';
-      const pathData: Oas3PathItem = paths[oasPath] as Oas3PathItem;
+  if (!pathItems) return;
+  fs.mkdirSync(outDir, { recursive: true });
 
-      for (const method of OPENAPI3_METHOD_NAMES) {
-        const methodData = pathData[method];
-        const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
-        if (!methodDataXCode || !Array.isArray(methodDataXCode)) { continue; }
-        for (const sample of methodDataXCode) {
-          if (sample.source && (sample.source as any).$ref) continue;
-          const sampleFileName = path.join(
-            openapiDir,
-            'code_samples',
-            sample.lang,
-            pathToFilename(oasPath),
-            method + langToExt(sample.lang)
-          );
+  for (const pathName of Object.keys(pathItems)) {
+    const pathFile = `${path.join(outDir, pathToFilename(pathName))}.yaml`;
+    const pathData = pathItems[pathName] as Oas3PathItem;
 
-          fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
-          fs.writeFileSync(sampleFileName, sample.source);
-          // @ts-ignore
-          sample.source = {
-            $ref: slash(path.relative(pathsDir, sampleFileName))
-          };
-        }
+    if (isRef(pathData)) continue;
+    
+    for (const method of OPENAPI3_METHOD_NAMES) {
+      const methodData = pathData[method];
+      const methodDataXCode = methodData?.['x-code-samples'] || methodData?.['x-codeSamples'];
+      if (!methodDataXCode || !Array.isArray(methodDataXCode)) {
+        continue;
       }
-      writeYaml(pathData, pathFile);
-      paths[oasPath] = {
-        $ref: slash(path.relative(openapiDir, pathFile))
-      };
+      for (const sample of methodDataXCode) {
+        if (sample.source && (sample.source as any).$ref) continue;
+        const sampleFileName = path.join(
+          openapiDir,
+          'code_samples',
+          sample.lang,
+          codeSamplesPathPrefix + pathToFilename(pathName),
+          method + langToExt(sample.lang),
+        );
+
+        fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
+        fs.writeFileSync(sampleFileName, sample.source);
+        // @ts-ignore
+        sample.source = {
+          $ref: slash(path.relative(outDir, sampleFileName))
+        };
+      }
     }
+    writeYaml(pathData, pathFile);
+    pathItems[pathName] = {
+      $ref: slash(path.relative(openapiDir, pathFile))
+    };
+
+    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
 }
 
 function iterateComponents(
-  openapi: Oas3Definition,
+  openapi: Oas3Definition | Oas3_1Definition,
   openapiDir: string,
   componentsFiles: ComponentsFiles
 ) {
@@ -331,6 +344,4 @@ function iterateComponents(
   }
 }
 
-export {
-  iteratePaths,
-}
+export { iteratePathItems };

@@ -26,7 +26,7 @@ function getEntrypoints(folderPath: string) {
   return Object.keys(redoclyYaml.apiDefinitions);
 }
 
-function getBundleResult(params: string[], folderPath: string) {
+function getCommandOutput(params: string[], folderPath: string) {
   const result = spawnSync('ts-node', params, {
     cwd: folderPath,
     env: {
@@ -70,6 +70,47 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+  });
+
+  describe('split', () => {
+    test('without option: outDir', () => {
+      const folderPath = join(__dirname, `split/missing-outDir`);
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        '../../../__tests__/split/test-split/spec.json',
+      ];
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('swagger', () => {
+      const folderPath = join(__dirname, `split/oas2`);
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        '../../../__tests__/split/oas2/openapi.yaml',
+        '--outDir=output'
+      ];
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('openapi with no errors', () => {
+      const folderPath = join(__dirname, `split/oas3-no-errors`);
+      const file = '../../../__tests__/split/oas3-no-errors/openapi.yaml';
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        file,
+        '--outDir=output'
+      ];
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('join', () => {
@@ -171,14 +212,14 @@ describe('E2E', () => {
 
     test.each(['codeframe','stylish','json','checkstyle'])('bundle lint: should be formatted by format: %s', (format) => {
       const params = [...args, `--format=${format}`];
-      const result = getBundleResult(params, folderPath);
+      const result = getCommandOutput(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
     });
 
     test.each(['noFormatParameter','emptyFormatValue'])('bundle lint: no format parameter or empty value should be formatted as codeframe', (format) => {
       const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
       const params = [...args, ... formatArgument];
-      const result = getBundleResult(params, folderPath);
+      const result = getCommandOutput(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
     });
   });
@@ -193,7 +234,7 @@ describe('E2E', () => {
         "--remove-unused-components",
         ...entryPoints,
       ];
-      const result = getBundleResult(args, folderPath);
+      const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'remove-unused-components-snapshot.js'));
     });
   });
