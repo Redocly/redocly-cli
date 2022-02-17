@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`E2E split without option: outDir 1`] = `
+
+index.ts split [entrypoint]
+
+Split definition into a multi-file structure.
+
+Positionals:
+  entrypoint                                                            [string]
+
+Options:
+  --version  Show version number.                                      [boolean]
+  --help     Show help.                                                [boolean]
+  --outDir   Output directory where files will be saved.     [string] [required]
+
+Missing required argument: outDir
+
+`;

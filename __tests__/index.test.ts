@@ -72,6 +72,46 @@ describe('E2E', () => {
     }
   });
 
+  describe('split', () => {
+    test('without option: outDir', () => {
+      const folderPath = join(__dirname, `split/missing-outDir`);
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        '../../../__tests__/split/test-split/spec.json',
+      ];
+      const result = getBundleResult(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('swagger', () => {
+      const folderPath = join(__dirname, `split/oas2`);
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        '../../../__tests__/split/oas2/openapi.yaml',
+        '--outDir=output'
+      ];
+      const result = getBundleResult(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('openapi with no errors', () => {
+      const folderPath = join(__dirname, `split/oas3-no-errors`);
+      const args = [
+        '--transpile-only',
+        '../../../packages/cli/src/index.ts',
+        'split',
+        '../../../__tests__/split/oas3-no-errors/openapi.yaml',
+        '--outDir=output'
+      ];
+      const result = getBundleResult(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+  });
+
   describe('join', () => {
     const folderPath = join(__dirname, 'join');
     const contents = readdirSync(folderPath);
