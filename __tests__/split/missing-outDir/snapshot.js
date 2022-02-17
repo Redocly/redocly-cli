@@ -7,7 +7,7 @@ index.ts split [entrypoint]
 Split definition into a multi-file structure.
 
 Positionals:
-  entrypoint                                                            [string]
+  entrypoint  API definition file that you want to split     [string] [required]
 
 Options:
   --version  Show version number.                                      [boolean]
