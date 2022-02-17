@@ -26,7 +26,7 @@ function getEntrypoints(folderPath: string) {
   return Object.keys(redoclyYaml.apiDefinitions);
 }
 
-function getBundleResult(params: string[], folderPath: string) {
+function getCommandOutput(params: string[], folderPath: string) {
   const result = spawnSync('ts-node', params, {
     cwd: folderPath,
     env: {
@@ -81,7 +81,7 @@ describe('E2E', () => {
         'split',
         '../../../__tests__/split/test-split/spec.json',
       ];
-      const result = getBundleResult(args, folderPath);
+      const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
 
@@ -94,7 +94,7 @@ describe('E2E', () => {
         '../../../__tests__/split/oas2/openapi.yaml',
         '--outDir=output'
       ];
-      const result = getBundleResult(args, folderPath);
+      const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
 
@@ -107,7 +107,7 @@ describe('E2E', () => {
         '../../../__tests__/split/oas3-no-errors/openapi.yaml',
         '--outDir=output'
       ];
-      const result = getBundleResult(args, folderPath);
+      const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
@@ -211,14 +211,14 @@ describe('E2E', () => {
 
     test.each(['codeframe','stylish','json','checkstyle'])('bundle lint: should be formatted by format: %s', (format) => {
       const params = [...args, `--format=${format}`];
-      const result = getBundleResult(params, folderPath);
+      const result = getCommandOutput(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-format-snapshot.js`));
     });
 
     test.each(['noFormatParameter','emptyFormatValue'])('bundle lint: no format parameter or empty value should be formatted as codeframe', (format) => {
       const formatArgument = format === 'emptyFormatValue' ? ['--format'] : [];
       const params = [...args, ... formatArgument];
-      const result = getBundleResult(params, folderPath);
+      const result = getCommandOutput(params, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
     });
   });
@@ -233,7 +233,7 @@ describe('E2E', () => {
         "--remove-unused-components",
         ...entryPoints,
       ];
-      const result = getBundleResult(args, folderPath);
+      const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'remove-unused-components-snapshot.js'));
     });
   });
