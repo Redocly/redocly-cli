@@ -20,9 +20,15 @@ export { Oas2Definition } from './typings/swagger';
 export { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
-
-export { Config, LintConfig, RawConfig, IGNORE_FILE, Region } from './config/config';
-export { mergeLintConfigs, loadConfig, getConfig } from './config/load';
+export { 
+  Config, 
+  LintConfig, 
+  RawConfig, 
+  IGNORE_FILE, 
+  Region, 
+  getMergedConfig, 
+} from './config/config';
+export { loadConfig, getConfig } from './config/load';
 export { RedoclyClient } from './redocly';
 export {
   Source,

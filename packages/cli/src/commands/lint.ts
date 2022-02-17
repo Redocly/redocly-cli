@@ -4,7 +4,7 @@ import {
   getTotals,
   lint,
   loadConfig,
-  mergeLintConfigs,
+  getMergedConfig,
   OutputFormat,
 } from '@redocly/openapi-core';
 import {
@@ -60,7 +60,7 @@ export async function handleLint(
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: path,
-        config: mergeLintConfigs(config, alias),
+        config: getMergedConfig(config, alias),
       });
 
       const fileTotals = getTotals(results);

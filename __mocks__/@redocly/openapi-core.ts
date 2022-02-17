@@ -18,7 +18,7 @@ export const loadConfig = jest.fn(() => ({
   configFile: null,
   lint: { skipRules: jest.fn(), skipPreprocessors: jest.fn(), skipDecorators: jest.fn() },
 }));
-export const mergeLintConfigs = jest.fn();
+export const getMergedConfig = jest.fn();
 export const lint = jest.fn();
 export const bundle = jest.fn(() => ({ bundle: { parsed: null }, problems: null }));
 export const getTotals = jest.fn(() => ({ errors: 0 }));

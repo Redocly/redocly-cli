@@ -2,7 +2,7 @@ import {
   formatProblems,
   getTotals,
   loadConfig,
-  mergeLintConfigs,
+  getMergedConfig,
   OutputFormat,
   lint,
   bundle,
@@ -63,7 +63,10 @@ export async function handleBundle(
             )} configuration by default.\n\n`,
           );
         }
-        const results = await lint({ ref: path, config });
+        const results = await lint({ 
+          ref: path, 
+          config: getMergedConfig(config, alias),
+        });
         const fileLintTotals = getTotals(results);
 
         totals.errors += fileLintTotals.errors;
@@ -86,7 +89,7 @@ export async function handleBundle(
         problems,
         ...meta
       } = await bundle({
-        config: mergeLintConfigs(config, alias),
+        config: getMergedConfig(config, alias),
         ref: path,
         dereference: argv.dereferenced,
         removeUnusedComponents

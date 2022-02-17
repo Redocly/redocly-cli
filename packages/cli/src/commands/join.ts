@@ -15,7 +15,7 @@ import {
   getTotals,
   lintDocument,
   detectOpenAPI,
-  bundleDocument
+  bundleDocument,
 } from '@redocly/openapi-core';
 
 import {
@@ -56,7 +56,9 @@ packageVersion: string
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
-    entrypoints.map(ref => externalRefResolver.resolveDocument(null, ref.path, true) as Promise<Document>)
+    entrypoints.map(
+      ({ path }) => externalRefResolver.resolveDocument(null, path, true) as Promise<Document>
+    )
   );
 
   const bundleResults = await Promise.all(

@@ -18,14 +18,14 @@ import {
 import { Totals, outputExtensions, Entrypoint } from './types';
 
 export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config): Promise<Entrypoint[]> {
-  const { apis } = config;
+  const  { apis } = config;
   const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
-    ? Object.keys(apis).map((fileName) => ({
-        path: resolve(getConfigDirectory(config), apis[fileName].root),
-        alias: fileName
+    ? Object.entries(apis).map(([alias, { root }]) => ({
+        path: resolve(getConfigDirectory(config), root),
+        alias,
       }))
-    : (await expandGlobsInEntrypoints(argsEntrypoints!, config))
+    : (await expandGlobsInEntrypoints(argsEntrypoints!, config));
   if (!isNotEmptyArray(res)) {
     process.stderr.write('error: missing required argument `entrypoints`.\n');
     process.exit(1);
@@ -37,7 +37,7 @@ function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-function isNotEmptyArray(args?: string[] | object[]): boolean {
+function isNotEmptyArray(args?: any[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
 

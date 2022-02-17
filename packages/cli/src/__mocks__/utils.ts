@@ -8,3 +8,4 @@ export const printExecutionTime = jest.fn();
 export const printUnusedWarnings = jest.fn();
 export const printLintTotals = jest.fn();
 export const getOutputFileName = jest.fn(() => ({ outputFile: 'test.yaml', ext: 'yaml' }));
+export const handleError = jest.fn();

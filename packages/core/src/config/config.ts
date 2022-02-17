@@ -1,11 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
-import { red, blue } from 'colorette';
-
+import { red, blue, green, yellow } from 'colorette';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { notUndefined, slash } from '../utils';
-
 import {
   OasVersion,
   Oas3PreprocessorsSet,
@@ -16,9 +14,7 @@ import {
   Oas2DecoratorsSet,
   Oas3RuleSet
 } from '../oas-types';
-
 import { ProblemSeverity, NormalizedProblem } from '../walk';
-
 import recommended from './recommended';
 import { NodeType } from '../types';
 
@@ -636,4 +632,81 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
       target[k] = obj[k];
     }
   }
+}
+
+export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+  return entrypointAlias
+    ? { 
+        ...config,
+        lint: getMergedLintConfig(
+          config.rawConfig.lint, 
+          config.apis[entrypointAlias]?.lint
+        ),
+        'features.openapi': {
+          ...config.rawConfig['features.openapi'],
+          ...config.apis[entrypointAlias]?.['features.openapi'],
+        },
+        // TODO: merge everything else here
+      } 
+    : config;
+}
+
+export function getMergedLintConfig(
+  globalLint: LintRawConfig = {}, 
+  localLint: LintRawConfig = {}
+): LintConfig {
+  let mergedLint: LintRawConfig = { ...localLint };
+  mergedLint.plugins = globalLint?.plugins;
+  mergedLint.doNotResolveExamples = 
+    mergedLint.doNotResolveExamples ?? 
+    !!globalLint?.doNotResolveExamples;
+  for (const key of Object.keys(globalLint)) {
+    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
+      mergedLint[key] = { 
+        ...(globalLint[key] as Record<string, any>), 
+        ...(mergedLint[key] || {}) 
+      };
+    }
+    if (key === 'extends') {
+      mergedLint[key] = [...new Set([
+        ...(globalLint[key] || []), 
+        ...(mergedLint[key] || []),
+      ])];
+    }
+  }
+  return new LintConfig(mergedLint);
+}
+
+function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
+  let apis: Record<string, Api> = {};
+  for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
+    apis[apiName] = { root: apiPath };
+  }
+  return apis;
+}
+
+export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
+  // FIXME: put separate notifications
+  if (
+    (rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions ||
+    (rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs
+  ) {
+    throw new Error('Do not use old & new config syntax simultaneously.\n');
+  }
+  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
+  if (apiDefinitions) {
+    process.stdout.write(
+      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead.\n`
+    );
+  }
+  if (referenceDocs) {
+    process.stdout.write(
+      `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead.\n`
+    );
+  }
+  return {
+    'features.openapi': referenceDocs,
+    apis: transformApiDefinitionsToApis(apiDefinitions),
+    ...rest,
+  };
 }

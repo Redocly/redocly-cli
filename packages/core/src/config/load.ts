@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import { green, yellow } from 'colorette';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Api, Config, DeprecatedRawConfig, DOMAINS, LintConfig, LintRawConfig, RawConfig, Region } from './config';
+import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 
 export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
@@ -50,66 +49,14 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   );
 }
 
-export function mergeLintConfigs(config: Config, entrypointAlias?: string): Config {
-  if (!entrypointAlias) return config;
-  let mergedLint = config.apis[entrypointAlias]?.lint || {};
-  mergedLint.plugins = config.lint.plugins;
-  mergedLint.doNotResolveExamples = mergedLint.doNotResolveExamples ?? config.lint.doNotResolveExamples ?? false;
-  for (const [key, value] of Object.entries(config.rawConfig.lint as LintRawConfig)) {
-    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
-      mergedLint[key] = { ...(value as any), ...(mergedLint[key] || {}) }
-    }
-    if (key === 'extends') {
-      mergedLint[key] = Array.from(new Set([...(value as any), ...(mergedLint[key] || [])]));
-    }
+export async function getConfig(configPath: string | undefined = findConfig()) {
+  if (!configPath) return {};
+  try {
+    const rawConfig = (await loadYaml(configPath)) as RawConfig;
+    return transformConfig(rawConfig);
+  } catch (e) {
+    throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
   }
-  config.lint = new LintConfig(mergedLint);
-  return config;
-}
-
-function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
-  const apis: Record<string, Api> = {};
-  for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
-    apis[apiName] = { root: apiPath };
-  }
-  return apis;
-}
-
-function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
-  if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions ||
-    (rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs
-  ) {
-    throw new Error('Do not use old & new config syntax simultaneously');
-  }
-  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  if (apiDefinitions) {
-    process.stdout.write(
-      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead.\n`
-    );
-  }
-  if (referenceDocs) {
-    process.stdout.write(
-      `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead.\n`
-    );
-  }
-  return {
-    'features.openapi': referenceDocs,
-    apis: transformApiDefinitionsToApis(apiDefinitions),
-    ...rest
-  };
-}
-
-export async function getConfig(path?: string) {
-  let rawConfig: RawConfig = {};
-  const configPath = path || findConfig();
-  if (configPath) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
-  return transformConfig(rawConfig);
 }
 
 function findConfig() {
