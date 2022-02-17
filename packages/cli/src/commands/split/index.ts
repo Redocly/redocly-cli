@@ -46,12 +46,11 @@ function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir:
   fs.mkdirSync(openapiDir, { recursive: true });
 
   const componentsFiles: ComponentsFiles = {};
-  // iterateComponents(openapi, openapiDir, componentsFiles);
+  iterateComponents(openapi, openapiDir, componentsFiles);
   iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
   const webhooks = (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
   // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
   iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
-  iterateComponents(openapi, openapiDir, componentsFiles);
 
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
