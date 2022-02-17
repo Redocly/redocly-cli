@@ -4,6 +4,14 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.82 (2022-02-15)
+
+### Fixes
+
+- Removed support for using OpenAPI CLI behind a proxy server.
+
+----
+
 ## 1.0.0-beta.81 (2022-02-10)
 
 ### Features
