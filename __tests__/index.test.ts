@@ -100,11 +100,12 @@ describe('E2E', () => {
 
     test('openapi with no errors', () => {
       const folderPath = join(__dirname, `split/oas3-no-errors`);
+      const file = '../../../__tests__/split/oas3-no-errors/openapi.yaml';
       const args = [
         '--transpile-only',
         '../../../packages/cli/src/index.ts',
         'split',
-        '../../../__tests__/split/oas3-no-errors/openapi.yaml',
+        file,
         '--outDir=output'
       ];
       const result = getCommandOutput(args, folderPath);

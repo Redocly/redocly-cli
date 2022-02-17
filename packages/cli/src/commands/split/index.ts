@@ -27,7 +27,7 @@ import {
 } from './types';
 
 export async function handleSplit (argv: {
-  entrypoint?: string;
+  entrypoint: string;
   outDir: string
 }) {
   const startedAt = performance.now();
