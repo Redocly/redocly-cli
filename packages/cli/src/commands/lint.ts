@@ -43,24 +43,22 @@ export async function handleLint(
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
 
-  // TODO: handle recommendedFallback in apis;
-
-  if (config.lint.recommendedFallback) {
-    process.stderr.write(
-      `No configurations were defined in extends -- using built in ${blue(
-        'recommended',
-      )} configuration by default.\n\n`,
-    );
-  }
-
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
   for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
+      const mergedConfig = getMergedConfig(config, alias);
+      if (mergedConfig.lint.recommendedFallback) {
+        process.stderr.write(
+          `No configurations were defined in extends -- using built in ${
+            blue('recommended')
+          } configuration by default.\n\n`,
+        );
+      }
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: path,
-        config: getMergedConfig(config, alias),
+        config: mergedConfig,
       });
 
       const fileTotals = getTotals(results);

@@ -63,8 +63,8 @@ export async function handleBundle(
             )} configuration by default.\n\n`,
           );
         }
-        const results = await lint({ 
-          ref: path, 
+        const results = await lint({
+          ref: path,
           config: getMergedConfig(config, alias),
         });
         const fileLintTotals = getTotals(results);

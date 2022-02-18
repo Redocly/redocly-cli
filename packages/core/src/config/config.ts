@@ -636,44 +636,34 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
 
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
   return entrypointAlias
-    ? { 
+    ? {
         ...config,
-        lint: getMergedLintConfig(
-          config.rawConfig.lint, 
-          config.apis[entrypointAlias]?.lint
-        ),
+        lint: getMergedLintConfig(config, entrypointAlias),
         'features.openapi': {
-          ...config.rawConfig['features.openapi'],
+          ...config['features.openapi'],
           ...config.apis[entrypointAlias]?.['features.openapi'],
         },
         // TODO: merge everything else here
-      } 
+      }
     : config;
 }
 
 export function getMergedLintConfig(
-  globalLint: LintRawConfig = {}, 
-  localLint: LintRawConfig = {}
+  config: Config,
+  entrypointAlias?: string
 ): LintConfig {
-  let mergedLint: LintRawConfig = { ...localLint };
-  mergedLint.plugins = globalLint?.plugins;
-  mergedLint.doNotResolveExamples = 
-    mergedLint.doNotResolveExamples ?? 
-    !!globalLint?.doNotResolveExamples;
-  for (const key of Object.keys(globalLint)) {
-    if (key === 'rules' || key === 'preprocessors' || key === 'decorators') {
-      mergedLint[key] = { 
-        ...(globalLint[key] as Record<string, any>), 
-        ...(mergedLint[key] || {}) 
-      };
-    }
-    if (key === 'extends') {
-      mergedLint[key] = [...new Set([
-        ...(globalLint[key] || []), 
-        ...(mergedLint[key] || []),
-      ])];
-    }
-  }
+  const localLint = entrypointAlias 
+    ? config.apis[entrypointAlias]?.lint
+    : {};
+  const mergedLint = {
+    ...config.rawConfig.lint,
+    // Preserve external additions to the lint config:
+    ...config.lint,
+    ...localLint,
+    rules: { ...config.rawConfig.lint?.rules, ...localLint?.rules },
+    preprocessors: { ...config.rawConfig.lint?.preprocessors, ...localLint?.preprocessors },
+    decorators: { ...config.rawConfig.lint?.decorators, ...localLint?.decorators },
+  };
   return new LintConfig(mergedLint);
 }
 
@@ -686,12 +676,11 @@ function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = 
 }
 
 export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
-  // FIXME: put separate notifications
-  if (
-    (rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions ||
-    (rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs
-  ) {
-    throw new Error('Do not use old & new config syntax simultaneously.\n');
+  if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions) {
+    throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
+  }
+  if ((rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs) {
+    throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
   if (apiDefinitions) {
