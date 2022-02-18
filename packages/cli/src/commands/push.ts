@@ -147,8 +147,7 @@ function getFilesList(dir: string, files?: any): string[] {
 async function collectFilesToUpload(entrypoint: string) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const config: Config = await loadConfig();
-  const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
-  const entrypointPath = entrypoints[0].path;
+  const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 
   process.stdout.write('Bundling definition\n');
 
