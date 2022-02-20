@@ -1,7 +1,7 @@
 import { RedoclyClient } from '../index';
 
 describe('RedoclyClient', () => {
-  const REDOCLY_DOMAIN_US = 'redoc.ly';
+  const REDOCLY_DOMAIN_US = 'redocly.com';
   const REDOCLY_DOMAIN_EU = 'eu.redocly.com';
   const REDOCLY_AUTHORIZATION_TOKEN = 'redocly-auth-token';
   const testRedoclyDomain = 'redoclyDomain.com';
