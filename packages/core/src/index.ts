@@ -23,7 +23,7 @@ export { Stats } from './rules/other/stats';
 
 export { Config, LintConfig, RawConfig, IGNORE_FILE, Region } from './config/config';
 export { loadConfig } from './config/load';
-export { RedoclyClient } from './redocly';
+export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 export {
   Source,
   BaseResolver,
