@@ -20,6 +20,8 @@ export class RedoclyClient {
     this.domain = region
       ? DOMAINS[region]
       : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+
+    process.env.REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
@@ -160,16 +162,15 @@ export class RedoclyClient {
 
 export function isRedoclyRegistryURL(link: string): boolean {
   const domain = process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
-  if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-  const registryPath = link.replace(`https://api.${domain}/registry/`, '');
 
-  const pathParts = registryPath.split('/');
+  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
 
-  // we can be sure, that there is job UUID present
-  // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
-  // so skip this link.
-  // FIXME
-  if (pathParts.length === 7) return false;
+  if (
+    !link.startsWith(`https://api.${domain}/registry/`) &&
+    !link.startsWith(`https://api.${legacyDomain}/registry/`)
+  ) {
+    return false;
+  }
 
   return true;
 }

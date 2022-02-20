@@ -8,12 +8,12 @@ describe('loadConfig', () => {
     );
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([{
-      "matches": 'https://api.redoc.ly/registry/**',
+      "matches": 'https://api.redocly.com/registry/**',
       "name": "Authorization",
       "envVariable": undefined,
       "value": "accessToken"
     }, {
-      "matches": 'https://api.redocly.com/registry/**',
+      "matches": 'https://api.redoc.ly/registry/**',
       "name": "Authorization",
       "envVariable": undefined,
       "value": "accessToken"
