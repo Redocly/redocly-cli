@@ -35,13 +35,21 @@ yargs
     'split [entrypoint]',
     'Split definition into a multi-file structure.',
     (yargs) =>
-      yargs.positional('entrypoint', { type: 'string' }).option({
-        outDir: {
-          description: 'Output directory where files will be saved.',
-          required: true,
-          type: 'string',
-        },
-      }),
+      yargs
+        .positional('entrypoint', { 
+          description: 'API definition file that you want to split',
+          type: 'string'
+        })
+        .option({
+          outDir: {
+            description: 'Output directory where files will be saved.',
+            required: true,
+            type: 'string',
+          },
+        })
+        .demandOption(
+          'entrypoint'
+        ),
     handleSplit,
   )
   .command(
@@ -207,7 +215,7 @@ yargs
           description: 'Remove unused components.',
           type: 'boolean',
           default: false,
-        }
+        },
       }),
     (argv) => {
       handleBundle(argv, version);
