@@ -76,7 +76,7 @@ There are some other scripts available in the `scripts` section of the `package.
   
 - **`__tests__`**: contains e2e tests. The e2e tests are written and run with [Jest](https://jestjs.io/).
 
-- **`docs`**: contains the docs and guides, also can be found [here](https://redoc.ly/docs/cli/).
+- **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redoc.ly/docs/cli/).
 
 - **`packages`**: contains the source code. Сonsists of two packages - CLI and core. The codebase is written in Typescript.
 
