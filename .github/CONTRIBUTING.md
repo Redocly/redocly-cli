@@ -29,7 +29,7 @@ Before submitting a pull request, please make sure the following is done:
 
 You will need [Node.js](http://nodejs.org) at `v12.0.0+`.
 
-After cloning the repo, run:  
+After forking the repo, run:  
 
 ```bash
 $ npm install # or npm i
