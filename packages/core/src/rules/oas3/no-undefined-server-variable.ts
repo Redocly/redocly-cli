@@ -3,6 +3,7 @@ import { Oas3Rule } from '../../visitors';
 export const NoUndefinedServerVariable: Oas3Rule = () => {
   return {
     Server(server, { report, location }) {
+      if (!server.url) return;
       const urlVariables = server.url.match(/{[^}]+}/g)?.map((e) => e.slice(1, e.length - 1)) || [];
       const definedVariables = (server?.variables && Object.keys(server.variables)) || [];
 
