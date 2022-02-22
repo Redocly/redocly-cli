@@ -16,7 +16,7 @@ Redocly OpenAPI CLI is an open-source command-line tool used to:
 
 :::success Tip
 You can also [extend](./resources/custom-rules.md) the functionality of Redocly OpenAPI CLI by dynamically adding
-or removing content during the bundling process using decorators or by defining your own rules to validate OpenAPI definitions
+or removing content during the bundling process using decorators or by defining your own rules to validate OpenAPI definitions.
 :::
 
 ## Features
