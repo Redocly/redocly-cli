@@ -8,8 +8,8 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed an issue with `lint` connamd crashing when server URL is empty.
-- Fixed an issue with `lint` connamd crashing when enum value is invalid.
+- Fixed an issue with the `lint` command crashing when the `servers.url` field is empty in the OpenAPI definition.
+- Fixed an issue with the `lint` command crashing when an `enum` value is invalid.
 
 ----
 
