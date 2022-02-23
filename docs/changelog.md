@@ -4,6 +4,15 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.84 (2022-02-23)
+
+### Fixes
+
+- Fixed an issue with the `lint` command crashing when the `servers.url` field is empty in the OpenAPI definition.
+- Fixed an issue with the `lint` command crashing when an `enum` value is invalid.
+
+----
+
 ## 1.0.0-beta.83 (2022-02-22)
 
 ### Features
