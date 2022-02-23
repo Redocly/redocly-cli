@@ -8,8 +8,8 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed an issue with tool crashing when server URL is empty in the `lint` connamd.
-- Fixed an issue with tool crashing when enum value is invalid in the `lint` connamd.
+- Fixed an issue with `lint` connamd crashing when server URL is empty.
+- Fixed an issue with `lint` connamd crashing when enum value is invalid.
 
 ----
 
