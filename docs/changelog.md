@@ -4,6 +4,15 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.84 (2022-02-23)
+
+### Fixes
+
+- Fixed an issue with tool crashing when server URL is empty in the `lint` connamd.
+- Fixed an issue with tool crashing when enum value is invalid in the `lint` connamd.
+
+----
+
 ## 1.0.0-beta.83 (2022-02-22)
 
 ### Features
