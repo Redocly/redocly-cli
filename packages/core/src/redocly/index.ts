@@ -93,9 +93,9 @@ export class RedoclyClient {
   }
 
   getAllTokens (): RegionalToken[] {
-    return Object.entries(this.accessTokens).map(([key, value]) => {
-      return { region: key as Region, token: value };
-    });
+    return Object.entries(this.accessTokens).map(([key, value]) =>
+      ({ region: key as Region, token: value })
+    );
   }
 
   async getValidTokens(): Promise<RegionalTokenWithValidity[]> {
