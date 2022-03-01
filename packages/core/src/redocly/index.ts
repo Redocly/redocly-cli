@@ -4,6 +4,7 @@ import { homedir } from 'os';
 import { red, green, gray, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
 import { AccessTokens, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
+import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
@@ -91,16 +92,22 @@ export class RedoclyClient {
     }
   }
 
-  async getValidTokens(): Promise<{
-    region: string;
-    token: string;
-    valid: boolean;
-  }[]> {
-    return (await Promise.all(
-      Object.entries(this.accessTokens).map(async ([key, value]) => {
-        return { region: key, token: value, valid: await this.verifyToken(value, key as Region) }
-      })
-    )).filter(item => Boolean(item.valid));
+  getAllTokens (): RegionalToken[] {
+    return Object.entries(this.accessTokens).map(([key, value]) => {
+      return { region: key as Region, token: value };
+    });
+  }
+
+  async getValidTokens(): Promise<RegionalTokenWithValidity[]> {
+    const validTokens = <RegionalTokenWithValidity[]>[];
+
+    for (const { token, region } of this.getAllTokens()) {
+      if (await this.verifyToken(token, region)) {
+        validTokens.push({ token, region, valid: true });
+      }
+    }
+    
+    return validTokens;
   }
 
   async getTokens() {

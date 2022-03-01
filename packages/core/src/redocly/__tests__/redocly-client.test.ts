@@ -50,6 +50,19 @@ describe('RedoclyClient', () => {
     expect(client.getRegion()).toBe('eu');
   });
 
+  it('should resolve all tokens', async () => {
+    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
+      return { us: "accessToken", eu: "eu-accessToken" };
+    });
+    const client = new RedoclyClient();
+    const tokens = client.getAllTokens();
+    expect(tokens).toStrictEqual([
+      { region: 'us', token: 'accessToken' },
+      { region: 'eu', token: 'eu-accessToken' }
+    ]);
+    spy.mockRestore();
+  });
+
   it('should resolve valid tokens data', async () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
       return { us: "accessToken", eu: "eu-accessToken" }
