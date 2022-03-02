@@ -52,7 +52,7 @@ describe('RedoclyClient', () => {
 
   it('should resolve all tokens', async () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
-      return { us: "accessToken", eu: "eu-accessToken" };
+      return { token: "accessToken", us: "accessToken", eu: "eu-accessToken" };
     });
     const client = new RedoclyClient();
     const tokens = client.getAllTokens();

@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { red, green, gray, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
-import { AccessTokens, DEFAULT_REGION, DOMAINS, Region } from '../config/config';
+import { AccessTokens, DEFAULT_REGION, DOMAINS, Region, AVAILABLE_REGIONS } from '../config/config';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
 
@@ -33,7 +33,7 @@ export class RedoclyClient {
     }
 
     if (process.env.REDOCLY_DOMAIN) {
-      return (Object.keys(DOMAINS).find(
+      return (AVAILABLE_REGIONS.find(
         (region) => DOMAINS[region as Region] === process.env.REDOCLY_DOMAIN,
       ) || DEFAULT_REGION) as Region;
     }
@@ -93,8 +93,10 @@ export class RedoclyClient {
   }
 
   getAllTokens (): RegionalToken[] {
-    return Object.entries(this.accessTokens).map(([key, value]) =>
-      ({ region: key as Region, token: value })
+    return (<[Region, string][]>Object.entries(this.accessTokens)).filter(
+      ([region]) => AVAILABLE_REGIONS.includes(region)
+    ).map(
+      ([region, token]) => ({ region, token })
     );
   }
 
