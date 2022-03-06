@@ -1,8 +1,9 @@
 ---
 tocMaxDepth: 2
 ---
-# Redocly OpenAPI CLI commands
+# OpenAPI CLI commands
 
+## The available commands
 Redocly OpenAPI CLI currently supports the following commands:
 
 * [bundle](bundle.md)
@@ -15,17 +16,17 @@ Redocly OpenAPI CLI currently supports the following commands:
 * [split](split.md)
 * [stats](stats.md)
 
-To define the behavior of the commands, you can use configuration files:
+## How configuration impacts commands
+OpenAPI CLI comes with two default configuration files:
 
-- `.redocly.yaml` - define the location of your root files, linting rules, and reference docs configuration information.
-- `.redocly.lint-ignore.yaml` - ignore specific lint messages.
+`redocly.yaml`
+This is the primary config file. It defines all of the config options including the location of your files (for unbundling and bundling) and linting rules (for validation against the OpenAPI Specification). This file always needs to sit in your root directory (`openapi` by default unless you renamed it).
 
-For more information, refer to the [configuration section](../configuration/index.mdx).
+`redocly.lint-ignore.yaml`
+Gives you the ability to ignore specific linting messages.
 
-:::attention Note
+If OpenAPI CLI finds at least one config file in the root directory, it will use the options set out in that file when executing commands.
 
-The CLI tool looks for configuration files in the current working directory. If it detects them, it will use the options set in those configuration files for the commands. Learn more about the [configuration file structure and options](../configuration/configuration-file.mdx).
-
-When executing any of the commands, you can override the default configuration file by providing a path to another configuration file with the `--config` option.
-
+::: success Tip
+If you want to reference a different config file during a command (and override `redocly.yaml`), use the `--config` option and provide the path to the file.
 :::
