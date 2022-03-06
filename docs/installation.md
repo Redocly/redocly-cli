@@ -1,13 +1,13 @@
 # Install OpenAPI CLI
 
-You can install and use OpenAPI CLI in several ways:
+There are two methods that you can use to install OpenAPI CLI: global and runtime.
 
-## Global installation
+## Method 1: Global installation
 
 ### npm
 
 :::success Tip
-This is the recommended method
+This is the recommended method. Ensure you have the latest version of npm before you begin.
 :::
 
 ```shell Command
@@ -20,7 +20,7 @@ added 1 package, removed 1 package, changed 87 packages, and audited 89 packages
 found 0 vulnerabilities
 ```
 
-### yarn
+### Yarn
 
 ```shell Command
 yarn global add @redocly/openapi-cli
@@ -39,21 +39,21 @@ success Installed "@redocly/openapi-cli@1.0.0-beta.54" with binaries:
 ✨  Done in 6.90s.
 ```
 
-## Verify the global installation
+### Verify the installation
 
-After installing it globally, run `openapi --version` to confirm that the installation was successful:
+Running `openapi --version` will confirm that the installation was successful:
 
 ```shell
 openapi --version
-1.0.0-beta.54
+1.0.0-beta.84
 ```
 
-## Runtime installation
+## Method 2: Runtime installation
 
 ### npx
 
 :::info
-`npx` is npm's package runner. It will install and run a command at the same time without installing it globally.
+npx is npm's package runner. It will install and run a command at the same time without installing globally.
 :::
 
 ```shell Command
@@ -116,7 +116,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 
 ### Docker
 
-To give the Docker container access to the OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the OAS definition is rooted in the current working directory, the command will be the following:
+To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is rooted in the current working directory, the command to use is:
 
 ```shell Example with lint command
 docker run --rm -v $PWD:/spec redocly/openapi-cli lint petstore.yaml
@@ -141,11 +141,9 @@ petstore.yaml: validated in 51ms
 Woohoo! Your OpenAPI definition is valid. 🎉
 ```
 
-## Post-installation
+## Set up tab completion
 
-### Set up tab completion
-
-To set up tab completion for the terminal, generate the completion script with the command:
+After a successful install, you should set up tab completion for the terminal. Generate the completion script using the following command:
 
 ```shell Command
 openapi completion
@@ -188,4 +186,7 @@ The command output contains installation instructions. For example, to install t
 openapi completion >> ~/.bashrc
 ```
 
-The approach is similar for other shells. After the installation, restart your terminal for changes to take effect.
+The approach is similar for other shells. After the installation, restart your terminal for the changes to take effect.
+
+## What to do next
+Go back to the [Quickstart guide](./docs/quickstart.md) and finish it.
