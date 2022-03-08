@@ -37,7 +37,7 @@ function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-function isNotEmptyArray(args?: any[]): boolean {
+function isNotEmptyArray<T>(args?: T[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
 

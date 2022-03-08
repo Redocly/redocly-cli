@@ -47,8 +47,8 @@ export async function handleLint(
   for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
-      const mergedConfig = getMergedConfig(config, alias);
-      if (mergedConfig.lint.recommendedFallback) {
+      const resolvedConfig = getMergedConfig(config, alias);
+      if (resolvedConfig.lint.recommendedFallback) {
         process.stderr.write(
           `No configurations were defined in extends -- using built in ${
             blue('recommended')
@@ -58,7 +58,7 @@ export async function handleLint(
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: path,
-        config: mergedConfig,
+        config: resolvedConfig,
       });
 
       const fileTotals = getTotals(results);
