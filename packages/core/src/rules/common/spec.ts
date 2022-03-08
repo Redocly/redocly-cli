@@ -53,8 +53,8 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       if (allowed && isPlainObject(node)) {
         for (const propName in node) {
           if (allowed.includes(propName) ||
-            (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
-            !Object.keys(type.properties).includes(propName)
+          (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
+          !Object.keys(type.properties).includes(propName)
           ) {
             continue;
           }
