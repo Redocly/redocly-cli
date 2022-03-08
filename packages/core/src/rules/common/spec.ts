@@ -2,11 +2,11 @@ import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
-import { isPlainObject } from '../../utils';
+import { isPlainObject, hasOnePropNotSeveral } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
+    any(node: any, { report, oasVersion, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
       const nodeType = oasTypeOf(node);
 
       if (type.items) {
@@ -37,12 +37,24 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
       }
 
+      if (oasVersion !== 'oas2') {
+        if (
+          type.name === 'Parameter' &&
+          !hasOnePropNotSeveral(node as object, ['schema', 'content'])
+        ) {
+          report({
+            message: `A parameter must contain either a \`schema\` property, or a \`content\` property, but not both.`,
+            location: [{ reportOnKey: true }],
+          });
+        }
+      }
+
       const allowed = type.allowed?.(node);
       if (allowed && isPlainObject(node)) {
         for (const propName in node) {
           if (allowed.includes(propName) ||
-           (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
-           !Object.keys(type.properties).includes(propName)
+            (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
+            !Object.keys(type.properties).includes(propName)
           ) {
             continue;
           }

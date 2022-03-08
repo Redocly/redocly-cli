@@ -172,3 +172,13 @@ export function isPathParameter(pathSegment: string) {
 export function isNotEmptyObject(obj: any) {
   return !!obj && Object.keys(obj).length > 0;
 }
+
+export function hasOnePropNotSeveral(obj: object, props: Array<string>) {
+  let count = 0;
+  for (let i = 0; i < props.length; i++) {
+    if (obj.hasOwnProperty(props[i])) {
+      count++;
+    }
+  }
+  return count === 1 ? true : false;
+}
