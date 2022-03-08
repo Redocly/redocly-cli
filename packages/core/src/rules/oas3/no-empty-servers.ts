@@ -6,6 +6,7 @@ export const NoEmptyServers: Oas3Rule = () => {
       if (!root.servers) {
         report({
           message: 'Servers must be present.',
+          location: location.child(['openapi']).key()
         });
         return;
       }
