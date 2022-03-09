@@ -180,5 +180,5 @@ export function hasOnePropNotSeveral(obj: object, props: Array<string>) {
       count++;
     }
   }
-  return count === 1 ? true : false;
+  return count === 1;
 }
