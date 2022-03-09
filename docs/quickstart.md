@@ -345,7 +345,7 @@ components:
 ```
 
 ## Step 4 - Try some basic commands
-[Commands](./docs/commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get your started, we'll focus on the top four: `lint`, `split`, `bundle` and `preview`.
+[Commands](./docs/commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `lint`, `split`, `bundle` and `preview`.
 
 :::info
 If you're working with your own definition file, remember to replace `openweathermap.yaml` with the correct filename in all commands.
