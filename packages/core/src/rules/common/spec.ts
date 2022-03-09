@@ -2,11 +2,11 @@ import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
-import { isPlainObject, hasOneOfProperty } from '../../utils';
+import { isPlainObject } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, oasVersion, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
+    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
       const nodeType = oasTypeOf(node);
 
       if (type.items) {
@@ -32,18 +32,6 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         if (!(node as object).hasOwnProperty(propName)) {
           report({
             message: `The field \`${propName}\` must be present on this level.`,
-            location: [{ reportOnKey: true }],
-          });
-        }
-      }
-
-      if (oasVersion !== 'oas2') {
-        if (
-          type.name === 'Parameter' &&
-          !hasOneOfProperty(node as object, ['schema', 'content'])
-        ) {
-          report({
-            message: `A parameter must contain either a \`schema\` property, or a \`content\` property, but not both.`,
             location: [{ reportOnKey: true }],
           });
         }
@@ -75,7 +63,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
         if (!hasProperty)
           report({
-            message: 'Must contain at least one of the following fields: path, components, webhooks.',
+            message: `Must contain at least one of the following fields: ${type.requiredOneOf?.join(', ')}.`,
             location: [{ reportOnKey: true }],
           });
       }

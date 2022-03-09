@@ -51,7 +51,7 @@ describe('Oas3 spec', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "A parameter must contain either a \`schema\` property, or a \`content\` property, but not both.",
+          "message": "Must contain at least one of the following fields: schema, content.",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
