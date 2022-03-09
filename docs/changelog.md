@@ -4,6 +4,24 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.86 (2022-02-23)
+
+### Features
+
+- Allowed to name the config file either `.redocly.yaml` or `redocly.yaml`.
+
+### Fixes
+
+- The `spec` rule triggers an error when a parameter is missing `schema` or `content` fields.
+
+----
+
+## 1.0.0-beta.85 (2022-02-23)
+
+- Internal improvements
+
+----
+
 ## 1.0.0-beta.84 (2022-02-23)
 
 ### Fixes
