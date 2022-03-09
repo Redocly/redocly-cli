@@ -5,7 +5,7 @@ exports[`E2E lint oas3.1-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:1:1 at #/
 
-Must contain at least one of the following fields: path, components, webhooks.
+Must contain at least one of the following fields: paths, components, webhooks.
 
  1 | openapi: 3.1.0
    | ^^^^^^^^^^^^^^
