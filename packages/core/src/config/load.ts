@@ -61,11 +61,20 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   );
 }
 
-function findConfig() {
-  if (fs.existsSync('.redocly.yaml')) {
-    return '.redocly.yaml';
-  } else if (fs.existsSync('.redocly.yml')) {
-    return '.redocly.yml';
+export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
+
+export function findConfig(): string | undefined {
+  if (!fs.hasOwnProperty('existsSync')) return;
+
+  const existingConfigFiles = CONFIG_FILE_NAMES.map((name) => fs.existsSync(name) && name).filter(
+    Boolean,
+  ) as Array<string | never>;
+  if (existingConfigFiles.length > 1) {
+    throw new Error(`
+      Multiple configuration files are not allowed. 
+      Found the following files: ${existingConfigFiles.join(', ')}. 
+      Please use 'redocly.yaml' instead.
+    `);
   }
-  return undefined;
+  return existingConfigFiles[0];
 }
