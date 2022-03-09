@@ -2,7 +2,7 @@ import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
 import { isRef } from '../../ref-utils';
-import { isPlainObject, hasOnePropNotSeveral } from '../../utils';
+import { isPlainObject, hasOneOfProperty } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
