@@ -40,7 +40,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       if (oasVersion !== 'oas2') {
         if (
           type.name === 'Parameter' &&
-          !hasOnePropNotSeveral(node as object, ['schema', 'content'])
+          !hasOneOfProperty(node as object, ['schema', 'content'])
         ) {
           report({
             message: `A parameter must contain either a \`schema\` property, or a \`content\` property, but not both.`,
