@@ -136,7 +136,7 @@ const Parameter: NodeType = {
     content: 'MediaTypeMap',
   },
   required: ['name', 'in'],
-  requiredOneOf: ['schema', 'content']
+  requiredOneOf: ['schema', 'content'],
 };
 
 const Callback = {
