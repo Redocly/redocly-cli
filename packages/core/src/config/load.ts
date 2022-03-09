@@ -4,7 +4,7 @@ import { loadYaml } from '../utils';
 import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
+export async function loadConfig(configPath: string | undefined = findConfig(), customExtends?: string[]): Promise<Config> {
   const rawConfig = await getConfig(configPath);
 
   if (customExtends !== undefined) {
