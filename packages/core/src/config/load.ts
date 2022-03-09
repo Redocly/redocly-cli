@@ -41,7 +41,7 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       },
       //support redocly.com domain for future compatibility
       ...(item.region === 'us' ? [{
-        matches: `https://api.redocly.com/registry/**`,
+        matches: `https://api.redoc.ly/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
         value: item.token,

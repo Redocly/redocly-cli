@@ -127,7 +127,7 @@ export type Region = 'us' | 'eu';
 export type AccessTokens = {[region in Region]?: string };
 const REDOCLY_DOMAIN = process.env.REDOCLY_DOMAIN;
 export const DOMAINS: { [region in Region]: string } = {
-  us: 'redoc.ly',
+  us: 'redocly.com',
   eu: 'eu.redocly.com',
 };
 export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
