@@ -156,6 +156,7 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   'features.openapi'?: any;
+  organization?: string;
 };
 
 export class LintConfig {
@@ -414,9 +415,10 @@ export class Config {
   licenseKey?: string;
   region?: Region;
   'features.openapi': any;
+  organization?: string;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
-    this.lint = new LintConfig(rawConfig.lint|| {}, configFile);
+    this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};
     this.resolve = {
       http: {
@@ -425,6 +427,7 @@ export class Config {
       },
     };
     this.region = rawConfig.region;
+    this.organization = rawConfig.organization;
   }
 }
 
