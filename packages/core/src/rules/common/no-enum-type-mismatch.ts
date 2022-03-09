@@ -7,6 +7,7 @@ import { UserContext } from '../../walk';
 export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
   return {
     Schema(schema: Oas2Schema | Oas3Schema, { report, location }: UserContext) {
+      if (schema.enum && !Array.isArray(schema.enum)) return;
       if (schema.enum && schema.type && !Array.isArray(schema.type)) {
         const typeMismatchedValues = schema.enum.filter(
           (item) => !matchesJsonSchemaType(item, schema.type as string, schema.nullable as boolean),

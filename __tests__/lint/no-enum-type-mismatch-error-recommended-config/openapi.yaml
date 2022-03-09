@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Petstore API
+  version: 1.0.0
+  description: description
+
+paths:
+
+  /v1/pets/{petId}:
+    get:
+      operationId: getPet
+      parameters:
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Details of the requested pet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+
+        '400':
+          description: Bad Request.
+        '500': 
+          description: Internal Server Error.
+
+components:
+
+  schemas:
+    Pet:
+      type: object
+      required:
+        -  id
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: string
