@@ -85,7 +85,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     try {
       let rootFilePath = '';
       const filePaths: string[] = [];
-      const filesToUpload = await collectFilesToUpload(entrypoint!);
+      const filesToUpload = await collectFilesToUpload(entrypoint, config);
       const filesHash = hashFiles(filesToUpload.files);
 
       process.stdout.write(
@@ -180,9 +180,8 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(entrypoint: string) {
+async function collectFilesToUpload(entrypoint: string, config: Config) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
-  const config: Config = await loadConfig();
   const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 
   process.stdout.write('Bundling definition\n');
