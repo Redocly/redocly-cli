@@ -15,7 +15,7 @@ OpenAPI CLI is an open source command-line tool that makes it easier to work wit
 ✅ Quickly bundle multiple files into a single file for publishing or rendering with external tools.
 ✅ Use built-in linting rules or create your own.
 ✅ Validate a 1 MB file in less than one second.
-✅ Get intuative, helpful error and warning messages that are designed for humans.
+✅ Get intuitive, helpful error and warning messages that are designed for humans.
 ✅ Preview reference docs as you go.
 ✅ Support for OAS 3.1, OAS 3.0, and Swagger 2.0 included.
 
