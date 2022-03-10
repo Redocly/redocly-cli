@@ -36,9 +36,9 @@ yargs
     'Split definition into a multi-file structure.',
     (yargs) =>
       yargs
-        .positional('entrypoint', { 
+        .positional('entrypoint', {
           description: 'API definition file that you want to split',
-          type: 'string'
+          type: 'string',
         })
         .option({
           outDir: {
@@ -47,9 +47,7 @@ yargs
             type: 'string',
           },
         })
-        .demandOption(
-          'entrypoint'
-        ),
+        .demandOption('entrypoint'),
     handleSplit,
   )
   .command(
@@ -85,11 +83,11 @@ yargs
     },
   )
   .command(
-    'push [maybeEntrypointOrDestination] [maybeDestination] [maybeBranchName]',
+    'push [maybeEntrypointOrAliasOrDestination] [maybeDestination] [maybeBranchName]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
-        .positional('maybeEntrypointOrDestination', { type: 'string' })
+        .positional('maybeEntrypointOrAliasOrDestination', { type: 'string' })
         .positional('maybeDestination', { type: 'string' })
         .positional('maybeBranchName', { type: 'string' })
         .option({

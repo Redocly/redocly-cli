@@ -287,7 +287,7 @@ export function getDestinationProps(
 }
 
 type BarePushArgs = Omit<PushArgs, 'entrypoint' | 'destination' | 'branchName'> & {
-  maybeEntrypointOrDestination?: string;
+  maybeEntrypointOrAliasOrDestination?: string;
   maybeDestination?: string;
   maybeBranchName?: string;
   branch?: string;
@@ -296,7 +296,7 @@ type BarePushArgs = Omit<PushArgs, 'entrypoint' | 'destination' | 'branchName'> 
 export const transformPush =
   (callback: typeof handlePush) =>
   ({
-    maybeEntrypointOrDestination,
+    maybeEntrypointOrAliasOrDestination,
     maybeDestination,
     maybeBranchName,
     branch,
@@ -309,11 +309,8 @@ export const transformPush =
         ),
       );
     }
-    const entrypoint =
-      maybeEntrypointOrDestination && fs.existsSync(maybeEntrypointOrDestination)
-        ? maybeEntrypointOrDestination
-        : undefined;
-    const destination = maybeDestination || maybeEntrypointOrDestination;
+    const entrypoint = maybeDestination ? maybeEntrypointOrAliasOrDestination : undefined;
+    const destination = maybeDestination || maybeEntrypointOrAliasOrDestination;
     return callback({
       ...rest,
       destination,
