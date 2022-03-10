@@ -27,7 +27,7 @@ Most customisation can be done in our one config file (redocly.yml). Set your ow
 ## What makes Redocly OpenAPI CLI great
 
 ### Superior performance
-Unlike other OpenAPI validation tools, Redocly OpenAPI CLI defines the possible type-tree of a valid OpenAPI definition then traverses it (similar to how compilers work). The result? Better performance.
+Unlike other OpenAPI validation tools, Redocly OpenAPI CLI defines the possible type tree of a valid OpenAPI definition, then traverses it (similar to how compilers work). The result? Better performance.
 
 ### A multi-file approach
 
