@@ -1,8 +1,8 @@
 # Install OpenAPI CLI
 
-There are two methods that you can use to install OpenAPI CLI: global and runtime.
+There are two ways to install OpenAPI CLI: global and runtime.
 
-## Method 1: Global installation
+## Global installation
 
 ### npm
 
@@ -48,7 +48,7 @@ openapi --version
 1.0.0-beta.84
 ```
 
-## Method 2: Runtime installation
+## Runtime installation
 
 ### npx
 
@@ -141,9 +141,9 @@ petstore.yaml: validated in 51ms
 Woohoo! Your OpenAPI definition is valid. 🎉
 ```
 
-## Set up tab completion
+## Set up tab completion (optional)
 
-After a successful install, you should set up tab completion for the terminal. Generate the completion script using the following command:
+After a successful install, you can set up tab completion for the terminal if you wish. Generate the completion script using the following command:
 
 ```shell Command
 openapi completion
@@ -188,5 +188,8 @@ openapi completion >> ~/.bashrc
 
 The approach is similar for other shells. After the installation, restart your terminal for the changes to take effect.
 
-## What to do next
-Go back to the [Quickstart guide](./docs/quickstart.md) and finish it.
+## Next steps
+
+- Check the full list of [OpenAPI CLI commands](./commands/index.md) available to you
+- Learn how to fine-tune your OpenAPI CLI tool using a [configuration file](./configuration/configuration-file.mdx)
+- Learn more about [custom plugins and rules](./resources/custom-rules.md)
