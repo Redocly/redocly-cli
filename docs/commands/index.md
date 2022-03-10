@@ -25,7 +25,7 @@ This is the primary config file. It defines all of the config options including 
 `redocly.lint-ignore.yaml`
 Gives you the ability to ignore specific linting messages.
 
-If OpenAPI CLI finds at least one config file in the root directory, it will use the options set out in that file when executing commands.
+If OpenAPI CLI finds at least one config file in the root directory, it will use the options set in that file when executing commands.
 
 ::: success Tip
 If you want to reference a different config file during a command (and override `redocly.yaml`), use the `--config` option and provide the path to the file.
