@@ -33,7 +33,7 @@ Unlike other OpenAPI validation tools, Redocly OpenAPI CLI defines the possible 
 
 You can write OpenAPI definitions in either a single file or in multiple files. A single file is good for beginners and for simple APIs. The more complex the API, the longer the definition. The longer the definition, the trickier it is to deal with, increasing the risk of syntax and validation errors, and decreasing developer buy-in.
 
-The solution is a multi-file approach. This is where you define the main structure of the API in a root definition file and everything else is stored in smaller, separate files. Redocly OpenAPI CLI's bundling process compiles muliple files (linked with $refs) into one file in a single command. You don't have to install and maintain a third-party tool to do the job.
+The solution is a multi-file approach. This is where you define the main structure of the API in a root definition file and everything else is stored in smaller, separate files. During the bundling process, Redocly OpenAPI CLI compiles multiple files (linked with $refs) into one file in a single command. You don't have to install and maintain a third-party tool to do the job.
 
 Compare the examples below. Note that the definitions aren't complete, but they show you what's possible with a multi-file approach.
 
