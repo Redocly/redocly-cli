@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed terser crash in client-site bundles due to `process.env` assignment.
+- Fixed an issue with `process.env` assignment that caused crashes in client-side builds.
 - Fixed an issue with `no-path-parameter` rule reporting false-positives.
 
 ----
