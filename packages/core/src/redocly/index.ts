@@ -9,6 +9,7 @@ import { isNotEmptyObject } from '../utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
+let REDOCLY_DOMAIN: string; // workaround for the isRedoclyRegistryURL, see more below
 export class RedoclyClient {
   private accessTokens: AccessTokens = {};
   private region: Region;
@@ -22,7 +23,11 @@ export class RedoclyClient {
       ? DOMAINS[region]
       : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
-    process.env.REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
+    /*
+     * We can't use process.env here because it is replaced by a const in some client-side bundles,
+     * which breaks assignment.
+     */
+    REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
@@ -170,7 +175,7 @@ export class RedoclyClient {
 }
 
 export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+  const domain = REDOCLY_DOMAIN || process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
   const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
 
