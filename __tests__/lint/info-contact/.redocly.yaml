@@ -6,6 +6,3 @@ lint:
   rules:
     info-contact: warn
   extends: []
-
-
-
