@@ -4,7 +4,16 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
-## 1.0.0-beta.86 (2022-02-23)
+## 1.0.0-beta.87 (2022-03-10)
+
+### Fixes
+
+- Fixed an issue with `process.env` assignment that caused crashes in client-side builds.
+- Fixed an issue with `no-path-parameter` rule reporting false-positives.
+
+----
+
+## 1.0.0-beta.86 (2022-03-09)
 
 ### Features
 
@@ -16,7 +25,7 @@ tocMaxDepth: 2
 
 ----
 
-## 1.0.0-beta.85 (2022-02-23)
+## 1.0.0-beta.85 (2022-03-02)
 
 - Internal improvements
 
