@@ -33,8 +33,6 @@ export async function handleLint(
   version: string,
 ) {
   const config: Config = await loadConfig(argv.config, argv.extends);
-  config.lint.skipRules(argv['skip-rule']);
-  config.lint.skipPreprocessors(argv['skip-preprocessor']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
   if (argv['generate-ignore-file']) {
@@ -48,11 +46,14 @@ export async function handleLint(
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
+      resolvedConfig.lint.skipRules(argv['skip-rule']);
+      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+
       if (resolvedConfig.lint.recommendedFallback) {
         process.stderr.write(
-          `No configurations were defined in extends -- using built in ${
-            blue('recommended')
-          } configuration by default.\n\n`,
+          `No configurations were defined in extends -- using built in ${blue(
+            'recommended',
+          )} configuration by default.\n\n`,
         );
       }
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
@@ -101,5 +102,7 @@ export async function handleLint(
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () => process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1));
+  process.once('exit', () =>
+    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1),
+  );
 }

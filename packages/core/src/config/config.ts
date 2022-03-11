@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
-import { red, blue, green, yellow } from 'colorette';
+import { red, blue } from 'colorette';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { notUndefined, slash } from '../utils';
 import {
@@ -639,7 +639,7 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
 
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
   return entrypointAlias
-    ? {
+    ? new Config({
         ...config,
         lint: getMergedLintConfig(config, entrypointAlias),
         'features.openapi': {
@@ -647,27 +647,25 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
           ...config.apis[entrypointAlias]?.['features.openapi'],
         },
         // TODO: merge everything else here
-      }
+      })
     : config;
 }
 
 export function getMergedLintConfig(
   config: Config,
   entrypointAlias?: string
-): LintConfig {
-  const localLint = entrypointAlias 
+) {
+  const apiLint = entrypointAlias 
     ? config.apis[entrypointAlias]?.lint
     : {};
   const mergedLint = {
     ...config.rawConfig.lint,
-    // Preserve external additions to the lint config:
-    ...config.lint,
-    ...localLint,
-    rules: { ...config.rawConfig.lint?.rules, ...localLint?.rules },
-    preprocessors: { ...config.rawConfig.lint?.preprocessors, ...localLint?.preprocessors },
-    decorators: { ...config.rawConfig.lint?.decorators, ...localLint?.decorators },
+    ...apiLint,
+    rules: { ...config.rawConfig.lint?.rules, ...apiLint?.rules },
+    preprocessors: { ...config.rawConfig.lint?.preprocessors, ...apiLint?.preprocessors },
+    decorators: { ...config.rawConfig.lint?.decorators, ...apiLint?.decorators },
   };
-  return new LintConfig(mergedLint);
+  return mergedLint;
 }
 
 function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
@@ -686,16 +684,17 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  if (apiDefinitions) {
-    process.stdout.write(
-      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead.\n`
-    );
-  }
-  if (referenceDocs) {
-    process.stdout.write(
-      `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead.\n`
-    );
-  }
+  // TODO: put links to the changelog and uncomment this after successful release of ReferenceDocs/Redoc, Portal and Workflows
+  // if (apiDefinitions) {
+  //   process.stdout.write(
+  //     `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead, see changelog: <link>\n`
+  //   );
+  // }
+  // if (referenceDocs) {
+  //   process.stdout.write(
+  //     `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead, see changelog: <link>\n`
+  //   );
+  // }
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),

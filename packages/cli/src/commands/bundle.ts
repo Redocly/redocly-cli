@@ -38,15 +38,14 @@ export async function handleBundle(
     format: OutputFormat;
     metafile?: string;
     extends?: string[];
-    'remove-unused-components'?: boolean
+    'remove-unused-components'?: boolean;
   },
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
-  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
-  config.lint.skipRules(argv['skip-rule']);
-  config.lint.skipPreprocessors(argv['skip-preprocessor']);
-  config.lint.skipDecorators(argv['skip-decorator']);
+  const removeUnusedComponents =
+    argv['remove-unused-components'] &&
+    !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -54,6 +53,10 @@ export async function handleBundle(
   for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
+      const resolvedConfig = getMergedConfig(config, alias);
+      resolvedConfig.lint.skipRules(argv['skip-rule']);
+      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+      resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
 
       if (argv.lint) {
         if (config.lint.recommendedFallback) {
@@ -65,7 +68,7 @@ export async function handleBundle(
         }
         const results = await lint({
           ref: path,
-          config: getMergedConfig(config, alias),
+          config: resolvedConfig,
         });
         const fileLintTotals = getTotals(results);
 
@@ -89,10 +92,10 @@ export async function handleBundle(
         problems,
         ...meta
       } = await bundle({
-        config: getMergedConfig(config, alias),
+        config: resolvedConfig,
         ref: path,
         dereference: argv.dereferenced,
-        removeUnusedComponents
+        removeUnusedComponents,
       });
 
       const fileTotals = getTotals(problems);
@@ -145,7 +148,9 @@ export async function handleBundle(
           );
         } else {
           process.stderr.write(
-            `❌ Errors encountered while bundling ${blue(path)}: bundle not created (use --force to ignore errors).\n`,
+            `❌ Errors encountered while bundling ${blue(
+              path,
+            )}: bundle not created (use --force to ignore errors).\n`,
           );
         }
       } else {
@@ -156,9 +161,7 @@ export async function handleBundle(
 
       const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
       if (removedCount) {
-        process.stderr.write(
-          gray(`🧹 Removed ${removedCount} unused components.\n`),
-        );
+        process.stderr.write(gray(`🧹 Removed ${removedCount} unused components.\n`));
       }
     } catch (e) {
       handleError(e, path);
