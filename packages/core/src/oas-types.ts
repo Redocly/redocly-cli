@@ -36,7 +36,7 @@ export function detectOpenAPI(root: any): OasVersion {
   }
 
   const version2Value = root[OasVersionField.Version2];
-  const version3Value = root[OasMajorVersion.Version3];
+  const version3Value = root[OasVersionField.Version3];
 
   if (!(version2Value || version3Value)) {
     throw new Error('This doesn’t look like an OpenAPI document.\n');
