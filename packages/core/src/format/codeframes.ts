@@ -1,7 +1,8 @@
 import { gray, red, options as colorOptions } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
-import { unescapePointer } from '../ref-utils';
+import { unescapePointer, joinPointer } from '../ref-utils';
 import { LineColLocationObject, Loc, LocationObject } from '../walk';
+import { OasVersionField } from '../oas-types';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };
@@ -134,8 +135,17 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
   if (location.pointer === undefined) return location;
 
   const { source, pointer, reportOnKey } = location;
-  const ast = source.getAst(yamlAst.safeLoad) as YAMLNode;
-  const astNode = getAstNodeByPointer(ast, pointer, !!reportOnKey);
+  const root = source.getAst(yamlAst.safeLoad) as YAMLNode;
+  let astNode = getAstNodeByPointer(root, pointer, !!reportOnKey);
+
+  if (astNode === root) {
+    // Try to find openapi version node
+    for (const [_, openAPIVersionField] of Object.entries(OasVersionField)) {
+      astNode = getAstNodeByPointer(root, joinPointer('', openAPIVersionField), !!reportOnKey);
+      if (astNode !== root) break;
+    }
+  }
+
   return {
     ...location,
     pointer: undefined,
