@@ -127,7 +127,7 @@ export class BaseResolver {
   parseDocument(source: Source, isRoot: boolean = false): Document {
     const ext = source.absoluteRef.substr(source.absoluteRef.lastIndexOf('.'));
     if (
-      !['.json', '.json', '.yml', '.yaml'].includes(ext) &&
+      !['.json', '.yml', '.yaml'].includes(ext) &&
       !source.mimeType?.match(/(json|yaml|openapi)/) &&
       !isRoot // always parse root
     ) {
