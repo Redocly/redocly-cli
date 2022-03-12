@@ -18,6 +18,11 @@ export enum OasMajorVersion {
   Version3 = 'oas3',
 }
 
+export enum OasVersionField {
+  Version2 = 'swagger',
+  Version3 = 'openapi',
+}
+
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 export type Oas2RuleSet = Record<string, Oas2Rule>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
@@ -30,27 +35,30 @@ export function detectOpenAPI(root: any): OasVersion {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
   }
 
-  if (!(root.openapi || root.swagger)) {
+  const version2Value = root[OasVersionField.Version2];
+  const version3Value = root[OasMajorVersion.Version3];
+
+  if (!(version2Value || version3Value)) {
     throw new Error('This doesn’t look like an OpenAPI document.\n');
   }
 
-  if (root.openapi && typeof root.openapi !== 'string') {
-    throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
+  if (version3Value && typeof version3Value !== 'string') {
+    throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof version3Value}"`);
   }
 
-  if (root.openapi && root.openapi.startsWith('3.0')) {
+  if (version3Value && version3Value.startsWith('3.0')) {
     return OasVersion.Version3_0;
   }
 
-  if (root.openapi && root.openapi.startsWith('3.1')) {
+  if (version3Value && version3Value.startsWith('3.1')) {
     return OasVersion.Version3_1;
   }
 
-  if (root.swagger && root.swagger === '2.0') {
+  if (version2Value && version2Value === '2.0') {
     return OasVersion.Version2;
   }
 
-  throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
+  throw new Error(`Unsupported OpenAPI Version: ${version3Value || version2Value}`);
 }
 
 export function openAPIMajor(version: OasVersion): OasMajorVersion {
