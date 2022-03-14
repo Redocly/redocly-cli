@@ -85,6 +85,28 @@ describe('Location', () => {
     expect(preciseLocation.end).toEqual({ line: 5, col: 28 });
   });
 
+  it('should correctly fallback to the closest parent node if node value is null', () => {
+    const loc = {
+      reportOnKey: false,
+      pointer: '#/servers',
+      source: new Source(
+        'foobar.yaml',
+        outdent`
+          openapi: 3.0.2
+          servers:
+          info:
+            license:
+              name: MIT
+              url: https://google.com
+        `,
+      ),
+    };
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 2, col: 1 });
+    expect(preciseLocation.end).toEqual({ line: 2, col: 9 });
+  });
+
+
   it('should return first line for empty doc', () => {
     const loc = {
       reportOnKey: false,
