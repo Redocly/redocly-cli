@@ -130,7 +130,6 @@ export const DOMAINS: { [region in Region]: string } = {
   us: 'redocly.com',
   eu: 'eu.redocly.com',
 };
-export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
 // FIXME: temporary fix for our lab environments
 if (REDOCLY_DOMAIN?.endsWith('.redocly.host')) {
@@ -139,6 +138,7 @@ if (REDOCLY_DOMAIN?.endsWith('.redocly.host')) {
 if (REDOCLY_DOMAIN === 'redoc.online') {
   DOMAINS[REDOCLY_DOMAIN as Region] = REDOCLY_DOMAIN;
 }
+export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
 export type RawConfig = {
   referenceDocs?: any;
