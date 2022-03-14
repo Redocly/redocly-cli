@@ -686,12 +686,12 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
   // TODO: put links to the changelog and uncomment this after successful release of ReferenceDocs/Redoc, Portal and Workflows
   // if (apiDefinitions) {
-  //   process.stdout.write(
+  //   process.stderr.write(
   //     `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead, see changelog: <link>\n`
   //   );
   // }
   // if (referenceDocs) {
-  //   process.stdout.write(
+  //   process.stderr.write(
   //     `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead, see changelog: <link>\n`
   //   );
   // }

@@ -303,7 +303,7 @@ export const transformPush =
     ...rest
   }: BarePushArgs) => {
     if (!!maybeBranchName) {
-      process.stdout.write(
+      process.stderr.write(
         yellow(
           'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.',
         ),
