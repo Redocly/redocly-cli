@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
 import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
@@ -51,12 +52,11 @@ export async function loadConfig(configPath: string | undefined = findConfig(), 
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 
-export function findConfig(): string | undefined {
+export function findConfig(dir?: string): string | undefined {
   if (!fs.hasOwnProperty('existsSync')) return;
-
-  const existingConfigFiles = CONFIG_FILE_NAMES.map((name) => fs.existsSync(name) && name).filter(
-    Boolean,
-  ) as Array<string | never>;
+  const existingConfigFiles = CONFIG_FILE_NAMES
+    .map(name => dir ? path.resolve(dir, name) : name)
+    .filter(fs.existsSync);
   if (existingConfigFiles.length > 1) {
     throw new Error(`
       Multiple configuration files are not allowed. 

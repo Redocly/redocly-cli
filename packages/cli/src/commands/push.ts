@@ -163,7 +163,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       `Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`,
     );
   }
-  printExecutionTime('push', startedAt, entrypoint!);
+  printExecutionTime('push', startedAt, entrypoint || `apis in organization ${organizationId}`);
 }
 
 function getFilesList(dir: string, files?: any): string[] {
