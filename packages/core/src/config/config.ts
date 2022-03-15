@@ -414,7 +414,7 @@ export class Config {
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
-  'features.openapi': any;
+  'features.openapi': Record<string, any>;
   organization?: string;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};

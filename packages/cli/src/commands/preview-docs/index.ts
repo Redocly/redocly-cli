@@ -7,6 +7,7 @@ import {
   YamlParseError,
   RedoclyClient,
   getTotals,
+  getMergedConfig,
 } from '@redocly/openapi-core';
 import { getFallbackEntryPointsOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
@@ -61,11 +62,13 @@ export async function previewDocs(argv: {
       if (fileTotals.errors === 0) {
         process.stdout.write(
           fileTotals.errors === 0
-            ? `Created a bundle for ${entrypoint} ${
+            ? `Created a bundle for ${entrypoint.alias || entrypoint.path} ${
                 fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
               }\n`
             : colorette.yellow(
-                `Created a bundle for ${entrypoint} with errors. Docs may be broken or not accurate\n`,
+                `Created a bundle for ${
+                  entrypoint.alias || entrypoint.path
+                } with errors. Docs may be broken or not accurate\n`,
               ),
         );
       }
@@ -124,27 +127,27 @@ export async function previewDocs(argv: {
 
   watcher.on('ready', () => {
     process.stdout.write(
-      `\n  👀  Watching ${colorette.blue(entrypoint.path)} and all related resources for changes\n\n`,
+      `\n  👀  Watching ${colorette.blue(
+        entrypoint.path,
+      )} and all related resources for changes\n\n`,
     );
   });
 
   async function reloadConfig() {
     let config = await loadConfig(argv.config);
-    config.lint.skipRules(argv['skip-rule']);
-    config.lint.skipPreprocessors(argv['skip-preprocessor']);
-    config.lint.skipDecorators(argv['skip-decorator']);
-
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
-    const referenceDocs = config['features.openapi'] || {};
-
+    const resolvedConfig = getMergedConfig(config, argv.entrypoint);
+    resolvedConfig.lint.skipRules(argv['skip-rule']);
+    resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+    resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+    const referenceDocs = resolvedConfig['features.openapi'];
     redocOptions = {
       ...referenceDocs,
       useCommunityEdition: argv['use-community-edition'] || referenceDocs.useCommunityEdition,
       licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs.licenseKey,
     };
-
-    return config;
+    return resolvedConfig;
   }
 }
 
