@@ -10,6 +10,7 @@ const ConfigRoot: NodeType = {
     },
     lint: 'ConfigLint',
     referenceDocs: 'ConfigReferenceDocs',
+    mockServer: 'ConfigMockServer',
   },
 };
 
@@ -552,10 +553,18 @@ const ConfigReferenceDocs: NodeType = {
   additionalProperties: { type: 'string' },
 };
 
+const ConfigMockServer: NodeType = {
+  properties: {
+    strictExamples: { type: 'boolean' },
+    errorIfForcedExampleNotFound: { type: 'boolean' },
+  },
+};
+
 export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
   ConfigLint,
   ConfigReferenceDocs,
+  ConfigMockServer,
   ConfigHTTP,
   ConfigLanguage,
   ConfigLabels,
