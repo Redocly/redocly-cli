@@ -1,5 +1,6 @@
-apiDefinitions:
-  main: ./main.yaml
+apis:
+  main:
+    root: ./main.yaml
 
 lint:
   decorators:
