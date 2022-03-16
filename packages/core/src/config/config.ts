@@ -148,6 +148,7 @@ export type Api = {
   root: string;
   lint?: LintRawConfig;
   'features.openapi'?: any;
+  'features.mocks'?: any;
 };
 
 export type RawConfig = {
@@ -156,6 +157,7 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   'features.openapi'?: any;
+  'features.mocks'?: any;
   organization?: string;
 };
 
@@ -415,6 +417,7 @@ export class Config {
   licenseKey?: string;
   region?: Region;
   'features.openapi': Record<string, any>;
+  'features.mocks'?: Record<string, any>;
   organization?: string;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
@@ -646,7 +649,11 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
           ...config['features.openapi'],
           ...config.apis[entrypointAlias]?.['features.openapi'],
         },
-        // TODO: merge everything else here
+        'features.mocks': {
+          ...config['features.mocks'],
+          ...config.apis[entrypointAlias]?.['features.mocks'],
+        },
+        // TODO
       })
     : config;
 }
@@ -655,7 +662,7 @@ export function getMergedLintConfig(
   config: Config,
   entrypointAlias?: string
 ) {
-  const apiLint = entrypointAlias 
+  const apiLint = entrypointAlias
     ? config.apis[entrypointAlias]?.lint
     : {};
   const mergedLint = {
