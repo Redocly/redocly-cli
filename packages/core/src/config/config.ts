@@ -423,6 +423,7 @@ export class Config {
     this.apis = rawConfig.apis || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};
+    this['features.mocks'] = rawConfig['features.mocks'] || {};
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
