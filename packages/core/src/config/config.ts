@@ -654,7 +654,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
           ...config['features.mockServer'],
           ...config.apis[entrypointAlias]?.['features.mockServer'],
         },
-        // TODO
+        // TODO: merge everything else here
       })
     : config;
 }
