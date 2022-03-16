@@ -10,7 +10,7 @@ const ConfigRoot: NodeType = {
     },
     lint: 'ConfigLint',
     referenceDocs: 'ConfigReferenceDocs',
-    mockServer: 'ConfigMockServer',
+    'features.mockServer': 'ConfigMockServer',
   },
 };
 
