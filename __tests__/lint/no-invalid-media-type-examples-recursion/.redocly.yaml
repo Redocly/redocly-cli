@@ -1,5 +1,6 @@
-apiDefinitions:
-  main: ./openapi.json
+apis:
+  main:
+    root: ./openapi.json
 
 lint:
   extends:
