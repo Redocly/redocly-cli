@@ -148,6 +148,7 @@ export type Api = {
   root: string;
   lint?: LintRawConfig;
   'features.openapi'?: any;
+  'features.mockServer'?: any;
 };
 
 export type RawConfig = {
@@ -156,6 +157,7 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   'features.openapi'?: any;
+  'features.mockServer'?: any;
   organization?: string;
 };
 
@@ -415,11 +417,13 @@ export class Config {
   licenseKey?: string;
   region?: Region;
   'features.openapi': Record<string, any>;
+  'features.mockServer'?: Record<string, any>;
   organization?: string;
   constructor(public rawConfig: RawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};
+    this['features.mockServer'] = rawConfig['features.mockServer'] || {};
     this.resolve = {
       http: {
         headers: rawConfig?.resolve?.http?.headers ?? [],
@@ -640,11 +644,15 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
   return entrypointAlias
     ? new Config({
-        ...config,
+        ...config.rawConfig,
         lint: getMergedLintConfig(config, entrypointAlias),
         'features.openapi': {
           ...config['features.openapi'],
           ...config.apis[entrypointAlias]?.['features.openapi'],
+        },
+        'features.mockServer': {
+          ...config['features.mockServer'],
+          ...config.apis[entrypointAlias]?.['features.mockServer'],
         },
         // TODO: merge everything else here
       })
@@ -655,7 +663,7 @@ export function getMergedLintConfig(
   config: Config,
   entrypointAlias?: string
 ) {
-  const apiLint = entrypointAlias 
+  const apiLint = entrypointAlias
     ? config.apis[entrypointAlias]?.lint
     : {};
   const mergedLint = {
