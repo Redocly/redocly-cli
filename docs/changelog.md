@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.88 (2022-03-16)
+### Features
+
+- Internal changes of `redocly.yaml` config structure.
+
+### Fixes
+
+- Fixed an issue with the `lint` command highlighting the entire file when `servers` are missing in OAS3. Now it highlights only the `openapi` field, indicating an incorrect OpenAPI definition.
+- Fixed an issue with the `lint` command highlighting all parent values when one of the child fields has an empty value instead of highlighting the field itself.
+
+----
+
 ## 1.0.0-beta.87 (2022-03-10)
 
 ### Fixes
