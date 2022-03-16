@@ -644,7 +644,7 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
   return entrypointAlias
     ? new Config({
-        ...config,
+        ...config.rawConfig,
         lint: getMergedLintConfig(config, entrypointAlias),
         'features.openapi': {
           ...config['features.openapi'],
