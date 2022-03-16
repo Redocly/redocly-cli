@@ -5,6 +5,9 @@ tocMaxDepth: 2
 # OpenAPI CLI changelog
 
 ## 1.0.0-beta.88 (2022-03-16)
+### Features
+
+- Internal changes of `redocly.yaml` config structure.
 
 ### Fixes
 
