@@ -24,15 +24,20 @@ import {
 } from '../utils';
 import { promptClientToken } from './login';
 
-export async function handlePush(argv: {
+const DEFAULT_VERSION = 'latest';
+
+type PushArgs = {
   entrypoint?: string;
   destination?: string;
   branchName?: string;
   upsert?: boolean;
   'run-id'?: string;
   region?: Region;
-}) {
-  const region = argv.region || (await loadConfig()).region;
+};
+
+export async function handlePush(argv: PushArgs): Promise<void> {
+  const config = await loadConfig();
+  const region = argv.region || config.region;
   const client = new RedoclyClient(region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -41,9 +46,12 @@ export async function handlePush(argv: {
   }
 
   const startedAt = performance.now();
-  const { entrypoint, destination, branchName, upsert } = argv;
+  const { destination, branchName, upsert } = argv;
 
-  if (!validateDestination(destination!)) {
+  if (
+    destination &&
+    !(validateDestination(destination) || validateDestinationWithoutOrganization(destination))
+  ) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<@organization-id/api-name@api-version>',
@@ -51,83 +59,111 @@ export async function handlePush(argv: {
     );
   }
 
-  const [organizationId, name, version] = getDestinationProps(destination!);
+  const [organizationId, name, version] = getDestinationProps(destination, config.organization);
 
-  try {
-    let rootFilePath = '';
-    const filePaths: string[] = [];
-    const filesToUpload = await collectFilesToUpload(entrypoint!);
-    const filesHash = hashFiles(filesToUpload.files);
-
-    process.stdout.write(
-      `Uploading ${filesToUpload.files.length} ${pluralize('file', filesToUpload.files.length)}:\n`,
+  if (!organizationId) {
+    return exitWithError(
+      `No organization provided, please use the right format: ${yellow(
+        '<@organization-id/api-name@api-version>',
+      )} or specify the 'organization' field in the config file.`,
     );
+  }
+  const entrypoint =
+    argv.entrypoint || (name && version && getApiEntrypoint({ name, version, config }));
+  if (name && version && !entrypoint) {
+    exitWithError(
+      `No entrypoint found that matches ${blue(
+        `${name}@${version}`,
+      )}. Please make sure you have provided the correct data in the config file.`,
+    );
+  }
 
-    let uploaded = 0;
+  const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
-    for (let file of filesToUpload.files) {
-      const { signedUploadUrl, filePath } = await client.registryApi.prepareFileUpload({
+  for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
+    const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
+    try {
+      let rootFilePath = '';
+      const filePaths: string[] = [];
+      const filesToUpload = await collectFilesToUpload(entrypoint, config);
+      const filesHash = hashFiles(filesToUpload.files);
+
+      process.stdout.write(
+        `Uploading ${filesToUpload.files.length} ${pluralize(
+          'file',
+          filesToUpload.files.length,
+        )}:\n`,
+      );
+
+      let uploaded = 0;
+
+      for (let file of filesToUpload.files) {
+        const { signedUploadUrl, filePath } = await client.registryApi.prepareFileUpload({
+          organizationId,
+          name,
+          version,
+          filesHash,
+          filename: file.keyOnS3,
+          isUpsert: upsert,
+        });
+
+        if (file.filePath === filesToUpload.root) {
+          rootFilePath = filePath;
+        }
+
+        filePaths.push(filePath);
+
+        process.stdout.write(
+          `Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`,
+        );
+
+        const uploadResponse = await uploadFileToS3(
+          signedUploadUrl,
+          file.contents || file.filePath,
+        );
+
+        const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
+
+        if (!uploadResponse.ok) {
+          exitWithError(`✗ ${fileCounter}\nFile upload failed\n`);
+        }
+
+        process.stdout.write(green(`✓ ${fileCounter}\n`));
+      }
+
+      process.stdout.write('\n');
+
+      await client.registryApi.pushApi({
         organizationId,
         name,
         version,
-        filesHash,
-        filename: file.keyOnS3,
+        rootFilePath,
+        filePaths,
+        branch: branchName,
         isUpsert: upsert,
       });
-
-      if (file.filePath === filesToUpload.root) {
-        rootFilePath = filePath;
+    } catch (error) {
+      if (error.message === 'ORGANIZATION_NOT_FOUND') {
+        exitWithError(`Organization ${blue(organizationId)} not found`);
       }
 
-      filePaths.push(filePath);
-
-      process.stdout.write(
-        `Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`,
-      );
-
-      const uploadResponse = await uploadFileToS3(signedUploadUrl, file.contents || file.filePath);
-
-      const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
-
-      if (!uploadResponse.ok) {
-        exitWithError(`✗ ${fileCounter}\nFile upload failed\n`);
+      if (error.message === 'API_VERSION_NOT_FOUND') {
+        exitWithError(`The definition version ${blue(name)}/${blue(
+          version,
+        )} does not exist in organization ${blue(organizationId)}!\n${yellow(
+          'Suggestion:',
+        )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
+        `);
       }
 
-      process.stdout.write(green(`✓ ${fileCounter}\n`));
+      throw error;
     }
 
-    process.stdout.write('\n');
-
-    await client.registryApi.pushApi({
-      organizationId,
-      name,
-      version,
-      rootFilePath,
-      filePaths,
-      branch: branchName,
-      isUpsert: upsert,
-    });
-  } catch (error) {
-    if (error.message === 'ORGANIZATION_NOT_FOUND') {
-      exitWithError(`Organization ${blue(organizationId)} not found`);
-    }
-
-    if (error.message === 'API_VERSION_NOT_FOUND') {
-      exitWithError(`The definition version ${blue(name)}/${blue(
-        version,
-      )} does not exist in organization ${blue(organizationId)}!\n${yellow(
-        'Suggestion:',
-      )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
-    `);
-    }
-
-    throw error;
+    process.stdout.write(
+      `Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`,
+    );
   }
-
-  process.stdout.write(
-    `Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`,
-  );
-  printExecutionTime('push', startedAt, entrypoint!);
+  printExecutionTime('push', startedAt, entrypoint || `apis in organization ${organizationId}`);
 }
 
 function getFilesList(dir: string, files?: any): string[] {
@@ -144,11 +180,9 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(entrypoint: string) {
+async function collectFilesToUpload(entrypoint: string, config: Config) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
-  const config: Config = await loadConfig();
-  const entrypoints = await getFallbackEntryPointsOrExit([entrypoint], config);
-  const entrypointPath = entrypoints[0];
+  const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 
   process.stdout.write('Bundling definition\n');
 
@@ -183,8 +217,8 @@ async function collectFilesToUpload(entrypoint: string) {
   }
   if (config.configFile) {
     files.push(getFileEntry(config.configFile));
-    if (config.referenceDocs.htmlTemplate) {
-      const dir = getFolder(config.referenceDocs.htmlTemplate);
+    if (config['features.openapi'].htmlTemplate) {
+      const dir = getFolder(config['features.openapi'].htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
@@ -232,12 +266,70 @@ function hashFiles(filePaths: { filePath: string }[]) {
 }
 
 function validateDestination(destination: string) {
-  const regexp = /^@+[a-zA-Z0-9-_.& ]+\/+[^@\/]+@[^@\/]+$/g;
+  const regexp = /^@+([a-zA-Z0-9-_.& ]+)\/+([^@\/]+)@([^@\/]+)$/;
   return regexp.test(destination);
 }
 
-function getDestinationProps(destination: string) {
-  return destination.substring(1).split(/[@\/]/);
+function validateDestinationWithoutOrganization(destination: string) {
+  const regexp = /^()([^@\/]+)@([^@\/]+)$/;
+  return regexp.test(destination);
+}
+
+export function getDestinationProps(
+  destination: string | undefined,
+  organization: string | undefined,
+) {
+  return destination && validateDestination(destination)
+    ? destination.substring(1).split(/[@\/]/)
+    : destination && validateDestinationWithoutOrganization(destination)
+    ? [organization, ...destination.split('@')]
+    : [organization];
+}
+
+type BarePushArgs = Omit<PushArgs, 'entrypoint' | 'destination' | 'branchName'> & {
+  maybeEntrypointOrAliasOrDestination?: string;
+  maybeDestination?: string;
+  maybeBranchName?: string;
+  branch?: string;
+};
+
+export const transformPush =
+  (callback: typeof handlePush) =>
+  ({
+    maybeEntrypointOrAliasOrDestination,
+    maybeDestination,
+    maybeBranchName,
+    branch,
+    ...rest
+  }: BarePushArgs) => {
+    if (!!maybeBranchName) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.',
+        ),
+      );
+    }
+    const entrypoint = maybeDestination ? maybeEntrypointOrAliasOrDestination : undefined;
+    const destination = maybeDestination || maybeEntrypointOrAliasOrDestination;
+    return callback({
+      ...rest,
+      destination,
+      entrypoint,
+      branchName: branch ?? maybeBranchName,
+    });
+  };
+
+export function getApiEntrypoint({
+  name,
+  version,
+  config: { apis },
+}: {
+  name: string;
+  version: string;
+  config: Config;
+}): string {
+  const api = apis?.[`${name}@${version}`] || (version === DEFAULT_VERSION && apis?.[name]);
+  return api?.root;
 }
 
 function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {

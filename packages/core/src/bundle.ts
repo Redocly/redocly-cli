@@ -218,6 +218,7 @@ function makeBundleVisitor(
           return;
         }
 
+        // do not bundle registry URL before push, otherwise we can't record dependencies
         if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
           return;
         }

@@ -1,23 +1,13 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
-import { Config, DOMAINS, RawConfig, Region } from './config';
-
+import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 
-export async function loadConfig(configPath?: string, customExtends?: string[]): Promise<Config> {
-  if (configPath === undefined) {
-    configPath = findConfig();
-  }
-  let rawConfig: RawConfig = {};
+export async function loadConfig(configPath: string | undefined = findConfig(), customExtends?: string[]): Promise<Config> {
+  const rawConfig = await getConfig(configPath);
 
-  if (configPath !== undefined) {
-    try {
-      rawConfig = (await loadYaml(configPath)) as RawConfig;
-    } catch (e) {
-      throw new Error(`Error parsing config file at \`${configPath}\`: ${e.message}`);
-    }
-  }
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -41,14 +31,13 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
       },
       //support redocly.com domain for future compatibility
       ...(item.region === 'us' ? [{
-        matches: `https://api.redocly.com/registry/**`,
+        matches: `https://api.redoc.ly/registry/**`,
         name: 'Authorization',
         envVariable: undefined,
         value: item.token,
       }] : []));
     }
   }
-
   return new Config(
     {
       ...rawConfig,
@@ -61,11 +50,29 @@ export async function loadConfig(configPath?: string, customExtends?: string[]):
   );
 }
 
-function findConfig() {
-  if (fs.existsSync('.redocly.yaml')) {
-    return '.redocly.yaml';
-  } else if (fs.existsSync('.redocly.yml')) {
-    return '.redocly.yml';
+export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
+
+export function findConfig(dir?: string): string | undefined {
+  if (!fs.hasOwnProperty('existsSync')) return;
+  const existingConfigFiles = CONFIG_FILE_NAMES
+    .map(name => dir ? path.resolve(dir, name) : name)
+    .filter(fs.existsSync);
+  if (existingConfigFiles.length > 1) {
+    throw new Error(`
+      Multiple configuration files are not allowed. 
+      Found the following files: ${existingConfigFiles.join(', ')}. 
+      Please use 'redocly.yaml' instead.
+    `);
   }
-  return undefined;
+  return existingConfigFiles[0];
+}
+
+export async function getConfig(configPath: string | undefined = findConfig()) {
+  if (!configPath) return {};
+  try {
+    const rawConfig = (await loadYaml(configPath)) as RawConfig;
+    return transformConfig(rawConfig);
+  } catch (e) {
+    throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
+  }
 }

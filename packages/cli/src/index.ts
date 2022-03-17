@@ -8,7 +8,7 @@ import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
-import { handlePush } from './commands/push';
+import { handlePush, transformPush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
@@ -36,9 +36,9 @@ yargs
     'Split definition into a multi-file structure.',
     (yargs) =>
       yargs
-        .positional('entrypoint', { 
+        .positional('entrypoint', {
           description: 'API definition file that you want to split',
-          type: 'string'
+          type: 'string',
         })
         .option({
           outDir: {
@@ -47,9 +47,7 @@ yargs
             type: 'string',
           },
         })
-        .demandOption(
-          'entrypoint'
-        ),
+        .demandOption('entrypoint'),
     handleSplit,
   )
   .command(
@@ -85,19 +83,20 @@ yargs
     },
   )
   .command(
-    'push <entrypoint> <destination> [branchName]',
+    'push [maybeEntrypointOrAliasOrDestination] [maybeDestination] [maybeBranchName]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
-        .positional('entrypoint', { type: 'string' })
-        .positional('destination', { type: 'string' })
-        .positional('branchName', { type: 'string' })
+        .positional('maybeEntrypointOrAliasOrDestination', { type: 'string' })
+        .positional('maybeDestination', { type: 'string' })
+        .positional('maybeBranchName', { type: 'string' })
         .option({
+          branch: { type: 'string', alias: 'b' },
           upsert: { type: 'boolean', alias: 'u' },
           'run-id': { type: 'string', requiresArg: true },
           region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
         }),
-    handlePush,
+    transformPush(handlePush),
   )
   .command(
     'lint [entrypoints...]',

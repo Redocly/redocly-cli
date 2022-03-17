@@ -100,7 +100,7 @@ To create API versions for different server URLs, use the **API registry**. [Add
 To use the decorator, you will need to register your plugin in your `.redocly.yaml` file. Register your `plugins` and `decorators` within the `lint` section.
 
 ```yaml
-# See https://redoc.ly/docs/cli/configuration/ for more information.
+# See https://redocly.com/docs/cli/configuration/ for more information.
 apiDefinitions:
   main: openapi/openapi.yaml
 lint:

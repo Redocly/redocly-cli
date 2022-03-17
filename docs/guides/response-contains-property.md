@@ -199,7 +199,7 @@ module.exports = {
 ```
 
 ```yaml .redocly.yaml
-# See https://redoc.ly/docs/cli/configuration/ for more information.
+# See https://redocly.com/docs/cli/configuration/ for more information.
 apiDefinitions:
   internal: openapi/internal.yaml
   main: openapi/external.yaml
