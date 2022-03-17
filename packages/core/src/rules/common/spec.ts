@@ -63,7 +63,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
         if (!hasProperty)
           report({
-            message: 'Must contain at least one of the following fields: path, components, webhooks.',
+            message: `Must contain at least one of the following fields: ${type.requiredOneOf?.join(', ')}.`,
             location: [{ reportOnKey: true }],
           });
       }

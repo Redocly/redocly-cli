@@ -143,6 +143,90 @@ describe('walk order', () => {
     `);
   });
 
+  it('should run nested visitors correctly oas2', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: jest.fn(() => {
+        return {
+          Operation: {
+            enter: jest.fn((op) => calls.push(`enter operation: ${op.operationId}`)),
+            leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
+            Parameter: {
+              enter: jest.fn((param, _ctx, parents) =>
+                calls.push(
+                  `enter operation ${parents.Operation.operationId} > param ${param.name}`,
+                ),
+              ),
+              leave: jest.fn((param, _ctx, parents) =>
+                calls.push(
+                  `leave operation ${parents.Operation.operationId} > param ${param.name}`,
+                ),
+              ),
+            },
+          },
+          Parameter: {
+            enter: jest.fn((param) => calls.push(`enter param ${param.name}`)),
+            leave: jest.fn((param) => calls.push(`leave param ${param.name}`)),
+          },
+        };
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        swagger: "2.0"
+        info:
+          contact: {}
+          license: {}
+        paths:
+          /pet:
+            parameters:
+              - name: path-param
+            get:
+              operationId: get
+              parameters:
+                - name: get_a
+                - name: get_b
+            post:
+              operationId: post
+              parameters:
+                - name: post_a
+
+      `,
+      '',
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfigForRuleset(testRuleSet, undefined, 'oas2'),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      Array [
+        "enter param path-param",
+        "leave param path-param",
+        "enter operation: get",
+        "enter operation get > param get_a",
+        "enter param get_a",
+        "leave param get_a",
+        "leave operation get > param get_a",
+        "enter operation get > param get_b",
+        "enter param get_b",
+        "leave param get_b",
+        "leave operation get > param get_b",
+        "leave operation: get",
+        "enter operation: post",
+        "enter operation post > param post_a",
+        "enter param post_a",
+        "leave param post_a",
+        "leave operation post > param post_a",
+        "leave operation: post",
+      ]
+    `);
+  });
+
   it('should resolve refs', async () => {
     const calls: string[] = [];
 

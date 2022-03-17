@@ -865,7 +865,7 @@ It requires making a change to your `.redocly.yaml` file to register your plugin
 Pay attention to the `plugins` and `decorators` within the `lint` section.
 
 ```yaml
-# See https://redoc.ly/docs/cli/configuration/ for more information.
+# See https://redocly.com/docs/cli/configuration/ for more information.
 apiDefinitions:
   main: openapi/openapi.yaml
 lint:
@@ -1005,7 +1005,7 @@ function RemoveInternalSchemaProperties() {
 ```
 
 ```yaml .redocly.yaml
-# See https://redoc.ly/docs/cli/configuration/ for more information.
+# See https://redocly.com/docs/cli/configuration/ for more information.
 apiDefinitions:
   internal: openapi/internal.yaml
   main: openapi/external.yaml
