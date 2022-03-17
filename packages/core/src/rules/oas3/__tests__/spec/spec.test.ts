@@ -192,8 +192,8 @@ describe('Oas3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/",
-              "reportOnKey": false,
+              "pointer": "#/openapi",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
@@ -259,8 +259,8 @@ describe('Oas3 Structural visitor basic', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/",
-              "reportOnKey": false,
+              "pointer": "#/openapi",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],

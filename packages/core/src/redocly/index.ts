@@ -9,6 +9,7 @@ import { isNotEmptyObject } from '../utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
+let REDOCLY_DOMAIN: string; // workaround for the isRedoclyRegistryURL, see more below
 export class RedoclyClient {
   private accessTokens: AccessTokens = {};
   private region: Region;
@@ -21,6 +22,12 @@ export class RedoclyClient {
     this.domain = region
       ? DOMAINS[region]
       : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+
+    /*
+     * We can't use process.env here because it is replaced by a const in some client-side bundles,
+     * which breaks assignment.
+     */
+    REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
@@ -168,17 +175,16 @@ export class RedoclyClient {
 }
 
 export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
-  if (!link.startsWith(`https://api.${domain}/registry/`)) return false;
-  const registryPath = link.replace(`https://api.${domain}/registry/`, '');
+  const domain = REDOCLY_DOMAIN || process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
-  const pathParts = registryPath.split('/');
+  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
 
-  // we can be sure, that there is job UUID present
-  // (org, definition, version, bundle, branch, job, "openapi.yaml" 🤦‍♂️)
-  // so skip this link.
-  // FIXME
-  if (pathParts.length === 7) return false;
+  if (
+    !link.startsWith(`https://api.${domain}/registry/`) &&
+    !link.startsWith(`https://api.${legacyDomain}/registry/`)
+  ) {
+    return false;
+  }
 
   return true;
 }

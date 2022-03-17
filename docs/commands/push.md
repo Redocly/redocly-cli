@@ -138,9 +138,9 @@ To find your organization ID required for the command:
 1. Log into Workflows.
 1. Access the **API registry** page.
 1. In your browser's address bar, find the URL of this page.
-1. Inspect the segment after `app.redoc.ly/org/`. This part is your organization ID.
+1. Inspect the segment after `app.redocly.com/org/`. This part is your organization ID.
 
-For example, if the URL is `app.redoc.ly/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `@test_docs`.
+For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `@test_docs`.
 
 :::warning Note
 

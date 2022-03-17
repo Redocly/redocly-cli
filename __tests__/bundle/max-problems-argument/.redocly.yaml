@@ -1,3 +1,5 @@
-apiDefinitions:
-  foo: ./foo.yaml
-  bar: ./bar.yaml
+apis:
+  foo:
+    root: ./foo.yaml
+  bar:
+    root: ./bar.yaml

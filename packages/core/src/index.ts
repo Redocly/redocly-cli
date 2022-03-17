@@ -14,16 +14,26 @@ export {
   Oas3_1Schema,
   Oas3Tag,
   Oas3_1Webhooks,
-  Referenced
+  Referenced,
 } from './typings/openapi';
 export { Oas2Definition } from './typings/swagger';
 export { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
 
-export { Config, LintConfig, RawConfig, IGNORE_FILE, Region } from './config/config';
-export { loadConfig } from './config/load';
-export { RedoclyClient } from './redocly';
+export {
+  Config,
+  LintConfig,
+  RawConfig,
+  IGNORE_FILE,
+  Region,
+  getMergedConfig,
+  transformConfig,
+} from './config/config';
+
+export { loadConfig, getConfig, findConfig, CONFIG_FILE_NAMES } from './config/load';
+export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
+
 export {
   Source,
   BaseResolver,
