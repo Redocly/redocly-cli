@@ -206,7 +206,7 @@ Example of an ignore file:
 
 ```yaml .redocly.lint-ignore.yaml file
 # This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
-# See https://redoc.ly/docs/cli/ for more information.
+# See https://redocly.com/docs/cli/ for more information.
 openapi/petstore:
   spec:
     - '#/paths/~1store/get/operationIds'

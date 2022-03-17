@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    lint: 
+      rules:
+        info-description: warn
+
+lint:
+  rules:
+    info-description: error
+  extends: []

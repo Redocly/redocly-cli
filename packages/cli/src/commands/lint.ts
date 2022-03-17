@@ -4,6 +4,7 @@ import {
   getTotals,
   lint,
   loadConfig,
+  getMergedConfig,
   OutputFormat,
 } from '@redocly/openapi-core';
 import {
@@ -32,30 +33,33 @@ export async function handleLint(
   version: string,
 ) {
   const config: Config = await loadConfig(argv.config, argv.extends);
-  config.lint.skipRules(argv['skip-rule']);
-  config.lint.skipPreprocessors(argv['skip-preprocessor']);
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+
   if (argv['generate-ignore-file']) {
     config.lint.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
-  if (config.lint.recommendedFallback) {
-    process.stderr.write(
-      `No configurations were defined in extends -- using built in ${blue(
-        'recommended',
-      )} configuration by default.\n\n`,
-    );
-  }
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const entryPoint of entrypoints) {
+  for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
-      process.stderr.write(gray(`validating ${entryPoint.replace(process.cwd(), '')}...\n`));
+      const resolvedConfig = getMergedConfig(config, alias);
+      resolvedConfig.lint.skipRules(argv['skip-rule']);
+      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+
+      if (resolvedConfig.lint.recommendedFallback) {
+        process.stderr.write(
+          `No configurations were defined in extends -- using built in ${blue(
+            'recommended',
+          )} configuration by default.\n\n`,
+        );
+      }
+      process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
-        ref: entryPoint,
-        config,
+        ref: path,
+        config: resolvedConfig,
       });
 
       const fileTotals = getTotals(results);
@@ -78,10 +82,10 @@ export async function handleLint(
       }
 
       const elapsed = getExecutionTime(startedAt);
-      process.stderr.write(gray(`${entryPoint.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
+      process.stderr.write(gray(`${path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
       totals.errors++;
-      handleError(e, entryPoint);
+      handleError(e, path);
     }
   }
 
@@ -98,5 +102,7 @@ export async function handleLint(
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () => process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1));
+  process.once('exit', () =>
+    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1),
+  );
 }
