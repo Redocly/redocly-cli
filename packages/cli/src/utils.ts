@@ -15,15 +15,17 @@ import {
   parseYaml,
   stringifyYaml
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions } from './types';
+import { Totals, outputExtensions, Entrypoint } from './types';
 
-export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config) {
-  const { apiDefinitions } = config;
-  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apiDefinitions && Object.keys(apiDefinitions).length > 0;
+export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config): Promise<Entrypoint[]> {
+  const  { apis } = config;
+  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
-    ? Object.values(apiDefinitions).map((fileName) => resolve(getConfigDirectory(config), fileName))
-    : await expandGlobsInEntrypoints(argsEntrypoints!, config);
-
+    ? Object.entries(apis).map(([alias, { root }]) => ({
+        path: resolve(getConfigDirectory(config), root),
+        alias,
+      }))
+    : (await expandGlobsInEntrypoints(argsEntrypoints!, config));
   if (!isNotEmptyArray(res)) {
     process.stderr.write('error: missing required argument `entrypoints`.\n');
     process.exit(1);
@@ -35,11 +37,14 @@ function getConfigDirectory(config: Config) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
-function isNotEmptyArray(args?: string[]): boolean {
+function isNotEmptyArray<T>(args?: T[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
-function getAliasOrPath(config: Config, aliasOrPath: string) {
-  return config.apiDefinitions[aliasOrPath] || aliasOrPath;
+
+function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+  return config.apis[aliasOrPath]
+    ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
+    : { path: aliasOrPath };
 }
 
 async function expandGlobsInEntrypoints(args: string[], config: Config) {

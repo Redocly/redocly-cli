@@ -1,10 +1,12 @@
-import { lint, bundle, getTotals } from '@redocly/openapi-core';
+import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
 import { handleBundle } from '../../commands/bundle';
 import SpyInstance = jest.SpyInstance;
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
+
+(getMergedConfig as jest.Mock).mockImplementation(config => config)
 
 describe('bundle', () => {
   let processExitMock: SpyInstance;

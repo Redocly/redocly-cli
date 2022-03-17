@@ -183,8 +183,10 @@ export function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey
   for (const key of pointerSegments) {
     if (currentNode.kind === yamlAst.Kind.MAP) {
       const mapping = currentNode.mappings.find((m) => m.key.value === key);
-      if (!mapping?.value) break;
-      currentNode = mapping?.value as YAMLNode;
+      if (!mapping) break;
+      currentNode = mapping as YAMLNode;
+      if (!mapping?.value) break; // If node has value - return value, if not - return node itself
+      currentNode = mapping.value as YAMLNode;
     } else if (currentNode.kind === yamlAst.Kind.SEQ) {
       const elem = currentNode.items[parseInt(key, 10)] as YAMLNode;
       if (!elem) break;
