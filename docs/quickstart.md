@@ -15,7 +15,7 @@ Go [here](openapi-starter.md) to learn how to clone the `openapi-starter` projec
 
 ## Step 2 - Install OpenAPI CLI from openapi-starter
 
-Run `npm install` in the root of the `openapi-starter` repo.
+Run `npm install` in the root of your local `openapi-starter` project.
 
 ## Step 3 - Prepare your API definition file
 
