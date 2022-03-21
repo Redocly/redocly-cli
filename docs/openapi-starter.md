@@ -38,7 +38,7 @@ We use [GitHub Desktop](https://desktop.github.com/) in this example, but go ahe
 
 ## How to manage your files
 
-By default, you will have a root directory (`openapi`) that contains a sample API definition file (`openapi.yml`). The sample file is already split into its consituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
+By default, you will have a root directory (`openapi`) that contains a sample API definition file (`openapi.yml`). The sample file is already split into its constituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
 
 ### Just starting out with API docs?
 
