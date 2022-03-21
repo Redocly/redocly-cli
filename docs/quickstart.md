@@ -29,9 +29,9 @@ In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in al
 If you're new to command-line interfaces, note that you don't have to include the `$` in your commands. This symbol only indicates that the command after it should be entered into the terminal. To run a command, open your terminal, use `cd` to access the path where your API definition file is stored, type the command, and press **Enter**.
 :::
 
-### `bundle` - Pull constituent parts of your definition back into a single file
+### `bundle` - Bundle multiple files into one
 
-`bundle` merges standalone files back into a single definition file.
+`bundle` merges standalone files into a single definition file. For `bundle` to work, standalone files must exist in a multi-file structure (either a pre-existing structure or one created using the `split` command).
 
 In your terminal, type the following:
 
