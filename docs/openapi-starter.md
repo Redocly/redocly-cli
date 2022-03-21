@@ -42,7 +42,7 @@ By default, you will have a root directory (`openapi`) that contains a sample AP
 
 ### Just starting out with API docs?
 
-Use our `openapi.yml` file to explore OpenAPI CLI. We suggest you [run some basic commands](.docs/quickstart.md) like `lint`, `bundle` and `split` to practise.
+Use our `openapi.yaml` file to explore OpenAPI CLI. We suggest you [run some basic commands](.docs/quickstart.md) like `lint`, `bundle` and `split` to practice.
 
 ### Got your own API definition file?
 
