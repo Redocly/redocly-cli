@@ -46,6 +46,6 @@ Use our `openapi.yaml` file to explore OpenAPI CLI. We suggest you [run some bas
 
 ### Got your own API definition file?
 
-You can add your files straight into the `openapi` folder and utilize the existing sub-folders when splitting them up for easier maintenance (`split` command) and compiling them back into a single file (`bundle`) for publishing out. Be aware that the more definitions stored in the `openapi` folder, the more cluttered the sub-folders. But hey, if you like clutter then go for it!
+You can add your files straight into the `openapi` folder and use the existing sub-folders when splitting them up for easier maintenance (`split` command) and compiling them back into a single file (`bundle`) for publishing out. Be aware that the more definitions stored in the `openapi` folder, the more cluttered the sub-folders. But hey, if you like clutter then go for it!
 
 For all you neat-freaks out there, you can create new root folders to store each definition. When you run the `split` command in OpenAPI CLI for a specified definition file, the sub-folders will automatically be created under the root and populated with the constituent parts of your main definition file.
