@@ -19,7 +19,7 @@ Run `npm install` in the root of your local `openapi-starter` project.
 
 ## Step 3 - Prepare your API definition file
 
-In this guide, we'll use `openapi.yaml` in all examples. We recommend that you use it until you're confident with OpenAPI CLI.
+In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in all examples. We recommend that you use it until you're confident with OpenAPI CLI.
 
 ## Step 4 - Try some basic commands
 
