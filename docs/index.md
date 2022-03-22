@@ -24,7 +24,7 @@ OpenAPI CLI also integrates with other Redocly products such as the API registry
 ## Customisation and configuration
 Just because it's open source, doesn't mean we've skimped on the goodies.
 
-Most customisation can be done in our main config file (`.redocly.yaml`). Create your own [linting rules](./resources/custom-rules.md) to ensure definitions validate to _your_ requirements. Remove content during the bundling process using [decorators](./resources/built-in-decorators.md). Go all out by utilizing plugins and apply a combination of rules and decorators that meet your specific needs.
+Most customisation can be done in the Redocly configuration file (`redocly.yaml`). Create your own [linting rules](./resources/custom-rules.md) to ensure definitions validate to _your_ requirements. Remove content during the bundling process using [decorators](./resources/built-in-decorators.md). Go all out by utilizing plugins and apply a combination of rules and decorators that meet your specific needs.
 
 ## What makes Redocly OpenAPI CLI great
 
