@@ -117,6 +117,18 @@ properties:
                       - off
                     description: The severity level if the problem occurs.
                 additionalProperties: true
+  features.mockServer:
+    type: object
+    description: Configure the mock server behavior in the API registry.
+    properties:
+      errorIfForcedExampleNotFound:
+        description: When using the custom x-redocly-response-body-example header in the request, return an error if the requested example is not found in the API definition.
+        type: boolean
+        default: false
+      strictExamples:
+        description: Always return examples exactly how they are defined in the API definition without modifying their contents.
+        type: boolean
+        default: false
   resolve:
     type: object
     description: >
