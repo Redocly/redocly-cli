@@ -30,6 +30,10 @@ apiDefinitions:
 lint:
 # The lint command options
 
+features.mockServer:
+# Configuration for the optional mock server feature in the API registry.
+# Available in Pro and Enterprise plans only.
+
 region: eu
 # Configuration for optional AWS region selection when logging into Redocly services.
 
@@ -80,6 +84,22 @@ The `lint` section's primary purpose is to define options for the `lint` and `bu
 You may also import plugins and extends their configurations.
 
 Read more about the [lint configuration section](../guides/lint.md).
+
+
+### features.mockServer
+
+The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
+When the mock server is enabled for an API, you can send test requests to it from any API client.
+
+The `features.mockServer` section allows additional configuration of the mock server behavior.
+This section is optional.
+
+The `features.mockServer` section supports fields listed in the following table.
+
+| Property | Description | Default |
+| --- | --- | --- |
+| errorIfForcedExampleNotFound | Users can force specific examples in the response by adding the optional `x-redocly-response-body-example` header to their requests. By default, if an example ID provided in the request is not found in the API definition, the mock server returns any other example. If you set `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. | false |
+| strictExamples | By default, the mock server automatically enhances responses with heuristics like substituting the response fields with request parameter values. To prevent this behavior, set `strictExamples: true`. When this is set, examples are returned in the response unmodified, exactly how they are defined in the OpenAPI document. | false |
 
 
 ### region
