@@ -4,6 +4,16 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.89 (2022-03-21)
+### Features
+
+- Internal changes of `redocly.yaml` config structure - add new mock server options to `redocly.yaml` schema.
+
+### Fixes
+
+- Fixed crash when there's an empty `redocly.yaml` file.
+----
+
 ## 1.0.0-beta.88 (2022-03-16)
 ### Features
 
