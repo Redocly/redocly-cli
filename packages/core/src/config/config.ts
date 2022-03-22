@@ -12,7 +12,7 @@ import {
   Oas2RuleSet,
   Oas2PreprocessorsSet,
   Oas2DecoratorsSet,
-  Oas3RuleSet
+  Oas3RuleSet,
 } from '../oas-types';
 import { ProblemSeverity, NormalizedProblem } from '../walk';
 import recommended from './recommended';
@@ -120,7 +120,7 @@ export type ResolveConfig = {
 
 export const DEFAULT_REGION = 'us';
 export type Region = 'us' | 'eu';
-export type AccessTokens = {[region in Region]?: string };
+export type AccessTokens = { [region in Region]?: string };
 const REDOCLY_DOMAIN = process.env.REDOCLY_DOMAIN;
 export const DOMAINS: { [region in Region]: string } = {
   us: 'redocly.com',
@@ -141,14 +141,14 @@ export type DeprecatedRawConfig = {
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
-  referenceDocs?: any;
-}
+  referenceDocs?: Record<string, any>;
+};
 
 export type Api = {
   root: string;
-  lint?: LintRawConfig;
-  'features.openapi'?: any;
-  'features.mockServer'?: any;
+  lint?: Omit<LintRawConfig, 'plugins'>;
+  'features.openapi'?: Record<string, any>;
+  'features.mockServer'?: Record<string, any>;
 };
 
 export type RawConfig = {
@@ -156,8 +156,8 @@ export type RawConfig = {
   lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
-  'features.openapi'?: any;
-  'features.mockServer'?: any;
+  'features.openapi'?: Record<string, any>;
+  'features.mockServer'?: Record<string, any>;
   organization?: string;
 };
 
@@ -214,7 +214,9 @@ export class LintConfig {
       [OasVersion.Version3_1]: { ...merged.decorators, ...merged.oas3_1Decorators },
     };
 
-    const dir = this.configFile ? path.dirname(this.configFile) : (typeof process !== 'undefined' && process.cwd() || '');
+    const dir = this.configFile
+      ? path.dirname(this.configFile)
+      : (typeof process !== 'undefined' && process.cwd()) || '';
     const ignoreFile = path.join(dir, IGNORE_FILE);
 
     /* no crash when using it on the client */
@@ -242,7 +244,8 @@ export class LintConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = (mapped[slash(path.relative(dir, absFileName))] = this.ignore[absFileName]);
+      const ignoredRules = (mapped[slash(path.relative(dir, absFileName))] =
+        this.ignore[absFileName]);
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
@@ -659,13 +662,8 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     : config;
 }
 
-export function getMergedLintConfig(
-  config: Config,
-  entrypointAlias?: string
-) {
-  const apiLint = entrypointAlias
-    ? config.apis[entrypointAlias]?.lint
-    : {};
+export function getMergedLintConfig(config: Config, entrypointAlias?: string) {
+  const apiLint = entrypointAlias ? config.apis[entrypointAlias]?.lint : {};
   const mergedLint = {
     ...config.rawConfig.lint,
     ...apiLint,
@@ -676,7 +674,9 @@ export function getMergedLintConfig(
   return mergedLint;
 }
 
-function transformApiDefinitionsToApis(apiDefinitions: Record<string, string> = {}): Record<string, Api> {
+function transformApiDefinitionsToApis(
+  apiDefinitions: Record<string, string> = {},
+): Record<string, Api> {
   let apis: Record<string, Api> = {};
   for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
     apis[apiName] = { root: apiPath };
@@ -688,7 +688,10 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions) {
     throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
   }
-  if ((rawConfig as RawConfig)['features.openapi'] && (rawConfig as DeprecatedRawConfig).referenceDocs) {
+  if (
+    (rawConfig as RawConfig)['features.openapi'] &&
+    (rawConfig as DeprecatedRawConfig).referenceDocs
+  ) {
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;

@@ -70,7 +70,7 @@ export function findConfig(dir?: string): string | undefined {
 export async function getConfig(configPath: string | undefined = findConfig()) {
   if (!configPath) return {};
   try {
-    const rawConfig = (await loadYaml(configPath)) as RawConfig;
+    const rawConfig = ((await loadYaml(configPath)) || {}) as RawConfig;
     return transformConfig(rawConfig);
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
