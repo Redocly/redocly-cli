@@ -3,12 +3,12 @@ tocMaxDepth: 3
 redirectFrom:
   - /docs/resources/response-contains-property/
 ---
-# Response contains property custom rule
 
-Do you want to ensure your API responses contain a specific property (or multiple properties)?
-A custom rule can verify the API definition has defined your desired properties.
+# Check that response contains property custom rule
 
-Practical examples:
+With a custom rule, you can verify that the API definition contains a specific property (or multiple properties).
+
+Examples:
 
 - `id` (or equivalent)
 - `created_at` (or equivalent)
@@ -21,19 +21,19 @@ If there are exceptions to the rule, the exceptions can be explicitly added to t
 
 :::
 
-## Steps to writing the rule
+## Steps
 
-1. Identify the type of object to visit. The rules follow the visitor pattern and traverses the tree of the OpenAPI definition.
-    - The [Response](https://github.com/Redocly/openapi-cli/tree/master/packages/core/src/types) object is appropriate because we want to verify the property on the response (not on requests).
-1. Find the relationship between the starting object and the property we must evaluate for our decision. (Sometimes this will be the same object as above.)
-1. Craft the logic for the rule.
+1. [Identify the type of object to visit](#identify-the-type-of-object-to-visit). The rules follow the visitor pattern and traverse the tree of the OpenAPI definition.
+    - The [Response](https://github.com/Redocly/openapi-cli/tree/master/packages/core/src/types) object is valid as you want to verify the property on the response, not on request.
+1. Find relationship between the starting object and the property you must evaluate for the decision. Sometimes, it is the same object as above.
+1. [Define the logic for the rule.](#define-the-logic)
 1. Report the problem.
 
 ### Identify the type of object to visit
 
-Our rule is about making sure our response contains one or more properties.
-Because schema are used in other areas of the specification, such as requests and parameters, we can't use `Schema` as the starting point of our rule.
-Instead, we'll use the `Response` because our rule is specifically applying to the response schema.
+As the title says, this guide is about a rule that ensures that the response contains one or more properties. As a result, you cannot use `Schema` as the starting point of your rule because it is used in other areas of the specification, such as requests and parameters.
+
+Instead, you can use the `Response` for the rule because it is specifically applies to the response schema.
 
 ### Traverse for evaluation
 
@@ -42,7 +42,7 @@ graph LR
     Response --successful responses only--> MediaType --application/json only--> Schema
 ```
 
-Based on that, our rule will look like this (before filling in the logic).
+Based on the diagram, your rule will look as follows (before filling in the logic):
 
 ```js
 module.exports = ResponseContainsProperty
@@ -60,9 +60,9 @@ function ResponseContainsProperty (options) {
 };
 ```
 
-### Craft the logic
+### Define the logic
 
-While we could hard code the properties we want, it seems like it would be better to let those be configured in the `.redocly.yaml` file with a configurable option.
+While you could hardcode the properties you want, it is better to allow configuration of these properties from the `.redocly.yaml` file.
 
 This sets the default options as `[]`.
 
@@ -77,7 +77,7 @@ function ResponseContainsProperty (options) {
 // ...
 ```
 
-We would configure this in our `.redocly.yaml` file like this:
+So the configuration in the `.redocly.yaml` file would look as follows:
 
 ```yaml
 lint:
@@ -90,10 +90,11 @@ lint:
         - _links
 ```
 
-Next, we'll add more logic.
+Let's add more logic.
 
-We want to skip non-2XX messages, so we identify only the responses we don't want to skip, and use the `skip` predicate method.
-We also skip 204 messages, because those requests have no response content.
+For example, skip non-2XX messages. To do this, you identify only the responses you don't want to skip, and use the `skip` predicate method.
+
+It is good to skip 204 messages as well, because those requests have no response content.
 
 ```js
 skip: (_response, key) => {
@@ -101,23 +102,23 @@ skip: (_response, key) => {
 },
 ```
 
-Next, we want our rule to only apply to when the `MediaType` content-type is `application/json` to avoid binary files.
-We'll skip any responses that don't have the `application/json` content-type.
+Next, let's apply the rule only when the `MediaType` content-type is `application/json` (to avoid binary files). Let's also skip any responses that don't have the `application/json` content-type.
 
 ```js
 skip: (_media, key) => {
   return key !== 'application/json';
 },
 ```
-Next, we'll start to inspect the schema for our configured properties.
-However, properties are parts of objects, so if the response schema is anything other than an object, we won't be able to inspect the property.
+
+Next, let's start to inspect the schema for the configured properties.
+As properties are parts of objects, you should filter out the cases when the response schema is anything other than an object. Otherwise, you won't be able to inspect the property.
 
 ```js
 Schema (schema, { report, location }) {
   if (schema.type !== 'object') return;
 ```
 
-Finally, our actual validation logic...
+Finally, the actual validation logic:
 
 ```js
 for (let element of mustExist) {
@@ -129,8 +130,8 @@ for (let element of mustExist) {
 
 ### Report the problem
 
-We must specify a message when we report the problem.
-In addition, we can adjust the location so the context of the code frame reported is most appropriate.
+You must specify a message when reporting the problem.
+In addition, you can adjust the location to ensure that the context of the code frame reported is the most appropriate.
 
 ```js
 report({
@@ -139,14 +140,26 @@ report({
 });
 ```
 
-## Putting it all together
+### Putting it all together
 
-You can copy/paste this to try it out.
+You can copy/paste the code below to try it out.
 
-1. Your `.redocly.yaml` file should be inside of the root repository directory.
-1. Then, create a directory `plugins` inside of your root repository directory.
-  The `demo-plugin.js` file should go inside of that directory.
-1. Create a `rules` directory inside of the `plugins` directory. Place the `response-contains-property.js` file there.
+1. Make sure your `.redocly.yaml` file is located in the root repository directory.
+1. Inside the root repository directory, create the `plugins` directory.
+1. Add the `demo-plugin.js` file to the `plugins` directory.
+1. Inside the `plugins` directory, create the `rules` directory.
+1. Add the `response-contains-property.js` file to the `rules` directory.
+
+As a result, your repository hierarchy should look as follows:
+
+```
+.
+├── plugins
+│   ├── rules
+│   │   └── response-contains-property.js
+│   └── demo-plugin.js
+└── .redocly.yaml
+```
 
 ```js response-contains-property.js
 module.exports = ResponseContainsProperty
@@ -223,9 +236,9 @@ referenceDocs:
         main: "#32329f"
 ```
 
-Now that you've followed along in the creation of a rule, you can try to craft your own.
+Now that you've followed along in the creation of a rule, you can try to create your own.
 What if all requests should have a particular header parameter?
 
 Please let us know what you build. We would love to hear from you.
 
-Also, if you have ideas but unsure how to implement them, contact us.
+Also, if you have ideas but are unsure how to implement them, feel free to contact us.
