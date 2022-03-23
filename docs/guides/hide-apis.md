@@ -687,7 +687,7 @@ This approach uses decorators to transform your API definition during the bundle
 There are three steps to accomplish this:
 1. Mark paths and/or operations with the `x-internal: true` (where it is internal).
 1. Add a custom plugin (see our `demo-plugin.js`).
-1. Adjust your `.redocly.yaml` configuration file to register and use the plugin.
+1. Adjust your Redocly configuration file to register and use the plugin.
 
 #### Step 1: Mark paths and operations with `x-internal: true`
 
@@ -791,14 +791,14 @@ module.exports = {
 ```
 
 ```js With explanations
-// Each plugin must have an id that is referenced in the .redocly.yaml file (look up above and see where "demo" is used).
+// Each plugin must have an id that is referenced in the Redocly configuration file (look up above and see where "demo" is used).
 const id = 'demo';
 
 // This enables my IDE (VS Code) to use IntelliSense type completions.
 /** @type {import('@redocly/openapi-cli').CustomRulesConfig} */
 const decorators = {
   oas3: {
-    // Each decorator has a name. We reference it in the .redocly.yaml file.
+    // Each decorator has a name. We reference it in the Redocly configuration file.
     // If we had a lot of decorators and rules in our plugin,
     // we would probably organize them into separate files.
     // Instead, we use an inline function here.
@@ -858,16 +858,17 @@ The example above covers paths and operations, but it doesn't cover specific sch
 Add another decorator, for example, `remove-internal-schema-properties`, to accomplish that.
 
 
-#### Step 3: Register the plugin in `.redocly.yaml`
+#### Step 3: Register the plugin in your configuration
 
-It requires making a change to your `.redocly.yaml` file to register your plugin and run it.
+It requires making a change to your Redocly configuration file to register your plugin and run it.
 
 Pay attention to the `plugins` and `decorators` within the `lint` section.
 
 ```yaml
 # See https://redocly.com/docs/cli/configuration/ for more information.
-apiDefinitions:
-  main: openapi/openapi.yaml
+apis:
+  main:
+    root: openapi/openapi.yaml
 lint:
   extends:
     - recommended
@@ -876,7 +877,7 @@ lint:
   decorators:
     demo/remove-internal-operations: error
 
-referenceDocs:
+features.openapi:
   htmlTemplate: ./docs/index.html
   theme:
     colors:
@@ -964,7 +965,7 @@ It will provide us a cleaner interface for our next example, to remove internal 
 <details>
 <summary>Add remove internal schema properties decorator</summary>
 
-We adjust the `demo-plugin.js` file, add the new decorator, and adjust the `.redocly.yaml` configuration file to use the decorator.
+We adjust the `demo-plugin.js` file, add the new decorator, and adjust the Redocly configuration file to use the decorator.
 
 ```js plugins/demo-plugin.js
 const RemoveInternalOperations = require('./decorators/remove-internal-operations');
@@ -1004,11 +1005,13 @@ function RemoveInternalSchemaProperties() {
 };
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 # See https://redocly.com/docs/cli/configuration/ for more information.
-apiDefinitions:
-  internal: openapi/internal.yaml
-  main: openapi/external.yaml
+apis:
+  internal:
+    root: openapi/internal.yaml
+  main:
+    root: openapi/external.yaml
 lint:
   extends:
     - recommended
@@ -1018,7 +1021,7 @@ lint:
     demo/remove-internal-operations: error
     demo/remove-internal-schema-properties: error
 
-referenceDocs:
+features.openapi:
   htmlTemplate: ./docs/index.html
   theme:
     colors:
@@ -1032,7 +1035,7 @@ Create a bundle for internal use (including all of the internal paths, operation
 openapi bundle --skip-decorator=demo/remove-internal-operations --skip-decorator=demo/remove-internal-schema-properties -o dist/internal.json
 ```
 
-In Redocly's API registry set a special environment variable `OPENAPI_CLI_BUNDLE_ARGS` with the value of `--skip-decorator=demo/remove-internal-schema-properties`.
+In Redocly's API registry, set a special environment variable `OPENAPI_CLI_BUNDLE_ARGS` with the value of `--skip-decorator=demo/remove-internal-schema-properties`.
 
 <div class="success">
 <code>SchemaProperties</code> is an object, so we use the <code>Object.keys()</code> method to iterate since we cannot iterate on an object directly.

@@ -1,16 +1,31 @@
 type: object
 properties:
-  apiDefinitions:
-    type: array
-    description: >
-      A map of aliases and the source of the API definitions.
-      Especially useful for managing multiple API definitions.
+  organization:
+    type: string
+    description: "Specifies the organization ID of a Redocly Workflows organization."
+  apis:
+    type: object
+    description: "Set of APIs distinguished by name, version, and path to the root API definition."
     minItems: 1
-    items:
-      type: object
-      additionalProperties:
-        type: string
-        description: The path (or URL) to the API definition.
+    properties:
+      name@version:
+        type: object
+        description: "Specifies the name and optional version of an API associated with the root API definition. If the version is omitted, Redocly apps interpret it as 'latest' by default."
+        properties:
+          root:
+            type: string
+            description: "Path to the root API definition file of the specified API."
+          labels:
+            type: array
+            description: "Optional labels assigned to the specified API in the Redocly API registry. The labels must exist in the Redocly Workflows organization in order to apply them."
+            items:
+              type: string
+          lint:
+            type: object
+            description: "Configures linting options for the specified API. Supports the same format and options as the global lint section described further in the schema."
+          features.openapi:
+            type: object
+            description: "Configures API reference documentation options for the specified API. Supports the same format and options as the global features.openapi section described further in the schema."
   lint:
     type: object
     description: A set of configurations to lint and decorate your APIs used when the `lint` and `bundle` commands execute.
@@ -117,6 +132,18 @@ properties:
                       - off
                     description: The severity level if the problem occurs.
                 additionalProperties: true
+  features.mockServer:
+    type: object
+    description: Configure the mock server behavior in the API registry.
+    properties:
+      errorIfForcedExampleNotFound:
+        description: When using the custom x-redocly-response-body-example header in the request, return an error if the requested example is not found in the API definition.
+        type: boolean
+        default: false
+      strictExamples:
+        description: Always return examples exactly how they are defined in the API definition without modifying their contents.
+        type: boolean
+        default: false
   resolve:
     type: object
     description: >
@@ -145,13 +172,9 @@ properties:
                 envVariable:
                   type: string
                   description: The environment variable name which will be resolved and should contain the value.
-  referenceDocs:
+  features.openapi:
     type: object
-    description: These configurations are used when previewing or building the docs.
+    description: Configuration options supported by Redocly Reference. Used when previewing or building the docs.
     properties:
-      disableSearch:
-        description: Disable search indexing and hide the search box
-        type: boolean
-        default: false
       theme:
         type: object
