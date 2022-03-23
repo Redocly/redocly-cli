@@ -165,8 +165,8 @@ To restrict the evaluation, use the context feature to limit where context is us
 - context:
     - type: Operation
       matchParentKeys: [put]
-    - type: ResponsesMap
-      matchParentKeys: [201, 200]
+    - type: Response
+      matchParentKeys: ['201', '200']
   subject: MediaTypeMap
   disallowed: ['application/pdf']
 ```
@@ -269,7 +269,7 @@ This assertion runs only on node's keys.
 lint:
   rules:
     assertions:
-      - subject: Response
+      - subject: SchemaProperties
         message: The created_at and updated_at properties are mutually required
         severity: error
         mutuallyRequired:
@@ -283,7 +283,7 @@ The following example asserts that when `PUT` requests have either `200` or `201
 lint:
   rules:
     assertions:
-      - subject: ResponseMap
+      - subject: ResponsesMap
         context:
           - type: Operation
             matchParentKeys:
