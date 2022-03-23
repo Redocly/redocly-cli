@@ -211,11 +211,13 @@ module.exports = {
 };
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 # See https://redocly.com/docs/cli/configuration/ for more information.
-apiDefinitions:
-  internal: openapi/internal.yaml
-  main: openapi/external.yaml
+apis:
+  internal:
+    root: openapi/internal.yaml
+  main:
+    root: openapi/external.yaml
 lint:
   extends:
     - recommended
@@ -228,7 +230,7 @@ lint:
         - email
         - createdAt
         - _links
-referenceDocs:
+features.openapi:
   htmlTemplate: ./docs/index.html
   theme:
     colors:
