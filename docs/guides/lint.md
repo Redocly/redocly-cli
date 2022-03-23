@@ -8,6 +8,24 @@ redirectFrom:
 The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
 The `lint` and `bundle` commands use this section to control various options.
 
+The Redocly configuration file supports global lint settings (configured in the top-level `lint` section) and per-API lint settings (configured in the `lint` sections for individual APIs).
+
+```yaml
+apis:
+  main@v1:
+    root: ./openapi/openapi.yaml
+    lint:
+      rules: []
+      (...)
+lint:
+  rules: []
+  (...)
+```
+
+If `lint` section is not defined for an API, global settings are used.
+If `lint` is defined for an API, its settings apply together with the global configuration.
+If per-API and global sections modify the same properties, per-API settings will override global settings.
+
 The `lint` configuration section consists of several sub-sections. The following code block shows an example `lint` section. Sub-sections are described further in the text.
 
 ```yaml
@@ -24,6 +42,15 @@ lint:
       prefixes: ['should', 'is', 'has']
   ...
 ```
+
+:::attention Per-API support
+
+The `lint` section only supports `rules` and `decorators` sub-sections when used per-API.
+
+You can't use `plugins` in per-API settings.
+
+:::
+
 
 ## Sub-sections
 
@@ -252,7 +279,7 @@ The OpenAPI specification supports `$refs` in some of the objects. In practice, 
 
 Starting from version `beta-30` onward, OpenAPI CLI automatically resolves all `$refs` by default, even in places where they are not allowed by the specification. This includes primitive values, for example `string`, in description and examples fields.
 
-To disable resolving `$refs` in examples, use the `doNotResolveExamples` configuration option in the `lint` section of `.redocly.yaml`. This does not affect `$ref` resolution in other parts of the API definition:
+To disable resolving `$refs` in examples, use the `doNotResolveExamples` configuration option in the `lint` section of the Redocly configuration file. This does not affect `$ref` resolution in other parts of the API definition:
 
 ```yaml
 lint:
