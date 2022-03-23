@@ -26,11 +26,11 @@ openapi bundle --version
 
 Option | Type | Description
 -- | -- | --
-entrypoints | [string] | List of API root definition filenames or aliases assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file. Default values are all aliases defined in the `apiDefinitions` section within your configuration file.
+entrypoints | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.
 --config | string | Specify path to the [config file](#custom-configuration-file).
 --dereferenced, -d | boolean | Generate fully dereferenced bundle.
 --ext | string | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.
---extends | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration).  Default values are taken from the configuration file.
+--extends | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration).  Default values are taken from the Redocly configuration file.
 --force, -f | boolean | Generate bundle output even when errors occur.
 --format | string | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.
 --help | boolean | Show help.
@@ -70,7 +70,9 @@ dist/petstore.json
 ### Create a fully dereferenced bundle
 
 :::warning Note
+
 JSON output only works when there are no circular references.
+
 :::
 
 ```bash
@@ -79,7 +81,7 @@ openapi bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the Redocly configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi bundle --config=./another/directory/config.yaml
@@ -177,5 +179,7 @@ openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
 
 :::success Tip
+
 To learn more about preprocessors, rules, and decorators, refer to the [custom rules](../resources/custom-rules.md) page.
+
 :::

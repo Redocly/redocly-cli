@@ -6,13 +6,20 @@ title: Built-in decorators in OpenAPI CLI
 
 Decorators are used to modify content in API definitions during the bundle process, after the validation is complete. Redocly supports several built-in decorators that you can use with OpenAPI CLI.
 
-To use any of the decorators listed on this page, configure them in the `lint.decorators` section of the `.redocly.yaml` file in your working directory.
+To use any of the decorators listed on this page, configure them in the `lint.decorators` section of the Redocly configuration file in your working directory.
 
-The following example shows how to configure a decorator in the `.redocly.yaml` file.
+You can specify global settings in the top-level `lint.decorators` section, or use per-API settings by adding a `lint.decorators` section under each API in `apis`.
+
+The following example shows how to configure a decorator in the Redocly configuration file.
 
 ```yaml
-apiDefinitions:
-  example: ./openapi/openapi.yaml
+apis:
+  main:
+    root: ./openapi/openapi.yaml
+    lint:
+      decorators:
+        decorator-name:
+          decorator-option: example-value
 lint:
   decorators:
     decorator-name:
