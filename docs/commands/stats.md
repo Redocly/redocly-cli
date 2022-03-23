@@ -25,8 +25,8 @@ openapi stats --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to calculate statistics for. Instead of full paths, you can use aliases assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as entrypoints. Refer to [the entrypoint section below](#entrypoint) for more options.
-`--config`                | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to calculate statistics for. Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints. Refer to [the entrypoint section below](#entrypoint) for more options.
+`--config`                | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
 `--format`                | `string`  | no           | `stylish`   | Format for the output.<br />**Possible values:** `stylish`, `json`
 `--help`                  | `boolean` | no           | -           | Show help
 `--version`               | `boolean` | no           | -           | Show version number
@@ -47,22 +47,24 @@ In this case, `stats` will show statistics for the definition that was passed to
 
 #### Pass entrypoint via configuration file
 
-Instead of full paths, you can use aliases assigned in your `apiDefinitions` within your `.redocly.yaml` configuration file as entrypoints.
+Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi stats petstore
+openapi stats main
 ```
 
 ```yaml Configuration file
-apiDefinitions:
-  petstore: ./openapi/petstore-definition.json
+apis:
+  main:
+    root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `petstore` alias (see the `.redocly.yaml` tab), `stats` will show statistics for the `petstore.json` definition file. The presence of the `.redocly.yaml` configuration file is mandatory.
+In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi stats --config=./another/directory/config.yaml

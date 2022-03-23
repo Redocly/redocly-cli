@@ -9,15 +9,21 @@ redirectFrom:
 All of our built-in OpenAPI CLI rules are listed on this page.
 We don't ship any built-in preprocessors.
 
-To change your settings for any given rule, add or modify its corresponding entry in the `rules` section of the `.redocly.yaml` in your working directory.
+To change your settings for any given rule, add or modify its corresponding entry in the `lint.rules` section of the Redocly configuration file in your working directory.
 
-You can format each entry in the `rules` section in one of the following ways:
+You can specify global settings in the top-level `lint.rules` section, or use per-API settings by adding a `lint.rules` section under each API in `apis`.
+
+You can format each entry in the `lint.rules` section in one of the following ways:
 
 - Short syntax with single-line configuration `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`. You can't configure additional rule options with this syntax.
 
 ```yaml
-apiDefinitions:
-  example: ./openapi/openapi.yaml
+apis:
+  main:
+    root: ./openapi/openapi.yaml
+    lint:
+      rules:
+        specific-api-rule: warn
 lint:
   rules:
     example-rule-name: error
@@ -26,8 +32,13 @@ lint:
 - Verbose syntax, where you can configure additional options for rules that support them.
 
 ```yaml
-apiDefinitions:
-  example: ./openapi/openapi.yaml
+apis:
+  main:
+    root: ./openapi/openapi.yaml
+    lint:
+      rules:
+        specific-api-rule:
+          severity: warn
 lint:
   rules:
     example-rule-name:
@@ -335,9 +346,10 @@ lint:
   extends:
     - recommended
 ```
-in the `.redocly.yaml` file (and it is enabled by default).
 
-You may then override the severity for any specific rule in the `rules` section.
+to the Redocly configuration file (and it is enabled by default).
+
+You may then override the severity for any specific rule in the `lint.rules` section.
 
 Here is the equivalent of the `recommended` configuration values:
 

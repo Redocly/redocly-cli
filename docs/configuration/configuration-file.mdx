@@ -3,32 +3,60 @@ import Schema from './schema.yaml';
 import { StyledContent } from '../../components/styled.elements';
 
 
-# Configuration file
+# Redocly configuration file
 
-## Purpose
+The Redocly configuration file controls options for the OpenAPI CLI tool.
+It is also used across other Redocly products to help you control their behavior.
 
-The configuration file controls configuration options of the CLI tool.
-It may be passed as metadata to the API registry which can then subsequently be used to build the docs.
+- Workflows uses it in the API registry to manage your APIs and control advanced features like region and link resolution.
+- Reference uses it to apply your custom settings when building API reference documentation (hosted and on-premise).
+- VS Code extension uses it for linting criteria, to apply custom settings for live documentation preview, and to set API definition root files.
 
 ## Filename and location
 
-The CLI tool will search the current working directory for a configuration file named `.redocly.yaml`.
+The Redocly configuration file must be named `redocly.yaml` or `.redocly.yaml`, and placed into your working directory or the root of your project (depending on the Redocly product you're using).
 
-## File format
+OpenAPI CLI will search for the configuration file in the working directory.
 
-The configuration file is expected to be in YAML format.
+:::warning
 
-The contents of the YAML are according to the following structure:
+Multiple configuration files in the same directory are not allowed.
+If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will display a warning in the output and ask you to choose one file to use.
+
+:::
+
+## File format and structure
+
+The Redocly configuration file must be in YAML format.
+
+The contents of the file should conform to the following structure:
 
 ```yaml
-apiDefinitions:
-# A set of named keys and values of entrypoints to OpenAPI definitions.
+organization:
+# The organization ID of a Redocly Workflows organization.
+# Used for easier integration with the API registry and hosted Reference docs,
+# not required for local OpenAPI CLI usage.
+apis:
+# A collection of objects, each representing one API.
+# An API should be defined by a name, an optional version,
+# and the path to the root OpenAPI document.
+# Additionally, each API can have its own lint and features.openapi
+# sections for fine-grained control.
 # Example:
-  petstore: ./openapi/openapi.yaml
-  caretaker: ./openapi/caretaker.yaml
+  main:
+    root: ./openapi/openapi.yaml
+    lint:
+      rules:
+        example-rule: warn
+  external@v1:
+    root: ./openapi/external.yaml
+    labels:
+      - external
+    features.openapi:
+      hideLogo: true
 
 lint:
-# The lint command options
+# Global configuration for the lint command.
 
 features.mockServer:
 # Configuration for the optional mock server feature in the API registry.
@@ -41,7 +69,7 @@ resolve:
 # Configuration for resolving external links in your definition that are not publicly accessible.
 # Not required for Redocly API registry links.
 
-referenceDocs:
+features.openapi:
 # The API reference docs options, including theme options.
 
 registry:
@@ -50,29 +78,93 @@ registry:
 # future products may be configured by extending this file
 ```
 
-### apiDefinitions
 
-The `apiDefinitions` section's purpose is to set one or more entrypoints for your OpenAPI 3 definitions.
-Redocly supports both multi-file definitions and multiple (multi-file) definitions.
+### organization
 
-This section is optional.
+The `organization` property requires the organization ID of your Redocly Workflows organization.
+When specified in the configuration file, it can be used by the `openapi push` command.
+The `push` command uses the following order of precedence: first, it takes the organization ID from command-line arguments (if provided).
+If the organization ID is not provided explicitly, it takes it from the configuration file.
 
-Define your entrypoints in the following format:
+Note that the organization ID is not the same as the organization name in Workflows.
 
-`definitionId: target`
+To find the organization ID, log into Workflows and access the **API registry** page.
+In your browser's address bar, find the URL of the page.
+The segment after `app.redocly.com/org/` is your organization ID.
+For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`.
 
-The `definitionId` is an alias for the API definition. Use any custom name of your choice. We recommend names that are easy to remember and identify. The names are case-sensitive.
 
-The `target` is the path to your OpenAPI definition.
+### apis
 
-The [validation command](../commands/lint.md) uses the aliases from the `apiDefinitions` section as shortcuts for referencing API definitions.
-You can tell the `lint` command to validate specific API definitions by using their aliases from the `apiDefinitions` section, like in the following example:
+The `apis` section is used to configure one or more APIs. Every API in the section is identified by its name and version in the format `name@version`. The version is optional, and when not provided, Redocly apps interpret it as `latest` by default. Every `name@version` combination listed in the section must be unique.
 
-```shell
-openapi lint petstore caretaker
+For every API listed in the section, you must provide the path to the OpenAPI definition using the `root` property.
+
+```yaml
+apis:
+  name@version:
+    root: ./openapi/openapi.yaml
+    labels:
+      - production
+    lint: []
+    features.openapi: []
+lint:
+  rules:
+    example-rule-name: error
+features.openapi:
+  pagination: section
+  showConsole: true
+  theme:
+    menu:
+      backgroundColor: '#fffff'
 ```
 
-On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apiDefinitions` section:
+
+The `apis` section supports several optional properties for every listed API.
+
+**labels**
+
+Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs. You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
+
+If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
+
+**lint**
+
+In addition to the global (top-level) `lint` section, you can add one to each API listed in `apis`. This allows you to use different rules and decorators for different APIs.
+
+**features.openapi**
+
+In addition to the global (top-level) `features.openapi` section, you can add one to each API listed in `apis`. This allows you to use different API reference docs settings for different APIs.
+This section supports identical format and options as the global `features.openapi` section.
+
+
+:::warning Important
+
+Not all `lint` options are supported in per-API configuration.
+Consult the table below to understand how each configuration section applies to your APIs.
+
+:::
+
+
+Configuration section | Per-API support | Behavior
+-- | -- | --
+lint.extends | ❗ | API settings override global settings.
+lint.rules | ✅ | API and global settings merge. In case of conflict, API takes priority.
+lint.decorators | ✅ | API and global settings merge. In case of conflict, API takes priority.
+lint.preprocessors | ✅ | API and global settings merge. In case of conflict, API takes priority.
+lint.plugins | ❌ | Available in global configuration only.
+features.openapi | ✅ | API and global settings merge. In case of conflict, API takes priority.
+features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
+
+
+Some of the OpenAPI CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` section as shortcuts for referencing API definitions.
+You can tell the `lint` command to validate specific API definitions by using their names from the `apis` section, like in the following example:
+
+```shell
+openapi lint main
+```
+
+On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` section:
 
 ```shell
 openapi lint
@@ -130,11 +222,12 @@ export REDOCLY_DOMAIN={domain}
 openapi login --region=eu
 ```
 
-- the `region` top-level property in the `.redocly.yaml` configuration file
+- the `region` top-level property in the Redocly configuration file
 
 ```yaml
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 region: eu
 lint:
   extends: []
@@ -186,11 +279,11 @@ resolve:
 The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
 
-### referenceDocs
+### features.openapi
 
-The `referenceDocs` section configures features (availability and options) and theming (style, fonts, colors).
+The `features.openapi` section configures features (availability and options) and theming (style, fonts, colors) for API reference documentation generated from API definitions.
 
-There are two products: Redoc Community Edition (CE), and Redocly API reference docs. Reference docs supports all configuration options from Redoc Community Edition plus a set of premium options.
+There are two products: Redoc Community Edition (CE) and Redocly Reference. Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
 
