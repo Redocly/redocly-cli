@@ -33,7 +33,7 @@ If there are exceptions to the rule, the exceptions can be explicitly added to t
 
 As the title says, this guide is about a rule that ensures that the response contains one or more properties. As a result, you cannot use `Schema` as the starting point of your rule because it is used in other areas of the specification, such as requests and parameters.
 
-Instead, you can use the `Response` for the rule because it is specifically applies to the response schema.
+Instead, you can use the `Response` for the rule because it exclusively applies to the response schema.
 
 ### Traverse for evaluation
 
@@ -152,7 +152,7 @@ You can copy/paste the code below to try it out.
 
 As a result, your repository hierarchy should look as follows:
 
-```
+```shell
 .
 ├── plugins
 │   ├── rules
