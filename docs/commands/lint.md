@@ -25,7 +25,7 @@ openapi lint --version
 Option                   | Type      | Required    | Default     | Description
 -------------------------|:---------:|:------------:|:-----------:|------------
 `entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
-`--config`               | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
+`--config`               | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
 `--extends`              | `array`   | no           | -           | [Extend a specific configuration](#extend-configuration) (defaults or config file settings)
 `--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
 `--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
@@ -53,18 +53,19 @@ The `entrypoints` argument can also use any glob format supported by your file s
 
 #### Pass entrypoints via configuration file
 
-Instead of full paths, you can use aliases assigned in the `apiDefinitions` section of your `.redocly.yaml` configuration file as entrypoints.
+Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi lint petstore
+openapi lint main
 ```
 
 ```yaml Configuration file
-apiDefinitions:
-  petstore: ./openapi/petstore-definition.json
+apis:
+  main:
+    root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `petstore` alias (see the `.redocly.yaml` tab), `lint` will validate the `petstore.json` definition file. The presence of the `.redocly.yaml` configuration file is mandatory.
+In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `lint` will validate the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
 #### Empty entrypoints
 
@@ -75,21 +76,26 @@ openapi lint
 ```
 
 ```yaml Configuration file
-apiDefinitions:
-  petstore: ./openapi/petstore.json
-  production: ./openapi/production.yaml
-  sandbox: ./openapi/sandbox.yaml
+apis:
+  main:
+    root: ./openapi/definition.json
+  production:
+    root: ./openapi/production.yaml
+  sandbox:
+    root: ./openapi/sandbox.yaml
 ```
 
-In this case, if no API definitions are specified, `lint` validates all entrypoints listed in `apiDefinitions` within your `.redocly.yaml` file. The presence of the `.redocly.yaml` configuration file is mandatory.
+In this case, if no API definitions are specified, `lint` validates all entrypoints listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
 
 :::warning Important
-If you try to execute the `lint` command without entrypoints when your project doesn't have any configuration files (either `.redocly.yaml` or a [custom one](#custom-configuration-file)), the `lint` command will display an error.
+
+If you try to execute the `lint` command without entrypoints when your project doesn't have any configuration files, the `lint` command will display an error.
+
 :::
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an [alternative path to a configuration file](../configuration/configuration-file.mdx).
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi lint --config=./another/directory/config.yaml
@@ -97,7 +103,7 @@ openapi lint --config=./another/directory/config.yaml
 
 ### Extend configuration
 
-The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the value is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one including particular rules that cover your specific needs.
+The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the values is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
 
 ### Format
 
