@@ -25,7 +25,7 @@ If OpenAPI CLI finds `redocly.yaml` in the root directory, it will use the optio
 For more information, refer to the [Redocly configuration file](../configuration/configuration-file.mdx) docs.
 
 
-::: success Tip
+:::success Tip
 
 If you want to use a different config file with a specific command (and override `redocly.yaml`), use the `--config` option and provide the path to the file.
 
