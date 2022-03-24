@@ -62,7 +62,7 @@ function ResponseContainsProperty (options) {
 
 ### Craft the logic
 
-While we could hard code the properties we want, it seems like it would be better to let those be configured in the `.redocly.yaml` file with a configurable option.
+While we could hard-code the properties we want, it seems like it would be better to let those be configured in the Redocly configuration file with a configurable option.
 
 This sets the default options as `[]`.
 
@@ -77,7 +77,7 @@ function ResponseContainsProperty (options) {
 // ...
 ```
 
-We would configure this in our `.redocly.yaml` file like this:
+We would configure this in our Redocly configuration file like this:
 
 ```yaml
 lint:
@@ -143,7 +143,7 @@ report({
 
 You can copy/paste this to try it out.
 
-1. Your `.redocly.yaml` file should be inside of the root repository directory.
+1. Your Redocly configuration file should be inside of the root repository directory.
 1. Then, create a directory `plugins` inside of your root repository directory.
   The `demo-plugin.js` file should go inside of that directory.
 1. Create a `rules` directory inside of the `plugins` directory. Place the `response-contains-property.js` file there.
@@ -198,11 +198,13 @@ module.exports = {
 };
 ```
 
-```yaml .redocly.yaml
+```yaml Configuration file
 # See https://redocly.com/docs/cli/configuration/ for more information.
-apiDefinitions:
-  internal: openapi/internal.yaml
-  main: openapi/external.yaml
+apis:
+  internal:
+    root: openapi/internal.yaml
+  main:
+    root: openapi/external.yaml
 lint:
   extends:
     - recommended
@@ -215,7 +217,7 @@ lint:
         - email
         - createdAt
         - _links
-referenceDocs:
+features.openapi:
   htmlTemplate: ./docs/index.html
   theme:
     colors:
