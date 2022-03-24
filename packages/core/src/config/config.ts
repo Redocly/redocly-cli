@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirname } from 'path';
-import { red, blue } from 'colorette';
+import { red, blue, yellow, green } from 'colorette';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { notUndefined, slash } from '../utils';
 import {
@@ -695,17 +695,20 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
   const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  // TODO: put links to the changelog and uncomment this after successful release of ReferenceDocs/Redoc, Portal and Workflows
-  // if (apiDefinitions) {
-  //   process.stderr.write(
-  //     `The ${yellow('apiDefinitions')} field is deprecated. Use ${green('apis')} instead, see changelog: <link>\n`
-  //   );
-  // }
-  // if (referenceDocs) {
-  //   process.stderr.write(
-  //     `The ${yellow('referenceDocs')} field is deprecated. Use ${green('features.openapi')} instead, see changelog: <link>\n`
-  //   );
-  // }
+  if (apiDefinitions) {
+    process.stderr.write(
+      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
+        'apis',
+      )} instead, see changelog: https://redocly.com/docs/cli/changelog/#100-beta88-2022-03-16\n`,
+    );
+  }
+  if (referenceDocs) {
+    process.stderr.write(
+      `The ${yellow('referenceDocs')} field is deprecated. Use ${green(
+        'features.openapi',
+      )} instead, see changelog: https://redocly.com/docs/cli/changelog/#100-beta88-2022-03-16\n`,
+    );
+  }
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
