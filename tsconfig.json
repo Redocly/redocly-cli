@@ -15,7 +15,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "lib": ["es2019", "es2020.string"],
+    "lib": ["es2020", "es2020.string"],
     "baseUrl": "./packages"
   }
 }

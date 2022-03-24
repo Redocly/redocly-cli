@@ -109,18 +109,15 @@ export class RedoclyClient {
   }
 
   async getValidTokens(): Promise<RegionalTokenWithValidity[]> {
-    const validTokens = <RegionalTokenWithValidity[]>[];
+    const allTokens = this.getAllTokens();
 
-    // TODO: use Promise.allSettled()
-    // it will be faster to verify all tokens in parallel
-    for (const { token, region } of this.getAllTokens()) {
-      try {
-        await this.verifyToken(token, region);
-        validTokens.push({ token, region, valid: true });
-      } catch (err) {}
-    }
+    const verifiedTokens = await Promise.allSettled(
+      allTokens.map(({ token, region }) => this.verifyToken(token, region)),
+    );
 
-    return validTokens;
+    return allTokens
+      .filter((_, index) => verifiedTokens[index].status === 'fulfilled')
+      .map(({ token, region }) => ({ token, region, valid: true }));
   }
 
   async getTokens() {
