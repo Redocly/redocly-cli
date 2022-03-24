@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Update types used to lint .redocly.yaml according to new config file structure.
+- Updated types to support validation of the Redocly configuration file according to the new file structure.
 
 ----
 
