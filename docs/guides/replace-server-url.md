@@ -36,7 +36,7 @@ module.exports = {
 
 :::attention
 
-You can name the plugins directory anything you want. Make sure you use the correct name in the `.redocly.yaml` file (Step 4).
+You can name the plugins directory anything you want. Make sure you use the correct name in the Redocly configuration file (Step 4).
 
 :::
 
@@ -97,12 +97,13 @@ To create API versions for different server URLs, use the **API registry**. [Add
 
 ## Step 4: Register the plugin for Redocly use
 
-To use the decorator, you will need to register your plugin in your `.redocly.yaml` file. Register your `plugins` and `decorators` within the `lint` section.
+To use the decorator, you will need to register your plugin in your Redocly configuration file. Register your `plugins` and `decorators` within the `lint` section.
 
 ```yaml
 # See https://redocly.com/docs/cli/configuration/ for more information.
-apiDefinitions:
-  main: openapi/openapi.yaml
+apis:
+  main:
+    root: openapi/openapi.yaml
 lint:
   extends:
     - recommended
@@ -112,7 +113,7 @@ lint:
     # The key below is the combination of the plugin id (demo) and decorator name (replace-servers-url) defined in step 1 with a forward slash separator.
     demo/replace-servers-url: error
 
-referenceDocs:
+features.openapi:
   htmlTemplate: ./docs/index.html
   theme:
     colors:

@@ -38,4 +38,4 @@ Document: pet.yaml is successfully split
 pet.yaml: split processed in 33ms
 ```
 
-In the `openapi` directory, the `split` command "unbundles" the specified API definition. Code samples, components, and paths are split from the root definition into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [Create OpenAPI repo](https://github.com/Redocly/create-openapi-repo) tool.
+In the `openapi` directory, the `split` command "unbundles" the specified API definition. Code samples, components, and paths are split from the root definition into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.

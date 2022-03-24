@@ -1,7 +1,7 @@
 # Registry
 
-The Redocly API registry is here.
+The Redocly API registry is part of the [Workflows app](https://app.redocly.com/).
 
-There are no extra `.redocly.yaml` configuration file controls for the registry.
+There are no extra Redocly configuration file controls for the registry.
 
-The registry uses the `.redocly.yaml` to lint, and control the features and styles of the reference docs.
+The registry uses the Redocly configuration file for linting, and to control the features and styles of API reference documentation.

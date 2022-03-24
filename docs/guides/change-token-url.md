@@ -14,8 +14,8 @@ Estimated time: 20 minutes
 1. Add environment variables to the API version's settings.
     ![environment variables](./images/create-env-variable.png)
 
-1. Add this code to your repo with the API (the `.redocly.yaml` confirm is an example).
-    ```yaml .redocly.yaml
+1. Add this code to your repo with the API (the Redocly configuration file is an example).
+    ```yaml redocly.yaml
     plugins:
       lint:
     extends:

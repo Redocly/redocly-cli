@@ -6,9 +6,11 @@ tocMaxDepth: 3
 ## Introduction
 
 :::warning Important
+
 The `join` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
 
 The `join` command supports OpenAPI 3.x definitions only.
+
 :::
 
 Maintainers of multiple API definitions can benefit from storing each endpoint as a standalone API definition file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API definition file.
@@ -92,8 +94,11 @@ x-tagGroups:
 ```
 
 :::info
-* If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
-* If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
+
+If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
+
+If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
+
 :::
 
 The `servers` object combines the content from all input files, starting with the content from the first file. Commented lines are not included in the output file.
