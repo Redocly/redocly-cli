@@ -11,7 +11,7 @@
 
 If you have your own definition file, go right ahead and use it.
 
-Go [here](openapi-starter.md) to learn how to clone the `openapi-starter` project and learn more about how it works.
+If you want to learn how to clone the `openapi-starter` project and see how it works, we have [an entire page dedicated to it](openapi-starter.md)!
 
 ## Step 2 - Install OpenAPI CLI from openapi-starter
 
