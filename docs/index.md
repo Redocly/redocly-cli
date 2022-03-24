@@ -4,7 +4,7 @@ tocMaxDepth: 2
 
 # Redocly OpenAPI CLI
 
-OpenAPI CLI is an open source command-line tool that makes it easier to work with OpenAPI definition files. You can split large files into smaller files, then manage them with your [favorite version control service](https://redoc.ly/docs/workflows/sources/).
+OpenAPI CLI is an open source command-line tool that makes it easier to work with OpenAPI definition files. You can split large files into smaller files, then manage them with your [favorite version control service](../workflows/sources/index.md).
 
 Commands, rules and plugins help you validate your API definitions and preview docs locally. And when it's time to publish (using Redoc or Redocly, naturally), you can bundle everything back into a single file.
 
@@ -12,19 +12,19 @@ OpenAPI CLI also integrates with other Redocly products such as the API registry
 
 ## Key features
 
-✅ Split large definition files into bite-sized chunks.
-✅ Remote $refs can reference definitions hosted on any location.
-✅ Quickly bundle multiple files into a single file for publishing or rendering with external tools.
-✅ Use built-in linting rules or create your own.
-✅ Validate a 1 MB file in less than one second.
-✅ Get intuitive, helpful error and warning messages that are designed for humans.
-✅ Preview reference docs as you go.
-✅ Support for OAS 3.1, OAS 3.0, and Swagger 2.0 included.
+- ✅ Split large definition files into bite-sized chunks.
+- ✅ Remote $refs can reference definitions hosted on any location.
+- ✅ Quickly bundle multiple files into a single file for publishing or rendering with external tools.
+- ✅ Use built-in linting rules or create your own.
+- ✅ Validate a 1 MB file in less than one second.
+- ✅ Get intuitive, helpful error and warning messages that are designed for humans.
+- ✅ Preview reference docs as you go.
+- ✅ Support for OAS 3.1, OAS 3.0, and Swagger 2.0 included.
 
-## Customisation and configuration
+## Customization and configuration
 Just because it's open source, doesn't mean we've skimped on the goodies.
 
-Most customisation can be done in the Redocly configuration file (`redocly.yaml`). Create your own [linting rules](./resources/custom-rules.md) to ensure definitions validate to _your_ requirements. Remove content during the bundling process using [decorators](./resources/built-in-decorators.md). Go all out by utilizing plugins and apply a combination of rules and decorators that meet your specific needs.
+Most customization can be done in the Redocly configuration file (`redocly.yaml`). Create your own [linting rules](./resources/custom-rules.md) to ensure definitions validate to _your_ requirements. Remove content during the bundling process using [decorators](./resources/built-in-decorators.md). Go all out by utilizing plugins and apply a combination of rules and decorators that meet your specific needs.
 
 ## What makes Redocly OpenAPI CLI great
 
@@ -187,10 +187,10 @@ tag:
 Linting your OpenAPI definition ensures that it's valid and adheres to a set of rules and standards. This is especially important if you follow the design-first approach to developing APIs. You can use built-in linting rules, create your own custom rules — or a combination of both. Custom rules also extend basic functionality so you can respond to specific use-cases.
 
 ## Relationship to Redoc
-OpenAPI CLI keeps you sane as you maintain your API definitions. [Redoc](./docs/quickstart.md) swiftly deploys your docs to a website so all your hard work can be appreciated. There are [multiple deployment options for Redoc](./docs/deployment/intro.md).
+OpenAPI CLI keeps you sane as you maintain your API definitions. [Redoc](../redoc/quickstart.md) swiftly deploys your docs to a website so all your hard work can be appreciated. There are [multiple deployment options for Redoc](../redoc/deployment/intro.md).
 
 ## Read the docs!
-Everything you need to know about Redocly OpenAPI CLI is contained in the following pages. We take as much pride in our docs as we do in our code, so we're always fine-tuning, updating and improving. We suggest you start with our [quickstart guide](./docs/quickstart.md).
+Everything you need to know about Redocly OpenAPI CLI is contained in the following pages. We take as much pride in our docs as we do in our code, so we're always fine-tuning, updating and improving. We suggest you start with our [quickstart guide](./quickstart.md).
 
 ## Want to contribute?
 
