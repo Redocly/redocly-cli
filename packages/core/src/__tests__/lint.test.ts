@@ -46,7 +46,7 @@ describe('lint', () => {
   it('lintConfig should work', async () => {
     const document = parseYamlToDocument(
       outdent`
-      apiDefinitions: error string
+      apis: error string
       lint:
         plugins:
           - './local-plugin.js'
@@ -58,7 +58,7 @@ describe('lint', () => {
           no-invalid-media-type-examples: error
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
-      referenceDocs:
+      features.openapi:
         showConsole: true
         layout:
           scope: section
@@ -78,12 +78,12 @@ describe('lint', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/apiDefinitions",
+              "pointer": "#/apis",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "Expected type \`object\` but got \`string\`.",
+          "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
@@ -91,12 +91,46 @@ describe('lint', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/referenceDocs/layout",
+              "pointer": "#/features.openapi/layout",
               "reportOnKey": false,
               "source": "",
             },
           ],
           "message": "Expected type \`string\` but got \`object\`.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it("'plugins' shouldn't be allowed in 'apis' -> 'lint' field", async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      apis: 
+        lint: 
+          plugins: 
+            - './local-plugin.js'
+      lint:
+        plugins:
+          - './local-plugin.js'
+      `,
+      '',
+    );
+    const results = await lintConfig({ document });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/apis/lint/plugins",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`plugins\` is not expected here.",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
@@ -140,7 +174,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ spec: 'error', }),
+      config: makeConfig({ spec: 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
