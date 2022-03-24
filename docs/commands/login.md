@@ -39,7 +39,7 @@ Option      | Type      | Required  | Default | Description
 
 ```bash Successful login
 openapi login
-  🔑 Copy your API key from https://app.redoc.ly/profile and paste it below:
+  🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...
   Authorization confirmed. ✅
@@ -47,7 +47,7 @@ openapi login
 
 ```bash Failed login
 openapi login
-  🔑 Copy your API key from https://app.redoc.ly/profile and paste it below:
+  🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...
   Authorization failed. Please check if you entered a valid API key.

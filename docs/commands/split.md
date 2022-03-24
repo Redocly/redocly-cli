@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `split` command takes an API definition file and creates a [multi-file structure](../index.md#bundling) out of it by extracting referenced parts into standalone, separate files. Essentially, the `split` command does the opposite of the `bundle` command.
+The `split` command takes an API definition file and creates a [multi-file structure](../../resources/multi-file-definitions.md) out of it by extracting referenced parts into standalone, separate files. Essentially, the `split` command does the opposite of the `bundle` command.
 
 :::warning
 The `split` command doesn't support OpenAPI 2.0 definitions.
@@ -38,4 +38,4 @@ Document: pet.yaml is successfully split
 pet.yaml: split processed in 33ms
 ```
 
-In the `openapi` directory, the `split` command "unbundles" the specified API definition. Code samples, components, and paths are split from the root definition into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [Create OpenAPI repo](https://github.com/Redocly/create-openapi-repo) tool.
+In the `openapi` directory, the `split` command "unbundles" the specified API definition. Code samples, components, and paths are split from the root definition into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.

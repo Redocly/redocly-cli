@@ -1,2 +1,3 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml

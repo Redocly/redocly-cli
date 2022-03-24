@@ -1,10 +1,11 @@
 import {
-  bundle,
   formatProblems,
   getTotals,
   loadConfig,
+  getMergedConfig,
   OutputFormat,
   lint,
+  bundle,
 } from '@redocly/openapi-core';
 import {
   dumpBundle,
@@ -37,24 +38,25 @@ export async function handleBundle(
     format: OutputFormat;
     metafile?: string;
     extends?: string[];
-    'remove-unused-components'?: boolean
+    'remove-unused-components'?: boolean;
   },
   version: string,
 ) {
   const config = await loadConfig(argv.config, argv.extends);
-  const removeUnusedComponents = argv['remove-unused-components'] && !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components')
-
-  config.lint.skipRules(argv['skip-rule']);
-  config.lint.skipPreprocessors(argv['skip-preprocessor']);
-  config.lint.skipDecorators(argv['skip-decorator']);
-
+  const removeUnusedComponents =
+    argv['remove-unused-components'] &&
+    !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
 
-  for (const entrypoint of entrypoints) {
+  for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
+      const resolvedConfig = getMergedConfig(config, alias);
+      resolvedConfig.lint.skipRules(argv['skip-rule']);
+      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+      resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
 
       if (argv.lint) {
         if (config.lint.recommendedFallback) {
@@ -65,8 +67,8 @@ export async function handleBundle(
           );
         }
         const results = await lint({
-          ref: entrypoint,
-          config,
+          ref: path,
+          config: resolvedConfig,
         });
         const fileLintTotals = getTotals(results);
 
@@ -83,22 +85,22 @@ export async function handleBundle(
         printLintTotals(fileLintTotals, 2);
       }
 
-      process.stderr.write(gray(`bundling ${entrypoint}...\n`));
+      process.stderr.write(gray(`bundling ${path}...\n`));
 
       const {
         bundle: result,
         problems,
         ...meta
       } = await bundle({
-        config,
-        ref: entrypoint,
+        config: resolvedConfig,
+        ref: path,
         dereference: argv.dereferenced,
-        removeUnusedComponents
+        removeUnusedComponents,
       });
 
       const fileTotals = getTotals(problems);
       const { outputFile, ext } = getOutputFileName(
-        entrypoint,
+        path,
         entrypoints.length,
         argv.output,
         argv.ext,
@@ -140,31 +142,29 @@ export async function handleBundle(
       if (fileTotals.errors > 0) {
         if (argv.force) {
           process.stderr.write(
-            `❓ Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} with errors ${green(
+            `❓ Created a bundle for ${blue(path)} at ${blue(outputFile)} with errors ${green(
               elapsed,
             )}.\n${yellow('Errors ignored because of --force')}.\n`,
           );
         } else {
           process.stderr.write(
             `❌ Errors encountered while bundling ${blue(
-              entrypoint,
+              path,
             )}: bundle not created (use --force to ignore errors).\n`,
           );
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(entrypoint)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
+          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
         );
       }
 
       const removedCount = meta.visitorsData?.['remove-unused-components']?.removedCount;
       if (removedCount) {
-        process.stderr.write(
-          gray(`🧹 Removed ${removedCount} unused components.\n`),
-        );
+        process.stderr.write(gray(`🧹 Removed ${removedCount} unused components.\n`));
       }
     } catch (e) {
-      handleError(e, entrypoint);
+      handleError(e, path);
     }
   }
 

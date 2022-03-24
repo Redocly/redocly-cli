@@ -3,13 +3,24 @@ import { omitObjectProps, pickObjectProps } from '../utils';
 
 const ConfigRoot: NodeType = {
   properties: {
-    apiDefinitions: {
-      type: 'object',
-      properties: {},
-      additionalProperties: { properties: { type: 'string' } },
-    },
+    organization: { type: 'string' },
+    apis: 'ConfigApis',
+    lint: 'RootConfigLint',
+    'features.openapi': 'ConfigReferenceDocs',
+    'features.mockServer': 'ConfigMockServer',
+  },
+};
+
+const ConfigApis: NodeType = {
+  properties: {},
+  additionalProperties: 'ConfigApisProperties',
+};
+
+const ConfigApisProperties: NodeType = {
+  properties: {
+    root: { type: 'string' },
     lint: 'ConfigLint',
-    referenceDocs: 'ConfigReferenceDocs',
+    'features.openapi': 'ConfigReferenceDocs',
   },
 };
 
@@ -26,10 +37,6 @@ const ConfigHTTP: NodeType = {
 
 const ConfigLint: NodeType = {
   properties: {
-    plugins: {
-      type: 'array',
-      items: { type: 'string' },
-    },
     extends: {
       type: 'array',
       items: {
@@ -54,6 +61,16 @@ const ConfigLint: NodeType = {
         http: 'ConfigHTTP',
       },
     },
+  },
+};
+
+const RootConfigLint: NodeType = {
+  properties: {
+    plugins: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    ...ConfigLint.properties,
   },
 };
 
@@ -552,10 +569,21 @@ const ConfigReferenceDocs: NodeType = {
   additionalProperties: { type: 'string' },
 };
 
+const ConfigMockServer: NodeType = {
+  properties: {
+    strictExamples: { type: 'boolean' },
+    errorIfForcedExampleNotFound: { type: 'boolean' },
+  },
+};
+
 export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
+  ConfigApis,
+  ConfigApisProperties,
+  RootConfigLint,
   ConfigLint,
   ConfigReferenceDocs,
+  ConfigMockServer,
   ConfigHTTP,
   ConfigLanguage,
   ConfigLabels,

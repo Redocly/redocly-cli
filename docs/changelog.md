@@ -4,6 +4,28 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta.89 (2022-03-21)
+### Features
+
+- Internal changes of `redocly.yaml` config structure - add new mock server options to `redocly.yaml` schema.
+
+### Fixes
+
+- Fixed crash when there's an empty `redocly.yaml` file.
+----
+
+## 1.0.0-beta.88 (2022-03-16)
+### Features
+
+- Internal changes of `redocly.yaml` config structure.
+
+### Fixes
+
+- Fixed an issue with the `lint` command highlighting the entire file when `servers` are missing in OAS3. Now it highlights only the `openapi` field, indicating an incorrect OpenAPI definition.
+- Fixed an issue with the `lint` command highlighting all parent values when one of the child fields has an empty value instead of highlighting the field itself.
+
+----
+
 ## 1.0.0-beta.87 (2022-03-10)
 
 ### Fixes
@@ -44,7 +66,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added the `webhooks` and [x-webhooks](https://redoc.ly/docs/api-reference-docs/specification-extensions/x-webhooks/#x-webhooks) support to the `split` command.
+- Added the `webhooks` and [x-webhooks](https://redocly.com/docs/api-reference-docs/specification-extensions/x-webhooks/#x-webhooks) support to the `split` command.
 
 ----
 
@@ -387,7 +409,7 @@ lint:
 
 ### Features
 
-- Our [official OpenAPI CLI documentation](https://redoc.ly/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/openapi-cli/tree/master/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redoc.ly/code-of-conduct/) in all your contributions.
+- Our [official OpenAPI CLI documentation](https://redocly.com/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/openapi-cli/tree/master/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redocly.com/code-of-conduct/) in all your contributions.
 
 - Implemented support for OpenAPI 3.1 in `typeExtension` plugins.
 

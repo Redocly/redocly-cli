@@ -2,6 +2,7 @@ import { loadConfig, findConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
 
 const fs = require('fs');
+const path = require('path');
 
 describe('loadConfig', () => {
   it('should resolve config http header by US region', async () => {
@@ -65,5 +66,11 @@ describe('findConfig', () => {
       Found the following files: redocly.yaml, .redocly.yaml. 
       Please use 'redocly.yaml' instead.
     `);
+  });
+  it('should find a nested config ', async () => {
+    jest.spyOn(fs, 'existsSync').mockImplementation((name) => name === 'dir/redocly.yaml');
+    jest.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
+    const configName = findConfig('dir');
+    expect(configName).toStrictEqual('dir/redocly.yaml');
   });
 });

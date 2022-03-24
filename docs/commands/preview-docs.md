@@ -4,7 +4,7 @@
 
 With this command, you can generate documentation previews for API definitions on your local machine.
 
-If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redoc.ly/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redoc.ly/redoc).
+If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redocly.com/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redocly.com/redoc).
 
 :::success Tip
 To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.
@@ -23,8 +23,8 @@ openapi preview-docs <entrypoint> --version
 
 Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename or configuration alias that you want to generate preview for. Refer to [the entrypoints section](#entrypoints) for more options.
-`--config`                | `string`  | no           | -           | Specify path to the [config file](#custom-configuration-file)
+`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the entrypoints section](#entrypoints) for more options.
+`--config`                | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
 `--force`, `-f`           | `boolean` | no           | -           | Generate preview output even when errors occur
 `--help`                  | `boolean` | no           | -           | Show help
 `--port`, `-p`            | `number`  | no           | 8080        | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system.
@@ -38,7 +38,7 @@ Option                    | Type      | Required     | Default     | Description
 
 ### Entrypoints
 
-The command behaves differently depending on how you pass a path to the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists.
+The command behaves differently depending on how you pass the entrypoint to it, and whether the [configuration file](#custom-configuration-file) exists.
 
 #### Pass entrypoint directly
 
@@ -50,22 +50,23 @@ In this case, `preview-docs` will preview the definition that was passed to the 
 
 #### Pass entrypoint alias
 
-Instead of a full path, you can use an alias assigned in the `apiDefinitions` section within your `.redocly.yaml` configuration file as the entrypoint.
+Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file as the entrypoint.
 
 ```bash Command
-openapi preview-docs petstore
+openapi preview-docs main
 ```
 
 ```yaml Configuration file
-apiDefinitions:
-  petstore: ./openapi/petstore-definition.json
+apis:
+  main:
+    root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `petstore` alias (example in the `.redocly.yaml` tab), `preview-docs` will preview the `petstore.json` definition file. For this approach, the `.redocly.yaml` configuration file is mandatory.
+In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `definition.json` file. For this approach, the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 
-By default, the CLI tool looks for a `.redocly.yaml` configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi preview-docs --config=./another/directory/config.yaml
