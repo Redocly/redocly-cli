@@ -22,28 +22,43 @@ export class RegistryApi {
 
   private async request(path = '', options: RequestInit = {}, region?: Region) {
     const headers = Object.assign({}, options.headers || {}, { 'x-redocly-cli-version': version });
-    if (!headers.hasOwnProperty('authorization')) { throw new Error('Unauthorized'); }
+
+    if (!headers.hasOwnProperty('authorization')) {
+      throw new Error('Unauthorized');
+    }
+
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
       Object.assign({}, options, { headers }),
     );
-    if (response.status === 401) { throw new Error('Unauthorized'); }
+
+    if (response.status === 401) {
+      throw new Error('Unauthorized');
+    }
+
     if (response.status === 404) {
       const body: RegistryApiTypes.NotFoundProblemResponse = await response.json();
       throw new Error(body.code);
     }
+
     return response;
   }
 
-  async authStatus(accessToken: string, region: Region, verbose = false) {
+  async authStatus(
+    accessToken: string,
+    region: Region,
+    verbose = false,
+  ): Promise<{ viewerId: string; organizations: string[] }> {
     try {
-      const response = await this.request('', { headers: { authorization: accessToken }}, region);
-      return response.ok;
+      const response = await this.request('', { headers: { authorization: accessToken } }, region);
+
+      return await response.json();
     } catch (error) {
       if (verbose) {
         console.log(error);
       }
-      return false;
+
+      throw error;
     }
   }
 
@@ -69,7 +84,7 @@ export class RegistryApi {
           isUpsert,
         }),
       },
-      this.region
+      this.region,
     );
 
     if (response.ok) {
@@ -88,20 +103,22 @@ export class RegistryApi {
     branch,
     isUpsert,
   }: RegistryApiTypes.PushApiParams) {
-    const response = await this.request(`/${organizationId}/${name}/${version}`, {
-      method: 'PUT',
-      headers: {
-        'content-type': 'application/json',
-        authorization: this.accessToken
-      } as HeadersInit,
-      body: JSON.stringify({
-        rootFilePath,
-        filePaths,
-        branch,
-        isUpsert,
-      }),
-    },
-      this.region
+    const response = await this.request(
+      `/${organizationId}/${name}/${version}`,
+      {
+        method: 'PUT',
+        headers: {
+          'content-type': 'application/json',
+          authorization: this.accessToken,
+        } as HeadersInit,
+        body: JSON.stringify({
+          rootFilePath,
+          filePaths,
+          branch,
+          isUpsert,
+        }),
+      },
+      this.region,
     );
 
     if (response.ok) {
