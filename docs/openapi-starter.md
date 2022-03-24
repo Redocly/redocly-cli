@@ -4,7 +4,7 @@ The [openapi-starter](https://github.com/Redocly/openapi-starter) is a Redocly p
 
 It automatically creates the required folder structure and generates a basic OpenAPI definition file, which is great if you're new to API reference docs.
 
-Although you can create your own folder structure, we recommend letting `openapi-starter` set it up initially (you can always make changes later). The folder structure is also key when using the OpenAPI `split` and `bundle` commands, which are used to split up large definitions for easier maintenance, and compile the consituent files back into a single file when you're ready to publish your API reference docs.
+Although you can create your own folder structure, we recommend letting `openapi-starter` set it up initially (you can always make changes later). The folder structure is also key when using the OpenAPI `split` and `bundle` commands, which are used to split up large definitions for easier maintenance, and compile the constituent files back into a single file when you're ready to publish your API reference docs.
 
 ## How to use openapi-starter
 
@@ -36,7 +36,7 @@ We use [GitHub Desktop](https://desktop.github.com/) in this example, but go ahe
 
 ## How to manage your files
 
-By default, you will have a root directory (`openapi`) that contains a sample API definition file (`openapi.yml`). The sample file is already split into its constituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
+By default, you will have a root directory (`openapi`) that contains a sample API definition file (`openapi.yaml`). The sample file is already split into its constituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
 
 ### Just starting out with API docs?
 
