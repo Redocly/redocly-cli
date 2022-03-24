@@ -706,7 +706,7 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
     process.stderr.write(
       `The ${yellow('referenceDocs')} field is deprecated. Use ${green(
         'features.openapi',
-      )} instead, see changelog: https://redocly.com/docs/cli/changelog/#100-beta88-2022-03-16\n`,
+      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
     );
   }
   return {
