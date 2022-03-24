@@ -62,7 +62,7 @@ function ResponseContainsProperty (options) {
 
 ### Define the logic
 
-While you could hardcode the properties you want, it is better to allow configuration of these properties from the `.redocly.yaml` file.
+While you could hardcode the properties you want, it is better to allow configuration of these properties from the Redocly configuration file.
 
 This sets the default options as `[]`.
 
@@ -77,7 +77,7 @@ function ResponseContainsProperty (options) {
 // ...
 ```
 
-So the configuration in the `.redocly.yaml` file would look as follows:
+So the configuration in the Redocly configuration file would look as follows:
 
 ```yaml
 lint:
@@ -144,7 +144,7 @@ report({
 
 You can copy/paste the code below to try it out.
 
-1. Make sure your `.redocly.yaml` file is located in the root repository directory.
+1. Make sure your Redocly configuration file is located in the root repository directory.
 1. Inside the root repository directory, create the `plugins` directory.
 1. Add the `demo-plugin.js` file to the `plugins` directory.
 1. Inside the `plugins` directory, create the `rules` directory.
