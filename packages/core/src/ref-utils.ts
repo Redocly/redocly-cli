@@ -60,7 +60,7 @@ export function pointerBaseName(pointer: string) {
 
 export function refBaseName(ref: string) {
   const parts = ref.split(/[\/\\]/); // split by '\' and '/'
-  return parts[parts.length - 1].split('.')[0];
+  return parts[parts.length - 1].replace(/\.[^.]+$/, ''); // replace extension with empty string
 }
 
 export function isAbsoluteUrl(ref: string) {
