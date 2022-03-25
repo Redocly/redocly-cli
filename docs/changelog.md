@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed bundle issue when handling files with multiple dots in their name
+- Resolved an issue with the `bundle` command when handling files with multiple dots in the file name.
 
 ---
 
