@@ -4,6 +4,14 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-91 (2022-03-25)
+
+### Fixes
+
+- Fixed bundle issue when handling files with multiple dots in their name
+
+---
+
 ## 1.0.0-beta.90 (2022-03-24)
 
 ### Fixes
