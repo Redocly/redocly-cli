@@ -48,7 +48,7 @@ function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir:
 
   const componentsFiles: ComponentsFiles = {};
   iterateComponents(openapi, openapiDir, componentsFiles);
-  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'),  componentsFiles, pathSeparator);
+  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, pathSeparator);
   const webhooks = (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
   // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
   iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, pathSeparator, 'webhook_');

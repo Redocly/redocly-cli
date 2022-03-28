@@ -28,7 +28,7 @@ describe('#split', () => {
       {
         entrypoint: filePath,
         outDir: openapiDir,
-        separator: '_'
+        separator: '_',
       }
     );
 
@@ -53,7 +53,7 @@ describe('#split', () => {
       {
         entrypoint: filePath,
         outDir: openapiDir,
-        separator: '_'
+        separator: '_',
       }
     );
 
