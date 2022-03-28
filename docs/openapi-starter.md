@@ -36,7 +36,9 @@ This step clones the project to your local machine so you can use it with [OpenA
 ```md Use the CLI
 
 1. In your copied openapi-starter repo, select the Code button.
-2. In the floating menu that opens, select the URL type to clone (HTTPS, SSH, GitHub CLI). In this example, we're selecting HTTPS. To understand the difference between these URLs, select the Help (?) icon in the floating menu. This will open the GitHub documentation in a new browser tab.
+2. In the floating menu that opens, select the URL type to clone (HTTPS, SSH, GitHub CLI). In this example, we're selecting HTTPS. 
+To understand the difference between these URLs, select the Help (?) icon in the floating menu. 
+This will open the GitHub documentation in a new browser tab.
 3. After choosing the HTTPS URL, select the copy icon to the right of the URL. A brief popup "Copied!" confirms that you've successfully copied the URL.
 4. Open your terminal and navigate to the folder where you want to clone the project.
 5. In the folder, type git clone, then paste the HTTPS URL. The line in the terminal should look like this:
