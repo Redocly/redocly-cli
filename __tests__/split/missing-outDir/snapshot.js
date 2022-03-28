@@ -10,9 +10,10 @@ Positionals:
   entrypoint  API definition file that you want to split     [string] [required]
 
 Options:
-  --version  Show version number.                                      [boolean]
-  --help     Show help.                                                [boolean]
-  --outDir   Output directory where files will be saved.     [string] [required]
+  --version    Show version number.                                    [boolean]
+  --help       Show help.                                              [boolean]
+  --outDir     Output directory where files will be saved.   [string] [required]
+  --separator  File path separator used while splitting. [string] [default: "_"]
 
 Missing required argument: outDir
 
