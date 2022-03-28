@@ -22,6 +22,7 @@ Option                    | Type      | Required     | Default     | Description
 --------------------------|:---------:|:------------:|:-----------:|------------
 `entrypoint`              | `string`  | yes          | -           | Path to the API definition file that you want to split into a multi-file structure
 `--outDir`                | `string`  | yes          | -           | Path to the directory where you want to save split files. If the specified directory doesn't exist, it will be created automatically.
+`separator`               | `string`  | no           | `_`         | File path separator used while splitting. Will affect file names in the `paths` folder (e.g. `user_create.yaml`)
 `--help`                  | `boolean` | no           | -           | Show help
 `--version`               | `boolean` | no           | -           | Show version number
 
