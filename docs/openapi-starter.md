@@ -22,7 +22,7 @@ The project is copied to your GitHub account. It is independent and not linked t
 
 ### Step 2: Clone the project
 
-This step clones the project to your local machine so you can use it with [OpenAPI CLI](.docs/quickstart.md).
+This step clones the project to your local machine so you can use it with [OpenAPI CLI](quickstart.md).
 
 ```md Use GitHub Desktop 
 
@@ -55,7 +55,7 @@ By default, you will have a root directory (`openapi`) that contains a sample AP
 
 ### Just starting out with API docs?
 
-Use our `openapi.yaml` file to explore OpenAPI CLI. We suggest you [run some basic commands](.docs/quickstart.md) like `lint`, `bundle` and `split` to practice.
+Use our `openapi.yaml` file to explore OpenAPI CLI. We suggest you [run some basic commands](quickstart.md) like `lint`, `bundle` and `split` to practice.
 
 ### Got your own API definition file?
 
