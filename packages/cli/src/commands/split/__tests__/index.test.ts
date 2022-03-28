@@ -28,6 +28,7 @@ describe('#split', () => {
       {
         entrypoint: filePath,
         outDir: openapiDir,
+        separator: '_'
       }
     );
 
@@ -46,7 +47,7 @@ describe('#split', () => {
     
     jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
     jest.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
-    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
+    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/paths/test.yaml');

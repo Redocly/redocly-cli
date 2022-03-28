@@ -46,6 +46,12 @@ yargs
             required: true,
             type: 'string',
           },
+          separator: {
+            description: 'File path separator used while splitting.',
+            required: false,
+            type: 'string',
+            default: '_',
+          },
         })
         .demandOption('entrypoint'),
     handleSplit,

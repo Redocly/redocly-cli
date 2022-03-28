@@ -7,5 +7,6 @@ coverage/
 yarn.lock
 dist/
 lib/
+output/
 *.tar.gz
 *.tsbuildinfo

@@ -29,12 +29,13 @@ import {
 export async function handleSplit (argv: {
   entrypoint: string;
   outDir: string
+  separator: string
 }) {
   const startedAt = performance.now();
-  const { entrypoint, outDir } = argv;
+  const { entrypoint, outDir, separator } = argv;
   validateDefinitionFileName(entrypoint!);
   const openapi = readYaml(entrypoint!) as Oas3Definition | Oas3_1Definition;
-  splitDefinition(openapi, outDir);
+  splitDefinition(openapi, outDir, separator);
   process.stderr.write(
     `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`,
@@ -42,15 +43,15 @@ export async function handleSplit (argv: {
   printExecutionTime('split', startedAt, entrypoint!);
 }
 
-function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir: string) {
+function splitDefinition(openapi: Oas3Definition | Oas3_1Definition, openapiDir: string, pathSeparator: string) {
   fs.mkdirSync(openapiDir, { recursive: true });
 
   const componentsFiles: ComponentsFiles = {};
   iterateComponents(openapi, openapiDir, componentsFiles);
-  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles);
+  iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'),  componentsFiles, pathSeparator);
   const webhooks = (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
   // use webhook_ prefix for code samples to prevent potential name-clashes with paths samples
-  iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
+  iteratePathItems(webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, pathSeparator, 'webhook_');
 
   replace$Refs(openapi, openapiDir, componentsFiles);
   writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
@@ -247,13 +248,14 @@ function iteratePathItems(
   openapiDir: string,
   outDir: string,
   componentsFiles: object,
+  pathSeparator: string,
   codeSamplesPathPrefix: string = '',
 ) {
   if (!pathItems) return;
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const pathName of Object.keys(pathItems)) {
-    const pathFile = `${path.join(outDir, pathToFilename(pathName))}.yaml`;
+    const pathFile = `${path.join(outDir, pathToFilename(pathName, pathSeparator))}.yaml`;
     const pathData = pathItems[pathName] as Oas3PathItem;
 
     if (isRef(pathData)) continue;
@@ -270,7 +272,7 @@ function iteratePathItems(
           openapiDir,
           'code_samples',
           sample.lang,
-          codeSamplesPathPrefix + pathToFilename(pathName),
+          codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator),
           method + langToExt(sample.lang),
         );
 

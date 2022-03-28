@@ -66,12 +66,12 @@ export function printExecutionTime(commandName: string, startedAt: number, entry
   process.stderr.write(gray(`\n${entrypoint}: ${commandName} processed in ${elapsed}\n\n`));
 }
 
-export function pathToFilename(path: string) {
+export function pathToFilename(path: string, pathSeparator: string) {
   return path
     .replace(/~1/g, '/')
     .replace(/~0/g, '~')
     .replace(/^\//, '')
-    .replace(/\//g, '@');
+    .replace(/\//g, pathSeparator);
 }
 
 export class CircularJSONNotSupportedError extends Error {
