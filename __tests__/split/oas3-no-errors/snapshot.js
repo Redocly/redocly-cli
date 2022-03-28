@@ -109,7 +109,7 @@ paths:
   /pets:
     $ref: paths/pets.yaml
   /pets/{petId}:
-    $ref: paths/pets@{petId}.yaml
+    $ref: paths/pets_{petId}.yaml
 🪓 Document: ../../../__tests__/split/oas3-no-errors/openapi.yaml is successfully split
     and all related files are saved to the directory: output 
 
