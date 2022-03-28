@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added the `--separator` option to the `split` command
+- Added the `--separator` option to the `split` command. Use it to change the separator character that's used instead of whitespace in file names. The default is `_ `, which means that after splitting, path file names look like this: "user_login.yaml", "user_logout", etc.
 
 ### Fixes
 
