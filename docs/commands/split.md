@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `split` command takes an API definition file and creates a [multi-file structure](../index.md#bundling) out of it by extracting referenced parts into standalone, separate files. Essentially, the `split` command does the opposite of the `bundle` command.
+The `split` command takes an API definition file and creates a [multi-file structure](../../resources/multi-file-definitions.md) out of it by extracting referenced parts into standalone, separate files. Essentially, the `split` command does the opposite of the `bundle` command.
 
 :::warning
 The `split` command doesn't support OpenAPI 2.0 definitions.

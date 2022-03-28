@@ -19,9 +19,7 @@ export class RedoclyClient {
   constructor(region?: Region) {
     this.region = this.loadRegion(region);
     this.loadTokens();
-    this.domain = region
-      ? DOMAINS[region]
-      : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+    this.domain = region ? DOMAINS[region] : process.env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
 
     /*
      * We can't use process.env here because it is replaced by a const in some client-side bundles,
@@ -34,7 +32,11 @@ export class RedoclyClient {
   loadRegion(region?: Region) {
     if (region && !DOMAINS[region]) {
       process.stdout.write(
-        red(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".\n`),
+        red(
+          `Invalid argument: region in config file.\nGiven: ${green(
+            region,
+          )}, choices: "us", "eu".\n`,
+        ),
       );
       process.exit(1);
     }
@@ -86,37 +88,36 @@ export class RedoclyClient {
     if (isNotEmptyObject(credentials)) {
       this.setAccessTokens({
         ...credentials,
-        ...(credentials.token && !credentials[this.region] && {
-          [this.region]: credentials.token
-        })
-      })
+        ...(credentials.token &&
+          !credentials[this.region] && {
+            [this.region]: credentials.token,
+          }),
+      });
     }
     if (process.env.REDOCLY_AUTHORIZATION) {
       this.setAccessTokens({
         ...this.accessTokens,
-        [this.region]: process.env.REDOCLY_AUTHORIZATION
-      })
+        [this.region]: process.env.REDOCLY_AUTHORIZATION,
+      });
     }
   }
 
-  getAllTokens (): RegionalToken[] {
-    return (<[Region, string][]>Object.entries(this.accessTokens)).filter(
-      ([region]) => AVAILABLE_REGIONS.includes(region)
-    ).map(
-      ([region, token]) => ({ region, token })
-    );
+  getAllTokens(): RegionalToken[] {
+    return (<[Region, string][]>Object.entries(this.accessTokens))
+      .filter(([region]) => AVAILABLE_REGIONS.includes(region))
+      .map(([region, token]) => ({ region, token }));
   }
 
   async getValidTokens(): Promise<RegionalTokenWithValidity[]> {
-    const validTokens = <RegionalTokenWithValidity[]>[];
+    const allTokens = this.getAllTokens();
 
-    for (const { token, region } of this.getAllTokens()) {
-      if (await this.verifyToken(token, region)) {
-        validTokens.push({ token, region, valid: true });
-      }
-    }
-    
-    return validTokens;
+    const verifiedTokens = await Promise.allSettled(
+      allTokens.map(({ token, region }) => this.verifyToken(token, region)),
+    );
+
+    return allTokens
+      .filter((_, index) => verifiedTokens[index].status === 'fulfilled')
+      .map(({ token, region }) => ({ token, region, valid: true }));
   }
 
   async getTokens() {
@@ -124,9 +125,23 @@ export class RedoclyClient {
   }
 
   async isAuthorizedWithRedoclyByRegion(): Promise<boolean> {
-    if (!this.hasTokens()) return false;
+    if (!this.hasTokens()) {
+      return false;
+    }
+
     const accessToken = this.accessTokens[this.region];
-    return !!accessToken && await this.verifyToken(accessToken, this.region);
+
+    if (!accessToken) {
+      return false;
+    }
+
+    try {
+      await this.verifyToken(accessToken, this.region);
+
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   async isAuthorizedWithRedocly(): Promise<boolean> {
@@ -137,8 +152,11 @@ export class RedoclyClient {
     return existsSync(credentialsPath) ? JSON.parse(readFileSync(credentialsPath, 'utf-8')) : {};
   }
 
-  async verifyToken(accessToken: string, region: Region, verbose: boolean = false): Promise<boolean> {
-    if (!accessToken) return false;
+  async verifyToken(
+    accessToken: string,
+    region: Region,
+    verbose: boolean = false,
+  ): Promise<{ viewerId: string; organizations: string[] }> {
     return this.registryApi.authStatus(accessToken, region, verbose);
   }
 
@@ -146,8 +164,9 @@ export class RedoclyClient {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
     process.stdout.write(gray('\n  Logging in...\n'));
 
-    const authorized = await this.verifyToken(accessToken, this.region, verbose);
-    if (!authorized) {
+    try {
+      await this.verifyToken(accessToken, this.region, verbose);
+    } catch (err) {
       process.stdout.write(
         red('Authorization failed. Please check if you entered a valid API key.\n'),
       );
