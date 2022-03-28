@@ -23,7 +23,7 @@ In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in al
 
 ## Step 4 - Try some basic commands
 
-[OpenAPI CLI commands](./docs/commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `bundle`, `lint`, `split` and `preview`.
+[OpenAPI CLI commands](./commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `bundle`, `lint`, `split` and `preview`.
 
 :::success Tip
 If you're new to command-line interfaces, note that you don't have to include the `$` in your commands. This symbol only indicates that the command after it should be entered into the terminal. To run a command, open your terminal, use `cd` to access the path where your API definition file is stored, type the command, and press **Enter**.
