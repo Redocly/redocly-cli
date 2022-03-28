@@ -1,4 +1,4 @@
-import { isSubdir } from '../utils';
+import { isSubdir, pathToFilename } from '../utils';
 
 jest.mock("os");
 
@@ -39,4 +39,12 @@ describe('isSubdir', () => {
   afterEach(() => {
     jest.resetModules()
   })
+});
+
+
+describe('pathToFilename', () => {
+  it('should use correct path separator', () => {
+    const processedPath = pathToFilename('/user/createWithList', '_');
+    expect(processedPath).toEqual('user_createWithList');
+  });
 });

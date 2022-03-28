@@ -42,6 +42,25 @@ describe('#split', () => {
     );
   });
 
+
+  it('should use the correct separator', async () => {
+    const filePath = "./packages/cli/src/commands/split/__tests__/fixtures/spec.json";
+
+    const utils = require('../../../utils');
+    jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
+
+    await handleSplit (
+      {
+        entrypoint: filePath,
+        outDir: openapiDir,
+        separator: '_'
+      }
+    );
+
+    expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');
+    utils.pathToFilename.mockRestore();
+  });
+
   it('should have correct path with paths', () => {
     const openapi = require("./fixtures/spec.json");
     
