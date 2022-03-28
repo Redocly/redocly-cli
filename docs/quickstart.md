@@ -189,11 +189,15 @@ So, what just happened? Take a look in the newly created `bundled` directory. Th
 └── openapi.yaml
 ```
 
+
 :::info Note
+
 `openapi.yaml` in the `bundled` folder is the default name that OpenAPI CLI gives to the 'root' YAML file you just split up. It contains `$ref`s to its constituent parts. You do the work in the constituent parts.
+
 :::
 
-Continuing on with our example, when you need to bundle up your API definition again, you run the `bundle` command against `openapi.yaml` and use `--output` to send the constituent parts to `bundled.yaml`. In the real world, you could send them to some other file (`openapi bundle openapi.yaml --output some-other-file.yaml`):
+Continuing on with our example, when you need to bundle up your API definition again, you run the `bundle` command against `openapi.yaml` and use `--output` to send the constituent parts to `bundled.yaml`. 
+In the real world, you could send them to some other file (`openapi bundle openapi.yaml --output some-other-file.yaml`):
 
 ```bash
 $ openapi bundle openapi.yaml --output bundled.yaml
