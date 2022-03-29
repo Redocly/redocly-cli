@@ -50,6 +50,13 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('required', () => {
+      it('values should be required',  () => {
+        expect(asserts.required(['one', 'two', 'three'], ['one', 'two'])).toBeTruthy();
+        expect(asserts.required(['one', 'two'], ['one', 'two', 'three'])).toBeFalsy();
+      });
+    });
+
     describe('nonEmpty', () => {
       it('value should not be empty',  () => {
         expect(asserts.nonEmpty('test', true)).toBeTruthy();

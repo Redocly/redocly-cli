@@ -11,7 +11,7 @@ import { LintConfig, Config } from './config/config';
 import { normalizeTypes } from './types';
 import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
-import { detectOpenAPI, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
+import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
 import { defaultPlugin } from './config/builtIn';
@@ -76,8 +76,8 @@ export async function lintDocument(opts: {
   };
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
-  const regularRules = initRules(rules as any, config, 'rules', oasVersion);
-  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules], types);
+  const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', oasVersion);
+  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules] as any, types);
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,

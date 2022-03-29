@@ -1,7 +1,7 @@
 import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
 
 export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum', 'pattern',
-  'minLength', 'maxLength', 'casing', 'sortOrder'];
+  'minLength', 'maxLength', 'casing', 'sortOrder', 'disallowed', 'required'];
 export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
   'minLength', 'maxLength', 'casing', 'sortOrder'];
 
@@ -32,6 +32,24 @@ export const asserts: {[key: string]: any} = {
   defined: (value: string | undefined, _val: boolean = true): boolean => {
     const isDefined = typeof value !== 'undefined';
     return _val ? isDefined : !isDefined;
+  },
+  required: (values: string[], keys: string[]): boolean => {
+    for (const requiredKey of keys) {
+      if (!values.includes(requiredKey)) {
+        return false;
+      }
+    }
+    return true;
+  },
+  disallowed: (value: string | string[], keys: string[]): boolean => {
+    if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
+    const values = typeof value === 'string' ? [value] : value;
+    for (let _val of values) {
+      if (keys.includes(_val)) {
+        return false;
+      }
+    }
+    return true;
   },
   undefined: (value: any, _val: boolean = true): boolean => {
     const isUndefined = typeof value === 'undefined';
@@ -91,6 +109,6 @@ export const asserts: {[key: string]: any} = {
     return getCounts(keys, properties) < 2;
   },
   mutuallyRequired: (keys: string[], properties: string[]): boolean => {
-    return getCounts(keys, properties) === properties.length;
+    return getCounts(keys, properties) > 0 ? getCounts(keys, properties) === properties.length : true;
   }
 }

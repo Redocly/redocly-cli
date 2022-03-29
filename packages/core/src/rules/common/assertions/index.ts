@@ -1,10 +1,9 @@
 import { asserts, runOnKeysMap, runOnValuesMap } from './asserts';
-import { ALL_KEYS, Assert, formVisitor, objectSet } from './utils';
+import { Assert, formLastVisitor, buildVisitorObject } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
-  let visitors = {};
-  let assertsMap: {[key: string]: any} = {};
+  let visitors: any[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase,
@@ -12,10 +11,10 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   const assertions: any[] = Object.values(opts);
 
   for (const assertion of assertions) {
-    if (!assertion.on) {
+    if (!assertion.subject) {
       continue;
     }
-    const onProps: string[] = Array.isArray(assertion.on) ? assertion.on : [assertion.on];
+    const subjects: string[] = Array.isArray(assertion.subject) ? assertion.subject : [assertion.subject];
 
     const assertsToApply: Assert[] =
       Object.keys(asserts)
@@ -35,55 +34,23 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
     const shouldRunOnKeys: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnKeys && !assert.runsOnValues);
     const shouldRunOnValues: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnValues && !assert.runsOnKeys);
 
-    const pathsEndsWithAllKeys: number = onProps.filter(item => item.endsWith(ALL_KEYS)).length;
-    if (onProps.length > 1 && pathsEndsWithAllKeys > 0 && pathsEndsWithAllKeys < onProps.length) {
-      // we can't use $keys and regular property in one assertion, throw an error:
-      throw new Error(`'${ALL_KEYS}' and properties can't be used together.`);
+    if (shouldRunOnValues && !assertion.property) {
+      throw new Error(`${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`);
     }
 
-    // form assert for each property:
-    for (const onProp of onProps) {
-      const parts = onProp.split('.');
+    if (shouldRunOnKeys && assertion.property) {
+      throw new Error(`${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`);
+    }
 
-      if (parts.length < 2) {
-        // Path should have the right format NodeName.property
-        throw new Error(`Path to the property should contain parent node name and the property itself. ` +
-          `Please use '${ALL_KEYS}' or provide a property.`);
-      }
+    for (const subject of subjects) {
+      const lastVisitor = formLastVisitor(assertion.property, assertsToApply, assertion.context);
+      const visitorObject = assertion.context
+        ? buildVisitorObject(subject, assertion.context, lastVisitor)
+        : { [subject]: lastVisitor };
 
-      // get property on which we will do the lint:
-      const lastProp = parts.pop() as string;
-
-      if (shouldRunOnValues && lastProp === ALL_KEYS) {
-        throw new Error(`${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`);
-      }
-
-      if (shouldRunOnKeys && lastProp !== ALL_KEYS) {
-        throw new Error(`${shouldRunOnKeys.name} can't be used on a single property. Please use '${ALL_KEYS}'.`);
-      }
-
-      const path = parts.join('.');
-      if (!assertsMap[path]) {
-        assertsMap[path] = {};
-      }
-      assertsMap[path][lastProp] = assertsToApply;
+      visitors.push(visitorObject);
     }
   }
 
-  for (let path of Object.keys(assertsMap)) {
-    let visitor = {};
-    const pathParts = path.split('.');
-    const lastNode = pathParts.pop() as string;
-    if (pathParts.length) {
-      visitor = objectSet(pathParts, formVisitor(lastNode, assertsMap[path]));
-    } else {
-      visitor = formVisitor(lastNode, assertsMap[path]);
-    }
-
-    visitors = {
-      ...visitors,
-      ...visitor
-    }
-  }
   return visitors;
 };

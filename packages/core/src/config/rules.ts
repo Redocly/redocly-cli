@@ -24,14 +24,25 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
           return undefined;
         }
 
-        const visitor = rule(ruleSettings);
+        const visitors = rule(ruleSettings);
+
+        if (Array.isArray(visitors)) {
+          return visitors.map((visitor: any) => ({
+            severity: ruleSettings.severity,
+            ruleId,
+            visitor: visitor,
+          }))
+        }
 
         return {
           severity: ruleSettings.severity,
           ruleId,
-          visitor,
+          visitor: visitors,
         };
       }),
     )
-    .filter(notUndefined);
+    .flatMap(visitor => visitor)
+    .filter((arr) => {
+      return notUndefined(arr);
+    });
 }
