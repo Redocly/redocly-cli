@@ -1,4 +1,4 @@
-import { pickObjectProps, omitObjectProps, slash } from '../utils';
+import { pickObjectProps, omitObjectProps, slash, generalizeResponseStatusCode } from '../utils';
 
 describe('utils', () => {
   const testObject = {
@@ -69,6 +69,17 @@ describe('utils', () => {
     it('does not modify extended length paths', () => {
       const extended = '\\\\?\\some\\path';
       expect(slash(extended)).toBe(extended);
+    });
+  });
+
+  describe('generalizeResponseStatusCode', () => {
+    it('should get the generalized form of status codes', () => {
+      expect(generalizeResponseStatusCode('202')).toEqual('2xx');
+      expect(generalizeResponseStatusCode(400)).toEqual('4xx');
+    });
+    it('should fail on a wrong input', () => {
+      expect(generalizeResponseStatusCode('2002')).toEqual('2002');
+      expect(generalizeResponseStatusCode(4000)).toEqual('4000');
     });
   });
 });

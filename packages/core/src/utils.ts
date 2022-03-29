@@ -188,3 +188,6 @@ export function assignExisting<T>(target: Record<string, T>, obj: Record<string,
     }
   }
 }
+
+export const generalizeResponseStatusCode = (code: number | string): string =>
+  `${code}`.replace(/^(\d)\d\d$/, (_, firstDigit) => `${firstDigit}xx`);
