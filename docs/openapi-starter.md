@@ -1,4 +1,4 @@
-# How to implement openapi-starter
+# How to use openapi-starter
 
 The [openapi-starter](https://github.com/Redocly/openapi-starter) is a Redocly project that you can clone to your own GitHub account to more easily manage API definition files either as single files or multiple files.
 
@@ -6,9 +6,7 @@ It automatically creates the required folder structure and generates a basic Ope
 
 Although you can create your own folder structure, we recommend letting `openapi-starter` set it up initially (you can always make changes later). The folder structure is also key when using the OpenAPI `split` and `bundle` commands, which are used to split up large definitions for easier maintenance, and compile the constituent files back into a single file when you're ready to publish your API reference docs.
 
-## How to use openapi-starter
-
-### Step 1: Copy the openapi-starter project
+## Step 1: Copy the openapi-starter project
 
 1. Go to [https://github.com/Redocly/openapi-starter](https://github.com/Redocly/openapi-starter).
 2. Select **Use this template**.
@@ -20,34 +18,35 @@ Although you can create your own folder structure, we recommend letting `openapi
 
 The project is copied to your GitHub account. It is independent and not linked to the source.
 
-### Step 2: Clone the project
+## Step 2: Clone the project
 
 This step clones the project to your local machine so you can use it with [OpenAPI CLI](quickstart.md).
 
-```md Use GitHub Desktop 
+### Use GitHub Desktop
 
 1. In your copied openapi-starter repo, select the Copy button.
 2. Select Open with GitHub Desktop.
 3. Select a local path where you want to store the repo folders and files.
 4. Select Clone to clone your copied repo to your local machine.
 5. In GitHub Desktop, select your tool of choice to explore the folders and files (e.g. File Explorer or Visual Studio Code).
-```
 
-```md Use the CLI
+### Use the CLI
 
 1. In your copied openapi-starter repo, select the Code button.
-2. In the floating menu that opens, select the URL type to clone (HTTPS, SSH, GitHub CLI). In this example, we're selecting HTTPS. 
-To understand the difference between these URLs, select the Help (?) icon in the floating menu. 
+2. In the floating menu that opens, select the URL type to clone (HTTPS, SSH, GitHub CLI). In this example, we're selecting HTTPS.
+To understand the difference between these URLs, select the Help (?) icon in the floating menu.
 This will open the GitHub documentation in a new browser tab.
 3. After choosing the HTTPS URL, select the copy icon to the right of the URL. A brief popup "Copied!" confirms that you've successfully copied the URL.
 4. Open your terminal and navigate to the folder where you want to clone the project.
 5. In the folder, type git clone, then paste the HTTPS URL. The line in the terminal should look like this:
 
+```sh
 git clone your-repo-link
+```
 
 6. Press Enter to start the cloning process. Depending on your GitHub account settings and local git setup, you may be asked to provide your credentials to complete the process.
 7. When the project is successfully cloned to your local system, you can access it from the terminal or from your file manager of choice to explore the folders and files.
-```
+
 
 ## How to manage your files
 

@@ -4,7 +4,7 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
-## 1.0.0-beta-91 (2022-03-25)
+## 1.0.0-beta-91 (2022-03-29)
 
 ### Features
 
