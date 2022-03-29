@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-91 (2022-03-25)
+
+### Features
+
+- Added the `--separator` option to the `split` command. Use it to change the separator character that's used instead of whitespace in file names. The default is `_ `, which means that after splitting, path file names look like this: "user_login.yaml", "user_logout", etc.
+
+### Fixes
+
+- Resolved an issue with the `bundle` command when handling files with multiple dots in the file name.
+
+---
+
 ## 1.0.0-beta.90 (2022-03-24)
 
 ### Fixes
