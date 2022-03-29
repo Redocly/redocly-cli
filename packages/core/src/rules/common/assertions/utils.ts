@@ -22,9 +22,11 @@ export const buildVisitorObject = (subject: string, context: Record<string, any>
   let tmp: Record<string, any> = {};
   const visitor: Record<string, any> = tmp;
 
-  for (const node of context) {
-    if (node.type === 'Schema') {
-      // no need to create separate visitor for Schema,
+  for (let index=0; index < context.length; index++) {
+    const node = context[index];
+    if (context.length === index + 1 && node.type === subject) {
+      // no need to create separate visitor for the last element
+      // which is the same as subject;
       // will check includes/excludes it in the last visitor.
       continue;
     }
@@ -56,13 +58,12 @@ export const buildVisitorObject = (subject: string, context: Record<string, any>
 export const formLastVisitor = (properties: string | string[], asserts: Assert[], _context?: Record<string, any>[]) =>
   function(node: any, { report, location, key, type }: UserContext) {
 
-    // check Schema context for parent includes/excludes:
-    if (type.name === 'Schema' && _context) {
-      const schemaContext = _context.find(item => item.type === 'Schema');
-
-      if (schemaContext) {
-        const matchParentKeys = schemaContext.matchParentKeys;
-        const excludeParentKeys = schemaContext.excludeParentKeys;
+    // check context for same node type parent includes/excludes:
+    if (_context) {
+      const lastContextNode = _context[_context.length-1];
+      if (lastContextNode.type === type.name) {
+        const matchParentKeys = lastContextNode.matchParentKeys;
+        const excludeParentKeys = lastContextNode.excludeParentKeys;
 
         if (matchParentKeys && !matchParentKeys.includes(key)) {
           return;
