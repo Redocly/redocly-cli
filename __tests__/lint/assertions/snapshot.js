@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint assertions-error 1`] = `
+exports[`E2E lint assertions 1`] = `
 
 No configurations were defined in extends -- using built in recommended configuration by default.
 

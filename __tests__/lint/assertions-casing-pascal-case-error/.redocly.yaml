@@ -1,11 +1,19 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 
 lint:
   rules:
     assertions:
-      - on:
-          - Operation.operationId
+      - context:
+          - type: Operation
+            matchParentKeys: [get]
+        subject: Operation
+        property: operationId
         message: Operation id should be PascalCase
+        casing: PascalCase
+      - subject: Operation
+        property: operationId
+        message: Operation id should be camelCase
         casing: PascalCase
   extends: []

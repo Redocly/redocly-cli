@@ -25,5 +25,9 @@ paths:
       responses:
         '200':
           description: example description
+          content:
+            application/json:
+              schema:
+                type: 'string'
         '404':
           description: example description

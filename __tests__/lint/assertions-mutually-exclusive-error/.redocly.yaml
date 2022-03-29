@@ -1,11 +1,13 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 
 lint:
   rules:
     assertions:
-      - on:
-          - PathItem.Operation.$keys
+      - context:
+          - type: PathItem
+        subject: Operation
         message: Operation should not have summary and tags fields simultaneously
         mutuallyExclusive:
           - summary

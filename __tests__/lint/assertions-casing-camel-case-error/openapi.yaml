@@ -16,12 +16,20 @@ info:
 paths:
   /pet/findByStatus:
     get:
-      operationId: ExampleId
+      operationId: GetExampleId
       summary: summary example
       tags:
         - foo
         - baz
         - bar
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description
+    post:
+      operationId: PostExampleId
+      summary: summary example
       responses:
         '200':
           description: example description

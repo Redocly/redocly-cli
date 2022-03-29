@@ -1,11 +1,12 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 
 lint:
   rules:
     assertions:
-      - on:
-          - Operation.summary
+      - subject: Operation
+        property: summary
         message: Operation summary should have 'test' word
         pattern: '/test/'
   extends: []

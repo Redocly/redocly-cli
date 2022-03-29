@@ -1,11 +1,13 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main:
+    root: ./openapi.yaml
 
 lint:
   rules:
     assertions:
-      - on:
-          - Operation.summary
+      - subject:
+        - Operation
+        property: summary
         message: Operation summary value should be among of predefined values
         enum:
           - test summary

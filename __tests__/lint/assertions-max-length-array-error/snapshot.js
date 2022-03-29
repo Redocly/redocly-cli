@@ -5,7 +5,7 @@ exports[`E2E lint assertions-max-length-array-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:21:7 at #/paths/~1pet~1findByStatus/get/tags
 
-Operation tags should have maximum 4 items
+Operation tags should have maximum 2 items
 
 19 | operationId: example
 20 | summary: summary example
