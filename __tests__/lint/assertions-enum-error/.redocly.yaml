@@ -12,4 +12,7 @@ lint:
         enum:
           - test summary
           - test example
+        suggest:
+          - test summary
+          - test example
   extends: []

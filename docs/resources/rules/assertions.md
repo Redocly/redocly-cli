@@ -24,6 +24,7 @@ context | [Context object](#context-object) | The context influences evaluation 
 message | `string` | Problem message displayed if the assertion is false.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | The severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
+assertionId | `string` | Id which appears in the lint result if the assertion is false. It helps to define the assertion.
 enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
 pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).

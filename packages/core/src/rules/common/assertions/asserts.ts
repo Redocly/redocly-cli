@@ -1,9 +1,9 @@
-import { OrderOptions, OrderDirection, isOrdered, getCounts } from './utils';
+import { OrderOptions, OrderDirection, isOrdered, getIntersectionLength } from './utils';
 
-export const runOnKeysMap = ['mutuallyExclusive', 'mutuallyRequired', 'enum', 'pattern',
-  'minLength', 'maxLength', 'casing', 'sortOrder', 'disallowed', 'required'];
-export const runOnValuesMap = ['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
-  'minLength', 'maxLength', 'casing', 'sortOrder'];
+export const runOnKeysSet = new Set(['mutuallyExclusive', 'mutuallyRequired', 'enum', 'pattern',
+  'minLength', 'maxLength', 'casing', 'sortOrder', 'disallowed', 'required']);
+export const runOnValuesSet = new Set(['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
+  'minLength', 'maxLength', 'casing', 'sortOrder']);
 
 export const asserts: {[key: string]: any} = {
   pattern: (value: string | string[], pattern: string): boolean => {
@@ -106,9 +106,9 @@ export const asserts: {[key: string]: any} = {
     return isOrdered(value, _val);
   },
   mutuallyExclusive: (keys: string[], properties: string[]): boolean => {
-    return getCounts(keys, properties) < 2;
+    return getIntersectionLength(keys, properties) < 2;
   },
   mutuallyRequired: (keys: string[], properties: string[]): boolean => {
-    return getCounts(keys, properties) > 0 ? getCounts(keys, properties) === properties.length : true;
+    return getIntersectionLength(keys, properties) > 0 ? getIntersectionLength(keys, properties) === properties.length : true;
   }
 }

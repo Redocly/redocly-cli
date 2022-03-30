@@ -1,33 +1,40 @@
-import { asserts, runOnKeysMap, runOnValuesMap } from './asserts';
-import { Assert, formLastVisitor, buildVisitorObject } from './utils';
+import { asserts, runOnKeysSet, runOnValuesSet } from './asserts';
+import { Assert, buildSubjectVisitor, buildVisitorObject } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   let visitors: any[] = [];
 
   // As 'Assertions' has an array of asserts,
-  // that array spreads into an 'opts' object on init rules phase,
-  // that is why we need to iterate through 'opts' values
-  const assertions: any[] = Object.values(opts);
+  // that array spreads into an 'opts' object on init rules phase here
+  // https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/config/config.ts#L311
+  // that is why we need to iterate through 'opts' values;
+  // before - filter only object 'opts' values
+  const assertions: any[] = Object.values(opts)
+    .filter((opt: unknown) => typeof opt === 'object' && opt !== null);
 
-  for (const assertion of assertions) {
+  for (const [index, assertion] of assertions.entries()) {
+    const assertId = assertion.assertionId && `${assertion.assertionId} assertion` || `assertion #${index+1}`;
+
     if (!assertion.subject) {
-      continue;
+      throw new Error(`${assertId}: 'subject' is required`);
     }
+
     const subjects: string[] = Array.isArray(assertion.subject) ? assertion.subject : [assertion.subject];
 
     const assertsToApply: Assert[] =
       Object.keys(asserts)
-        .filter((assert: string) => assertion[assert] !== undefined)
-        .map((assert: string) => {
+        .filter((assertName: string) => assertion[assertName] !== undefined)
+        .map((assertName: string) => {
           return {
-            name: assert,
-            conditions: assertion[assert],
+            assertId,
+            name: assertName,
+            conditions: assertion[assertName],
             message: assertion.message,
             severity: assertion.severity || 'error',
             suggest: assertion.suggest || [],
-            runsOnKeys: runOnKeysMap.includes(assert),
-            runsOnValues: runOnValuesMap.includes(assert)
+            runsOnKeys: runOnKeysSet.has(assertName),
+            runsOnValues: runOnValuesSet.has(assertName)
           }
         });
 
@@ -43,11 +50,8 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
     }
 
     for (const subject of subjects) {
-      const lastVisitor = formLastVisitor(assertion.property, assertsToApply, assertion.context);
-      const visitorObject = assertion.context
-        ? buildVisitorObject(subject, assertion.context, lastVisitor)
-        : { [subject]: lastVisitor };
-
+      const subjectVisitor = buildSubjectVisitor(assertion.property, assertsToApply, assertion.context);
+      const visitorObject = buildVisitorObject(subject, assertion.context, subjectVisitor);
       visitors.push(visitorObject);
     }
   }

@@ -10,6 +10,7 @@ export type OrderOptions = {
 
 export type Assert = {
   name: string;
+  assertId?: string;
   conditions: any;
   message?: string;
   severity?: ProblemSeverity;
@@ -18,9 +19,13 @@ export type Assert = {
   runsOnValues: boolean;
 };
 
-export const buildVisitorObject = (subject: string, context: Record<string, any>[], lastVisitor: any) => {
-  let tmp: Record<string, any> = {};
-  const visitor: Record<string, any> = tmp;
+export function buildVisitorObject(subject: string, context: Record<string, any>[], subjectVisitor: any) {
+  if (!context) {
+    return  { [subject]: subjectVisitor };
+  }
+
+  let currentVisitorLevel: Record<string, any> = {};
+  const visitor: Record<string, any> = currentVisitorLevel;
 
   for (let index=0; index < context.length; index++) {
     const node = context[index];
@@ -33,8 +38,12 @@ export const buildVisitorObject = (subject: string, context: Record<string, any>
     const matchParentKeys = node.matchParentKeys;
     const excludeParentKeys = node.excludeParentKeys;
 
+    if (matchParentKeys && excludeParentKeys) {
+      throw new Error(`Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`);
+    }
+
     if (matchParentKeys || excludeParentKeys) {
-      tmp[node.type] = {
+      currentVisitorLevel[node.type] = {
         skip: (_value: any, key: string) => {
           if (matchParentKeys) {
             return !matchParentKeys.includes(key);
@@ -45,22 +54,22 @@ export const buildVisitorObject = (subject: string, context: Record<string, any>
         }
       }
     } else {
-      tmp[node.type] = {}
+      currentVisitorLevel[node.type] = {}
     }
-    tmp = tmp[node.type];
+    currentVisitorLevel = currentVisitorLevel[node.type];
   }
 
-  tmp[subject] = lastVisitor;
+  currentVisitorLevel[subject] = subjectVisitor;
 
   return visitor;
 }
 
-export const formLastVisitor = (properties: string | string[], asserts: Assert[], _context?: Record<string, any>[]) =>
-  function(node: any, { report, location, key, type }: UserContext) {
+export function buildSubjectVisitor(properties: string | string[], asserts: Assert[], context?: Record<string, any>[]) {
+  return function(node: any, { report, location, key, type }: UserContext) {
 
     // check context for same node type parent includes/excludes:
-    if (_context) {
-      const lastContextNode = _context[_context.length-1];
+    if (context) {
+      const lastContextNode = context[context.length-1];
       if (lastContextNode.type === type.name) {
         const matchParentKeys = lastContextNode.matchParentKeys;
         const excludeParentKeys = lastContextNode.excludeParentKeys;
@@ -74,27 +83,31 @@ export const formLastVisitor = (properties: string | string[], asserts: Assert[]
       }
     }
 
+    if (properties) {
+      properties = Array.isArray(properties) ? properties : [properties];
+    }
+
     for (const assert of asserts) {
       if (properties) {
-        properties = Array.isArray(properties) ? properties : [properties]
         for (const property of properties) {
-          doLint(node[property], assert, location.child(property).key(), report);
+          runAssertion(node[property], assert, location.child(property), report);
         }
       } else {
-        doLint(Object.keys(node), assert, location.key(), report);
+        runAssertion(Object.keys(node), assert, location.key(), report);
       }
+    }
   }
 }
 
-
-export const getCounts = (keys: string[], properties: string[]): number => {
-  let counter = 0;
+export const getIntersectionLength = (keys: string[], properties: string[]): number => {
+  const props = new Set(properties);
+  let count = 0;
   for (const key of keys) {
-    if (properties.includes(key)) {
-      counter++;
+    if (props.has(key)) {
+      count++;
     }
   }
-  return counter;
+  return count;
 }
 
 export const isOrdered = (value: any[], options: OrderOptions | OrderDirection): boolean => {
@@ -121,7 +134,7 @@ export const isOrdered = (value: any[], options: OrderOptions | OrderDirection):
   return result;
 }
 
-function doLint(values: string | string[], assert: Assert, location: any, report: (problem: Problem) => void) {
+function runAssertion(values: string | string[], assert: Assert, location: any, report: (problem: Problem) => void) {
   const lintResult = (asserts as { [key: string]: any })[assert.name](values, assert.conditions);
   if (!lintResult) {
     report({
@@ -129,6 +142,7 @@ function doLint(values: string | string[], assert: Assert, location: any, report
       location,
       forceSeverity: assert.severity,
       suggest: assert.suggest,
+      ruleId: assert.assertId
     });
   }
 }

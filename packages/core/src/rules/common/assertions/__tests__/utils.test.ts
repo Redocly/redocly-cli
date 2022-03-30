@@ -1,4 +1,4 @@
-import { getCounts, isOrdered, buildVisitorObject } from '../utils';
+import { isOrdered, buildVisitorObject, getIntersectionLength } from '../utils';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {
@@ -6,10 +6,10 @@ describe('Oas3 assertions', () => {
     describe('getCounts', () => {
       it('should return the right counts', () => {
         const arr = ['foo', 'bar', 'baz']
-        expect(getCounts(arr, ['foo'])).toBe(1);
-        expect(getCounts(arr, ['foo', 'bar', 'baz'])).toBe(3);
-        expect(getCounts(arr, ['foo', 'test', 'baz'])).toBe(2);
-        expect(getCounts(arr, ['example', 'test'])).toBe(0);
+        expect(getIntersectionLength(arr, ['foo'])).toBe(1);
+        expect(getIntersectionLength(arr, ['foo', 'bar', 'baz'])).toBe(3);
+        expect(getIntersectionLength(arr, ['foo', 'test', 'baz'])).toBe(2);
+        expect(getIntersectionLength(arr, ['example', 'test'])).toBe(0);
       });
     });
 
