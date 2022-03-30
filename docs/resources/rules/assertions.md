@@ -36,7 +36,6 @@ undefined | `boolean` | Asserts a property is undefined. See [undefined example]
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-sortOrder | `string` |  Asserts values are sorted in ascending or descending order using one of these possible values: `asc` or `desc`. Asserts either sort order to a list (array) of strings or a collection of objects by one of the object's `property` values (the `property` is **REQUIRED** when sorting a collection of objects). See [sortOrder example](#sortorder-example).
 
 ## Context object
 
@@ -409,71 +408,11 @@ lint:
         maxLength: 20
 ```
 
-### `sortOrder` example
-
-Sort order can be applied on lists (arrays) of strings or lists of objects (collections).
-
-The following example asserts that the status schema's enum list is in alphabetical order.
-
-```yaml
-lint:
-  rules:
-    assertions:
-      - subject: Schema
-        property: enum
-        context:
-          - type: Schema
-            matchParentKeys: 
-              - status
-        message: The status enums should be in alphabetical order
-        suggest:
-          - alphabetize the list of status enums
-        severity: error
-        sortOrder: asc
-```
-
-The following example asserts the tag names (tags are a collection) are sorted in alphabetical order.
-
-The `property` field is **REQUIRED** to assert sort order on collections based on that property's value for the given subject. 
-
-```yaml
-lint:
-  rules:
-    assertions:
-      - subject: Tag
-        property: name
-        message: Tags should be ordered by name in alphabetical order
-        severity: error
-        sortOrder: asc
-```
-
 ## OpenAPI node types
 
 Redocly defines a type tree based on the document type.
 OpenAPI 2.0 has one type tree.
 OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
-
-Node types are traversed using dot notation.
-
-The following example shows ways to traverse to the equivalent destination.
-One starts from the definition root into the info description.
-The other starts from the info section.
-
-```yaml Traversal from DefinitionRoot object type
-lint:
-  rules:
-    assertions:
-      - on:
-        - DefinitionRoot.info.description
-```
-
-```yaml Traversal from Info object type
-lint:
-  rules:
-    assertions:
-      - on:
-        - Info.description
-```
 
 ### List of OpenAPI types
 
