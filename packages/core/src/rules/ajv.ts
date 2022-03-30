@@ -1,5 +1,5 @@
 import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv';
-import { Location, escapePointer } from '../ref-utils';
+import { Location, escapePointer, isRef } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
 let ajvInstance: Ajv | null = null;
@@ -40,13 +40,14 @@ function getAjvValidator(
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, disallowAdditionalProperties);
   if (!ajv.opts.defaultAdditionalProperties !== disallowAdditionalProperties) {
-    schema = resolve(schema);
+    if (isRef(schema)) {
+      schema = resolve(schema);
+    }
     schema.additionalProperties = schema.additionalProperties ?? !disallowAdditionalProperties;
   }
   if (!ajv.getSchema(loc.absolutePointer)) {
     ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
   }
-
   return ajv.getSchema(loc.absolutePointer);
 }
 
