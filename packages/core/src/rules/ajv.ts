@@ -39,7 +39,10 @@ function getAjvValidator(
   disallowAdditionalProperties: boolean,
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, disallowAdditionalProperties);
-
+  if (!ajv.opts.defaultAdditionalProperties !== disallowAdditionalProperties) {
+    schema = resolve(schema);
+    schema.additionalProperties = true;
+  }
   if (!ajv.getSchema(loc.absolutePointer)) {
     ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
   }

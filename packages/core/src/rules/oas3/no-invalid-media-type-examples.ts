@@ -27,12 +27,14 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             location = isMultiple ? resolved.location.child('value') : resolved.location;
             example = resolved.node;
           }
+          
+          const hasAllof = !!resolve(mediaType.schema).node?.allOf;
           validateExample(
             isMultiple ? example.value : example,
             mediaType.schema!,
             location,
             ctx,
-            disallowAdditionalProperties,
+            hasAllof ? false : disallowAdditionalProperties
           );
         }
       },
