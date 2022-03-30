@@ -9,7 +9,7 @@ export function releaseAjvInstance() {
 }
 
 function getAjv(resolve: ResolveFn<any>, disallowAdditionalProperties: boolean) {
-  if (!ajvInstance) {
+  if (!ajvInstance || !ajvInstance.opts.defaultAdditionalProperties !== disallowAdditionalProperties) {
     ajvInstance = new Ajv({
       schemaId: '$id',
       meta: true,
@@ -39,10 +39,6 @@ function getAjvValidator(
   disallowAdditionalProperties: boolean,
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, disallowAdditionalProperties);
-  if (!ajv.opts.defaultAdditionalProperties !== disallowAdditionalProperties) {
-    schema = resolve(schema);
-    schema.additionalProperties = !disallowAdditionalProperties;
-  }
   if (!ajv.getSchema(loc.absolutePointer)) {
     ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
   }
