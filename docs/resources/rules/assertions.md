@@ -2,7 +2,7 @@
 
 Configure assertions to enforce your API design standards without coding custom rules.
 
-Define `assertions` in the rules map of the lint section of the configuration file.
+Define `assertions` in the rules map of the `lint` section in the Redocly configuration file.
 
 ```yaml
 lint:
@@ -12,23 +12,23 @@ lint:
 
 Property | Type | Description
 -- | -- | --
-assertions | [[Assertion object]](#assertion-object) | A list of assertions to enforce your custom API design standards. Add or edit your assertions in the configuration file. The `assertions` rule is composed of a list of `assertion` objects. This rule may result in more than one problem message as you may define more than one assertion. More than one assertion may be defined, and an assertion may have more than one assert.
+assertions | [[Assertion object]](#assertion-object) | A list of assertions to enforce your custom API design standards. Add or edit your assertions in the configuration file. The `assertions` rule is composed of a list of `assertion` objects. This rule may result in more than one problem message, as you may define more than one assertion. More than one assertion may be defined in the list, and any assertion may have multiple asserts.
 
 ## Assertion object
 
 Property | Type | Description
 -- | -- | --
 subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the the lint subjects to its evaluation. Use with `context` for more control.
-property | `string` \| [`string`] \| null | The [OpenAPI node type](#openapi-node-types)'s corresponding property name. If a list of properties is provided, the assertion will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
-context | [Context object](#context-object) | The context influences evaluation for assertions. With `matchParentKeys` or `excludeParentKeys` it evaluates the subset of subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example). 
+property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
+context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example). 
 message | `string` | Problem message displayed if the assertion is false.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | The severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
-enum | [`string`] | Asserts value is within a predefined list of values. See [enum example](#enum-example).
-pattern | `string` | Asserts value matches a regex pattern. See [regex pattern example](#pattern-example).
-casing | `string` | Asserts a casing style from this possible list: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
-mutuallyExclusive | [`string`] | Asserts list of properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
-mutuallyRequired | [`string`] | Asserts list of properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
+enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
+pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
+casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
+mutuallyExclusive | [`string`] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
+mutuallyRequired | [`string`] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
 required | [`string`] | Asserts all listed values are defined. See [required example](#required-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
@@ -49,7 +49,7 @@ See the [context example](#context-example).
 
 ## Examples
 
-The following example shows four assertions each multiple asserts (`defined`, `minLength`, `maxLength`, `pattern`).
+The following example shows four assertions with multiple asserts in each one (`defined`, `minLength`, `maxLength`, `pattern`).
 
 The `Operation`, `Tag`, and `Info` properties must:
 - be defined
@@ -61,7 +61,7 @@ In addition, the `Operation` summary property must:
 - be between 20 and 60 characters
 - not end with a _full stop_.
 
-The following shows how to write that configuration:
+The following example shows how to configure those assertions:
 
 ```yaml
 lint:
@@ -112,8 +112,8 @@ lint:
         defined: true
 ```
 
-A different way to declare the same assertion is to require that the PathItem has a required key `get`.
-Notice the removal of the `property` property.
+A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
+Notice we don't need to include `property` in this approach.
 
 ```yaml
 lint:
@@ -139,7 +139,7 @@ lint:
         defined: true
 ```
 
-Another way to compose that rule using the subject's keys.
+Another way to compose that rule is to require the subject keys:
 
 ```yaml
 lint:
@@ -154,11 +154,11 @@ lint:
 
 ### `context` example
 
-The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an application/pdf content type.
+The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
 Without the `context`, the assertion would evaluate every MediaTypeMap including:
-- Responses with all codes including others than 200 or 201
-- Responses for all HTTP methods including delete, get, post, and more.
-To restrict the evaluation, use the context feature to limit where context is used.
+- Responses with all codes, including codes other than 200 or 201
+- Responses for all HTTP methods, including DELETE, GET, POST, and more.
+To restrict the evaluation, use the `context` feature to limit what will be evaluated.
 
 ```yaml
 - context:
@@ -172,7 +172,7 @@ To restrict the evaluation, use the context feature to limit where context is us
 
 ### `enum` example
 
-The following example asserts that only `application/json` can be used as a key of the media type map.
+The following example asserts that only `application/json` can be used as a key of the MediaTypeMap.
 
 ```yaml keys
 lint:
@@ -220,7 +220,7 @@ lint:
 
 ### `casing` example
 
-The following example asserts the casing style is `PascalCase` for named Examples map keys.
+The following example asserts the casing style is `PascalCase` for NamedExamples map keys.
 
 ```yaml
 lint:
@@ -232,7 +232,7 @@ lint:
         casing: PascalCase
 ```
 
-Casing supports these styles: 
+Casing supports the following styles: 
 - camelCase
 - COBOL-CASE
 - flatcase
@@ -276,7 +276,7 @@ lint:
           - updated_at
 ```
 
-The following example asserts that when `PUT` requests have either `200` or `201` defined that both `200` and `201` responses defined.
+The following example asserts that when `PUT` requests have either `200` or `201` defined, both `200` and `201` responses must be defined.
 
 ```yaml Response example
 lint:
@@ -416,7 +416,7 @@ OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 
 ### List of OpenAPI types
 
-Implementation of types for each specific OAS version:
+For technical details on the implementation of types for each OAS version, consult the source files in the OpenAPI CLI repository:
   - OAS 3.1: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
   - OAS 3.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3.ts#L530
   - OAS 2.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas2.ts#L367
