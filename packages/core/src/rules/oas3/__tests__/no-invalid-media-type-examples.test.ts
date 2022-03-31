@@ -389,4 +389,48 @@ describe('no-invalid-media-type-examples', () => {
       ]
     `);
   });
+
+  it('should not report additionalProperties inside allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example:
+                        a: "string1"
+                        b: "string2"
+                        c: "string3"
+                        d: "string4"
+                      schema:
+                        allOf:
+                          - type: object
+                            properties:
+                              a:
+                                type: string
+                              b:
+                                type: string
+                          - type: object
+                            properties:
+                              c:
+                                type: string
+                              d:
+                                type: string
+
+      `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });
