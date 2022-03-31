@@ -11,7 +11,7 @@
     "test": "npm run typecheck && npm run unit",
     "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "e2e": "jest ./__tests__",
+    "e2e": "jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "watch": "tsc -b tsconfig.build.json --watch ",
