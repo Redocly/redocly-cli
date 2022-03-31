@@ -14,6 +14,7 @@ import {
   getTotals,
   slash,
   Region,
+  getMergedConfig,
 } from '@redocly/openapi-core';
 import {
   exitWithError,
@@ -85,11 +86,14 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
   for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
+    const resolvedConfig = getMergedConfig(config, entrypoint);
+    resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+
     const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
     try {
       let rootFilePath = '';
       const filePaths: string[] = [];
-      const filesToUpload = await collectFilesToUpload(entrypoint, config);
+      const filesToUpload = await collectFilesToUpload(entrypoint, resolvedConfig);
       const filesHash = hashFiles(filesToUpload.files);
 
       process.stdout.write(
