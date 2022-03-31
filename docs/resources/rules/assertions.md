@@ -250,7 +250,7 @@ Casing supports the following styles:
 ### `mutuallyExclusive` example
 
 The following example asserts the operation `description` and `externalDocs` must be mutually exclusive.
-This assertion evaluates only node's properties keys, but not properties values.
+This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml
 lint:
@@ -267,7 +267,7 @@ lint:
 ### `mutuallyRequired` example
 
 The following example asserts that a response body schema must have both `amount` and `currency` properties (and not either one by itself).
-This assertion evaluates only node's properties keys, but not properties values.
+This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Schema example
 lint:
