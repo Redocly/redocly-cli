@@ -1,10 +1,17 @@
-import { Config } from '@redocly/openapi-core';
-import { getApiEntrypoint, getDestinationProps, handlePush, transformPush } from '../../commands/push';
+import { Config, getMergedConfig } from '@redocly/openapi-core';
+import {
+  getApiEntrypoint,
+  getDestinationProps,
+  handlePush,
+  transformPush,
+} from '../../commands/push';
 
 jest.mock('fs');
 jest.mock('node-fetch');
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
+
+(getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
 describe('push', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
