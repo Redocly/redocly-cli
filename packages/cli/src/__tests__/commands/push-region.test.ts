@@ -1,3 +1,4 @@
+import { getMergedConfig } from '@redocly/openapi-core';
 import { handlePush } from '../../commands/push';
 import { promptClientToken } from '../../commands/login';
 
@@ -6,6 +7,8 @@ jest.mock('node-fetch');
 jest.mock('@redocly/openapi-core');
 jest.mock('../../commands/login');
 jest.mock('../../utils');
+
+(getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
 const mockPromptClientToken = promptClientToken as jest.MockedFunction<typeof promptClientToken>;
 
@@ -23,7 +26,7 @@ describe('push-with-region', () => {
       upsert: true,
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
-      branchName: 'test'
+      branchName: 'test',
     });
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
@@ -35,7 +38,7 @@ describe('push-with-region', () => {
       upsert: true,
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
-      branchName: 'test'
+      branchName: 'test',
     });
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
