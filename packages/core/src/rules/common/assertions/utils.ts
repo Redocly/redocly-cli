@@ -138,7 +138,7 @@ function runAssertion(values: string | string[], assert: Assert, location: any, 
   const lintResult = (asserts as { [key: string]: any })[assert.name](values, assert.conditions);
   if (!lintResult) {
     report({
-      message: assert.message || `The assertion '${assert.name}' doesn't meet required conditions`,
+      message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,
       location,
       forceSeverity: assert.severity,
       suggest: assert.suggest,

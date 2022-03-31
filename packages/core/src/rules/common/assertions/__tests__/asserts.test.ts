@@ -166,26 +166,26 @@ describe('oas3 assertions', () => {
       });
     });
 
-    // describe('sortOrder', () => {
-    //   it('value should be ordered in ASC direction',  () => {
-    //     expect(asserts.sortOrder(['example', 'foo', 'test'], 'asc')).toBeTruthy();
-    //     expect(asserts.sortOrder(['example', 'foo', 'test'], {direction: 'asc'})).toBeTruthy();
-    //     expect(asserts.sortOrder(['example'], 'asc')).toBeTruthy();
-    //     expect(asserts.sortOrder(['example', 'test', 'foo'], 'asc')).toBeFalsy();
-    //     expect(asserts.sortOrder(['example', 'foo', 'test'], 'desc')).toBeFalsy();
-    //     expect(asserts.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'asc', property: 'name'})).toBeTruthy();
-    //     expect(asserts.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'desc', property: 'name'})).toBeFalsy();
-    //   });
-    //   it('value should be ordered in DESC direction',  () => {
-    //     expect(asserts.sortOrder(['test', 'foo', 'example'], 'desc')).toBeTruthy();
-    //     expect(asserts.sortOrder(['test', 'foo', 'example'], {direction: 'desc'})).toBeTruthy();
-    //     expect(asserts.sortOrder(['example'], 'desc')).toBeTruthy();
-    //     expect(asserts.sortOrder(['example', 'test', 'foo'], 'desc')).toBeFalsy();
-    //     expect(asserts.sortOrder(['test', 'foo', 'example'], 'asc')).toBeFalsy();
-    //     expect(asserts.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'desc', property: 'name'})).toBeTruthy();
-    //     expect(asserts.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'asc', property: 'name'})).toBeFalsy();
-    //   });
-    // });
+    describe.skip('sortOrder', () => {
+      it('value should be ordered in ASC direction',  () => {
+        expect(asserts.sortOrder(['example', 'foo', 'test'], 'asc')).toBeTruthy();
+        expect(asserts.sortOrder(['example', 'foo', 'test'], {direction: 'asc'})).toBeTruthy();
+        expect(asserts.sortOrder(['example'], 'asc')).toBeTruthy();
+        expect(asserts.sortOrder(['example', 'test', 'foo'], 'asc')).toBeFalsy();
+        expect(asserts.sortOrder(['example', 'foo', 'test'], 'desc')).toBeFalsy();
+        expect(asserts.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'asc', property: 'name'})).toBeTruthy();
+        expect(asserts.sortOrder([{name: 'bar'}, {name: 'baz'}, {name: 'foo'}], {direction: 'desc', property: 'name'})).toBeFalsy();
+      });
+      it('value should be ordered in DESC direction',  () => {
+        expect(asserts.sortOrder(['test', 'foo', 'example'], 'desc')).toBeTruthy();
+        expect(asserts.sortOrder(['test', 'foo', 'example'], {direction: 'desc'})).toBeTruthy();
+        expect(asserts.sortOrder(['example'], 'desc')).toBeTruthy();
+        expect(asserts.sortOrder(['example', 'test', 'foo'], 'desc')).toBeFalsy();
+        expect(asserts.sortOrder(['test', 'foo', 'example'], 'asc')).toBeFalsy();
+        expect(asserts.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'desc', property: 'name'})).toBeTruthy();
+        expect(asserts.sortOrder([{name: 'foo'}, {name: 'baz'}, {name: 'bar'}], {direction: 'asc', property: 'name'})).toBeFalsy();
+      });
+    });
 
     describe('mutuallyExclusive', () => {
       it('node should not have more than one property from predefined list',  () => {
