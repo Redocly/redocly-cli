@@ -33,6 +33,7 @@ type PushArgs = {
   upsert?: boolean;
   'run-id'?: string;
   region?: Region;
+  'skip-decorator'?: string[];
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -70,6 +71,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   }
   const entrypoint =
     argv.entrypoint || (name && version && getApiEntrypoint({ name, version, config }));
+
   if (name && version && !entrypoint) {
     exitWithError(
       `No entrypoint found that matches ${blue(
@@ -77,6 +79,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       )}. Please make sure you have provided the correct data in the config file.`,
     );
   }
+
+  config.lint.skipDecorators(argv['skip-decorator']);
 
   const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
