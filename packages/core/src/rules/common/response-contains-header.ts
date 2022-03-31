@@ -2,7 +2,7 @@ import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { UserContext } from '../../walk';
 import { Oas3Response } from '../../typings/openapi';
 import { Oas2Response } from '../../typings/swagger';
-import { generalizeResponseStatusCode } from '../../utils';
+import { getMatchingStatusCodeRange } from '../../utils';
 
 export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
   const names: Record<string, string[]> = options.names || {};
@@ -10,7 +10,7 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
     Operation: {
       Response: {
         enter: (response: Oas2Response | Oas3Response, { report, location, key }: UserContext) => {
-          const expectedHeaders = names[key] || names[generalizeResponseStatusCode(key)] || [];
+          const expectedHeaders = names[key] || names[getMatchingStatusCodeRange(key)] || [];
           for (const expectedHeader of expectedHeaders) {
             if (!response.headers?.[expectedHeader]) {
               report({

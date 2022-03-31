@@ -1,4 +1,4 @@
-import { pickObjectProps, omitObjectProps, slash, generalizeResponseStatusCode } from '../utils';
+import { pickObjectProps, omitObjectProps, slash, getMatchingStatusCodeRange } from '../utils';
 
 describe('utils', () => {
   const testObject = {
@@ -72,14 +72,14 @@ describe('utils', () => {
     });
   });
 
-  describe('generalizeResponseStatusCode', () => {
+  describe('getMatchingStatusCodeRange', () => {
     it('should get the generalized form of status codes', () => {
-      expect(generalizeResponseStatusCode('202')).toEqual('2xx');
-      expect(generalizeResponseStatusCode(400)).toEqual('4xx');
+      expect(getMatchingStatusCodeRange('202')).toEqual('2xx');
+      expect(getMatchingStatusCodeRange(400)).toEqual('4xx');
     });
     it('should fail on a wrong input', () => {
-      expect(generalizeResponseStatusCode('2002')).toEqual('2002');
-      expect(generalizeResponseStatusCode(4000)).toEqual('4000');
+      expect(getMatchingStatusCodeRange('2002')).toEqual('2002');
+      expect(getMatchingStatusCodeRange(4000)).toEqual('4000');
     });
   });
 });
