@@ -81,6 +81,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     );
   }
 
+  config.lint.skipDecorators(argv['skip-decorator']);
+
   const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
   for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
