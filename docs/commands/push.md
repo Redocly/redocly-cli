@@ -84,6 +84,7 @@ destination      | string    | Required. The location in the API registry where 
 --branch, -b    | string  | Optional. The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --help       | boolean | Optional. Help output for the command.  |
 --run-id       | string  | Optional. Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
+--skip-decorator | [string] | Optional. Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
 --upsert, -u | boolean | Optional. Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Optional. Show version number.  |
 --region,-r    | string | Optional. Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
@@ -253,6 +254,14 @@ Below are possible use cases for the `--run-id` option:
 
 - CI/CD systems: group pushes from a single CI job together so that each push does not trigger separate reference docs/portals rebuild.
 - External systems: a parameter that can be used in reports, metrics, analytics to refer to a specific application service state.
+
+### Skip decorator
+
+You may want to skip specific decorators upon running the command.
+
+```bash Skip decorators
+openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations
+```
 
 
 ### Set up CI from Redocly Workflows
