@@ -8,7 +8,7 @@ export type OrderOptions = {
   property: string;
 };
 
-export type Assert = {
+export type AssertToApply = {
   name: string;
   assertId?: string;
   conditions: any;
@@ -30,9 +30,10 @@ export function buildVisitorObject(subject: string, context: Record<string, any>
   for (let index=0; index < context.length; index++) {
     const node = context[index];
     if (context.length === index + 1 && node.type === subject) {
-      // no need to create separate visitor for the last element
+      // Visitors don't work properly for the same type nested nodes, so
+      // as a workaround for that we don't create separate visitor for the last element
       // which is the same as subject;
-      // will check includes/excludes it in the last visitor.
+      // we will check includes/excludes it in the last visitor.
       continue;
     }
     const matchParentKeys = node.matchParentKeys;
@@ -64,10 +65,12 @@ export function buildVisitorObject(subject: string, context: Record<string, any>
   return visitor;
 }
 
-export function buildSubjectVisitor(properties: string | string[], asserts: Assert[], context?: Record<string, any>[]) {
+export function buildSubjectVisitor(properties: string | string[], asserts: AssertToApply[], context?: Record<string, any>[]) {
   return function(node: any, { report, location, key, type }: UserContext) {
 
-    // check context for same node type parent includes/excludes:
+    // We need to check context's last node if it has the same type as subject node;
+    // if yes - that means we didn't create context's last node visitor,
+    // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
     if (context) {
       const lastContextNode = context[context.length-1];
       if (lastContextNode.type === type.name) {
@@ -99,7 +102,7 @@ export function buildSubjectVisitor(properties: string | string[], asserts: Asse
   }
 }
 
-export const getIntersectionLength = (keys: string[], properties: string[]): number => {
+export function getIntersectionLength(keys: string[], properties: string[]): number {
   const props = new Set(properties);
   let count = 0;
   for (const key of keys) {
@@ -110,10 +113,9 @@ export const getIntersectionLength = (keys: string[], properties: string[]): num
   return count;
 }
 
-export const isOrdered = (value: any[], options: OrderOptions | OrderDirection): boolean => {
+export function isOrdered(value: any[], options: OrderOptions | OrderDirection): boolean {
   const direction = (options as OrderOptions).direction || options as OrderDirection;
   const property = (options as OrderOptions).property;
-  let result = true;
   for (let i=1; i<value.length; i++) {
     let currValue = value[i];
     let prevVal = value[i-1];
@@ -126,16 +128,16 @@ export const isOrdered = (value: any[], options: OrderOptions | OrderDirection):
       prevVal = value[i-1][property]
     }
 
-    result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
+    const result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
     if (!result) {
-      break;
+      return false;
     }
   }
-  return result;
+  return true;
 }
 
-function runAssertion(values: string | string[], assert: Assert, location: any, report: (problem: Problem) => void) {
-  const lintResult = (asserts as { [key: string]: any })[assert.name](values, assert.conditions);
+function runAssertion(values: string | string[], assert: AssertToApply, location: any, report: (problem: Problem) => void) {
+  const lintResult = asserts[assert.name](values, assert.conditions);
   if (!lintResult) {
     report({
       message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,

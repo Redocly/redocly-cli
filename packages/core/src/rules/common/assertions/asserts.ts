@@ -1,17 +1,19 @@
 import { OrderOptions, OrderDirection, isOrdered, getIntersectionLength } from './utils';
 
+type Asserts = Record<string, (value: any, condition: any) => boolean>;
+
 export const runOnKeysSet = new Set(['mutuallyExclusive', 'mutuallyRequired', 'enum', 'pattern',
   'minLength', 'maxLength', 'casing', 'sortOrder', 'disallowed', 'required']);
 export const runOnValuesSet = new Set(['pattern', 'enum', 'defined', 'undefined', 'nonEmpty',
   'minLength', 'maxLength', 'casing', 'sortOrder']);
 
-export const asserts: {[key: string]: any} = {
-  pattern: (value: string | string[], pattern: string): boolean => {
+export const asserts: Asserts = {
+  pattern: (value: string | string[], condition: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
-    const regexOptions = pattern.match(/(\b\/\b)(.+)/g) || ['/'];
-    pattern = pattern.slice(1).replace(regexOptions[0],'');
-    const regx = new RegExp(pattern, regexOptions[0].slice(1));
+    const regexOptions = condition.match(/(\b\/\b)(.+)/g) || ['/'];
+    condition = condition.slice(1).replace(regexOptions[0],'');
+    const regx = new RegExp(condition, regexOptions[0].slice(1));
     for (let _val of values) {
       if (!_val.match(regx)) {
         return false;
@@ -19,60 +21,60 @@ export const asserts: {[key: string]: any} = {
     }
     return true;
   },
-  enum: (value: string | string[], keys: string[]): boolean => {
+  enum: (value: string | string[], condition: string[]): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
-      if (!keys.includes(_val)) {
+      if (!condition.includes(_val)) {
         return false;
       }
     }
     return true;
   },
-  defined: (value: string | undefined, _val: boolean = true): boolean => {
+  defined: (value: string | undefined, condition: boolean = true): boolean => {
     const isDefined = typeof value !== 'undefined';
-    return _val ? isDefined : !isDefined;
+    return condition ? isDefined : !isDefined;
   },
-  required: (values: string[], keys: string[]): boolean => {
+  required: (value: string[], keys: string[]): boolean => {
     for (const requiredKey of keys) {
-      if (!values.includes(requiredKey)) {
+      if (!value.includes(requiredKey)) {
         return false;
       }
     }
     return true;
   },
-  disallowed: (value: string | string[], keys: string[]): boolean => {
+  disallowed: (value: string | string[], condition: string[]): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
-      if (keys.includes(_val)) {
+      if (condition.includes(_val)) {
         return false;
       }
     }
     return true;
   },
-  undefined: (value: any, _val: boolean = true): boolean => {
+  undefined: (value: any, condition: boolean = true): boolean => {
     const isUndefined = typeof value === 'undefined';
-    return _val ? isUndefined : !isUndefined;
+    return condition ? isUndefined : !isUndefined;
   },
-  nonEmpty: (value: string | undefined | null, _val: boolean = true): boolean => {
+  nonEmpty: (value: string | undefined | null, condition: boolean = true): boolean => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
-    return _val ? !isEmpty : isEmpty;
+    return condition ? !isEmpty : isEmpty;
   },
-  minLength: (value: string | any[], length: number): boolean => {
+  minLength: (value: string | any[], condition: number): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
-    return value.length >= length;
+    return value.length >= condition;
   },
-  maxLength: (value: string | any[], length: number): boolean => {
+  maxLength: (value: string | any[], condition: number): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
-    return value.length <= length;
+    return value.length <= condition;
   },
-  casing: (value: string | string[], style: string): boolean => {
+  casing: (value: string | string[], condition: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
     for (let _val of values) {
       let matchCase = false;
-      switch (style) {
+      switch (condition) {
         case 'camelCase':
           matchCase = !!(_val.match(/^[a-z][a-zA-Z0-9]+$/g));
           break;
@@ -101,14 +103,14 @@ export const asserts: {[key: string]: any} = {
     }
     return true;
   },
-  sortOrder: (value: any[], _val: OrderOptions | OrderDirection): boolean => {
+  sortOrder: (value: any[], condition: OrderOptions | OrderDirection): boolean => {
     if (typeof value === 'undefined') return true;
-    return isOrdered(value, _val);
+    return isOrdered(value, condition);
   },
-  mutuallyExclusive: (keys: string[], properties: string[]): boolean => {
-    return getIntersectionLength(keys, properties) < 2;
+  mutuallyExclusive: (value: string[], condition: string[]): boolean => {
+    return getIntersectionLength(value, condition) < 2;
   },
-  mutuallyRequired: (keys: string[], properties: string[]): boolean => {
-    return getIntersectionLength(keys, properties) > 0 ? getIntersectionLength(keys, properties) === properties.length : true;
+  mutuallyRequired: (value: string[], condition: string[]): boolean => {
+    return getIntersectionLength(value, condition) > 0 ? getIntersectionLength(value, condition) === condition.length : true;
   }
 }

@@ -1,5 +1,5 @@
 import { asserts, runOnKeysSet, runOnValuesSet } from './asserts';
-import { Assert, buildSubjectVisitor, buildVisitorObject } from './utils';
+import { AssertToApply, buildSubjectVisitor, buildVisitorObject } from './utils';
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
@@ -22,7 +22,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
 
     const subjects: string[] = Array.isArray(assertion.subject) ? assertion.subject : [assertion.subject];
 
-    const assertsToApply: Assert[] =
+    const assertsToApply: AssertToApply[] =
       Object.keys(asserts)
         .filter((assertName: string) => assertion[assertName] !== undefined)
         .map((assertName: string) => {
@@ -38,8 +38,8 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
           }
         });
 
-    const shouldRunOnKeys: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnKeys && !assert.runsOnValues);
-    const shouldRunOnValues: Assert | undefined = assertsToApply.find((assert: Assert) => assert.runsOnValues && !assert.runsOnKeys);
+    const shouldRunOnKeys: AssertToApply | undefined = assertsToApply.find((assert: AssertToApply) => assert.runsOnKeys && !assert.runsOnValues);
+    const shouldRunOnValues: AssertToApply | undefined = assertsToApply.find((assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys);
 
     if (shouldRunOnValues && !assertion.property) {
       throw new Error(`${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`);
