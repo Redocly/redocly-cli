@@ -253,7 +253,7 @@ Below are possible use cases for the `--run-id` option:
 
 You may want to skip specific decorators upon running the command.
 
-```bash Skip decorators
+```bash Skip a decorator
 openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations
 ```
 
