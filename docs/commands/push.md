@@ -83,7 +83,7 @@ destination      | string    | Required. The location in the API registry where 
 --branch, -b    | string  | Optional. The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --help       | boolean | Optional. Help output for the command.  |
 --run-id       | string  | Optional. Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
---skip-decorator | [string] | Optional. Ignore one or more decorators. See the [Skip decorator section](#skip-decorator)
+--skip-decorator | [string] | Optional. Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Optional. Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Optional. Show version number.  |
 --region,-r    | string | Optional. Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
