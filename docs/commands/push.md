@@ -66,7 +66,6 @@ To authenticate to the API registry, you can use several approaches:
   - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
   - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
 
-
 ## Usage
 
 ```bash
@@ -84,11 +83,10 @@ destination      | string    | Required. The location in the API registry where 
 --branch, -b    | string  | Optional. The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --help       | boolean | Optional. Help output for the command.  |
 --run-id       | string  | Optional. Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
---skip-decorator | [string] | Optional. Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
+--skip-decorator | [string] | Optional. Ignore one or more decorators. See the [Skip decorator section](#skip-decorator)
 --upsert, -u | boolean | Optional. Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Optional. Show version number.  |
 --region,-r    | string | Optional. Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
-
 
 ## Examples
 
@@ -98,7 +96,6 @@ You can choose any of the following approaches:
 
 - [Specify all options explicitly in the command](#set-options-explicitly)
 - [Set options in the Redocly configuration file](#set-options-in-the-configuration-file)
-
 
 ### Destination
 
@@ -164,7 +161,6 @@ The version of your API should contain only supported characters (`a-z`, `A-Z`, 
 
 :::
 
-
 ### Set options explicitly
 
 Provide the `entrypoint` as a path to the root API definition file, and specify the organization ID, API name and version.
@@ -214,7 +210,6 @@ You must specify your organization ID in the configuration file for this approac
 Push the specified API and version from the `apis` section of the configuration file to the Workflows organization matching the provided organization ID.
 In this case, you don't have to specify the organization ID in the configuration file.
 
-
 ### Upsert an API with push
 
 To upsert an API in the registry with the `push` command, use the `--upsert` or `-u` option.
@@ -241,7 +236,6 @@ openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
 openapi push -u test-api@v1 -b develop
 ```
 
-
 ### Run ID
 
 The `--run-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job. It is auto-populated for the following CI systems so you don't have to pass it separately:
@@ -263,6 +257,9 @@ You may want to skip specific decorators upon running the command.
 openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations
 ```
 
+```bash Skip multiple decorators
+openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
+```
 
 ### Set up CI from Redocly Workflows
 
