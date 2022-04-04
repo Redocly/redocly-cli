@@ -161,6 +161,10 @@ export type RawConfig = {
   organization?: string;
 };
 
+export type ResolvedLintRawConfig = Omit<LintRawConfig, 'extends'> & {
+  extends?: (string | LintRawConfig)[];
+};
+
 export class LintConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
@@ -183,7 +187,7 @@ export class LintConfig {
     }
 
     const extendConfigs: LintRawConfig[] = rawConfig.extends
-      ? resolvePresets(rawConfig.extends, this.plugins)
+      ? resolvePresets(rawConfig.extends as string[], this.plugins)
       : [recommended];
 
     if (rawConfig.rules || rawConfig.preprocessors || rawConfig.decorators) {

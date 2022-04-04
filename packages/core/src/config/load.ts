@@ -1,16 +1,27 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { loadYaml } from '../utils';
-import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
+import { loadYaml, parseYaml } from '../utils';
+import { Config, DOMAINS, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
+import { BaseResolver } from '../resolve';
+import { isAbsoluteUrl } from '../ref-utils';
 
-export async function loadConfig(configPath: string | undefined = findConfig(), customExtends?: string[]): Promise<Config> {
+import type { ResolvedLintRawConfig, LintRawConfig, RawConfig } from './config';
+
+export async function loadConfig(
+  configPath: string | undefined = findConfig(),
+  customExtends?: string[],
+): Promise<Config> {
   const rawConfig = await getConfig(configPath);
 
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
+  }
+
+  if (rawConfig.lint?.extends) {
+    rawConfig.lint = await resolveExtends(rawConfig?.lint);
   }
 
   const redoclyClient = new RedoclyClient();
@@ -75,4 +86,65 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
   }
+}
+
+function getRawConfigWithMergedByPriority(config: ResolvedLintRawConfig): LintRawConfig {
+  const extendedString = [];
+  const extendedRules = {};
+  const extendedPlugins = {};
+  const extendedPreprocessors = {};
+  const extendedDecorators = {};
+
+  for (const extendsItem of config?.extends || []) {
+    if (typeof extendsItem === 'string') {
+      extendedString.push(extendsItem);
+    } else {
+      // TODO: should test plugins/preprocessors/decorators
+      Object.assign(extendedRules, extendsItem.rules);
+      Object.assign(extendedPlugins, extendsItem.plugins);
+      Object.assign(extendedPreprocessors, extendsItem.preprocessors);
+      Object.assign(extendedDecorators, extendsItem.decorators);
+    }
+  }
+
+  const rules = {
+    ...extendedRules,
+    ...config?.rules,
+  };
+
+  return {
+    ...config,
+    rules,
+    extends: extendedString,
+  };
+}
+
+async function resolveExtends(
+  lintConfig: LintRawConfig,
+): Promise<LintRawConfig | undefined> {
+  if (!lintConfig.extends || !lintConfig.extends.length) return;
+  const lintExtend = [];
+  for (const item of lintConfig.extends || []) {
+    if (typeof item !== 'string') {
+      throw new Error(`Error configuration format not detected in lint.extends: ${item}`);
+    }
+
+    if (isAbsoluteUrl(item) || fs.existsSync(item)) {
+      const nestedLintConfig = await loadExtendLintConfig(item);
+      if (nestedLintConfig.extends) {
+        lintExtend.push(await resolveExtends(nestedLintConfig) as LintRawConfig);
+      }
+
+      lintExtend.push(nestedLintConfig);
+    } else {
+      lintExtend.push(item);
+    }
+  }
+  return getRawConfigWithMergedByPriority({ ...lintConfig, extends: lintExtend });
+}
+
+async function loadExtendLintConfig(filePath: string): Promise<LintRawConfig> {
+  // TODO: should test urls and handle errors
+  const fileSource = await new BaseResolver().loadExternalRef(filePath);
+  return (parseYaml(fileSource.body) as RawConfig).lint || {};
 }
