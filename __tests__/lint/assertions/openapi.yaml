@@ -1,0 +1,88 @@
+openapi: 3.1.0
+servers:
+  - url: http://example.xyz
+info:
+  license:
+    name: test licence
+    url: http://example.xyz
+  title: Example OpenAPI 3 definition.
+  description: Example description
+  version: '1.0'
+  contact:
+    name: qa
+    url: https://swagger.io/specification/#definitions
+    email: email@redoc.ly
+tags:
+  - name: test
+    description: Everything about your Pets.
+  - name: about
+    description: Everything about your Pets.
+paths:
+  /pet/findByStatus:
+    put:
+      operationId: exampleOne
+      summary: My resource
+      externalDocs:
+        description: "Find more info here"
+        url: "https://example.com"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: 'object'
+              properties:
+                updated_at:
+                  type: string
+                name:
+                  type: string
+                  description: hooray
+      x-codeSamples:
+        - lang: 'C#'
+          source: |
+            PetStore.v1.Pet pet = new PetStore.v1.Pet();
+      responses:
+        '404':
+          description: summary example
+        '200':
+          description: summary example
+        '201':
+          description: summary example
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties:
+                  updated_at:
+                    type: string
+                  created_at:
+                    type: string
+                  name:
+                    type: string
+                    description: hooray
+    get:
+      operationId: example
+      summary: My resource
+      responses:
+        '201':
+          description: Test description
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties:
+                  status:
+                    type: boolean
+        '404':
+          description: application/json
+          content:
+            application/pdf:
+              schema:
+                type: string
+              examples:
+                credit-file-identity-address:
+                  summary: Credit file with fallback
+      x-codeSamples:
+        - lang: 'C#'
+          source: |
+            PetStore.v1.Pet pet = new PetStore.v1.Pet();
+

@@ -63,6 +63,7 @@ export type Problem = {
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
   from?: LocationObject;
   forceSeverity?: ProblemSeverity;
+  ruleId?: string;
 };
 
 export type NormalizedProblem = {
@@ -397,7 +398,7 @@ export function walkDocument<T>(opts: {
         : [{ ...currentLocation, reportOnKey: false }];
 
       ctx.problems.push({
-        ruleId,
+        ruleId: opts.ruleId || ruleId,
         severity: opts.forceSeverity || severity,
         ...opts,
         suggest: opts.suggest || [],

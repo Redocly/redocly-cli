@@ -130,7 +130,7 @@ export async function bundleDocument(opts: {
         visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document, resolvedRefMap),
       },
       ...decorators,
-    ],
+    ] as any,
     types,
   );
 
