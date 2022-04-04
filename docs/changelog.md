@@ -8,12 +8,12 @@ tocMaxDepth: 2
 
 ### Features
 
-- Introduced [assertions](./resources/rules/assertions.md) - new powerful lint feature, which helps to enforce API design standards without coding custom rules.
-- Added `--skip-decorator` option to the `push` command.
+- Introduced [assertions](./resources/rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
+- The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes
 
-- Resolved an issue with `openapi preview-docs` fail during authorization.
+- Resolved an issue with `openapi preview-docs` failing during authorization.
 
 ---
 
