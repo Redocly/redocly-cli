@@ -4,6 +4,19 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-92 (2022-04-04)
+
+### Features
+
+- Introduced [assertions](./resources/rules/assertions.md) - new powerful lint feature, which helps to enforce API design standards without coding custom rules.
+- Added `--skip-decorator` option to the `push` command.
+
+### Fixes
+
+- Resolved an issue with `openapi preview-docs` fail during authorization.
+
+---
+
 ## 1.0.0-beta-91 (2022-03-29)
 
 ### Features
