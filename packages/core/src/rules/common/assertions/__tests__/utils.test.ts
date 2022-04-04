@@ -2,10 +2,9 @@ import { isOrdered, buildVisitorObject, getIntersectionLength } from '../utils';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {
-
     describe('getCounts', () => {
       it('should return the right counts', () => {
-        const arr = ['foo', 'bar', 'baz']
+        const arr = ['foo', 'bar', 'baz'];
         expect(getIntersectionLength(arr, ['foo'])).toBe(1);
         expect(getIntersectionLength(arr, ['foo', 'bar', 'baz'])).toBe(3);
         expect(getIntersectionLength(arr, ['foo', 'test', 'baz'])).toBe(2);
@@ -25,25 +24,23 @@ describe('Oas3 assertions', () => {
     });
 
     describe('buildVisitorObject', () => {
-
       it('should return a consistent visitor structure', () => {
-
         const context = [
           {
-            type: "Foo",
-            matchParentKeys: ["test"]
+            type: 'Foo',
+            matchParentKeys: ['test'],
           },
           {
-            type: "Bar",
-            matchParentKeys: ["test"]
+            type: 'Bar',
+            matchParentKeys: ['test'],
           },
           {
-            type: "Roof",
-            matchParentKeys: ["test"]
-          }
-        ]
+            type: 'Roof',
+            matchParentKeys: ['test'],
+          },
+        ];
 
-        const visitors = buildVisitorObject('Bar', context, () =>{}) as any;
+        const visitors = buildVisitorObject('Bar', context, () => {}) as any;
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
@@ -58,23 +55,22 @@ describe('Oas3 assertions', () => {
               "skip": [Function],
             },
           }
-        `)
+        `);
       });
 
       it('should return the right visitor structure', () => {
-
-        const context =  [
+        const context = [
           {
-            type: "Operation",
-            matchParentKeys: ["put"]
+            type: 'Operation',
+            matchParentKeys: ['put'],
           },
           {
-            type: "ResponsesMap",
-            matchParentKeys: [201, 200]
-          }
-       ]
+            type: 'ResponsesMap',
+            matchParentKeys: [201, 200],
+          },
+        ];
 
-        const visitors = buildVisitorObject('MediaTypeMap', context, () =>{}) as any;
+        const visitors = buildVisitorObject('MediaTypeMap', context, () => {}) as any;
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
@@ -86,7 +82,7 @@ describe('Oas3 assertions', () => {
               "skip": [Function],
             },
           }
-        `)
+        `);
       });
     });
   });

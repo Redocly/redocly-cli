@@ -6,32 +6,32 @@ const opts = {
     property: 'summary',
     description: 'example warn text',
     severity: 'warn',
-    pattern: '/example/'
+    pattern: '/example/',
   },
   '1': {
     subject: 'PathItem',
-    context: [ {type: 'Operation', matchParentKeys: ["post"]} ],
+    context: [{ type: 'Operation', matchParentKeys: ['post'] }],
     description: 'example warn text',
     severity: 'warn',
-    mutuallyExclusive: [ 'summary', 'security' ]
+    mutuallyExclusive: ['summary', 'security'],
   },
   '2': {
-    subject: [ 'PathItem' ],
-    context: [{type: 'Operation'}],
+    subject: ['PathItem'],
+    context: [{ type: 'Operation' }],
     property: 'tags',
     description: 'example warn text',
     severity: 'warn',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
   },
   '3': {
-    subject: [ 'Foo' ],
-    context: [{type: 'Bar'}, {type: 'Baz'}],
+    subject: ['Foo'],
+    context: [{ type: 'Bar' }, { type: 'Baz' }],
     property: 'test',
     description: 'example warn text',
     severity: 'warn',
-    sortOrder: 'desc'
-  }
-}
+    sortOrder: 'desc',
+  },
+};
 
 describe('Oas3 assertions', () => {
   it('should return the right visitor structure', () => {
@@ -60,6 +60,6 @@ describe('Oas3 assertions', () => {
           },
         },
       ]
-    `)
+    `);
   });
 });

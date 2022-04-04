@@ -19,15 +19,19 @@ export type AssertToApply = {
   runsOnValues: boolean;
 };
 
-export function buildVisitorObject(subject: string, context: Record<string, any>[], subjectVisitor: any) {
+export function buildVisitorObject(
+  subject: string,
+  context: Record<string, any>[],
+  subjectVisitor: any,
+) {
   if (!context) {
-    return  { [subject]: subjectVisitor };
+    return { [subject]: subjectVisitor };
   }
 
   let currentVisitorLevel: Record<string, any> = {};
   const visitor: Record<string, any> = currentVisitorLevel;
 
-  for (let index=0; index < context.length; index++) {
+  for (let index = 0; index < context.length; index++) {
     const node = context[index];
     if (context.length === index + 1 && node.type === subject) {
       // Visitors don't work properly for the same type nested nodes, so
@@ -40,7 +44,9 @@ export function buildVisitorObject(subject: string, context: Record<string, any>
     const excludeParentKeys = node.excludeParentKeys;
 
     if (matchParentKeys && excludeParentKeys) {
-      throw new Error(`Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`);
+      throw new Error(
+        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`,
+      );
     }
 
     if (matchParentKeys || excludeParentKeys) {
@@ -52,10 +58,10 @@ export function buildVisitorObject(subject: string, context: Record<string, any>
           if (excludeParentKeys) {
             return excludeParentKeys.includes(key);
           }
-        }
-      }
+        },
+      };
     } else {
-      currentVisitorLevel[node.type] = {}
+      currentVisitorLevel[node.type] = {};
     }
     currentVisitorLevel = currentVisitorLevel[node.type];
   }
@@ -65,14 +71,17 @@ export function buildVisitorObject(subject: string, context: Record<string, any>
   return visitor;
 }
 
-export function buildSubjectVisitor(properties: string | string[], asserts: AssertToApply[], context?: Record<string, any>[]) {
-  return function(node: any, { report, location, key, type }: UserContext) {
-
+export function buildSubjectVisitor(
+  properties: string | string[],
+  asserts: AssertToApply[],
+  context?: Record<string, any>[],
+) {
+  return function (node: any, { report, location, key, type }: UserContext) {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
     if (context) {
-      const lastContextNode = context[context.length-1];
+      const lastContextNode = context[context.length - 1];
       if (lastContextNode.type === type.name) {
         const matchParentKeys = lastContextNode.matchParentKeys;
         const excludeParentKeys = lastContextNode.excludeParentKeys;
@@ -99,7 +108,7 @@ export function buildSubjectVisitor(properties: string | string[], asserts: Asse
         runAssertion(Object.keys(node), assert, location.key(), report);
       }
     }
-  }
+  };
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
@@ -114,18 +123,18 @@ export function getIntersectionLength(keys: string[], properties: string[]): num
 }
 
 export function isOrdered(value: any[], options: OrderOptions | OrderDirection): boolean {
-  const direction = (options as OrderOptions).direction || options as OrderDirection;
+  const direction = (options as OrderOptions).direction || (options as OrderDirection);
   const property = (options as OrderOptions).property;
-  for (let i=1; i<value.length; i++) {
+  for (let i = 1; i < value.length; i++) {
     let currValue = value[i];
-    let prevVal = value[i-1];
+    let prevVal = value[i - 1];
 
     if (property) {
-      if (!value[i][property] || !value[i-1][property]) {
+      if (!value[i][property] || !value[i - 1][property]) {
         return false; // property doesn't exist, so collection is not ordered
       }
       currValue = value[i][property];
-      prevVal = value[i-1][property]
+      prevVal = value[i - 1][property];
     }
 
     const result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;
@@ -136,7 +145,12 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
   return true;
 }
 
-function runAssertion(values: string | string[], assert: AssertToApply, location: any, report: (problem: Problem) => void) {
+function runAssertion(
+  values: string | string[],
+  assert: AssertToApply,
+  location: any,
+  report: (problem: Problem) => void,
+) {
   const lintResult = asserts[assert.name](values, assert.conditions);
   if (!lintResult) {
     report({
@@ -144,7 +158,7 @@ function runAssertion(values: string | string[], assert: AssertToApply, location
       location,
       forceSeverity: assert.severity,
       suggest: assert.suggest,
-      ruleId: assert.assertId
+      ruleId: assert.assertId,
     });
   }
 }
