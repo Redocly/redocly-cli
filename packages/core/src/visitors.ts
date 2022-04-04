@@ -244,8 +244,8 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
   };
 };
 
-export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor;
-export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor;
+export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor | Oas3Visitor[];
+export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor | Oas2Visitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3TransformVisitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2TransformVisitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3TransformVisitor;

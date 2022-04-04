@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - subject: Info
+        property: description
+        message: Info description should be maximum 10 chars length
+        maxLength: 10
+  extends: []
