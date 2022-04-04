@@ -1,0 +1,19 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - context:
+        - type: Operation
+          matchParentKeys: [get]
+        subject: Operation
+        property: operationId
+        message: Operation id for get operation should be canmelCase
+        casing: camelCase
+      - subject: Operation
+        property: operationId
+        message: Operation id should be camelCase
+        casing: camelCase
+  extends: []

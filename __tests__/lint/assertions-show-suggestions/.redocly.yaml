@@ -1,0 +1,17 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assertions:
+      - context:
+        - type: PathItem
+        subject: Operation
+        property: summary
+        message: Operation summary should have at least 10 chars length
+        suggest:
+          - Suggestion 1
+          - Suggestion 2
+        minLength: 20
+  extends: []

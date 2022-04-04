@@ -330,6 +330,10 @@ Verifies that each tag has a description.
 
 Verifies that tags (names) are declared in alphabetical order.
 
+### assertions
+
+Configure assertions to enforce your API design standards without coding custom rules.
+Learn how to [configure assertions](./rules/assertions.md).
 
 ## Recommended config
 
