@@ -4,6 +4,14 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-93 (2022-04-05)
+
+### Fixes
+
+- Resolved an issue with the `push` command skipping dependencies.
+
+---
+
 ## 1.0.0-beta-92 (2022-04-04)
 
 ### Features
