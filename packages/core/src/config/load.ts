@@ -107,14 +107,9 @@ function getRawConfigWithMergedByPriority(config: ResolvedLintRawConfig): LintRa
     }
   }
 
-  const rules = {
-    ...extendedRules,
-    ...config?.rules,
-  };
-
   return {
     ...config,
-    rules,
+    rules: { ...extendedRules, ...config?.rules },
     extends: extendedString,
   };
 }
@@ -124,7 +119,7 @@ async function resolveExtends(
 ): Promise<LintRawConfig | undefined> {
   if (!lintConfig.extends || !lintConfig.extends.length) return;
   const lintExtend = [];
-  for (const item of lintConfig.extends || []) {
+  for (const item of lintConfig.extends) {
     if (typeof item !== 'string') {
       throw new Error(`Error configuration format not detected in lint.extends: ${item}`);
     }
