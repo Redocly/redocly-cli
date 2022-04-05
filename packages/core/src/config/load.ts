@@ -118,7 +118,6 @@ async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig>
 
   const lintExtends = await Promise.all(
     lintConfig.extends
-      // .filter(isString)
       .map(async (item) =>
         isAbsoluteUrl(item) || fs.existsSync(item)
           ? loadExtendLintConfig(item).then(resolveExtends)
