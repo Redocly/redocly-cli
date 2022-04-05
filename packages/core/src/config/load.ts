@@ -97,7 +97,7 @@ function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConf
       preprocessors: { ...acc.preprocessors, ...preprocessors },
       decorators: { ...acc.decorators, ...decorators },
     }),
-    {}
+    {},
   );
 
   return {
@@ -111,7 +111,7 @@ function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConf
 }
 
 async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig> {
-  if (!lintConfig.extends) return lintConfig;
+  if (!lintConfig.extends || !lintConfig.extends.length) return lintConfig;
   if (lintConfig.extends.some(isNotString)) {
     throw Error(`Error configuration format not detected in lint.extends`); // TODO: show correct errors
   }
@@ -122,11 +122,11 @@ async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig>
       .map(async (item) =>
         isAbsoluteUrl(item) || fs.existsSync(item)
           ? loadExtendLintConfig(item).then(resolveExtends)
-          : item
-      )
+          : item,
+      ),
   );
   // TODO: check perf. - if lintExtends contains only strings, we can simply return lintConfig
-  return getRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends }); 
+  return getRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends });
 }
 
 async function loadExtendLintConfig(filePath: string): Promise<LintRawConfig> {
