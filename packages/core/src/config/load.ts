@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { loadYaml, parseYaml } from '../utils';
+import { isNotString, isString, loadYaml, parseYaml } from '../utils';
 import { Config, DOMAINS, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 import { BaseResolver } from '../resolve';
@@ -88,59 +88,45 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   }
 }
 
-function getRawConfigWithMergedByPriority(config: ResolvedLintRawConfig): LintRawConfig {
-  const extendedString = [];
-  const extendedRules = {};
-  const extendedPlugins = {};
-  const extendedPreprocessors = {};
-  const extendedDecorators = {};
-
-  for (const extendsItem of config?.extends || []) {
-    if (typeof extendsItem === 'string') {
-      extendedString.push(extendsItem);
-    } else {
-      // TODO: should test plugins/preprocessors/decorators
-      Object.assign(extendedRules, extendsItem.rules);
-      Object.assign(extendedPlugins, extendsItem.plugins);
-      Object.assign(extendedPreprocessors, extendsItem.preprocessors);
-      Object.assign(extendedDecorators, extendsItem.decorators);
-    }
-  }
-
-  const rules = {
-    ...extendedRules,
-    ...config?.rules,
-  };
+function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConfig): LintRawConfig {
+  const extendedContent = (
+    lintConfig.extends?.filter(isNotString) as LintRawConfig[]
+  ).reduce<LintRawConfig>(
+    (acc, { rules, preprocessors, decorators }) => ({
+      rules: { ...acc.rules, ...rules },
+      preprocessors: { ...acc.preprocessors, ...preprocessors },
+      decorators: { ...acc.decorators, ...decorators },
+    }),
+    {}
+  );
 
   return {
-    ...config,
-    rules,
-    extends: extendedString,
+    ...lintConfig,
+    plugins: lintConfig.plugins,
+    extends: lintConfig.extends?.filter(isString) as string[], // TODO: think about unique default rules/plugins group; also perf.
+    rules: { ...extendedContent.rules, ...lintConfig.rules },
+    preprocessors: { ...extendedContent.preprocessors, ...lintConfig.preprocessors },
+    decorators: { ...extendedContent.decorators, ...lintConfig.decorators },
   };
 }
 
-async function resolveExtends(
-  lintConfig: LintRawConfig,
-): Promise<LintRawConfig | undefined> {
-  if (!lintConfig.extends || !lintConfig.extends.length) return;
-  const lintExtend = [];
-  for (const item of lintConfig.extends || []) {
-    if (typeof item !== 'string') {
-      throw new Error(`Error configuration format not detected in lint.extends: ${item}`);
-    }
-
-    if (isAbsoluteUrl(item) || fs.existsSync(item)) {
-      const nestedLintConfig = await loadExtendLintConfig(item);
-      if (nestedLintConfig.extends) {
-        lintExtend.push(await resolveExtends(nestedLintConfig) as LintRawConfig);
-      }
-
-      lintExtend.push(nestedLintConfig);
-    } else {
-      lintExtend.push(item);
-    }
+async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig> {
+  if (!lintConfig.extends) return lintConfig;
+  if (lintConfig.extends.some(isNotString)) {
+    throw Error(`Error configuration format not detected in lint.extends`); // TODO: show correct errors
   }
-  return getRawConfigWithMergedByPriority({ ...lintConfig, extends: lintExtend });
+
+  const lintExtends = await Promise.all(
+    lintConfig.extends
+      // .filter(isString)
+      .map(async (item) =>
+        isAbsoluteUrl(item) || fs.existsSync(item)
+          ? loadExtendLintConfig(item).then(resolveExtends)
+          : item
+      )
+  );
+  // TODO: check perf. - if lintExtends contains only strings, we can simply return lintConfig
+  return getRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends }); 
 }
 
 async function loadExtendLintConfig(filePath: string): Promise<LintRawConfig> {
