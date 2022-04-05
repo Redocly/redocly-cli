@@ -646,19 +646,22 @@ function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
 
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
   return entrypointAlias
-    ? new Config({
-        ...config.rawConfig,
-        lint: getMergedLintConfig(config, entrypointAlias),
-        'features.openapi': {
-          ...config['features.openapi'],
-          ...config.apis[entrypointAlias]?.['features.openapi'],
+    ? new Config(
+        {
+          ...config.rawConfig,
+          lint: getMergedLintConfig(config, entrypointAlias),
+          'features.openapi': {
+            ...config['features.openapi'],
+            ...config.apis[entrypointAlias]?.['features.openapi'],
+          },
+          'features.mockServer': {
+            ...config['features.mockServer'],
+            ...config.apis[entrypointAlias]?.['features.mockServer'],
+          },
+          // TODO: merge everything else here
         },
-        'features.mockServer': {
-          ...config['features.mockServer'],
-          ...config.apis[entrypointAlias]?.['features.mockServer'],
-        },
-        // TODO: merge everything else here
-      })
+        config.configFile,
+      )
     : config;
 }
 
