@@ -88,7 +88,7 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   }
 }
 
-function getRawConfigWithMergedByPriority(config: ResolvedLintRawConfig): LintRawConfig {
+export function getRawConfigWithMergedByPriority(config: ResolvedLintRawConfig): LintRawConfig {
   const extendedString = [];
   const extendedRules = {};
   const extendedPlugins = {};
