@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolved push command skipping any dependencies.
+- Resolved an issue with the `push` command skipping dependencies.
 
 ---
 
