@@ -4,8 +4,9 @@ import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
 
 import { parseYaml } from './js-yaml';
-import { HttpResolveConfig } from './config/config';
 import { UserContext } from './walk';
+
+import type { HttpResolveConfig } from './config';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 

@@ -4,7 +4,7 @@ import * as path from 'path';
 import { bundleDocument, bundle } from '../src/bundle';
 
 import { parseYamlToDocument, yamlSerializer } from './utils';
-import { LintConfig, Config } from '../src/config/config';
+import { LintConfig, Config } from '../src/config';
 import { BaseResolver } from '../src/resolve';
 
 describe('bundle', () => {

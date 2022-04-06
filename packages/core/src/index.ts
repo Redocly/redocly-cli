@@ -29,9 +29,13 @@ export {
   Region,
   getMergedConfig,
   transformConfig,
-} from './config/config';
+  loadConfig,
+  getConfig,
+  findConfig,
+  CONFIG_FILE_NAMES,
+} from './config';
 
-export { loadConfig, getConfig, findConfig, CONFIG_FILE_NAMES } from './config/load';
+
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 
 export {
