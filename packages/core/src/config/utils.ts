@@ -9,6 +9,8 @@ import type {
   LintRawConfig,
   Plugin,
   RawConfig,
+  RawResolveConfig,
+  ResolveConfig,
   RulesFields,
 } from './types';
 
@@ -238,7 +240,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     : config;
 }
 
-export function getMergedLintConfig(config: Config, entrypointAlias?: string) {
+function getMergedLintConfig(config: Config, entrypointAlias?: string) {
   const apiLint = entrypointAlias ? config.apis[entrypointAlias]?.lint : {};
   const mergedLint = {
     ...config.rawConfig.lint,
@@ -279,5 +281,14 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
     ...rest,
+  };
+}
+
+export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
+  return {
+    http: {
+      headers: resolve?.http?.headers ?? [],
+      customFetch: undefined,
+    },
   };
 }

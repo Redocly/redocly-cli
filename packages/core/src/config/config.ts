@@ -19,7 +19,7 @@ import type {
   ResolveConfig,
   RuleConfig,
 } from './types';
-import { mergeExtends, resolvePlugins, resolvePresets } from './utils';
+import { getResolveConfig, mergeExtends, resolvePlugins, resolvePresets } from './utils';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -308,12 +308,7 @@ export class Config {
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};
     this['features.mockServer'] = rawConfig['features.mockServer'] || {};
-    this.resolve = {
-      http: {
-        headers: rawConfig?.resolve?.http?.headers ?? [],
-        customFetch: undefined,
-      },
-    };
+    this.resolve = getResolveConfig(rawConfig?.resolve);
     this.region = rawConfig.region;
     this.organization = rawConfig.organization;
   }

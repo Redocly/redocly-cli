@@ -1,14 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isNotString, isString, loadYaml, mergeArrays, parseYaml } from '../utils';
+import { isEmptyArray, isNotString, isString, loadYaml, mergeArrays, parseYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { defaultPlugin } from './builtIn';
-import { BaseResolver } from '../resolve';
+import { getResolveConfig, transformConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
-import { transformConfig } from './utils';
+import { BaseResolver } from '../resolve';
 
-import type { ResolvedLintRawConfig, LintRawConfig, RawConfig, Region } from './types';
+import type {
+  Api,
+  LintRawConfig,
+  Plugin,
+  RawConfig,
+  RawResolveConfig,
+  Region,
+  ResolvedLintRawConfig,
+} from './types';
+
 
 export async function loadConfig(
   configPath: string | undefined = findConfig(),
@@ -19,10 +28,6 @@ export async function loadConfig(
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
-  }
-
-  if (rawConfig.lint?.extends) {
-    rawConfig.lint = await resolveExtends(rawConfig?.lint);
   }
 
   const redoclyClient = new RedoclyClient();
@@ -50,6 +55,15 @@ export async function loadConfig(
       }] : []));
     }
   }
+
+  if (rawConfig.lint?.extends) {
+    rawConfig.lint = await resolveExtends(rawConfig?.lint, configPath, rawConfig.resolve);
+  }
+
+  if (rawConfig.apis) {
+    rawConfig.apis = await resolveApis(rawConfig.apis, configPath, rawConfig.resolve);
+  }
+
   return new Config(
     {
       ...rawConfig,
@@ -105,13 +119,14 @@ export function getLintRawConfigWithMergedContentByPriority(
             preprocessors: { ...acc.preprocessors, ...item.preprocessors },
             decorators: { ...acc.decorators, ...item.decorators },
             extends: mergeArrays(acc.extends, item.extends),
+            plugins: mergeArrays(acc.plugins, item.plugins),
           },
     {},
   );
 
   return {
     ...lintConfig,
-    plugins: lintConfig.plugins,
+    plugins: extendedContent?.plugins, // FIXME: plugins should be uniq
     // TODO: think about unique default rules/plugins group
     extends: extendedContent?.extends,
     rules: { ...extendedContent?.rules, ...lintConfig.rules },
@@ -120,25 +135,106 @@ export function getLintRawConfigWithMergedContentByPriority(
   };
 }
 
-async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig> {
-  if (!lintConfig.extends || !lintConfig.extends.length) return lintConfig;
-  if (lintConfig.extends.some(isNotString)) {
-    throw Error(`Error configuration format not detected in lint.extends`); // TODO: show correct errors
+export function resolveNestedPlugins(
+  configPath: string,
+  pluginConfigPath: string,
+  plugin: string | Plugin,
+): string | Plugin | undefined {
+  if (!plugin) {
+    return;
   }
 
-  const lintExtends = await Promise.all(
-    lintConfig.extends.map(async (item) =>
-      isAbsoluteUrl(item) || fs.existsSync(item)
-        ? loadExtendLintConfig(item).then(resolveExtends)
-        : item,
-    ),
-  );
-  // TODO: check perf. - if lintExtends contains only strings, we can simply return lintConfig
-  return getLintRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends });
+  if (!isString(plugin)) {
+    return plugin;
+  }
+
+  if (isAbsoluteUrl(plugin as string)) {
+    throw new Error(
+      `Error configuration format not detected (${plugin}). Nested plugin should be path to local file`,
+    );
+  }
+  const pluginPath = path.resolve(path.dirname(pluginConfigPath), plugin as string);
+
+  return path.resolve(path.dirname(configPath), pluginPath);
 }
 
-async function loadExtendLintConfig(filePath: string): Promise<LintRawConfig> {
-  // TODO: should test urls and handle errors
-  const fileSource = await new BaseResolver().loadExternalRef(filePath);
-  return (parseYaml(fileSource.body) as RawConfig).lint || {};
+async function resolveApis(
+  apis: Record<string, Api>,
+  configPath: string = '',
+  resolve?: RawResolveConfig,
+): Promise<Record<string, Api>> {
+  const apiKeys = Object.keys(apis);
+  if (isEmptyArray(apiKeys)) {
+    return apis;
+  }
+
+  const resolvedApis: Record<string, Api> = {};
+  for (const apiKey of apiKeys) {
+    if (!apis[apiKey]?.lint?.extends) {
+      resolvedApis[apiKey] = apis[apiKey];
+    }
+    const lint = await resolveExtends(apis[apiKey].lint as LintRawConfig, configPath, resolve);
+    resolvedApis[apiKey] = {...apis[apiKey], lint};
+  }
+
+  return resolvedApis;
+}
+
+async function resolveExtends(
+  lintConfig: LintRawConfig | Omit<LintRawConfig, "plugins">,
+  configPath: string = '',
+  resolve?: RawResolveConfig,
+): Promise<LintRawConfig> {
+  if (!lintConfig.extends || isEmptyArray(lintConfig.extends)) {
+    return lintConfig;
+  }
+
+  if (lintConfig.extends.some(isNotString)) {
+    throw new Error(`Error configuration format not detected in extends value must contain strings`);
+  }
+
+  const lintExtends: (string | LintRawConfig)[] = [];
+  const pluginExtends: (string | Plugin)[] = [];
+  for (const item of lintConfig.extends) {
+    if (!isAbsoluteUrl(item) && !fs.existsSync(item)) {
+      lintExtends.push(item);
+      continue;
+    }
+
+    const extendedLintConfig = await loadExtendLintConfig(item, resolve);
+
+    if (extendedLintConfig.plugins && !isEmptyArray(extendedLintConfig.plugins)) {
+      const plugins = extendedLintConfig.plugins
+        .map((plugin) => resolveNestedPlugins(configPath, item, plugin))
+        .filter(Boolean) as (string | Plugin)[];
+      pluginExtends.push(...plugins);
+    }
+
+    if (extendedLintConfig.extends) {
+      lintExtends.push(await resolveExtends(extendedLintConfig, configPath, resolve));
+      continue;
+    }
+
+    lintExtends.push(extendedLintConfig);
+  }
+
+  return getLintRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends, plugins: pluginExtends });
+}
+
+async function loadExtendLintConfig(
+  filePath: string,
+  resolve?: RawResolveConfig,
+): Promise<LintRawConfig> {
+  try {
+    const fileSource = await new BaseResolver(getResolveConfig(resolve)).loadExternalRef(filePath);
+    const rawConfig = parseYaml(fileSource.body) as RawConfig;
+
+    if (!rawConfig.lint) {
+      throw new Error(`Lint configuration format not detected (${filePath})`);
+    }
+
+    return rawConfig.lint;
+  } catch (error) {
+    throw new Error(`File not found (${filePath})`);
+  }
 }
