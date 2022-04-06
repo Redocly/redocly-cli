@@ -88,7 +88,9 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   }
 }
 
-function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConfig): LintRawConfig {
+export function getLintRawConfigWithMergedContentByPriority(
+  lintConfig: ResolvedLintRawConfig,
+): LintRawConfig {
   const extendedContent = (
     lintConfig.extends?.filter(isNotString) as LintRawConfig[]
   ).reduce<LintRawConfig>(
@@ -127,7 +129,7 @@ async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig>
     ),
   );
   // TODO: check perf. - if lintExtends contains only strings, we can simply return lintConfig
-  return getRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends });
+  return getLintRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends });
 }
 
 async function loadExtendLintConfig(filePath: string): Promise<LintRawConfig> {

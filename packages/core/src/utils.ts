@@ -182,7 +182,5 @@ export function isNotString(value: unknown) {
 }
 
 export function mergeArrays<T>(a: T[] | undefined, b: T[] | undefined) {
-  console.log('BEFORE', a, b);
-  console.log('AFTER', [...new Set([...(a || []), ...(b || [])])]);
   return [...new Set([...(a || []), ...(b || [])])];
 }
