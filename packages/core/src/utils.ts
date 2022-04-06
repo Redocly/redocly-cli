@@ -181,3 +181,7 @@ export function isString(value: unknown) {
 export function isNotString(value: unknown) {
   return !isString(value);
 }
+
+export function mergeArrays<T>(a: T[] | undefined, b: T[] | undefined) {
+  return [...new Set([...(a || []), ...(b || [])])];
+}
