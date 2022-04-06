@@ -1,8 +1,7 @@
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
-import { LintConfig } from '../../../../config/config';
-import { defaultPlugin } from '../../../../config/builtIn';
+import { LintConfig, defaultPlugin } from '../../../../config';
 
 import { BaseResolver } from '../../../../resolve';
 

@@ -1,9 +1,11 @@
 import * as path from 'path';
 
 import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
-import { RuleConfig, LintConfig, Plugin, DecoratorConfig } from '../src/config/config';
+import { LintConfig } from '../src/config';
 import { Oas3RuleSet } from '../src/oas-types';
-import { defaultPlugin } from '../src/config/builtIn';
+import { defaultPlugin } from '../src/config';
+
+import type { RuleConfig, Plugin, DecoratorConfig } from '../src/config';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
