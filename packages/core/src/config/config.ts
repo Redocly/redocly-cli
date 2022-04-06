@@ -5,12 +5,7 @@ import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash } from '../utils';
 import { NormalizedProblem } from '../walk';
 import recommended from './recommended';
-import {
-  OasVersion,
-  OasMajorVersion,
-  Oas2RuleSet,
-  Oas3RuleSet,
-} from '../oas-types';
+import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
 
 import type { NodeType } from '../types';
 import type {

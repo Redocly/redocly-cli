@@ -111,7 +111,6 @@ export type Region = 'us' | 'eu';
 
 export type AccessTokens = { [region in Region]?: string };
 
-
 export type DeprecatedRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: LintRawConfig;
