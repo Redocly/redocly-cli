@@ -105,6 +105,7 @@ function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConf
   return {
     ...lintConfig,
     plugins: lintConfig.plugins,
+    // TODO: think about unique default rules/plugins group; also perf.
     extends: mergeArrays(extendedContent.extends, lintConfig.extends?.filter(isString) as string[]),
     rules: { ...extendedContent.rules, ...lintConfig.rules },
     preprocessors: { ...extendedContent.preprocessors, ...lintConfig.preprocessors },
