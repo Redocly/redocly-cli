@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isNotString, isString, loadYaml, parseYaml } from '../utils';
+import { isNotString, isString, loadYaml, mergeArrays, parseYaml } from '../utils';
 import { Config, DOMAINS, Region, transformConfig } from './config';
 import { defaultPlugin } from './builtIn';
 import { BaseResolver } from '../resolve';
@@ -92,10 +92,12 @@ function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConf
   const extendedContent = (
     lintConfig.extends?.filter(isNotString) as LintRawConfig[]
   ).reduce<LintRawConfig>(
-    (acc, { rules, preprocessors, decorators }) => ({
-      rules: { ...acc.rules, ...rules },
-      preprocessors: { ...acc.preprocessors, ...preprocessors },
-      decorators: { ...acc.decorators, ...decorators },
+    (acc, item) => ({
+      rules: { ...acc.rules, ...item.rules },
+      // TODO: add oas_rules here as well
+      preprocessors: { ...acc.preprocessors, ...item.preprocessors },
+      decorators: { ...acc.decorators, ...item.decorators },
+      extends: mergeArrays(acc.extends, item.extends),
     }),
     {},
   );
@@ -103,7 +105,7 @@ function getRawConfigWithMergedContentByPriority(lintConfig: ResolvedLintRawConf
   return {
     ...lintConfig,
     plugins: lintConfig.plugins,
-    extends: lintConfig.extends?.filter(isString) as string[], // TODO: think about unique default rules/plugins group; also perf.
+    extends: mergeArrays(extendedContent.extends, lintConfig.extends?.filter(isString) as string[]),
     rules: { ...extendedContent.rules, ...lintConfig.rules },
     preprocessors: { ...extendedContent.preprocessors, ...lintConfig.preprocessors },
     decorators: { ...extendedContent.decorators, ...lintConfig.decorators },
@@ -117,12 +119,11 @@ async function resolveExtends(lintConfig: LintRawConfig): Promise<LintRawConfig>
   }
 
   const lintExtends = await Promise.all(
-    lintConfig.extends
-      .map(async (item) =>
-        isAbsoluteUrl(item) || fs.existsSync(item)
-          ? loadExtendLintConfig(item).then(resolveExtends)
-          : item,
-      ),
+    lintConfig.extends.map(async (item) =>
+      isAbsoluteUrl(item) || fs.existsSync(item)
+        ? loadExtendLintConfig(item).then(resolveExtends)
+        : item,
+    ),
   );
   // TODO: check perf. - if lintExtends contains only strings, we can simply return lintConfig
   return getRawConfigWithMergedContentByPriority({ ...lintConfig, extends: lintExtends });

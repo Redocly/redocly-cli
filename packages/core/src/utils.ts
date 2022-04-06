@@ -180,3 +180,9 @@ export function isString(value: unknown) {
 export function isNotString(value: unknown) {
   return !isString(value);
 }
+
+export function mergeArrays<T>(a: T[] | undefined, b: T[] | undefined) {
+  console.log('BEFORE', a, b);
+  console.log('AFTER', [...new Set([...(a || []), ...(b || [])])]);
+  return [...new Set([...(a || []), ...(b || [])])];
+}
