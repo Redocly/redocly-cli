@@ -7,7 +7,7 @@ import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './re
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
 import { readFileFromUrl, parseYaml } from './utils';
-import { ResolveConfig } from './config/config';
+import { ResolveConfig } from './config/types';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 

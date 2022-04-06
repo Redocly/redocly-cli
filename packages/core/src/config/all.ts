@@ -1,4 +1,5 @@
-import { LintRawConfig } from './config';
+import type { LintRawConfig } from "./types";
+
 
 export default {
   rules: {

@@ -1,4 +1,4 @@
-import { Region } from '../config/config';
+import type { Region } from '../config/types';
 
 export interface RegionalToken {
   region: Region;

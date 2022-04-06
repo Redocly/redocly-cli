@@ -7,14 +7,13 @@ import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
-import { LintConfig, Config } from './config/config';
+import { LintConfig, Config, initRules, defaultPlugin } from './config';
 import { normalizeTypes } from './types';
-import { initRules } from './config/rules';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
-import { defaultPlugin } from './config/builtIn';
+
 
 export async function lint(opts: {
   ref: string;

@@ -1,8 +1,7 @@
-import { LintConfig, RuleConfig } from '../../../../config/config';
+import { LintConfig, RuleConfig, defaultPlugin } from '../../../../config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
-import { defaultPlugin } from '../../../../config/builtIn';
 
 export async function lintDoc(
   source: string,

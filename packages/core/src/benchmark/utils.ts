@@ -1,7 +1,10 @@
 import { parseYaml } from '../js-yaml';
 import { Document, Source } from '../resolve';
 import { Oas3RuleSet } from '../oas-types';
-import { RuleConfig, LintConfig, Plugin } from '../config/config';
+import { LintConfig } from '../config';
+
+import type { RuleConfig, Plugin } from '../config/types';
+
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {

@@ -2,12 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { isNotString, isString, loadYaml, parseYaml } from '../utils';
-import { Config, DOMAINS, Region, transformConfig } from './config';
+import { Config, DOMAINS } from './config';
 import { defaultPlugin } from './builtIn';
 import { BaseResolver } from '../resolve';
 import { isAbsoluteUrl } from '../ref-utils';
+import { transformConfig } from './utils';
 
-import type { ResolvedLintRawConfig, LintRawConfig, RawConfig } from './config';
+import type { ResolvedLintRawConfig, LintRawConfig, RawConfig, Region } from './types';
+
 
 export async function loadConfig(
   configPath: string | undefined = findConfig(),
