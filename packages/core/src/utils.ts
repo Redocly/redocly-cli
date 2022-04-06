@@ -171,3 +171,12 @@ export function isPathParameter(pathSegment: string) {
 export function isNotEmptyObject(obj: any) {
   return !!obj && Object.keys(obj).length > 0;
 }
+
+// TODO: use it everywhere
+export function isString(value: unknown) {
+  return typeof value === 'string';
+}
+
+export function isNotString(value: unknown) {
+  return !isString(value);
+}
