@@ -92,27 +92,31 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
 export function getLintRawConfigWithMergedContentByPriority(
   lintConfig: ResolvedLintRawConfig,
 ): LintRawConfig {
-  const extendedContent = (
-    lintConfig.extends?.filter(isNotString) as LintRawConfig[]
-  ).reduce<LintRawConfig>(
-    (acc, item) => ({
-      rules: { ...acc.rules, ...item.rules },
-      // TODO: add oas_rules here as well
-      preprocessors: { ...acc.preprocessors, ...item.preprocessors },
-      decorators: { ...acc.decorators, ...item.decorators },
-      extends: mergeArrays(acc.extends, item.extends),
-    }),
+  const extendedContent = lintConfig.extends?.reduce<LintRawConfig>(
+    (acc, item) =>
+      isString(item)
+        ? {
+            ...acc,
+            extends: mergeArrays(acc.extends, [item]),
+          }
+        : {
+            rules: { ...acc.rules, ...item.rules },
+            // TODO: add oas_rules here as well (use mergeExtends?)
+            preprocessors: { ...acc.preprocessors, ...item.preprocessors },
+            decorators: { ...acc.decorators, ...item.decorators },
+            extends: mergeArrays(acc.extends, item.extends),
+          },
     {},
   );
 
   return {
     ...lintConfig,
     plugins: lintConfig.plugins,
-    // TODO: think about unique default rules/plugins group; also perf.
-    extends: mergeArrays(extendedContent.extends, lintConfig.extends?.filter(isString) as string[]),
-    rules: { ...extendedContent.rules, ...lintConfig.rules },
-    preprocessors: { ...extendedContent.preprocessors, ...lintConfig.preprocessors },
-    decorators: { ...extendedContent.decorators, ...lintConfig.decorators },
+    // TODO: think about unique default rules/plugins group
+    extends: extendedContent?.extends,
+    rules: { ...extendedContent?.rules, ...lintConfig.rules },
+    preprocessors: { ...extendedContent?.preprocessors, ...lintConfig.preprocessors },
+    decorators: { ...extendedContent?.decorators, ...lintConfig.decorators },
   };
 }
 
