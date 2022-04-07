@@ -118,5 +118,6 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
     };
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
   });
+
   //   TODO: test also other extends (like recommended), as well as plugins, decorators, preprocessors
 });
