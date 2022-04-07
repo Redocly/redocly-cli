@@ -174,14 +174,14 @@ export function isNotEmptyObject(obj: any) {
 }
 
 // TODO: use it everywhere
-export function isString(value: unknown) {
+export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-export function isNotString(value: unknown) {
+export function isNotString<T>(value: string | T): value is T {
   return !isString(value);
 }
 
 export function mergeArrays<T>(a: T[] | undefined, b: T[] | undefined) {
-  return [...new Set([...(a || []), ...(b || [])])];
+  return [...a || [], ...b || []]
 }

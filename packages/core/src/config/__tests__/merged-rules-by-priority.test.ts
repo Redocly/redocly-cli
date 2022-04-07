@@ -73,7 +73,7 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
   `, () => {
     const input: ResolvedLintRawConfig = {
       extends: [
-        // 'minimal',
+        'minimal',
         {
           rules: {
             'tags-alphabetical': 'warn',
@@ -95,7 +95,7 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
     };
 
     const result: LintRawConfig = {
-      extends: ['recommended'],
+      extends: ['minimal', 'recommended'],
       rules: {
         'tags-alphabetical': 'off',
         'no-invalid-media-type-examples': 'warn',
@@ -108,5 +108,15 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
   });
 
+  it('should work for an empty config', () => {
+    const input: ResolvedLintRawConfig = {};
+
+    const result: LintRawConfig = {
+      rules: {},
+      preprocessors: {},
+      decorators: {},
+    };
+    expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
+  });
   //   TODO: test also other extends (like recommended), as well as plugins, decorators, preprocessors
 });
