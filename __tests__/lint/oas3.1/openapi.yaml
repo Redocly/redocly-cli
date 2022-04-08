@@ -105,6 +105,28 @@ paths:
       operationId: getEmptyOperationId
       summary: Some summary
   /{var}: {}
+  /unevaluated-properties:
+    get:
+      operationId: getUnevaluatedProperties
+      summary: Checks if unevaluetedProperties work
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      foo:
+                        type: string
+                  - type: object
+                    properties:
+                      bar:
+                        type: number
+                unevaluatedProperties: false
+        400:
+          description: An error response
 
 webhooks:
   newPet:
