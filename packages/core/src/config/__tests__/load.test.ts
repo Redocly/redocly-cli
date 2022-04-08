@@ -76,18 +76,24 @@ describe('findConfig', () => {
 });
 
 describe('resolveNestedPlugins', () => {
-  it('should resolve plugin path for same config name', async () => {
-    const path = resolveNestedPlugins('/.redocly.yaml', '/api/.redocly.yaml', 'plugins/test-plugin.js');
+  const testData = {
+    configPath: '/.redocly.yaml',
+    pluginConfigPath: '/api/.redocly.yaml',
+    plugin: 'plugins/test-plugin.js',
+  };
+
+  it('should resolve plugin path for same config name', () => {
+    const path = resolveNestedPlugins(testData);
     expect(path).toStrictEqual('/api/plugins/test-plugin.js');
   });
 
-  it('should resolve plugin path for different config name', async () => {
-    const path = resolveNestedPlugins('/.redocly.yaml', '/api/redocly.yaml', 'plugins/test-plugin.js');
+  it('should resolve plugin path for different config name', () => {
+    const path = resolveNestedPlugins({ ...testData, configPath: '/redocly.yaml' });
     expect(path).toStrictEqual('/api/plugins/test-plugin.js');
   });
 
-  it('should resolve plugin path when plugin has same level like nested config path', async () => {
-    const path = resolveNestedPlugins('/.redocly.yaml', '/api/redocly.yaml', 'test-plugin.js');
+  it('should resolve plugin path when plugin has same level like nested config path', () => {
+    const path = resolveNestedPlugins({ ...testData, plugin: 'test-plugin.js' });
     expect(path).toStrictEqual('/api/test-plugin.js');
   });
 });
