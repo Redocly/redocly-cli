@@ -1,4 +1,5 @@
-import { Config, getMergedConfig } from '../config';
+import { Config } from '../config';
+import { getMergedConfig } from '../utils';
 
 const testConfig: Config = {
   rawConfig: {
