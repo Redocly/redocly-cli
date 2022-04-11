@@ -4,12 +4,11 @@ import { RedoclyClient } from '../redocly';
 import { isEmptyArray, isNotString, isString, loadYaml, mergeArrays, parseYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { defaultPlugin } from './builtIn';
-import { getResolveConfig, transformConfig } from './utils';
+import { getResolveConfig, resolveApis, transformConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 
 import type {
-  Api,
   LintRawConfig,
   Plugin,
   RawConfig,
@@ -56,21 +55,21 @@ export async function loadConfig(
   }
 
 
-  const lint = rawConfig.lint?.extends 
-  ? await resolveExtends({
-      lintConfig: rawConfig?.lint,
-      configPath,
-      resolve: rawConfig.resolve,
-    })
+  const lint = rawConfig.lint?.extends
+    ? await resolveExtends({
+        lintConfig: rawConfig?.lint,
+        configPath,
+        resolve: rawConfig.resolve,
+      })
     : rawConfig.lint;
 
   const apis = rawConfig.apis
     ? await resolveApis({
-      apis: rawConfig.apis,
-      configPath,
-      resolve: rawConfig.resolve,
-    })
-    : rawConfig.apis
+        apis: rawConfig.apis,
+        configPath,
+        resolve: rawConfig.resolve,
+      })
+    : rawConfig.apis;
 
 
 
@@ -80,7 +79,7 @@ export async function loadConfig(
       apis,
       lint: {
         ...lint,
-        plugins: [...(rawConfig?.lint?.plugins || []), defaultPlugin], // inject default plugin
+        plugins: [...(rawConfig?.lint?.plugins || [], lint?.plugins || []), defaultPlugin], // inject default plugin
       },
     },
     configPath,
@@ -173,29 +172,7 @@ export function resolveNestedPlugins({
   return path.resolve(path.dirname(configPath), pluginPath);
 }
 
-async function resolveApis({
-  apis,
-  configPath = '',
-  resolve,
-}: {
-  apis: Record<string, Api>;
-  configPath?: string;
-  resolve?: RawResolveConfig;
-}): Promise<Record<string, Api>> {
-  const resolvedApis: Record<string, Api> = {};
-  for (const [apiName, apiContent] of Object.entries(apis)) {
-    const lint = await resolveExtends({
-      lintConfig: apiContent.lint as LintRawConfig,
-      configPath,
-      resolve,
-    });
-    resolvedApis[apiName] = { ...apiContent, lint };
-  }
-
-  return resolvedApis;
-}
-
-async function resolveExtends({
+export async function resolveExtends({
   lintConfig,
   configPath = '',
   resolve,
@@ -216,22 +193,22 @@ async function resolveExtends({
 
   const lintExtends: (string | LintRawConfig)[] = [];
   for (const item of lintConfig.extends) {
-    if (!isAbsoluteUrl(item) && !fs.existsSync(item)) {
+    const pathItem = path.resolve(path.dirname(configPath), item);
+    if (!isAbsoluteUrl(item) && !fs.existsSync(pathItem)) {
       lintExtends.push(item);
       continue;
     }
 
-    const extendedLintConfig = await loadExtendLintConfig(item, resolve);
-
+    const extendedLintConfig = await loadExtendLintConfig(pathItem, resolve);
     if (extendedLintConfig.plugins && !isEmptyArray(extendedLintConfig.plugins)) {
       extendedLintConfig.plugins = extendedLintConfig.plugins
-        .map((plugin) => resolveNestedPlugins({ configPath, pluginConfigPath: item, plugin }))
+        .map((plugin) => resolveNestedPlugins({ configPath, pluginConfigPath: pathItem, plugin }))
         .filter(Boolean) as (string | Plugin)[];
     }
 
     if (extendedLintConfig.extends) {
       lintExtends.push(
-        await resolveExtends({ lintConfig: extendedLintConfig, configPath, resolve }),
+        await resolveExtends({ lintConfig: extendedLintConfig, configPath: pathItem, resolve }),
       );
       continue;
     }

@@ -1,4 +1,4 @@
-import { loadConfig, findConfig, resolveNestedPlugins } from '../load';
+import { loadConfig, findConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
 
 const fs = require('fs');
@@ -72,28 +72,5 @@ describe('findConfig', () => {
     jest.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
     const configName = findConfig('dir');
     expect(configName).toStrictEqual('dir/redocly.yaml');
-  });
-});
-
-describe('resolveNestedPlugins', () => {
-  const testData = {
-    configPath: '/.redocly.yaml',
-    pluginConfigPath: '/api/.redocly.yaml',
-    plugin: 'plugins/test-plugin.js',
-  };
-
-  it('should resolve plugin path for same config name', () => {
-    const path = resolveNestedPlugins(testData);
-    expect(path).toStrictEqual('/api/plugins/test-plugin.js');
-  });
-
-  it('should resolve plugin path for different config name', () => {
-    const path = resolveNestedPlugins({ ...testData, configPath: '/redocly.yaml' });
-    expect(path).toStrictEqual('/api/plugins/test-plugin.js');
-  });
-
-  it('should resolve plugin path when plugin has same level like nested config path', () => {
-    const path = resolveNestedPlugins({ ...testData, plugin: 'test-plugin.js' });
-    expect(path).toStrictEqual('/api/test-plugin.js');
   });
 });

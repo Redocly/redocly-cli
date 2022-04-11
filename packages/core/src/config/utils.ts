@@ -13,6 +13,7 @@ import type {
   ResolveConfig,
   RulesFields,
 } from './types';
+import { resolveExtends } from './load';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -291,4 +292,26 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
       customFetch: undefined,
     },
   };
+}
+
+export async function resolveApis({
+  apis,
+  configPath = '',
+  resolve,
+}: {
+  apis: Record<string, Api>;
+  configPath?: string;
+  resolve?: RawResolveConfig;
+}): Promise<Record<string, Api>> {
+  const resolvedApis: Record<string, Api> = {};
+  for (const [apiName, apiContent] of Object.entries(apis)) {
+    const lint = await resolveExtends({
+      lintConfig: apiContent.lint as LintRawConfig,
+      configPath,
+      resolve,
+    });
+    resolvedApis[apiName] = { ...apiContent, lint };
+  }
+
+  return resolvedApis;
 }

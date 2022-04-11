@@ -1,0 +1,7 @@
+lint:
+  plugins:
+    - plugin.js
+  rules:
+    operation-2xx-response: error
+  extends:
+    - test-plugin-nested/all

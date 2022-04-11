@@ -1,0 +1,9 @@
+lint:
+  rules:
+    no-invalid-media-type-examples: warn
+  plugins:
+    - plugin.js
+  extends:
+    - recommended
+    - api/nested-config.yaml
+    - test-plugin/all
