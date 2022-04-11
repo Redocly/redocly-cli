@@ -115,7 +115,6 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
       rules: {},
       preprocessors: {},
       decorators: {},
-      extends: undefined,
       plugins: [],
     };
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);

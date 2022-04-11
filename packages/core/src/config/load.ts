@@ -55,27 +55,31 @@ export async function loadConfig(
     }
   }
 
-  if (rawConfig.lint?.extends) {
-    rawConfig.lint = await resolveExtends({
+
+  const lint = rawConfig.lint?.extends 
+  ? await resolveExtends({
       lintConfig: rawConfig?.lint,
       configPath,
       resolve: rawConfig.resolve,
-    });
-  }
+    })
+    : rawConfig.lint;
 
-  if (rawConfig.apis) {
-    rawConfig.apis = await resolveApis({
+  const apis = rawConfig.apis
+    ? await resolveApis({
       apis: rawConfig.apis,
       configPath,
       resolve: rawConfig.resolve,
-    });
-  }
+    })
+    : rawConfig.apis
+
+
 
   return new Config(
     {
       ...rawConfig,
+      apis,
       lint: {
-        ...rawConfig?.lint,
+        ...lint,
         plugins: [...(rawConfig?.lint?.plugins || []), defaultPlugin], // inject default plugin
       },
     },
@@ -178,11 +182,6 @@ async function resolveApis({
   configPath?: string;
   resolve?: RawResolveConfig;
 }): Promise<Record<string, Api>> {
-  const apiKeys = Object.keys(apis);
-  if (isEmptyArray(apiKeys)) {
-    return apis;
-  }
-
   const resolvedApis: Record<string, Api> = {};
   for (const [apiName, apiContent] of Object.entries(apis)) {
     const lint = await resolveExtends({
