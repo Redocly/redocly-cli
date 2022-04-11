@@ -28,7 +28,7 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
       },
       decorators: {},
       preprocessors: {},
-      plugins: undefined,
+      plugins: [],
     };
 
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
@@ -61,7 +61,7 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
       },
       decorators: {},
       preprocessors: {},
-      plugins: undefined,
+      plugins: [],
     };
 
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
@@ -115,6 +115,7 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
       rules: {},
       preprocessors: {},
       decorators: {},
+      plugins: [],
     };
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
   });
