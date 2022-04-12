@@ -4,6 +4,15 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-94 (2022-04-12)
+
+### Features
+
+- Allowed `unevaluatedProperties` as boolean for **oas3.1**.
+- Internal changes.
+
+---
+
 ## 1.0.0-beta-93 (2022-04-05)
 
 ### Fixes
