@@ -100,7 +100,7 @@ describe('resolveNestedPlugins', () => {
 
 describe('getConfig', () => {
   jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
-  it('should return empty object if there is no configPath', () => {
+  it('should return empty object if there is no configPath and config file is not found', () => {
     expect(getConfig()).toEqual(Promise.resolve({}));
   });
 });
