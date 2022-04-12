@@ -4,7 +4,7 @@ import { RedoclyClient } from '../redocly';
 import { isEmptyArray, isNotString, isString, loadYaml, mergeArrays, parseYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { defaultPlugin } from './builtIn';
-import { getResolveConfig, getUniquePlugins, transformConfig } from './utils';
+import { getResolveConfig, transformConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 
@@ -137,8 +137,7 @@ export function getLintRawConfigWithMergedContentByPriority(
 
   return {
     ...lintConfig,
-    plugins: getUniquePlugins(mergeArrays(extendedContent?.plugins, lintConfig.plugins)),
-    // TODO: think about unique default rules/plugins group
+    plugins: [...new Set(mergeArrays(extendedContent?.plugins, lintConfig.plugins))],
     extends: extendedContent?.extends,
     rules: { ...extendedContent?.rules, ...lintConfig.rules },
     preprocessors: { ...extendedContent?.preprocessors, ...lintConfig.preprocessors },
