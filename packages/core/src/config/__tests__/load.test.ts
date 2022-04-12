@@ -1,4 +1,4 @@
-import { loadConfig, findConfig, resolveNestedPlugins } from '../load';
+import { loadConfig, findConfig, resolveNestedPlugins, getConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
 
 const fs = require('fs');
@@ -95,5 +95,12 @@ describe('resolveNestedPlugins', () => {
   it('should resolve plugin path when plugin has same level like nested config path', () => {
     const path = resolveNestedPlugins({ ...testData, plugin: 'test-plugin.js' });
     expect(path).toStrictEqual('/api/test-plugin.js');
+  });
+});
+
+describe('getConfig', () => {
+  jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
+  it('should return empty object if there is no configPath', () => {
+    expect(getConfig()).toEqual(Promise.resolve({}));
   });
 });

@@ -120,5 +120,24 @@ describe('getLintRawConfigWithMergedContentByPriority', () => {
     expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
   });
 
-  //   TODO: test also other extends (like recommended), as well as plugins, decorators, preprocessors
+  it('should merge plugins taking into account unique path', () => {
+    const input: ResolvedLintRawConfig = {
+      extends: [
+        { plugins: ['./plugin-1.js'] },
+        { plugins: ['./plugin-2.js'] },
+        { plugins: [{ id: 'some-id' }] },
+      ],
+      plugins: ['./plugin-1.js', './plugin-3.js'],
+    };
+
+    const result: LintRawConfig = {
+      extends: [],
+      rules: {},
+      preprocessors: {},
+      decorators: {},
+      plugins: ['./plugin-2.js', { id: 'some-id' }, './plugin-1.js', './plugin-3.js'],
+    };
+
+    expect(getLintRawConfigWithMergedContentByPriority(input)).toEqual(result);
+  });
 });

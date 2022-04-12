@@ -292,3 +292,7 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
     },
   };
 }
+
+export function getUniquePlugins(plugins: (string | Plugin)[]): (string | Plugin)[] {
+  return [...new Set(plugins.reverse())].reverse();
+}
