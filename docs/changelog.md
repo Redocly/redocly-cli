@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Allowed `unevaluatedProperties` as boolean for **oas3.1**.
+- The `lint` command supports using `unevaluatedProperties` as boolean in **OAS 3.1.x** and no longer reports this as an error.
 - Internal changes.
 
 ---
