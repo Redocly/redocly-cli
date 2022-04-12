@@ -112,7 +112,7 @@ describe('Normalize visitors', () => {
     expect(normalized.PathItem.enter).toHaveLength(1);
     expect(normalized.Operation.enter).toHaveLength(1);
     expect(normalized.Parameter.enter).toHaveLength(1);
-    expect(normalized.Parameter_List.enter).toHaveLength(2);
+    expect(normalized.ParameterList.enter).toHaveLength(2);
   });
 
   it('should order deeper visitors first', () => {
