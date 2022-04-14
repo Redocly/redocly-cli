@@ -136,10 +136,6 @@ export type RawConfig = {
   organization?: string;
 };
 
-export type ResolvedLintRawConfig = Omit<LintRawConfig, 'extends'> & {
-  extends?: (string | LintRawConfig)[];
-};
-
 export type RulesFields =
   | 'rules'
   | 'oas2Rules'
