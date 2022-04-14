@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi",
-  "version": "1.0.0-beta.93",
+  "version": "1.0.0-beta.94",
   "description": "",
   "private": true,
   "engines": {
@@ -26,7 +26,7 @@
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js",
-    "deploy-local": "npm run compile && ENV=local npm run upload"
+    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload"
   },
   "workspaces": [
     "packages/*"

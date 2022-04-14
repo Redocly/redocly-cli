@@ -49,7 +49,7 @@ type NormalizedResolveTypeFn = (
 
 export function listOf(typeName: string) {
   return {
-    name: typeName + '_List',
+    name: `${typeName}List`,
     properties: {},
     items: typeName,
   };
@@ -57,7 +57,7 @@ export function listOf(typeName: string) {
 
 export function mapOf(typeName: string) {
   return {
-    name: typeName + '_Map',
+    name: `${typeName}Map`,
     properties: {},
     additionalProperties: () => typeName,
   };
