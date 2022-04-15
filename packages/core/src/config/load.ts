@@ -56,18 +56,20 @@ export async function loadConfig(
   }
 
 
-  const lint = transformLint(await resolveLint({
-        lintConfig: rawConfig?.lint,
-        configPath,
-        resolve: rawConfig.resolve,
-      }))
+  const lint = transformLint(
+    await resolveLint({
+      lintConfig: rawConfig?.lint,
+      configPath,
+      resolve: rawConfig.resolve,
+    }),
+  );
 
   const apis = await resolveApis({
-        apis: rawConfig.apis,
-        configPath,
-        resolve: rawConfig.resolve,
-        lintConfig: rawConfig?.lint,
-      });
+    apis: rawConfig.apis,
+    configPath,
+    resolve: rawConfig.resolve,
+    lintConfig: rawConfig?.lint,
+  });
 
 
 

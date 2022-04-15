@@ -325,6 +325,7 @@ function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConf
   const resultLint = {
     ...configLint,
     ...apiLint,
+    // FIXME: refactor
     ...(configLint?.rules && apiLint?.rules) && rules,
     ...(configLint?.preprocessors && apiLint?.preprocessors) && preprocessors,
     ...(configLint?.decorators && apiLint?.decorators) && decorators,
