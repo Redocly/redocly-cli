@@ -191,6 +191,7 @@ export function transformLint(result: ResolvedLintConfig): TransformLintConfig {
     decorators,
     plugins: result.plugins,
     recommendedFallback: result.recommendedFallback,
+    doNotResolveExamples: result.doNotResolveExamples,
   }
 }
 

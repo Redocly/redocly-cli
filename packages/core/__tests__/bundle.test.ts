@@ -4,7 +4,7 @@ import * as path from 'path';
 import { bundleDocument, bundle } from '../src/bundle';
 
 import { parseYamlToDocument, yamlSerializer } from './utils';
-import { LintConfig, Config } from '../src/config';
+import { LintConfig, Config, TransformLintConfig, ResolvedConfig } from '../src/config';
 import { BaseResolver } from '../src/resolve';
 
 describe('bundle', () => {
@@ -36,7 +36,7 @@ describe('bundle', () => {
     const { bundle, problems } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new LintConfig({} as TransformLintConfig),
     });
 
     const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
@@ -47,7 +47,7 @@ describe('bundle', () => {
 
   it('should bundle external refs', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({}),
+      config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs.yaml'),
     });
     expect(problems).toHaveLength(0);
@@ -56,7 +56,7 @@ describe('bundle', () => {
 
   it('should bundle external refs and warn for conflicting names', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({}),
+      config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/openapi-with-external-refs-conflicting-names.yaml'),
     });
     expect(problems).toHaveLength(1);
@@ -69,7 +69,7 @@ describe('bundle', () => {
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new LintConfig({} as TransformLintConfig),
       document: testDocument,
       dereference: true,
     });
@@ -80,7 +80,7 @@ describe('bundle', () => {
 
   it('should place referenced schema inline when referenced schema name resolves to original schema name', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({}),
+      config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/externalref.yaml'),
     });
 
@@ -90,7 +90,7 @@ describe('bundle', () => {
 
   it('should not place referened schema inline when component in question is not of type "schemas"', async () => {
     const { bundle: res, problems } = await bundle({
-      config: new Config({}),
+      config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
     });
 
@@ -110,7 +110,7 @@ describe('bundle', () => {
     );
 
     const { bundle: res, problems } = await bundle({
-      config: new Config({}),
+      config: new Config({} as ResolvedConfig),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,

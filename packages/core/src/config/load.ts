@@ -170,6 +170,7 @@ export async function resolveLint({
     ...lint,
     plugins: getUniquePlugins([...plugins, ...mergedPlugins]),
     recommendedFallback: !lintConfig?.extends ? true : false,
+    doNotResolveExamples: lintConfig?.doNotResolveExamples
   };
 }
 
