@@ -3,16 +3,16 @@ import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { loadYaml, parseYaml } from '../utils';
 import { Config, DOMAINS } from './config';
-import { getResolveConfig, getUniquePlugins, transformLint, mergeExtends, parsePresetName, resolveApis, resolvePlugins, transformConfig } from './utils';
+import { getResolveConfig, getUniquePlugins, mergeExtends, parsePresetName, resolveApis, resolvePlugins, transformConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 
 import type {
   LintRawConfig,
-  Plugin,
   RawConfig,
   RawResolveConfig,
   Region,
+  ResolvedLintRawConfig,
 } from './types';
 import recommended from './recommended';
 import { red } from 'colorette';
@@ -56,7 +56,7 @@ export async function loadConfig(
   }
 
 
-  const lint = transformLint(await resolveLint({
+  const lint = (await resolveLint({
         lintConfig: rawConfig?.lint,
         configPath,
         resolve: rawConfig.resolve,
@@ -112,6 +112,15 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   }
 }
 
+const extractConfigFromFileOrUrl = async (pathItem: string, resolve?: RawResolveConfig) => {
+  const extendedLintConfig = await loadExtendLintConfig(pathItem, resolve);
+  return await resolveLint({
+    lintConfig: extendedLintConfig,
+    configPath: pathItem,
+    resolve,
+  });
+};
+
 export async function resolveLint({
   lintConfig,
   configPath = '',
@@ -120,22 +129,17 @@ export async function resolveLint({
   lintConfig?: LintRawConfig;
   configPath?: string;
   resolve?: RawResolveConfig;
-}): Promise<LintRawConfig> {
+}): Promise<ResolvedLintRawConfig> {
   // if (!lintConfig && isApi) return {};
   const plugins = getUniquePlugins(resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath));
-  const extendConfigs: LintRawConfig[] = lintConfig?.extends
+  const extendConfigs: ResolvedLintRawConfig[] = lintConfig?.extends
     ? await Promise.all(
         lintConfig.extends.map(async (presetName) => {
           const pathItem = isAbsoluteUrl(presetName)
             ? presetName
             : path.resolve(path.dirname(configPath), presetName);
           if (isAbsoluteUrl(pathItem) || fs.existsSync(pathItem)) {
-            const extendedLintConfig = await loadExtendLintConfig(pathItem, resolve);
-            return await resolveLint({
-              lintConfig: extendedLintConfig,
-              configPath: pathItem,
-              resolve,
-            });
+            return extractConfigFromFileOrUrl(pathItem, resolve)
           }
           const { pluginId, configName } = parsePresetName(presetName);
           const plugin = plugins.find((p) => p.id === pluginId);
@@ -144,7 +148,7 @@ export async function resolveLint({
               `Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`,
             );
           }
-          const preset = plugin.configs?.[configName]!;
+          const preset: ResolvedLintRawConfig = plugin.configs?.[configName]!;
           if (!preset) {
             throw new Error(
               pluginId
@@ -168,9 +172,10 @@ export async function resolveLint({
   const {plugins: mergedPlugins, ...lint} = mergeExtends(extendConfigs);
   return {
     ...lint,
-    plugins: getUniquePlugins([...plugins, ...(mergedPlugins as Plugin[])]),
+    plugins: getUniquePlugins([...plugins, ...(mergedPlugins || [])]),
+    // @ts-ignore!
     recommendedFallback: !lintConfig?.extends ? true : false,
-  } as LintRawConfig;
+  };
 }
 
 async function loadExtendLintConfig(

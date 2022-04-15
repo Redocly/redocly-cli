@@ -1,4 +1,4 @@
-import type { LintRawConfig } from './types';
+import type { PluginLintConfig } from './types';
 
 export default {
   rules: {
@@ -55,4 +55,4 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-servers-empty-enum': 'error',
   },
-} as LintRawConfig;
+} as PluginLintConfig;

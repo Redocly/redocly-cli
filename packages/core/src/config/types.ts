@@ -29,7 +29,7 @@ export type PreprocessorConfig =
 export type DecoratorConfig = PreprocessorConfig;
 
 export type LintRawConfig = {
-  plugins?: (string | Plugin)[];
+  plugins?: string[];
   extends?: string[];
   doNotResolveExamples?: boolean;
 
@@ -48,6 +48,10 @@ export type LintRawConfig = {
   oas3_0Decorators?: Record<string, DecoratorConfig>;
   oas3_1Decorators?: Record<string, DecoratorConfig>;
 };
+
+export type ResolvedLintRawConfig = Omit<LintRawConfig, 'plugins'> & { plugins?: Plugin[] };
+
+export type PluginLintConfig = Omit<LintRawConfig, 'plugins' | 'extends'>;
 
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;
@@ -73,7 +77,7 @@ export type CustomRulesConfig = {
 
 export type Plugin = {
   id: string;
-  configs?: Record<string, LintRawConfig>;
+  configs?: Record<string, PluginLintConfig>;
   rules?: CustomRulesConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
@@ -126,6 +130,8 @@ export type Api = {
   'features.mockServer'?: Record<string, any>;
 };
 
+export type ResolvedApi = Omit<Api, 'lint'> & { lint?: Omit<ResolvedLintRawConfig, 'plugins'> };
+
 export type RawConfig = {
   apis?: Record<string, Api>;
   lint?: LintRawConfig;
@@ -134,6 +140,11 @@ export type RawConfig = {
   'features.openapi'?: Record<string, any>;
   'features.mockServer'?: Record<string, any>;
   organization?: string;
+};
+
+export type ResolvedRawConfig = Omit<RawConfig, 'apis' | 'lint'> & {
+  apis?: Record<string, ResolvedApi>;
+  lint?: ResolvedLintRawConfig;
 };
 
 export type RulesFields =

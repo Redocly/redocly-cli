@@ -10,12 +10,12 @@ import type { NodeType } from '../types';
 import type {
   Api,
   DecoratorConfig,
-  LintRawConfig,
   Plugin,
   PreprocessorConfig,
-  RawConfig,
   Region,
   ResolveConfig,
+  ResolvedLintRawConfig,
+  ResolvedRawConfig,
   RuleConfig,
 } from './types';
 import { getResolveConfig } from './utils';
@@ -54,20 +54,30 @@ export class LintConfig {
 
   recommendedFallback: boolean;
 
-  constructor(public rawConfig: LintRawConfig, public configFile?: string) {
-    // @ts-ignore
+  constructor(public rawConfig: ResolvedLintRawConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
-    // @ts-ignore
+    // @ts-ignore!
     this.recommendedFallback = rawConfig.recommendedFallback || false
 
-    //@ts-ignore
-    this.rules = rawConfig.rules;
-    //@ts-ignore
-    this.preprocessors = rawConfig.preprocessors;
-    //@ts-ignore
-    this.decorators = rawConfig.decorators;
+    this.rules = {
+      [OasVersion.Version2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
+      [OasVersion.Version3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
+      [OasVersion.Version3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
+    };
+
+    this.preprocessors = {
+      [OasVersion.Version2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
+      [OasVersion.Version3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
+      [OasVersion.Version3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
+    };
+
+    this.decorators = {
+      [OasVersion.Version2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
+      [OasVersion.Version3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
+      [OasVersion.Version3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
+    };
 
     const dir = this.configFile
       ? path.dirname(this.configFile)
@@ -277,7 +287,7 @@ export class Config {
   'features.openapi': Record<string, any>;
   'features.mockServer'?: Record<string, any>;
   organization?: string;
-  constructor(public rawConfig: RawConfig, public configFile?: string) {
+  constructor(public rawConfig: ResolvedRawConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};

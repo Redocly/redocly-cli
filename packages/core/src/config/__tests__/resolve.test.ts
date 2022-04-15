@@ -33,7 +33,7 @@ describe.skip('resolveExtends', () => {
     // expect(plugins?.length).toBe(1);
   });
 
-  it.only('should resolve extends with local file config witch contains path to nested config', async () => {
+  it('should resolve extends with local file config witch contains path to nested config', async () => {
     const lintConfig = {
       extends: ['local-config-with-file.yaml'],
     };

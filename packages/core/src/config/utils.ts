@@ -11,6 +11,7 @@ import type {
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
+  ResolvedLintRawConfig,
   RulesFields,
 } from './types';
 import { resolveLint } from './load';
@@ -189,8 +190,8 @@ export function transformLint(result: LintRawConfig) {
     plugins,
   }
 }
-export function mergeExtends(rulesConfList: LintRawConfig[]) {
-  const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
+export function mergeExtends(rulesConfList: ResolvedLintRawConfig[]) {
+  const result: Omit<ResolvedLintRawConfig, RulesFields> & Required<Pick<ResolvedLintRawConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -256,6 +257,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
         {
           ...config.rawConfig,
           lint: entrypointAlias ? config.apis[entrypointAlias]?.lint : config.lint,
+          // lint: getMergedLintRawConfig(config, entrypointAlias), // FIXME:
           'features.openapi': {
             ...config['features.openapi'],
             ...config.apis[entrypointAlias]?.['features.openapi'],
@@ -341,7 +343,7 @@ export async function resolveApis({
       configPath,
       resolve,
     });
-    resolvedApis[apiName] = {...apiContent, lint: transformLint(apiLint) };
+    resolvedApis[apiName] = {...apiContent, lint: (apiLint) };
   }
 
   return resolvedApis;
