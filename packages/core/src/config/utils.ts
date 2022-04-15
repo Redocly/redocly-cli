@@ -163,7 +163,32 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
 
   return res;
 }
+export function transformLint(result: LintRawConfig) {
+  const rules = {
+    [OasVersion.Version2]: { ...result.rules, ...result.oas2Rules },
+    [OasVersion.Version3_0]: { ...result.rules, ...result.oas3_0Rules },
+    [OasVersion.Version3_1]: { ...result.rules, ...result.oas3_1Rules },
+  };
 
+  const preprocessors = {
+    [OasVersion.Version2]: { ...result.preprocessors, ...result.oas2Preprocessors },
+    [OasVersion.Version3_0]: { ...result.preprocessors, ...result.oas3_0Preprocessors },
+    [OasVersion.Version3_1]: { ...result.preprocessors, ...result.oas3_1Preprocessors },
+  };
+
+  const decorators = {
+    [OasVersion.Version2]: { ...result.decorators, ...result.oas2Decorators },
+    [OasVersion.Version3_0]: { ...result.decorators, ...result.oas3_0Decorators },
+    [OasVersion.Version3_1]: { ...result.decorators, ...result.oas3_1Decorators },
+  };
+  const plugins = result.plugins;
+  return {
+    rules,
+    preprocessors,
+    decorators,
+    plugins,
+  }
+}
 export function mergeExtends(rulesConfList: LintRawConfig[]) {
   const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
     rules: {},
@@ -222,30 +247,7 @@ export function mergeExtends(rulesConfList: LintRawConfig[]) {
     }
   }
 
-  const rules = {
-    [OasVersion.Version2]: { ...result.rules, ...result.oas2Rules },
-    [OasVersion.Version3_0]: { ...result.rules, ...result.oas3_0Rules },
-    [OasVersion.Version3_1]: { ...result.rules, ...result.oas3_1Rules },
-  };
-
-  const preprocessors = {
-    [OasVersion.Version2]: { ...result.preprocessors, ...result.oas2Preprocessors },
-    [OasVersion.Version3_0]: { ...result.preprocessors, ...result.oas3_0Preprocessors },
-    [OasVersion.Version3_1]: { ...result.preprocessors, ...result.oas3_1Preprocessors },
-  };
-
-  const decorators = {
-    [OasVersion.Version2]: { ...result.decorators, ...result.oas2Decorators },
-    [OasVersion.Version3_0]: { ...result.decorators, ...result.oas3_0Decorators },
-    [OasVersion.Version3_1]: { ...result.decorators, ...result.oas3_1Decorators },
-  };
-
-  return {
-    rules,
-    preprocessors,
-    decorators,
-    plugins: result.plugins,
-  };
+  return result;
 }
 
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
@@ -333,13 +335,13 @@ export async function resolveApis({
 }): Promise<Record<string, Api>> {
   const resolvedApis: Record<string, Api> = {};
   for (const [apiName, apiContent] of Object.entries(apis)) {
-    const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint)
+    const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint);
     const apiLint = await resolveLint({
       lintConfig: rawLintConfig,
       configPath,
       resolve,
     });
-    resolvedApis[apiName] = {...apiContent, lint: apiLint};
+    resolvedApis[apiName] = {...apiContent, lint: transformLint(apiLint) };
   }
 
   return resolvedApis;

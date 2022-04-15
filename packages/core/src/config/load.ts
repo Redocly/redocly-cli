@@ -3,7 +3,7 @@ import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { loadYaml, parseYaml } from '../utils';
 import { Config, DOMAINS } from './config';
-import { getResolveConfig, getUniquePlugins, mergeExtends, parsePresetName, resolveApis, resolvePlugins, transformConfig } from './utils';
+import { getResolveConfig, getUniquePlugins, transformLint, mergeExtends, parsePresetName, resolveApis, resolvePlugins, transformConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 
@@ -56,11 +56,11 @@ export async function loadConfig(
   }
 
 
-  const lint = await resolveLint({
+  const lint = transformLint(await resolveLint({
         lintConfig: rawConfig?.lint,
         configPath,
         resolve: rawConfig.resolve,
-      })
+      }))
 
   const apis = rawConfig.apis
     ? await resolveApis({

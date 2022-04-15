@@ -84,7 +84,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
   for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
-    const resolvedConfig = getMergedConfig(config, entrypoint);
+    const resolvedConfig = getMergedConfig(config, entrypoint); // seem need check it.
     resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
 
     const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
