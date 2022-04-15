@@ -1,9 +1,8 @@
 import * as path from 'path';
 
 import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
-import { LintConfig } from '../src/config';
+import { LintConfig, resolveLint, resolvePlugins, transformLint } from '../src/config';
 import { Oas3RuleSet } from '../src/oas-types';
-import { defaultPlugin } from '../src/config';
 
 import type { RuleConfig, Plugin, DecoratorConfig } from '../src/config';
 
@@ -52,25 +51,25 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
   Object.keys(rules).forEach((name) => {
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
-
-  return new LintConfig({
-    plugins: [
-      {
-        ...plugin,
-        id: ruleId,
-        rules: { [version]: rules },
-      },
-    ],
-    extends: [],
+  const plugins = resolvePlugins([
+    {
+      ...plugin,
+      id: ruleId,
+      rules: { [version]: rules },
+    },
+  ]);
+  
+  return new LintConfig(transformLint({
+    plugins,
     rules: rulesConf,
-  });
+  }));
 }
 
-export function makeConfig(rules: Record<string, RuleConfig>, decorators?:  Record<string, DecoratorConfig>) {
-  return new LintConfig({
-    plugins: [defaultPlugin],
+export async function makeConfig(rules: Record<string, RuleConfig>, decorators?:  Record<string, DecoratorConfig>) {
+  return new LintConfig(transformLint(await resolveLint({ lintConfig:{
+    plugins: [],
     extends: [],
     rules,
     decorators,
-  });
+  }})));
 }

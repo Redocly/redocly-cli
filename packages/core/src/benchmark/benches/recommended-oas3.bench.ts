@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join as pathJoin, resolve as pathResolve } from 'path';
 import { lintDocument } from '../../lint';
-import { LintConfig, defaultPlugin } from '../../config';
+import { LintConfig, defaultPlugin, transformLint, resolvePresets } from '../../config';
 import { BaseResolver } from '../../resolve';
 import { parseYamlToDocument } from '../utils';
 
@@ -17,6 +17,6 @@ export function measureAsync() {
   return lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
-    config: new LintConfig({ plugins: [defaultPlugin] }),
+    config: new LintConfig(transformLint(resolvePresets(['recommended'], [defaultPlugin])[0])),
   });
 }

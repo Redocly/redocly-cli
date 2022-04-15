@@ -1,4 +1,4 @@
-import { LintConfig, RuleConfig, defaultPlugin } from '../../../../config';
+import { LintConfig, RuleConfig, transformLint, resolveLint } from '../../../../config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
@@ -12,11 +12,11 @@ export async function validateDoc(
   const results = await lintDocument({
     externalRefResolver: new BaseResolver(),
     document,
-    config: new LintConfig({
-      plugins: [defaultPlugin],
+    config: new LintConfig(transformLint(await resolveLint({ lintConfig:{
+      plugins: [],
       extends: [],
       rules,
-    }),
+    }}))),
   });
 
   return results.map((res) => {

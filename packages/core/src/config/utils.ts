@@ -11,9 +11,13 @@ import type {
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
+  ResolvedApi,
+  ResolvedLintConfig,
   RulesFields,
+  TransformLintConfig,
 } from './types';
-import { resolveExtends } from './load';
+import { resolveLint } from './load';
+import { OasVersion } from '../oas-types';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -42,7 +46,7 @@ export function transformApiDefinitionsToApis(
   return apis;
 }
 
-export function resolvePresets(presets: string[], plugins: Plugin[]) {
+export function resolvePresets(presets: string[], plugins: Plugin[]): ResolvedLintConfig[] {
   return presets.map((presetName) => {
     const { pluginId, configName } = parsePresetName(presetName);
     const plugin = plugins.find((p) => p.id === pluginId);
@@ -50,7 +54,7 @@ export function resolvePresets(presets: string[], plugins: Plugin[]) {
       throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
     }
 
-    const preset = plugin.configs?.[configName]!;
+    const preset = plugin.configs?.[configName]! as ResolvedLintConfig;
     if (!preset) {
       throw new Error(
         pluginId
@@ -162,9 +166,36 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
 
   return res;
 }
+export function transformLint(result: ResolvedLintConfig): TransformLintConfig {
+  const rules = {
+    [OasVersion.Version2]: { ...result.rules, ...result.oas2Rules },
+    [OasVersion.Version3_0]: { ...result.rules, ...result.oas3_0Rules },
+    [OasVersion.Version3_1]: { ...result.rules, ...result.oas3_1Rules },
+  };
 
-export function mergeExtends(rulesConfList: LintRawConfig[]) {
-  const result: Omit<LintRawConfig, RulesFields> & Required<Pick<LintRawConfig, RulesFields>> = {
+  const preprocessors = {
+    [OasVersion.Version2]: { ...result.preprocessors, ...result.oas2Preprocessors },
+    [OasVersion.Version3_0]: { ...result.preprocessors, ...result.oas3_0Preprocessors },
+    [OasVersion.Version3_1]: { ...result.preprocessors, ...result.oas3_1Preprocessors },
+  };
+
+  const decorators = {
+    [OasVersion.Version2]: { ...result.decorators, ...result.oas2Decorators },
+    [OasVersion.Version3_0]: { ...result.decorators, ...result.oas3_0Decorators },
+    [OasVersion.Version3_1]: { ...result.decorators, ...result.oas3_1Decorators },
+  };
+
+  return {
+    rules,
+    preprocessors,
+    decorators,
+    plugins: result.plugins,
+    recommendedFallback: result.recommendedFallback,
+  }
+}
+
+export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
+  const result: Omit<ResolvedLintConfig, RulesFields> & Required<Pick<ResolvedLintConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -179,9 +210,11 @@ export function mergeExtends(rulesConfList: LintRawConfig[]) {
     oas2Decorators: {},
     oas3_0Decorators: {},
     oas3_1Decorators: {},
+    plugins: [],
   };
 
   for (let rulesConf of rulesConfList) {
+    //@ts-ignore
     if (rulesConf.extends) {
       throw new Error(
         `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
@@ -215,6 +248,9 @@ export function mergeExtends(rulesConfList: LintRawConfig[]) {
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
     assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
+    if (rulesConf.plugins) {
+      result.plugins?.push(...rulesConf.plugins);
+    }
   }
 
   return result;
@@ -225,7 +261,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     ? new Config(
         {
           ...config.rawConfig,
-          lint: getMergedLintConfig(config, entrypointAlias),
+          lint: entrypointAlias ? config.apis[entrypointAlias]?.lint : config.lint,
           'features.openapi': {
             ...config['features.openapi'],
             ...config.apis[entrypointAlias]?.['features.openapi'],
@@ -239,18 +275,6 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
         config.configFile,
       )
     : config;
-}
-
-function getMergedLintConfig(config: Config, entrypointAlias?: string) {
-  const apiLint = entrypointAlias ? config.apis[entrypointAlias]?.lint : {};
-  const mergedLint = {
-    ...config.rawConfig.lint,
-    ...apiLint,
-    rules: { ...config.rawConfig.lint?.rules, ...apiLint?.rules },
-    preprocessors: { ...config.rawConfig.lint?.preprocessors, ...apiLint?.preprocessors },
-    decorators: { ...config.rawConfig.lint?.decorators, ...apiLint?.decorators },
-  };
-  return mergedLint;
 }
 
 export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
@@ -293,25 +317,48 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
     },
   };
 }
+function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConfig) {
+  const rules = { ...configLint?.rules, ...apiLint?.rules };
+  const preprocessors = { ...configLint?.preprocessors, ...apiLint?.preprocessors };
+  const decorators = { ...configLint?.decorators, ...apiLint?.decorators };
+  const resultLint = {
+    ...configLint,
+    ...apiLint,
+    ...(configLint?.rules && apiLint?.rules) && rules,
+    ...(configLint?.preprocessors && apiLint?.preprocessors) && preprocessors,
+    ...(configLint?.decorators && apiLint?.decorators) && decorators,
+  };
+  return resultLint;
+}
 
 export async function resolveApis({
-  apis,
+  apis = {},
   configPath = '',
   resolve,
+  lintConfig,
 }: {
-  apis: Record<string, Api>;
+  apis?: Record<string, Api>;
   configPath?: string;
   resolve?: RawResolveConfig;
-}): Promise<Record<string, Api>> {
-  const resolvedApis: Record<string, Api> = {};
+  lintConfig?: LintRawConfig;
+}): Promise<Record<string, ResolvedApi>> {
+  const resolvedApis: Record<string, ResolvedApi> = { };
   for (const [apiName, apiContent] of Object.entries(apis)) {
-    const lint = await resolveExtends({
-      lintConfig: apiContent.lint as LintRawConfig,
+    const rawLintConfig = getMergedLintRawConfig(lintConfig || {}, apiContent.lint);
+    const apiLint = await resolveLint({
+      lintConfig: rawLintConfig,
       configPath,
       resolve,
     });
-    resolvedApis[apiName] = { ...apiContent, lint };
+    resolvedApis[apiName] = {...apiContent, lint: transformLint(apiLint) };
   }
 
   return resolvedApis;
+}
+
+export function getUniquePlugins( plugins: Plugin[]): Plugin[]{
+  return plugins.reduce<Plugin[]>(
+    (acc, item) => (acc.some(({ id }) => id === item.id) ? acc : [...acc, item]),
+    [],
+  );
 }

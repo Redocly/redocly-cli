@@ -1,9 +1,10 @@
 import { parseYaml } from '../js-yaml';
 import { Document, Source } from '../resolve';
 import { Oas3RuleSet } from '../oas-types';
-import { LintConfig } from '../config';
+import { LintConfig, mergeExtends, resolvePlugins, transformLint } from '../config';
 
-import type { RuleConfig, Plugin } from '../config/types';
+import type { RuleConfig, Plugin, TransformLintConfig, ResolvedLintConfig } from '../config/types';
+import recommended from '../config/recommended';
 
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
@@ -19,16 +20,17 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
   Object.keys(rules).forEach((name) => {
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
+  const extendConfigs = [recommended, resolvePlugins([
+    {
+      ...plugin,
+      id: ruleId,
+      rules: { oas3: rules },
+    },
+  ]) as ResolvedLintConfig];
+  if (rules) {
+    extendConfigs.push({rules})
+  }
+  const lint = transformLint(mergeExtends(extendConfigs));
 
-  return new LintConfig({
-    plugins: [
-      {
-        ...plugin,
-        id: ruleId,
-        rules: { oas3: rules },
-      },
-    ],
-    extends: [],
-    rules: rulesConf,
-  });
+  return new LintConfig(lint as TransformLintConfig);
 }
