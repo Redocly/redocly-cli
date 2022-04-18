@@ -14,10 +14,8 @@ import type {
   ResolvedApi,
   ResolvedLintConfig,
   RulesFields,
-  TransformLintConfig,
 } from './types';
 import { resolveLint } from './load';
-import { OasVersion } from '../oas-types';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -166,34 +164,6 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
 
   return res;
 }
-export function transformLint(result: ResolvedLintConfig): TransformLintConfig {
-  const rules = {
-    [OasVersion.Version2]: { ...result.rules, ...result.oas2Rules },
-    [OasVersion.Version3_0]: { ...result.rules, ...result.oas3_0Rules },
-    [OasVersion.Version3_1]: { ...result.rules, ...result.oas3_1Rules },
-  };
-
-  const preprocessors = {
-    [OasVersion.Version2]: { ...result.preprocessors, ...result.oas2Preprocessors },
-    [OasVersion.Version3_0]: { ...result.preprocessors, ...result.oas3_0Preprocessors },
-    [OasVersion.Version3_1]: { ...result.preprocessors, ...result.oas3_1Preprocessors },
-  };
-
-  const decorators = {
-    [OasVersion.Version2]: { ...result.decorators, ...result.oas2Decorators },
-    [OasVersion.Version3_0]: { ...result.decorators, ...result.oas3_0Decorators },
-    [OasVersion.Version3_1]: { ...result.decorators, ...result.oas3_1Decorators },
-  };
-
-  return {
-    rules,
-    preprocessors,
-    decorators,
-    plugins: result.plugins,
-    recommendedFallback: result.recommendedFallback,
-    doNotResolveExamples: result.doNotResolveExamples,
-  }
-}
 
 export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
   const result: Omit<ResolvedLintConfig, RulesFields> & Required<Pick<ResolvedLintConfig, RulesFields>> = {
@@ -262,7 +232,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     ? new Config(
         {
           ...config.rawConfig,
-          lint: entrypointAlias ? config.apis[entrypointAlias]?.lint : config.lint,
+          lint: config.apis[entrypointAlias] ? config.apis[entrypointAlias]?.lint : config.rawConfig.lint,
           'features.openapi': {
             ...config['features.openapi'],
             ...config.apis[entrypointAlias]?.['features.openapi'],
@@ -352,7 +322,7 @@ export async function resolveApis({
       configPath,
       resolve,
     });
-    resolvedApis[apiName] = {...apiContent, lint: transformLint(apiLint) };
+    resolvedApis[apiName] = {...apiContent, lint: apiLint };
   }
 
   return resolvedApis;

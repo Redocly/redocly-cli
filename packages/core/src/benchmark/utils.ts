@@ -1,9 +1,9 @@
 import { parseYaml } from '../js-yaml';
 import { Document, Source } from '../resolve';
 import { Oas3RuleSet } from '../oas-types';
-import { LintConfig, mergeExtends, resolvePlugins, transformLint } from '../config';
+import { LintConfig, mergeExtends, resolvePlugins } from '../config';
 
-import type { RuleConfig, Plugin, TransformLintConfig, ResolvedLintConfig } from '../config/types';
+import type { RuleConfig, Plugin, ResolvedLintConfig } from '../config/types';
 import recommended from '../config/recommended';
 
 
@@ -30,7 +30,7 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
   if (rules) {
     extendConfigs.push({rules})
   }
-  const lint = transformLint(mergeExtends(extendConfigs));
+  const lint = mergeExtends(extendConfigs);
 
-  return new LintConfig(lint as TransformLintConfig);
+  return new LintConfig(lint);
 }

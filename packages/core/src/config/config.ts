@@ -15,8 +15,8 @@ import type {
   ResolveConfig,
   ResolvedApi,
   ResolvedConfig,
+  ResolvedLintConfig,
   RuleConfig,
-  TransformLintConfig,
 } from './types';
 import { getResolveConfig } from './utils';
 
@@ -54,15 +54,29 @@ export class LintConfig {
 
   recommendedFallback: boolean;
 
-  constructor(public rawConfig: TransformLintConfig, public configFile?: string) {
+  constructor(public rawConfig: ResolvedLintConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
     this.recommendedFallback = rawConfig.recommendedFallback || false
 
-    this.rules = rawConfig.rules;
-    this.preprocessors = rawConfig.preprocessors;
-    this.decorators = rawConfig.decorators;
+    this.rules = {
+      [OasVersion.Version2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
+      [OasVersion.Version3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
+      [OasVersion.Version3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
+    };
+
+    this.preprocessors = {
+      [OasVersion.Version2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
+      [OasVersion.Version3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
+      [OasVersion.Version3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
+    };
+
+    this.decorators = {
+      [OasVersion.Version2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
+      [OasVersion.Version3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
+      [OasVersion.Version3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
+    };
 
     const dir = this.configFile
       ? path.dirname(this.configFile)

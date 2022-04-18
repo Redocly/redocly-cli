@@ -105,8 +105,8 @@ export async function lintConfig(opts: {
   };
   const config = new LintConfig({
     plugins: [defaultPlugin],
-    extends: [],
     // @ts-ignore FIXME: VSCODE
+    extends: [],
     rules: { spec: 'error' },
   });
 
