@@ -32,6 +32,7 @@ export type LintRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   doNotResolveExamples?: boolean;
+  recommendedFallback?: boolean;
 
   rules?: Record<string, RuleConfig>;
   oas2Rules?: Record<string, RuleConfig>;
@@ -49,7 +50,7 @@ export type LintRawConfig = {
   oas3_1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedLintConfig = PluginLintConfig & { plugins?: Plugin[]; recommendedFallback?: boolean; };
+export type ResolvedLintConfig = PluginLintConfig & { plugins?: Plugin[]; recommendedFallback?: boolean; extends?: void | never ; };
 
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;

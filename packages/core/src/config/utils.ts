@@ -1,21 +1,16 @@
-import { blue, green, red, yellow } from 'colorette';
-import * as path from 'path';
+import { green, yellow } from 'colorette';
 import { Config } from './config';
-import { notUndefined } from '../utils';
 
 import type {
   Api,
   DeprecatedRawConfig,
-  LintRawConfig,
   Plugin,
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
-  ResolvedApi,
   ResolvedLintConfig,
   RulesFields,
 } from './types';
-import { resolveLint } from './load';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -44,116 +39,6 @@ export function transformApiDefinitionsToApis(
   return apis;
 }
 
-export function resolvePresets(presets: string[], plugins: Plugin[]): ResolvedLintConfig[] {
-  return presets.map((presetName) => {
-    const { pluginId, configName } = parsePresetName(presetName);
-    const plugin = plugins.find((p) => p.id === pluginId);
-    if (!plugin) {
-      throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
-    }
-
-    const preset = plugin.configs?.[configName]! as ResolvedLintConfig;
-    if (!preset) {
-      throw new Error(
-        pluginId
-          ? `Invalid config ${red(
-              presetName,
-            )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-          : `Invalid config ${red(presetName)}: there is no such built-in config.`,
-      );
-    }
-    return preset;
-  });
-}
-
-export function resolvePlugins(
-  plugins: (string | Plugin)[] | null,
-  configPath: string = '',
-): Plugin[] {
-  if (!plugins) return [];
-
-  // @ts-ignore
-  const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
-
-  const seenPluginIds = new Map<string, string>();
-
-  return plugins
-    .map((p) => {
-      // TODO: resolve npm packages similar to eslint
-      const pluginModule =
-        typeof p === 'string'
-          ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
-          : p;
-
-      const id = pluginModule.id;
-      if (typeof id !== 'string') {
-        throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
-      }
-
-      if (seenPluginIds.has(id)) {
-        const pluginPath = seenPluginIds.get(id)!;
-        throw new Error(
-          red(
-            `Plugin "id" must be unique. Plugin ${blue(p.toString())} uses id "${blue(
-              id,
-            )}" already seen in ${blue(pluginPath)}`,
-          ),
-        );
-      }
-
-      seenPluginIds.set(id, p.toString());
-
-      const plugin: Plugin = {
-        id,
-        ...(pluginModule.configs ? { configs: pluginModule.configs } : {}),
-        ...(pluginModule.typeExtension ? { typeExtension: pluginModule.typeExtension } : {}),
-      };
-
-      if (pluginModule.rules) {
-        if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2) {
-          throw new Error(`Plugin rules must have \`oas3\` or \`oas2\` rules "${p}.`);
-        }
-        plugin.rules = {};
-        if (pluginModule.rules.oas3) {
-          plugin.rules.oas3 = prefixRules(pluginModule.rules.oas3, id);
-        }
-        if (pluginModule.rules.oas2) {
-          plugin.rules.oas2 = prefixRules(pluginModule.rules.oas2, id);
-        }
-      }
-      if (pluginModule.preprocessors) {
-        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
-          throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`,
-          );
-        }
-        plugin.preprocessors = {};
-        if (pluginModule.preprocessors.oas3) {
-          plugin.preprocessors.oas3 = prefixRules(pluginModule.preprocessors.oas3, id);
-        }
-        if (pluginModule.preprocessors.oas2) {
-          plugin.preprocessors.oas2 = prefixRules(pluginModule.preprocessors.oas2, id);
-        }
-      }
-
-      if (pluginModule.decorators) {
-        if (!pluginModule.decorators.oas3 && !pluginModule.decorators.oas2) {
-          throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}.`);
-        }
-        plugin.decorators = {};
-        if (pluginModule.decorators.oas3) {
-          plugin.decorators.oas3 = prefixRules(pluginModule.decorators.oas3, id);
-        }
-        if (pluginModule.decorators.oas2) {
-          plugin.decorators.oas2 = prefixRules(pluginModule.decorators.oas2, id);
-        }
-      }
-
-      return plugin;
-    })
-    .filter(notUndefined);
-}
-
 export function prefixRules<T extends Record<string, any>>(rules: T, prefix: string) {
   if (!prefix) return rules;
 
@@ -166,7 +51,9 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
 }
 
 export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
-  const result: Omit<ResolvedLintConfig, RulesFields> & Required<Pick<ResolvedLintConfig, RulesFields>> = {
+  //@ts-ignore
+  const result: Omit<ResolvedLintConfig, RulesFields> &
+    Required<Pick<ResolvedLintConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -185,7 +72,7 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
   };
 
   for (let rulesConf of rulesConfList) {
-    //@ts-ignore
+    // @ts-ignore
     if (rulesConf.extends) {
       throw new Error(
         `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
@@ -232,7 +119,9 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     ? new Config(
         {
           ...config.rawConfig,
-          lint: config.apis[entrypointAlias] ? config.apis[entrypointAlias]?.lint : config.rawConfig.lint,
+          lint: config.apis[entrypointAlias]
+            ? config.apis[entrypointAlias]?.lint
+            : config.rawConfig.lint,
           'features.openapi': {
             ...config['features.openapi'],
             ...config.apis[entrypointAlias]?.['features.openapi'],
@@ -288,47 +177,8 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
     },
   };
 }
-function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConfig) {
-  const rules = { ...configLint?.rules, ...apiLint?.rules };
-  const preprocessors = { ...configLint?.preprocessors, ...apiLint?.preprocessors };
-  const decorators = { ...configLint?.decorators, ...apiLint?.decorators };
-  const resultLint = {
-    ...configLint,
-    ...apiLint,
-    // FIXME: refactor
-    ...(configLint?.rules && apiLint?.rules) && rules,
-    ...(configLint?.preprocessors && apiLint?.preprocessors) && preprocessors,
-    ...(configLint?.decorators && apiLint?.decorators) && decorators,
-  };
-  return resultLint;
-}
 
-export async function resolveApis({
-  apis = {},
-  configPath = '',
-  resolve,
-  lintConfig,
-}: {
-  apis?: Record<string, Api>;
-  configPath?: string;
-  resolve?: RawResolveConfig;
-  lintConfig?: LintRawConfig;
-}): Promise<Record<string, ResolvedApi>> {
-  const resolvedApis: Record<string, ResolvedApi> = { };
-  for (const [apiName, apiContent] of Object.entries(apis)) {
-    const rawLintConfig = getMergedLintRawConfig(lintConfig || {}, apiContent.lint);
-    const apiLint = await resolveLint({
-      lintConfig: rawLintConfig,
-      configPath,
-      resolve,
-    });
-    resolvedApis[apiName] = {...apiContent, lint: apiLint };
-  }
-
-  return resolvedApis;
-}
-
-export function getUniquePlugins( plugins: Plugin[]): Plugin[]{
+export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
   return plugins.reduce<Plugin[]>(
     (acc, item) => (acc.some(({ id }) => id === item.id) ? acc : [...acc, item]),
     [],

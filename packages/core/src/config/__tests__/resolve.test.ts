@@ -1,9 +1,7 @@
-import * as load from '../load';
-import { resolveApis } from '../utils';
-
+import { resolveLint, resolveApis, resolveConfig } from '../config-resolvers';
 const path = require('path');
 
-import type { Api, LintRawConfig } from '../types';
+import type { LintRawConfig, RawConfig } from '../types';
 
 const configPath = path.join(__dirname, 'fixtures/resolve/.redocly.yaml');
 const baseLintConfig: LintRawConfig = {
@@ -12,34 +10,34 @@ const baseLintConfig: LintRawConfig = {
   },
 };
 
-const minimalLintPreset = load.resolveLint({
+const minimalLintPreset = resolveLint({
   lintConfig: { ...baseLintConfig, extends: ['minimal'] },
 });
 
-const recommendedLintPreset = load.resolveLint({
+const recommendedLintPreset = resolveLint({
   lintConfig: { ...baseLintConfig, extends: ['recommended'] },
 });
 
 describe('resolveLint', () => {
-  it('should return the config with recommended', async () => {
-    expect(await load.resolveLint({ lintConfig: baseLintConfig })).toMatchSnapshot();
+  it('should return the config with no recommended', async () => {
+    expect(await resolveLint({ lintConfig: baseLintConfig })).toMatchSnapshot();
   });
 
   it('should return the config with correct order by preset', async () => {
     expect(
-      await load.resolveLint({
+      await resolveLint({
         lintConfig: { ...baseLintConfig, extends: ['minimal', 'recommended'] },
       }),
     ).toEqual(await recommendedLintPreset);
     expect(
-      await load.resolveLint({
+      await resolveLint({
         lintConfig: { ...baseLintConfig, extends: ['recommended', 'minimal'] },
       }),
     ).toEqual(await minimalLintPreset);
   });
 
   it('should return the same lintConfig when extends is empty array', async () => {
-    const configWithEmptyExtends = await load.resolveLint({
+    const configWithEmptyExtends = await resolveLint({
       lintConfig: { ...baseLintConfig, extends: [] },
     });
     expect(configWithEmptyExtends).toMatchSnapshot();
@@ -51,7 +49,7 @@ describe('resolveLint', () => {
       extends: ['local-config.yaml'],
     };
 
-    const { plugins, ...result } = await load.resolveLint({
+    const { plugins, ...result } = await resolveLint({
       lintConfig: config,
       configPath,
     });
@@ -66,7 +64,7 @@ describe('resolveLint', () => {
     const lintConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const { plugins, ...result } = await load.resolveLint({
+    const { plugins, ...result } = await resolveLint({
       lintConfig,
       configPath,
     });
@@ -82,57 +80,57 @@ describe('resolveLint', () => {
 
 describe('resolveApis', () => {
   it('should resolve apis lintConfig and merge minimal extends', async () => {
-    const apis: Record<string, Api> = {
-      petstore: {
-        root: 'some/path',
-        lint: {},
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {},
+        },
+      },
+      lint: {
+        extends: ['minimal'],
       },
     };
 
-    const lintConfig: LintRawConfig = {
-      extends: ['minimal'],
-    };
-
-    const apisResult = await resolveApis({ apis, configPath, lintConfig });
+    const apisResult = await resolveApis({ rawConfig, configPath });
     expect(apisResult['petstore'].lint).toEqual(await minimalLintPreset);
   });
 
-  it('should resolve apis lintConfig and merge recommended extends', async () => {
-    const apis: Record<string, Api> = {
-      petstore: {
-        root: 'some/path',
-        lint: {},
+  it('should not merge recommended extends by default by every level', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {},
+        },
       },
+      lint: {},
     };
 
-    const lintConfig: LintRawConfig = {};
-
-    const apisResult = await resolveApis({ apis, configPath, lintConfig });
-    expect(apisResult['petstore'].lint).toEqual({
-      ...(await recommendedLintPreset),
-      recommendedFallback: true,
-    });
+    const apisResult = await resolveApis({ rawConfig, configPath });
+    expect(apisResult['petstore'].lint).toMatchSnapshot();
   });
 
-  it('should resolve apis lintConfig when it contains file and set recommended', async () => {
-    const apis: Record<string, Api> = {
-      petstore: {
-        root: 'some/path',
-        lint: {
-          rules: {
-            'operation-4xx-response': 'error',
+  it('should resolve apis lintConfig when it contains file and not set recommended', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {
+            rules: {
+              'operation-4xx-response': 'error',
+            },
           },
+        },
+      },
+      lint: {
+        rules: {
+          'operation-2xx-response': 'warn',
         },
       },
     };
 
-    const lintConfig: LintRawConfig = {
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const apisResult = await resolveApis({ apis, configPath, lintConfig });
+    const apisResult = await resolveApis({ rawConfig, configPath });
     expect(apisResult['petstore'].lint.rules).toBeDefined();
     expect(apisResult['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
     expect(apisResult['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
@@ -142,32 +140,125 @@ describe('resolveApis', () => {
   });
 
   it('should resolve apis lintConfig when it contains file', async () => {
-    const apis: Record<string, Api> = {
-      petstore: {
-        root: 'some/path',
-        lint: {
-          extends: ['local-config.yaml'],
-          rules: {
-            'operation-4xx-response': 'error',
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {
+            extends: ['local-config.yaml'],
+            rules: {
+              'operation-4xx-response': 'error',
+            },
           },
+        },
+      },
+      lint: {
+        extends: ['minimal'],
+        rules: {
+          'operation-2xx-response': 'warn',
         },
       },
     };
 
-    const lintConfig: LintRawConfig = {
-      extends: ['minimal'],
-      rules: {
-        'operation-2xx-response': 'warn',
-      },
-    };
-
-    const apisResult = await resolveApis({ apis, configPath, lintConfig });
+    const apisResult = await resolveApis({ rawConfig, configPath });
     expect(apisResult['petstore'].lint.rules).toBeDefined();
-    expect(apisResult['petstore'].lint.rules?.['operation-2xx-response']).toEqual('off');
+    expect(apisResult['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn'); // think about prioritize in merge ???
     expect(apisResult['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
     expect(apisResult['petstore'].lint.rules?.['local/operation-id-not-test']).toEqual('error');
     //@ts-ignore
     expect(apisResult['petstore'].lint.plugins.length).toEqual(2);
     expect(apisResult).toMatchSnapshot();
   });
+});
+
+describe('resolveConfig', () => {
+  it('should add recommended to top level by default', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      lint: {
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const { apis } = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].lint.rules).toBeDefined();
+    expect(apis['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apis['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
+    //@ts-ignore
+    expect(apis['petstore'].lint.plugins.length).toEqual(1);
+    expect(apis).toMatchSnapshot();
+  });
+
+  it('should not add recommended to top level by default when apis have extends file', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {
+            extends: ['local-config.yaml'],
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      lint: {
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const {apis} = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].lint.rules).toBeDefined();
+    expect(Object.keys(apis['petstore'].lint.rules || {}).length).toEqual(7);
+    expect(apis['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apis['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].lint.rules?.['operation-description']).toEqual('error'); // from extends file config
+    //@ts-ignore
+    expect(apis['petstore'].lint.plugins.length).toEqual(2);
+    expect(apis).toMatchSnapshot();
+  })
+
+  it('should ignore minimal from the root and read local file', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          lint: {
+            extends: ['recommended', 'local-config.yaml',],
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      lint: {
+        extends: ['minimal'],
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const {apis} = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].lint.rules).toBeDefined();
+    expect(apis['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(apis['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
+    expect(apis['petstore'].lint.rules?.['operation-description']).toEqual('error'); // from extends file config
+    //@ts-ignore
+    expect(apis['petstore'].lint.plugins.length).toEqual(2);
+    expect(apis).toMatchSnapshot();
+  })
 });
