@@ -4,9 +4,9 @@ import { RedoclyClient } from '../redocly';
 import { loadYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
+import { resolveConfig } from './config-resolvers';
 
 import type { RawConfig, Region } from './types';
-import { resolveConfig } from './config-resolvers';
 
 export async function loadConfig(
   configPath: string | undefined = findConfig(),

@@ -45,7 +45,11 @@ export const yamlSerializer = {
   },
 };
 
-export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>, version: string = 'oas3') {
+export function makeConfigForRuleset(
+  rules: Oas3RuleSet,
+  plugin?: Partial<Plugin>,
+  version: string = 'oas3',
+) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
   Object.keys(rules).forEach((name) => {
@@ -58,18 +62,25 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
       rules: { [version]: rules },
     },
   ]);
-  
+
   return new LintConfig({
     plugins,
     rules: rulesConf,
   });
 }
 
-export async function makeConfig(rules: Record<string, RuleConfig>, decorators?:  Record<string, DecoratorConfig>) {
-  return new LintConfig(await resolveLint({ lintConfig:{
-    plugins: [],
-    extends: [],
-    rules,
-    decorators,
-  }}));
+export async function makeConfig(
+  rules: Record<string, RuleConfig>,
+  decorators?: Record<string, DecoratorConfig>,
+) {
+  return new LintConfig(
+    await resolveLint({
+      lintConfig: {
+        plugins: [],
+        extends: [],
+        rules,
+        decorators,
+      },
+    }),
+  );
 }

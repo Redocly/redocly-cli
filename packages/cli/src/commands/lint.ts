@@ -45,7 +45,7 @@ export async function handleLint(
   for (const { path, alias } of entrypoints) {
     try {
       const startedAt = performance.now();
-      const resolvedConfig = getMergedConfig(config, alias); // entrypointAlias ? config.apis[entrypointAlias]?.lint : config.lint
+      const resolvedConfig = getMergedConfig(config, alias);
       resolvedConfig.lint.skipRules(argv['skip-rule']);
       resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
 

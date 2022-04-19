@@ -12,11 +12,15 @@ export async function lintDoc(
   const results = await lintDocument({
     externalRefResolver: new BaseResolver(),
     document,
-    config: new LintConfig(await resolveLint({ lintConfig:{
-      plugins: [],
-      extends: [],
-      rules,
-    }})),
+    config: new LintConfig(
+      await resolveLint({
+        lintConfig: {
+          plugins: [],
+          extends: [],
+          rules,
+        },
+      }),
+    ),
   });
 
   return results.map((res) => {

@@ -14,10 +14,16 @@ import {
 } from './utils';
 
 import type { LintRawConfig, Plugin, RawConfig, ResolvedApi, ResolvedLintConfig } from './types';
-import { notUndefined, parseYaml } from '../utils';
+import { isNotString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
+  if (rawConfig.lint?.extends && rawConfig.lint.extends.some(isNotString)) {
+    throw new Error(
+      `Error configuration format not detected in extends value must contain strings`,
+    );
+  }
+
   const resolver = new BaseResolver(getResolveConfig(rawConfig.resolve));
   const configExtends = rawConfig?.lint?.extends ?? ['recommended'];
   const recommendedFallback = !rawConfig?.lint?.extends;
@@ -172,11 +178,14 @@ export async function resolveLint({
   lintConfig?: LintRawConfig;
   configPath?: string;
   resolver?: BaseResolver;
-}): Promise<ResolvedLintConfig> {
+}, parentConfigPaths: string[] = []): Promise<ResolvedLintConfig> {
+  if (parentConfigPaths.includes(configPath)) {
+    throw new Error(`Circular dependency in config file: "${configPath}"`);
+  }
   const plugins = getUniquePlugins(
     resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath),
   );
-  // FIXME: add stack to resolve circular!
+
   const extendConfigs: ResolvedLintConfig[] = await Promise.all(
     lintConfig?.extends?.map(async (presetName) => {
       const pathItem = isAbsoluteUrl(presetName)
@@ -188,7 +197,7 @@ export async function resolveLint({
           lintConfig: extendedLintConfig,
           configPath: pathItem,
           resolver: resolver,
-        });
+        }, [...parentConfigPaths, path.resolve(configPath)]);
       }
       return resolvePreset(presetName, plugins);
     }) || [],
@@ -235,12 +244,12 @@ async function loadExtendLintConfig(
     const fileSource = await resolver.loadExternalRef(filePath);
     const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig);
     if (!rawConfig.lint) {
-      throw new Error(`Lint configuration format not detected (${filePath})`);
+      throw new Error(`Lint configuration format not detected: "${filePath}"`);
     }
 
     return rawConfig.lint;
   } catch (error) {
-    throw new Error(`Fail to load (${filePath}): ${error.message}`);
+    throw new Error(`Failed to load "${filePath}": ${error.message}`);
   }
 }
 

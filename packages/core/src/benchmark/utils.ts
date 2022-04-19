@@ -6,7 +6,6 @@ import { LintConfig, mergeExtends, resolvePlugins } from '../config';
 import type { RuleConfig, Plugin, ResolvedLintConfig } from '../config/types';
 import recommended from '../config/recommended';
 
-
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
     source: new Source(absoluteRef, body),
@@ -20,15 +19,18 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
   Object.keys(rules).forEach((name) => {
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
-  const extendConfigs = [recommended, resolvePlugins([
-    {
-      ...plugin,
-      id: ruleId,
-      rules: { oas3: rules },
-    },
-  ]) as ResolvedLintConfig];
+  const extendConfigs = [
+    recommended,
+    resolvePlugins([
+      {
+        ...plugin,
+        id: ruleId,
+        rules: { oas3: rules },
+      },
+    ]) as ResolvedLintConfig,
+  ];
   if (rules) {
-    extendConfigs.push({rules})
+    extendConfigs.push({ rules });
   }
   const lint = mergeExtends(extendConfigs);
 

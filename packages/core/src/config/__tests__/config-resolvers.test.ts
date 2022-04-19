@@ -60,6 +60,15 @@ describe('resolveLint', () => {
     expect(plugins?.length).toBe(2);
   });
 
+  // TODO: fix circular test
+  it.skip('should throw circular error', () => {
+    const config = {
+      ...baseLintConfig,
+      extends: ['local-config-with-circular.yaml'],
+    };
+    expect(() => {resolveLint({ lintConfig: config, configPath })}).toThrow('Circular dependency in config file');
+  });
+
   it('should resolve extends with local file config witch contains path to nested config', async () => {
     const lintConfig = {
       extends: ['local-config-with-file.yaml'],
@@ -220,7 +229,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {apis} = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig(rawConfig, configPath);
     expect(apis['petstore'].lint.rules).toBeDefined();
     expect(Object.keys(apis['petstore'].lint.rules || {}).length).toEqual(7);
     expect(apis['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
@@ -229,7 +238,7 @@ describe('resolveConfig', () => {
     //@ts-ignore
     expect(apis['petstore'].lint.plugins.length).toEqual(2);
     expect(apis).toMatchSnapshot();
-  })
+  });
 
   it('should ignore minimal from the root and read local file', async () => {
     const rawConfig: RawConfig = {
@@ -237,7 +246,7 @@ describe('resolveConfig', () => {
         petstore: {
           root: 'some/path',
           lint: {
-            extends: ['recommended', 'local-config.yaml',],
+            extends: ['recommended', 'local-config.yaml'],
             rules: {
               'operation-4xx-response': 'error',
             },
@@ -252,7 +261,7 @@ describe('resolveConfig', () => {
       },
     };
 
-    const {apis} = await resolveConfig(rawConfig, configPath);
+    const { apis } = await resolveConfig(rawConfig, configPath);
     expect(apis['petstore'].lint.rules).toBeDefined();
     expect(apis['petstore'].lint.rules?.['operation-2xx-response']).toEqual('warn');
     expect(apis['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
@@ -260,5 +269,5 @@ describe('resolveConfig', () => {
     //@ts-ignore
     expect(apis['petstore'].lint.plugins.length).toEqual(2);
     expect(apis).toMatchSnapshot();
-  })
+  });
 });
