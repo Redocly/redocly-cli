@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { loadYaml } from '../utils';
+import { isEmptyObject, loadYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
@@ -16,6 +16,9 @@ export async function loadConfig(
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
+  } else if (isEmptyObject(rawConfig)) {
+    // TODO: check if we can add recommended here. add message here?
+    // rawConfig.lint = { extends: ['recommended'], recommendedFallback: true };
   }
 
   const redoclyClient = new RedoclyClient();

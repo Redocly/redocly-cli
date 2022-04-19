@@ -19,7 +19,7 @@ import {
 } from '../utils';
 import { OutputExtensions, Totals } from '../types';
 import { performance } from 'perf_hooks';
-import { blue, gray, green, yellow } from 'colorette';
+import { blue, gray, green, red, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
 export async function handleBundle(
@@ -63,7 +63,8 @@ export async function handleBundle(
           process.stderr.write(
             `No configurations were defined in extends -- using built in ${blue(
               'recommended',
-            )} configuration by default.\n\n`,
+            )} configuration by default.\n
+            ${red('Warning! This default behavior is going to be deprecated soon.')}.\n\n`,
           );
         }
         const results = await lint({
