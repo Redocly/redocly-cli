@@ -1,3 +1,4 @@
+import { isRef } from '../../../ref-utils';
 import { Problem, ProblemSeverity, UserContext } from '../../../walk';
 import { asserts } from './asserts';
 
@@ -76,7 +77,7 @@ export function buildSubjectVisitor(
   asserts: AssertToApply[],
   context?: Record<string, any>[],
 ) {
-  return function (node: any, { report, location, key, type }: UserContext) {
+  return function (node: any, { report, location, key, type, resolve }: UserContext) {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
@@ -102,7 +103,9 @@ export function buildSubjectVisitor(
     for (const assert of asserts) {
       if (properties) {
         for (const property of properties) {
-          runAssertion(node[property], assert, location.child(property), report);
+          // we can have resolvable scalar so need to resolve value here.
+          const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
+          runAssertion(value, assert, location.child(property), report);
         }
       } else {
         runAssertion(Object.keys(node), assert, location.key(), report);
