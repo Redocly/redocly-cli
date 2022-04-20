@@ -1,5 +1,5 @@
 import { NodeType, listOf, mapOf } from '.';
-import { Oas3Types } from './oas3'
+import { Oas3Types } from './oas3';
 
 const DefinitionRoot: NodeType = {
   properties: {
@@ -15,7 +15,7 @@ const DefinitionRoot: NodeType = {
     jsonSchemaDialect: { type: 'string' },
   },
   required: ['openapi', 'info'],
-  requiredOneOf: ['paths', 'components', 'webhooks']
+  requiredOneOf: ['paths', 'components', 'webhooks'],
 };
 
 const License: NodeType = {
@@ -106,11 +106,14 @@ const Schema: NodeType = {
     enum: { type: 'array' },
     type: (value: any) => {
       if (Array.isArray(value)) {
-        return { type: 'array', items: { enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'] } }
+        return {
+          type: 'array',
+          items: { enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'] },
+        };
       } else {
         return {
           enum: ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'],
-        }
+        };
       }
     },
     allOf: listOf('Schema'),
@@ -126,7 +129,13 @@ const Schema: NodeType = {
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
     unevaluatedItems: 'Schema',
-    unevaluatedProperties: 'Schema',
+    unevaluatedProperties: (value: unknown) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return 'Schema';
+      }
+    },
     summary: { type: 'string' },
     properties: 'SchemaProperties',
     items: (value: any) => {
@@ -196,9 +205,25 @@ const SecurityScheme: NodeType = {
           case 'clientCredentials':
             return ['type', 'flows', 'tokenUrl', 'refreshUrl', 'description', 'scopes'];
           case 'authorizationCode':
-            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+            return [
+              'type',
+              'flows',
+              'authorizationUrl',
+              'refreshUrl',
+              'tokenUrl',
+              'description',
+              'scopes',
+            ];
           default:
-            return ['type', 'flows', 'authorizationUrl', 'refreshUrl', 'tokenUrl', 'description', 'scopes'];
+            return [
+              'type',
+              'flows',
+              'authorizationUrl',
+              'refreshUrl',
+              'tokenUrl',
+              'description',
+              'scopes',
+            ];
         }
       case 'openIdConnect':
         return ['type', 'openIdConnectUrl', 'description'];

@@ -4,6 +4,15 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-94 (2022-04-12)
+
+### Features
+
+- The `lint` command supports using `unevaluatedProperties` as boolean in **OAS 3.1.x** and no longer reports this as an error.
+- Internal changes.
+
+---
+
 ## 1.0.0-beta-93 (2022-04-05)
 
 ### Fixes

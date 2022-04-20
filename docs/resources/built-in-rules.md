@@ -56,6 +56,11 @@ Severity settings determine how the rule is treated during the validation proces
 
 ## List of built-in rules
 
+### assertions
+
+Configure assertions to enforce your API design standards without coding custom rules.
+Learn how to [configure assertions](./rules/assertions.md).
+
 ### boolean-parameter-prefixes
 
 `name` fields of parameters with type `boolean` should have a `is` or `has` prefix.
@@ -330,10 +335,6 @@ Verifies that each tag has a description.
 
 Verifies that tags (names) are declared in alphabetical order.
 
-### assertions
-
-Configure assertions to enforce your API design standards without coding custom rules.
-Learn how to [configure assertions](./rules/assertions.md).
 
 ## Recommended config
 

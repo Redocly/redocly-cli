@@ -176,7 +176,7 @@ describe('OpenAPI Schema', () => {
       Array [
         Object {
           "location": "#/servers",
-          "message": "Expected type \`Server_List\` (array) but got \`object\`",
+          "message": "Expected type \`ServerList\` (array) but got \`object\`",
         },
       ]
     `);
