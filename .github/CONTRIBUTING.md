@@ -28,7 +28,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development Setup
 
-You will need [Node.js](http://nodejs.org) at `v12.0.0+`.
+You will need [Node.js](http://nodejs.org) at `v15.0.0+`.
 
 After forking the repo, run:  
 
