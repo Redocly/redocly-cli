@@ -3,6 +3,7 @@
 exports[`E2E bundle lint format bundle lint: should be formatted by format: stylish 1`] = `
 
 No configurations were defined in extends -- using built in recommended configuration by default.
+Warning! This default behavior is going to be deprecated soon..
 
 openapi.yaml:
   20:11  error    spec  Expected type \`MediaType\` (object) but got \`null\`

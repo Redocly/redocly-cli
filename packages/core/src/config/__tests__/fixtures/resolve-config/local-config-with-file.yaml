@@ -1,0 +1,12 @@
+lint:
+  rules:
+    no-invalid-media-type-examples: warn
+    operation-4xx-response: off
+  plugins:
+    - plugin.js
+    - api/plugin.js
+  extends:
+    - recommended
+    - api/nested-config.yaml
+    - test-plugin-nested/all
+    - test-plugin/all

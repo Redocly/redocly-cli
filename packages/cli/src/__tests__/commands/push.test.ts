@@ -7,7 +7,12 @@ import {
 } from '../../commands/push';
 
 jest.mock('fs');
-jest.mock('node-fetch');
+jest.mock('node-fetch', () => ({
+  default: jest.fn(() => ({
+    ok: true,
+    json: jest.fn().mockResolvedValue({}),
+  })),
+}));
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
 

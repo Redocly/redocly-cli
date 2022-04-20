@@ -21,7 +21,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'no-unresolved-refs': 'error',
       }),
     });
@@ -61,7 +61,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'no-unresolved-refs': 'error',
       }),
     });
@@ -118,7 +118,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'no-unresolved-refs': 'error',
       }),
     });
@@ -142,7 +142,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'no-unresolved-refs': 'error',
       }),
     });

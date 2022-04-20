@@ -1,4 +1,4 @@
-const id = 'test-plugin';
+const id = 'test-plugin-nested';
 
 /** @type {import('../../config').PreprocessorsConfig} */
 const preprocessors = {
@@ -21,7 +21,7 @@ const rules = {
       return {
         SecurityScheme(scheme, { location, report }) {
           if (scheme.type === 'openIdConnect') {
-            if (!scheme.openIdConnectUrl.endsWith('/.well-known/openid-configuration')) {
+            if (scheme.openIdConnectUrl && !scheme.openIdConnectUrl.endsWith('/.well-known/openid-configuration')) {
               report({
                 message:
                   'openIdConnectUrl must be a URL that ends with /.well-known/openid-configuration',
@@ -48,9 +48,20 @@ const decorators = {
   },
 };
 
+const configs = {
+  all: {
+    rules: {
+      'local/operation-id-not-test': 'error',
+      'boolean-parameter-prefixes': 'error',
+    },
+  },
+};
+
+
 module.exports = {
   id,
   preprocessors,
   rules,
   decorators,
+  configs,
 };

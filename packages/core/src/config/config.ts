@@ -4,22 +4,21 @@ import { dirname } from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash } from '../utils';
 import { NormalizedProblem } from '../walk';
-import recommended from './recommended';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
 
 import type { NodeType } from '../types';
 import type {
-  Api,
   DecoratorConfig,
-  LintRawConfig,
   Plugin,
   PreprocessorConfig,
-  RawConfig,
   Region,
   ResolveConfig,
+  ResolvedApi,
+  ResolvedConfig,
+  ResolvedLintConfig,
   RuleConfig,
 } from './types';
-import { getResolveConfig, mergeExtends, resolvePlugins, resolvePresets } from './utils';
+import { getResolveConfig } from './utils';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -53,46 +52,30 @@ export class LintConfig {
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<OasVersion> = new Set();
 
-  recommendedFallback: boolean = false;
+  recommendedFallback: boolean;
 
-  constructor(public rawConfig: LintRawConfig, public configFile?: string) {
-    this.plugins = rawConfig.plugins ? resolvePlugins(rawConfig.plugins, configFile) : [];
+  constructor(public rawConfig: ResolvedLintConfig, public configFile?: string) {
+    this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
-    if (!rawConfig.extends) {
-      this.recommendedFallback = true;
-    }
-
-    const extendConfigs: LintRawConfig[] = rawConfig.extends
-      ? resolvePresets(rawConfig.extends as string[], this.plugins)
-      : [recommended];
-
-    if (rawConfig.rules || rawConfig.preprocessors || rawConfig.decorators) {
-      extendConfigs.push({
-        rules: rawConfig.rules,
-        preprocessors: rawConfig.preprocessors,
-        decorators: rawConfig.decorators,
-      });
-    }
-
-    const merged = mergeExtends(extendConfigs);
+    this.recommendedFallback = rawConfig.recommendedFallback || false
 
     this.rules = {
-      [OasVersion.Version2]: { ...merged.rules, ...merged.oas2Rules },
-      [OasVersion.Version3_0]: { ...merged.rules, ...merged.oas3_0Rules },
-      [OasVersion.Version3_1]: { ...merged.rules, ...merged.oas3_1Rules },
+      [OasVersion.Version2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
+      [OasVersion.Version3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
+      [OasVersion.Version3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
     };
 
     this.preprocessors = {
-      [OasVersion.Version2]: { ...merged.preprocessors, ...merged.oas2Preprocessors },
-      [OasVersion.Version3_0]: { ...merged.preprocessors, ...merged.oas3_0Preprocessors },
-      [OasVersion.Version3_1]: { ...merged.preprocessors, ...merged.oas3_1Preprocessors },
+      [OasVersion.Version2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
+      [OasVersion.Version3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
+      [OasVersion.Version3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
     };
 
     this.decorators = {
-      [OasVersion.Version2]: { ...merged.decorators, ...merged.oas2Decorators },
-      [OasVersion.Version3_0]: { ...merged.decorators, ...merged.oas3_0Decorators },
-      [OasVersion.Version3_1]: { ...merged.decorators, ...merged.oas3_1Decorators },
+      [OasVersion.Version2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
+      [OasVersion.Version3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
+      [OasVersion.Version3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
     };
 
     const dir = this.configFile
@@ -295,7 +278,7 @@ export class LintConfig {
 }
 
 export class Config {
-  apis: Record<string, Api>;
+  apis: Record<string, ResolvedApi>;
   lint: LintConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
@@ -303,7 +286,7 @@ export class Config {
   'features.openapi': Record<string, any>;
   'features.mockServer'?: Record<string, any>;
   organization?: string;
-  constructor(public rawConfig: RawConfig, public configFile?: string) {
+  constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.lint = new LintConfig(rawConfig.lint || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};

@@ -7,7 +7,7 @@ import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
-import { LintConfig, Config, initRules, defaultPlugin } from './config';
+import { LintConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
@@ -103,9 +103,9 @@ export async function lintConfig(opts: {
     oasVersion: OasVersion.Version3_0,
     visitorsData: {},
   };
+  const plugins = resolvePlugins([defaultPlugin]);
   const config = new LintConfig({
-    plugins: [defaultPlugin],
-    extends: [],
+    plugins,
     rules: { spec: 'error' },
   });
 

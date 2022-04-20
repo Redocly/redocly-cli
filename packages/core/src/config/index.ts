@@ -4,3 +4,4 @@ export * from './rules';
 export * from './builtIn';
 export * from './load';
 export * from './utils';
+export * from './config-resolvers';
