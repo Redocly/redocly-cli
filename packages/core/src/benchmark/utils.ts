@@ -4,7 +4,6 @@ import { Oas3RuleSet } from '../oas-types';
 import { LintConfig, mergeExtends, resolvePlugins } from '../config';
 
 import type { RuleConfig, Plugin, ResolvedLintConfig } from '../config/types';
-import recommended from '../config/recommended';
 
 export function parseYamlToDocument(body: string, absoluteRef: string = ''): Document {
   return {
@@ -20,7 +19,6 @@ export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
   const extendConfigs = [
-    recommended,
     resolvePlugins([
       {
         ...plugin,

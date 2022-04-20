@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { blue, red } from 'colorette';
 import { isAbsoluteUrl } from '../ref-utils';
@@ -170,15 +169,18 @@ export async function resolveApis({
   return resolvedApis;
 }
 
-export async function resolveLint({
-  lintConfig,
-  configPath = '',
-  resolver = new BaseResolver(),
-}: {
-  lintConfig?: LintRawConfig;
-  configPath?: string;
-  resolver?: BaseResolver;
-}, parentConfigPaths: string[] = []): Promise<ResolvedLintConfig> {
+export async function resolveLint(
+  {
+    lintConfig,
+    configPath = '',
+    resolver = new BaseResolver(),
+  }: {
+    lintConfig?: LintRawConfig;
+    configPath?: string;
+    resolver?: BaseResolver;
+  },
+  parentConfigPaths: string[] = [],
+): Promise<ResolvedLintConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
@@ -188,18 +190,25 @@ export async function resolveLint({
 
   const extendConfigs: ResolvedLintConfig[] = await Promise.all(
     lintConfig?.extends?.map(async (presetName) => {
+      if (!isAbsoluteUrl(presetName) && !['.yaml', '.yml'].includes(path.extname(presetName))) {
+        return resolvePreset(presetName, plugins);
+      }
+
       const pathItem = isAbsoluteUrl(presetName)
         ? presetName
+        : isAbsoluteUrl(configPath)
+        ? new URL(presetName, configPath).href
         : path.resolve(path.dirname(configPath), presetName);
-      if (isAbsoluteUrl(pathItem) || fs.existsSync(pathItem)) {
-        const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
-        return await resolveLint({
+
+      const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
+      return await resolveLint(
+        {
           lintConfig: extendedLintConfig,
           configPath: pathItem,
           resolver: resolver,
-        }, [...parentConfigPaths, path.resolve(configPath)]);
-      }
-      return resolvePreset(presetName, plugins);
+        },
+        [...parentConfigPaths, path.resolve(configPath)],
+      );
     }) || [],
   );
 

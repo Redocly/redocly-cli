@@ -3,7 +3,7 @@ const path = require('path');
 
 import type { LintRawConfig, RawConfig } from '../types';
 
-const configPath = path.join(__dirname, 'fixtures/resolve/.redocly.yaml');
+const configPath = path.join(__dirname, 'fixtures/resolve-config/.redocly.yaml');
 const baseLintConfig: LintRawConfig = {
   rules: {
     'operation-2xx-response': 'warn',
@@ -85,6 +85,21 @@ describe('resolveLint', () => {
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(3);
   });
+
+  it('should resolve extends with url file config witch contains path to nested config', async () => {
+    const lintConfig = {
+      extends: ['https://raw.githubusercontent.com/Redocly/openapi-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml'],
+    };
+
+    const { plugins, ...result } = await resolveLint({
+      lintConfig,
+      configPath,
+    });
+
+    expect(result).toMatchSnapshot();
+    expect(result?.rules?.['operation-4xx-response']).toEqual('error');
+    expect(result?.rules?.['operation-2xx-response']).toEqual('error');
+  })
 });
 
 describe('resolveApis', () => {

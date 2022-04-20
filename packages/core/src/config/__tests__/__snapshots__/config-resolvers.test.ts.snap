@@ -2221,6 +2221,28 @@ Object {
 }
 `;
 
+exports[`resolveLint should resolve extends with url file config witch contains path to nested config 1`] = `
+Object {
+  "decorators": Object {},
+  "doNotResolveExamples": undefined,
+  "oas2Decorators": Object {},
+  "oas2Preprocessors": Object {},
+  "oas2Rules": Object {},
+  "oas3_0Decorators": Object {},
+  "oas3_0Preprocessors": Object {},
+  "oas3_0Rules": Object {},
+  "oas3_1Decorators": Object {},
+  "oas3_1Preprocessors": Object {},
+  "oas3_1Rules": Object {},
+  "preprocessors": Object {},
+  "recommendedFallback": undefined,
+  "rules": Object {
+    "operation-2xx-response": "error",
+    "operation-4xx-response": "error",
+  },
+}
+`;
+
 exports[`resolveLint should return the config with no recommended 1`] = `
 Object {
   "decorators": Object {},
