@@ -17,7 +17,7 @@ import { isNotString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
-  if (rawConfig.lint?.extends && rawConfig.lint.extends.some(isNotString)) {
+  if (rawConfig.lint?.extends?.some(isNotString)) {
     throw new Error(
       `Error configuration format not detected in extends value must contain strings`,
     );
@@ -32,17 +32,17 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
     recommendedFallback,
   };
 
-  const lint = await resolveLint({
-    lintConfig,
-    configPath,
-    resolver,
-  });
-
   const apis = await resolveApis({
     rawConfig: {
       ...rawConfig,
       lint: lintConfig,
     },
+    configPath,
+    resolver,
+  });
+
+  const lint = await resolveLint({
+    lintConfig,
     configPath,
     resolver,
   });
@@ -190,7 +190,7 @@ export async function resolveLint(
 
   const extendConfigs: ResolvedLintConfig[] = await Promise.all(
     lintConfig?.extends?.map(async (presetName) => {
-      if (!isAbsoluteUrl(presetName) && !['.yaml', '.yml'].includes(path.extname(presetName))) {
+      if (!isAbsoluteUrl(presetName) && !path.extname(presetName)) {
         return resolvePreset(presetName, plugins);
       }
 
