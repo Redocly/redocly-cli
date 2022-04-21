@@ -88,6 +88,7 @@ describe('resolveLint', () => {
 
   it('should resolve extends with url file config witch contains path to nested config', async () => {
     const lintConfig = {
+      // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: ['https://raw.githubusercontent.com/Redocly/openapi-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml'],
     };
 

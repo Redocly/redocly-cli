@@ -91,7 +91,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     try {
       let rootFilePath = '';
       const filePaths: string[] = [];
-      const filesToUpload = await collectFilesToUpload(entrypoint, resolvedConfig);
+      const filesToUpload = await collectFilesToUpload(entrypoint, resolvedConfig, apiNameAndVersion);
       const filesHash = hashFiles(filesToUpload.files);
 
       process.stdout.write(
@@ -186,7 +186,7 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(entrypoint: string, config: Config) {
+async function collectFilesToUpload(entrypoint: string, config: Config, apiNameAndVersion: string) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 
@@ -228,6 +228,7 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
+    // FIXME: rewrite the logic for plugins
     if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
       let pluginFiles = new Set<string>();
       for (const plugin of config.rawConfig.lint.plugins) {
@@ -237,6 +238,13 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
       }
       files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
     }
+    const extendConfigFiles = [
+      ...new Set(
+        config.rawConfig.apis[apiNameAndVersion]?.lint?.extendPaths ||
+          config.rawConfig?.lint?.extendPaths,
+      ),
+    ];
+    files.push(...extendConfigFiles.map((f) => getFileEntry(f)));
   }
   return {
     files,

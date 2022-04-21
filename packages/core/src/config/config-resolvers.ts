@@ -155,8 +155,8 @@ export async function resolveApis({
   resolver?: BaseResolver;
 }): Promise<Record<string, ResolvedApi>> {
   const { apis = {}, lint: lintConfig = {} } = rawConfig;
-  const resolvedApis: Record<string, ResolvedApi> = {};
-  for (const [apiName, apiContent] of Object.entries(apis)) {
+  let resolvedApis: Record<string, ResolvedApi> = {};
+  for (const [apiName, apiContent] of Object.entries(apis || {})) {
     const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint);
     const apiLint = await resolveLint({
       lintConfig: rawLintConfig,
@@ -165,11 +165,10 @@ export async function resolveApis({
     });
     resolvedApis[apiName] = { ...apiContent, lint: apiLint };
   }
-
   return resolvedApis;
 }
 
-export async function resolveLint(
+export async function resolveLint( 
   {
     lintConfig,
     configPath = '',
@@ -180,6 +179,8 @@ export async function resolveLint(
     resolver?: BaseResolver;
   },
   parentConfigPaths: string[] = [],
+  extendPaths: string[] = [],
+  // FIXME: add pluginPaths
 ): Promise<ResolvedLintConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
@@ -191,15 +192,15 @@ export async function resolveLint(
   const extendConfigs: ResolvedLintConfig[] = await Promise.all(
     lintConfig?.extends?.map(async (presetName) => {
       if (!isAbsoluteUrl(presetName) && !path.extname(presetName)) {
+        // The presetName is actually a preset name
         return resolvePreset(presetName, plugins);
       }
-
       const pathItem = isAbsoluteUrl(presetName)
         ? presetName
         : isAbsoluteUrl(configPath)
+        // @ts-ignore FIXME: 
         ? new URL(presetName, configPath).href
         : path.resolve(path.dirname(configPath), presetName);
-
       const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
       return await resolveLint(
         {
@@ -208,13 +209,21 @@ export async function resolveLint(
           resolver: resolver,
         },
         [...parentConfigPaths, path.resolve(configPath)],
+        [...extendPaths],
+        // FIXME: add pluginPaths
       );
     }) || [],
   );
 
   const { plugins: mergedPlugins = [], ...lint } = mergeExtends([
     ...extendConfigs,
-    { ...lintConfig, plugins, extends: undefined },
+    {
+      ...lintConfig,
+      plugins,
+      extends: undefined,
+      extendPaths: [...parentConfigPaths , path.resolve(configPath)],
+      // FIXME: add pluginPaths
+    },
   ]);
 
   return {

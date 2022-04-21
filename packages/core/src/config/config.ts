@@ -54,6 +54,9 @@ export class LintConfig {
 
   recommendedFallback: boolean;
 
+  extendPaths: string[];
+  pluginPaths: string[];
+
   constructor(public rawConfig: ResolvedLintConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
@@ -77,6 +80,9 @@ export class LintConfig {
       [OasVersion.Version3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
       [OasVersion.Version3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
     };
+
+    this.extendPaths = rawConfig.extendPaths || [];
+    this.pluginPaths = rawConfig.pluginPaths || [];
 
     const dir = this.configFile
       ? path.dirname(this.configFile)
