@@ -2247,6 +2247,7 @@ exports[`resolveLint should return the config with no recommended 1`] = `
 Object {
   "decorators": Object {},
   "doNotResolveExamples": undefined,
+  "extendPaths": Array [],
   "oas2Decorators": Object {},
   "oas2Preprocessors": Object {},
   "oas2Rules": Object {},
@@ -2256,6 +2257,7 @@ Object {
   "oas3_1Decorators": Object {},
   "oas3_1Preprocessors": Object {},
   "oas3_1Rules": Object {},
+  "pluginPaths": Array [],
   "plugins": Array [
     Object {
       "configs": Object {
@@ -2566,6 +2568,7 @@ exports[`resolveLint should return the same lintConfig when extends is empty arr
 Object {
   "decorators": Object {},
   "doNotResolveExamples": undefined,
+  "extendPaths": Array [],
   "oas2Decorators": Object {},
   "oas2Preprocessors": Object {},
   "oas2Rules": Object {},
@@ -2575,6 +2578,7 @@ Object {
   "oas3_1Decorators": Object {},
   "oas3_1Preprocessors": Object {},
   "oas3_1Rules": Object {},
+  "pluginPaths": Array [],
   "plugins": Array [
     Object {
       "configs": Object {

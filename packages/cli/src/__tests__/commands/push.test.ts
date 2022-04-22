@@ -21,7 +21,7 @@ jest.mock('../../utils');
 describe('push', () => {
   const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
 
-  beforeAll(() => {
+  beforeEach(() => {
     jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 

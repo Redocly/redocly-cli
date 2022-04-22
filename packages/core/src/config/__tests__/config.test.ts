@@ -50,103 +50,90 @@ const testConfig: Config = {
 };
 
 describe('getMergedConfig', () => {
-//   it('should merge lint defined in "apis" section the root one', () => {
-//     expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
-//       Config {
-//         "apis": Object {
-//           "test@v1": Object {
-//             "lint": Object {
-//               "extends": Array [],
-//               "rules": Object {
-//                 "operation-summary": "warn",
-//               },
-//             },
-//             "root": "resources/pets.yaml",
-//           },
-//         },
-//         "configFile": "redocly.yaml",
-//         "features.mockServer": Object {},
-//         "features.openapi": Object {},
-//         "lint": LintConfig {
-//           "_usedRules": Set {},
-//           "_usedVersions": Set {},
-//           "configFile": "redocly.yaml",
-//           "decorators": Object {
-//             "oas2": Object {},
-//             "oas3_0": Object {},
-//             "oas3_1": Object {},
-//           },
-//           "doNotResolveExamples": false,
-//           "ignore": Object {},
-//           "plugins": Array [],
-//           "preprocessors": Object {
-//             "oas2": Object {},
-//             "oas3_0": Object {},
-//             "oas3_1": Object {},
-//           },
-//           "rawConfig": Object {
-//             "decorators": Object {},
-//             "extends": Array [],
-//             "plugins": Array [],
-//             "preprocessors": Object {},
-//             "rules": Object {
-//               "no-empty-servers": "error",
-//               "operation-summary": "warn",
-//             },
-//           },
-//           "recommendedFallback": false,
-//           "rules": Object {
-//             "oas2": Object {
-//               "no-empty-servers": "error",
-//               "operation-summary": "warn",
-//             },
-//             "oas3_0": Object {
-//               "no-empty-servers": "error",
-//               "operation-summary": "warn",
-//             },
-//             "oas3_1": Object {
-//               "no-empty-servers": "error",
-//               "operation-summary": "warn",
-//             },
-//           },
-//         },
-//         "organization": "redocly-test",
-//         "rawConfig": Object {
-//           "apis": Object {
-//             "test@v1": Object {
-//               "lint": Object {
-//                 "extends": Array [],
-//                 "rules": Object {
-//                   "operation-summary": "warn",
-//                 },
-//               },
-//               "root": "resources/pets.yaml",
-//             },
-//           },
-//           "features.mockServer": Object {},
-//           "features.openapi": Object {},
-//           "lint": Object {
-//             "decorators": Object {},
-//             "extends": Array [],
-//             "plugins": Array [],
-//             "preprocessors": Object {},
-//             "rules": Object {
-//               "no-empty-servers": "error",
-//               "operation-summary": "warn",
-//             },
-//           },
-//           "organization": "redocly-test",
-//         },
-//         "region": undefined,
-//         "resolve": Object {
-//           "http": Object {
-//             "customFetch": undefined,
-//             "headers": Array [],
-//           },
-//         },
-//       }
-//     `);
-//   });
+  it('should get lint defined in "apis" section', () => {
+    expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
+      Config {
+        "apis": Object {
+          "test@v1": Object {
+            "lint": Object {
+              "rules": Object {
+                "operation-summary": "warn",
+              },
+            },
+            "root": "resources/pets.yaml",
+          },
+        },
+        "configFile": "redocly.yaml",
+        "features.mockServer": Object {},
+        "features.openapi": Object {},
+        "lint": LintConfig {
+          "_usedRules": Set {},
+          "_usedVersions": Set {},
+          "configFile": "redocly.yaml",
+          "decorators": Object {
+            "oas2": Object {},
+            "oas3_0": Object {},
+            "oas3_1": Object {},
+          },
+          "doNotResolveExamples": false,
+          "extendPaths": Array [],
+          "ignore": Object {},
+          "pluginPaths": Array [],
+          "plugins": Array [],
+          "preprocessors": Object {
+            "oas2": Object {},
+            "oas3_0": Object {},
+            "oas3_1": Object {},
+          },
+          "rawConfig": Object {
+            "rules": Object {
+              "operation-summary": "warn",
+            },
+          },
+          "recommendedFallback": false,
+          "rules": Object {
+            "oas2": Object {
+              "operation-summary": "warn",
+            },
+            "oas3_0": Object {
+              "operation-summary": "warn",
+            },
+            "oas3_1": Object {
+              "operation-summary": "warn",
+            },
+          },
+        },
+        "organization": "redocly-test",
+        "rawConfig": Object {
+          "apis": Object {
+            "test@v1": Object {
+              "lint": Object {
+                "rules": Object {
+                  "operation-summary": "warn",
+                },
+              },
+              "root": "resources/pets.yaml",
+            },
+          },
+          "features.mockServer": Object {},
+          "features.openapi": Object {},
+          "lint": Object {
+            "rules": Object {
+              "operation-summary": "warn",
+            },
+          },
+          "organization": "redocly-test",
+        },
+        "region": undefined,
+        "resolve": Object {
+          "http": Object {
+            "customFetch": undefined,
+            "headers": Array [],
+          },
+        },
+      }
+    `);
+  });
   it('should take into account a config file', () => {
     const result = getMergedConfig(testConfig, 'test@v1');
     expect(result.configFile).toEqual('redocly.yaml');
@@ -181,7 +168,9 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "doNotResolveExamples": false,
+          "extendPaths": Array [],
           "ignore": Object {},
+          "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
             "oas2": Object {},

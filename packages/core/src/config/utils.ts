@@ -51,7 +51,6 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
 }
 
 export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
-  //@ts-ignore
   const result: Omit<ResolvedLintConfig, RulesFields> &
     Required<Pick<ResolvedLintConfig, RulesFields>> = {
     rules: {},
@@ -68,11 +67,13 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
     oas2Decorators: {},
     oas3_0Decorators: {},
     oas3_1Decorators: {},
+
     plugins: [],
+    pluginPaths: [],
+    extendPaths: [],
   };
 
   for (let rulesConf of rulesConfList) {
-    // @ts-ignore
     if (rulesConf.extends) {
       throw new Error(
         `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
@@ -106,9 +107,10 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
     assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
-    if (rulesConf.plugins) {
-      result.plugins?.push(...rulesConf.plugins);
-    }
+
+    result.plugins!.push(...(rulesConf.plugins || []));
+    result.pluginPaths!.push(...(rulesConf.pluginPaths || []));
+    result.extendPaths!.push(...new Set(rulesConf.extendPaths));
   }
 
   return result;
