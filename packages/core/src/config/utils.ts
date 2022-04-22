@@ -67,8 +67,9 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
     oas2Decorators: {},
     oas3_0Decorators: {},
     oas3_1Decorators: {},
-    plugins: [],
 
+    plugins: [],
+    pluginPaths: [],
     extendPaths: [],
   };
 
@@ -106,11 +107,10 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
     assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
-    if (rulesConf.plugins) {
-      result.plugins?.push(...rulesConf.plugins);
-    }
 
-    result.extendPaths?.push(...new Set(rulesConf.extendPaths || []));
+    result.plugins!.push(...(rulesConf.plugins || []));
+    result.pluginPaths!.push(...(rulesConf.pluginPaths || []));
+    result.extendPaths!.push(...new Set(rulesConf.extendPaths));
   }
 
   return result;

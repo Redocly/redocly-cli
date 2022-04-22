@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { blue, red } from 'colorette';
+import { URL } from 'url';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
@@ -11,9 +12,8 @@ import {
   prefixRules,
   transformConfig,
 } from './utils';
-
 import type { LintRawConfig, Plugin, RawConfig, ResolvedApi, ResolvedLintConfig } from './types';
-import { isNotString, notUndefined, parseYaml } from '../utils';
+import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
@@ -168,7 +168,7 @@ export async function resolveApis({
   return resolvedApis;
 }
 
-export async function resolveLint( 
+export async function resolveLint(
   {
     lintConfig,
     configPath = '',
@@ -180,7 +180,6 @@ export async function resolveLint(
   },
   parentConfigPaths: string[] = [],
   extendPaths: string[] = [],
-  // FIXME: add pluginPaths
 ): Promise<ResolvedLintConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
@@ -188,19 +187,24 @@ export async function resolveLint(
   const plugins = getUniquePlugins(
     resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath),
   );
+  const pluginPaths = lintConfig?.plugins
+    ?.filter(isString)
+    .map((p) => path.resolve(path.dirname(configPath), p));
+
+  const resolvedConfigPath = isAbsoluteUrl(configPath)
+    ? configPath
+    : configPath && path.resolve(configPath);
 
   const extendConfigs: ResolvedLintConfig[] = await Promise.all(
-    lintConfig?.extends?.map(async (presetName) => {
-      if (!isAbsoluteUrl(presetName) && !path.extname(presetName)) {
-        // The presetName is actually a preset name
-        return resolvePreset(presetName, plugins);
+    lintConfig?.extends?.map(async (presetItem) => {
+      if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
+        return resolvePreset(presetItem, plugins);
       }
-      const pathItem = isAbsoluteUrl(presetName)
-        ? presetName
+      const pathItem = isAbsoluteUrl(presetItem)
+        ? presetItem
         : isAbsoluteUrl(configPath)
-        // @ts-ignore FIXME: 
-        ? new URL(presetName, configPath).href
-        : path.resolve(path.dirname(configPath), presetName);
+        ? new URL(presetItem, configPath).href
+        : path.resolve(path.dirname(configPath), presetItem);
       const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
       return await resolveLint(
         {
@@ -208,9 +212,8 @@ export async function resolveLint(
           configPath: pathItem,
           resolver: resolver,
         },
-        [...parentConfigPaths, path.resolve(configPath)],
-        [...extendPaths],
-        // FIXME: add pluginPaths
+        [...parentConfigPaths, resolvedConfigPath],
+        extendPaths,
       );
     }) || [],
   );
@@ -221,13 +224,14 @@ export async function resolveLint(
       ...lintConfig,
       plugins,
       extends: undefined,
-      extendPaths: [...parentConfigPaths , path.resolve(configPath)],
-      // FIXME: add pluginPaths
+      extendPaths: [...parentConfigPaths, resolvedConfigPath],
+      pluginPaths,
     },
   ]);
 
   return {
     ...lint,
+    extendPaths: lint.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
     recommendedFallback: lintConfig?.recommendedFallback,
     doNotResolveExamples: lintConfig?.doNotResolveExamples,

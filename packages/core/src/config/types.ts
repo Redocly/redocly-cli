@@ -54,7 +54,6 @@ export type ResolvedLintConfig = PluginLintConfig & {
   plugins?: Plugin[];
   recommendedFallback?: boolean;
   extends?: void | never;
-  // FIXME: should it be required?
   extendPaths?: string[];
   pluginPaths?: string[];
 };

@@ -18,6 +18,9 @@ const recommendedLintPreset = resolveLint({
   lintConfig: { ...baseLintConfig, extends: ['recommended'] },
 });
 
+const removeAbsolutePath = (item: string) =>
+  item.match(/^.*\/packages\/core\/src\/config\/__tests__\/fixtures\/(.*)$/)![1];
+
 describe('resolveLint', () => {
   it('should return the config with no recommended', async () => {
     expect(await resolveLint({ lintConfig: baseLintConfig })).toMatchSnapshot();
@@ -49,15 +52,25 @@ describe('resolveLint', () => {
       extends: ['local-config.yaml'],
     };
 
-    const { plugins, ...result } = await resolveLint({
+    const { plugins, ...lint } = await resolveLint({
       lintConfig: config,
       configPath,
     });
 
-    expect(result).toMatchSnapshot();
-    expect(result?.rules?.['operation-2xx-response']).toEqual('warn');
+    expect(lint?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
+
+    expect(lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/local-config.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(lint.pluginPaths!.map(removeAbsolutePath)).toEqual(['resolve-config/plugin.js']);
+
+    delete lint.extendPaths;
+    delete lint.pluginPaths;
+    expect(lint).toMatchSnapshot();
   });
 
   // TODO: fix circular test
@@ -66,41 +79,69 @@ describe('resolveLint', () => {
       ...baseLintConfig,
       extends: ['local-config-with-circular.yaml'],
     };
-    expect(() => {resolveLint({ lintConfig: config, configPath })}).toThrow('Circular dependency in config file');
+    expect(() => {
+      resolveLint({ lintConfig: config, configPath });
+    }).toThrow('Circular dependency in config file');
   });
 
   it('should resolve extends with local file config witch contains path to nested config', async () => {
     const lintConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const { plugins, ...result } = await resolveLint({
+    const { plugins, ...lint } = await resolveLint({
       lintConfig,
       configPath,
     });
 
-    expect(result).toMatchSnapshot();
-    expect(result?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
-    expect(result?.rules?.['operation-4xx-response']).toEqual('off');
-    expect(result?.rules?.['operation-2xx-response']).toEqual('error');
+    expect(lint?.rules?.['no-invalid-media-type-examples']).toEqual('warn');
+    expect(lint?.rules?.['operation-4xx-response']).toEqual('off');
+    expect(lint?.rules?.['operation-2xx-response']).toEqual('error');
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(3);
+
+    expect(lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/local-config-with-file.yaml',
+      'resolve-config/api/nested-config.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(lint.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/api/plugin.js',
+      'resolve-config/plugin.js',
+      'resolve-config/api/plugin.js',
+    ]);
+
+    delete lint.extendPaths;
+    delete lint.pluginPaths;
+    expect(lint).toMatchSnapshot();
   });
 
   it('should resolve extends with url file config witch contains path to nested config', async () => {
     const lintConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
-      extends: ['https://raw.githubusercontent.com/Redocly/openapi-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml'],
+      extends: [
+        'https://raw.githubusercontent.com/Redocly/openapi-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
+      ],
     };
 
-    const { plugins, ...result } = await resolveLint({
+    const { plugins, ...lint } = await resolveLint({
       lintConfig,
       configPath,
     });
 
-    expect(result).toMatchSnapshot();
-    expect(result?.rules?.['operation-4xx-response']).toEqual('error');
-    expect(result?.rules?.['operation-2xx-response']).toEqual('error');
-  })
+    expect(lint?.rules?.['operation-4xx-response']).toEqual('error');
+    expect(lint?.rules?.['operation-2xx-response']).toEqual('error');
+
+    expect(lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(lint.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+
+    delete lint.extendPaths;
+    delete lint.pluginPaths;
+    expect(lint).toMatchSnapshot();
+  });
 });
 
 describe('resolveApis', () => {
@@ -116,8 +157,7 @@ describe('resolveApis', () => {
         extends: ['minimal'],
       },
     };
-
-    const apisResult = await resolveApis({ rawConfig, configPath });
+    const apisResult = await resolveApis({ rawConfig });
     expect(apisResult['petstore'].lint).toEqual(await minimalLintPreset);
   });
 
@@ -133,6 +173,14 @@ describe('resolveApis', () => {
     };
 
     const apisResult = await resolveApis({ rawConfig, configPath });
+
+    expect(apisResult['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apisResult['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+
+    delete apisResult['petstore'].lint.extendPaths;
+    delete apisResult['petstore'].lint.pluginPaths;
     expect(apisResult['petstore'].lint).toMatchSnapshot();
   });
 
@@ -161,6 +209,14 @@ describe('resolveApis', () => {
     expect(apisResult['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
     //@ts-ignore
     expect(apisResult['petstore'].lint.plugins.length).toEqual(1);
+
+    expect(apisResult['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apisResult['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+
+    delete apisResult['petstore'].lint.extendPaths;
+    delete apisResult['petstore'].lint.pluginPaths;
     expect(apisResult).toMatchSnapshot();
   });
 
@@ -192,6 +248,18 @@ describe('resolveApis', () => {
     expect(apisResult['petstore'].lint.rules?.['local/operation-id-not-test']).toEqual('error');
     //@ts-ignore
     expect(apisResult['petstore'].lint.plugins.length).toEqual(2);
+
+    expect(apisResult['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/local-config.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apisResult['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin.js',
+    ]);
+
+    delete apisResult['petstore'].lint.extendPaths;
+    delete apisResult['petstore'].lint.pluginPaths;
     expect(apisResult).toMatchSnapshot();
   });
 });
@@ -222,6 +290,14 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].lint.rules?.['operation-4xx-response']).toEqual('error');
     //@ts-ignore
     expect(apis['petstore'].lint.plugins.length).toEqual(1);
+
+    expect(apis['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apis['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+
+    delete apis['petstore'].lint.extendPaths;
+    delete apis['petstore'].lint.pluginPaths;
     expect(apis).toMatchSnapshot();
   });
 
@@ -253,6 +329,18 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].lint.rules?.['operation-description']).toEqual('error'); // from extends file config
     //@ts-ignore
     expect(apis['petstore'].lint.plugins.length).toEqual(2);
+
+    expect(apis['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/local-config.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apis['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin.js',
+    ]);
+
+    delete apis['petstore'].lint.extendPaths;
+    delete apis['petstore'].lint.pluginPaths;
     expect(apis).toMatchSnapshot();
   });
 
@@ -284,6 +372,18 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].lint.rules?.['operation-description']).toEqual('error'); // from extends file config
     //@ts-ignore
     expect(apis['petstore'].lint.plugins.length).toEqual(2);
+
+    expect(apis['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/.redocly.yaml',
+      'resolve-config/local-config.yaml',
+      'resolve-config/.redocly.yaml',
+    ]);
+    expect(apis['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([
+      'resolve-config/plugin.js',
+    ]);
+
+    delete apis['petstore'].lint.extendPaths;
+    delete apis['petstore'].lint.pluginPaths;
     expect(apis).toMatchSnapshot();
   });
 });
