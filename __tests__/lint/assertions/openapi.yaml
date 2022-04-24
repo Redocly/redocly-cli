@@ -6,7 +6,8 @@ info:
     name: test licence
     url: http://example.xyz
   title: Example OpenAPI 3 definition.
-  description: Example description
+  description:
+    $ref: ./description.md
   version: '1.0'
   contact:
     name: qa

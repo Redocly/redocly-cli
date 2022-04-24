@@ -1,5 +1,14 @@
 # `assertions`
 
+:::warning Warning
+
+The assertions syntax is [under construction](https://github.com/Redocly/openapi-cli/issues/647).
+Follow or comment in the issue for more details.
+
+:::
+
+<!--
+
 Configure assertions to enforce your API design standards without coding custom rules.
 
 Define `assertions` in the rules map of the `lint` section in the Redocly configuration file.
@@ -23,7 +32,7 @@ Property | Type | Description
 -- | -- | --
 subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `context` for more control.
 property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
-context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example). 
+context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example).
 message | `string` | Optional problem message displayed if the assertion is false. If omitted, the default message "The assertion doesn't meet required conditions" will be displayed.
 suggest | [`string`] | Optional list of suggestions to display if the problem occurs.
 severity | `string` | Optional field to configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
@@ -125,7 +134,7 @@ lint:
     assertions:
       - subject: PathItem
         message: Every path item must have a GET operation.
-        required: 
+        required:
           - get
 ```
 
@@ -237,7 +246,7 @@ lint:
         casing: PascalCase
 ```
 
-Casing supports the following styles: 
+Casing supports the following styles:
 - camelCase
 - COBOL-CASE
 - flatcase
@@ -362,7 +371,7 @@ lint:
       - subject: Operation
         property: x-code-samples
         message: x-code-samples is deprecated
-        suggest: 
+        suggest:
           - x-codeSamples instead of x-code-samples
         severity: error
         undefined: true
@@ -474,3 +483,5 @@ List of types for OpenAPI 3.0 and 3.1:
 - SecurityScheme
 - XCodeSample
 - WebhooksMap
+
+-->
