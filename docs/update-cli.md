@@ -1,19 +1,26 @@
 # Update OpenAPI CLI
 
-If you've already installed OpenAPI CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionalities and bug fixes.
+If you've already installed OpenAPI CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionality and bug fixes. Depending on how you originally installed OpenAPI CLI, there are two ways to update it.
 
 :::success Tip
-Ensure you have the latest version of npm before you begin.
+Before you begin, ensure that you have the latest version of npm installed.
 :::
 
-Navigate to your local `openapi-starter` folder and open `package.json` in any text editor.
+## How to update your openapi-starter installation
 
-Find the line that contains `"@redocly/openapi-cli":` followed by the version number. Change the version number to the latest one in the Changelog, save the changes and close `package.json`.
+If you installed OpenAPI CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
 
-To install the latest OpenAPI CLI version, run this command in the root of your local `openapi-starter` folder:
+1. Navigate to and open `package.json` in any text editor.
+2. Find the line that contains `"@redocly/openapi-cli":` followed by the version number.
+3. Change the version number to the latest one in the [Changelog](https://redocly.com/docs/cli/changelog/).
+4. Save the changes then close `package.json`.
+
+## How to update your global installation
+
+If you [installed OpenAPI CLI globally](./docs/installation.md), run this command:
 
 ```shell Command
 npm i -g @redocly/openapi-cli@latest
 ```
 
-Check your version by running any command with the `--version` option, such as `openapi bundle --version` or `openapi lint --version`.
+No matter how you update OpenAPI CLI, you can check your version by running any command with the `--version` option, such as `openapi bundle --version` or `openapi lint --version`.
