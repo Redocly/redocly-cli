@@ -1,6 +1,6 @@
 # Update OpenAPI CLI
 
-If you've already installed OpenAPI CLI, you'll want to keep it as shiny and up to date as possible. Staying on top of versions also ensures that you get the latest functionality and bug fixes, as well as the most recent Redocly configuration file. A must-have!
+If you've already installed OpenAPI CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionalities and bug fixes.
 
 :::success Tip
 Ensure you have the latest version of npm before you begin.
