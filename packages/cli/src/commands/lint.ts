@@ -55,7 +55,7 @@ export async function handleLint(
             'recommended',
           )} configuration by default.\n${red(
             'Warning! This default behavior is going to be deprecated soon.',
-          )}.\n\n`,
+          )}\n\n`,
         );
       }
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));

@@ -2,10 +2,8 @@ import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
-
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
-
 import type { HttpResolveConfig } from './config';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
@@ -182,6 +180,10 @@ export function isNotString<T>(value: string | T): value is T {
   return !isString(value);
 }
 
-export function mergeArrays<T>(a: T[] | undefined, b: T[] | undefined) {
-  return [...a || [], ...b || []]
+export function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
+  for (let k of Object.keys(obj)) {
+    if (target.hasOwnProperty(k)) {
+      target[k] = obj[k];
+    }
+  }
 }

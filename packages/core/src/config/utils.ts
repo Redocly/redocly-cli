@@ -1,4 +1,5 @@
 import { green, yellow } from 'colorette';
+import { assignExisting } from '../utils';
 import { Config } from './config';
 
 import type {
@@ -18,14 +19,6 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
     return { pluginId, configName };
   } else {
     return { pluginId: '', configName: presetName };
-  }
-}
-
-export function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
-  for (let k of Object.keys(obj)) {
-    if (target.hasOwnProperty(k)) {
-      target[k] = obj[k];
-    }
   }
 }
 
@@ -117,13 +110,31 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
 }
 
 export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+  const extendPaths = [
+    ...Object.values(config.apis).map((api) => api?.lint?.extendPaths),
+    config.rawConfig?.lint?.extendPaths,
+  ]
+    .flat()
+    .filter(Boolean) as string[];
+
+  const pluginPaths = [
+    ...Object.values(config.apis).map((api) => api?.lint?.pluginPaths),
+    config.rawConfig?.lint?.pluginPaths,
+  ]
+    .flat()
+    .filter(Boolean) as string[];
+
   return entrypointAlias
     ? new Config(
         {
           ...config.rawConfig,
-          lint: config.apis[entrypointAlias]
-            ? config.apis[entrypointAlias]?.lint
-            : config.rawConfig.lint,
+          lint: {
+            ...(config.apis[entrypointAlias]
+              ? config.apis[entrypointAlias].lint
+              : config.rawConfig.lint),
+            extendPaths,
+            pluginPaths,
+          },
           'features.openapi': {
             ...config['features.openapi'],
             ...config.apis[entrypointAlias]?.['features.openapi'],
@@ -181,8 +192,17 @@ export function getResolveConfig(resolve?: RawResolveConfig): ResolveConfig {
 }
 
 export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
-  return plugins.reduce<Plugin[]>(
-    (acc, item) => (acc.some(({ id }) => id === item.id) ? acc : [...acc, item]),
-    [],
-  );
+  const seen = new Set();
+  const results = [];
+  for (const p of plugins) {
+    if (!seen.has(p.id)) {
+      results.push(p);
+      seen.add(p.id);
+    } else {
+      process.stderr.write(
+        `Duplicate plugin id "${yellow(p.id)}".`,
+      );
+    }
+  }
+  return results;
 }

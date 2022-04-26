@@ -70,11 +70,14 @@ export function resolvePlugins(
 
   return plugins
     .map((p) => {
+      if (isString(p) && isAbsoluteUrl(p)) {
+        throw new Error(red(`We don't support remote plugins yet.`));
+      }
+
       // TODO: resolve npm packages similar to eslint
-      const pluginModule =
-        typeof p === 'string'
-          ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
-          : p;
+      const pluginModule = isString(p)
+        ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
+        : p;
 
       const id = pluginModule.id;
       if (typeof id !== 'string') {

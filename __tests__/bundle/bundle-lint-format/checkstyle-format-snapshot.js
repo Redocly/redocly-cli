@@ -8,9 +8,6 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: chec
 </file>
 </checkstyle>
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon..
-
 ❌ Validation failed with 1 error.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 

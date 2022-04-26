@@ -65,7 +65,7 @@ export async function handleBundle(
               'recommended',
             )} configuration by default.\n${red(
               'Warning! This default behavior is going to be deprecated soon.',
-            )}.\n\n`,
+            )}\n\n`,
           );
         }
         const results = await lint({

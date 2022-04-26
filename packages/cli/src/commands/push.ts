@@ -186,7 +186,7 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-export async function collectFilesToUpload(entrypoint: string, config: Config) {
+async function collectFilesToUpload(entrypoint: string, config: Config) {
   let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const [{ path: entrypointPath }] = await getFallbackEntryPointsOrExit([entrypoint], config);
 

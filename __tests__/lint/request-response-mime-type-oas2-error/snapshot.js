@@ -2,9 +2,6 @@
 
 exports[`E2E lint request-response-mime-type-oas2-error 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon..
-
 validating /openapi.yaml...
 [1] openapi.yaml:1:1 at #/1
 

@@ -3,3 +3,7 @@ apis:
     root: ./foo.yaml
   bar:
     root: ./bar.yaml
+
+lint:
+  extends: 
+    - recommended

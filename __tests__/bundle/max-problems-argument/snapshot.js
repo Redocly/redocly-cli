@@ -236,9 +236,6 @@ components:
       items:
         $ref: '#/components/schemas/Pet'
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon..
-
 foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 
@@ -247,9 +244,6 @@ run \`openapi lint --generate-ignore-file\` to add all problems to the ignore fi
 
 bundling ./foo.yaml...
 📦 Created a bundle for ./foo.yaml at stdout <test>ms.
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon..
-
 bar.yaml:
   14:7  error    spec  Property \`summay\` is not expected here.
 

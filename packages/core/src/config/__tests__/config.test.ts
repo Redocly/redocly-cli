@@ -86,6 +86,8 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "rawConfig": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "rules": Object {
               "operation-summary": "warn",
             },
@@ -118,6 +120,8 @@ describe('getMergedConfig', () => {
           "features.mockServer": Object {},
           "features.openapi": Object {},
           "lint": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "rules": Object {
               "operation-summary": "warn",
             },
@@ -178,6 +182,8 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "rawConfig": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "plugins": Array [],
             "rules": Object {
               "no-empty-servers": "error",
@@ -215,6 +221,8 @@ describe('getMergedConfig', () => {
           "features.mockServer": Object {},
           "features.openapi": Object {},
           "lint": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "plugins": Array [],
             "rules": Object {
               "no-empty-servers": "error",
