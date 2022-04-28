@@ -687,6 +687,43 @@ function transformApiDefinitionsToApis(
   return apis;
 }
 
+/**
+ * Collects all assertion rules and puts them in the assertions array
+ */
+function groupAssertionRules(
+  rules: Record<string, RuleConfig> | undefined
+): Record<string, RuleConfig> | undefined {
+
+  if (!rules) {
+    return rules;
+  }
+
+  // Create a new record to avoid mutating original
+  const transformedRules: Record<string, RuleConfig> = {};
+
+  // Collect assertion rules
+    const assertions = []
+    for (let ruleKey of Object.keys(rules)) {
+      if (ruleKey.startsWith('assert/') && typeof rules[ruleKey] === 'object') {
+        const assertion = rules[ruleKey] as Record<string, any>
+        assertions.push({
+          ...assertion,
+          assertionId: ruleKey.replace('assert/', '')
+        })
+      
+      } else {
+        // If it's not an assertion, keep it as is
+        transformedRules[ruleKey] = rules[ruleKey];
+      }
+    }
+
+    if (assertions.length > 0) {
+      transformedRules.assertions = assertions
+    }
+  
+  return transformedRules
+}
+
 export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
   if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions) {
     throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
@@ -697,8 +734,7 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   ) {
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
-  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig as DeprecatedRawConfig &
-    RawConfig;
+  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
   if (apiDefinitions) {
     process.stderr.write(
       `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
@@ -713,28 +749,14 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
       )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
     );
   }
-
-  // Collect assertion rules
-  if (lint?.rules) {
-    const assertions = [];
-    for (let ruleKey of Object.keys(lint.rules)) {
-      if (ruleKey.startsWith('assert/') && typeof lint.rules[ruleKey] === 'object') {
-        const assertion = lint.rules[ruleKey] as Record<string, any>;
-        assertions.push({
-          ...assertion,
-          assertionId: ruleKey.replace('assert/', ''),
-        });
-        delete lint.rules[ruleKey];
-      }
-    }
-
-    lint.rules.assertions = assertions;
-  }
-
+  
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
-    lint,
+    lint: lint && {
+      ...lint,
+      rules: groupAssertionRules(lint.rules)
+    },
     ...rest,
   };
 }
