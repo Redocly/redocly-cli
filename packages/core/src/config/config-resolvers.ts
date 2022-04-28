@@ -160,6 +160,11 @@ export async function resolveApis({
   const { apis = {}, lint: lintConfig = {} } = rawConfig;
   let resolvedApis: Record<string, ResolvedApi> = {};
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
+    if (apiContent.lint?.extends?.some(isNotString)) {
+      throw new Error(
+        `Error configuration format not detected in extends value must contain strings`,
+      );
+    }
     const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint);
     const apiLint = await resolveLint({
       lintConfig: rawLintConfig,
