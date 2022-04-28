@@ -697,7 +697,8 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   ) {
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
-  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
+  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig as DeprecatedRawConfig &
+    RawConfig;
   if (apiDefinitions) {
     process.stderr.write(
       `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
@@ -715,22 +716,21 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
 
   // Collect assertion rules
   if (lint?.rules) {
-    const assertions = []
+    const assertions = [];
     for (let ruleKey of Object.keys(lint.rules)) {
       if (ruleKey.startsWith('assert/') && typeof lint.rules[ruleKey] === 'object') {
-        const assertion = lint.rules[ruleKey] as Record<string, any>
+        const assertion = lint.rules[ruleKey] as Record<string, any>;
         assertions.push({
           ...assertion,
-          assertionId: ruleKey.replace('assert/', '')
-        })
-        delete lint.rules[ruleKey]
+          assertionId: ruleKey.replace('assert/', ''),
+        });
+        delete lint.rules[ruleKey];
       }
     }
 
-    lint.rules.assertions = assertions
+    lint.rules.assertions = assertions;
   }
 
-  
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
