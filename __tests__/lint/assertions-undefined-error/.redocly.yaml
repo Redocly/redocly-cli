@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary should be undefined
-        undefined: true
+    assert/summary-undefined:
+      subject: Operation
+      property: summary
+      message: Operation summary should be undefined
+      undefined: true
   extends: []

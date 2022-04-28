@@ -4,16 +4,17 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - context:
-        - type: Response
-          excludeParentKeys: ['200']
-        subject: Response
-        property: content
-        message: Response content should be defined
-        defined: true
-      - subject: Operation
-        property: security
-        message: Operation security should be defined
-        defined: true
+    assert/response-content-defined:
+      context:
+      - type: Response
+        excludeParentKeys: ['200']
+      subject: Response
+      property: content
+      message: Response content should be defined
+      defined: true
+    assert/operation-security:
+      subject: Operation
+      property: security
+      message: Operation security should be defined
+      defined: true
   extends: []
