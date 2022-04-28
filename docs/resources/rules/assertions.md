@@ -11,12 +11,15 @@ Follow or comment in the issue for more details.
 
 Configure assertions to enforce your API design standards without coding custom rules.
 
-Define `assertions` in the rules map of the `lint` section in the Redocly configuration file.
+Define assertions in the `rules` map of the `lint` section in the Redocly configuration file.
 
 ```yaml
 lint:
   rules:
-    assertions: ...
+    assert/assertion-name:
+      ...
+    assert/one-more-assertion-name:
+      ...
 ```
 
 An assertion describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
@@ -24,7 +27,7 @@ An assertion describes the contents that the linter expects to find in your API 
 
 Property | Type | Description
 -- | -- | --
-assertions | [[Assertion object]](#assertion-object) | A list of assertions to enforce your custom API design standards. Add or edit your assertions in the configuration file. The `assertions` rule is composed of a list of `assertion` objects. This rule may result in more than one problem message, as you may define more than one assertion. More than one assertion may be defined in the list, and any assertion may have multiple asserts.
+assert/my-assertion-name | [Assertion object](#assertion-object) | An assertion definition to enforce your custom API design standards. Add or edit your assertions in the configuration file. The assertion is a rule that starts with a `assert/` prefix followed by a unique assertion rule name. Assertion name is displayed in the lint log if the assertion fails. More than one assertion may be defined, and any assertion may have multiple asserts.
 
 ## Assertion object
 
@@ -36,7 +39,6 @@ context | [Context object](#context-object) | The context influences evaluation 
 message | `string` | Optional problem message displayed if the assertion is false. If omitted, the default message "The assertion doesn't meet required conditions" will be displayed.
 suggest | [`string`] | Optional list of suggestions to display if the problem occurs.
 severity | `string` | Optional field to configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
-assertionId | `string` | ID displayed in the lint log if the assertion fails. Useful for troubleshooting and identifying the assertion.
 enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
 pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
@@ -79,36 +81,39 @@ The following example shows how to configure those assertions:
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Tag
-        property: description
-        message: Tag description must be at least 30 characters and end with a full stop.
-        severity: error
-        defined: true
-        minLength: 30
-        pattern: /\.$/
-      - subject: Operation
-        property: description
-        message: Operation description must be at least 30 characters and end with a full stop.
-        severity: error
-        defined: true
-        minLength: 30
-        pattern: /\.$/
-      - subject: Info
-        property: description
-        message: Info description must be at least 30 characters and end with a full stop.
-        severity: error
-        defined: true
-        minLength: 30
-        pattern: /\.$/
-      - subject: Operation
-        property: summary
-        message: Operation summary must be between 20 and 60 characters and not end with a full stop.
-        severity: error
-        defined: true
-        minLength: 20
-        maxLength: 60
-        pattern: /[^\.]$/
+    assert/tag-description:
+      subject: Tag
+      property: description
+      message: Tag description must be at least 30 characters and end with a full stop.
+      severity: error
+      defined: true
+      minLength: 30
+      pattern: /\.$/
+    assert/operation-description:
+      subject: Operation
+      property: description
+      message: Operation description must be at least 30 characters and end with a full stop.
+      severity: error
+      defined: true
+      minLength: 30
+      pattern: /\.$/
+    assert/info-description:
+      subject: Info
+      property: description
+      message: Info description must be at least 30 characters and end with a full stop.
+      severity: error
+      defined: true
+      minLength: 30
+      pattern: /\.$/
+    assert/operation-summary:
+      subject: Operation
+      property: summary
+      message: Operation summary must be between 20 and 60 characters and not end with a full stop.
+      severity: error
+      defined: true
+      minLength: 20
+      maxLength: 60
+      pattern: /[^\.]$/
 ```
 
 ### `property` example
@@ -118,11 +123,11 @@ The following example asserts that every path item has a GET operation defined.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: PathItem
-        property: get
-        message: Every path item must have a GET operation.
-        defined: true
+    assert/path-item-get-operation-defined:
+      subject: PathItem
+      property: get
+      message: Every path item must have a GET operation.
+      defined: true
 ```
 
 A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
@@ -131,11 +136,11 @@ Notice we don't need to include `property` in this approach.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: PathItem
-        message: Every path item must have a GET operation.
-        required:
-          - get
+    assert/path-item-operation-required:
+      subject: PathItem
+      message: Every path item must have a GET operation.
+      required:
+        - get
 ```
 
 The following example asserts that Tags have both name and description defined.
@@ -143,13 +148,13 @@ The following example asserts that Tags have both name and description defined.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Tag
-        property:
-          - name
-          - description
-        message: Every tag must have a name and description.
-        defined: true
+    assert/tag-name-and-desc-defined:
+      subject: Tag
+      property:
+        - name
+        - description
+      message: Every tag must have a name and description.
+      defined: true
 ```
 
 Another way to compose that rule is to require the subject keys:
@@ -157,12 +162,12 @@ Another way to compose that rule is to require the subject keys:
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Tag
-        message: Every tag must have a name and description.
-        required:
-          - name
-          - description
+    assert/tag-name-and-desc-required:
+      subject: Tag
+      message: Every tag must have a name and description.
+      required:
+        - name
+        - description
 ```
 
 ### `context` example
@@ -174,14 +179,14 @@ Without the `context`, the assertion would evaluate every MediaTypeMap including
 To restrict the evaluation, use the `context` feature to limit what will be evaluated.
 
 ```yaml
-assertions:
-  - context:
-    - type: Operation
-      matchParentKeys: [put]
-    - type: Response
-      matchParentKeys: ['201', '200']
-    subject: MediaTypeMap
-    disallowed: ['application/pdf']
+assert/no-pdf-in-ok-response:
+  context:
+  - type: Operation
+    matchParentKeys: [put]
+  - type: Response
+    matchParentKeys: ['201', '200']
+  subject: MediaTypeMap
+  disallowed: ['application/pdf']
 ```
 
 ### `enum` example
@@ -191,12 +196,12 @@ The following example asserts that only `application/json` can be used as a key 
 ```yaml keys
 lint:
   rules:
-    assertions:
-      - subject: MediaTypeMap
-        message: Only application/json can be used
-        severity: error
-        enum:
-          - application/json
+    assert/media-type-map-application-json:
+      subject: MediaTypeMap
+      message: Only application/json can be used
+      severity: error
+      enum:
+        - application/json
 ```
 
 The following example asserts that the operation summary must match one of the listed enums.
@@ -204,17 +209,17 @@ The following example asserts that the operation summary must match one of the l
 ```yaml values
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Summary must be one of the predefined values
-        suggest:
-          - change to 'My resource'
-          - change to 'My collection'
-        severity: error
-        enum:
-          - My resource
-          - My collection
+    assert/operation-summary-match:
+      subject: Operation
+      property: summary
+      message: Summary must be one of the predefined values
+      suggest:
+        - change to 'My resource'
+        - change to 'My collection'
+      severity: error
+      enum:
+        - My resource
+        - My collection
 ```
 
 ### `pattern` example
@@ -224,12 +229,12 @@ The following example asserts that the operation summary contains "test".
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Summary should match a regex
-        severity: error
-        pattern: /test/
+    assert/operation-summary-contains-test:
+      subject: Operation
+      property: summary
+      message: Summary should match a regex
+      severity: error
+      pattern: /test/
 ```
 
 ### `casing` example
@@ -239,11 +244,11 @@ The following example asserts the casing style is `PascalCase` for NamedExamples
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: NamedExamples
-        message: NamedExamples key must be in PascalCase
-        severity: error
-        casing: PascalCase
+    assert/named-examples-pascal-case:
+      subject: NamedExamples
+      message: NamedExamples key must be in PascalCase
+      severity: error
+      casing: PascalCase
 ```
 
 Casing supports the following styles:
@@ -264,13 +269,13 @@ This assertion evaluates only property keys for the node, but not property value
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        message: "Operation must not define both properties together: description and externalDocs"
-        severity: error
-        mutuallyExclusive:
-          - description
-          - externalDocs
+    assert/operation-no-both-description-and-external-docs:
+      subject: Operation
+      message: "Operation must not define both properties together: description and externalDocs"
+      severity: error
+      mutuallyExclusive:
+        - description
+        - externalDocs
 ```
 
 ### `mutuallyRequired` example
@@ -281,13 +286,13 @@ This assertion evaluates only property keys for the node, but not property value
 ```yaml Schema example
 lint:
   rules:
-    assertions:
-      - subject: SchemaProperties
-        message: The created_at and updated_at properties are mutually required
-        severity: error
-        mutuallyRequired:
-          - created_at
-          - updated_at
+    assert/schema-properties-both-created-at-and-updated-at:
+      subject: SchemaProperties
+      message: The created_at and updated_at properties are mutually required
+      severity: error
+      mutuallyRequired:
+        - created_at
+        - updated_at
 ```
 
 The following example asserts that when `PUT` requests have either `200` or `201` defined, both `200` and `201` responses must be defined.
@@ -295,17 +300,17 @@ The following example asserts that when `PUT` requests have either `200` or `201
 ```yaml Response example
 lint:
   rules:
-    assertions:
-      - subject: ResponsesMap
-        context:
-          - type: Operation
-            matchParentKeys:
-              - put
-        message: Must mutually define 200 and 201 responses for PUT requests.
-        severity: error
-        mutuallyRequired:
-          - '200'
-          - '201'
+    assert/put-200-and-201:
+      subject: ResponsesMap
+      context:
+        - type: Operation
+          matchParentKeys:
+            - put
+      message: Must mutually define 200 and 201 responses for PUT requests.
+      severity: error
+      mutuallyRequired:
+        - '200'
+        - '201'
 ```
 
 ### `required` example
@@ -316,17 +321,17 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 ```yaml Response example
 lint:
   rules:
-    assertions:
-      - subject: ResponseMap
-        context:
-          - type: Operation
-            matchParentKeys:
-              - put
-        message: Must define 200 and 201 responses for PUT requests.
-        severity: error
-        required:
-          - '200'
-          - '201'
+    assert/put-200-and-201:
+      subject: ResponseMap
+      context:
+        - type: Operation
+          matchParentKeys:
+            - put
+      message: Must define 200 and 201 responses for PUT requests.
+      severity: error
+      required:
+        - '200'
+        - '201'
 ```
 
 ### `disallowed` example
@@ -336,13 +341,13 @@ The following example asserts that `x-code-samples` and `x-internal` are not def
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        message: x-code-samples and x-internal must not be defined
-        severity: error
-        disallowed:
-          - x-code-samples
-          - x-internal
+    assert/no-x-code-samples-and-x-internal:
+      subject: Operation
+      message: x-code-samples and x-internal must not be defined
+      severity: error
+      disallowed:
+        - x-code-samples
+        - x-internal
 ```
 
 ### `defined` example
@@ -352,12 +357,12 @@ The following example asserts that `x-codeSamples` is defined.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: x-codeSamples
-        message: x-codeSamples must be defined
-        severity: error
-        defined: true
+    assert/x-code-samples-defined:
+      subject: Operation
+      property: x-codeSamples
+      message: x-codeSamples must be defined
+      severity: error
+      defined: true
 ```
 
 ### `undefined` example
@@ -367,14 +372,14 @@ The following example asserts that `x-code-samples` is undefined.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: x-code-samples
-        message: x-code-samples is deprecated
-        suggest:
-          - x-codeSamples instead of x-code-samples
-        severity: error
-        undefined: true
+    assert/x-code-samples-undefined:
+      subject: Operation
+      property: x-code-samples
+      message: x-code-samples is deprecated
+      suggest:
+        - x-codeSamples instead of x-code-samples
+      severity: error
+      undefined: true
 ```
 
 ### `nonEmpty` example
@@ -384,12 +389,12 @@ The following example asserts that the operation summary is not empty.
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary should not be empty
-        severity: error
-        nonEmpty: true
+    assert/operation-summary-non-empty:
+      subject: Operation
+      property: summary
+      message: Operation summary should not be empty
+      severity: error
+      nonEmpty: true
 ```
 
 ### `minLength` example
@@ -399,12 +404,12 @@ The following example asserts that the minimum length of each operation summary 
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary must have minimum of 20 chars length
-        severity: error
-        minLength: 20
+    assert/operation-summary-min-length:
+      subject: Operation
+      property: summary
+      message: Operation summary must have minimum of 20 chars length
+      severity: error
+      minLength: 20
 ```
 
 ### `maxLength` example
@@ -414,12 +419,12 @@ The following example asserts that the maximum length of each operation summary 
 ```yaml
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary must have a maximum of 20 characters
-        severity: error
-        maxLength: 20
+    assert/operation-summary-max-length:
+      subject: Operation
+      property: summary
+      message: Operation summary must have a maximum of 20 characters
+      severity: error
+      maxLength: 20
 ```
 
 ## OpenAPI node types
