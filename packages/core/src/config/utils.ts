@@ -198,9 +198,9 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
     if (!seen.has(p.id)) {
       results.push(p);
       seen.add(p.id);
-    } else {
+    } else if (p.id) {
       process.stderr.write(
-        `Duplicate plugin id "${yellow(p.id)}".`,
+        `Duplicate plugin id "${yellow(p.id)}".\n`,
       );
     }
   }
