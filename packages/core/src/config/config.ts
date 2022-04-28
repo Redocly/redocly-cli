@@ -697,7 +697,7 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   ) {
     throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
   }
-  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
+  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
   if (apiDefinitions) {
     process.stderr.write(
       `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
@@ -712,9 +712,25 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
       )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
     );
   }
+
+  // Collect assertion rules
+  if (lint?.rules) {
+    const assertions = []
+    for (let ruleKey of Object.keys(lint.rules)) {
+      if (ruleKey.startsWith('assert/')) {
+        assertions.push(lint.rules[ruleKey])
+        delete lint.rules[ruleKey]
+      }
+    }
+
+    lint.rules.assertions = assertions
+  }
+
+  
   return {
     'features.openapi': referenceDocs,
     apis: transformApiDefinitionsToApis(apiDefinitions),
+    lint,
     ...rest,
   };
 }
