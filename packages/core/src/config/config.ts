@@ -717,8 +717,12 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   if (lint?.rules) {
     const assertions = []
     for (let ruleKey of Object.keys(lint.rules)) {
-      if (ruleKey.startsWith('assert/')) {
-        assertions.push(lint.rules[ruleKey])
+      if (ruleKey.startsWith('assert/') && typeof lint.rules[ruleKey] === 'object') {
+        const assertion = lint.rules[ruleKey] as Record<string, any>
+        assertions.push({
+          ...assertion,
+          assertionId: ruleKey.replace('assert/', '')
+        })
         delete lint.rules[ruleKey]
       }
     }
