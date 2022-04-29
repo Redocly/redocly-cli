@@ -5,7 +5,7 @@ exports[`E2E lint assertions-casing-snake-case-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:19:20 at #/paths/~1pet~1findByStatus/get/operationId
 
-Operation id should be PascalCase
+Operation id for get requests should be PascalCase
 
 17 | /pet/findByStatus:
 18 |   get:
