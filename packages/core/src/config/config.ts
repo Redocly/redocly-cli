@@ -702,24 +702,22 @@ function groupAssertionRules(
   const transformedRules: Record<string, RuleConfig> = {};
 
   // Collect assertion rules
-    const assertions = []
-    for (let ruleKey of Object.keys(rules)) {
-      if (ruleKey.startsWith('assert/') && typeof rules[ruleKey] === 'object') {
-        const assertion = rules[ruleKey] as Record<string, any>
-        assertions.push({
-          ...assertion,
-          assertionId: ruleKey.replace('assert/', '')
-        })
-      
-      } else {
-        // If it's not an assertion, keep it as is
-        transformedRules[ruleKey] = rules[ruleKey];
-      }
+  const assertions = [];
+  for (const [ruleKey, rule] of Object.entries(rules)) {
+    if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
+      const assertion = rule;
+      assertions.push({
+        ...assertion,
+        assertionId: ruleKey.replace('assert/', ''),
+      });
+    } else {
+      // If it's not an assertion, keep it as is
+      transformedRules[ruleKey] = rule;
     }
-
-    if (assertions.length > 0) {
-      transformedRules.assertions = assertions
-    }
+  }
+  if (assertions.length > 0) {
+    transformedRules.assertions = assertions;
+  }
   
   return transformedRules
 }
