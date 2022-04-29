@@ -10,7 +10,7 @@ lint:
         matchParentKeys: [get]
       subject: Operation
       property: operationId
-      message: Operation id for get operation should be canmelCase
+      message: Operation id for get operation should be camelCase
       casing: camelCase
     assert/operation-id-camel-case:
       subject: Operation
