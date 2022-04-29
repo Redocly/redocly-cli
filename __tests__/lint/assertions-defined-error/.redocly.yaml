@@ -7,7 +7,7 @@ lint:
     assert/response-content-defined:
       context:
       - type: Response
-        excludeParentKeys: ['200']
+        excludeParentKeys: ['204']
       subject: Response
       property: content
       message: Response content should be defined
