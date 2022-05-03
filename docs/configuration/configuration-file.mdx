@@ -80,8 +80,8 @@ apis:
     root: ./sandbox.yaml
     labels:
       - sandbox
-    lint: []
-    features.openapi: []
+    lint: {}
+    features.openapi: {}
 ```
 
 Based on this configuration, `./production.yaml` will get validated because it's the only one currently using the name `production`:
