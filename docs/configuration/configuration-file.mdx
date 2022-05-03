@@ -84,7 +84,7 @@ apis:
     features.openapi: {}
 ```
 
-Based on this configuration, `./production.yaml` will get validated because it's the only one currently using the name `production`:
+Given the configuration above and the following command, `./production.yaml` is validated because it's the only one currently using the name `production`:
 
 ```shell
 openapi lint production
