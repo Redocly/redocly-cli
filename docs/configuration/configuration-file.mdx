@@ -65,7 +65,7 @@ Bonus: You only need to type `name` or `name@version` in commands, not the entir
 | Property |  | Type | Description |
 |---|---|---|---|
 | `{apiName}` |  | `patternProperties` | REQUIRED. Identifies an API definition file. |
-| `{apiName}@{apiVersion}` |  | `patternProperties` | Identifies multiple versions of an API definition file. `{apiName}` is required but `@version` is optional. |
+| `{apiName}@{apiVersion}` |  | `patternProperties` | Identifies multiple versions of an API. `{apiName}` is required but `@version` is optional. |
 |  | `root` | `string` | REQUIRED. The relative path to where a definition file is stored. |
 |  | `labels` | `array` | Assigns Redocly Workflows organization-wide labels to a definition file. |
 |  | `lint` | `object` | Defines linting rules at the file level (overrides global `lint` configuration). |
@@ -115,10 +115,10 @@ openapi preview-docs production
 ```
 
 ### Optional properties supported by the `apis` section
-The `apis` section supports several optional properties for each definition file listed.
+The `apis` section supports several optional properties for each API.
 
 #### The `labels` property
-Use `labels` to assign one or more existing Redocly Workflows organization-wide labels to your OpenAPI definitions. You must have a Redocly Workflows account with an active organization, and the top-level `organization` property must be added to `redocly.yaml`.
+Use `labels` to assign one or more existing Redocly Workflows organization-wide labels to your APIs. You must have a Redocly Workflows account with an active organization, and the top-level `organization` property must be added to `redocly.yaml`.
 
 ```yaml
 apis:
@@ -133,7 +133,7 @@ If you try to assign labels that don't already exist for your organization, Redo
 :::
 
 #### The `lint` property
-In addition to the global (top-level) `lint` section, you can define lint rules for each definition listed in the `apis` section.
+In addition to the global (top-level) `lint` section, you can define lint rules for each API listed in the `apis` section.
 
 ```yaml
 apis:
@@ -177,9 +177,9 @@ features.mockServer | ✅ | API and global settings merge. In case of conflict, 
 ### Overview
 The `lint` section lets you set rules that control how the `lint` and `bundle` commands behave.
 
-You can set global (top-level) rules for all OpenAPI definition files, or for specific files listed in the `apis` section. If `lint` rules are defined for individual APIs, their settings apply *together* with the global configuration. So, if API and global sections modify the same properties, API settings will always override global settings.
+You can set global (top-level) rules for all APIs, or specific rules for each API listed in the `apis` section. If `lint` rules are defined for individual APIs, their settings apply *together* with the global configuration. So, if API and global sections modify the same properties, API settings will always override global settings.
 
-The `lint` section is broken into smaller sub-sections, each defining different configuration options. Here's an example showing the `plugins`, `extends` and `rules` sub-sections:
+The `lint` section is divided into smaller sub-sections, each defining different configuration options. Here's an example showing the `plugins`, `extends` and `rules` sub-sections:
 
 ```yaml
 lint:
@@ -427,14 +427,14 @@ lint:
 ```
 
 ## features.mockServer
-A mock server imitates a real API server by providing mock API responses to requests. The API registry supports [mock servers](../../api-registry/guides/mock-server-quickstart.md) which, when enabled for an API, lets you send it test requests from any API client.
+A mock server imitates a real API server by providing mock API responses to requests. The API registry supports [mock servers](../../api-registry/guides/mock-server-quickstart.md) that let you send test requests to your APIs from any API client.
 
 In `redocly.yaml`, the optional `features.mockServer` section lets you configure how the mock server behaves. This table describes the supported fields.
 
 | Property | Type | Description |
 |---|---|---|
-| `errorIfForcedExampleNotFound` | `boolean` | You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests. If you pass an example ID that cannot be found in the OpenAPI definition, the mock server will return any other example. If `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. Possible values: `true`, `false`. Default value: `false`. |
-| `strictExamples` | `boolean` | By default, the mock server automatically enhances responses with heuristics, such as substituting response fields with request parameter values. If you set `strictExamples: true`, examples are returned in the response unmodified, and exactly how they are defined in the OpenAPI definition. Possible values: `true`, `false`. Default value: `false`. |
+| `errorIfForcedExampleNotFound` | `boolean` | You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests. If you pass an example ID that can't be found in the OpenAPI definition, the mock server will return any other example. If `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. Possible values: `true`, `false`. Default value: `false`. |
+| `strictExamples` | `boolean` | By default, the mock server automatically enhances responses with heuristics, such as substituting response fields with request parameter values. If you set `strictExamples: true`, examples are returned in the response unmodified, and exactly how they are described in the OpenAPI definition. Possible values: `true`, `false`. Default value: `false`. |
 
 ## region
 
