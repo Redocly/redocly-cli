@@ -35,6 +35,7 @@ type PushArgs = {
   'run-id'?: string;
   region?: Region;
   'skip-decorator'?: string[];
+  'public'?: boolean;
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -147,6 +148,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
         filePaths,
         branch: branchName,
         isUpsert: upsert,
+        isPublic: argv['public']
       });
     } catch (error) {
       if (error.message === 'ORGANIZATION_NOT_FOUND') {

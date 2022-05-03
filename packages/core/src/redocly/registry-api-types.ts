@@ -16,6 +16,7 @@ export namespace RegistryApiTypes {
     filePaths: string[];
     branch?: string;
     isUpsert?: boolean;
+    isPublic?: boolean;
   }
 
   export interface PrepareFileuploadOKResponse {
