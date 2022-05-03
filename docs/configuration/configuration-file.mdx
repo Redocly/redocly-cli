@@ -56,9 +56,21 @@ apis:
 
 ### Impact on commands
 
-You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on the OpenAPI definition files you specify, not all of them.
+You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on the OpenAPI definition files you specify.
 
 Bonus: You only need to type `name` or `name@version` in commands, not the entire path to the file. No one's getting any younger — especially not us. Where we can save you time, we will!
+
+### Summary of `apis` properties
+
+| Property |  | Type | Description |
+|---|---|---|---|
+| `{apiName}` |  | `patternProperties` | REQUIRED. Identifies an API definition file. |
+| `{apiName}@{apiVersion}` |  | `patternProperties` | Identifies multiple versions of an API definition file. `{apiName}` is required but `@version` is optional. |
+|  | `root` | `string` | REQUIRED. The relative path to where a definition file is stored. |
+|  | `labels` | `array` | Assigns Redocly Workflows organization-wide labels to a definition file. |
+|  | `lint` | `object` | Defines linting rules at the file level (overrides global `lint` configuration). |
+|  | `features.openapi` | `object` | Configures theming and functionality for an API definition. |
+
 
 ### Examples
 
@@ -153,7 +165,7 @@ Option | Per-API support | Behavior
 -- | -- | --
 features.openapi | ✅ | API and global settings merge. In case of conflict, API takes priority.
 
-#### The `features-mockServer` property
+#### The `features.mockServer` property
 You can apply `features.mockServer` to individual APIs as well as at the global level.
 
 Option | Per-API support | Behavior
@@ -508,6 +520,6 @@ If the URL matches multiple patterns, the first match takes precedence. Therefor
 
 The `features.openapi` section is where you configure how your published reference docs will look (style, fonts, colors — known as _theming_) and behave (enable/disable search, show/hide API reference docs download option  — known as _functionality_).
 
-There are two products impacted by this section: Redoc Community Edition (CE) and Redocly Reference. Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
+Three products are impacted by this section: Redoc Community Edition (CE), Redocly Reference and Developer portal (if the API catalog feature is used). Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx) (those marked with **Supported in Redoc CE**).
