@@ -42,7 +42,7 @@ The `apis` section lets you configure one or more OpenAPI definition files. This
 
 Every file listed in this section is identified by `name@version`. `@version` is optional. It allows you to derive multiple API definition versions from the same root file. When a version is not provided, Redocly apps interpret a file as being `latest`. Every `name@version` combination must be unique.
 
-For every OpenAPI definition listed in the `apis` section, use the `root:` property to define the path to the file. For example:
+For every OpenAPI definition listed in the `apis` section, use the `root` property to define the path to the file. For example:
 
 ```yaml
 apis:
