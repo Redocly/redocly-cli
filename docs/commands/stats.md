@@ -50,16 +50,16 @@ In this case, `stats` will show statistics for the definition that was passed to
 Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi stats main
+openapi stats core@v1
 ```
 
 ```yaml Configuration file
 apis:
-  main:
+  core@v1:
     root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
 
 ### Custom configuration file

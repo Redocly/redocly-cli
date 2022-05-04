@@ -29,21 +29,20 @@ If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, 
 
 The Redocly configuration file must be in YAML format.
 
-The contents of the file should conform to the following structure:
+<StyledContent>
+  <JsonSchema
+    schema={Schema}
+    options={{
+      schemaExpansionLevel:3,
+    }}
+  />
+</StyledContent>
 
+### Example
 ```yaml
-organization:
-# The organization ID of a Redocly Workflows organization.
-# Used for easier integration with the API registry and hosted Reference docs,
-# not required for local OpenAPI CLI usage.
+organization: testing_redocly
 apis:
-# A collection of objects, each representing one API.
-# An API should be defined by a name, an optional version,
-# and the path to the root OpenAPI document.
-# Additionally, each API can have its own lint and features.openapi
-# sections for fine-grained control.
-# Example:
-  main:
+  core@v2:
     root: ./openapi/openapi.yaml
     lint:
       rules:
@@ -56,28 +55,16 @@ apis:
       hideLogo: true
 
 lint:
-# Global configuration for the lint command.
-
-features.mockServer:
-# Configuration for the optional mock server feature in the API registry.
-# Available in Pro and Enterprise plans only.
-
-region: eu
-# Configuration for optional AWS region selection when logging into Redocly services.
-
-resolve:
-# Configuration for resolving external links in your definition that are not publicly accessible.
-# Not required for Redocly API registry links.
+  extends:
+    - recommended
 
 features.openapi:
-# The API reference docs options, including theme options.
-
-registry:
-# The API registry options
-
-# future products may be configured by extending this file
+  schemaExpansionLevel: 2
+  generateCodeSamples:
+    languages:
+      - lang: curl
+      - lang: Python
 ```
-
 
 ### organization
 
@@ -161,7 +148,7 @@ Some of the OpenAPI CLI commands, such as the [lint command](../commands/lint.md
 You can tell the `lint` command to validate specific API definitions by using their names from the `apis` section, like in the following example:
 
 ```shell
-openapi lint main
+openapi lint core
 ```
 
 On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` section:
@@ -207,6 +194,7 @@ Region | Domain
 `us` | api.redoc.ly
 `eu` | api.eu.redocly.com
 
+The `eu` region is limited to enterprise customers.
 
 To configure which domain will be used, you can use any of the following:
 
@@ -226,7 +214,7 @@ openapi login --region=eu
 
 ```yaml
 apis:
-  main:
+  core@v1:
     root: ./openapi.yaml
 region: eu
 lint:
@@ -286,15 +274,3 @@ The `features.openapi` section configures features (availability and options) an
 There are two products: Redoc Community Edition (CE) and Redocly Reference. Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
-
-### registry
-
-The `registry` section is reserved for future API registry features.
-
-Read more about the [`registry` section](registry.md).
-
-## Schema reference
-
-<StyledContent>
-<JsonSchema schema={Schema}/>
-</StyledContent>

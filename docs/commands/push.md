@@ -78,15 +78,15 @@ openapi push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-
 
 Option           | Type      | Description    |
 -----------------|:---------:|:------------:|
-entrypoint       | string    | Optional. The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias from `apiDefinitions` if using the legacy configuration file). See [Set options explicitly](#set-options-explicitly) for more information.  |
-destination      | string    | Required. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
---branch, -b    | string  | Optional. The branch where your API definition will be pushed or upserted. Default value is `main`.  |
---help       | boolean | Optional. Help output for the command.  |
---run-id       | string  | Optional. Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
---skip-decorator | [string] | Optional. Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
---upsert, -u | boolean | Optional. Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
---version     | boolean | Optional. Show version number.  |
---region,-r    | string | Optional. Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
+entrypoint       | string    | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.  |
+destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
+--branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
+--help       | boolean | Help output for the command.  |
+--run-id       | string  | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
+--skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
+--upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
+--version     | boolean | Show version number.  |
+--region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
 
 ## Examples
 
