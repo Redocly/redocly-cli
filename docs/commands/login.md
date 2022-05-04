@@ -32,7 +32,7 @@ Option | Type | Description
 --help | boolean | Show help.
 --verbose | boolean | Include additional output.
 --version | boolean | Show version number.
---region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
+--region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx#region).
 
 ## Examples
 

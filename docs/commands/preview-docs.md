@@ -66,7 +66,7 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi preview-docs --config=./another/directory/config.yaml

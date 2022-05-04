@@ -23,13 +23,13 @@ openapi stats --version
 
 ## Options
 
-Option                    | Type      | Required     | Default     | Description
---------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to calculate statistics for. Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints. Refer to [the entrypoint section below](#entrypoint) for more options.
-`--config`                | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
-`--format`                | `string`  | no           | `stylish`   | Format for the output.<br />**Possible values:** `stylish`, `json`
-`--help`                  | `boolean` | no           | -           | Show help
-`--version`               | `boolean` | no           | -           | Show version number
+Option | Type | Description
+-- | -- | --
+entrypoint | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
+--config | string | Specify path to the [configuration file](#custom-configuration-file).
+--format | string | Format for the output.<br />**Possible values:** `stylish`, `json`.
+--help | boolean | Show help.
+--version | boolean | Show version number.
 
 ## Examples
 
@@ -64,7 +64,7 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi stats --config=./another/directory/config.yaml
