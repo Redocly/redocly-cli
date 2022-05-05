@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { green, gray, yellow } from 'colorette';
+import { green, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
 import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS, env } from '../config/config';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
@@ -152,7 +152,6 @@ export class RedoclyClient {
 
   async login(accessToken: string, verbose: boolean = false) {
     const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
-    process.stdout.write(gray('\n  Logging in...\n'));
 
     try {
       await this.verifyToken(accessToken, this.region, verbose);
@@ -168,7 +167,6 @@ export class RedoclyClient {
     this.accessTokens = credentials;
     this.registryApi.setAccessTokens(credentials);
     writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
-    process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
   }
 
   logout(): void {
@@ -176,7 +174,6 @@ export class RedoclyClient {
     if (existsSync(credentialsPath)) {
       unlinkSync(credentialsPath);
     }
-    process.stdout.write('Logged out from the Redocly account. ✋\n');
   }
 }
 
