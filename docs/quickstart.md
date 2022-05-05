@@ -196,7 +196,7 @@ So, what just happened? Take a look in the newly created `bundled` directory. Th
 
 :::
 
-Continuing on with our example, when you need to bundle up your API definition again, you run the `bundle` command against `openapi.yaml` and use `--output` to send the constituent parts to `bundled.yaml`. 
+Continuing on with our example, when you need to bundle up your API definition again, you run the `bundle` command against `openapi.yaml` and use `--output` to send the constituent parts to `bundled.yaml`.
 In the real world, you could send them to some other file (`openapi bundle openapi.yaml --output some-other-file.yaml`):
 
 ```bash
@@ -260,5 +260,5 @@ Back in `http://127.0.0.1:8080` the update will be visible.
 ## Now, get into it!
 
 * Take a look at [all of the available OpenAPI CLI commands](./commands/index.md).
-* Fine-tune OpenAPI CLI through the awesome magic that is the [config file](./configuration/configuration-file.mdx).
+* Fine-tune OpenAPI CLI through the awesome magic that is the [config file](./configuration/index.mdx).
 * Get creative and head straight to [custom plugins and rules](./resources/custom-rules.md).
