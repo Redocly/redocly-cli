@@ -15,15 +15,72 @@ The Redocly configuration file is used by OpenAPI CLI and other Redocly apps to 
 
 The Redocly configuration file must be named either `redocly.yaml` or `.redocly.yaml`. It must be located in the root of your project directory, and it must be in the YAML format. If you cloned the `openapi-starter` project, this is already set up for you.
 
-All of the available sections and config options are documented below.
+:::warning
+If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will show a warning in the output and ask you to choose one file to use.
+:::
+
+## The Redocly configuration file root object
+
+### Example
+```yaml
+organization:
+# The organization ID of a Redocly Workflows organization.
+# Used for easier integration with the API registry and hosted Reference docs,
+# not required for local OpenAPI CLI usage.
+apis:
+# A collection of objects, each representing one API.
+# An API should be defined by a name, an optional version,
+# and the path to the root OpenAPI document.
+# Additionally, each API can have its own lint and features.openapi
+# sections for fine-grained control.
+# Example:
+  main:
+    root: ./openapi/openapi.yaml
+    lint:
+      rules:
+        example-rule: warn
+  external@v1:
+    root: ./openapi/external.yaml
+    labels:
+      - external
+    features.openapi:
+      hideLogo: true
+
+lint:
+# Global configuration for the lint command.
+
+features.mockServer:
+# Configuration for the optional mock server feature in the API registry.
+# Available in Pro and Enterprise plans only.
+
+region: eu
+# Configuration for optional AWS region selection when logging into Redocly services.
+
+resolve:
+# Configuration for resolving external links in your definition that are not publicly accessible.
+# Not required for Redocly API registry links.
+
+features.openapi:
+# The API reference docs options, including theme options.
+```
+
+### Sections
+
+| Field name | Type | Description |
+|---|---|---|
+| `organization` | [Organization string](#organization) | Stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry. |
+| `apis` | [APIs object](#apis) | Lets you configure one or more API definition files. This gives you the flexibility to reference specific files in commands, and configure each file at a granular level. |
+| `lint` | [Lint object](./configuration-file.mdx#lint) | Lets you set rules and decorators that control how the `lint` and `bundle` commands behave. |
+| `features.mockServer` | [Mock server features object](#features.mockServer) | Lets you toggle features to determine how mock servers behave. |
+| `region` | [Region string](region) | Supported regions are `us` (default) and `eu` (available only to enterprise customers). |
+| `resolve` | [Resolve object](#resolve) | All API registry links and public URLs in your API definitions will automatically resolve. If you want to resolve links that are neither API registry links nor publicly accessible, you must add the resolve section to `redocly.yaml`. |
+| `features.openapi` | [OpenAPI features object](features.openapi) | Lets you toggle features that control how API definition files are rendered. |
 
 ## `organization`
 
-Stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry. If an organization ID is not passed explicitly in command-line arguments, `push` will look for it in `redocly.yaml`.
+The `organization` section stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry. If an organization ID is not passed explicitly in command-line arguments, `push` will look for it in `redocly.yaml`.
 
-:::info
-In Redocly Workflows, organization ID and organization name are not the same thing.
-:::
+The `organization` property is only required in the configuration file if you're using the API registry and/or hosted Reference docs. It is not required for local OpenAPI CLI usage.
 
 To find the organization ID:
 
@@ -34,13 +91,25 @@ To find the organization ID:
 
 For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`.
 
+```yaml
+organization: test_docs
+apis:
+  main@v1:
+    root: ./openapi/openapi.yaml
+...
+```
+
+:::info
+In Redocly Workflows, organization ID and organization name are not the same thing.
+:::
+
 ## `apis`
 
 ### Overview
 
-The `apis` section lets you configure one or more OpenAPI definition files. This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
+The `apis` section lets you configure one or more API definition files. This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
 
-Every file listed in this section is identified by `name@version`. `@version` is optional. It allows you to derive multiple API definition versions from the same root file. When a version is not provided, Redocly apps interpret a file as being `latest`. Every `name@version` combination must be unique.
+Every file listed in this section is identified by `name@version`. `@version` is optional. It allows you to manage multiple versions of each API. When a version is not provided, Redocly apps interpret a file as being `latest`. Every `name@version` combination must be unique.
 
 For every OpenAPI definition listed in the `apis` section, use the `root` property to define the path to the file. For example:
 
@@ -62,7 +131,7 @@ Bonus: You only need to type `name` or `name@version` in commands, not the entir
 
 ### Summary of `apis` properties
 
-| Property |  | Type | Description |
+| Field name |  | Type | Description |
 |---|---|---|---|
 | `{apiName}` |  | `patternProperties` | REQUIRED. Identifies an API definition file. |
 | `{apiName}@{apiVersion}` |  | `patternProperties` | Identifies multiple versions of an API. `{apiName}` is required but `@version` is optional. |
@@ -70,7 +139,7 @@ Bonus: You only need to type `name` or `name@version` in commands, not the entir
 |  | `labels` | `array` | Assigns Redocly Workflows organization-wide labels to a definition file. |
 |  | `lint` | `object` | Defines linting rules at the file level (overrides global `lint` configuration). |
 |  | `features.openapi` | `object` | Configures theming and functionality for an API definition. |
-
+|  | `features.mockServer` | `object` | Configures mock server behavior for an API definition. |
 
 ### Examples
 
@@ -106,12 +175,6 @@ If you run `lint` without specifying a name, all API definitions listed in the `
 
 ```shell
 openapi lint
-```
-
-When you run the [preview-docs command](../commands/preview-docs.md), you *must* specify a file. As a shortcut, you can reference definitions listed in the `apis` section.
-
-```shell
-openapi preview-docs production
 ```
 
 ### Optional properties supported by the `apis` section
@@ -159,7 +222,7 @@ lint.plugins | ❌ | Available in global configuration only.
 #### The `features.openapi` property
 The global (top-level) `features.openapi` section is where you configure how all of your published reference docs will look (style, fonts, colors — known as *theming*) and behave (enable/disable search, show/hide API reference docs download option — known as *functionality*).
 
-If you need to apply different theming and functionality to individual APIs, add the `features-openapi` property to the `apis` section, and use the same options as the global `features-openapi`.
+If you need to apply different theming and functionality to individual APIs, add the `features.openapi` property to the `apis` section, and use the same options as the global `features.openapi`.
 
 Option | Per-API support | Behavior
 -- | -- | --
@@ -179,7 +242,7 @@ The `lint` section lets you set rules that control how the `lint` and `bundle` c
 
 You can set global (top-level) rules for all APIs, or specific rules for each API listed in the `apis` section. If `lint` rules are defined for individual APIs, their settings apply *together* with the global configuration. So, if API and global sections modify the same properties, API settings will always override global settings.
 
-The `lint` section is divided into smaller sub-sections, each defining different configuration options. Here's an example showing the `plugins`, `extends` and `rules` sub-sections:
+The `lint` section is divided into smaller subsections, each defining different configuration options. Here's an example showing the `plugins`, `extends` and `rules` subsections:
 
 ```yaml
 lint:
@@ -196,13 +259,13 @@ lint:
   ...
 ```
 
-Each sub-section is described below. All are optional, so only add them to the `lint` section if needed.
+Each subsection is described below. All are optional, so only add them to the `lint` section if needed.
 
 :::info
-The `rules` and `decorators` sub-sections only work at the API level. The `plugins` sub-section only works at the global level.
+The `rules` and `decorators` subsections only work at the API level. The `plugins` subsection only works at the global level.
 :::
 
-#### The `plugins` sub-section
+#### The `plugins` subsection
 
 Use to import custom local plugins. Type is `string`.
 
@@ -225,7 +288,7 @@ lint:
     - './another-local-plugin.js'
 ```
 
-#### The `extends` sub-section
+#### The `extends` subsection
 
 | Type     | Possible values                 | Default value |
 |----------|---------------------------------|---------------|
@@ -235,7 +298,7 @@ OpenAPI CLI comes with [built-in rules](./resources/built-in-rules.md) that are 
 
 OpenAPI CLI has three rule sets — each specifying different levels of severity — that can be applied via the `--extends` option in the `lint` command.
 
-The `extends` sub-section in the Redocly configuration file lets you configure rule sets and further extensions, and also lets you add your own plugins. You can use subsequent sub-sections to override specific settings if you wish.
+The `extends` subsection in the Redocly configuration file lets you configure rule sets and further extensions, and also lets you add your own plugins. You can use subsequent sub-sections to override specific settings if you wish.
 
 `all`, `minimal` and `recommended` can only be used with built-in rules. For custom plugins, additional configuration can be applied (our [guide to custom plugins and rules](../resources/custom-rules.md#configs-in-plugins) has more information).
 
@@ -263,7 +326,7 @@ lint:
 
 If there is a conflict where multiple rule sets are used, the rule set at the bottom of the list will take priority.
 
-#### The `preprocessors` sub-section
+#### The `preprocessors` subsection
 
 | Type | Possible values |
 |---|---|
@@ -271,7 +334,7 @@ If there is a conflict where multiple rule sets are used, the rule set at the bo
 
 Preprocessors run first during the `lint` and `bundle` commands. For `bundle`, linting only happens if the `--lint` option is used in the command.
 
-#### The `rules` sub-section
+#### The `rules` subsection
 
 | Type | Possible values |
 |---|---|
@@ -283,7 +346,7 @@ Preprocessors run first during the `lint` and `bundle` commands. For `bundle`, l
 When running the `lint` command, rules run *after* preprocessors. For the `bundle` command, rules run *between* preprocessors and decorators.
 :::
 
-In this example, we can see how we might use the `rules` sub-section to influence `lint` when it encounters the `info-contact` built-in rule:
+In this example, we can see how we might use the `rules` subsection to influence `lint` when it encounters the `info-contact` built-in rule:
 
 ```yaml Short syntax
 lint:
@@ -308,13 +371,13 @@ lint:
       prefixes: ['should', 'is', 'has']
 ```
 
-#### The `decorators` sub-section
+#### The `decorators` subsection
 
 | Type | Possible values |
 |---|---|
 | `Map [string, string | Decorator object]` | `error`, `warn`, `off` |
 
-A 'decorator' is a programming pattern that modifies the bundling process after validation has completed. This sub-section of `lint` is used to enable and disable decorators if these are in use.
+A 'decorator' is a programming pattern that modifies the bundling process after validation has completed. This subsection of `lint` is used to enable and disable decorators if these are in use.
 
 :::info
 When running the `bundle` command, decorators *after* linting and linting only happen if the `--lint` option is used in the command.
@@ -390,9 +453,9 @@ If you write custom rules, you can make it so they accept the additional rules o
 Redocly OpenAPI CLI supports OpenAPI Specification versions 2.0, 3.0, and 3.1. Most of the time you will use one of them, but sometimes you may need to configure different rules based on the OpenAPI Specification version your definition is written in. You can do that by using additional configuration sections.
 
 In this example:
-* If version 2 (formerly known as Swagger) then `lint` will prioritize the `oas2Rules` sub-section.
-* If version 3 (OpenAPI 3.x) then `lint` will prioritize the `oas3_0Rules` sub-section.
-* If no version is defined then `lint` will fall back to the `rules` sub-section.
+* If version 2 (formerly known as Swagger) then `lint` will prioritize the `oas2Rules` subsection.
+* If version 3 (OpenAPI 3.x) then `lint` will prioritize the `oas3_0Rules` subsection.
+* If no version is defined then `lint` will fall back to the `rules` subsection.
 
 ```yaml
 lint:
@@ -520,6 +583,6 @@ If the URL matches multiple patterns, the first match takes precedence. Therefor
 
 The `features.openapi` section is where you configure how your published reference docs will look (style, fonts, colors — known as _theming_) and behave (enable/disable search, show/hide API reference docs download option  — known as _functionality_).
 
-Three products are impacted by this section: Redoc Community Edition (CE), Redocly Reference and Developer portal (if the API catalog feature is used). Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
+Three products are impacted by this section: Redoc Community Edition (CE), Redocly reference and the Developer portal (if the API catalog feature is used). Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
 
-Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx) (those marked with **Supported in Redoc CE**).
+Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
