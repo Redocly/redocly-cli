@@ -27,7 +27,7 @@ Option                   | Type      | Required    | Default     | Description
 `entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
 `--config`               | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
 `--extends`              | `array`   | no           | -           | [Extend a specific configuration](#extend-configuration) (defaults or config file settings)
-`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
+`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`
 `--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
 `--help`                 | `boolean` | no           | -           | Show help
 `--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
