@@ -87,7 +87,7 @@ destination      | string    | Conditional. The location in the API registry whe
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
 --region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Read more about [configuring the region](../configuration/index.mdx#region).  |
--- public    | boolean | Optional. Make API definition public accessible from API Registry. Read more about [public option](#public).  |
+-- public    | boolean | Optional. Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
 
 ## Examples
 
@@ -264,8 +264,8 @@ openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator
 
 ### Public
 
-The `--public` option allows upload your API definition and make it public from API Registry. By default, it's not available to the public.
-For more information check [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
+The `--public` option allows you to upload your API definition and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
+For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
 
 ```bash
 openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --public
