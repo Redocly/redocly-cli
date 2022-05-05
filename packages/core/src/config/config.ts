@@ -19,13 +19,16 @@ import type {
 } from './types';
 import { getResolveConfig } from './utils';
 
+// Alias environment here so this file can work in browser environments too.
+export const env = typeof process !== 'undefined' ? process.env || {} : {};
+
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
   `# This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.\n` +
   `# See https://redoc.ly/docs/cli/ for more information.\n`;
 
 export const DEFAULT_REGION = 'us';
-const REDOCLY_DOMAIN = process.env.REDOCLY_DOMAIN;
+const REDOCLY_DOMAIN = env.REDOCLY_DOMAIN;
 export const DOMAINS: { [region in Region]: string } = {
   us: 'redocly.com',
   eu: 'eu.redocly.com',
