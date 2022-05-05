@@ -1,6 +1,5 @@
 import * as path from 'path';
 import { blue, red } from 'colorette';
-import { URL } from 'url';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';

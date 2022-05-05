@@ -13,7 +13,10 @@
     "url": "https://github.com/Redocly/openapi-cli.git"
   },
   "browser": {
-    "fs": false
+    "fs": false,
+    "path": "path-browserify",
+    "os": false,
+    "node-fetch": false
   },
   "homepage": "https://github.com/Redocly/openapi-cli",
   "keywords": [

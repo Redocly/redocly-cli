@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { dirname } from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash } from '../utils';
 import { NormalizedProblem } from '../walk';
@@ -100,7 +99,7 @@ export class LintConfig {
 
       // resolve ignore paths
       for (const fileName of Object.keys(this.ignore)) {
-        this.ignore[path.resolve(dirname(ignoreFile), fileName)] = this.ignore[fileName];
+        this.ignore[path.resolve(path.dirname(ignoreFile), fileName)] = this.ignore[fileName];
         for (const ruleId of Object.keys(this.ignore[fileName])) {
           this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
         }
