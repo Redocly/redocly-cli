@@ -22,18 +22,18 @@ openapi lint --version
 
 ## Options
 
-Option                   | Type      | Required    | Default     | Description
--------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoints`            | `array`   | no           | -           | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options
-`--config`               | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
-`--extends`              | `array`   | no           | -           | [Extend a specific configuration](#extend-configuration) (defaults or config file settings)
-`--format`               | `string`  | no           | `codeframe` | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`
-`--generate-ignore-file` | `boolean` | no           | -           | [Generate ignore file](#generate-ignore-file)
-`--help`                 | `boolean` | no           | -           | Show help
-`--max-problems`         | `number`  | no           | 100         | Truncate output to display the specified [maximum number of problems](#max-problems)
-`--skip-preprocessor`    | `array`   | no           | -           | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
-`--skip-rule`            | `array`   | no           | -           | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below
-`--version`              | `boolean` | no           | -           | Show version number
+Option | Type | Description
+-- | -- | --
+entrypoints | array | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options.
+--config | string | Specify path to the [configuration file](#custom-configuration-file).
+--extends | array | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).
+--format | string | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`.
+--generate-ignore-file | boolean | [Generate ignore file](#generate-ignore-file).
+--help | boolean | Show help.
+--max-problems | integer | Truncate output to display the specified [maximum number of problems](#max-problems).
+--skip-preprocessor | array | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+--skip-rule | array | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+--version | boolean | Show version number.
 
 ## Examples
 
@@ -56,16 +56,16 @@ The `entrypoints` argument can also use any glob format supported by your file s
 Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi lint main
+openapi lint core@v1
 ```
 
 ```yaml Configuration file
 apis:
-  main:
+  core@v1:
     root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `lint` will validate the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` will validate the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
 #### Empty entrypoints
 
@@ -77,7 +77,7 @@ openapi lint
 
 ```yaml Configuration file
 apis:
-  main:
+  core@v1:
     root: ./openapi/definition.json
   production:
     root: ./openapi/production.yaml
@@ -95,7 +95,7 @@ If you try to execute the `lint` command without entrypoints when your project d
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 openapi lint --config=./another/directory/config.yaml
