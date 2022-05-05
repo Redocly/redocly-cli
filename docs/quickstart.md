@@ -1,4 +1,4 @@
-# Redocly Redocly CLI quickstart guide
+# Redocly CLI quickstart guide
 
 ## Before you begin
 
@@ -217,7 +217,7 @@ You should get this response:
 
 ```bash
 Using Redoc community edition.
-Login with redocly login or use an enterprise license key to preview with the premium docs.
+Login with `redocly login` or use an enterprise license key to preview with the premium docs.
 
   🔎  Preview server running at http://127.0.0.1:8080
 

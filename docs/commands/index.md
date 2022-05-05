@@ -4,7 +4,7 @@ tocMaxDepth: 2
 
 # Redocly CLI commands
 
-Redocly Redocly CLI currently supports the following commands:
+Redocly CLI currently supports the following commands:
 
 * [bundle](bundle.md)
 * [join](join.md)

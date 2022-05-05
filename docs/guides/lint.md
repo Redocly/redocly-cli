@@ -245,7 +245,7 @@ Be sure to document those options for your users.
 
 ### Different OpenAPI versions
 
-Redocly Redocly CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
+Redocly CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
 ```yaml
 lint:
