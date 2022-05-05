@@ -1,16 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { loadYaml } from '../utils';
-import { Config, DOMAINS, RawConfig, Region, transformConfig } from './config';
-import { defaultPlugin } from './builtIn';
+import { isEmptyObject, loadYaml } from '../utils';
+import { Config, DOMAINS } from './config';
+import { transformConfig } from './utils';
+import { resolveConfig } from './config-resolvers';
 
-export async function loadConfig(configPath: string | undefined = findConfig(), customExtends?: string[]): Promise<Config> {
+import type { RawConfig, Region } from './types';
+
+export async function loadConfig(
+  configPath: string | undefined = findConfig(),
+  customExtends?: string[],
+): Promise<Config> {
   const rawConfig = await getConfig(configPath);
-
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
+  } else if (isEmptyObject(rawConfig)) {
+    // TODO: check if we can add recommended here. add message here?
+    // rawConfig.lint = { extends: ['recommended'], recommendedFallback: true };
   }
 
   const redoclyClient = new RedoclyClient();
@@ -23,40 +31,38 @@ export async function loadConfig(configPath: string | undefined = findConfig(), 
 
     for (const item of tokens) {
       const domain = DOMAINS[item.region as Region];
-      rawConfig.resolve.http.headers.push({
-        matches: `https://api.${domain}/registry/**`,
-        name: 'Authorization',
-        envVariable: undefined,
-        value: item.token,
-      },
-      //support redocly.com domain for future compatibility
-      ...(item.region === 'us' ? [{
-        matches: `https://api.redoc.ly/registry/**`,
-        name: 'Authorization',
-        envVariable: undefined,
-        value: item.token,
-      }] : []));
+      rawConfig.resolve.http.headers.push(
+        {
+          matches: `https://api.${domain}/registry/**`,
+          name: 'Authorization',
+          envVariable: undefined,
+          value: item.token,
+        },
+        //support redocly.com domain for future compatibility
+        ...(item.region === 'us'
+          ? [
+              {
+                matches: `https://api.redoc.ly/registry/**`,
+                name: 'Authorization',
+                envVariable: undefined,
+                value: item.token,
+              },
+            ]
+          : []),
+      );
     }
   }
-  return new Config(
-    {
-      ...rawConfig,
-      lint: {
-        ...rawConfig?.lint,
-        plugins: [...(rawConfig?.lint?.plugins || []), defaultPlugin], // inject default plugin
-      },
-    },
-    configPath,
-  );
+
+  return resolveConfig(rawConfig, configPath);
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 
 export function findConfig(dir?: string): string | undefined {
   if (!fs.hasOwnProperty('existsSync')) return;
-  const existingConfigFiles = CONFIG_FILE_NAMES
-    .map(name => dir ? path.resolve(dir, name) : name)
-    .filter(fs.existsSync);
+  const existingConfigFiles = CONFIG_FILE_NAMES.map((name) =>
+    dir ? path.resolve(dir, name) : name,
+  ).filter(fs.existsSync);
   if (existingConfigFiles.length > 1) {
     throw new Error(`
       Multiple configuration files are not allowed. 

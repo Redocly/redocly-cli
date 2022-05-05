@@ -21,7 +21,7 @@ const rules = {
       return {
         SecurityScheme(scheme, { location, report }) {
           if (scheme.type === 'openIdConnect') {
-            if (!scheme.openIdConnectUrl?.endsWith('/.well-known/openid-configuration')) {
+            if (!scheme.openIdConnectUrl.endsWith('/.well-known/openid-configuration')) {
               report({
                 message:
                   'openIdConnectUrl must be a URL that ends with /.well-known/openid-configuration',

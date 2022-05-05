@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import { parseYamlToDocument } from './utils';
 import { parseRef, refBaseName } from '../src/ref-utils';
 import { lintDocument } from '../src/lint';
-import { LintConfig } from '../src/config/config';
+import { LintConfig } from '../src/config';
 import { BaseResolver } from '../src/resolve';
 
 describe('ref-utils', () => {

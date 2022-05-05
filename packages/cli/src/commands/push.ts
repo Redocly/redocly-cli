@@ -84,7 +84,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const apis = entrypoint ? { [`${name}@${version}`]: { root: entrypoint } } : config.apis;
 
   for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
-    const resolvedConfig = getMergedConfig(config, entrypoint);
+    const resolvedConfig = getMergedConfig(config, apiNameAndVersion);
     resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
 
     const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
@@ -222,21 +222,20 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
     files.push(getFileEntry(IGNORE_FILE));
   }
   if (config.configFile) {
-    files.push(getFileEntry(config.configFile));
+    // All config file paths including the root one
+    files.push(...[...new Set(config.lint.extendPaths)].map((f) => getFileEntry(f)));
     if (config['features.openapi'].htmlTemplate) {
       const dir = getFolder(config['features.openapi'].htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
-    if (config.rawConfig && config.rawConfig.lint && config.rawConfig.lint.plugins) {
-      let pluginFiles = new Set<string>();
-      for (const plugin of config.rawConfig.lint.plugins) {
-        if (typeof plugin !== 'string') continue;
-        const fileList = getFilesList(getFolder(plugin), []);
-        fileList.forEach((f) => pluginFiles.add(f));
-      }
-      files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
+    let pluginFiles = new Set<string>();
+    for (const plugin of config.lint.pluginPaths) {
+      if (typeof plugin !== 'string') continue;
+      const fileList = getFilesList(getFolder(plugin), []);
+      fileList.forEach((f) => pluginFiles.add(f));
     }
+    files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
   }
   return {
     files,

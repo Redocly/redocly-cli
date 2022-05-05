@@ -1,8 +1,10 @@
 import fetch, { RequestInit, HeadersInit } from 'node-fetch';
 import { RegistryApiTypes } from './registry-api-types';
-import { AccessTokens, Region, DEFAULT_REGION, DOMAINS } from '../config/config';
+import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
+
+import type { AccessTokens, Region } from '../config/types';
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}

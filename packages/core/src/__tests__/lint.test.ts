@@ -174,7 +174,7 @@ describe('lint', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ spec: 'error' }),
+      config: await makeConfig({ spec: 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

@@ -65,11 +65,15 @@
   },
   "jest": {
     "clearMocks": true,
+    "restoreMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
       "packages/**/*.ts",
       "!packages/**/__tests__/**/*",
-      "!packages/cli/src/index.ts"
+      "!packages/cli/src/index.ts",
+      "!packages/core/src/benchmark/**/*",
+      "!packages/core/lib/**/*",
+      "!packages/cli/lib/**/*"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",

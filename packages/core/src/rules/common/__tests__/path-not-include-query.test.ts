@@ -19,7 +19,7 @@ describe('Oas3 path-not-include-query', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'path-not-include-query': 'error' }),
+      config: await makeConfig({ 'path-not-include-query': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -56,7 +56,7 @@ describe('Oas3 path-not-include-query', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'path-not-include-query': 'error' }),
+      config: await makeConfig({ 'path-not-include-query': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
