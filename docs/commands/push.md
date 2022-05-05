@@ -86,7 +86,8 @@ destination      | string    | Conditional. The location in the API registry whe
 --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
---region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Read more about [configuring the region](../configuration/index.mdx#region).
+--region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Read more about [configuring the region](../configuration/index.mdx#region).  |
+-- public    | boolean | Optional. Make API definition public accessible from API Registry. Read more about [public option](#public).  |
 
 ## Examples
 
@@ -259,6 +260,15 @@ openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator
 
 ```bash Skip multiple decorators
 openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
+```
+
+### Public
+
+The `--public` option allows upload your API definition and make it public from API Registry. By default, it's not available to the public.
+For more information check [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
+
+```bash
+openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --public
 ```
 
 ### Set up CI from Redocly Workflows
