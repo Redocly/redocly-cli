@@ -86,7 +86,7 @@ export async function previewDocs(argv: {
   const isAuthorized = isAuthorizedWithRedocly || redocOptions.licenseKey;
   if (!isAuthorized) {
     process.stderr.write(
-      `Using Redoc community edition.\nLogin with openapi-cli ${colorette.blue(
+      `Using Redoc community edition.\nLogin with redocly ${colorette.blue(
         'login',
       )} or use an enterprise license key to preview with the premium docs.\n\n`,
     );

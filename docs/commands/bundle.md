@@ -4,7 +4,7 @@
 
 API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
 
-Redocly OpenAPI CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
+Redocly Redocly CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 

@@ -245,7 +245,7 @@ Be sure to document those options for your users.
 
 ### Different OpenAPI versions
 
-Redocly OpenAPI CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
+Redocly Redocly CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time you will use one of them. However, you may need to configure different rules based on the version. You can do that by using additional configuration sections:
 
 ```yaml
 lint:
@@ -277,7 +277,7 @@ Read more about [built-in rules](../resources/built-in-rules.md).
 
 The OpenAPI specification supports `$refs` in some of the objects. In practice, different tools and implementations of the OAS, as well as API definition authors, may use or even require `$refs` in unsupported places.
 
-Starting from version `beta-30` onward, OpenAPI CLI automatically resolves all `$refs` by default, even in places where they are not allowed by the specification. This includes primitive values, for example `string`, in description and examples fields.
+Starting from version `beta-30` onward, Redocly CLI automatically resolves all `$refs` by default, even in places where they are not allowed by the specification. This includes primitive values, for example `string`, in description and examples fields.
 
 To disable resolving `$refs` in examples, use the `doNotResolveExamples` configuration option in the `lint` section of the Redocly configuration file. This does not affect `$ref` resolution in other parts of the API definition:
 

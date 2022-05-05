@@ -2,7 +2,7 @@
 tocMaxDepth: 2
 ---
 
-# OpenAPI CLI changelog
+# Redocly CLI changelog
 
 ## 1.0.0-beta-95 (2022-05-04)
 
@@ -16,6 +16,9 @@ tocMaxDepth: 2
 
 - Fixed resolving scalar values in asserts.
 
+### Deprecation
+
+- Deprecated `@redocly/openapi-cli` npm package: use `@redocly/cli` instead.
 ---
 
 ## 1.0.0-beta-94 (2022-04-12)

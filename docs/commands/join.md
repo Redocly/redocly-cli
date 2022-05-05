@@ -15,7 +15,7 @@ The `join` command supports OpenAPI 3.x definitions only.
 
 Maintainers of multiple API definitions can benefit from storing each endpoint as a standalone API definition file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API definition file.
 
-With Redocly OpenAPI CLI, you can solve this problem by using the `join` command that can combine two or more API definition files into a single one.
+With Redocly Redocly CLI, you can solve this problem by using the `join` command that can combine two or more API definition files into a single one.
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 

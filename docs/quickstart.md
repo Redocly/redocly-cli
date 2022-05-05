@@ -1,4 +1,4 @@
-# Redocly OpenAPI CLI quickstart guide
+# Redocly Redocly CLI quickstart guide
 
 ## Before you begin
 
@@ -7,23 +7,23 @@
 
 ## Step 1 - Clone the openapi-starter project
 
-[openapi-starter](https://github.com/Redocly/openapi-starter) creates a local folder structure that you can use to manage your API definition either as a single file, or in multi-file format. It also places a basic API definition file called `openapi.yaml` in the `openapi` root folder for those of you who don't have a definition file but need one to start exploring OpenAPI CLI. You're welcome!
+[openapi-starter](https://github.com/Redocly/openapi-starter) creates a local folder structure that you can use to manage your API definition either as a single file, or in multi-file format. It also places a basic API definition file called `openapi.yaml` in the `openapi` root folder for those of you who don't have a definition file but need one to start exploring Redocly CLI. You're welcome!
 
 If you have your own definition file, go right ahead and use it.
 
 If you want to learn how to clone the `openapi-starter` project and see how it works, we have [an entire page dedicated to it](openapi-starter.md)!
 
-## Step 2 - Install OpenAPI CLI from openapi-starter
+## Step 2 - Install Redocly CLI from openapi-starter
 
 Run `npm install` in the root of your local `openapi-starter` project.
 
 ## Step 3 - Prepare your API definition file
 
-In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in all examples. We recommend that you use it until you're confident with OpenAPI CLI.
+In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in all examples. We recommend that you use it until you're confident with Redocly CLI.
 
 ## Step 4 - Try some basic commands
 
-[OpenAPI CLI commands](./commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `bundle`, `lint`, `split` and `preview`.
+[Redocly CLI commands](./commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `bundle`, `lint`, `split` and `preview`.
 
 :::success Tip
 If you're new to command-line interfaces, note that you don't have to include the `$` in your commands. This symbol only indicates that the command after it should be entered into the terminal. To run a command, open your terminal, use `cd` to access the path where your API definition file is stored, type the command, and press **Enter**.
@@ -109,7 +109,7 @@ bundled.yaml: validated in 72ms
 run `openapi lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-You got this response because `lint` uses rules to ensure that your file conforms to what you consider to be 'valid'. OpenAPI CLI ships with a set of built-in rules, but you can also customise your own, depending on how closely you want to follow the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html). In our example response above, we can see that there is one error [1] and one warning [2].
+You got this response because `lint` uses rules to ensure that your file conforms to what you consider to be 'valid'. Redocly CLI ships with a set of built-in rules, but you can also customise your own, depending on how closely you want to follow the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html). In our example response above, we can see that there is one error [1] and one warning [2].
 
 **Why you got an error**
 
@@ -192,7 +192,7 @@ So, what just happened? Take a look in the newly created `bundled` directory. Th
 
 :::info Note
 
-`openapi.yaml` in the `bundled` folder is the default name that OpenAPI CLI gives to the 'root' YAML file you just split up. It contains `$ref`s to its constituent parts. You do the work in the constituent parts.
+`openapi.yaml` in the `bundled` folder is the default name that Redocly CLI gives to the 'root' YAML file you just split up. It contains `$ref`s to its constituent parts. You do the work in the constituent parts.
 
 :::
 
@@ -217,7 +217,7 @@ You should get this response:
 
 ```bash
 Using Redoc community edition.
-Login with openapi-cli login or use an enterprise license key to preview with the premium docs.
+Login with redocly login or use an enterprise license key to preview with the premium docs.
 
   🔎  Preview server running at http://127.0.0.1:8080
 
@@ -259,6 +259,6 @@ Back in `http://127.0.0.1:8080` the update will be visible.
 
 ## Now, get into it!
 
-* Take a look at [all of the available OpenAPI CLI commands](./commands/index.md).
-* Fine-tune OpenAPI CLI through the awesome magic that is the [config file](./configuration/index.mdx).
+* Take a look at [all of the available Redocly CLI commands](./commands/index.md).
+* Fine-tune Redocly CLI through the awesome magic that is the [config file](./configuration/index.mdx).
 * Get creative and head straight to [custom plugins and rules](./resources/custom-rules.md).

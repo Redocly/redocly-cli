@@ -2,7 +2,7 @@
 
 :::warning Warning
 
-The assertions syntax is [under construction](https://github.com/Redocly/openapi-cli/issues/647).
+The assertions syntax is [under construction](https://github.com/Redocly/redocly-cli/issues/647).
 Follow or comment in the issue for more details.
 
 :::
@@ -421,7 +421,7 @@ lint:
         severity: error
         maxLength: 20
 ```
-
+Redocly CLI
 ## OpenAPI node types
 
 Redocly defines a type tree based on the document type.
@@ -430,10 +430,10 @@ OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 
 ### List of OpenAPI types
 
-For technical details on the implementation of types for each OAS version, consult the source files in the OpenAPI CLI repository:
-  - OAS 3.1: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas2.ts#L367
+For technical details on the implementation of types for each OAS version, consult the source files in the Redocly CLI repository:
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3.ts#L530
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas2.ts#L367
 
 List of types for OpenAPI 3.0 and 3.1:
 

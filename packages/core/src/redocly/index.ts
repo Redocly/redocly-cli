@@ -71,7 +71,7 @@ export class RedoclyClient {
       process.stderr.write(
         `${yellow(
           'Warning:',
-        )} invalid Redocly API key. Use "npx @redocly/openapi-cli login" to provide your API key\n`,
+        )} invalid Redocly API key. Use "npx @redocly/cli login" to provide your API key\n`,
       );
       return undefined;
     }

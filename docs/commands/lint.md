@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly OpenAPI CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
+Redocly Redocly CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 

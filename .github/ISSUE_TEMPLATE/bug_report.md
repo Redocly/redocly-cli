@@ -27,8 +27,8 @@ If applicable, add logs to help explain your problem.
 If applicable, add an OpenAPI definition and `.redocly.yaml` configuration file that helps reproduce the problem.
 At a minimum, please state the specification version(s) you're using (e.g. 2.0, 3.0, 3.1).
 
-**`openapi-cli` Version(s)**
-What version of `openapi-cli` are you using? 
+**Redocly Version(s)**
+What version of Redocly CLI are you using?
 
 **`Node.js` Version(s)**
 What version of `node.js` are you using?

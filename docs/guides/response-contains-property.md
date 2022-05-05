@@ -24,7 +24,7 @@ If there are exceptions to the rule, the exceptions can be explicitly added to t
 ## Steps to writing the rule
 
 1. Identify the type of object to visit. The rules follow the visitor pattern and traverses the tree of the OpenAPI definition.
-    - The [Response](https://github.com/Redocly/openapi-cli/tree/master/packages/core/src/types) object is appropriate because we want to verify the property on the response (not on requests).
+    - The [Response](https://github.com/Redocly/redocly-cli/tree/master/packages/core/src/types) object is appropriate because we want to verify the property on the response (not on requests).
 1. Find the relationship between the starting object and the property we must evaluate for our decision. (Sometimes this will be the same object as above.)
 1. Craft the logic for the rule.
 1. Report the problem.
@@ -47,7 +47,7 @@ Based on that, our rule will look like this (before filling in the logic).
 ```js
 module.exports = ResponseContainsProperty
 
-/** @type {import('@redocly/openapi-cli').OasRule} */
+/** @type {import('@redocly/cli').OasRule} */
 function ResponseContainsProperty (options) {
   return {
     Response: {
@@ -69,7 +69,7 @@ This sets the default options as `[]`.
 ```js
 module.exports = ResponseContainsProperty
 
-/** @type {import('@redocly/openapi-cli').OasRule} */
+/** @type {import('@redocly/cli').OasRule} */
 function ResponseContainsProperty (options) {
   const mustExist = options.mustExist || [];
   return {
@@ -151,7 +151,7 @@ You can copy/paste this to try it out.
 ```js response-contains-property.js
 module.exports = ResponseContainsProperty
 
-/** @type {import('@redocly/openapi-cli').OasRule} */
+/** @type {import('@redocly/cli').OasRule} */
 function ResponseContainsProperty (options) {
   const mustExist = options.mustExist || [];
   return {
@@ -185,7 +185,7 @@ function ResponseContainsProperty (options) {
 const ResponseContainsProperty = require('./rules/response-contains-property');
 const id = 'demo';
 
-/** @type {import('@redocly/openapi-cli').CustomRulesConfig} */
+/** @type {import('@redocly/cli').CustomRulesConfig} */
 const rules = {
   oas3: {
     'response-contains-property': ResponseContainsProperty,
