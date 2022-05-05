@@ -4,6 +4,20 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-95 (2022-05-04)
+
+### Features
+
+- Added support for files in Redocly config `extends` section.
+- Added codeclimate formating for lint command.
+- Internal changes.
+
+### Fixes
+
+- Fixed resolving scalar values in asserts.
+
+---
+
 ## 1.0.0-beta-94 (2022-04-12)
 
 ### Features
