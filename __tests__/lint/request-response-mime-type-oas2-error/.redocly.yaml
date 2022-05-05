@@ -12,3 +12,4 @@ lint:
       severity: error
       allowedValues:
         - application/json
+  extends: []

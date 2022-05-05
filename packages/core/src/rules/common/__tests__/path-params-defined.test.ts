@@ -24,7 +24,7 @@ describe('Oas3 path-params-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'path-params-defined': 'error' }),
+      config: await makeConfig({ 'path-params-defined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -52,7 +52,7 @@ describe('Oas3 path-params-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'path-params-defined': 'error' }),
+      config: await makeConfig({ 'path-params-defined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -96,7 +96,7 @@ describe('Oas3 path-params-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'path-params-defined': 'error' }),
+      config: await makeConfig({ 'path-params-defined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

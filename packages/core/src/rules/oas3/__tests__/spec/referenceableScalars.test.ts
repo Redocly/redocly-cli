@@ -3,6 +3,7 @@ import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__test
 import { lintDocument } from '../../../../lint';
 import { LintConfig } from '../../../..';
 import { BaseResolver } from '../../../../resolve';
+import { resolveLint } from '../../../../config';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {
@@ -22,13 +23,17 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          spec: 'error',
-          'no-unresolved-refs': 'error',
-        },
-      }),
+      config: new LintConfig(
+        await resolveLint({
+          lintConfig: {
+            extends: [],
+            rules: {
+              spec: 'error',
+              'no-unresolved-refs': 'error',
+            },
+          },
+        }),
+      ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
@@ -55,13 +60,17 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig({
-        extends: [],
-        rules: {
-          'no-unresolved-refs': 'error',
-        },
-        doNotResolveExamples: true,
-      }),
+      config: new LintConfig(
+        await resolveLint({
+          lintConfig: {
+            extends: [],
+            rules: {
+              'no-unresolved-refs': 'error',
+            },
+            doNotResolveExamples: true,
+          },
+        }),
+      ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });

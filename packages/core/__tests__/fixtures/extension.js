@@ -1,6 +1,6 @@
 const { listOf } = require('../../types');
 
-/** @type {import('../../config/config').TypesExtension} */
+/** @type {import('../../config/types').TypesExtension} */
 function oas3_0(types) {
   return {
     ...types,

@@ -22,7 +22,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'boolean-parameter-prefixes': 'error' }),
+      config: await makeConfig({ 'boolean-parameter-prefixes': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -74,7 +74,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'boolean-parameter-prefixes': 'error' }),
+      config: await makeConfig({ 'boolean-parameter-prefixes': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -98,7 +98,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'boolean-parameter-prefixes': {
           severity: 'error',
           prefixes: ['should'],

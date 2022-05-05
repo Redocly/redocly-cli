@@ -19,7 +19,7 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'tags-alphabetical': 'error' }),
+      config: await makeConfig({ 'tags-alphabetical': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -56,7 +56,7 @@ describe('Oas3 tags-alphabetical', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'tags-alphabetical': 'error' }),
+      config: await makeConfig({ 'tags-alphabetical': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

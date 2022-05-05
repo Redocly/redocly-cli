@@ -12,7 +12,7 @@ describe('bundle', () => {
   let processExitMock: SpyInstance;
   let exitCb: any;
 
-  beforeAll(() => {
+  beforeEach(() => {
     processExitMock = jest.spyOn(process, 'exit').mockImplementation();
     jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;

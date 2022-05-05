@@ -19,7 +19,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-path-trailing-slash': 'error' }),
+      config: await makeConfig({ 'no-path-trailing-slash': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -56,7 +56,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-path-trailing-slash': 'error' }),
+      config: await makeConfig({ 'no-path-trailing-slash': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -77,7 +77,7 @@ describe('no-path-trailing-slash', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-path-trailing-slash': 'error' }),
+      config: await makeConfig({ 'no-path-trailing-slash': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

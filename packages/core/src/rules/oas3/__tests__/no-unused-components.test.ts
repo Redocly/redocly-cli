@@ -42,7 +42,7 @@ describe('Oas3 no-unused-components', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-unused-components': 'error' }),
+      config: await makeConfig({ 'no-unused-components': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

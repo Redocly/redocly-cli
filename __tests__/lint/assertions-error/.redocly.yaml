@@ -3,6 +3,8 @@ apis:
     root: ./openapi.yaml
 
 lint:
+  extends: 
+    - recommended
   rules:
     assertions:
       - subject: Tag

@@ -21,7 +21,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'operation-2xx-response': 'error' }),
+      config: await makeConfig({ 'operation-2xx-response': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -60,7 +60,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'operation-2xx-response': 'error' }),
+      config: await makeConfig({ 'operation-2xx-response': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -83,7 +83,7 @@ describe('Oas3 operation-2xx-response', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'operation-2xx-response': 'error' }),
+      config: await makeConfig({ 'operation-2xx-response': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

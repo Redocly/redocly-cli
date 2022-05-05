@@ -21,7 +21,7 @@ describe('Referenceable scalars', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         spec: 'error',
       }),
     });
