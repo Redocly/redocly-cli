@@ -24,7 +24,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -78,7 +78,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -117,7 +117,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -141,7 +141,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -168,7 +168,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -197,7 +197,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

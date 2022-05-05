@@ -1,3 +1,6 @@
 apis:
   main:
     root: ./openapi.yaml
+lint:
+  extends: 
+    - recommended

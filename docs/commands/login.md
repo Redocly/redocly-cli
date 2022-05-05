@@ -27,13 +27,12 @@ openapi login --verbose
 
 ## Options
 
-Option      | Type      | Required  | Default | Description
-------------|:---------:|:---------:|:-------:|------------
-`--help`    | `boolean` | no        | -       | Show help
-`--verbose` | `boolean` | no        | -       | Include additional output
-`--version` | `boolean` | no        | -       | Show version number
-`--region,-r` |`string` | no        | `us`    | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/configuration-file.mdx#region)
-
+Option | Type | Description
+-- | -- | --
+--help | boolean | Show help.
+--verbose | boolean | Include additional output.
+--version | boolean | Show version number.
+--region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx#region).
 
 ## Examples
 

@@ -1,16 +1,16 @@
-import { Config, getMergedConfig } from '../config';
+import { Config } from '../config';
+import { getMergedConfig } from '../utils';
 
 const testConfig: Config = {
   rawConfig: {
     apis: {
       'test@v1': {
         root: 'resources/pets.yaml',
-        lint: { extends: [], rules: { 'operation-summary': 'warn' } },
+        lint: { rules: { 'operation-summary': 'warn' } },
       },
     },
     organization: 'redocly-test',
     lint: {
-      extends: [],
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
       plugins: [],
     },
@@ -19,13 +19,12 @@ const testConfig: Config = {
   apis: {
     'test@v1': {
       root: 'resources/pets.yaml',
-      lint: { extends: [], rules: { 'operation-summary': 'warn' } },
+      lint: { rules: { 'operation-summary': 'warn' } },
     },
   },
   // @ts-ignore
   lint: {
     rawConfig: {
-      extends: [],
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
       plugins: [],
     },
@@ -51,13 +50,12 @@ const testConfig: Config = {
 };
 
 describe('getMergedConfig', () => {
-  it('should merge lint defined in "apis" section the root one', () => {
+  it('should get lint defined in "apis" section', () => {
     expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
       Config {
         "apis": Object {
           "test@v1": Object {
             "lint": Object {
-              "extends": Array [],
               "rules": Object {
                 "operation-summary": "warn",
               },
@@ -78,7 +76,9 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "doNotResolveExamples": false,
+          "extendPaths": Array [],
           "ignore": Object {},
+          "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
             "oas2": Object {},
@@ -86,27 +86,21 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "rawConfig": Object {
-            "decorators": Object {},
-            "extends": Array [],
-            "plugins": Array [],
-            "preprocessors": Object {},
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "rules": Object {
-              "no-empty-servers": "error",
               "operation-summary": "warn",
             },
           },
           "recommendedFallback": false,
           "rules": Object {
             "oas2": Object {
-              "no-empty-servers": "error",
               "operation-summary": "warn",
             },
             "oas3_0": Object {
-              "no-empty-servers": "error",
               "operation-summary": "warn",
             },
             "oas3_1": Object {
-              "no-empty-servers": "error",
               "operation-summary": "warn",
             },
           },
@@ -116,7 +110,6 @@ describe('getMergedConfig', () => {
           "apis": Object {
             "test@v1": Object {
               "lint": Object {
-                "extends": Array [],
                 "rules": Object {
                   "operation-summary": "warn",
                 },
@@ -127,12 +120,9 @@ describe('getMergedConfig', () => {
           "features.mockServer": Object {},
           "features.openapi": Object {},
           "lint": Object {
-            "decorators": Object {},
-            "extends": Array [],
-            "plugins": Array [],
-            "preprocessors": Object {},
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "rules": Object {
-              "no-empty-servers": "error",
               "operation-summary": "warn",
             },
           },
@@ -162,7 +152,6 @@ describe('getMergedConfig', () => {
         "apis": Object {
           "test@v1": Object {
             "lint": Object {
-              "extends": Array [],
               "rules": Object {
                 "operation-summary": "warn",
               },
@@ -183,7 +172,9 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "doNotResolveExamples": false,
+          "extendPaths": Array [],
           "ignore": Object {},
+          "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
             "oas2": Object {},
@@ -191,10 +182,9 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {},
           },
           "rawConfig": Object {
-            "decorators": Object {},
-            "extends": Array [],
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "plugins": Array [],
-            "preprocessors": Object {},
             "rules": Object {
               "no-empty-servers": "error",
               "operation-summary": "error",
@@ -221,7 +211,6 @@ describe('getMergedConfig', () => {
           "apis": Object {
             "test@v1": Object {
               "lint": Object {
-                "extends": Array [],
                 "rules": Object {
                   "operation-summary": "warn",
                 },
@@ -232,10 +221,9 @@ describe('getMergedConfig', () => {
           "features.mockServer": Object {},
           "features.openapi": Object {},
           "lint": Object {
-            "decorators": Object {},
-            "extends": Array [],
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
             "plugins": Array [],
-            "preprocessors": Object {},
             "rules": Object {
               "no-empty-servers": "error",
               "operation-summary": "error",

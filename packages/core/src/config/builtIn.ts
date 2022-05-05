@@ -1,13 +1,14 @@
 import recommended from './recommended';
 import all from './all';
 import minimal from './minimal';
-import { CustomRulesConfig, LintRawConfig, Plugin } from './config';
 import { rules as oas3Rules } from '../rules/oas3';
 import { rules as oas2Rules } from '../rules/oas2';
 import { preprocessors as oas3Preprocessors } from '../rules/oas3';
 import { preprocessors as oas2Preprocessors } from '../rules/oas2';
 import { decorators as oas3Decorators } from '../decorators/oas3';
 import { decorators as oas2Decorators } from '../decorators/oas2';
+
+import type { CustomRulesConfig, LintRawConfig, Plugin } from './types';
 
 export const builtInConfigs: Record<string, LintRawConfig> = {
   recommended,

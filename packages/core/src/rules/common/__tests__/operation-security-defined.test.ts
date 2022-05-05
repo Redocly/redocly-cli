@@ -19,7 +19,7 @@ describe('Oas3 operation-security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'operation-security-defined': 'error' }),
+      config: await makeConfig({ 'operation-security-defined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -61,7 +61,7 @@ describe('Oas3 operation-security-defined', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'operation-security-defined': 'error' }),
+      config: await makeConfig({ 'operation-security-defined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

@@ -3,6 +3,7 @@ apis:
     root: ./openapi.yaml
 
 lint:
+  extends: []
   rules:
     assert/tag-description:
       subject: Tag

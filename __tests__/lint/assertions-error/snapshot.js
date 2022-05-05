@@ -2,8 +2,6 @@
 
 exports[`E2E lint assertions-error 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 validating /openapi.yaml...
 [1] openapi.yaml:17:18 at #/tags/0/description
 

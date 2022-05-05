@@ -17,7 +17,7 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'info-description': 'error',
       }),
     });
@@ -55,7 +55,7 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'info-description': 'error',
       }),
     });
@@ -92,7 +92,7 @@ describe('Oas3 info-description', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'info-description': 'error',
       }),
     });

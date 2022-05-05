@@ -191,5 +191,5 @@ The approach is similar for other shells. After the installation, restart your t
 ## Next steps
 
 - Check the full list of [OpenAPI CLI commands](./commands/index.md) available to you
-- Learn how to fine-tune your OpenAPI CLI tool using a [configuration file](./configuration/configuration-file.mdx)
+- Learn how to fine-tune your OpenAPI CLI tool using a [configuration file](./configuration/index.mdx)
 - Learn more about [custom plugins and rules](./resources/custom-rules.md)

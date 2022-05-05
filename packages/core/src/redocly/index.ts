@@ -3,9 +3,11 @@ import { resolve } from 'path';
 import { homedir } from 'os';
 import { red, green, gray, yellow } from 'colorette';
 import { RegistryApi } from './registry-api';
-import { AccessTokens, DEFAULT_REGION, DOMAINS, Region, AVAILABLE_REGIONS } from '../config/config';
+import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS } from '../config/config';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
+
+import type { AccessTokens, Region } from '../config/types';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 

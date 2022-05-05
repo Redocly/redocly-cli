@@ -4,6 +4,20 @@ tocMaxDepth: 2
 
 # OpenAPI CLI changelog
 
+## 1.0.0-beta-95 (2022-05-04)
+
+### Features
+
+- Added support for files in Redocly config `extends` section.
+- Added codeclimate formating for lint command.
+- Internal changes.
+
+### Fixes
+
+- Fixed resolving scalar values in asserts.
+
+---
+
 ## 1.0.0-beta-94 (2022-04-12)
 
 ### Features
@@ -237,7 +251,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added support for the [region](./configuration/configuration-file.mdx#region) option with the `login`, `push`, and other commands.
+- Added support for the [region](./configuration/index.mdx#region) option with the `login`, `push`, and other commands.
 - Added two new built-in rules:
   - [no-invalid-schema-examples](./resources/built-in-rules.md#no-invalid-schema-examples)
   - [no-invalid-parameter-examples](./resources/built-in-rules.md#no-invalid-parameter-examples)
