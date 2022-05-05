@@ -5,7 +5,7 @@ redirectFrom:
 
 # Manage the lint configuration
 
-The `lint` configuration section is part of the [Redocly configuration file](../configuration/configuration-file.mdx).
+The `lint` configuration section is part of the [Redocly configuration file](../configuration/index.mdx).
 The `lint` and `bundle` commands use this section to control various options.
 
 The Redocly configuration file supports global lint settings (configured in the top-level `lint` section) and per-API lint settings (configured in the `lint` sections for individual APIs).
