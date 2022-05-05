@@ -16,10 +16,10 @@ import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObje
 import { getCodeframe, getLineColLocation } from './codeframes';
 
 export type Totals = {
-	errors: number;
-	warnings: number;
-	ignored: number;
-}
+  errors: number;
+  warnings: number;
+  ignored: number;
+};
 
 const ERROR_MESSAGE = {
   INVALID_SEVERITY_LEVEL: 'Invalid severity level; accepted values: error or warn',
@@ -40,13 +40,18 @@ const SEVERITY_NAMES = {
   error: 'Error',
 };
 
+const CODECLIMATE_SEVERITY_MAPPING = {
+  error: 'critical',
+  warn: 'minor',
+};
+
 const MAX_SUGGEST = 5;
 
 function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
-export type OutputFormat = 'codeframe' | 'stylish' | 'json' | 'checkstyle';
+export type OutputFormat = 'codeframe' | 'stylish' | 'json' | 'checkstyle' | 'codeclimate';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -76,7 +81,7 @@ export function formatProblems(
     cwd?: string;
     format?: OutputFormat;
     color?: boolean;
-    totals: Totals
+    totals: Totals;
     version: string;
   },
 ) {
@@ -142,6 +147,9 @@ export function formatProblems(
       process.stdout.write(`</checkstyle>\n`);
       break;
     }
+    case 'codeclimate':
+      outputForCodeClimate();
+      break;
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
@@ -150,6 +158,25 @@ export function formatProblems(
         'increase with `--max-problems N`',
       )}\n`,
     );
+  }
+
+  function outputForCodeClimate() {
+    const issues = problems.map((p) => {
+      const location = p.location[0]; // TODO: support multiple location
+      const lineCol = getLineColLocation(location);
+      return {
+        description: p.message,
+        location: {
+          path: path.relative(cwd, location.source.absoluteRef),
+          lines: {
+            begin: lineCol.start.line,
+          },
+        },
+        severity: CODECLIMATE_SEVERITY_MAPPING[p.severity],
+        fingerprint: `${p.ruleId}${p.location.length > 0 ? '-' + p.location[0].pointer : ''}`,
+      };
+    });
+    process.stdout.write(JSON.stringify(issues, null, 2));
   }
 
   function outputJSON() {

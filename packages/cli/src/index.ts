@@ -116,7 +116,13 @@ yargs
       yargs.positional('entrypoints', { array: true, type: 'string', demandOption: true }).option({
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
+          choices: [
+            'stylish',
+            'codeframe',
+            'json',
+            'checkstyle',
+            'codeclimate',
+          ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
         'max-problems': {
