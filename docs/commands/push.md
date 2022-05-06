@@ -87,7 +87,7 @@ destination      | string    | Conditional. The location in the API registry whe
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
 --region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Read more about [configuring the region](../configuration/index.mdx#region).  |
--- public    | boolean | Optional. Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
+-- public    | boolean | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
 
 ## Examples
 
