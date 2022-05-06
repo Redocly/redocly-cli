@@ -34,7 +34,9 @@ export const asserts: Asserts = {
     const values = typeof value === 'string' ? [value] : value;
     const regx = regexFromString(condition);
     for (let _val of values) {
-      return regx?.test(_val) || false;
+      if (!regx?.test(_val)) {
+        return false;
+      }
     }
     return true;
   },
