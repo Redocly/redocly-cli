@@ -14,6 +14,8 @@ describe('oas3 assertions', () => {
         expect(asserts.pattern('test string', '/test me/')).toBeFalsy();
         expect(asserts.pattern(['test string', 'test me'], '/test/')).toBeTruthy();
         expect(asserts.pattern(['test string', 'test me'], '/test me/')).toBeFalsy();
+        expect(asserts.pattern('./components/smth/test.yaml', '/^(\.\/)?components\/.*\.yaml$/')).toBeTruthy();
+        expect(asserts.pattern('./other.yaml', '/^(\.\/)?components\/.*\.yaml$/')).toBeFalsy();
       });
     });
 

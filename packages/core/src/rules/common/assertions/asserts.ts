@@ -32,13 +32,9 @@ export const asserts: Asserts = {
   pattern: (value: string | string[], condition: string): boolean => {
     if (typeof value === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const values = typeof value === 'string' ? [value] : value;
-    const regexOptions = condition.match(/(\b\/\b)(.+)/g) || ['/'];
-    condition = condition.slice(1).replace(regexOptions[0], '');
-    const regx = new RegExp(condition, regexOptions[0].slice(1));
+    const regx = regexFromString(condition);
     for (let _val of values) {
-      if (!_val.match(regx)) {
-        return false;
-      }
+      return regx?.test(_val) || false;
     }
     return true;
   },
