@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/openapi-cli.git"
+    "url": "https://github.com/Redocly/redocly-cli.git"
   },
   "browser": {
     "fs": false,
@@ -18,7 +18,7 @@
     "os": false,
     "node-fetch": false
   },
-  "homepage": "https://github.com/Redocly/openapi-cli",
+  "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
     "linter",
     "OpenAPI",

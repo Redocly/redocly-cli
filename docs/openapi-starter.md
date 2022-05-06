@@ -20,7 +20,7 @@ The project is copied to your GitHub account. It is independent and not linked t
 
 ## Step 2: Clone the project
 
-This step clones the project to your local machine so you can use it with [OpenAPI CLI](quickstart.md).
+This step clones the project to your local machine so you can use it with [Redocly CLI](quickstart.md).
 
 ### Use GitHub Desktop
 
@@ -54,10 +54,10 @@ By default, you will have a root directory (`openapi`) that contains a sample AP
 
 ### Just starting out with API docs?
 
-Use our `openapi.yaml` file to explore OpenAPI CLI. We suggest you [run some basic commands](quickstart.md) like `lint`, `bundle` and `split` to practice.
+Use our `openapi.yaml` file to explore Redocly CLI. We suggest you [run some basic commands](quickstart.md) like `lint`, `bundle` and `split` to practice.
 
 ### Got your own API definition file?
 
 You can add your files straight into the `openapi` folder and use the existing sub-folders when splitting them up for easier maintenance (`split` command) and compiling them back into a single file (`bundle`) for publishing out. Be aware that the more definitions stored in the `openapi` folder, the more cluttered the sub-folders. But hey, if you like clutter then go for it!
 
-Prefer things more orderly? Create new root folders to store each definition. When you run the `split` command in OpenAPI CLI for a specified definition file, the sub-folders will automatically be created under the root and populated with the constituent parts of your main definition file.
+Prefer things more orderly? Create new root folders to store each definition. When you run the `split` command in Redocly CLI for a specified definition file, the sub-folders will automatically be created under the root and populated with the constituent parts of your main definition file.

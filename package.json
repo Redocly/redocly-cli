@@ -1,5 +1,5 @@
 {
-  "name": "@redocly/openapi",
+  "name": "@redocly/cli",
   "version": "1.0.0-beta.95",
   "description": "",
   "private": true,
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/openapi-cli.git"
+    "url": "https://github.com/Redocly/redocly-cli.git"
   },
   "keywords": [
     "linter",

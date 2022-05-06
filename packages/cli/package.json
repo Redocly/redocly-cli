@@ -1,10 +1,11 @@
 {
-  "name": "@redocly/openapi-cli",
+  "name": "@redocly/cli",
   "version": "1.0.0-beta.95",
   "description": "",
   "license": "MIT",
   "bin": {
-    "openapi": "bin/cli.js"
+    "openapi": "bin/cli.js",
+    "redocly":  "bin/cli.js"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -17,9 +18,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/openapi-cli.git"
+    "url": "https://github.com/Redocly/redocly-cli.git"
   },
-  "homepage": "https://github.com/Redocly/openapi-cli",
+  "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
     "linter",
     "OpenAPI",

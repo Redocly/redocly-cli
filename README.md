@@ -1,16 +1,16 @@
-# OpenAPI CLI toolset
+# Redocly CLI toolset
 
-OpenAPI CLI toolbox with rich validation and bundling features.
+Redocly CLI toolbox with rich validation and bundling features.
 
-![Travis (.org)](https://img.shields.io/travis/Redocly/openapi-cli/master)
-![npm (scoped)](https://img.shields.io/npm/v/@redocly/openapi-cli)
-![NPM](https://img.shields.io/npm/l/@redocly/openapi-cli)
+![Travis (.org)](https://img.shields.io/travis/Redocly/redocly-cli/master)
+![npm (scoped)](https://img.shields.io/npm/v/@redocly/redocly-cli)
+![NPM](https://img.shields.io/npm/l/@redocly/redocly-cli)
 
-![OpenAPI 3 CLI toolset](./media/openapi-cli.gif)
+![OpenAPI 3 CLI toolset](./media/redocly-cli.gif)
 
 ## Features
 
-Currently, @redocly/openapi-cli supports these features:
+Currently, @redocly/cli supports these features:
 
 - [x] Multi-file validation. No need to bundle your file before validation.
 - [x] Lightning-fast validation. Lint a 1 MB file in less than one second.
@@ -27,25 +27,25 @@ Currently, @redocly/openapi-cli supports these features:
 
 ## What makes this tool different
 
-Unlike other OpenAPI linters, `@redocly/openapi-cli` defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how linters for programming languages work and results in major performance benefits over other approaches. Extend functionality at different points in the lifecycle with preprocessors, rules, and decorators.
+Unlike other OpenAPI linters, `@redocly/cli` defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how linters for programming languages work and results in major performance benefits over other approaches. Extend functionality at different points in the lifecycle with preprocessors, rules, and decorators.
 
 ## Usage
 
 ### Node
 
 ```
-npx @redocly/openapi-cli lint path-to-root-file.yaml
+npx @redocly/cli lint path-to-root-file.yaml
 ```
 
 Alternatively, install it globally with `npm`:
 
 ```
-npm install @redocly/openapi-cli -g
+npm install @redocly/cli -g
 ```
 
-Then you can use it as `openapi [command] [options]`, for example:
+Then you can use it as `redocly [command] [options]`, for example:
 
-```openapi lint path-to-root-file.yaml```
+```redocly lint path-to-root-file.yaml```
 
 ### Docker
 
