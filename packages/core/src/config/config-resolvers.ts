@@ -11,7 +11,14 @@ import {
   prefixRules,
   transformConfig,
 } from './utils';
-import type { LintRawConfig, Plugin, RawConfig, ResolvedApi, ResolvedLintConfig, RuleConfig } from './types';
+import type {
+  LintRawConfig,
+  Plugin,
+  RawConfig,
+  ResolvedApi,
+  ResolvedLintConfig,
+  RuleConfig,
+} from './types';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
@@ -254,12 +261,12 @@ export async function resolveLint(
   parentConfigPaths: string[] = [],
   extendPaths: string[] = [],
 ): Promise<ResolvedLintConfig> {
-  const resolvedLint = await resolveAndMergeNestedLint(lintOpts, parentConfigPaths, extendPaths)
+  const resolvedLint = await resolveAndMergeNestedLint(lintOpts, parentConfigPaths, extendPaths);
 
   return {
     ...resolvedLint,
-    rules: resolvedLint.rules && groupLintAssertionRules(resolvedLint.rules)
-  }
+    rules: resolvedLint.rules && groupLintAssertionRules(resolvedLint.rules),
+  };
 }
 
 export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedLintConfig {
@@ -320,11 +327,9 @@ function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConf
   return resultLint;
 }
 
-
 function groupLintAssertionRules(
-  rules: Record<string, RuleConfig> | undefined
+  rules: Record<string, RuleConfig> | undefined,
 ): Record<string, RuleConfig> | undefined {
-
   if (!rules) {
     return rules;
   }
@@ -350,5 +355,5 @@ function groupLintAssertionRules(
     transformedRules.assertions = assertions;
   }
 
-  return transformedRules
+  return transformedRules;
 }
