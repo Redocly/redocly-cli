@@ -1,6 +1,6 @@
-import { OrderOptions, OrderDirection, isOrdered, getIntersectionLength } from './utils';
+import { OrderOptions, OrderDirection, isOrdered, getIntersectionLength, regexFromString } from './utils';
 
-type Asserts = Record<string, (value: any, condition: any) => boolean>;
+type Asserts = Record<string, (value: any, condition: any, rawValue?: any) => boolean>;
 
 export const runOnKeysSet = new Set([
   'mutuallyExclusive',
@@ -13,6 +13,7 @@ export const runOnKeysSet = new Set([
   'sortOrder',
   'disallowed',
   'required',
+  'ref'
 ]);
 export const runOnValuesSet = new Set([
   'pattern',
@@ -24,6 +25,7 @@ export const runOnValuesSet = new Set([
   'maxLength',
   'casing',
   'sortOrder',
+  'ref'
 ]);
 
 export const asserts: Asserts = {
@@ -136,5 +138,14 @@ export const asserts: Asserts = {
   },
   requireAny: (value: string[], condition: string[]): boolean => {
     return getIntersectionLength(value, condition) >= 1;
+  },
+  ref: (_value: any, condition: string | boolean, rawValue: any): boolean => {
+    if (typeof rawValue === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
+    const hasRef = rawValue.hasOwnProperty('$ref');
+    if (typeof condition === 'boolean') {
+      return condition ? hasRef : !hasRef;
+    }
+    const regex = regexFromString(condition);
+    return hasRef && regex?.test(rawValue['$ref']);
   },
 };

@@ -17,6 +17,26 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('ref', () => {
+      it('value should have ref', () => {
+        expect(asserts.ref({$ref: 'text'}, true, {$ref: 'text'})).toBeTruthy();
+        expect(asserts.ref({}, true, {})).toBeFalsy();
+      });
+
+      it('value should not have ref', () => {
+        expect(asserts.ref({$ref: 'text'}, false, {$ref: 'text'})).toBeFalsy();
+        expect(asserts.ref({}, false, {})).toBeTruthy();
+      });
+
+      it('value should match regex pattern', () => {
+        expect(asserts.ref({$ref: 'test string'}, '/test/', {$ref: 'test string'})).toBeTruthy();
+        expect(asserts.ref({$ref: 'test string'}, '/test me/', {$ref: 'test string'})).toBeFalsy();
+
+        expect(asserts.ref({$ref: './components/smth/test.yaml'}, '/^(\.\/)?components\/.*\.yaml$/', {$ref: './components/smth/test.yaml'})).toBeTruthy();
+        expect(asserts.ref({$ref: './paths/smth/test.yaml'}, '/^(\.\/)?components\/.*\.yaml$/', {$ref: './paths/smth/test.yaml'})).toBeFalsy();
+      });
+    });
+
     describe('enum', () => {
       it('value should be among predefined keys', () => {
         expect(asserts.enum('test', ['test', 'example'])).toBeTruthy();

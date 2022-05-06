@@ -105,10 +105,10 @@ export function buildSubjectVisitor(
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          runAssertion(value, assert, location.child(property), report);
+          runAssertion(value, node[property], assert, location.child(property), report);
         }
       } else {
-        runAssertion(Object.keys(node), assert, location.key(), report);
+        runAssertion(Object.keys(node), Object.keys(node), assert, location.key(), report);
       }
     }
   };
@@ -150,11 +150,12 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
 
 function runAssertion(
   values: string | string[],
+  rawValues: any,
   assert: AssertToApply,
   location: any,
   report: (problem: Problem) => void,
 ) {
-  const lintResult = asserts[assert.name](values, assert.conditions);
+  const lintResult = asserts[assert.name](values, assert.conditions, rawValues);
   if (!lintResult) {
     report({
       message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,
@@ -164,4 +165,9 @@ function runAssertion(
       ruleId: assert.assertId,
     });
   }
+}
+
+export function regexFromString(input: string): RegExp | null {
+  const matches = input.match(/^\/(.*)\/(.*)|(.*)/);
+  return matches && new RegExp(matches[1] || matches[3], matches[2]);
 }
