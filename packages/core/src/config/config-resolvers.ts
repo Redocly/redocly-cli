@@ -11,7 +11,7 @@ import {
   prefixRules,
   transformConfig,
 } from './utils';
-import type { LintRawConfig, Plugin, RawConfig, ResolvedApi, ResolvedLintConfig } from './types';
+import type { LintRawConfig, Plugin, RawConfig, ResolvedApi, ResolvedLintConfig, RuleConfig } from './types';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
@@ -175,7 +175,7 @@ export async function resolveApis({
   return resolvedApis;
 }
 
-export async function resolveLint(
+async function resolveAndMergeNestedLint(
   {
     lintConfig,
     configPath = '',
@@ -213,7 +213,7 @@ export async function resolveLint(
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
       const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
-      return await resolveLint(
+      return await resolveAndMergeNestedLint(
         {
           lintConfig: extendedLintConfig,
           configPath: pathItem,
@@ -243,6 +243,23 @@ export async function resolveLint(
     recommendedFallback: lintConfig?.recommendedFallback,
     doNotResolveExamples: lintConfig?.doNotResolveExamples,
   };
+}
+
+export async function resolveLint(
+  lintOpts: {
+    lintConfig?: LintRawConfig;
+    configPath?: string;
+    resolver?: BaseResolver;
+  },
+  parentConfigPaths: string[] = [],
+  extendPaths: string[] = [],
+): Promise<ResolvedLintConfig> {
+  const resolvedLint = await resolveAndMergeNestedLint(lintOpts, parentConfigPaths, extendPaths)
+
+  return {
+    ...resolvedLint,
+    rules: resolvedLint.rules && groupLintAssertionRules(resolvedLint.rules)
+  }
 }
 
 export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedLintConfig {
@@ -301,4 +318,37 @@ function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConf
     recommendedFallback: apiLint?.extends ? false : configLint.recommendedFallback,
   };
   return resultLint;
+}
+
+
+function groupLintAssertionRules(
+  rules: Record<string, RuleConfig> | undefined
+): Record<string, RuleConfig> | undefined {
+
+  if (!rules) {
+    return rules;
+  }
+
+  // Create a new record to avoid mutating original
+  const transformedRules: Record<string, RuleConfig> = {};
+
+  // Collect assertion rules
+  const assertions = [];
+  for (const [ruleKey, rule] of Object.entries(rules)) {
+    if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
+      const assertion = rule;
+      assertions.push({
+        ...assertion,
+        assertionId: ruleKey.replace('assert/', ''),
+      });
+    } else {
+      // If it's not an assertion, keep it as is
+      transformedRules[ruleKey] = rule;
+    }
+  }
+  if (assertions.length > 0) {
+    transformedRules.assertions = assertions;
+  }
+
+  return transformedRules
 }
