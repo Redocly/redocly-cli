@@ -34,7 +34,7 @@ yarn global v1.22.11
 [3/4] 🔗  Linking dependencies...
 [4/4] 🔨  Building fresh packages...
 
-success Installed "@redocly/cli@1.0.0-beta.95" with binaries:
+success Installed "@redocly/cli@1.0.0-beta.96" with binaries:
       - openapi
       - redocly
 ✨  Done in 6.90s.
@@ -46,7 +46,7 @@ Running `redocly --version` will confirm that the installation was successful:
 
 ```shell
 redocly --version
-1.0.0-beta.95
+1.0.0-beta.96
 ```
 
 ## Runtime installation

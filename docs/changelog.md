@@ -4,7 +4,11 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
-## 1.0.0-beta-95 (2022-05-04)
+## 1.0.0-beta.96 (2022-05-06)
+
+Technical release for changing the package name.
+
+## 1.0.0-beta.95 (2022-05-04)
 
 :::warning Product name change
 
@@ -52,7 +56,7 @@ lint:
 
 ---
 
-## 1.0.0-beta-94 (2022-04-12)
+## 1.0.0-beta.94 (2022-04-12)
 
 ### Features
 
@@ -61,7 +65,7 @@ lint:
 
 ---
 
-## 1.0.0-beta-93 (2022-04-05)
+## 1.0.0-beta.93 (2022-04-05)
 
 ### Fixes
 
@@ -69,7 +73,7 @@ lint:
 
 ---
 
-## 1.0.0-beta-92 (2022-04-04)
+## 1.0.0-beta.92 (2022-04-04)
 
 ### Features
 
