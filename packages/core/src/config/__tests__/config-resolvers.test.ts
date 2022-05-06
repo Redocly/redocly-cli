@@ -140,8 +140,8 @@ describe('resolveLint', () => {
       configPath,
     });
 
-    expect(Array.isArray(lint.rules.assertions)).toEqual(true);
-    expect(lint.rules.assertions).toMatchObject( [
+    expect(Array.isArray(lint.rules?.assertions)).toEqual(true);
+    expect(lint.rules?.assertions).toMatchObject( [
       {
         subject: 'PathItem',
         property: 'get',
