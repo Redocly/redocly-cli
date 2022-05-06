@@ -67,7 +67,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   return { body: await req.text(), mimeType: req.headers.get('content-type') };
 }
 
-export function match(url: string, pattern: string) {
+function match(url: string, pattern: string) {
   if (!pattern.match(/^https?:\/\//)) {
     // if pattern doesn't specify protocol directly, do not match against it
     url = url.replace(/^https?:\/\//, '');
