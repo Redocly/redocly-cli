@@ -1,10 +1,10 @@
 # Redocly CLI toolset
 
-Redocly CLI toolbox with rich validation and bundling features.
+Redocly CLI (fka OpenAPI CLI) toolbox with rich validation and bundling features.
 
 ![Travis (.org)](https://img.shields.io/travis/Redocly/redocly-cli/master)
-![npm (scoped)](https://img.shields.io/npm/v/@redocly/redocly-cli)
-![NPM](https://img.shields.io/npm/l/@redocly/redocly-cli)
+![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
+![NPM](https://img.shields.io/npm/l/@redocly/cli)
 
 ![OpenAPI 3 CLI toolset](./media/redocly-cli.gif)
 
@@ -21,13 +21,16 @@ Currently, @redocly/cli supports these features:
 - [x] Easy to implement custom rules.
 - [x] Bundle a multi-file definition into a single file.
 - [x] Decorators to modify a validated definition during bundling.
-- [x] Preview reference docs for local development.
+- [x] Preview docs for local development.
 - [x] Support for OpenAPI 2 (fka Swagger) and OpenAPI 3.0.
 - [x] Basic support for OpenAPI 3.1
 
 ## What makes this tool different
 
-Unlike other OpenAPI linters, `@redocly/cli` defines the possible type tree of a valid OpenAPI definition and then traverses it. This approach is very similar to how linters for programming languages work and results in major performance benefits over other approaches. Extend functionality at different points in the lifecycle with preprocessors, rules, and decorators.
+- 💨 **It's faster** (uses a type tree similar to how linters for programming languages work)
+- 🎯 **It's more accurate** (working with types is more accurate than working with JSON path)
+- ⚙️ **It's highly configurable** (comes with a lot of commands and rules)
+- 🛠️ **It's more extensible** (architected for custom plugins and types)
 
 ## Usage
 
@@ -64,7 +67,7 @@ docker build -t openapi-cli .
 docker run --rm -v $PWD:/spec openapi-cli lint path-to-root-file.yaml
 ```
 
-## [Read the docs](https://redoc.ly/docs/cli/)
+## [Read the docs](https://redocly.com/docs/cli/)
 
 ## Credits
 
