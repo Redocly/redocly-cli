@@ -11,17 +11,17 @@ The Redocly configuration file is used by OpenAPI CLI and other Redocly apps to 
 * Reference uses it to apply your custom settings when it's building API reference documentation (hosted and on-premise).
 * VS Code extension uses it for linting criteria, to apply custom settings for live documentation previews, and to set API definition root files.
 
-## Location, name and format
+## File name, location and format
 
 The Redocly configuration file must be named either `redocly.yaml` or `.redocly.yaml`. It must be located in the root of your project directory, and it must be in the YAML format. If you cloned the `openapi-starter` project, this is already set up for you.
 
 :::warning
-If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will show a warning in the output and ask you to choose one file to use.
+If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will show a warning in the output and ask you to choose one file.
 :::
 
-## The Redocly configuration file root object
+## File structure
+The Redocly configuration file consists of several sections, each with its own configuration options. Here's an example:
 
-### Example
 ```yaml
 organization:
 # The organization ID of a Redocly Workflows organization.
@@ -64,17 +64,7 @@ features.openapi:
 # The API reference docs options, including theme options.
 ```
 
-### Sections
-
-| Field name | Type | Description |
-|---|---|---|
-| `organization` | [Organization string](#organization) | Stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry. |
-| `apis` | [APIs object](#apis) | Lets you configure one or more API definition files. This gives you the flexibility to reference specific files in commands, and configure each file at a granular level. |
-| `lint` | [Lint object](./configuration-file.mdx#lint) | Lets you set rules and decorators that control how the `lint` and `bundle` commands behave. |
-| `features.mockServer` | [Mock server features object](#features.mockServer) | Lets you toggle features to determine how mock servers behave. |
-| `region` | [Region string](region) | Supported regions are `us` (default) and `eu` (available only to enterprise customers). |
-| `resolve` | [Resolve object](#resolve) | All API registry links and public URLs in your API definitions will automatically resolve. If you want to resolve links that are neither API registry links nor publicly accessible, you must add the resolve section to `redocly.yaml`. |
-| `features.openapi` | [OpenAPI features object](features.openapi) | Lets you toggle features that control how API definition files are rendered. |
+**INSERT SCHEMA.YAML HERE**
 
 ## `organization`
 
@@ -128,18 +118,6 @@ apis:
 You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on the OpenAPI definition files you specify.
 
 Bonus: You only need to type `name` or `name@version` in commands, not the entire path to the file. No one's getting any younger — especially not us. Where we can save you time, we will!
-
-### Summary of `apis` properties
-
-| Field name |  | Type | Description |
-|---|---|---|---|
-| `{apiName}` |  | `patternProperties` | REQUIRED. Identifies an API definition file. |
-| `{apiName}@{apiVersion}` |  | `patternProperties` | Identifies multiple versions of an API. `{apiName}` is required but `@version` is optional. |
-|  | `root` | `string` | REQUIRED. The relative path to where a definition file is stored. |
-|  | `labels` | `array` | Assigns Redocly Workflows organization-wide labels to a definition file. |
-|  | `lint` | `object` | Defines linting rules at the file level (overrides global `lint` configuration). |
-|  | `features.openapi` | `object` | Configures theming and functionality for an API definition. |
-|  | `features.mockServer` | `object` | Configures mock server behavior for an API definition. |
 
 ### Examples
 
@@ -267,7 +245,7 @@ The `rules` and `decorators` subsections only work at the API level. The `plugin
 
 #### The `plugins` subsection
 
-Use to import custom local plugins. Type is `string`.
+Used to import custom local plugins. Type is `string`.
 
 :::warning
 Community plugins are not supported, and you don't need to import built-in plugins and rules.
@@ -290,15 +268,11 @@ lint:
 
 #### The `extends` subsection
 
-| Type     | Possible values                 | Default value |
-|----------|---------------------------------|---------------|
-| `string` | `all`, `minimal`, `recommended` | `recommended` |
-
 OpenAPI CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. In the Redocly configuration file, you can apply and configure each built-in rule per definition, or you can use **rule sets** to invoke a lot of rules at the same time.
 
 OpenAPI CLI has three rule sets — each specifying different levels of severity — that can be applied via the `--extends` option in the `lint` command.
 
-The `extends` subsection in the Redocly configuration file lets you configure rule sets and further extensions, and also lets you add your own plugins. You can use subsequent sub-sections to override specific settings if you wish.
+The `extends` subsection in the Redocly configuration file lets you configure rule sets and further extensions, and also lets you add your own plugins. You can use subsequent subsections to override specific settings if you wish.
 
 `all`, `minimal` and `recommended` can only be used with built-in rules. For custom plugins, additional configuration can be applied (our [guide to custom plugins and rules](../resources/custom-rules.md#configs-in-plugins) has more information).
 
@@ -328,17 +302,9 @@ If there is a conflict where multiple rule sets are used, the rule set at the bo
 
 #### The `preprocessors` subsection
 
-| Type | Possible values |
-|---|---|
-| `Map [string, string | Rule object]` | `error`, `warn`, `off` |
-
-Preprocessors run first during the `lint` and `bundle` commands. For `bundle`, linting only happens if the `--lint` option is used in the command.
+Changes the severity level of any preprocessors in your extended configurations. Preprocessors run first during the `lint` and `bundle` commands. For `bundle`, linting only happens if the `--lint` option is used in the command.
 
 #### The `rules` subsection
-
-| Type | Possible values |
-|---|---|
-| `Map [string, string | Rule object]` | `error`, `warn`, `off` |
 
 `rules` lets you change the [severity level](#severity-levels) of any rule in your extended linting configurations. Some rules can also support [additional options](#additional-rule-options).
 
@@ -372,10 +338,6 @@ lint:
 ```
 
 #### The `decorators` subsection
-
-| Type | Possible values |
-|---|---|
-| `Map [string, string | Decorator object]` | `error`, `warn`, `off` |
 
 A 'decorator' is a programming pattern that modifies the bundling process after validation has completed. This subsection of `lint` is used to enable and disable decorators if these are in use.
 
@@ -492,12 +454,7 @@ lint:
 ## features.mockServer
 A mock server imitates a real API server by providing mock API responses to requests. The API registry supports [mock servers](../../api-registry/guides/mock-server-quickstart.md) that let you send test requests to your APIs from any API client.
 
-In `redocly.yaml`, the optional `features.mockServer` section lets you configure how the mock server behaves. This table describes the supported fields.
-
-| Property | Type | Description |
-|---|---|---|
-| `errorIfForcedExampleNotFound` | `boolean` | You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests. If you pass an example ID that can't be found in the OpenAPI definition, the mock server will return any other example. If `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. Possible values: `true`, `false`. Default value: `false`. |
-| `strictExamples` | `boolean` | By default, the mock server automatically enhances responses with heuristics, such as substituting response fields with request parameter values. If you set `strictExamples: true`, examples are returned in the response unmodified, and exactly how they are described in the OpenAPI definition. Possible values: `true`, `false`. Default value: `false`. |
+In `redocly.yaml`, the optional `features.mockServer` section lets you configure how the mock server behaves.
 
 ## region
 
@@ -554,14 +511,7 @@ resolve:
       - # header configuration
 ```
 
-The `headers` object supports the following properties:
-
-| Property | Description | Examples |
-| --- | --- | --- |
-| matches | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json`|
-| name | HTTP header name. | `Authorization` or `X-API-KEY`|
-| value | The value of the header. Mutually exclusive with `envVariable`. | `123-abc`|
-| envVariable | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. |`SECRET_KEY`|
+See the [schema](#file-structure) for properties supported by the `headers` object.
 
 Here is an example of adding header definitions to `resolve`:
 
