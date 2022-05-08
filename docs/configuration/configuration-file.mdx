@@ -380,20 +380,8 @@ See our [built-in rules documentation](../resources/built-in-rules.md) for more 
 
 ### The additional rules option
 
-Some [built-in rules](../resources/built-in-rules.md) support additional configuration via the additional rule object. The object is like:
-
-Property | Type | Description
----|---|---
-`severity` | `string` | REQUIRED. Possible values: `error`, `warn`, `off`.
-`additionalProperties` | `string` | Different rules may have additional configuration options. Additional property names and values are documented with each rule.
-
-Here's an example of an additional rule applied to `boolean-parameter-prefixes`:
+Some [built-in rules](../resources/built-in-rules.md) support additional configuration via the additional rule object. Here's an example of an additional rule applied to the `boolean-parameter-prefixes` built-in rule:
     
-Property | Type | Description
----|---|---
-`severity` | `string` | REQUIRED. Possible values: `error`, `warn`, `off`.
-`prefixes` | `[string]` | A list of boolean prefix strings. Each boolean property must have one of these strings as its initial characters. Possible values: `can`, `has`, `is`, `should`. Default values: `has`, `is`.
-
 ```yaml
 lint:
   extends:
