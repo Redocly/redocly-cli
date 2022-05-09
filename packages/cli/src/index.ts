@@ -261,6 +261,7 @@ yargs
     async () => {
       const client = new RedoclyClient();
       client.logout();
+      process.stdout.write('Logged out from the Redocly account. ✋\n');
     },
   )
   .command(
