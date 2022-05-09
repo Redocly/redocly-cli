@@ -5,7 +5,7 @@ import { StyledContent } from '../../components/styled.elements';
 
 # Redocly configuration file
 
-The Redocly configuration file is used by OpenAPI CLI and other Redocly apps to control their behavior — from the strictness of the `lint` command, to how Redocly renders your docs.
+The Redocly configuration file is used by Redocly CLI and other Redocly apps to control their behavior — from the strictness of the `lint` command, to how Redocly renders your docs.
 
 * Workflows uses it in the API registry to manage your APIs and control advanced features like region and link resolution.
 * Reference uses it to apply your custom settings when it's building API reference documentation (hosted and on-premise).
@@ -26,7 +26,7 @@ The Redocly configuration file consists of several sections, each with its own c
 organization:
 # The organization ID of a Redocly Workflows organization.
 # Used for easier integration with the API registry and hosted Reference docs,
-# not required for local OpenAPI CLI usage.
+# not required for local Redocly CLI usage.
 apis:
 # A collection of objects, each representing one API.
 # An API should be defined by a name, an optional version,
@@ -70,7 +70,7 @@ features.openapi:
 
 The `organization` section stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry. If an organization ID is not passed explicitly in command-line arguments, `push` will look for it in `redocly.yaml`.
 
-The `organization` property is only required in the configuration file if you're using the API registry and/or hosted Reference docs. It is not required for local OpenAPI CLI usage.
+The `organization` property is only required in the configuration file if you're using the API registry and/or hosted Reference docs. It is not required for local Redocly CLI usage.
 
 To find the organization ID:
 
@@ -268,9 +268,9 @@ lint:
 
 #### The `extends` subsection
 
-OpenAPI CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. In the Redocly configuration file, you can apply and configure each built-in rule per definition, or you can use **rule sets** to invoke a lot of rules at the same time.
+Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. In the Redocly configuration file, you can apply and configure each built-in rule per definition, or you can use **rule sets** to invoke a lot of rules at the same time.
 
-OpenAPI CLI has three rule sets — each specifying different levels of severity — that can be applied via the `--extends` option in the `lint` command.
+Redocly CLI has three rule sets — each specifying different levels of severity — that can be applied via the `--extends` option in the `lint` command.
 
 The `extends` subsection in the Redocly configuration file lets you configure rule sets and further extensions, and also lets you add your own plugins. You can use subsequent subsections to override specific settings if you wish.
 
@@ -375,7 +375,7 @@ lint:
 ```
 
 :::info
-See our [built-in rules documentation](../resources/built-in-rules.md) for more information about the built-in rules available in OpenAPI CLI.
+See our [built-in rules documentation](../resources/built-in-rules.md) for more information about the built-in rules available in Redocly CLI.
 :::
 
 ### The additional rules option
@@ -400,7 +400,7 @@ If you write custom rules, you can make it so they accept the additional rules o
 
 ### Different OpenAPI versions and `lint`
 
-Redocly OpenAPI CLI supports OpenAPI Specification versions 2.0, 3.0, and 3.1. Most of the time you will use one of them, but sometimes you may need to configure different rules based on the OpenAPI Specification version your definition is written in. You can do that by using additional configuration sections.
+Redocly CLI supports OpenAPI Specification versions 2.0, 3.0, and 3.1. Most of the time you will use one of them, but sometimes you may need to configure different rules based on the OpenAPI Specification version your definition is written in. You can do that by using additional configuration sections.
 
 In this example:
 * If version 2 (formerly known as Swagger) then `lint` will prioritize the `oas2Rules` subsection.
@@ -420,13 +420,13 @@ lint:
     boolean-parameter-prefixes: error
 ```
 
-See our [built-in rules documentation](../resources/built-in-rules.md) for more information about the built-in rules available in OpenAPI CLI.
+See our [built-in rules documentation](../resources/built-in-rules.md) for more information about the built-in rules available in Redocly CLI.
 
 ### Resolve JSON references ($refs) — or not
 
 The OpenAPI Specification supports `$refs` in several objects to enable content re-use and make longer API definitions easier to deal with. Different tools and implementations of the specification — as well as the human beings who write the actual definitions — may use or require `$refs` in unsupported places.
 
-Starting from version `beta-30`, OpenAPI CLI automatically resolves all `$refs` by default — even in those dark, dusty corners where the OpenAPI Specification does not allow them. This includes primitive values, for example `string`, in description and example fields.
+Starting from version `beta-30`, Redocly CLI automatically resolves all `$refs` by default — even in those dark, dusty corners where the OpenAPI Specification does not allow them. This includes primitive values, for example `string`, in description and example fields.
 
 You can stop `lint` from resolving `$refs` in examples by adding the `doNotResolveExamples` configuration option in the `lint` section of the Redocly configuration file. This does not affect `$ref` resolution in other parts of the API definition:
 
