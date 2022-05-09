@@ -1,6 +1,6 @@
 ---
-title: OpenAPI CLI configuration
-description: Learn how to configure OpenAPI CLI
+title: Redocly CLI configuration
+description: Learn how to configure Redocly CLI
 redirectFrom:
   - /docs/cli/configuration/configuration-file/
 ---
@@ -9,10 +9,9 @@ import { JsonSchema } from '@redocly/developer-portal/ui';
 import Schema from './schema.yaml';
 import { StyledContent } from '../../components/styled.elements';
 
-
 # Redocly configuration file
 
-The Redocly configuration file controls options for the OpenAPI CLI tool.
+The Redocly configuration file controls options for the Redocly CLI tool.
 It is also used across other Redocly products to help you control their behavior.
 
 - Workflows uses it in the API registry to manage your APIs and control advanced features like region and link resolution.
@@ -23,7 +22,7 @@ It is also used across other Redocly products to help you control their behavior
 
 The Redocly configuration file must be named `redocly.yaml` or `.redocly.yaml`, and placed into your working directory or the root of your project (depending on the Redocly product you're using).
 
-OpenAPI CLI will search for the configuration file in the working directory.
+Redocly CLI will search for the configuration file in the working directory.
 
 :::warning
 
@@ -151,7 +150,7 @@ features.openapi | ✅ | API and global settings merge. In case of conflict, API
 features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
 
 
-Some of the OpenAPI CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` section as shortcuts for referencing API definitions.
+Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` section as shortcuts for referencing API definitions.
 You can tell the `lint` command to validate specific API definitions by using their names from the `apis` section, like in the following example:
 
 ```shell
@@ -233,7 +232,7 @@ lint:
 
 Redocly will automatically resolve any API registry link or public URL in your API definitions. However, you may want to resolve links that are not API registry links or publicly accessible. To accomplish that, add the `resolve` section to the configuration file.
 
-OpenAPI CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section.
+Redocly CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section.
 
 We recommend using environment variables whenever possible.
 

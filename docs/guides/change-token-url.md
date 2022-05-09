@@ -30,7 +30,7 @@ Estimated time: 20 minutes
     const ChangeTokenUrl = require('./decorators/change-token-url');
     const id = 'acme';
 
-    /** @type {import('@redocly/openapi-cli').CustomRulesConfig} */
+    /** @type {import('@redocly/cli').CustomRulesConfig} */
     const decorators = {
       oas3: {
         'change-token-url': ChangeTokenUrl,
@@ -46,7 +46,7 @@ Estimated time: 20 minutes
     ```js decorators/change-token-url.js
     module.exports = ChangeTokenUrl;
 
-    /** @type {import('@redocly/openapi-cli').OasDecorator} */
+    /** @type {import('@redocly/cli').OasDecorator} */
     function ChangeTokenUrl() {
       return {
         SecuritySchemeFlows: {

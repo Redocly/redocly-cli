@@ -2,9 +2,61 @@
 tocMaxDepth: 2
 ---
 
-# OpenAPI CLI changelog
+# Redocly CLI changelog
 
-## 1.0.0-beta-94 (2022-04-12)
+## 1.0.0-beta.96 (2022-05-06)
+
+Technical release for changing the package name.
+
+## 1.0.0-beta.95 (2022-05-04)
+
+:::warning Product name change
+
+The product name has changed from OpenAPI CLI to **Redocly CLI**.
+
+You will notice this change reflected in all Redocly product documentation, in the npm package name (more on that in the "Deprecated" section),
+and later in the official project GitHub repository.
+
+The change also affects the CLI commands. The legacy name `openapi` will remain supported for a while, but we strongly recommend you use the new name `redocly`.
+(To illustrate, if you previously used `openapi lint`, now you should use `redocly lint`).
+
+If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/openapi-cli/issues).
+
+:::
+
+### Features
+
+- The `lint.extends` section in the Redocly configuration file supports file paths and URLs as values. This means you can define your own lint rulesets in local or remote files, and list those files in the `extends` section. The following example shows how to do it:
+
+```yaml
+lint:
+  extends:
+    - recommended
+    - ./path/to/local/lint-ruleset.yaml
+    - https://url-to-remote/lint-ruleset.yaml
+```
+
+The contents of those referenced files must correspond to the standard format used in the `lint.rules` section to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
+
+```yaml
+lint:
+  rules:
+    tags-alphabetical: error
+```
+
+- The `lint` command supports a new output formatting option called `codeclimate` that you can use with the `--format` argument.
+
+### Fixes
+
+- Fixed an issue with resolvable scalar values not working in assertions.
+
+### Deprecated
+
+- Deprecated the `@redocly/openapi-cli` npm package. From this version forward, use `@redocly/cli` instead.
+
+---
+
+## 1.0.0-beta.94 (2022-04-12)
 
 ### Features
 
@@ -13,7 +65,7 @@ tocMaxDepth: 2
 
 ---
 
-## 1.0.0-beta-93 (2022-04-05)
+## 1.0.0-beta.93 (2022-04-05)
 
 ### Fixes
 
@@ -21,7 +73,7 @@ tocMaxDepth: 2
 
 ---
 
-## 1.0.0-beta-92 (2022-04-04)
+## 1.0.0-beta.92 (2022-04-04)
 
 ### Features
 

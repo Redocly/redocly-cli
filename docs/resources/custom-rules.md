@@ -1,5 +1,5 @@
 ---
-title: Custom plugins and rules in OpenAPI CLI
+title: Custom plugins and rules in Redocly CLI
 redirectFrom:
   - /docs/cli/custom-rules/
 ---
@@ -61,7 +61,7 @@ Some examples:
 
 # Custom rules
 
-Each rule is a function that accepts rule config and returns an object with methods that openapi-cli calls to "visit" nodes while traversing the definition document.
+Each rule is a function that accepts rule config and returns an object with methods that Redocly CLI calls to "visit" nodes while traversing the definition document.
 
 Here is the basic example of a rule:
 
@@ -88,9 +88,9 @@ See an example of a custom rule implementation in our ["Response contains proper
 Keys of the object can be any of the following:
 
 - node type - visitor will be called on specific node type. List of available node types for each specific OAS version:
-  - OAS 3.1: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/types/oas2.ts#L367
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3.ts#L530
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas2.ts#L367
 - `any` - visitor will be called on every node
 - `ref` - visitor will be called on $ref nodes
 
@@ -99,7 +99,7 @@ The value of each node can be either **visitor function** (runs while going down
 ## Visitor object
 Visitor object can contain `enter` and/or `leave` visitor functions and `skip` predicate method.
 
-`openapi-cli` calls `enter` **visitor function** while going down the tree and `leave` going up the tree.
+Redocly CLI calls `enter` **visitor function** while going down the tree and `leave` going up the tree.
 `skip` predicate is called and if it returns `true` the node is ignored for this visitor.
 
 
@@ -148,7 +148,7 @@ function ExampleRule() {
 }
 ```
 
-The `Schema` **visitor function** will be called by openapi-cli if only Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
+The `Schema` **visitor function** will be called by Redocly CLI if only Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
 
 As the third argument, the **visitor function** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
@@ -242,7 +242,7 @@ By default, the message is reported at the current node location.
 
 # Custom plugins
 
-Plugins can be used to extend behavior of `@redocly/openapi-cli`.
+Plugins can be used to extend behavior of `@redocly/cli`.
 Each plugin is a JavaScript module which can export custom rules, preprocessors, decorators or type tree extensions.
 
 ## Plugin structure
@@ -259,11 +259,11 @@ module.exports = {
 
 Everything that is exported from plugin can be related to one of supported OAS major versions. It is done by exporting object containing key-value mapping from major OAS version (`oas2` or `oas3` are supported) to the extension object (rules, preprocessors, decorators).
 
-Before processing the definition document openapi-cli detects the OAS version and applies corresponding set of extensions.
+Before processing the definition document Redocly CLI detects the OAS version and applies corresponding set of extensions.
 
 ## Rules in plugins
 
-Plugins can expose additional rules for use in openapi-cli.
+Plugins can expose additional rules for use in Redocly CLI.
 To do so, the plugin must export a `rules` object containing a key-value mapping of rule ID to rule.
 The rule ID does not have to follow any naming convention (so it can be `tag-name`, for instance).
 Sample rules definition:
@@ -282,7 +282,7 @@ module.exports = {
 }
 ```
 
-To use the rule in openapi-cli, you would use the plugin name, followed by a slash, followed by the rule name.
+To use the rule in Redocly CLI, you would use the plugin name, followed by a slash, followed by the rule name.
 So if this plugin id is `my-local-plugin`, then in your configuration you'd refer to the rule by the name `my-local-plugin/tag-name`.
 Example: `"rules": {"my-local-plugin/tag-name": "error"}`.
 
@@ -376,8 +376,8 @@ Community plugins are not supported yet.
 
 ## Type definitions
 
-`openapi-cli` in its core has a type tree which defines the structure of the OpenAPI definition.
-`openapi-cli` then uses it to do type-aware traversal of OpenAPI Document.
+Redocly CLI in its core has a type tree which defines the structure of the OpenAPI definition.
+Redocly CLI then uses it to do type-aware traversal of OpenAPI Document.
 
 The type tree is built from top level `Types` which can link to child types.
 
