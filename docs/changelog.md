@@ -10,6 +10,11 @@ tocMaxDepth: 2
 
 - Added the `--public` option to the `push` command. With this option, you can upload OpenAPI definitions and make them publicly accessible.
 
+### Fixes
+
+- Fixed Dockerfile after changing the package name from `@redocly/openapi-cli` to `@redocly/cli`.
+- Fixed an issue with `process.*` in core package that caused crashes in client-side builds.
+
 ## 1.0.0-beta.96 (2022-05-06)
 
 Technical release for changing the package name from `@redocly/openapi-cli` to `@redocly/cli`.
