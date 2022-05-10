@@ -12,7 +12,7 @@ tocMaxDepth: 2
 
 ## 1.0.0-beta.96 (2022-05-06)
 
-Technical release for changing the package name.
+Technical release for changing the package name from `@redocly/openapi-cli` to `@redocly/cli`.
 
 ## 1.0.0-beta.95 (2022-05-04)
 
