@@ -4,6 +4,12 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.97 (2022-05-10)
+
+### Features
+
+- Added `--public` option to the `push` command. Allows upload OpenAPI definition and make it public accessible.
+
 ## 1.0.0-beta.96 (2022-05-06)
 
 Technical release for changing the package name.
