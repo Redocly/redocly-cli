@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added `--public` option to the `push` command. Allows upload OpenAPI definition and make it public accessible.
+- Added the `--public` option to the `push` command. With this option, you can upload OpenAPI definitions and make them publicly accessible.
 
 ## 1.0.0-beta.96 (2022-05-06)
 
