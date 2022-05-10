@@ -106,6 +106,10 @@ yargs
             array: true,
             type: 'string',
           },
+          'public': {
+            description: 'Make API registry available to the public',
+            type: 'boolean',
+          },
         }),
     transformPush(handlePush),
   )
