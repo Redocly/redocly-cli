@@ -13,8 +13,8 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed Dockerfile after changing the package name from `@redocly/openapi-cli` to `@redocly/cli`.
 - Fixed an issue with `process.*` in core package that caused crashes in client-side builds.
+- Fixed `preview-docs` hot reload.
 
 ## 1.0.0-beta.96 (2022-05-06)
 
