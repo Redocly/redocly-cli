@@ -106,6 +106,10 @@ yargs
             array: true,
             type: 'string',
           },
+          'public': {
+            description: 'Make API registry available to the public',
+            type: 'boolean',
+          },
         }),
     transformPush(handlePush),
   )
@@ -261,6 +265,7 @@ yargs
     async () => {
       const client = new RedoclyClient();
       client.logout();
+      process.stdout.write('Logged out from the Redocly account. ✋\n');
     },
   )
   .command(

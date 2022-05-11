@@ -98,19 +98,24 @@ export default async function startPreviewServer(
         });
       }
     } else {
-      const filePath =
+      let filePath =
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
           '/oauth2-redirect.html': path.join(__dirname, 'oauth2-redirect.html'),
           '/simplewebsocket.min.js': require.resolve('simple-websocket/simplewebsocket.min.js'),
-        }[request.url || ''] ||
-        path.resolve(htmlTemplate ? path.dirname(htmlTemplate) : process.cwd(), `.${request.url}`);
+        }[request.url || ''];
 
-      if (!isSubdir(process.cwd(), filePath)) {
-        respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
-        console.timeEnd(colorette.dim(`GET ${request.url}`));
-        return;
+      if (!filePath) {
+        const basePath = htmlTemplate ? path.dirname(htmlTemplate) : process.cwd();
+
+        filePath = path.resolve(basePath, `.${request.url}`);
+
+        if (!isSubdir(basePath, filePath)) {
+          respondWithGzip('404 Not Found', request, response, { 'Content-Type': 'text/html' }, 404);
+          console.timeEnd(colorette.dim(`GET ${request.url}`));
+          return;
+        }
       }
 
       const extname = String(path.extname(filePath)).toLowerCase() as keyof typeof mimeTypes;

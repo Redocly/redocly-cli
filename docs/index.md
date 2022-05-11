@@ -2,13 +2,13 @@
 tocMaxDepth: 2
 ---
 
-# Redocly OpenAPI CLI
+# Redocly CLI
 
-OpenAPI CLI is an open source command-line tool that makes it easier to work with OpenAPI definition files. You can split large files into smaller files, then manage them with your [favorite version control service](../workflows/sources/index.md).
+Redocly CLI is an open source command-line tool that makes it easier to work with OpenAPI definition files. You can split large files into smaller files, then manage them with your [favorite version control service](../workflows/sources/index.md).
 
 Commands, rules and plugins help you validate your API definitions and preview docs locally. And when it's time to publish (using Redoc or Redocly, naturally), you can bundle everything back into a single file.
 
-OpenAPI CLI also integrates with other Redocly products such as the API registry, and you can build production-ready reference docs if you have an enterprise license key.
+Redocly CLI also integrates with other Redocly products such as the API registry, and you can build production-ready reference docs if you have an enterprise license key.
 
 ## Key features
 
@@ -26,16 +26,16 @@ Just because it's open source, doesn't mean we've skimped on the goodies.
 
 Most customization can be done in the Redocly configuration file (`redocly.yaml`). Create your own [linting rules](./resources/custom-rules.md) to ensure definitions validate to _your_ requirements. Remove content during the bundling process using [decorators](./resources/built-in-decorators.md). Go all out by utilizing plugins and apply a combination of rules and decorators that meet your specific needs.
 
-## What makes Redocly OpenAPI CLI great
+## What makes Redocly CLI great
 
 ### Superior performance
-Unlike other OpenAPI validation tools, Redocly OpenAPI CLI defines the possible type tree of a valid OpenAPI definition, then traverses it (similar to how compilers work). The result? Better performance.
+Unlike other OpenAPI validation tools, Redocly CLI defines the possible type tree of a valid OpenAPI definition, then traverses it (similar to how compilers work). The result? Better performance.
 
 ### A multi-file approach
 
 You can write OpenAPI definitions in either a single file or in multiple files. A single file is good for beginners and for simple APIs. The more complex the API, the longer the definition. The longer the definition, the trickier it is to deal with, increasing the risk of syntax and validation errors, and decreasing developer buy-in.
 
-The solution is a multi-file approach. This is where you define the main structure of the API in a root definition file and everything else is stored in smaller, separate files. During the bundling process, Redocly OpenAPI CLI compiles multiple files (linked with $refs) into one file in a single command. You don't have to install and maintain a third-party tool to do the job.
+The solution is a multi-file approach. This is where you define the main structure of the API in a root definition file and everything else is stored in smaller, separate files. During the bundling process, Redocly CLI compiles multiple files (linked with $refs) into one file in a single command. You don't have to install and maintain a third-party tool to do the job.
 
 Compare the examples below. Note that the definitions aren't complete, but they show you what's possible with a multi-file approach.
 
@@ -187,11 +187,11 @@ tag:
 Linting your OpenAPI definition ensures that it's valid and adheres to a set of rules and standards. This is especially important if you follow the design-first approach to developing APIs. You can use built-in linting rules, create your own custom rules — or a combination of both. Custom rules also extend basic functionality so you can respond to specific use-cases.
 
 ## Relationship to Redoc
-OpenAPI CLI keeps you sane as you maintain your API definitions. [Redoc](../redoc/quickstart.md) swiftly deploys your docs to a website so all your hard work can be appreciated. There are [multiple deployment options for Redoc](../redoc/deployment/intro.md).
+Redocly CLI keeps you sane as you maintain your API definitions. [Redoc](../redoc/quickstart.md) swiftly deploys your docs to a website so all your hard work can be appreciated. There are [multiple deployment options for Redoc](../redoc/deployment/intro.md).
 
 ## Read the docs!
-Everything you need to know about Redocly OpenAPI CLI is contained in the following pages. We take as much pride in our docs as we do in our code, so we're always fine-tuning, updating and improving. We suggest you start with our [quickstart guide](./quickstart.md).
+Everything you need to know about Redocly CLI is contained in the following pages. We take as much pride in our docs as we do in our code, so we're always fine-tuning, updating and improving. We suggest you start with our [quickstart guide](./quickstart.md).
 
 ## Want to contribute?
 
-Then join our active and supportive community! The source code is available at https://github.com/Redocly/openapi-cli.
+Then join our active and supportive community! The source code is available at https://github.com/Redocly/redocly-cli.

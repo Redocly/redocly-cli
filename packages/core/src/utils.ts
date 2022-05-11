@@ -5,6 +5,7 @@ import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import type { HttpResolveConfig } from './config';
+import { env } from "./config";
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -51,7 +52,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   for (const header of config.headers) {
     if (match(url, header.matches)) {
       headers[header.name] =
-        header.envVariable !== undefined ? process.env[header.envVariable] || '' : header.value;
+        header.envVariable !== undefined ? env[header.envVariable] || '' : header.value;
     }
   }
 
@@ -66,7 +67,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   return { body: await req.text(), mimeType: req.headers.get('content-type') };
 }
 
-export function match(url: string, pattern: string) {
+function match(url: string, pattern: string) {
   if (!pattern.match(/^https?:\/\//)) {
     // if pattern doesn't specify protocol directly, do not match against it
     url = url.replace(/^https?:\/\//, '');

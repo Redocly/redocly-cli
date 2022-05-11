@@ -104,6 +104,7 @@ export class RegistryApi {
     filePaths,
     branch,
     isUpsert,
+    isPublic,
   }: RegistryApiTypes.PushApiParams) {
     const response = await this.request(
       `/${organizationId}/${name}/${version}`,
@@ -118,6 +119,7 @@ export class RegistryApi {
           filePaths,
           branch,
           isUpsert,
+          isPublic,
         }),
       },
       this.region,

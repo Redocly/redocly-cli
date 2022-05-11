@@ -2,9 +2,9 @@
 tocMaxDepth: 2
 ---
 
-# OpenAPI CLI commands
+# Redocly CLI commands
 
-Redocly OpenAPI CLI currently supports the following commands:
+Redocly CLI currently supports the following commands:
 
 * [bundle](bundle.md)
 * [join](join.md)
@@ -16,11 +16,11 @@ Redocly OpenAPI CLI currently supports the following commands:
 * [split](split.md)
 * [stats](stats.md)
 
-OpenAPI CLI comes with one primary configuration file (`redocly.yaml`), also known as the Redocly configuration file.
+Redocly CLI comes with one primary configuration file (`redocly.yaml`), also known as the Redocly configuration file.
 This file defines all of the config options available to you, including the location of your files (for unbundling and bundling), and linting rules (for validation against the OpenAPI Specification).
 
 The Redocly configuration file must sit in your root directory (`openapi` by default unless you renamed it).
-If OpenAPI CLI finds `redocly.yaml` in the root directory, it will use the options set in that file when executing commands.
+If Redocly CLI finds `redocly.yaml` in the root directory, it will use the options set in that file when executing commands.
 
 For more information, refer to the [Redocly configuration file](../configuration/index.mdx) docs.
 

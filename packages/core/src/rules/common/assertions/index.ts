@@ -7,7 +7,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here
-  // https://github.com/Redocly/openapi-cli/blob/master/packages/core/src/config/config.ts#L311
+  // https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/config/config.ts#L311
   // that is why we need to iterate through 'opts' values;
   // before - filter only object 'opts' values
   const assertions: any[] = Object.values(opts).filter(

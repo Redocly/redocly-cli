@@ -4,7 +4,7 @@
 
 Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 
-The OpenAPI CLI `push` command helps you automate API definition updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API definitions are generated automatically from code annotations in a CI/CD pipeline
+The Redocly CLI `push` command helps you automate API definition updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API definitions are generated automatically from code annotations in a CI/CD pipeline
 
 This allows you to:
 
@@ -14,7 +14,7 @@ This allows you to:
 Apart from uploading your API definition file, the `push` command can automatically upload other files if they are detected or referenced in the API definition:
 
 - the [Redocly configuration file](/docs/cli/configuration/index.mdx).
-- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/openapi-cli` version specified in `package.json`.
+- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `features.openapi > htmlTemplate` parameter in the Redocly configuration file.
 
 :::attention
@@ -82,11 +82,12 @@ entrypoint       | string    | The API definition that you want to push to the R
 destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
 --branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --help       | boolean | Help output for the command.  |
---run-id       | string  | Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
+--run-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
 --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
---region,-r    | string | Specify which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Read more about [configuring the region](../configuration/index.mdx#region).
+--region,-r    | string | Specifies which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value the appropriate Redocly API. |
+-- public    | boolean | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
 
 ## Examples
 
@@ -261,6 +262,15 @@ openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator
 openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
 ```
 
+### Public
+
+The `--public` option allows you to upload your API definition and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
+For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
+
+```bash
+openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --public
+```
+
 ### Set up CI from Redocly Workflows
 
 The Redocly Workflows interface can help you get started with the `push` command.
@@ -271,6 +281,6 @@ The Redocly Workflows interface can help you get started with the `push` command
 
 ## Learn more
 
-- Video tutorial: Using the OpenAPI CLI push command:
+- Video tutorial: Using the Redocly CLI push command:
 
     <iframe width="560" height="315" src="https://www.youtube.com/embed/key2NGkcR5g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

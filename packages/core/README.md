@@ -1,6 +1,6 @@
 # openapi-core
 
-See https://github.com/Redocly/openapi-cli
+See https://github.com/Redocly/redocly-cli
 
 ## Basic usage
 

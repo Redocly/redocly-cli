@@ -14,6 +14,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
+import { env } from "../config";
 
 export type Totals = {
   errors: number;
@@ -202,7 +203,7 @@ export function formatProblems(
             : undefined,
         };
 
-        if (process.env.FORMAT_JSON_WITH_CODEFRAMES) {
+        if (env.FORMAT_JSON_WITH_CODEFRAMES) {
           const location = p.location[0]; // TODO: support multiple locations
           const loc = getLineColLocation(location);
           (problem as any).codeframe = getCodeframe(loc, color);
