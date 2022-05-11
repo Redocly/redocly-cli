@@ -9,6 +9,7 @@ tocMaxDepth: 2
 ### Features
 
 - Added the `--public` option to the `push` command. With this option, you can upload OpenAPI definitions and make them publicly accessible.
+- Changed assertions syntax to this pattern: `assert/{assert name}`
 
 ### Fixes
 
