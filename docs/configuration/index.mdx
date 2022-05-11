@@ -39,7 +39,7 @@ The Redocly configuration file must be in YAML format.
   <JsonSchema
     schema={Schema}
     options={{
-      schemaExpansionLevel:2,
+      schemaExpansionLevel:1,
     }}
   />
 </StyledContent>
@@ -52,7 +52,7 @@ apis:
     root: ./openapi/openapi.yaml
     lint:
       rules:
-        example-rule: warn
+        no-ambiguous-paths: error
   external@v1:
     root: ./openapi/external.yaml
     labels:
@@ -72,26 +72,14 @@ features.openapi:
       - lang: Python
 ```
 
-### organization
+### apis object
 
-The `organization` property requires the organization ID of your Redocly Workflows organization.
-When specified in the configuration file, it can be used by the `openapi push` command.
-The `push` command uses the following order of precedence: first, it takes the organization ID from command-line arguments (if provided).
-If the organization ID is not provided explicitly, it takes it from the configuration file.
+The `apis` object is used to configure one or more APIs.
+Every API in the object is identified by its name and version in the format `name@version`.
+The version is optional, and when not provided, Redocly apps interpret it as `latest` by default.
+Every `name@version` combination listed in the object must be unique.
 
-Note that the organization ID is not the same as the organization name in Workflows.
-
-To find the organization ID, log into Workflows and access the **API registry** page.
-In your browser's address bar, find the URL of the page.
-The segment after `app.redocly.com/org/` is your organization ID.
-For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`.
-
-
-### apis
-
-The `apis` section is used to configure one or more APIs. Every API in the section is identified by its name and version in the format `name@version`. The version is optional, and when not provided, Redocly apps interpret it as `latest` by default. Every `name@version` combination listed in the section must be unique.
-
-For every API listed in the section, you must provide the path to the OpenAPI definition using the `root` property.
+For every API listed in the object, you must provide the path to the OpenAPI definition using the `root` property.
 
 ```yaml
 apis:
@@ -112,8 +100,7 @@ features.openapi:
       backgroundColor: '#fffff'
 ```
 
-
-The `apis` section supports several optional properties for every listed API.
+The `apis` object supports several optional properties for every listed API.
 
 **labels**
 
@@ -123,23 +110,23 @@ If you try to assign labels that don't already exist for your organization, Redo
 
 **lint**
 
-In addition to the global (top-level) `lint` section, you can add one to each API listed in `apis`. This allows you to use different rules and decorators for different APIs.
+In addition to the global (top-level) `lint` object, you can add one to each API listed in `apis`. This allows you to use different rules and decorators for different APIs.
 
 **features.openapi**
 
-In addition to the global (top-level) `features.openapi` section, you can add one to each API listed in `apis`. This allows you to use different API reference docs settings for different APIs.
-This section supports identical format and options as the global `features.openapi` section.
+In addition to the global (top-level) `features.openapi` object, you can add one to each API listed in `apis`. This allows you to use different API reference docs settings for different APIs.
+This object supports identical format and options as the global `features.openapi` object.
 
 
 :::warning Important
 
 Not all `lint` options are supported in per-API configuration.
-Consult the table below to understand how each configuration section applies to your APIs.
+Consult the table below to understand how each configuration object applies to your APIs.
 
 :::
 
 
-Configuration section | Per-API support | Behavior
+Configuration object | Per-API support | Behavior
 -- | -- | --
 lint.extends | ❗ | API settings override global settings.
 lint.rules | ✅ | API and global settings merge. In case of conflict, API takes priority.
@@ -150,14 +137,14 @@ features.openapi | ✅ | API and global settings merge. In case of conflict, API
 features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
 
 
-Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` section as shortcuts for referencing API definitions.
-You can tell the `lint` command to validate specific API definitions by using their names from the `apis` section, like in the following example:
+Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API definitions.
+You can tell the `lint` command to validate specific API definitions by using their names from the `apis` object, like in the following example:
 
 ```shell
 openapi lint core
 ```
 
-On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` section:
+On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` object:
 
 ```shell
 openapi lint
@@ -165,10 +152,10 @@ openapi lint
 
 ### lint
 
-The `lint` section's primary purpose is to define options for the `lint` and `bundle` commands.
+The `lint` object's primary purpose is to define options for the `lint` and `bundle` commands.
 You may also import plugins and extends their configurations.
 
-Read more about the [lint configuration section](../guides/lint.md).
+Read more about the [lint configuration object](../guides/lint.md).
 
 
 ### features.mockServer
@@ -176,69 +163,28 @@ Read more about the [lint configuration section](../guides/lint.md).
 The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
 When the mock server is enabled for an API, you can send test requests to it from any API client.
 
-The `features.mockServer` section allows additional configuration of the mock server behavior.
-This section is optional.
+The `features.mockServer` object allows additional configuration of the mock server behavior.
+This object is optional.
 
-The `features.mockServer` section supports fields listed in the following table.
+The `features.mockServer` object supports fields listed in the following table.
 
-| Property | Description | Default |
+| Property | Type | Description |
 | --- | --- | --- |
-| errorIfForcedExampleNotFound | Users can force specific examples in the response by adding the optional `x-redocly-response-body-example` header to their requests. By default, if an example ID provided in the request is not found in the API definition, the mock server returns any other example. If you set `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. | false |
-| strictExamples | By default, the mock server automatically enhances responses with heuristics like substituting the response fields with request parameter values. To prevent this behavior, set `strictExamples: true`. When this is set, examples are returned in the response unmodified, exactly how they are defined in the OpenAPI document. | false |
+| errorIfForcedExampleNotFound | boolean | Users can force specific examples in the response by adding the optional `x-redocly-response-body-example` header to their requests. By default, if an example ID provided in the request is not found in the API definition, the mock server returns any other example. If you set `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. Default value is `false`.|
+| strictExamples | boolean | By default, the mock server automatically enhances responses with heuristics like substituting the response fields with request parameter values. To prevent this behavior, set `strictExamples: true`. When this is set, examples are returned in the response unmodified, exactly how they are defined in the OpenAPI document. Default value is `false`.|
 
 
-### region
+### resolve object
 
-For optimized performance or for compliance purposes, you can specify which region to use when logging into Redocly services (such as the API registry). Supported regions are `us` (used by default) and `eu`.
+Redocly will automatically resolve any API registry link or public URL in your API definitions. However, you may want to resolve links that are not API registry links or publicly accessible. To accomplish that, add the `resolve` object to the configuration file.
 
-You should log into the region that corresponds to your Redocly Workflows organization. If you're a member of multiple organizations in different regions, it's technically possible to log into two different regions at the same time, but it's neither the most common nor the recommended use-case.
-
-Every supported region uses its own domain.
-
-Region | Domain
------|:---------
-`us` | api.redoc.ly
-`eu` | api.eu.redocly.com
-
-The `eu` region is limited to enterprise customers.
-
-To configure which domain will be used, you can use any of the following:
-
-- the `REDOCLY_DOMAIN` environment variable
-
-```sh
-export REDOCLY_DOMAIN={domain}
-```
-
-- the `--region` option with `login` and `push` commands
-
-```sh
-openapi login --region=eu
-```
-
-- the `region` top-level property in the Redocly configuration file
-
-```yaml
-apis:
-  core@v1:
-    root: ./openapi.yaml
-region: eu
-lint:
-  extends: []
-```
-
-
-### resolve
-
-Redocly will automatically resolve any API registry link or public URL in your API definitions. However, you may want to resolve links that are not API registry links or publicly accessible. To accomplish that, add the `resolve` section to the configuration file.
-
-Redocly CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` section.
+Redocly CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` object.
 
 We recommend using environment variables whenever possible.
 
 #### Resolving external links
 
-The `resolve` section should be structured like this:
+The `resolve` object should be structured like this:
 
 ```yaml
 resolve:
@@ -247,7 +193,7 @@ resolve:
       - # header configuration
 ```
 
-The `headers` section supports fields listed in the following table.
+The `headers` object supports fields listed in the following table.
 
 | Property | Description | Examples |
 | --- | --- | --- |
@@ -256,7 +202,7 @@ The `headers` section supports fields listed in the following table.
 | value | The value of the header. Mutually exclusive with `envVariable`. | `123-abc`|
 | envVariable | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. |`SECRET_KEY`|
 
-Here is a structured example for adding header definitions:
+Here is an example for adding header definitions:
 
 ```yaml
 resolve:
@@ -273,10 +219,8 @@ resolve:
 The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
 
 
-### features.openapi
+### features.openapi object
 
-The `features.openapi` section configures features (availability and options) and theming (style, fonts, colors) for API reference documentation generated from API definitions.
-
-There are two products: Redoc Community Edition (CE) and Redocly Reference. Reference supports all configuration options from Redoc Community Edition plus a set of premium options.
+The `features.openapi` object configures features (availability and options) and theming (style, fonts, colors) for API documentation generated from OpenAPI definitions.
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
