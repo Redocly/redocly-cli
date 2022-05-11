@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Info
-        property: description
-        message: Info description should be minimum 20 chars length
-        minLength: 20
+    assert/description-min-length:
+      subject: Info
+      property: description
+      message: Info description should be minimum 20 chars length
+      minLength: 20
   extends: []

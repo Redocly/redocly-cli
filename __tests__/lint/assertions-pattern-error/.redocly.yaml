@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary should have 'test' word
-        pattern: '/test/'
+    assert/summary-pattern:
+      subject: Operation
+      property: summary
+      message: Operation summary should have 'test' word
+      pattern: '/test/'
   extends: []

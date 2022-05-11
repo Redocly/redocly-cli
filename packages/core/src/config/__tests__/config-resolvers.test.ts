@@ -130,6 +130,37 @@ describe('resolveLint', () => {
     expect(lint).toMatchSnapshot();
   });
 
+  it('should correctly merge assertions from nested config', async () => {
+    const lintConfig = {
+      extends: ['local-config-with-file.yaml'],
+    };
+
+    const lint = await resolveLint({
+      lintConfig,
+      configPath,
+    });
+
+    expect(Array.isArray(lint.rules?.assertions)).toEqual(true);
+    expect(lint.rules?.assertions).toMatchObject( [
+      {
+        subject: 'PathItem',
+        property: 'get',
+        message: 'Every path item must have a GET operation.',
+        defined: true,
+        assertionId: 'path-item-get-defined'
+      },
+      {
+        subject: 'Tag',
+        property: 'description',
+        message: 'Tag description must be at least 13 characters and end with a full stop.',
+        severity: 'error',
+        minLength: 13,
+        pattern: '/\\.$/',
+        assertionId: 'tag-description'
+      }
+    ])
+  });
+
   it('should resolve extends with url file config witch contains path to nested config', async () => {
     const lintConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
