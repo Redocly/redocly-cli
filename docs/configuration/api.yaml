@@ -1,0 +1,46 @@
+type: object
+title: APIs object
+description: >-
+  Lets you configure one or more API definition files.
+  This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
+additionalProperties:
+  x-additionalPropertiesName: "{name}@{version}"
+  type: object
+  title: API object
+  minItems: 1
+  required:
+    - root
+  description: >-
+    Specifies the name and version of an API associated with the root API definition with the pattern `{name}@{version}`.
+    If the version is omitted, Redocly apps interpret it as 'latest' by default.
+  properties:
+    root:
+      type: string
+      description: The path to the root API definition file of the specified API.
+    labels:
+      type: array
+      description: >-
+        Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
+        You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
+
+        If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
+      items:
+        type: string
+    lint:
+      type: object
+      description: >-
+        Configures linting options for the specified API.
+        Supports the same format and options as the [global `lint` object](#lint-object).
+        API-level configuration will always override global configuration.
+    features.openapi:
+      type: object
+      description: >-
+        Defines theming and functionality for an API definition.
+        Supports the same format and options as the [global `features.openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+        API-level configuration will always override global configuration.
+    features.mockServer:
+      type: object
+      description: |-
+        Defines mock server behavior for an API definition.
+        Supports the same format and options as the [global `features.mockServer` object](#featuresmockserver-object).
+        API-level configuration will always override global configuration.
