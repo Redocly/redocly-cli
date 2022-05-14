@@ -13,10 +13,10 @@ To preview docs using the premium Redocly API reference docs, you must first aut
 ## Usage
 
 ```bash
-openapi preview-docs <entrypoint> [branchName]
-openapi preview-docs <entrypoint> [--config=<path>] [--port=<value>] [--host=<host>] [branchName]
-openapi preview-docs <entrypoint> [--force] [--help] [--version] [branchName]
-openapi preview-docs <entrypoint> --version
+redocly preview-docs <entrypoint> [branchName]
+redocly preview-docs <entrypoint> [--config=<path>] [--port=<value>] [--host=<host>] [branchName]
+redocly preview-docs <entrypoint> [--force] [--help] [--version] [branchName]
+redocly preview-docs <entrypoint> --version
 ```
 
 ## Options
@@ -43,7 +43,7 @@ The command behaves differently depending on how you pass the entrypoint to it, 
 #### Pass entrypoint directly
 
 ```bash
-openapi preview-docs openapi/openapi.yaml
+redocly preview-docs openapi/openapi.yaml
 ```
 
 In this case, `preview-docs` will preview the definition that was passed to the command. The configuration file is ignored.
@@ -53,7 +53,7 @@ In this case, `preview-docs` will preview the definition that was passed to the 
 Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file as the entrypoint.
 
 ```bash Command
-openapi preview-docs core@v1
+redocly preview-docs core@v1
 ```
 
 ```yaml Configuration file
@@ -69,7 +69,7 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
-openapi preview-docs --config=./another/directory/config.yaml
+redocly preview-docs --config=./another/directory/config.yaml
 ```
 
 ### Custom port for preview
@@ -79,11 +79,11 @@ By default, without using the `port` option, the preview starts on port `8080`, 
 To specify a custom port for the preview, pass the desired value using either short or long option format:
 
 ```bash Short format
-openapi preview-docs -p 8888 openapi/openapi.yaml
+redocly preview-docs -p 8888 openapi/openapi.yaml
 ```
 
 ```bash Long format
-openapi preview-docs -port 8888 openapi/openapi.yaml
+redocly preview-docs -port 8888 openapi/openapi.yaml
 ```
 
 Both commands will start the preview on port `8888`, so you can access the docs at `http://localhost:8888`
@@ -95,11 +95,11 @@ By default, without using the `host` option, the preview starts on host `127.0.0
 To specify a custom host for the preview, pass the desired value using either short or long option format:
 
 ```bash Short format
-openapi preview-docs -h 0.0.0.0 openapi/openapi.yaml
+redocly preview-docs -h 0.0.0.0 openapi/openapi.yaml
 ```
 
 ```bash Long format
-openapi preview-docs --host 0.0.0.0 openapi/openapi.yaml
+redocly preview-docs --host 0.0.0.0 openapi/openapi.yaml
 ```
 
 Both commands will start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
@@ -110,9 +110,9 @@ Both commands will start the preview on host `0.0.0.0`, so you can access the do
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-openapi preview-docs --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 ```bash Skip decorators
-openapi preview-docs --skip-decorator=generate-code-samples,remove-internal-operations
+redocly preview-docs --skip-decorator=generate-code-samples,remove-internal-operations
 ```
