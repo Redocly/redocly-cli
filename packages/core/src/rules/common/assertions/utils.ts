@@ -77,7 +77,7 @@ export function buildSubjectVisitor(
   asserts: AssertToApply[],
   context?: Record<string, any>[],
 ) {
-  return function (node: any, { report, location, key, type, resolve }: UserContext) {
+  return function (node: any, { report, location, key, type, resolve, rawNode }: UserContext) {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
@@ -105,10 +105,11 @@ export function buildSubjectVisitor(
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          runAssertion(value, node[property], assert, location.child(property), report);
+          runAssertion(value, rawNode[property], assert, location.child(property), report);
         }
       } else {
-        runAssertion(Object.keys(node), Object.keys(node), assert, location.key(), report);
+        const value = assert.name === 'ref' ? rawNode : Object.keys(node);
+        runAssertion(Object.keys(node), value, assert, location.key(), report);
       }
     }
   };
