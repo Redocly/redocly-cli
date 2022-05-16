@@ -88,6 +88,7 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
 };
