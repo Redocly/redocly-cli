@@ -20,9 +20,9 @@ If you're having issues with the `login` command, use the `--verbose` option to 
 ## Usage
 
 ```bash
-openapi login [--help] [--verbose] [--version]
+redocly login [--help] [--verbose] [--version]
 
-openapi login --verbose
+redocly login --verbose
 ```
 
 ## Options
@@ -37,7 +37,7 @@ Option | Type | Description
 ## Examples
 
 ```bash Successful login
-openapi login
+redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...
@@ -45,7 +45,7 @@ openapi login
 ```
 
 ```bash Failed login
-openapi login
+redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...

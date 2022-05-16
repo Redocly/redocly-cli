@@ -11,9 +11,9 @@ The `split` command doesn't support OpenAPI 2.0 definitions.
 ## Usage
 
 ```bash
-openapi split <entrypoint> --outDir=<path>
-openapi split [--help] [--version]
-openapi split --version
+redocly split <entrypoint> --outDir=<path>
+redocly split [--help] [--version]
+redocly split --version
 ```
 
 ## Options
@@ -29,7 +29,7 @@ entrypoint | string | **REQUIRED.** Path to the API definition file that you wan
 ## Example
 
 ```bash Command
-openapi split pet.yaml --outDir=openapi
+redocly split pet.yaml --outDir=openapi
 ```
 
 ```bash Output
