@@ -1,50 +1,70 @@
 # `lint`
 
-## Why you need it
+## Introduction
 
-One of the most powerful features of Redocly OpenAPI CLI is the ability to identify problems found in OpenAPI definition files. This is achieved with the `lint` command, which helps your definitions conform to a consistent set of rules.
+One of the most powerful features of Redocly CLI is its ability to identify problems found in OpenAPI definition files. This is achieved with the `lint` command, which helps your definitions conform to a consistent set of rules.
 
-The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification and your own custom rules, if any) and contains no errors. It also executes preprocessors and rules (unlike the `bundle` command, `lint` doesn't execute decorators). To learn more about preprocessors and rules, see the [custom rules](../resources/custom-rules.md) page.
+The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification and your own custom rules, if any) and contains no errors. It also executes preprocessors and rules.
 
-Always the over-achiever, `lint` has options which you can execute alone, or combine with others:
+:::warning Important
+Unlike the `bundle` command, `lint` doesn't execute decorators. To learn more about preprocessors and rules, see the [custom rules](../resources/custom-rules.md) page.
+:::
 
-```bash
-openapi lint
-openapi lint <entrypoints>...
-openapi lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
-openapi lint [--generate-ignore-file] [--help]
-openapi lint --version
+## Options
+
+Always the over-achiever, `lint` has many options which you can execute alone, or combine with others in a single command:
+
+```bash Alone
+redocly lint
+redocly lint <entrypoints>...
+redocly lint --config=<path>
+redocly lint --extends=<value>
+redocly lint --format=<value>
+redocly lint --generate-ignore-file
+redocly lint --help
+redocly lint --max-problems=<n>
+redocly lint --skip-preprocessor=<preprocessor>
+redocly lint --skip-rule=<rule>,<rule>
+redocly lint --version
 ```
 
-Each option is discussed in detail below, and examples are also provided.
+```bash Combined
+redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
+```
 
-## How to run the `lint` command
-In your terminal, cd to the root of your project directory, then type the command along with any of the options described below.
+| Option | Type | Description |
+|---|---|---|
+| entrypoints | array | Lets you [pass the entrypoints](#how-to-use-entrypoints-to-check-all-or-selected-definitions) (locations) of specific definition files in the command so `lint` only checks those files. |
+| --config | string | Lets you [specify a path to a custom config file](#how-to-reference-a-custom-config-file). |
+| --extends | array | [Extends the existing config](#how-to-activate-rule-sets) by invoking rule sets that apply lots of rules at once. Possible values: `minimal`, `recommended`, `all`. Default: `recommended`. |
+| --format | string | [Applies formatting to the output](#how-to-format-linitng-results). Possible values: `codeframe`, `stylish`, `json`, `checkstyle`. Default: `codeframe`. |
+| --generate-ignore-file | boolean | [Generates an ignore file](#how-to-ignore-specific-errors-and-warnings) which tells Redocly CLI to ignore certain warnings/errors when validating the definition. |
+| --help | boolean | [Displays a short help menu](#how-to-open-the-help), showing lint options. |
+| --max-problems | integer | [Truncates the output](#how-to-limit-issues-shown-in-the-output) to show only a specified number of errors and warnings. Default: `100`. |
+| --skip-preprocessor | array | [Ignores specific preprocessors](#how-to-skip-a-rule-or-preprocessor-during-linting). |
+| --skip_rule | array | [Ignores specific custom or built-in rules](#how-to-skip-a-rule-or-preprocessor-during-linting). |
+| --version | boolean | Adding `--version` to any command (not just `lint`) will show your current Redocly CLI version. |
 
-## How to check all or selected definitions
+## Usage examples
 
-| Option         |  Type  |   Required   | Default |
-|----------------|------|------------|-------|
-|`<entrypoints>` | `array` | optional     |   none  |
+### How to use entrypoints to check all or selected definitions
 
-Lets you pass the entrypoints (locations) of specific definition files in the command so `lint` only checks those files. There are several ways to do this.
-
-### Method 1: Pass entrypoints directly
+##### Method 1: Pass entrypoints directly
 In this case, `lint` will validate the definitions passed in the command and ignore the `apis` section in `redocly.yaml` or any other customized config file you may be using.
 
 ```bash
-openapi lint openapi/openapi.yaml
+redocly lint openapi/openapi.yaml
 ```
 
-The `entrypoints` argument can also use any glob format supported by your file system. For example, `openapi lint ./root-documents/*.yaml`.
+The `entrypoints` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 
-### Method 2: Pass entrypoints via the config file
+##### Method 2: Pass entrypoints via the config file
 
-The `apis` section in the Redocly configuration file (`redocly.yaml`) lets you configure one or more API definitions. Each file path is specified (using the `root` property), but files are identified by their name and version in the format `name@version`.
+The `apis` section in the Redocly configuration file (`redocly.yaml`) lets you configure one or more APIs. Each file path is specified (using the `root` property), but files are identified by their name and version in the format `name@version`.
 
-`@version` is optional. It allows you to derive multiple API definitions from the same root file. When a version is not provided, Redocly apps interpret a file as being the `latest` version. Every `name@version` combination listed in the `apis` section must be unique.
+`@version` is optional, and when not provided, Redocly apps interpret it as `latest` by default. Every `name@version` combination listed in the `apis` section must be unique.
 
-You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on the files using those aliases. Below is an example `apis` section showing three files identified using `main`, `production` and `sandbox`:
+You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on those APIs. Below is an example `apis` section showing three files identified using `main`, `production` and `sandbox`:
 
 ```yaml Configuration file
 apis:
@@ -71,44 +91,36 @@ apis:
  In this example, we only want to validate files under `main`:
 
 ```bash Command
-openapi lint main
+redocly lint main
 ```
 
-### Method 3: Pass no entrypoints
+##### Method 3: Pass no entrypoints
 
-Running `lint` without specifying a particular OpenAPI definition file checks all definition files in your project directory.
+Running `lint` without specifying a particular API definition file checks all definition files in your project directory.
 
 ```bash
-openapi lint
+redocly lint
 ```
 
 :::warning Important
-If you run `openapi lint` without entrypoints, and your project has no configuration files, you'll get an error.
+If you run `redocly lint` without entrypoints, and your project has no configuration files, you'll get an error.
 :::
 
-## How to reference a custom config file
+### How to reference a custom config file
 
-| Option     |   Type   |   Required   | Default |
-|------------|--------|------------|-------|
-| `--config` | `string` | optional     |   none  |
-
-By default, OpenAPI CLI looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working or project directory. Using the optional `--config` argument provides an alternative path to a different configuration file if one exists.
+By default, Redocly CLI looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working or project directory. Using the optional `--config` argument provides an alternative path to a different configuration file if one exists.
 
 ```bash
-openapi lint --config=./another/directory/anotherconfig.yaml
+redocly lint --config=./another/directory/anotherconfig.yaml
 ```
 
-## How to activate rule sets
+### How to activate rule sets
 
-| Option      |   Type  | Required | Values                          |    Default    |
-|-------------|-------|--------|---------------------------------|-------------|
-| `--extends` | `array` | optional | `minimal`, `recommended`, `all` | `recommended` |
-
-OpenAPI CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. If you want to override any rule or reduce its severity, you can do so by modifying `redocly.yaml` (globally or per API definition).
+Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. If you want to override a rule or reduce its severity, you can do so by modifying `redocly.yaml` (globally or per API definition).
 
 An alternative approach is to use **rule sets** to quickly invoke a lot of rules at the same time.
 
-OpenAPI CLI has three rule sets, each specifying different levels of severity, that can be applied to API definition file validation using the `--extends` option in the `lint` command:
+Redocly CLI has three rule sets, each specifying different levels of severity, that can be applied to API definition file validation by adding the `--extends` option to the `lint` command:
 
 * For you rebels out there, the `minimal` rule set will apply the least severe config for each built-in rule, and deactivate others entirely. We like to call this our death-metal rule set. View the GitHub Source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/minimal.ts).
 * Late 80s easy-listening more your jam? Then our `recommended` rule set is for you. It will apply the recommended config for each built-in rule. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/recommended.ts).
@@ -117,30 +129,26 @@ OpenAPI CLI has three rule sets, each specifying different levels of severity, t
 When you compare the source files, you will see that some rules are switched on, some are set to different severities, and some are switched off. Here's how to activate each rule set when linting your API definitions:
 
 ```bash
-openapi lint --extends=minimal
+redocly lint --extends=minimal
 ```
 
 ```bash
-openapi lint --extends=recommended
+redocly lint --extends=recommended
 ```
 
 ```bash
-openapi lint --extends=all
+redocly lint --extends=all
 ```
 
-## How to format linting results
+### How to format linting results
 
-| Option     |   Type   | Required | Values                                       |   Default   |
-|------------|--------|--------|----------------------------------------------|-----------|
-| `--format` | `string` | optional | `codeframe`, `stylish`, `json`, `checkstyle` | `codeframe` |
-
-### Codeframe
+##### Codeframe
 
 This format returns linting results in codeframe format.
 
 ```bash Command
-openapi lint --format=codeframe
-openapi lint mydefinition.yaml --format=codeframe
+redocly lint --format=codeframe
+redocly lint mydefinition.yaml --format=codeframe
 ```
 
 ```bash Output
@@ -171,18 +179,18 @@ Warning was generated by the operation-operationId rule.
 mydefinition.yaml: validated in 64ms
 
 ❌ Validation failed with 1 error and 1 warning.
-run `openapi lint --generate-ignore-file` to add all problems to the ignore file.
+run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-Note that the problems detected are displayed in the following format: `file:line:column`. For example, `mydefinition.yaml:168:7`. Depending on the terminal emulator you use, it may be possible to directly click this and edit the file.
+Note that any problems detected are displayed in the following format: `file:line:column`. For example, `mydefinition.yaml:168:7`. Depending on the terminal you use, it may be possible to click this and edit the file.
 
-### Stylish
+##### Stylish
 
 In this format, `lint` returns the file name, line number and column where the problem occurred, all in a nice table format. Note that stylish output is compressed and doesn't include contexts or suggestions.
 
 ```bash Command
-openapi lint --format=stylish
-openapi lint mydefinition.yaml --format=stylish
+redocly lint --format=stylish
+redocly lint mydefinition.yaml --format=stylish
 ```
 
 ```bash Output
@@ -193,15 +201,15 @@ mydefinition.yaml:
 mydefinition.yaml: validated in 62ms
 
 ❌ Validation failed with 1 error and 1 warning.
-run `openapi lint --generate-ignore-file` to add all problems to the ignore file.
+run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-### json
-In this format. `lint` returns results in JSON format.
+##### json
+No surprises here. `lint` returns results in JSON format.
 
 ```bash Command
-openapi lint --format=json
-openapi lint mydefinition.yaml --format=json
+redocly lint --format=json
+redocly lint mydefinition.yaml --format=json
 ```
 
 ```bash Output
@@ -248,16 +256,16 @@ validating mydefinition.yaml...
 }mydefinition.yaml: validated in 52ms
 
 ❌ Validation failed with 1 error and 1 warning.
-run `openapi lint --generate-ignore-file` to add all problems to the ignore file.
+run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-### Checkstyle
+##### Checkstyle
 
 In this format, `lint` uses the [Checkstyle](https://checkstyle.org/) XML report format. This format only includes file name, line, column, severity, and rule ID (in the `source` attribute). All other information is left out.
 
 ```bash Command
-openapi lint --format=checkstyle
-openapi lint mydefinition.yaml --format=checkstyle
+redocly lint --format=checkstyle
+redocly lint mydefinition.yaml --format=checkstyle
 ```
 
 ```bash Output
@@ -272,27 +280,23 @@ validating mydefinition.yaml...
 mydefinition.yaml: validated in 52ms
 
 ❌ Validation failed with 1 error and 1 warning.
-run `openapi lint --generate-ignore-file` to add all problems to the ignore file.
+run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-## How to ignore specific errors and warnings
+### How to ignore specific errors and warnings
 
-| Option                   |    Type   |   Required   | Default |
-|--------------------------|---------|------------|-------|
-| `--generate-ignore-file` | `boolean` | optional     |  none  |
+While you are busy linting your definition file, you can use the `--generate-ignore-file` option to create the Redocly ignore file.
 
-While you are busy linting your definition file, you can use this option to create the Redocly ignore file.
-
-`.redocly.lint-ignore.yaml` tells OpenAPI CLI to ignore certain warnings/errors when validating the definition. You will still be shown how many problems were ignored, but your definition will validate regardless.
+`.redocly.lint-ignore.yaml` tells Redocly CLI to ignore certain warnings/errors when validating the definition. You will still be shown how many problems were ignored, but your definition will validate regardless.
 
 For example, say you have a rule that states "all parameter names must be lowercase", but in one of your operations, one special parameter breaks this rule. You want to keep this rule enabled in general, but in this one case add it as an exception. That's where the `.redocly.lint-ignore.yaml` file comes in. It stores the exception, so the next time you run `lint`, that parameter is detected but ignored.
 
 :::warning
-The existing `.redocly.lint-ignore.yaml` file will be replaced each time the `lint` command containing this option is run.
+The existing `.redocly.lint-ignore.yaml` file will be replaced each time the `--generate-ignore-file` option is run.
 :::
 
 ```bash Command
-openapi lint openapi/mydefinition.yaml --generate-ignore-file
+redocly lint openapi/mydefinition.yaml --generate-ignore-file
 ```
 
 ```bash Output
@@ -303,7 +307,7 @@ Generated ignore file with 2 problems.
 To generate an ignore file for multiple definitions, pass them as arguments in the command:
 
 ```bash
-openapi lint v1.yaml v2.yaml --generate-ignore-file
+redocly lint v1.yaml v2.yaml --generate-ignore-file
 ```
 
 Example of an ignore file:
@@ -319,16 +323,12 @@ mydefinition.yaml:
 
 The built-in rule in our example is `spec`, which indicates compliance with the OpenAPI Specification. You can also manually add to specific rules problems that should be ignored.
 
-## How to open the help
+### How to open the help
 
-| Option   |    Type   |   Required   |   Default   |
-|----------|---------|------------|-----------|
-| `--help` | `boolean` | optional     |    none     |
-
-Displays a short help menu, showing lint options.
+This option works with any command, not just `lint`.
 
 ```bash Command
-openapi lint --help
+redocly lint --help
 ```
 
 ```
@@ -354,17 +354,13 @@ Options:
                           file settings).                                [array]
 ```
 
-## How to limit issues shown in the results
-
-| Option           |   Type   |   Required   | Default |
-|------------------|--------|------------|-------|
-| `--max-problems` | `number` | optional     |   100   |
+### How to limit issues shown in the output
 
 This option lets you limit the number of detected issues (errors and warnings) shown in the output. If issues go over the threshold, the overflow is hidden in a spoiler.
 
 ```bash Command
-openapi lint --max-problems 125
-openapi lint mydefinition.yaml --max-problems 125
+redocly lint --max-problems 125
+redocly lint mydefinition.yaml --max-problems 125
 ```
 
 ```bash Output
@@ -372,19 +368,12 @@ openapi lint mydefinition.yaml --max-problems 125
 < ... 2 more problems hidden > increase with `--max-problems N`
 ```
 
-## How to skip a rule during linting
-
-| Option                |   Type  |   Required   |   Default   |
-|-----------------------|-------|------------|-----------|
-| `--skip-rule`         | `array` | optional     | none        |
+### How to skip a rule or preprocessor during linting
 
 You can use `--skip-rule` to ignore any [custom rules](./resources/custom-rules.md) or [built-in rules](./resources/built-in-rules.md). In this example, we will skip the `spec` and `operation-4xx-response` built-in rules:
 
 ```bash
-openapi lint openapi.yaml --skip-rule=spec --skip-rule=operation-4xx-response
+redocly lint openapi.yaml --skip-rule=spec --skip-rule=operation-4xx-response
 ```
 
-Want to know how to skip a preprocessor? Because we don't recommend using preprocessors, forgive us if we skip that advice.
-
-## How to view the current OpenAPI CLI version
-Adding `--version` to any command (not just `lint`) will show the current version.
+Want to know how to skip a preprocessor? Because we don't recommend using preprocessors, you'll understand why we're choosing to skip that advice.
