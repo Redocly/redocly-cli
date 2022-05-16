@@ -138,6 +138,7 @@ export const asserts: Asserts = {
     return getIntersectionLength(value, condition) >= 1;
   },
   ref: (_value: any, condition: string | boolean, rawValue: any): boolean => {
+    console.log('>>>', rawValue);
     if (typeof rawValue === 'undefined') return true; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {

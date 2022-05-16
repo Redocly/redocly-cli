@@ -25,6 +25,7 @@ export type ResolveFn<T> = (
 export type UserContext = {
   report(problem: Problem): void;
   location: Location;
+  rawNode: any;
   resolve<T>(
     node: Referenced<T>,
   ): { location: Location; node: T } | { location: undefined; node: undefined };
@@ -138,6 +139,7 @@ export function walkDocument<T>(opts: {
             {
               report,
               resolve,
+              rawNode: node,
               location,
               type,
               parent,
@@ -216,6 +218,7 @@ export function walkDocument<T>(opts: {
               const { ignoreNextVisitorsOnNode } = visitWithContext(
                 visit,
                 resolvedNode,
+                node,
                 context,
                 ruleId,
                 severity,
@@ -304,7 +307,7 @@ export function walkDocument<T>(opts: {
 
       for (const { context, visit, ruleId, severity } of currentLeaveVisitors) {
         if (!context.isSkippedLevel && enteredContexts.has(context)) {
-          visitWithContext(visit, resolvedNode, context, ruleId, severity);
+          visitWithContext(visit, resolvedNode, node, context, ruleId, severity);
         }
       }
     }
@@ -321,6 +324,7 @@ export function walkDocument<T>(opts: {
             {
               report,
               resolve,
+              rawNode: node,
               location,
               type,
               parent,
@@ -338,6 +342,7 @@ export function walkDocument<T>(opts: {
     // returns true ignores all the next visitors on the specific node
     function visitWithContext(
       visit: VisitFunction<any>,
+      resolvedNode: any,
       node: any,
       context: VisitorLevelContext,
       ruleId: string,
@@ -347,10 +352,11 @@ export function walkDocument<T>(opts: {
       let ignoreNextVisitorsOnNode = false;
 
       visit(
-        node,
+        resolvedNode,
         {
           report,
           resolve,
+          rawNode: node,
           location: currentLocation,
           type,
           parent,
