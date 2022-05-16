@@ -4,11 +4,15 @@ apis:
 
 lint:
   rules:
-    assert/ref:
+    assert/ref-pattern:
       context:
         - type: Response
       subject: MediaType
       property: schema
       message: Response MediaType schema should contain ref to components folder
-      ref: /^(\.\/)?components\/.*\.yaml$/
+      ref: ^(\.\/)?components\/schema\/.*\.yaml$
+    assert/ref-pattern-no-properties:
+      subject: PathItem
+      message: PathItem should contain ref to components folder
+      ref: ^(\.\/)?components\/schema\/.*\.yaml$
   extends: []

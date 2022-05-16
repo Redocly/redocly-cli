@@ -158,3 +158,9 @@ lint:
       message: Operation summary must have a maximum of 2 characters
       severity: error
       maxLength: 20
+#ref example
+    assert/ref:
+      subject: PathItem
+      message: No refs on Path Items
+      severity: error
+      ref: false

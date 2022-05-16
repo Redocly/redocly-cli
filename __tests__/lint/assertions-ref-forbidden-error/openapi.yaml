@@ -45,6 +45,8 @@ paths:
             application/json:
               schema:
                 $ref: ./components/schemas/Error.yaml
+  /owners:
+    $ref: components/schemas/Owners.yaml
 components:
   schemas:
     Pet:

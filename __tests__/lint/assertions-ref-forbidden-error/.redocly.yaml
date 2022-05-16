@@ -4,11 +4,15 @@ apis:
 
 lint:
   rules:
-    assert/ref:
+    assert/ref-forbidden:
       context:
         - type: Response
       subject: MediaType
       property: schema
-      message: Response MediaType schema NOT should have a ref
+      message: Response MediaType schema should NOT have a ref
+      ref: false
+    assert/ref-forbidden-no-property:
+      subject: PathItem
+      message: PathItems should NOT should have a ref
       ref: false
   extends: []
