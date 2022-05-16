@@ -37,7 +37,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 | entrypoints | array | Lets you [pass the entrypoints](#how-to-use-entrypoints-to-check-all-or-selected-definitions) (locations) of specific definition files in the command so `lint` only checks those files. |
 | --config | string | Lets you [specify a path to a custom config file](#how-to-reference-a-custom-config-file). |
 | --extends | array | [Extends the existing config](#how-to-activate-rule-sets) by invoking rule sets that apply lots of rules at once. Possible values: `minimal`, `recommended`, `all`. Default: `recommended`. |
-| --format | string | [Applies formatting to the output](#how-to-format-linitng-results). Possible values: `codeframe`, `stylish`, `json`, `checkstyle`. Default: `codeframe`. |
+| --format | string | [Applies formatting to the output](#how-to-format-linting-results). Possible values: `codeframe`, `stylish`, `json`, `checkstyle`. Default: `codeframe`. |
 | --generate-ignore-file | boolean | [Generates an ignore file](#how-to-ignore-specific-errors-and-warnings) which tells Redocly CLI to ignore certain warnings/errors when validating the definition. |
 | --help | boolean | [Displays a short help menu](#how-to-open-the-help), showing lint options. |
 | --max-problems | integer | [Truncates the output](#how-to-limit-issues-shown-in-the-output) to show only a specified number of errors and warnings. Default: `100`. |
