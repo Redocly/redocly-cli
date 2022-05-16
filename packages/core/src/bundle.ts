@@ -35,6 +35,7 @@ export async function bundle(opts: {
   base?: string;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
+  keepUrlRefs?: boolean;
 }) {
   const {
     ref,
@@ -71,6 +72,7 @@ export async function bundleDocument(opts: {
   dereference?: boolean;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
+  keepUrlRefs?: boolean;
 }) {
   const {
     document,
@@ -80,6 +82,7 @@ export async function bundleDocument(opts: {
     dereference = false,
     skipRedoclyRegistryRefs = false,
     removeUnusedComponents = false,
+    keepUrlRefs = false,
   } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
@@ -128,7 +131,14 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document, resolvedRefMap),
+        visitor: makeBundleVisitor(
+          oasMajorVersion,
+          dereference,
+          skipRedoclyRegistryRefs,
+          document,
+          resolvedRefMap,
+          keepUrlRefs,
+        ),
       },
       ...decorators,
     ] as any,
@@ -199,7 +209,8 @@ function makeBundleVisitor(
   dereference: boolean,
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
-  resolvedRefMap: ResolvedRefMap
+  resolvedRefMap: ResolvedRefMap,
+  keepUrlRefs: boolean,
 ) {
   let components: Record<string, Record<string, any>>;
 
@@ -221,6 +232,10 @@ function makeBundleVisitor(
 
         // do not bundle registry URL before push, otherwise we can't record dependencies
         if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+          return;
+        }
+
+        if (keepUrlRefs && isUrlRef(node.$ref)) {
           return;
         }
 
@@ -280,6 +295,10 @@ function makeBundleVisitor(
       nodePointer: node.$ref,
       resolved: true,
     });
+  }
+
+  function isUrlRef(link: string): boolean {
+    return /^(http(s)?:\/\/)/i.test(link);
   }
 
   function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
