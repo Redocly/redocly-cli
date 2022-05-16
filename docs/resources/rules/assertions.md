@@ -43,8 +43,7 @@ undefined | `boolean` | Asserts a property is undefined. See [undefined example]
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-exmaple).| 
-
+ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
 
 ## Context object
 
@@ -445,7 +444,7 @@ The following example asserts that schema in MediaType contains a Reference obje
 ```yaml
 lint:
   rules:
-    assertions:
+    assert/mediatype-schema-has-ref:
       - subject: MediaType
         property: schema
         message: Ref is required.
@@ -457,7 +456,7 @@ Also, you can specify a Regular Expression to check if the reference object conf
 ```yaml
 lint:
   rules:
-    assertions:
+    assert/mediatype-schema-ref-pattern:
       - subject: MediaType
         property: schema
         message: Ref needs to point to components directory.
