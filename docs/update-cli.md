@@ -1,4 +1,4 @@
-# Update OpenAPI CLI
+# Update Redocly CLI
 
 If you've already installed OpenAPI CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionality and bug fixes. Depending on how you originally installed OpenAPI CLI, there are two ways to update it.
 
