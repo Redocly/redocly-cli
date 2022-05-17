@@ -13,7 +13,7 @@ If you installed OpenAPI CLI using the [openapi-starter template](https://github
 4. Save the changes then close `package.json`.
 5. Run `npm install` from the project's root directory on the command line.
 6. Commit the changed `package.json` and `package-lock.json` files to your Git repository.
-
+Check the project-level installation by running this command from the project's root directory: `npx redocly --version`.
 ## How to update your global installation
 
 If you [installed OpenAPI CLI globally](./installation.md), run this command:
