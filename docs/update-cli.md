@@ -19,7 +19,7 @@ If you installed OpenAPI CLI using the [openapi-starter template](https://github
 
 ## How to update your global installation
 
-If you [installed OpenAPI CLI globally](./docs/installation.md), run this command:
+If you [installed OpenAPI CLI globally](./installation.md), run this command:
 
 ```shell Command
 npm i -g @redocly/cli@latest
