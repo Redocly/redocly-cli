@@ -1,11 +1,10 @@
 # Update Redocly CLI
 
-If you've already installed OpenAPI CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionality and bug fixes. Depending on how you originally installed OpenAPI CLI, there are two ways to update it.
+If you've already installed Redocly CLI, you'll want to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionality and bug fixes. Depending on how you originally installed Redocly CLI, there are two ways to update it.
 
+## How to update a project-level installation
 
-## How to update your openapi-starter installation
-
-If you installed OpenAPI CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
+If you installed Redocly CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
 
 1. Navigate to and open `package.json` in any text editor.
 2. Find the line that contains `"@redocly/cli":` followed by the version number.
@@ -13,10 +12,11 @@ If you installed OpenAPI CLI using the [openapi-starter template](https://github
 4. Save the changes then close `package.json`.
 5. Run `npm install` from the project's root directory on the command line.
 6. Commit the changed `package.json` and `package-lock.json` files to your Git repository.
-Check the project-level installation by running this command from the project's root directory: `npx redocly --version`.
-## How to update your global installation
+7. Check the project-level installation by running this command from the project's root directory: `npx redocly --version`.
 
-If you [installed OpenAPI CLI globally](./installation.md), run this command:
+## How to update a global installation
+
+If you [installed Redocly CLI globally](./installation.md), run this command:
 
 ```shell Command
 npm i -g @redocly/cli@latest
