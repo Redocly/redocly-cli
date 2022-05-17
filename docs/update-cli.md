@@ -22,7 +22,7 @@ If you installed OpenAPI CLI using the [openapi-starter template](https://github
 If you [installed OpenAPI CLI globally](./docs/installation.md), run this command:
 
 ```shell Command
-npm i -g @redocly/openapi-cli@latest
+npm i -g @redocly/cli@latest
 ```
 
 No matter how you update OpenAPI CLI, you can check your version by running any command with the `--version` option, such as `openapi bundle --version` or `openapi lint --version`.
