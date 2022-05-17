@@ -11,7 +11,7 @@ Before you begin, ensure that you have the latest version of npm installed.
 If you installed OpenAPI CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
 
 1. Navigate to and open `package.json` in any text editor.
-2. Find the line that contains `"@redocly/openapi-cli":` followed by the version number.
+2. Find the line that contains `"@redocly/cli":` followed by the version number.
 3. Change the version number to the latest one in the [Changelog](https://redocly.com/docs/cli/changelog/).
 4. Save the changes then close `package.json`.
 5. Run `npm install` from the project's root directory on the command line.
