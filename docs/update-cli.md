@@ -14,6 +14,8 @@ If you installed OpenAPI CLI using the [openapi-starter template](https://github
 2. Find the line that contains `"@redocly/openapi-cli":` followed by the version number.
 3. Change the version number to the latest one in the [Changelog](https://redocly.com/docs/cli/changelog/).
 4. Save the changes then close `package.json`.
+5. Run `npm install` from the project's root directory on the command line.
+6. Commit the changed `package.json` and `package-lock.json` files to your Git repository.
 
 ## How to update your global installation
 
