@@ -7,7 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { isRef, Location, refBaseName } from './ref-utils';
+import {isAbsoluteUrl, isRef, Location, refBaseName} from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
@@ -235,7 +235,7 @@ function makeBundleVisitor(
           return;
         }
 
-        if (keepUrlRefs && isUrlRef(node.$ref)) {
+        if (keepUrlRefs && isAbsoluteUrl(node.$ref)) {
           return;
         }
 
@@ -295,10 +295,6 @@ function makeBundleVisitor(
       nodePointer: node.$ref,
       resolved: true,
     });
-  }
-
-  function isUrlRef(link: string): boolean {
-    return /^(http(s)?:\/\/)/i.test(link);
   }
 
   function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
