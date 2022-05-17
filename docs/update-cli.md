@@ -25,4 +25,4 @@ If you [installed OpenAPI CLI globally](./docs/installation.md), run this comman
 npm i -g @redocly/cli@latest
 ```
 
-No matter how you update OpenAPI CLI, you can check your version by running any command with the `--version` option, such as `openapi bundle --version` or `openapi lint --version`.
+You can check your version by running `redocly --version`.
