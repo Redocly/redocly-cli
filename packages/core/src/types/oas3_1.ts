@@ -74,6 +74,7 @@ const Operation: NodeType = {
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-hideTryItPanel': { type: 'boolean' },
   },
 };
 

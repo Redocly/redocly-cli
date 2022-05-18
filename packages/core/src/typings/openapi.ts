@@ -77,6 +77,7 @@ export interface Oas3Operation {
   servers?: Oas3Server[];
   'x-codeSamples'?: Oas3XCodeSample[];
   'x-code-samples'?: Oas3XCodeSample[]; // deprecated
+  'x-hideTryItPanel'?: boolean;
 }
 
 export interface Oas3Parameter {
