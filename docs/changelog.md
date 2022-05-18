@@ -4,9 +4,21 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.97 (2022-05-10)
+
+### Features
+
+- Added the `--public` option to the `push` command. With this option, you can upload OpenAPI definitions and make them publicly accessible.
+- Changed assertions syntax to this pattern: `assert/{assert name}`
+
+### Fixes
+
+- Fixed an issue with `process.*` in core package that caused crashes in client-side builds.
+- Fixed `preview-docs` hot reload.
+
 ## 1.0.0-beta.96 (2022-05-06)
 
-Technical release for changing the package name.
+Technical release for changing the package name from `@redocly/openapi-cli` to `@redocly/cli`.
 
 ## 1.0.0-beta.95 (2022-05-04)
 

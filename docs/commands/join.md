@@ -26,14 +26,14 @@ Apart from providing individual API definition files as the input, you can also 
 ### Usage
 
 ```bash
-openapi join <entrypoint> <entrypoint>...
-openapi join <path-to-folder>/<wildcard-pattern> [--lint]
-openapi join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
+redocly join <entrypoint> <entrypoint>...
+redocly join <path-to-folder>/<wildcard-pattern> [--lint]
+redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
-openapi join first-api.yaml second-api.yaml
-openapi join first-api.yaml second-api.json
-openapi join ./*.yaml
-openapi join --version
+redocly join first-api.yaml second-api.yaml
+redocly join first-api.yaml second-api.json
+redocly join ./*.yaml
+redocly join --version
 ```
 
 ## Options
@@ -53,11 +53,11 @@ entrypoints | array | **REQUIRED.**  1. Array of paths to API definition files t
 ### Array of paths
 
 ```bash Command
-openapi join first-api.yaml second-api.json
+redocly join first-api.yaml second-api.json
 ```
 
 ```bash Output
-openapi join first-api.yaml second-api.json
+redocly join first-api.yaml second-api.json
 
 openapi.yaml: join processed in 56ms
 ```
@@ -132,7 +132,7 @@ The output file preserves the original tag names as the value of the `x-displayN
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-tags-with-info-prop title
+redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
 
 ```yaml Output file example
@@ -155,7 +155,7 @@ The output file preserves the original tag names as the value of the `x-displayN
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-tags-with-filename true
+redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
 
 ```yaml Output file example
@@ -175,7 +175,7 @@ If any of the input files have conflicting component names, this option can be u
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-components-with-info-prop version
+redocly join first-api.yaml second-api.json --prefix-components-with-info-prop version
 ```
 
 ```yaml Output file example

@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: summary
-        message: Operation summary should not be empty
-        nonEmpty: true
+    assert/summary-non-empty:
+      subject: Operation
+      property: summary
+      message: Operation summary should not be empty
+      nonEmpty: true
   extends: []

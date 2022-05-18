@@ -13,11 +13,11 @@ To learn more about preprocessors and rules, refer to the [custom rules](../reso
 ## Usage
 
 ```bash
-openapi lint
-openapi lint <entrypoints>...
-openapi lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
-openapi lint [--generate-ignore-file] [--help]
-openapi lint --version
+redocly lint
+redocly lint <entrypoints>...
+redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
+redocly lint [--generate-ignore-file] [--help]
+redocly lint --version
 ```
 
 ## Options
@@ -44,19 +44,19 @@ The `lint` command behaves differently depending on how you pass entrypoints to 
 #### Pass entrypoints directly
 
 ```bash
-openapi lint openapi/openapi.yaml
+redocly lint openapi/openapi.yaml
 ```
 
 In this case, `lint` will validate the definition(s) passed to the command. The configuration file is ignored.
 
-The `entrypoints` argument can also use any glob format supported by your file system. For example, `openapi lint ./root-documents/*.yaml`.
+The `entrypoints` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 
 #### Pass entrypoints via configuration file
 
 Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi lint core@v1
+redocly lint core@v1
 ```
 
 ```yaml Configuration file
@@ -72,7 +72,7 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 You can omit entrypoints completely when executing the `lint` command.
 
 ```bash Command
-openapi lint
+redocly lint
 ```
 
 ```yaml Configuration file
@@ -98,7 +98,7 @@ If you try to execute the `lint` command without entrypoints when your project d
 By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
-openapi lint --config=./another/directory/config.yaml
+redocly lint --config=./another/directory/config.yaml
 ```
 
 ### Extend configuration
@@ -110,8 +110,8 @@ The `--extends` option allows you to extend the existing configuration. This opt
 #### Codeframe (default)
 
 ```bash Command
-openapi lint --format=codeframe
-## equivalent to: openapi lint
+redocly lint --format=codeframe
+## equivalent to: redocly lint
 ```
 
 ```bash Output
@@ -136,7 +136,7 @@ Depending on the terminal emulator you use, it may be possible to directly click
 #### Stylish
 
 ```bash Command
-openapi lint --format=stylish
+redocly lint --format=stylish
 ```
 
 ```bash Output
@@ -151,7 +151,7 @@ In this format, `lint` shows the file name, line number, and column where the pr
 #### Checkstyle
 
 ```bash Command
-openapi lint --format=checkstyle
+redocly lint --format=checkstyle
 ```
 
 ```bash Output
@@ -175,7 +175,7 @@ omitted.
 With the `--max-problems` option, you can limit the number of problems displayed in the command output. If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
 
 ```bash Command
-openapi lint --max-problems 200
+redocly lint --max-problems 200
 ```
 
 ```bash Output
@@ -190,7 +190,7 @@ With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppr
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
 ```shell Command
-openapi lint openapi/petstore.yaml --generate-ignore-file
+redocly lint openapi/petstore.yaml --generate-ignore-file
 ```
 
 ```bash Output
@@ -205,7 +205,7 @@ This command will overwrite an existing ignore file.
 To generate an ignore file for multiple definitions, pass them as arguments:
 
 ```bash
-openapi lint v1.yaml v2.yaml --generate-ignore-file
+redocly lint v1.yaml v2.yaml --generate-ignore-file
 ```
 
 Example of an ignore file:
@@ -228,11 +228,11 @@ The rule in the example is named `spec`, which indicates compliance with the Ope
 You may want to skip specific preprocessors or rules upon running the command.
 
 ```bash Skip preprocessors
-openapi lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 ```bash Skip rules
-openapi lint --skip-rule=no-sibling-refs,no-parent-tags
+redocly lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 :::success Tip

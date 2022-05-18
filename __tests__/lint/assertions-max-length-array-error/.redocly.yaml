@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: tags
-        message: Operation tags should have maximum 2 items
-        maxLength: 2
+    assert/tags-max-length:
+      subject: Operation
+      property: tags
+      message: Operation tags should have maximum 2 items
+      maxLength: 2
   extends: []

@@ -4,9 +4,9 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - subject: Operation
-        property: tags
-        message: Operation tags should have minimum 4 items
-        minLength: 4
+    assert/tags-min-length:
+      subject: Operation
+      property: tags
+      message: Operation tags should have minimum 4 items
+      minLength: 4
   extends: []

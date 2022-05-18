@@ -3,43 +3,49 @@ title: Redocly CLI configuration
 description: Learn how to configure Redocly CLI
 redirectFrom:
   - /docs/cli/configuration/configuration-file/
+toc:
+  maxDepth: 3
 ---
 
 import { JsonSchema } from '@redocly/developer-portal/ui';
 import Schema from './schema.yaml';
+import ApiSchema from './api.yaml';
+import LintSchema from './lint.yaml';
+import MockServerSchema from './mockserver.yaml';
+import ResolveSchema from './resolve.yaml';
 import { StyledContent } from '../../components/styled.elements';
 
 # Redocly configuration file
 
-The Redocly configuration file controls options for the Redocly CLI tool.
-It is also used across other Redocly products to help you control their behavior.
+The Redocly configuration file is used by Redocly CLI and other Redocly apps to control their behavior — from the strictness of the `lint` command, to how Redocly renders your docs.
 
 - Workflows uses it in the API registry to manage your APIs and control advanced features like region and link resolution.
-- Reference uses it to apply your custom settings when building API reference documentation (hosted and on-premise).
-- VS Code extension uses it for linting criteria, to apply custom settings for live documentation preview, and to set API definition root files.
+- Workflows and on-premise tools use it to apply your features and theme when building API docs.
+- Redocly's VS Code extension uses it for linting criteria, to apply custom settings for live documentation previews, and to identify the path API definition root files.
 
-## Filename and location
+## Filename, location, and format
 
-The Redocly configuration file must be named `redocly.yaml` or `.redocly.yaml`, and placed into your working directory or the root of your project (depending on the Redocly product you're using).
+The Redocly configuration file must be named either `redocly.yaml` or `.redocly.yaml`.
+It must be located in the root of your project directory, and it must be in the YAML format.
+If you cloned the `openapi-starter` project, this is already set up for you.
 
 Redocly CLI will search for the configuration file in the working directory.
 
 :::warning
 
-Multiple configuration files in the same directory are not allowed.
-If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will display a warning in the output and ask you to choose one file to use.
+If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will show a warning in the output and ask you to choose one file.
 
 :::
 
-## File format and structure
 
-The Redocly configuration file must be in YAML format.
+## File structure
 
+### Fixed properties
 <StyledContent>
   <JsonSchema
     schema={Schema}
     options={{
-      schemaExpansionLevel:1,
+      schemaExpansionLevel:0,
     }}
   />
 </StyledContent>
@@ -81,42 +87,27 @@ Every `name@version` combination listed in the object must be unique.
 
 For every API listed in the object, you must provide the path to the OpenAPI definition using the `root` property.
 
+#### Patterned properties
+
+<StyledContent>
+  <JsonSchema
+    schema={ApiSchema}
+    options={{
+      schemaExpansionLevel:2,
+    }}
+  />
+</StyledContent>
+
+#### Example
 ```yaml
 apis:
   name@version:
     root: ./openapi/openapi.yaml
     labels:
       - production
-    lint: []
-    features.openapi: []
-lint:
-  rules:
-    example-rule-name: error
-features.openapi:
-  pagination: section
-  showConsole: true
-  theme:
-    menu:
-      backgroundColor: '#fffff'
+    lint: {}
+    features.openapi: {}
 ```
-
-The `apis` object supports several optional properties for every listed API.
-
-**labels**
-
-Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs. You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
-
-If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
-
-**lint**
-
-In addition to the global (top-level) `lint` object, you can add one to each API listed in `apis`. This allows you to use different rules and decorators for different APIs.
-
-**features.openapi**
-
-In addition to the global (top-level) `features.openapi` object, you can add one to each API listed in `apis`. This allows you to use different API reference docs settings for different APIs.
-This object supports identical format and options as the global `features.openapi` object.
-
 
 :::warning Important
 
@@ -141,24 +132,50 @@ Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md
 You can tell the `lint` command to validate specific API definitions by using their names from the `apis` object, like in the following example:
 
 ```shell
-openapi lint core
+redocly lint core@v2
 ```
 
 On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` object:
 
 ```shell
-openapi lint
+redocly lint
 ```
 
-### lint
+### lint object
 
 The `lint` object's primary purpose is to define options for the `lint` and `bundle` commands.
 You may also import plugins and extends their configurations.
 
-Read more about the [lint configuration object](../guides/lint.md).
+#### Fixed properties
 
+<StyledContent>
+  <JsonSchema
+    schema={LintSchema}
+    options={{
+      schemaExpansionLevel:1,
+    }}
+  />
+</StyledContent>
 
-### features.mockServer
+#### Example
+
+```yaml
+lint:
+  extends:
+    - recommended
+  rules:
+    no-ambiguous-paths: error
+  decorators:
+    remove-x-internal: on
+```
+
+### features.mockServer object
+
+You can apply `features.mockServer` to individual APIs as well as at the global level.
+
+Option | Per-API support | Behavior
+-- | -- | --
+features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
 
 The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
 When the mock server is enabled for an API, you can send test requests to it from any API client.
@@ -166,41 +183,45 @@ When the mock server is enabled for an API, you can send test requests to it fro
 The `features.mockServer` object allows additional configuration of the mock server behavior.
 This object is optional.
 
-The `features.mockServer` object supports fields listed in the following table.
+#### Fixed properties
+<StyledContent>
+  <JsonSchema
+    schema={MockServerSchema}
+    options={{
+      schemaExpansionLevel:1,
+    }}
+  />
+</StyledContent>
 
-| Property | Type | Description |
-| --- | --- | --- |
-| errorIfForcedExampleNotFound | boolean | Users can force specific examples in the response by adding the optional `x-redocly-response-body-example` header to their requests. By default, if an example ID provided in the request is not found in the API definition, the mock server returns any other example. If you set `errorIfForcedExampleNotFound: true`, the mock server will return an error instead. Default value is `false`.|
-| strictExamples | boolean | By default, the mock server automatically enhances responses with heuristics like substituting the response fields with request parameter values. To prevent this behavior, set `strictExamples: true`. When this is set, examples are returned in the response unmodified, exactly how they are defined in the OpenAPI document. Default value is `false`.|
+
+### features.openapi object
+
+The `features.openapi` object configures features and theming for API documentation generated from OpenAPI definitions.
+
+If you need to apply different theming and functionality to individual APIs, add the `features.openapi` property to the `apis` section, and use the same options as the global `features.openapi`.
+
+Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
 
 
 ### resolve object
 
-Redocly will automatically resolve any API registry link or public URL in your API definitions. However, you may want to resolve links that are not API registry links or publicly accessible. To accomplish that, add the `resolve` object to the configuration file.
+Redocly will automatically resolve any API registry link or public URL in your API definitions.
+If you want to resolve links that are neither API registry links nor publicly accessible, set the `resolve` object in your configuration file.
 
-Redocly CLI only supports `http` headers. Only one `http` header per URL is supported in the `resolve` object.
+Redocly CLI supports one `http` header per URL.
 
-We recommend using environment variables whenever possible.
+#### Fixed properties
+<StyledContent>
+  <JsonSchema
+    schema={ResolveSchema}
+    options={{
+      schemaExpansionLevel:2,
+    }}
+  />
+</StyledContent>
 
-#### Resolving external links
 
-The `resolve` object should be structured like this:
-
-```yaml
-resolve:
-  http:
-    headers:
-      - # header configuration
-```
-
-The `headers` object supports fields listed in the following table.
-
-| Property | Description | Examples |
-| --- | --- | --- |
-| matches | Glob match against the URL. | `https://api.example.com/**` or `https://api.example.com/*.json`|
-| name | HTTP header name. | `Authorization` or `X-API-KEY`|
-| value | The value of the header. Mutually exclusive with `envVariable`. | `123-abc`|
-| envVariable | The name of the environment variable that contains the value of the header. Mutually exclusive with `value`. |`SECRET_KEY`|
+#### Example
 
 Here is an example for adding header definitions:
 
@@ -215,12 +236,5 @@ resolve:
         name: Authorization
         envVariable: SECRET_AUTH
 ```
-
-The first match takes precedence when a URL matches multiple patterns. Therefore, only the header from the first match will be used in the request.
-
-
-### features.openapi object
-
-The `features.openapi` object configures features (availability and options) and theming (style, fonts, colors) for API documentation generated from OpenAPI definitions.
-
-Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/index.mdx).
+The first match takes priority when a URL matches multiple patterns.
+Therefore, only the header from the first match will be used in the request.

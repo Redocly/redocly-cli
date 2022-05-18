@@ -128,7 +128,7 @@ This can be done in two ways:
 
 1. Bundle the `external@latest` API.
     ```shell
-    openapi bundle external@latest --output dist/external.yaml
+    redocly bundle external@latest --output dist/external.yaml
     ```
 1. Inspect the file at `dist/external.yaml`.
   Confirm the following:
@@ -137,7 +137,7 @@ This can be done in two ways:
 1. Bundle the `internal@latest` API.
 
     ```shell
-    openapi bundle internal@latest --output dist/internal.yaml
+    redocly bundle internal@latest --output dist/internal.yaml
     ```
     Inspect the file at `dist/internal.yaml`.
     Confirm the following:

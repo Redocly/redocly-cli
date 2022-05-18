@@ -64,6 +64,12 @@ properties:
     type: object
     description: Lets you set rules and decorators that control how the `lint` and `bundle` commands behave.
     properties:
+      doNotResolveExamples:
+        type: boolean
+        description: >-
+          You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
+          This does not affect `$ref` resolution in other parts of the API definition.
+        default: false
       plugins:
         type: array
         description: >-

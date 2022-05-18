@@ -4,12 +4,12 @@ apis:
 
 lint:
   rules:
-    assertions:
-      - context:
-        - type: PathItem
-        subject: Operation
-        message: Operation should have summary and security fields simultaneously
-        mutuallyRequired:
-          - summary
-          - security
+    assert/path-item-mutually-required:
+      context:
+      - type: PathItem
+      subject: Operation
+      message: Operation should have summary and security fields simultaneously
+      mutuallyRequired:
+        - summary
+        - security
   extends: []
