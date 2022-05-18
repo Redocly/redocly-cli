@@ -345,7 +345,7 @@ lint:
     response-contains-header:
       severity: error
       names:
-        2xx: 
+        2XX: 
           - x-request-id
         400:
           - Content-Length
@@ -353,7 +353,16 @@ lint:
 
 ### response-contains-property
 
-The same as `response-contains-header` except for a response properties.
+Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
+Priority is given to more precise status codes over the status code range.
+```yaml
+response-contains-header:
+      severity: error
+      names:
+        2XX: 
+          - created_at
+        400:
+          - title
 
 ## Recommended config
 
