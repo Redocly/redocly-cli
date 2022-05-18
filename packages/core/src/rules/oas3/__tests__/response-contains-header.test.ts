@@ -26,7 +26,7 @@ describe('Oas3 response-contains-header', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-header': {
           severity: 'error',
           names: { '200': ['Content-Length'] },
@@ -106,7 +106,7 @@ describe('Oas3 response-contains-header', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-header': {
           severity: 'error',
           names: {
@@ -258,7 +258,7 @@ describe('Oas3 response-contains-header', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-header': {
           severity: 'error',
           names: {

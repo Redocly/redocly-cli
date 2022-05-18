@@ -34,7 +34,7 @@ describe('Oas2 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-property': {
           severity: 'error',
           names: { '2xx': ['id'], '4xx': ['id'] },
@@ -116,7 +116,7 @@ describe('Oas2 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-property': {
           severity: 'error',
           names: { '200': ['id'], '4xx': ['id'] },
@@ -144,7 +144,7 @@ describe('Oas2 response-contains-property', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({
+      config: await makeConfig({
         'response-contains-property': {
           severity: 'error',
         },
