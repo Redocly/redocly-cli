@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/summary-pattern:
+      subject: Operation
+      property: summary
+      message: Operation summary should have 'test' word
+      pattern: '/test/'
+  extends: []

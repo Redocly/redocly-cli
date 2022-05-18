@@ -1,0 +1,15 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/path-item-mutually-exclusive:
+      context:
+        - type: PathItem
+      subject: Operation
+      message: Operation should not have summary and tags fields simultaneously
+      mutuallyExclusive:
+        - summary
+        - tags
+  extends: []

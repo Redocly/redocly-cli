@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    no-enum-type-mismatch: error
+  extends: []

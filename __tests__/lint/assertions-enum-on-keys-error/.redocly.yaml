@@ -1,0 +1,13 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/media-type-application-json:
+      subject:
+      - MediaTypeMap
+      message: Only application/json can be used
+      enum:
+        - application/json
+  extends: []

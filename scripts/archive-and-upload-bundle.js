@@ -1,5 +1,4 @@
 const yargs = require('yargs');
-
 const { execSync } = require('child_process');
 const package = require('../package.json');
 
@@ -10,20 +9,23 @@ const fileNameLatest = `openapi-cli.latest.tar.gz`;
 execSync(`tar -zcvf ${fileName} dist`);
 execSync(`tar -zcvf ${fileNameLatest} dist`);
 
-
-const argv = yargs
-    .option('aws-profile', {
-        alias: 'p',
-        type: 'string',
-    })
-    .argv;
+const argv = yargs.option('aws-profile', {
+  alias: 'p',
+  type: 'string',
+}).argv;
 
 let profile = !!argv.awsProfile ? `--profile ${argv.awsProfile}` : '';
 
-try {
-    execSync(`aws s3 cp ${fileName} s3://openapi-cli-dist ${profile}`);
-    execSync(`aws s3 cp ${fileNameLatest} s3://openapi-cli-dist ${profile}`);
-} catch (e) {
+if (process.env.ENV === 'local') {
+  execSync(`mkdir -p /tmp/redocly/openapi-cli/latest/`);
+  execSync(`mkdir -p /tmp/redocly/openapi-cli/${version}/`);
+  execSync(`cp -R dist /tmp/redocly/openapi-cli/latest/`);
+  execSync(`cp -R dist /tmp/redocly/openapi-cli/${version}/`);
+} else {
+  try {
+    execSync(`aws s3 cp ${fileName} s3://${process.env.AWS_S3_PATH} ${profile}`);
+    execSync(`aws s3 cp ${fileNameLatest} s3://${process.env.AWS_S3_PATH} ${profile}`);
+  } catch (e) {
     process.stderr.write(e.output);
+  }
 }
-

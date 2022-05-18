@@ -1,0 +1,20 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/operation-id-pascal-case:
+      context:
+        - type: Operation
+          matchParentKeys: [get]
+      subject: Operation
+      property: operationId
+      message: Operation id for get requests should be PascalCase
+      casing: PascalCase
+    assert/operation-id-snake-case:
+      subject: Operation
+      property: operationId
+      message: Operation id should be snake_case
+      casing: snake_case
+  extends: []

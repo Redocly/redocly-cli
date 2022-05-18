@@ -1,0 +1,15 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    request-mime-type:
+      severity: error
+      allowedValues:
+        - application/json
+    response-mime-type:
+      severity: error
+      allowedValues:
+        - application/json
+  extends: []

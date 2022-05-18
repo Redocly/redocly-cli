@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        updatePet: ./update-pet-operation-description.md
+  extends: []

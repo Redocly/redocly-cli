@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    no-unused-components: warn
+  extends: []

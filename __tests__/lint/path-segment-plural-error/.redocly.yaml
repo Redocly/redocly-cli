@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    path-segment-plural: error
+  extends: []

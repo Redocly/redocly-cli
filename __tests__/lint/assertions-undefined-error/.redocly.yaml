@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/summary-undefined:
+      subject: Operation
+      property: summary
+      message: Operation summary should be undefined
+      undefined: true
+  extends: []

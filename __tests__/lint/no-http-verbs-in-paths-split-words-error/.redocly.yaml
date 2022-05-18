@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    no-http-verbs-in-paths:
+      severity: error
+      splitIntoWords: true
+  extends: []

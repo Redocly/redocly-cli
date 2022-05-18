@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: Petstore API
+  version: 1.0.0
+  description: description
+servers:
+  - url:
+    description: Dev Environment.
+paths:
+  /pet/findByStatus:
+    get:
+      operationId: example
+      summary: summary example
+      responses:
+        '200':
+          description: example description
+

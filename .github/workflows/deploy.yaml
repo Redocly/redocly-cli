@@ -2,14 +2,18 @@ name: CD to NPM & AWS S3
 
 on:
   push:
-    tags: 
+    tags:
       - v[0-9]*.[0-9]*.[0-9]*
-    
+      - v[0-9]+.[0-9]+.[0-9]+-[a-z]+.[0-9]+ # beta/rc releases
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "14.x"
     - name: cache node modules
       uses: actions/cache@v1
       with:
@@ -18,13 +22,17 @@ jobs:
         restore-keys: |
           npm-${{ hashFiles('package-lock.json') }}
           npm-
-    - run: npm ci
+    - run: npm i -g npm@7.0.2
+    - run: npm install
     - run: npm test
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "14.x"
     - name: cache node modules
       uses: actions/cache@v1
       with:
@@ -34,14 +42,13 @@ jobs:
           npm-${{ hashFiles('package-lock.json') }}
           npm-
 
+    - name: Install npm@7.0.2
+      run: npm i -g npm@7.0.2
     - name: Install dependencies
-      run: npm ci
-
-    - name: Build package
-      run: npm run build
+      run: npm install
 
     - name: Bundle into single file
-      run: npm run bundle
+      run: npm run webpack-bundle
 
     - name: Upload to AWS S3 bucket
       run: npm run upload
@@ -49,11 +56,23 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
+        AWS_S3_PATH: openapi-cli-dist
+
+    - name: Upload to AWS sandbox S3 bucket
+      run: npm run upload
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SANDBOX_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_S3_PATH: redocly-sandbox-openapi-cli-dist
   publish:
     needs: [test, deploy]
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/setup-node@v1
+      with:
+        node-version: "14.x"
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
@@ -68,13 +87,47 @@ jobs:
           npm-${{ hashFiles('package-lock.json') }}
           npm-
 
-    - name: Install dependencies
-      run: npm ci
+    - name: Install npm@7.0.2
+      run: npm i -g npm@7.0.2
 
-    - name: Build package
-      run: npm run build
+    - name: Install dependencies
+      run: npm install
 
     - name: Publish to NPM
-      run: npm publish
+      run: cd packages/core && npm publish && cd ../cli && npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  dockerhub:
+    needs: [publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: redocly/openapi-cli
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}

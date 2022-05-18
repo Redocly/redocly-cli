@@ -1,0 +1,52 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "TEST",
+    "description": "TEST",
+    "version": "v1",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [{
+    "url": "http://petstore.swagger.io/v1"
+  }],
+  "paths": {
+    "/test": {
+      "get": {
+        "summary": "test",
+        "operationId": "test",
+        "responses": {
+          "200": {
+            "description": "Test",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" },
+                "example": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "oneOf": [
+          { "$ref": "#/components/schemas/Pet" },
+          { "$ref": "#/components/schemas/Cat" }
+        ]
+      },
+      "Cat": {
+        "type": "object",
+        "allOf": [{ "$ref": "#/components/schemas/Cat" }]
+      }
+    }
+  }
+}

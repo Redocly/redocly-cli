@@ -1,14 +1,12 @@
 .DS_Store
 .idea
-
 node_modules/
 nodejs/
-
 coverage/
 .vscode/
-
 yarn.lock
 dist/
 lib/
-
+output/
 *.tar.gz
+*.tsbuildinfo

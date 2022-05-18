@@ -1,31 +1,39 @@
 {
-  "name": "@redocly/openapi-cli",
-  "version": "1.0.0-beta.14",
+  "name": "@redocly/cli",
+  "version": "1.0.0-beta.98",
   "description": "",
-  "main": "lib/index.js",
+  "private": true,
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=15.0.0"
   },
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
-    "unit": "jest ./src --coverage --coverageReporters lcov text-summary",
-    "e2e": "jest ./__tests__",
-    "cli": "ts-node src/cli.ts",
-    "build": "tsc -p tsconfig.build.json && cp ./src/cli/preview-server/default.hbs ./lib/cli/preview-server",
-    "benchmark": "node  --expose-gc --noconcurrent_sweeping --predictable ./benchmark/benchmark.js",
-    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "prepublishOnly": "npm run build",
-    "bundle": "webpack --config webpack.config.ts",
-    "upload": "node scripts/archive-and-upload-bundle.js"
+    "e2e": "jest --roots=./__tests__/",
+    "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
+    "watch": "tsc -b tsconfig.build.json --watch ",
+    "compile": "tsc -b tsconfig.build.json",
+    "prepare": "npm run compile",
+    "cli": "ts-node packages/cli/src/index.ts",
+    "lint": "npm run cli lint resources/pets.yaml -- --format stylish",
+    "bundle": "npm run cli bundle resources/pets.yaml",
+    "stats": "npm run cli stats resources/pets.yaml",
+    "split": "npm run cli split resources/pets.yaml -- --outDir output",
+    "preview": "npm run cli preview-docs resources/pets.yaml",
+    "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
+    "webpack-bundle": "webpack --config webpack.config.ts",
+    "upload": "node scripts/archive-and-upload-bundle.js",
+    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload"
   },
-  "bin": {
-    "openapi": "lib/cli.js"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/openapi-cli.git"
+    "url": "https://github.com/Redocly/redocly-cli.git"
   },
   "keywords": [
     "linter",
@@ -37,59 +45,36 @@
   ],
   "contributors": [
     "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
+    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/js-levenshtein": "^1.1.0",
-    "@types/js-yaml": "^3.12.4",
-    "@types/lodash.isequal": "^4.5.5",
-    "@types/minimatch": "^3.0.3",
-    "@types/node-fetch": "^2.5.7",
-    "@types/yargs": "^15.0.5",
-    "jest": "^26.0.1",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^17.0.31",
+    "jest": "^26.6.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.1.2",
     "shebang-loader": "0.0.1",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.2",
-    "ts-node": "^8.10.2",
+    "ts-node": "^9.0.0",
+    "typescript": "4.3.3",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },
-  "dependencies": {
-    "@redocly/ajv": "^6.12.3",
-    "@types/node": "^14.0.13",
-    "chokidar": "^3.4.0",
-    "colorette": "^1.2.0",
-    "handlebars": "^4.7.6",
-    "js-levenshtein": "^1.1.6",
-    "js-yaml": "^3.14.0",
-    "lodash.isequal": "^4.5.0",
-    "minimatch": "^3.0.4",
-    "node-fetch": "^2.6.0",
-    "portfinder": "^1.0.26",
-    "readline": "^1.3.0",
-    "simple-websocket": "^9.0.0",
-    "typescript": "^3.9.5",
-    "yaml-ast-parser": "0.0.43",
-    "yargs": "^15.3.1"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "printWidth": 100
-  },
   "jest": {
+    "clearMocks": true,
+    "restoreMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/__tests__/**/*",
-      "!src/cli.ts",
-      "!src/cli/**/*.ts",
-      "!src/format/format.ts"
+      "packages/**/*.ts",
+      "!packages/**/__tests__/**/*",
+      "!packages/cli/src/index.ts",
+      "!packages/core/src/benchmark/**/*",
+      "!packages/core/lib/**/*",
+      "!packages/cli/lib/**/*"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",
