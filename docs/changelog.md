@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Features
 
-- Updated types. Added `hideTryItPanel` configuration option and `x-hideTryItPanel` OpenAPI specification extension.
+- Updated types. Added `hideTryItPanel`, `schemaDefinitionsTagName` configuration options and `x-hideTryItPanel`, `x-tags` OpenAPI specification extensions.
 
 ## 1.0.0-beta.97 (2022-05-10)
 
