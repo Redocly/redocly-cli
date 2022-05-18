@@ -1,11 +1,11 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.97",
+  "version": "1.0.0-beta.98",
   "description": "",
   "license": "MIT",
   "bin": {
     "openapi": "bin/cli.js",
-    "redocly":  "bin/cli.js"
+    "redocly": "bin/cli.js"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -35,7 +35,7 @@
     "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "1.0.0-beta.97",
+    "@redocly/openapi-core": "1.0.0-beta.98",
     "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
