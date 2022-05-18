@@ -526,6 +526,7 @@ const ConfigReferenceDocs: NodeType = {
     hideSchemaPattern: { type: 'boolean' },
     hideSchemaTitles: { type: 'boolean' },
     hideSingleRequestSampleTab: { type: 'boolean' },
+    hideTryItPanel: { type: 'boolean' },
     htmlTemplate: { type: 'string' },
     jsonSampleExpandLevel: { type: 'string' },
     labels: 'ConfigLabels',
