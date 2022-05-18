@@ -164,6 +164,7 @@ const Schema: NodeType = {
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 
