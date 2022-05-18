@@ -24,7 +24,7 @@ export default {
     'operation-operationId-unique': 'warn',
     'operation-parameters-unique': 'warn',
     'operation-tag-defined': 'off',
-    'operation-security-defined': 'warn',
+    'operation-security-defined': 'error',
     'operation-operationId-url-safe': 'warn',
     'operation-singular-tag': 'off',
     'no-unresolved-refs': 'error',
