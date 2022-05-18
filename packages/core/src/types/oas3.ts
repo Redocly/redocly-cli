@@ -316,6 +316,7 @@ const Schema: NodeType = {
     xml: 'Xml',
     example: { isExample: true },
     deprecated: { type: 'boolean' },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 

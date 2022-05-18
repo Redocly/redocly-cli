@@ -178,6 +178,7 @@ export interface Oas2Schema {
   example?: any;
 
   xml?: Oas2Xml;
+  'x-tags'?: string[];
 }
 
 export type Oas2ParameterLocation = 'query' | 'header' | 'path' | 'formData';
