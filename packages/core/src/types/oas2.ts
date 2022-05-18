@@ -288,6 +288,7 @@ const Schema: NodeType = {
     xml: 'Xml',
     externalDocs: 'ExternalDocs',
     example: { isExample: true },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 

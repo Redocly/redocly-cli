@@ -546,6 +546,7 @@ const ConfigReferenceDocs: NodeType = {
     routingBasePath: { type: 'string' },
     samplesTabsMaxCount: { type: 'number' },
     schemaExpansionLevel: { type: 'string' },
+    schemaDefinitionsTagName: { type: 'string' },
     scrollYOffset: { type: 'string' },
     searchAutoExpand: { type: 'boolean' },
     searchFieldLevelBoost: { type: 'number' },

@@ -150,6 +150,7 @@ export interface Oas3Schema {
   example?: any;
 
   xml?: Oas3Xml;
+  'x-tags'?: string[];
 }
 
 export interface Oas3_1Schema extends Oas3Schema {
