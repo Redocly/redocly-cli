@@ -18,8 +18,8 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
           for (const expectedHeader of expectedHeaders) {
             if (!response.headers?.[expectedHeader]) {
               report({
-                message: `Response object must have a "${expectedHeader}" header.`,
-                location: location.child('headers'),
+                message: `Response object must contain a "${expectedHeader}" header.`,
+                location: location.child('headers').key(),
               });
             }
           }

@@ -25,8 +25,8 @@ export const ResponseContainsProperty: Oas3Rule = (options) => {
             for (const expectedProperty of expectedProperties) {
               if (!schema.properties?.[expectedProperty]) {
                 report({
-                  message: `Response object must have a top-level "${expectedProperty}" property.`,
-                  location: location.child('properties'),
+                  message: `Response object must contain a top-level "${expectedProperty}" property.`,
+                  location: location.child('properties').key(),
                 });
               }
             }
