@@ -118,15 +118,15 @@ redocly lint --config=./another/directory/anotherconfig.yaml
 
 Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. If you want to override a rule or reduce its severity, you can do so by modifying `redocly.yaml` (globally or per API definition).
 
-An alternative approach is to use **rule sets** to quickly invoke a lot of rules at the same time.
+An alternative approach is to use **rule configurations** to quickly invoke a lot of rules at the same time.
 
-Redocly CLI has three rule sets, each specifying different levels of severity, that can be applied to API definition file validation by adding the `--extends` option to the `lint` command:
+Redocly CLI has three built-in rule configurations, each specifying different levels of severity, that can be used to validate API definitions by adding the `--extends` option to the `lint` command:
 
-* For you rebels out there, the `minimal` rule set will apply the least severe config for each built-in rule, and deactivate others entirely. We like to call this our death-metal rule set. View the GitHub Source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/minimal.ts).
-* Late 80s easy-listening more your jam? Then our `recommended` rule set is for you. It will apply the recommended config for each built-in rule. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/recommended.ts).
+* For you rebels out there, the `minimal` configuration will apply the least severe config for each built-in rule, and deactivate others entirely. We like to call this our death-metal rule set. View the GitHub Source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/minimal.ts).
+* Late 80s easy-listening more your jam? Then our `recommended` configuration is for you. It will apply the recommended config for each built-in rule. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/recommended.ts).
 * Got Gregorian chants playing on loop? The `all` rule set will satisfy your need for strictness. All rules are on, and `lint` will return an error if your API definition is anything less than perfect. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/e6f99e57da339d89bba7f4a1ba897282d7cebbd2/packages/core/src/config/all.ts).
 
-When you compare the source files, you will see that some rules are switched on, some are set to different severities, and some are switched off. Here's how to activate each rule set when linting your API definitions:
+When you compare the source files, you will see that some rules are switched on, some are set to different severities, and some are switched off. Here's how to activate each rule configuration when linting your API definitions:
 
 ```bash
 redocly lint --extends=minimal
