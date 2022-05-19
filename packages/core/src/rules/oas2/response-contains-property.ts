@@ -16,7 +16,11 @@ export const ResponseContainsProperty: Oas2Rule = (options) => {
         },
         Schema(schema, { report, location }) {
           if (schema.type !== 'object') return;
-          const expectedProperties = names[key] || names[getMatchingStatusCodeRange(key)] || [];
+          const expectedProperties =
+            names[key] ||
+            names[getMatchingStatusCodeRange(key)] ||
+            names[getMatchingStatusCodeRange(key).toLowerCase()] ||
+            [];
           for (const expectedProperty of expectedProperties) {
             if (!schema.properties?.[expectedProperty]) {
               report({

@@ -110,7 +110,7 @@ describe('Oas3 response-contains-header', () => {
         'response-contains-header': {
           severity: 'error',
           names: {
-            '2xx': ['x-request-id'],
+            '2XX': ['x-request-id'],
             '400': ['Content-Length'],
           },
         },

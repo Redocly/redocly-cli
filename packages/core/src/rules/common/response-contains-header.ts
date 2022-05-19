@@ -10,7 +10,11 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
     Operation: {
       Response: {
         enter: (response: Oas2Response | Oas3Response, { report, location, key }: UserContext) => {
-          const expectedHeaders = names[key] || names[getMatchingStatusCodeRange(key)] || [];
+          const expectedHeaders =
+            names[key] ||
+            names[getMatchingStatusCodeRange(key)] ||
+            names[getMatchingStatusCodeRange(key).toLowerCase()] ||
+            [];
           for (const expectedHeader of expectedHeaders) {
             if (!response.headers?.[expectedHeader]) {
               report({

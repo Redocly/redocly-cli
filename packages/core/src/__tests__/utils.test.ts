@@ -74,8 +74,8 @@ describe('utils', () => {
 
   describe('getMatchingStatusCodeRange', () => {
     it('should get the generalized form of status codes', () => {
-      expect(getMatchingStatusCodeRange('202')).toEqual('2xx');
-      expect(getMatchingStatusCodeRange(400)).toEqual('4xx');
+      expect(getMatchingStatusCodeRange('202')).toEqual('2XX');
+      expect(getMatchingStatusCodeRange(400)).toEqual('4XX');
     });
     it('should fail on a wrong input', () => {
       expect(getMatchingStatusCodeRange('2002')).toEqual('2002');
