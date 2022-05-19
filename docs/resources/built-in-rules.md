@@ -357,12 +357,13 @@ Enforces definition of specific response properties based on HTTP status code or
 Priority is given to more precise status codes over the status code range.
 ```yaml
 response-contains-header:
-      severity: error
-      names:
-        2XX: 
-          - created_at
-        400:
-          - title
+  severity: error
+  names:
+    2XX: 
+      - created_at
+    400:
+      - title
+```
 
 ## Recommended config
 
