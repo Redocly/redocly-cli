@@ -100,6 +100,32 @@ components:
 
 `;
 
+exports[`bundle should not bundle url refs if used with keepUrlRefs 1`] = `
+openapi: 3.0.0
+paths:
+  /pet:
+    parameters:
+      - $ref: '#/components/parameters/path-param'
+    put:
+      parameters:
+        - $ref: https://someexternal.schema
+        - $ref: '#/components/parameters/param-b'
+        - name: test
+    get:
+      parameters:
+        - $ref: http://someexternal.schema
+        - $ref: '#/components/parameters/param-c'
+components:
+  parameters:
+    path-param:
+      name: path_param
+    param-c:
+      name: param_c
+    param-b:
+      name: param_b
+
+`;
+
 exports[`bundle should not place referened schema inline when component in question is not of type "schemas" 1`] = `
 openapi: 3.0.0
 paths:

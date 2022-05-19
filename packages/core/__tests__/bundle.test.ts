@@ -128,5 +128,30 @@ describe('bundle', () => {
       }
     );
     expect(res.parsed).toMatchSnapshot();
-  })
+  });
+
+  it('should not bundle url refs if used with keepUrlRefs', async () => {
+    const fetchMock = jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => 'External schema content',
+          headers: {
+            get: () => '',
+          },
+        }),
+    );
+    const { bundle: res, problems } = await bundle({
+      config: new Config({} as ResolvedConfig),
+      externalRefResolver: new BaseResolver({
+        http: {
+          customFetch: fetchMock,
+          headers: [],
+        },
+      }),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-with-url-refs.yaml'),
+      keepUrlRefs: true,
+    });
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
 });

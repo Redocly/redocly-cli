@@ -39,6 +39,7 @@ export async function handleBundle(
     metafile?: string;
     extends?: string[];
     'remove-unused-components'?: boolean;
+    'keep-url-references'?: boolean;
   },
   version: string,
 ) {
@@ -98,6 +99,7 @@ export async function handleBundle(
         ref: path,
         dereference: argv.dereferenced,
         removeUnusedComponents,
+        keepUrlRefs: argv['keep-url-references'],
       });
 
       const fileTotals = getTotals(problems);
