@@ -124,7 +124,7 @@ Redocly CLI has three built-in rule configurations, each specifying different le
 
 * For you rebels out there, the `minimal` configuration will apply the least severe config for each built-in rule, and deactivate others entirely. We like to call this our death-metal rule set. View the GitHub Source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/minimal.ts).
 * Late 80s easy-listening more your jam? Then our `recommended` configuration is for you. It will apply the recommended config for each built-in rule. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/ed997e2586e7adb7e32d8107cac79c452891f765/packages/core/src/config/recommended.ts).
-* Got Gregorian chants playing on loop? The `all` rule set will satisfy your need for strictness. All rules are on, and `lint` will return an error if your API definition is anything less than perfect. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/e6f99e57da339d89bba7f4a1ba897282d7cebbd2/packages/core/src/config/all.ts).
+* Got Gregorian chants playing on loop? The `all` configuration will satisfy your need for strictness. All rules are on, and `lint` will return an error if your API definition is anything less than perfect. View the GitHub source [here](https://github.com/Redocly/openapi-cli/blob/e6f99e57da339d89bba7f4a1ba897282d7cebbd2/packages/core/src/config/all.ts).
 
 When you compare the source files, you will see that some rules are switched on, some are set to different severities, and some are switched off. Here's how to activate each rule configuration when linting your API definitions:
 
