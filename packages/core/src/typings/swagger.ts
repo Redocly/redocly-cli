@@ -73,6 +73,7 @@ export interface Oas2Operation {
   security?: Oas2SecurityRequirement[];
   'x-codeSamples'?: Oas2XCodeSample[];
   'x-code-samples'?: Oas2XCodeSample[]; // deprecated
+  'x-hideTryItPanel'?: boolean;
 }
 
 export type Oas2Parameter = Oas2BodyParameter | Oas2SimpleParameter;
@@ -177,6 +178,7 @@ export interface Oas2Schema {
   example?: any;
 
   xml?: Oas2Xml;
+  'x-tags'?: string[];
 }
 
 export type Oas2ParameterLocation = 'query' | 'header' | 'path' | 'formData';

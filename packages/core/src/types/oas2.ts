@@ -88,6 +88,7 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
 };
@@ -287,6 +288,7 @@ const Schema: NodeType = {
     xml: 'Xml',
     externalDocs: 'ExternalDocs',
     example: { isExample: true },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 

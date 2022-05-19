@@ -335,6 +335,35 @@ Verifies that each tag has a description.
 
 Verifies that tags (names) are declared in alphabetical order.
 
+### response-contains-header
+
+Enforces using specified response headers.
+
+```yaml
+lint:
+  rules:
+    response-contains-header:
+      severity: error
+      names:
+        2XX: 
+          - x-request-id
+        400:
+          - Content-Length
+```
+
+### response-contains-property
+
+Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
+Priority is given to more precise status codes over the status code range.
+```yaml
+response-contains-header:
+  severity: error
+  names:
+    2XX:
+      - created_at
+    400:
+      - title
+```
 
 ## Recommended config
 
