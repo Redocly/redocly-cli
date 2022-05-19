@@ -41,7 +41,7 @@ describe('Oas2 response-contains-header', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/201/headers",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "swagger: '2.0'
@@ -66,7 +66,7 @@ describe('Oas2 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must have a \\"Content-Length\\" header.",
+          "message": "Response object must contain a \\"Content-Length\\" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
           "suggest": Array [],
@@ -75,7 +75,7 @@ describe('Oas2 response-contains-header', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/404/headers",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "swagger: '2.0'
@@ -100,7 +100,7 @@ describe('Oas2 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must have a \\"Content-Length\\" header.",
+          "message": "Response object must contain a \\"Content-Length\\" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
           "suggest": Array [],

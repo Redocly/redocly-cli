@@ -47,7 +47,7 @@ describe('Oas2 response-contains-property', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/200/schema/properties",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "swagger: '2.0'
@@ -78,7 +78,7 @@ describe('Oas2 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must have a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level \\"id\\" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": Array [],

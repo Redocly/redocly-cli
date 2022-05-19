@@ -359,7 +359,7 @@ Priority is given to more precise status codes over the status code range.
 response-contains-header:
   severity: error
   names:
-    2XX: 
+    2XX:
       - created_at
     400:
       - title

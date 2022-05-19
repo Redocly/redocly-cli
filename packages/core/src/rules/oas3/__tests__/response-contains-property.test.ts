@@ -39,7 +39,7 @@ describe('Oas3 response-contains-property', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/201/content/application~1json/schema/properties",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -62,7 +62,7 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must have a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level \\"id\\" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": Array [],
@@ -115,7 +115,7 @@ describe('Oas3 response-contains-property', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/201/content/application~1json/schema/properties",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -147,7 +147,7 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must have a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level \\"id\\" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": Array [],
@@ -156,7 +156,7 @@ describe('Oas3 response-contains-property', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/400/content/application~1json/schema/properties",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -188,7 +188,7 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must have a top-level \\"error\\" property.",
+          "message": "Response object must contain a top-level \\"error\\" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": Array [],
@@ -372,7 +372,7 @@ describe('Oas3 response-contains-property', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/content/application~1json/schema/properties",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -392,7 +392,7 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must have a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level \\"id\\" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
           "suggest": Array [],

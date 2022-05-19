@@ -39,7 +39,7 @@ describe('Oas3 response-contains-header', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/headers",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -61,7 +61,7 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must have a \\"Content-Length\\" header.",
+          "message": "Response object must contain a \\"Content-Length\\" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
           "suggest": Array [],
@@ -122,7 +122,7 @@ describe('Oas3 response-contains-header', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/headers",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -159,7 +159,7 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must have a \\"x-request-id\\" header.",
+          "message": "Response object must contain a \\"x-request-id\\" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
           "suggest": Array [],
@@ -168,7 +168,7 @@ describe('Oas3 response-contains-header', () => {
           "location": Array [
             Object {
               "pointer": "#/paths/~1store~1subscribe/post/responses/400/headers",
-              "reportOnKey": false,
+              "reportOnKey": true,
               "source": Source {
                 "absoluteRef": "",
                 "body": "openapi: 3.0.3
@@ -205,7 +205,7 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must have a \\"Content-Length\\" header.",
+          "message": "Response object must contain a \\"Content-Length\\" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
           "suggest": Array [],
