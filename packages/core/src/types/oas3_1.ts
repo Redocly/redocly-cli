@@ -127,6 +127,8 @@ const Schema: NodeType = {
     dependentSchemas: listOf('Schema'),
     prefixItems: listOf('Schema'),
     contains: 'Schema',
+    minContains: { type: 'number' },
+    maxContains: { type: 'number' },
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
     unevaluatedItems: 'Schema',
