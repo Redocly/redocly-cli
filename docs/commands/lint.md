@@ -2,7 +2,7 @@
 
 ## Introduction
 
-One of the most powerful features of Redocly CLI is its ability to identify problems found in OpenAPI definition files. This is achieved with the `lint` command, which helps your definitions conform to a consistent set of rules.
+One of the most powerful features of Redocly CLI is its ability to identify problems found in OpenAPI definitions. This is achieved with the `lint` command, which helps your definitions conform to a consistent set of rules.
 
 The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification and your own custom rules, if any) and contains no errors. It also executes preprocessors and rules.
 
