@@ -2,12 +2,12 @@ import outdent from 'outdent';
 import each from 'jest-each';
 import * as path from 'path';
 
-import { lintDocument } from '../src/lint';
+import { lintDocument } from '../lint';
 
-import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from './utils';
-import { BaseResolver, Document } from '../src/resolve';
-import { listOf } from '../src/types';
-import { Oas3RuleSet } from '../src/oas-types';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from '../../__tests__/utils';
+import { BaseResolver, Document } from '../resolve';
+import { listOf } from '../types';
+import { Oas3RuleSet } from '../oas-types';
 
 describe('walk order', () => {
   it('should run visitors', async () => {

@@ -10,6 +10,8 @@
   "scripts": {
     "test": "npm run typecheck && npm run unit",
     "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
+    "coverage:cli": "jest --roots packages/cli/src --coverage",
+    "coverage:core": "jest --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
@@ -69,13 +71,26 @@
     "restoreMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
-      "packages/**/*.ts",
+      "packages/*/src/**/*.ts",
       "!packages/**/__tests__/**/*",
-      "!packages/cli/src/index.ts",
       "!packages/core/src/benchmark/**/*",
-      "!packages/core/lib/**/*",
-      "!packages/cli/lib/**/*"
+      "!packages/cli/src/index.ts",
+      "!packages/cli/src/assert-node-version.ts"
     ],
+    "coverageThreshold": {
+      "packages/core/": {
+        "statements": 77,
+        "branches": 69,
+        "functions": 65,
+        "lines": 77
+      },
+      "packages/cli/": {
+        "statements": 30,
+        "branches": 27,
+        "functions": 29,
+        "lines": 32
+      }
+    },
     "testMatch": [
       "**/__tests__/**/*.test.ts",
       "**/*.test.ts"
