@@ -4,6 +4,7 @@ import { lintFromString, lintConfig, lintDocument } from '../lint';
 import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
+import { detectOpenAPI } from '../oas-types';
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -179,4 +180,16 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+	it('detect OpenAPI should throw an error when version is not string', () => {
+
+	const testDocument = parseYamlToDocument(
+    outdent`
+      openapi: 3.0
+    `,
+    '',
+    );
+		expect(() => detectOpenAPI(testDocument.parsed))
+			.toThrow(`Invalid OpenAPI version: should be a string but got "number"`)
+	});
 });

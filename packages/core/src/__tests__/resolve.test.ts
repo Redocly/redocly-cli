@@ -1,10 +1,10 @@
 import { outdent } from 'outdent';
 import * as path from 'path';
 
-import { resolveDocument, BaseResolver, Document } from '../src/resolve';
-import { parseYamlToDocument } from './utils';
-import { Oas3Types } from '../src/types/oas3';
-import { normalizeTypes } from '../src/types';
+import { resolveDocument, BaseResolver, Document } from '../resolve';
+import { parseYamlToDocument } from '../../__tests__/utils';
+import { Oas3Types } from '../types/oas3';
+import { normalizeTypes } from '../types';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {

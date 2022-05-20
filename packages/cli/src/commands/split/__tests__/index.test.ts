@@ -21,7 +21,7 @@ describe('#split', () => {
   const componentsFiles: ComponentsFiles = {};
 
   it('should split the file and show the success message', async () => {
-    const filePath = "./packages/cli/src/commands/split/__tests__/fixtures/spec.json";
+    const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit (
@@ -44,7 +44,7 @@ describe('#split', () => {
 
 
   it('should use the correct separator', async () => {
-    const filePath = "./packages/cli/src/commands/split/__tests__/fixtures/spec.json";
+    const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
 
     const utils = require('../../../utils');
     jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
