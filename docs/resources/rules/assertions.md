@@ -1,17 +1,8 @@
 # `assertions`
 
-:::warning Warning
+Configure assertions to enforce your API design standards without coding custom rules in JavaScript.
 
-The assertions syntax is [under construction](https://github.com/Redocly/redocly-cli/issues/647).
-Follow or comment in the issue for more details.
-
-:::
-
-<!--
-
-Configure assertions to enforce your API design standards without coding custom rules.
-
-Define assertions in the `rules` map of the `lint` section in the Redocly configuration file.
+Define assertions in the `rules` map of the `lint` object in the Redocly configuration file.
 
 ```yaml
 lint:
@@ -36,9 +27,9 @@ Property | Type | Description
 subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `context` for more control.
 property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
 context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example).
-message | `string` | Optional problem message displayed if the assertion is false. If omitted, the default message "The assertion doesn't meet required conditions" will be displayed.
-suggest | [`string`] | Optional list of suggestions to display if the problem occurs.
-severity | `string` | Optional field to configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
+message | `string` | Problem message displayed if the assertion is false. If omitted, the default message "The {assertion name} doesn't meet required conditions" is displayed.
+suggest | [`string`] | List of suggestions to display if the problem occurs.
+severity | `string` | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
 enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
 pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
@@ -489,4 +480,4 @@ List of types for OpenAPI 3.0 and 3.1:
 - XCodeSample
 - WebhooksMap
 
--->
+

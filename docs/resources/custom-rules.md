@@ -6,9 +6,12 @@ redirectFrom:
 
 # Custom plugins and rules
 
+Custom plugins are a powerful way to extend Redocly that requires knowledge of the OpenAPI spec, JavaScript, and the plugin interface.
+Redocly recommends using the highly configurable [assertions rule](./rules/assertions.md) as a first option before creating a custom plugin.
+
 ## Concepts
 
-Extend the CLI through the use of custom plugins and preprocessors/rules/decorators.
+Extend the CLI through the use of custom plugins.
 There are three main differences between preprocessors, rules and decorators.
 
 1. The order of execution:
