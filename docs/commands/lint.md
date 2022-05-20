@@ -50,7 +50,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 ### How to use entrypoints to check all or selected definitions
 
 ##### Method 1: Pass entrypoints directly
-In this case, `lint` will validate the definitions passed in the command and ignore the `apis` section in `redocly.yaml` or any other customized config file you may be using.
+In this case, `lint` will validate the definitions passed in the command and ignore the `apis` object in the Redocly configuration file.
 
 ```bash
 redocly lint openapi/openapi.yaml
