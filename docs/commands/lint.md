@@ -45,7 +45,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 | --skip_rule | array | [Ignores specific custom or built-in rules](#how-to-skip-a-rule-or-preprocessor-during-linting). |
 | --version | boolean | Adding `--version` to any command (not just `lint`) will show your current Redocly CLI version. |
 
-## Usage examples
+## Examples
 
 ### How to use entrypoints to check all or selected definitions
 
