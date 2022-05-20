@@ -60,7 +60,7 @@ The `entrypoints` argument can also use any glob format supported by your file s
 
 ##### Method 2: Pass entrypoints via the config file
 
-The `apis` section in the Redocly configuration file (`redocly.yaml`) lets you configure one or more APIs. Each file path is specified (using the `root` property), but files are identified by their name and version in the format `name@version`.
+The `apis` object in the Redocly configuration file (`redocly.yaml`) lets you configure one or more APIs. Each file path is specified (using the `root` property), but files are identified by their name and version in the format `name@version`.
 
 `@version` is optional, and when not provided, Redocly apps interpret it as `latest` by default. Every `name@version` combination listed in the `apis` section must be unique.
 
