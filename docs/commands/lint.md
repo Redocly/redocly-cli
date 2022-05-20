@@ -14,7 +14,7 @@ Unlike the `bundle` command, `lint` doesn't execute decorators. To learn more ab
 
 Always the over-achiever, `lint` has many options which you can execute alone, or combine with others in a single command:
 
-```bash Alone
+```bash Standalone
 redocly lint
 redocly lint <entrypoints>...
 redocly lint --config=<path>
