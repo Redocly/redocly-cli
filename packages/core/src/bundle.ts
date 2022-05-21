@@ -7,8 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import { isRef, Location, refBaseName } from './ref-utils';
-import type { Config, LintConfig } from './config/config';
+import {isAbsoluteUrl, isRef, Location, refBaseName} from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
@@ -16,6 +15,8 @@ import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
+
+import type { Config, LintConfig } from './config';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -34,6 +35,7 @@ export async function bundle(opts: {
   base?: string;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
+  keepUrlRefs?: boolean;
 }) {
   const {
     ref,
@@ -70,6 +72,7 @@ export async function bundleDocument(opts: {
   dereference?: boolean;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
+  keepUrlRefs?: boolean;
 }) {
   const {
     document,
@@ -79,6 +82,7 @@ export async function bundleDocument(opts: {
     dereference = false,
     skipRedoclyRegistryRefs = false,
     removeUnusedComponents = false,
+    keepUrlRefs = false,
   } = opts;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
@@ -127,7 +131,14 @@ export async function bundleDocument(opts: {
       {
         severity: 'error',
         ruleId: 'bundler',
-        visitor: makeBundleVisitor(oasMajorVersion, dereference, skipRedoclyRegistryRefs, document, resolvedRefMap),
+        visitor: makeBundleVisitor(
+          oasMajorVersion,
+          dereference,
+          skipRedoclyRegistryRefs,
+          document,
+          resolvedRefMap,
+          keepUrlRefs,
+        ),
       },
       ...decorators,
     ] as any,
@@ -198,7 +209,8 @@ function makeBundleVisitor(
   dereference: boolean,
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
-  resolvedRefMap: ResolvedRefMap
+  resolvedRefMap: ResolvedRefMap,
+  keepUrlRefs: boolean,
 ) {
   let components: Record<string, Record<string, any>>;
 
@@ -220,6 +232,10 @@ function makeBundleVisitor(
 
         // do not bundle registry URL before push, otherwise we can't record dependencies
         if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+          return;
+        }
+
+        if (keepUrlRefs && isAbsoluteUrl(node.$ref)) {
           return;
         }
 

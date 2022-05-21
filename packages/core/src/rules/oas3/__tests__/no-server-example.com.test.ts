@@ -17,7 +17,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-server-example.com': 'error' }),
+      config: await makeConfig({ 'no-server-example.com': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -52,7 +52,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: makeConfig({ 'no-server-example.com': 'error' }),
+      config: await makeConfig({ 'no-server-example.com': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

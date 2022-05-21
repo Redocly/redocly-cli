@@ -1,0 +1,16 @@
+type: object
+description: Lets you toggle features that control how mock servers behave.
+properties:
+  errorIfForcedExampleNotFound:
+    description: >-
+      You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests.
+      If you pass an example ID that can't be found in the API definition, the mock server will return any other example unless `errorIfForcedExampleNotFound` is `true`.
+      Then the mock server will return an error instead.
+    type: boolean
+    default: false
+  strictExamples:
+    description: >-
+      By default, the mock server automatically enhances responses with heuristics, such as substituting response fields with request parameter values.
+      If set as `true`, examples are returned in the response unmodified, and exactly how they are described in the OpenAPI definition.
+    type: boolean
+    default: false

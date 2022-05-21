@@ -1,6 +1,6 @@
-# Install OpenAPI CLI
+# Install Redocly CLI
 
-There are two ways to install OpenAPI CLI: global and runtime.
+There are two ways to install Redocly CLI: global and runtime.
 
 ## Global installation
 
@@ -11,11 +11,11 @@ This is the recommended method. Ensure you have the latest version of npm before
 :::
 
 ```shell Command
-npm i -g @redocly/openapi-cli@latest
+npm i -g @redocly/cli@latest
 ```
 
 ```shell Output
-npm i -g @redocly/openapi-cli@latest
+npm i -g @redocly/cli@latest
 added 1 package, removed 1 package, changed 87 packages, and audited 89 packages in 4s
 found 0 vulnerabilities
 ```
@@ -23,29 +23,30 @@ found 0 vulnerabilities
 ### Yarn
 
 ```shell Command
-yarn global add @redocly/openapi-cli
+yarn global add @redocly/cli
 ```
 
 ```shell Output
-yarn global add @redocly/openapi-cli
+yarn global add @redocly/cli
 yarn global v1.22.11
 [1/4] 🔍  Resolving packages...
 [2/4] 🚚  Fetching packages...
 [3/4] 🔗  Linking dependencies...
 [4/4] 🔨  Building fresh packages...
 
-success Installed "@redocly/openapi-cli@1.0.0-beta.54" with binaries:
+success Installed "@redocly/cli@1.0.0-beta.96" with binaries:
       - openapi
+      - redocly
 ✨  Done in 6.90s.
 ```
 
 ### Verify the installation
 
-Running `openapi --version` will confirm that the installation was successful:
+Running `redocly --version` will confirm that the installation was successful:
 
 ```shell
-openapi --version
-1.0.0-beta.84
+redocly --version
+1.0.0-beta.96
 ```
 
 ## Runtime installation
@@ -57,15 +58,15 @@ npx is npm's package runner. It will install and run a command at the same time 
 :::
 
 ```shell Command
-npx @redocly/openapi-cli <command> [options]
+npx @redocly/cli <command> [options]
 ```
 
 ```shell Example with lint command
-npx @redocly/openapi-cli@latest lint petstore.yaml
+npx @redocly/cli@latest lint petstore.yaml
 ```
 
 ```shell Output (lint failed)
-npx @redocly/openapi-cli@latest lint petstore.yaml
+npx @redocly/cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
@@ -105,7 +106,7 @@ You have 2 warnings.
 ```
 
 ```shell Output (lint succeeded)
-npx @redocly/openapi-cli@latest lint petstore.yaml
+npx @redocly/cli@latest lint petstore.yaml
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
@@ -146,7 +147,7 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 After a successful install, you can set up tab completion for the terminal if you wish. Generate the completion script using the following command:
 
 ```shell Command
-openapi completion
+redocly completion
 ```
 
 ```shell Output
@@ -190,6 +191,6 @@ The approach is similar for other shells. After the installation, restart your t
 
 ## Next steps
 
-- Check the full list of [OpenAPI CLI commands](./commands/index.md) available to you
-- Learn how to fine-tune your OpenAPI CLI tool using a [configuration file](./configuration/configuration-file.mdx)
+- Check the full list of [Redocly CLI commands](./commands/index.md) available to you
+- Learn how to fine-tune your Redocly CLI tool using a [configuration file](./configuration/index.mdx)
 - Learn more about [custom plugins and rules](./resources/custom-rules.md)

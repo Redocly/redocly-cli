@@ -1,8 +1,7 @@
-import { LintConfig, RuleConfig } from '../../../../config/config';
+import { LintConfig, RuleConfig, resolveLint } from '../../../../config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
-import { defaultPlugin } from '../../../../config/builtIn';
 
 export async function validateDoc(
   source: string,
@@ -13,11 +12,15 @@ export async function validateDoc(
   const results = await lintDocument({
     externalRefResolver: new BaseResolver(),
     document,
-    config: new LintConfig({
-      plugins: [defaultPlugin],
-      extends: [],
-      rules,
-    }),
+    config: new LintConfig(
+      await resolveLint({
+        lintConfig: {
+          plugins: [],
+          extends: [],
+          rules,
+        },
+      }),
+    ),
   });
 
   return results.map((res) => {

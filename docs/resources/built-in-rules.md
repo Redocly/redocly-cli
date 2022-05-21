@@ -1,12 +1,12 @@
 ---
-title: Built-in rules in OpenAPI CLI
+title: Built-in rules in Redocly CLI
 redirectFrom:
   - /docs/cli/built-in-rules/
 ---
 
 # Built-in rules
 
-All of our built-in OpenAPI CLI rules are listed on this page.
+All of our built-in Redocly CLI rules are listed on this page.
 We don't ship any built-in preprocessors.
 
 To change your settings for any given rule, add or modify its corresponding entry in the `lint.rules` section of the Redocly configuration file in your working directory.
@@ -335,6 +335,35 @@ Verifies that each tag has a description.
 
 Verifies that tags (names) are declared in alphabetical order.
 
+### response-contains-header
+
+Enforces using specified response headers.
+
+```yaml
+lint:
+  rules:
+    response-contains-header:
+      severity: error
+      names:
+        2XX: 
+          - x-request-id
+        400:
+          - Content-Length
+```
+
+### response-contains-property
+
+Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
+Priority is given to more precise status codes over the status code range.
+```yaml
+response-contains-header:
+  severity: error
+  names:
+    2XX:
+      - created_at
+    400:
+      - title
+```
 
 ## Recommended config
 
@@ -400,5 +429,5 @@ Here is the equivalent of the `recommended` configuration values:
 
 ## Built-in rule ideas
 
-OpenAPI-cli supports [custom rules](./custom-rules.md).
-However, if you have an idea for a built-in rule you believe will benefit the greater API community, please [open an issue](https://github.com/Redocly/openapi-cli/issues/new) in the OpenAPI CLI repository.
+Redocly CLI supports [custom rules](./custom-rules.md).
+However, if you have an idea for a built-in rule you believe will benefit the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new) in the Redocly CLI repository.

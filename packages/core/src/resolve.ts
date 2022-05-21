@@ -1,13 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as url from 'url';
-
 import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
 import { readFileFromUrl, parseYaml } from './utils';
-import { ResolveConfig } from './config/config';
+import { ResolveConfig } from './config/types';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
 
@@ -105,7 +103,7 @@ export class BaseResolver {
     }
 
     if (base && isAbsoluteUrl(base)) {
-      return url.resolve(base, ref);
+      return new URL(ref, base).href;
     }
 
     return path.resolve(base ? path.dirname(base) : process.cwd(), ref);

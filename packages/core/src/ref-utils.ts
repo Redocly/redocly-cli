@@ -72,6 +72,7 @@ export function isMappingRef(mapping: string) {
   return (
     mapping.startsWith('#') ||
     mapping.startsWith('https://') ||
+    mapping.startsWith('http://') ||
     mapping.startsWith('./') ||
     mapping.startsWith('../') ||
     mapping.indexOf('/') > -1

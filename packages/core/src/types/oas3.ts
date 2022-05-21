@@ -163,6 +163,7 @@ const Operation: NodeType = {
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
 };
@@ -315,6 +316,7 @@ const Schema: NodeType = {
     xml: 'Xml',
     example: { isExample: true },
     deprecated: { type: 'boolean' },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 
@@ -372,7 +374,7 @@ const ImplicitFlow: NodeType = {
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     authorizationUrl: { type: 'string' },
   },
-  required: ['authorizationUrl', 'scopes']
+  required: ['authorizationUrl', 'scopes'],
 };
 
 const PasswordFlow: NodeType = {

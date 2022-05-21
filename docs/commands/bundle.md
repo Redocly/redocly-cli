@@ -4,7 +4,7 @@
 
 API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
 
-Redocly OpenAPI CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
@@ -15,11 +15,11 @@ To learn more about preprocessors, rules, and decorators, refer to the [custom r
 ## Usage
 
 ```bash
-openapi bundle <entrypoints>...
-openapi bundle <entrypoints> [--max-problems=<n>]
-openapi bundle <entrypoints> [--lint] [--config=<path>]
-openapi bundle <entrypoints>... -o <outputName> --ext <ext>
-openapi bundle --version
+redocly bundle <entrypoints>...
+redocly bundle <entrypoints> [--max-problems=<n>]
+redocly bundle <entrypoints> [--lint] [--config=<path>]
+redocly bundle <entrypoints>... -o <outputName> --ext <ext>
+redocly bundle --version
 ```
 
 ## Options
@@ -29,6 +29,7 @@ Option | Type | Description
 entrypoints | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.
 --config | string | Specify path to the [config file](#custom-configuration-file).
 --dereferenced, -d | boolean | Generate fully dereferenced bundle.
+--keep-url-references, -k | boolean | Keep absolute url references.
 --ext | string | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.
 --extends | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration).  Default values are taken from the Redocly configuration file.
 --force, -f | boolean | Generate bundle output even when errors occur.
@@ -51,7 +52,7 @@ entrypoints | [string] | List of API root definition filenames or names assigned
 This command creates a bundled file at the path `dist/openapi.json` starting from the root API definition file `openapi/openapi.yaml`. The bundled file is in JSON format.
 
 ```bash
-openapi bundle openapi/openapi.yaml --output dist/openapi.json
+redocly bundle openapi/openapi.yaml --output dist/openapi.json
 ```
 
 ### Bundle multiple API definitions
@@ -59,7 +60,7 @@ openapi bundle openapi/openapi.yaml --output dist/openapi.json
 This command creates one bundled file for each of the specified entrypoints in the `dist/` folder. Bundled files are in JSON format.
 
 ```bash Command
-openapi bundle --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
+redocly bundle --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
 ```
 
 ```bash Output
@@ -76,7 +77,7 @@ JSON output only works when there are no circular references.
 :::
 
 ```bash
-openapi bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
+redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
 ```
 
 ### Custom configuration file
@@ -84,7 +85,7 @@ openapi bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 By default, the CLI tool looks for the Redocly configuration file in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
-openapi bundle --config=./another/directory/config.yaml
+redocly bundle --config=./another/directory/config.yaml
 ```
 
 ### Format
@@ -92,8 +93,8 @@ openapi bundle --config=./another/directory/config.yaml
 #### Codeframe (default)
 
 ```bash
-openapi bundle pet.yaml store.yaml -o ./bundled --format=codeframe
-## equivalent to: openapi bundle pet.yaml store.yaml -o ./bundled
+redocly bundle pet.yaml store.yaml -o ./bundled --format=codeframe
+## equivalent to: redocly bundle pet.yaml store.yaml -o ./bundled
 ```
 
 Note: Errors display in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
@@ -103,7 +104,7 @@ Depending on the terminal emulator you use, it may be possible to directly click
 #### Stylish
 
 ```bash
-openapi bundle pet.yaml store.yaml -o ./bundled --format=stylish
+redocly bundle pet.yaml store.yaml -o ./bundled --format=stylish
 ```
 
 In this format, `bundle` shows the filename, line number, and column where the problem occurred.
@@ -113,7 +114,7 @@ The compressed output omits other contexts and suggestions.
 #### JSON
 
 ```bash Command
-openapi bundle pet.yaml store.yaml -o ./bundled --format=json
+redocly bundle pet.yaml store.yaml -o ./bundled --format=json
 ```
 
 ```bash Output
@@ -144,7 +145,7 @@ In this format, `bundle` shows the result of bundling (including the number of e
 #### Checkstyle
 
 ```bash Command
-openapi bundle pet.yaml -o ./bundled --lint --format=checkstyle
+redocly bundle pet.yaml -o ./bundled --lint --format=checkstyle
 ```
 
 ```bash Output
@@ -167,15 +168,15 @@ All other information is omitted.
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-openapi bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
 ```
 
 ```bash Skip rules
-openapi bundle --skip-rule=no-sibling-refs,no-parent-tags
+redocly bundle --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 ```bash Skip decorators
-openapi bundle --skip-decorator=generate-code-samples,remove-internal-operations
+redocly bundle --skip-decorator=generate-code-samples,remove-internal-operations
 ```
 
 :::success Tip

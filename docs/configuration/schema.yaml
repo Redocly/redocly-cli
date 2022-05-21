@@ -2,153 +2,216 @@ type: object
 properties:
   organization:
     type: string
-    description: "Specifies the organization ID of a Redocly Workflows organization."
+    description: |-
+      Stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry.
+      If an organization ID is not passed explicitly in command-line arguments, `push` will look for it in `redocly.yaml`.
+
+      To find the organization ID:
+
+        1. Log into Workflows.
+        2. Access the **API registry** page.
+        3. In your browser's address bar, find the page URL.
+        4. The segment after `app.redocly.com/org/` is the organization ID.
+
+      For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`.
   apis:
     type: object
-    description: "Set of APIs distinguished by name, version, and path to the root API definition."
-    minItems: 1
-    properties:
-      name@version:
-        type: object
-        description: "Specifies the name and optional version of an API associated with the root API definition. If the version is omitted, Redocly apps interpret it as 'latest' by default."
-        properties:
-          root:
+    title: APIs object
+    description: >-
+      Lets you configure one or more API definition files.
+      This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
+    additionalProperties:
+      x-additionalPropertiesName: "{name}@{version}"
+      type: object
+      minItems: 1
+      required:
+        - root
+      description: >-
+        Specifies the name and version of an API associated with the root API definition with the pattern `{name}@{version}`.
+        If the version is omitted, Redocly apps interpret it as 'latest' by default.
+      properties:
+        root:
+          type: string
+          description: The path to the root API definition file of the specified API.
+        labels:
+          type: array
+          description: >-
+            Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
+            You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
+
+            If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
+          items:
             type: string
-            description: "Path to the root API definition file of the specified API."
-          labels:
-            type: array
-            description: "Optional labels assigned to the specified API in the Redocly API registry. The labels must exist in the Redocly Workflows organization in order to apply them."
-            items:
-              type: string
-          lint:
-            type: object
-            description: "Configures linting options for the specified API. Supports the same format and options as the global lint section described further in the schema."
-          features.openapi:
-            type: object
-            description: "Configures API reference documentation options for the specified API. Supports the same format and options as the global features.openapi section described further in the schema."
+        lint:
+          type: object
+          description: >-
+            Configures linting options for the specified API.
+            Supports the same format and options as the global `lint` object.
+            API-level configuration will always override global configuration.
+        features.openapi:
+          type: object
+          description: >-
+            Defines theming and functionality for an API definition.
+            Supports the same format and options as the [global `features.openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+            API-level configuration will always override global configuration.
+        features.mockServer:
+          type: object
+          description: |-
+            Defines mock server behavior for an API definition.
+            Supports the same format and options as the global `features.mockServer` object.
+            API-level configuration will always override global configuration.
   lint:
     type: object
-    description: A set of configurations to lint and decorate your APIs used when the `lint` and `bundle` commands execute.
+    description: Lets you set rules and decorators that control how the `lint` and `bundle` commands behave.
     properties:
+      doNotResolveExamples:
+        type: boolean
+        description: >-
+          You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
+          This does not affect `$ref` resolution in other parts of the API definition.
+        default: false
       plugins:
         type: array
-        description: >
-          Import any local plugins (e.g. `./local-plugins.js`).
-          The built-in plugins do not need to be imported.
-          There is not support for community plugins yet.
+        description: >-
+          Import any local filesystem plugins (e.g. `./local-plugins.js`).
+          Note that community plugins are not yet supported.
         example: ['./local-plugin.js']
         items:
           type: string
           format: path
       extends:
         type: array
-        description: Choose the base configuration. Defaults to `recommended`. You may also use `minimal` or add your own plugins.
+        description: >-
+          Inherit lint configurations.
+          In case of conflict, priority goes to configurations further down the list.
+          Finally, explicit declaration of any rules inline takes precedence over configurations inherited through the `extends` feature.
+          Built in configurations include `recommended`, `minimal`, `all`.
         items:
           type: string
+          example: recommended
       preprocessors:
-        type: array
-        description: >
-          Change the severity level of any rules in your extended configurations.
-          Some rules may also receive additional configurations.
+        type: object
+        title: Preprocessors object
+        description: >-
+          Change the severity level of any preprocessors in your extended configurations.
           Preprocessors run first during `lint` and `bundle`.
-        items:
-          type: object
-          additionalProperties:
-            description: >
-              List each rule by name.
-              For example, `no-sibling-refs`.
-            oneOf:
-              - type: string
-                description: Specify the severity level as a string shortcut (or more explicitly as an object).
-                enum:
-                  - on
-                  - off
-              - type: object
-                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
-                properties:
-                  severity:
-                    type: string
-                    enum:
-                      - error
-                      - warn
-                      - off
-                    description: The severity level if the problem occurs.
-                additionalProperties: true
+        additionalProperties:
+          description: >-
+            List each preprocessor by name.
+            For example, `do-this-first`.
+          oneOf:
+            - type: string
+              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+              enum:
+                - on
+                - off
+            - type: object
+              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+              properties:
+                severity:
+                  type: string
+                  enum:
+                    - on
+                    - off
+                  description: The severity level if the problem occurs.
+              additionalProperties: true
       rules:
-        type: array
-        description: >
+        type: object
+        title: Rules object
+        description: >-
           Change the severity level of any rules in your extended configurations.
           Some rules may also receive additional configurations.
           Rules run during the `lint` command after preprocessors.
-          They run during the `bundle` command between preprocessors and decorators.
-        items:
-          type: object
-          additionalProperties:
-            description: >
-              List each rule by name.
-              For example, `no-sibling-refs`.
-            oneOf:
-              - type: string
-                description: Specify the severity level as a string shortcut (or more explicitly as an object).
-                enum:
-                  - error
-                  - warn
-                  - off
-              - type: object
-                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
-                properties:
-                  severity:
-                    type: string
-                    enum:
-                      - error
-                      - warn
-                      - off
-                    description: The severity level if the problem occurs.
-                additionalProperties: true
+          They run during the `bundle` command between preprocessors and decorators if the `--lint` option is used.
+        additionalProperties:
+          description: >-
+            List each rule by name.
+            For example, `no-empty-servers`.
+          oneOf:
+            - type: string
+              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+              enum:
+                - error
+                - warn
+                - off
+            - type: object
+              title: Rule configuration object
+              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+              required:
+                - severity
+              properties:
+                severity:
+                  type: string
+                  enum:
+                    - error
+                    - warn
+                    - off
+                  description: The severity level if the problem occurs.
+              additionalProperties: true
       decorators:
-        type: array
-        description: >
-          Enable or disable decorators.
-          They run during the `bundle` command after linting.
-        items:
-          type: object
-          additionalProperties:
-            description: >
-              List each rule by name.
-              For example, `demo/hide-internal-apis`.
-            oneOf:
-              - type: string
-                description: Specify the severity level as a string shortcut (or more explicitly as an object).
-                enum:
-                  - off
-                  - on
-              - type: object
-                description: Specify the severity level as an object. Useful when you need to supply additional properties for configuration.
-                properties:
-                  severity:
-                    type: string
-                    enum:
-                      - on
-                      - off
-                    description: The severity level if the problem occurs.
-                additionalProperties: true
+        type: object
+        description: >-
+          Used to enable or disable decorators.
+          Decorators run during the `bundle` command after linting.
+        additionalProperties:
+          description: >-
+            List each decorator by name.
+            For example, `remove-x-internal`.
+          oneOf:
+            - type: string
+              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+              enum:
+                - off
+                - on
+            - type: object
+              title: Decorator configuration object
+              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+              properties:
+                severity:
+                  type: string
+                  enum:
+                    - on
+                    - off
+                  description: The severity level if the problem occurs.
+              additionalProperties: true
   features.mockServer:
     type: object
-    description: Configure the mock server behavior in the API registry.
+    description: Lets you toggle features that control how mock servers behave.
     properties:
       errorIfForcedExampleNotFound:
-        description: When using the custom x-redocly-response-body-example header in the request, return an error if the requested example is not found in the API definition.
+        description: >-
+          You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests.
+          If you pass an example ID that can't be found in the API definition, the mock server will return any other example unless `errorIfForcedExampleNotFound` is `true`.
+          Then the mock server will return an error instead.
         type: boolean
         default: false
       strictExamples:
-        description: Always return examples exactly how they are defined in the API definition without modifying their contents.
+        description: >-
+          By default, the mock server automatically enhances responses with heuristics, such as substituting response fields with request parameter values.
+          If you set `strictExamples:true`, examples are returned in the response unmodified, and exactly how they are described in the OpenAPI definition.
         type: boolean
         default: false
+  features.openapi:
+    type: object
+    description: >-
+      Configuration options supported by Redocly for rendering OpenAPI into web pages.
+      Used when previewing or building the docs.
+      See the [list of options supported](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+  region:
+    type: string
+    enum:
+      - us
+      - eu
+    default: us
+    description: >-
+      Sets the region used for the `login` and `push` commands. The `eu` region is limited to enterprise customers.
+      Alternatively, set the environment variable `REDOCLY_DOMAIN` to the appropriate Redocly destination's domain (such as `https://api.redocly.com`).
   resolve:
     type: object
-    description: >
-      Use this when you have external links in your definition that are not publicly accessible (except for Redocly API registry links).
-      We recommend using environment variables where possible.
+    description: >-
+      All API registry links and public URLs in your API definitions will automatically resolve.
+      If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
+      Use environment variables where possible.
     properties:
       http:
         type: object
@@ -159,6 +222,9 @@ properties:
             minItems: 1
             items:
               type: object
+              required:
+                - matches
+                - name
               properties:
                 matches:
                   type: string
@@ -168,13 +234,7 @@ properties:
                   description: The header name. For example, `X-API-KEY`.
                 value:
                   type: string
-                  description: The value of the header. We recommend to use `envVariable` instead for any secrets.
+                  description: The value of the header. Mutually exclusive with `envVariable`. We recommend to use `envVariable` instead for any secrets.
                 envVariable:
                   type: string
-                  description: The environment variable name which will be resolved and should contain the value.
-  features.openapi:
-    type: object
-    description: Configuration options supported by Redocly Reference. Used when previewing or building the docs.
-    properties:
-      theme:
-        type: object
+                  description: The environment variable name which will be resolved and should contain the value. Mutually exclusive with `value`.

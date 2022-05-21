@@ -16,20 +16,20 @@ The `stats` command provides statistics about the structure of one or more API d
 ## Usage
 
 ```bash
-openapi stats <entrypoint>
-openapi stats <entrypoint> [--format] [--config=<path>]
-openapi stats --version
+redocly stats <entrypoint>
+redocly stats <entrypoint> [--format] [--config=<path>]
+redocly stats --version
 ```
 
 ## Options
 
-Option                    | Type      | Required     | Default     | Description
---------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition filename that you want to calculate statistics for. Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints. Refer to [the entrypoint section below](#entrypoint) for more options.
-`--config`                | `string`  | no           | -           | Specify path to the [configuration file](#custom-configuration-file)
-`--format`                | `string`  | no           | `stylish`   | Format for the output.<br />**Possible values:** `stylish`, `json`
-`--help`                  | `boolean` | no           | -           | Show help
-`--version`               | `boolean` | no           | -           | Show version number
+Option | Type | Description
+-- | -- | --
+entrypoint | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
+--config | string | Specify path to the [configuration file](#custom-configuration-file).
+--format | string | Format for the output.<br />**Possible values:** `stylish`, `json`.
+--help | boolean | Show help.
+--version | boolean | Show version number.
 
 ## Examples
 
@@ -40,7 +40,7 @@ The `stats` command behaves differently depending on how you pass the entrypoint
 #### Pass entrypoint directly
 
 ```bash
-openapi stats openapi/openapi.yaml
+redocly stats openapi/openapi.yaml
 ```
 
 In this case, `stats` will show statistics for the definition that was passed to the command. The configuration file is ignored.
@@ -50,24 +50,24 @@ In this case, `stats` will show statistics for the definition that was passed to
 Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file as entrypoints.
 
 ```bash Command
-openapi stats main
+redocly stats core@v1
 ```
 
 ```yaml Configuration file
 apis:
-  main:
+  core@v1:
     root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `main` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
-openapi stats --config=./another/directory/config.yaml
+redocly stats --config=./another/directory/config.yaml
 ```
 
 ### Format
@@ -75,7 +75,7 @@ openapi stats --config=./another/directory/config.yaml
 #### Stylish (default)
 
 ```bash Request
-openapi stats pet.yaml
+redocly stats pet.yaml
 ```
 
 ```bash Output
@@ -98,7 +98,7 @@ In this format, `stats` shows the statistics for the metrics mentioned in the [I
 #### JSON
 
 ```bash Command
-openapi stats pet.yaml --format=json
+redocly stats pet.yaml --format=json
 ```
 
 ```bash Output

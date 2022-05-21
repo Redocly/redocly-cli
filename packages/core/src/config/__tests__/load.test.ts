@@ -1,4 +1,4 @@
-import { loadConfig, findConfig } from '../load';
+import { loadConfig, findConfig, getConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
 
 const fs = require('fs');
@@ -72,5 +72,12 @@ describe('findConfig', () => {
     jest.spyOn(path, 'resolve').mockImplementationOnce((dir, name) => `${dir}/${name}`);
     const configName = findConfig('dir');
     expect(configName).toStrictEqual('dir/redocly.yaml');
+  });
+});
+
+describe('getConfig', () => {
+  jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
+  it('should return empty object if there is no configPath and config file is not found', () => {
+    expect(getConfig()).toEqual(Promise.resolve({}));
   });
 });

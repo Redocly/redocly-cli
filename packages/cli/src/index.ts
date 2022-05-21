@@ -106,6 +106,10 @@ yargs
             array: true,
             type: 'string',
           },
+          'public': {
+            description: 'Make API registry available to the public',
+            type: 'boolean',
+          },
         }),
     transformPush(handlePush),
   )
@@ -116,7 +120,13 @@ yargs
       yargs.positional('entrypoints', { array: true, type: 'string', demandOption: true }).option({
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
+          choices: [
+            'stylish',
+            'codeframe',
+            'json',
+            'checkstyle',
+            'codeclimate',
+          ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
         'max-problems': {
@@ -255,6 +265,7 @@ yargs
     async () => {
       const client = new RedoclyClient();
       client.logout();
+      process.stdout.write('Logged out from the Redocly account. ✋\n');
     },
   )
   .command(

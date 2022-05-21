@@ -1,5 +1,5 @@
 {
-  "name": "@redocly/openapi",
+  "name": "@redocly/cli",
   "version": "1.0.0-beta.98",
   "description": "",
   "private": true,
@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/openapi-cli.git"
+    "url": "https://github.com/Redocly/redocly-cli.git"
   },
   "keywords": [
     "linter",
@@ -51,6 +51,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.15",
+    "@types/node": "^17.0.31",
     "jest": "^26.6.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",
@@ -65,11 +66,15 @@
   },
   "jest": {
     "clearMocks": true,
+    "restoreMocks": true,
     "preset": "ts-jest",
     "collectCoverageFrom": [
       "packages/**/*.ts",
       "!packages/**/__tests__/**/*",
-      "!packages/cli/src/index.ts"
+      "!packages/cli/src/index.ts",
+      "!packages/core/src/benchmark/**/*",
+      "!packages/core/lib/**/*",
+      "!packages/cli/lib/**/*"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.ts",

@@ -34,8 +34,6 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: json
   "version": "<version>",
   "problems": []
 }
-No configurations were defined in extends -- using built in recommended configuration by default.
-
 ❌ Validation failed with 1 error.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 

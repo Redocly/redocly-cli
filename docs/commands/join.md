@@ -15,7 +15,7 @@ The `join` command supports OpenAPI 3.x definitions only.
 
 Maintainers of multiple API definitions can benefit from storing each endpoint as a standalone API definition file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API definition file.
 
-With Redocly OpenAPI CLI, you can solve this problem by using the `join` command that can combine two or more API definition files into a single one.
+With Redocly CLI, you can solve this problem by using the `join` command that can combine two or more API definition files into a single one.
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 
@@ -26,38 +26,38 @@ Apart from providing individual API definition files as the input, you can also 
 ### Usage
 
 ```bash
-openapi join <entrypoint> <entrypoint>...
-openapi join <path-to-folder>/<wildcard-pattern> [--lint]
-openapi join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
+redocly join <entrypoint> <entrypoint>...
+redocly join <path-to-folder>/<wildcard-pattern> [--lint]
+redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
-openapi join first-api.yaml second-api.yaml
-openapi join first-api.yaml second-api.json
-openapi join ./*.yaml
-openapi join --version
+redocly join first-api.yaml second-api.yaml
+redocly join first-api.yaml second-api.json
+redocly join ./*.yaml
+redocly join --version
 ```
 
 ## Options
 
-Option                               | Type               | Required     | Default     | Description
--------------------------------------|:------------------:|:------------:|:-----------:|------------
-`entrypoints`                        | `array`, wildcard  | yes          | -           | 1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder
-`--help`                             | `boolean`          | no           | -           | Show help
-`--lint`                             | `boolean`          | no           | `false`     | Lint definition files
-`--prefix-components-with-info-prop` | `string`           | no           | -           | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below
-`--prefix-tags-with-info-prop`       | `string`           | no           | -           | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop section](#prefix-tags-with-info-prop) below
-`--prefix-tags-with-filename`        | `boolean`          | no           | `false`     | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below
-`--version`                          | `boolean`          | no           | -           | Show version number
+Option | Type | Description
+-- | -- | --
+entrypoints | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
+--help | boolean | Show help.
+--lint | boolean | Lint definition files.
+--prefix-components-with-info-prop | string | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.
+--prefix-tags-with-info-prop | string | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop section](#prefix-tags-with-info-prop) below.
+--prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.
+--version | boolean | Show version number.
 
 ## Examples
 
 ### Array of paths
 
 ```bash Command
-openapi join first-api.yaml second-api.json
+redocly join first-api.yaml second-api.json
 ```
 
 ```bash Output
-openapi join first-api.yaml second-api.json
+redocly join first-api.yaml second-api.json
 
 openapi.yaml: join processed in 56ms
 ```
@@ -132,7 +132,7 @@ The output file preserves the original tag names as the value of the `x-displayN
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-tags-with-info-prop title
+redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
 
 ```yaml Output file example
@@ -155,7 +155,7 @@ The output file preserves the original tag names as the value of the `x-displayN
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-tags-with-filename true
+redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
 
 ```yaml Output file example
@@ -175,7 +175,7 @@ If any of the input files have conflicting component names, this option can be u
 #### Usage
 
 ```bash Command
-openapi join first-api.yaml second-api.json --prefix-components-with-info-prop version
+redocly join first-api.yaml second-api.json --prefix-components-with-info-prop version
 ```
 
 ```yaml Output file example

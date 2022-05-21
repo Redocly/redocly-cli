@@ -4,7 +4,7 @@
 
 Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 
-The OpenAPI CLI `push` command helps you automate API definition updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API definitions are generated automatically from code annotations in a CI/CD pipeline
+The Redocly CLI `push` command helps you automate API definition updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API definitions are generated automatically from code annotations in a CI/CD pipeline
 
 This allows you to:
 
@@ -13,8 +13,8 @@ This allows you to:
 
 Apart from uploading your API definition file, the `push` command can automatically upload other files if they are detected or referenced in the API definition:
 
-- the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx).
-- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/openapi-cli` version specified in `package.json`.
+- the [Redocly configuration file](/docs/cli/configuration/index.mdx) and any configuration files referenced in the `extends` list.
+- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `features.openapi > htmlTemplate` parameter in the Redocly configuration file.
 
 :::attention
@@ -47,8 +47,8 @@ To authenticate to the API registry, you can use several approaches:
 - use the [`login` command](login.md). In this case, the command will look as follows:
 
   ```bash
-  openapi login
-  opanapi push ...
+  redocly login
+  redocly push ...
   ```
 
   Refer to the [`login` command documentation](login.md) for more details.
@@ -56,7 +56,7 @@ To authenticate to the API registry, you can use several approaches:
 - set the `REDOCLY_AUTHORIZATION` environment variable to either your [personal API key](../../settings/personal-api-keys.md) or to an organization-wide API key (configurable by organization owners in **Redocly Workflows > Settings > API keys**). In this case, the command may look as follows:
 
   ```bash
-  REDOCLY_AUTHORIZATION=yourPersonalApiKey openapi push ...
+  REDOCLY_AUTHORIZATION=yourPersonalApiKey redocly push ...
   ```
 
   Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
@@ -69,24 +69,25 @@ To authenticate to the API registry, you can use several approaches:
 ## Usage
 
 ```bash
-openapi push [entrypoint] <destination>
-openapi push
-openapi push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-name@api-version> [--branch]
+redocly push [entrypoint] <destination>
+redocly push
+redocly push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-name@api-version> [--branch]
 ```
 
 ## Options
 
 Option           | Type      | Description    |
------------------|:---------:|:------------:|
-entrypoint       | string    | Optional. The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias from `apiDefinitions` if using the legacy configuration file). See [Set options explicitly](#set-options-explicitly) for more information.  |
-destination      | string    | Required. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
---branch, -b    | string  | Optional. The branch where your API definition will be pushed or upserted. Default value is `main`.  |
---help       | boolean | Optional. Help output for the command.  |
---run-id       | string  | Optional. Specify the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
---skip-decorator | [string] | Optional. Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
---upsert, -u | boolean | Optional. Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
---version     | boolean | Optional. Show version number.  |
---region,-r    | string | Optional. Specify which region to use when logging in. Supported values: `us`, `eu`. Default value is `us`. Read more about [configuring the region](../configuration/configuration-file.mdx#region).
+-----------------|:---------:|------------|
+entrypoint       | string    | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.  |
+destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
+--branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
+--help       | boolean | Help output for the command.  |
+--run-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
+--skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
+--upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
+--version     | boolean | Show version number.  |
+--region,-r    | string | Specifies which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value the appropriate Redocly API. |
+-- public    | boolean | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
 
 ## Examples
 
@@ -166,7 +167,7 @@ The version of your API should contain only supported characters (`a-z`, `A-Z`, 
 Provide the `entrypoint` as a path to the root API definition file, and specify the organization ID, API name and version.
 
 ```bash
-openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1
 ```
 
 In this case, `push` will upload only the definition that was passed to the command. The configuration file is ignored.
@@ -174,7 +175,7 @@ In this case, `push` will upload only the definition that was passed to the comm
 To push the definition to a particular branch, specify the branch name.
 
 ```bash
-openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
 ```
 
 ### Set options in the configuration file
@@ -194,18 +195,18 @@ apis:
 
 With a configuration file like this, you can use any of the following commands:
 
-1. `openapi push`
+1. `redocly push`
 
 Push every API listed in the `apis` section of the configuration file.
 You must specify your Workflows organization ID in the configuration file for this approach to work.
 APIs without an explicitly defined version are automatically pushed to `@latest`.
 
-2. `openapi push api-name@api-version`
+2. `redocly push api-name@api-version`
 
 Push the specified API and version from the `apis` section of the configuration file.
 You must specify your organization ID in the configuration file for this approach to work.
 
-3. `openapi push organization-id/api-name@api-version`
+3. `redocly push organization-id/api-name@api-version`
 
 Push the specified API and version from the `apis` section of the configuration file to the Workflows organization matching the provided organization ID.
 In this case, you don't have to specify the organization ID in the configuration file.
@@ -215,25 +216,25 @@ In this case, you don't have to specify the organization ID in the configuration
 To upsert an API in the registry with the `push` command, use the `--upsert` or `-u` option.
 
 ```bash Set options explicitly
-openapi push -u test-api-v1.yaml @redocly/test-api@v1
+redocly push -u test-api-v1.yaml @redocly/test-api@v1
 ```
 
 ```bash Use config file
-openapi push -u test-api@v1
+redocly push -u test-api@v1
 ```
 
 ```bash Upsert all APIs from config file
-openapi push -u
+redocly push -u
 ```
 
 To upsert the definition to a particular branch, specify the branch name with `--branch` or `-b`.
 
 ```bash Set options explicitly
-openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
 ```
 
 ```bash Use config file
-openapi push -u test-api@v1 -b develop
+redocly push -u test-api@v1 -b develop
 ```
 
 ### Run ID
@@ -254,11 +255,20 @@ Below are possible use cases for the `--run-id` option:
 You may want to skip specific decorators upon running the command.
 
 ```bash Skip a decorator
-openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations
 ```
 
 ```bash Skip multiple decorators
-openapi push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
+```
+
+### Public
+
+The `--public` option allows you to upload your API definition and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
+For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
+
+```bash
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --public
 ```
 
 ### Set up CI from Redocly Workflows
@@ -267,10 +277,10 @@ The Redocly Workflows interface can help you get started with the `push` command
 
 1. In **API registry**, select **Add API**.
 1. In the **Definition name** step, provide a name for your new API definition.
-1. In the **Choose source** step, select **Upload from CI/CD**. This will generate syntax for the `push` command that you can copy and use to upload a new API definition file. Alternatively, use the `openapi push -u` command directly from the command-line interface.
+1. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API definition file. Or use the `redocly push -u` command directly from the command-line interface.
 
 ## Learn more
 
-- Video tutorial: Using the OpenAPI CLI push command:
+- Video tutorial: Using the Redocly CLI push command:
 
     <iframe width="560" height="315" src="https://www.youtube.com/embed/key2NGkcR5g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

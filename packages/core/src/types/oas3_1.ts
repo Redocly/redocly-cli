@@ -74,6 +74,7 @@ const Operation: NodeType = {
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-hideTryItPanel': { type: 'boolean' },
   },
 };
 
@@ -163,6 +164,7 @@ const Schema: NodeType = {
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
+    'x-tags': { type: 'array', items: { type: 'string' } },
   },
 };
 

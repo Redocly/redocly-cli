@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
-
 import { parseYaml } from './js-yaml';
-import { HttpResolveConfig } from './config/config';
 import { UserContext } from './walk';
+import type { HttpResolveConfig } from './config';
+import { env } from "./config";
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -52,7 +52,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   for (const header of config.headers) {
     if (match(url, header.matches)) {
       headers[header.name] =
-        header.envVariable !== undefined ? process.env[header.envVariable] || '' : header.value;
+        header.envVariable !== undefined ? env[header.envVariable] || '' : header.value;
     }
   }
 
@@ -67,7 +67,7 @@ export async function readFileFromUrl(url: string, config: HttpResolveConfig) {
   return { body: await req.text(), mimeType: req.headers.get('content-type') };
 }
 
-export function match(url: string, pattern: string) {
+function match(url: string, pattern: string) {
   if (!pattern.match(/^https?:\/\//)) {
     // if pattern doesn't specify protocol directly, do not match against it
     url = url.replace(/^https?:\/\//, '');
@@ -171,3 +171,23 @@ export function isPathParameter(pathSegment: string) {
 export function isNotEmptyObject(obj: any) {
   return !!obj && Object.keys(obj).length > 0;
 }
+
+// TODO: use it everywhere
+export function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+export function isNotString<T>(value: string | T): value is T {
+  return !isString(value);
+}
+
+export function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
+  for (let k of Object.keys(obj)) {
+    if (target.hasOwnProperty(k)) {
+      target[k] = obj[k];
+    }
+  }
+}
+
+export const getMatchingStatusCodeRange = (code: number | string): string =>
+  `${code}`.replace(/^(\d)\d\d$/, (_, firstDigit) => `${firstDigit}XX`);

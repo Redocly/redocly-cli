@@ -11,25 +11,25 @@ The `split` command doesn't support OpenAPI 2.0 definitions.
 ## Usage
 
 ```bash
-openapi split <entrypoint> --outDir=<path>
-openapi split [--help] [--version]
-openapi split --version
+redocly split <entrypoint> --outDir=<path>
+redocly split [--help] [--version]
+redocly split --version
 ```
 
 ## Options
 
-Option                    | Type      | Required     | Default     | Description
---------------------------|:---------:|:------------:|:-----------:|------------
-`entrypoint`              | `string`  | yes          | -           | Path to the API definition file that you want to split into a multi-file structure
-`--outDir`                | `string`  | yes          | -           | Path to the directory where you want to save split files. If the specified directory doesn't exist, it will be created automatically.
-`separator`               | `string`  | no           | `_`         | File path separator used while splitting. Will affect file names in the `paths` folder (e.g. `user_create.yaml`)
-`--help`                  | `boolean` | no           | -           | Show help
-`--version`               | `boolean` | no           | -           | Show version number
+Option | Type | Description
+-- | -- | --
+entrypoint | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
+--outDir | string | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it will be created automatically.
+--help | boolean | Show help.
+--separator | string | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`).
+--version | boolean | Show version number.
 
 ## Example
 
 ```bash Command
-openapi split pet.yaml --outDir=openapi
+redocly split pet.yaml --outDir=openapi
 ```
 
 ```bash Output

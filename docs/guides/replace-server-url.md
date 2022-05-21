@@ -18,7 +18,7 @@ In this step, you will create a custom plugin and define the decorator dependenc
 const ReplaceServersURL = require('./decorators/replace-servers-url');
 const id = 'demo';
 
-/** @type {import('@redocly/openapi-cli').CustomRulesConfig} */
+/** @type {import('@redocly/cli').CustomRulesConfig} */
 const decorators = {
   oas3: {
     'replace-servers-url': ReplaceServersURL,
@@ -50,7 +50,7 @@ In this step, you will add a decorator and define the environment variable assoc
 ``` JavaScript
 module.exports = ReplaceServersURL;
 
-/** @type {import('@redocly/openapi-cli').OasDecorator} */
+/** @type {import('@redocly/cli').OasDecorator} */
 
 function ReplaceServersURL() {
   return {
