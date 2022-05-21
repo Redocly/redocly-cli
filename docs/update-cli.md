@@ -10,9 +10,9 @@ If you installed Redocly CLI in your project's npm dependencies follow these ste
 2. Find the line that contains `"@redocly/cli":` followed by the version number.
 3. Change the version number to the latest one in the [Changelog](./changelog.md).
 4. Save the changes then close `package.json`.
-5. Run `npm install` from the project's root directory on the command line.
+5. Run `npm install` from the project root directory on the command line.
 6. Commit the changed `package.json` and `package-lock.json` files to your Git repository.
-7. Check the project-level installation by running this command from the project's root directory: `npx redocly --version`.
+7. Check the project-level installation by running this command from the project root directory: `npx redocly --version`.
 
 ## How to update a global installation
 
