@@ -4,7 +4,7 @@ If you've already installed Redocly CLI, you'll want to keep it as up to date as
 
 ## How to update a project-level installation
 
-If you installed Redocly CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
+If you installed Redocly CLI in your project's npm dependencies follow these steps:
 
 1. Navigate to your project root directory and open `package.json` in any text editor.
 2. Find the line that contains `"@redocly/cli":` followed by the version number.
