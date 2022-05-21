@@ -6,7 +6,7 @@ If you've already installed Redocly CLI, you'll want to keep it as up to date as
 
 If you installed Redocly CLI using the [openapi-starter template](https://github.com/Redocly/openapi-starter) follow these steps:
 
-1. Navigate to and open `package.json` in any text editor.
+1. Navigate to your project root directory and open `package.json` in any text editor.
 2. Find the line that contains `"@redocly/cli":` followed by the version number.
 3. Change the version number to the latest one in the [Changelog](./changelog.md).
 4. Save the changes then close `package.json`.
