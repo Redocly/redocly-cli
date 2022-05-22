@@ -47,7 +47,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 
 ## Examples
 
-### How to use entrypoints to check all or selected definitions
+### How to use entrypoints to lint all or selected definitions
 
 ##### Method 1: Pass entrypoints directly
 In this case, `lint` will validate the definitions passed in the command and ignore the `apis` object in the Redocly configuration file.
