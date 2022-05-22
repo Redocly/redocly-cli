@@ -34,7 +34,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 
 | Option | Type | Description |
 |---|---|---|
-| entrypoints | array | Lets you [pass the entrypoints](#how-to-use-entrypoints-to-check-all-or-selected-definitions) (locations) of specific definition files in the command so `lint` only checks those files. |
+| entrypoints | array | [Sets the entrypoints](#how-to-use-entrypoints-to-check-all-or-selected-definitions) (locations) of specific definition files to lint. If no entrypoints are provided, all the APIs defined in the Redocly configuration file are linted. |
 | --config | string | Lets you [specify a path to a custom config file](#how-to-reference-a-custom-config-file). |
 | --extends | array | [Extends the existing config](#how-to-activate-rule-sets) by invoking rule sets that apply lots of rules at once. Possible values: `minimal`, `recommended`, `all`. Default: `recommended`. |
 | --format | string | [Applies formatting to the output](#how-to-format-linting-results). Possible values: `codeframe`, `stylish`, `json`, `checkstyle`. Default: `codeframe`. |
