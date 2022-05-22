@@ -97,7 +97,7 @@ If you run `redocly lint` without entrypoints, and your project has no configura
 
 ### How to reference a custom config file
 
-By default, Redocly CLI looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working or project directory. Using the optional `--config` argument provides an alternative path to a different configuration file if one exists.
+By default, Redocly CLI looks for the [Redocly configuration file](/docs/cli/configuration/configuration-file.mdx) in the current working or project directory. With the optional `--config` argument, you can provide the path to a different configuration file.
 
 ```bash
 redocly lint --config=./another/directory/anotherconfig.yaml
