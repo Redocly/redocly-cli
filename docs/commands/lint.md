@@ -79,7 +79,7 @@ apis:
  In this example, we only want to lint the `core@latest` API:
 
 ```bash Command
-redocly lint main
+redocly lint core@latest
 ```
 
 ##### Method 3: Pass no entrypoints
