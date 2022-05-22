@@ -103,7 +103,7 @@ By default, Redocly CLI looks for the [Redocly configuration file](/docs/cli/con
 redocly lint --config=./another/directory/anotherconfig.yaml
 ```
 
-### How to activate rule sets
+### How to activate rule configurations
 
 Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions.
 
