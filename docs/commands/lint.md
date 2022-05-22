@@ -96,7 +96,7 @@ redocly lint main
 
 ##### Method 3: Pass no entrypoints
 
-Running `lint` without specifying a particular API definition file checks all definition files in your project directory.
+Running `lint` without specifying a particular API definition checks all APIs in your configuration file.
 
 ```bash
 redocly lint
