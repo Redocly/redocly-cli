@@ -68,7 +68,7 @@ You can pass `name` or `name@version` in commands like `lint` and `stats` to act
 
 ```yaml Configuration file
 apis:
-  main:
+  core@latest:
     root: ./openapi.yaml
     labels:
       - main
