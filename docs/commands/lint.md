@@ -64,7 +64,7 @@ The `apis` object in the Redocly configuration file (`redocly.yaml`) lets you co
 
 `@version` is optional, and when not provided, Redocly apps interpret it as `latest` by default. Every `name@version` combination listed in the `apis` section must be unique.
 
-You can pass `name` or `name@version` in commands like `lint` and `stats` to act only on those APIs. Below is an example `apis` section showing three files identified using `main`, `production` and `sandbox`:
+You can pass `name@version` in commands like `lint` and `stats` to act only on those APIs. Below is an example `apis` object showing three files identified using `core@latest`, `production@v1` and `sandbox@v1`:
 
 ```yaml Configuration file
 apis:
