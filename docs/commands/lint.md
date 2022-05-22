@@ -42,7 +42,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 | --help | boolean | [Displays a short help menu](#how-to-open-the-help), showing lint options. |
 | --max-problems | integer | [Truncates the output](#how-to-limit-issues-shown-in-the-output) to show only a specified number of errors and warnings. Default: `100`. |
 | --skip-preprocessor | array | [Ignores specific preprocessors](#how-to-skip-a-rule-or-preprocessor-during-linting). |
-| --skip_rule | array | [Ignores specific custom or built-in rules](#how-to-skip-a-rule-or-preprocessor-during-linting). |
+| --skip-rule | array | [Ignores specific rules](#how-to-skip-a-rule-or-preprocessor-during-linting). |
 | --version | boolean | Adding `--version` to any command (not just `lint`) will show your current Redocly CLI version. |
 
 ## Examples
