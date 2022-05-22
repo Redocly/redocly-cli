@@ -36,7 +36,7 @@ redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 |---|---|---|
 | entrypoints | array | [Sets the entrypoints](#how-to-use-entrypoints-to-check-all-or-selected-definitions) (locations) of specific definition files to lint. If no entrypoints are provided, all the APIs defined in the Redocly configuration file are linted. |
 | --config | string | Lets you [specify a path to a custom config file](#how-to-reference-a-custom-config-file). |
-| --extends | array | [Extends the existing config](#how-to-activate-rule-sets) by invoking rule sets that apply lots of rules at once. Possible values: `minimal`, `recommended`, `all`. Default: `recommended`. |
+| --extends | array | [Extends the existing configuration](#how-to-activate-rule-sets). |
 | --format | string | [Applies formatting to the output](#how-to-format-linting-results). Possible values: `codeframe`, `stylish`, `json`, `checkstyle`. Default: `codeframe`. |
 | --generate-ignore-file | boolean | [Generates an ignore file](#how-to-ignore-specific-errors-and-warnings) which tells Redocly CLI to ignore certain warnings/errors when validating the definition. |
 | --help | boolean | [Displays a short help menu](#how-to-open-the-help), showing lint options. |
