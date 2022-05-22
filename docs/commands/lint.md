@@ -104,7 +104,7 @@ redocly lint --config=./another/directory/anotherconfig.yaml
 
 ### How to activate rule sets
 
-Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions. If you want to override a rule or reduce its severity, you can do so by modifying `redocly.yaml` (globally or per API definition).
+Redocly CLI comes with [built-in rules](./resources/built-in-rules.md) that are used to validate API definitions.
 
 An alternative approach is to use **rule configurations** to quickly invoke a lot of rules at the same time.
 
