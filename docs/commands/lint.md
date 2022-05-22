@@ -5,7 +5,7 @@
 One of the most powerful features of Redocly CLI is its ability to lint OpenAPI definitions.
 This helps your definitions conform to a consistent API styleguide.
 
-The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification and your own custom rules, if any) and contains no errors. It also executes preprocessors and rules.
+The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification) and adheres to your API styleguide.
 
 :::warning Important
 Unlike the `bundle` command, `lint` doesn't execute decorators. To learn more about preprocessors and rules, see the [custom rules](../resources/custom-rules.md) page.
