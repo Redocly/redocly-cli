@@ -88,7 +88,7 @@ apis:
     features.openapi: []
 ```
 
- In this example, we only want to validate files under `main`:
+ In this example, we only want to lint the `core@latest` API:
 
 ```bash Command
 redocly lint main
