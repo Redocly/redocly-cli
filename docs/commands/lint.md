@@ -70,22 +70,10 @@ You can pass `name` or `name@version` in commands like `lint` and `stats` to act
 apis:
   core@latest:
     root: ./openapi.yaml
-    labels:
-      - main
-    lint: []
-    features.openapi: []
-  production:
+  production@v1:
     root: ./production.yaml
-    labels:
-      - production
-    lint: []
-    features.openapi: []
-  sandbox:
+  sandbox@v1:
     root: ./sandbox.yaml
-    labels:
-      - sandbox
-    lint: []
-    features.openapi: []
 ```
 
  In this example, we only want to lint the `core@latest` API:
