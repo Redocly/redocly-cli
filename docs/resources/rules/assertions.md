@@ -313,7 +313,7 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 lint:
   rules:
     assert/put-200-and-201:
-      subject: ResponseMap
+      subject: ResponsesMap
       context:
         - type: Operation
           matchParentKeys:
