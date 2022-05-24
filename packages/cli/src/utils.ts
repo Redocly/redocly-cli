@@ -74,6 +74,13 @@ export function pathToFilename(path: string, pathSeparator: string) {
     .replace(/\//g, pathSeparator);
 }
 
+export function escapeLangChar(lang: string) {
+  return lang
+    .replace(/#/g, "_sharp")
+    .replace(/\//, '_')
+    .replace(/\s/g, '');
+}
+
 export class CircularJSONNotSupportedError extends Error {
   constructor(public originalError: Error) {
     super(originalError.message);
