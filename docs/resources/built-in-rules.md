@@ -365,6 +365,11 @@ response-contains-header:
       - title
 ```
 
+
+### scalar-property-missing-example
+
+Verifies that every scalar property has an example(s) defined.
+
 ## Recommended config
 
 There are three built-in configurations:
