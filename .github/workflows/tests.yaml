@@ -31,10 +31,15 @@ jobs:
         CI: true
     - name: Typecheck 
       run: npm run typecheck
-    - name: Unit Tests & Coverage Report
+    - name: Unit Tests
+      run: npx jest ./packages --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
+    - name: Coverage Report
       uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
       with:
+        skip-step: none
+        coverage-file: report.json
         annotations: none
+        test-script: npx jest ./packages --silent --ci --json --testLocationInResults --outputFile=report-base.json --bail --coverage
     - name: E2E Tests
       run: npm run e2e
       env:
