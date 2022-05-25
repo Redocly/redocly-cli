@@ -26,6 +26,10 @@ jobs:
         echo Using Node $(node -v), NPM $(npm -v)
         echo
         npm ci
+    - name: Typechek
+      run: npm run typecheck
+    - name: Unit Tests
+      run: npm run unit
     - name: Unit Tests & Coverage Report
       uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
       env:
