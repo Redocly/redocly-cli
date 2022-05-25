@@ -42,6 +42,7 @@ export default {
     spec: 'error',
     'no-invalid-schema-examples': 'error',
     'no-invalid-parameter-examples': 'error',
+    'scalar-property-missing-example': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',

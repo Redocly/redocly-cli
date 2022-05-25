@@ -153,7 +153,8 @@ export interface Oas3Schema {
   'x-tags'?: string[];
 }
 
-export interface Oas3_1Schema extends Oas3Schema {
+export type Oas3_1Schema = Oas3Schema & {
+  type?: string | string[];
   examples?: any[];
 }
 
