@@ -1,4 +1,4 @@
-import { isSubdir, pathToFilename } from '../utils';
+import { isSubdir, pathToFilename, escapeLanguageName } from '../utils';
 
 jest.mock("os");
 
@@ -46,5 +46,27 @@ describe('pathToFilename', () => {
   it('should use correct path separator', () => {
     const processedPath = pathToFilename('/user/createWithList', '_');
     expect(processedPath).toEqual('user_createWithList');
+  });
+});
+
+describe('escapeLanguageName', () => {
+  it('should create correct folder name for code samples with # char', () => {
+    const escapedName = escapeLanguageName('C#');
+    expect(escapedName).toEqual('C_sharp');
+  });
+
+  it('should create correct folder name for code samples with / char', () => {
+    const escapedName = escapeLanguageName('C/AL');
+    expect(escapedName).toEqual('C_AL');
+  });
+
+  it('should create correct folder name for code samples with space char', () => {
+    const escapedName = escapeLanguageName('Visual Basic');
+    expect(escapedName).toEqual('VisualBasic');
+  });
+
+  it('should leave the folder name as is', () => {
+    const escapedName = escapeLanguageName('PHP');
+    expect(escapedName).toEqual('PHP');
   });
 });

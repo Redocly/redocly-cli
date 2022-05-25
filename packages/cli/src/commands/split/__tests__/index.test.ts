@@ -94,24 +94,4 @@ describe('#split', () => {
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
   });
-
-  it('should create correct folder name for code samples', async () => {
-    const openapi = require("./fixtures/samples.json");
-
-    jest.spyOn(utils, 'escapeLanguageName');
-    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
-
-    expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');
-    expect(utils.escapeLanguageName).nthReturnedWith(1, 'C_sharp');
-
-    expect(utils.escapeLanguageName).nthCalledWith(2, 'C/AL');
-    expect(utils.escapeLanguageName).nthReturnedWith(2, 'C_AL');
-
-    expect(utils.escapeLanguageName).nthCalledWith(3, 'Visual Basic');
-    expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
-
-    expect(utils.escapeLanguageName).toBeCalledTimes(3);
-
-    utils.escapeLanguageName.mockRestore();
-  });
 });
