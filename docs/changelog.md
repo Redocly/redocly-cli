@@ -13,7 +13,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Resolve an issue with escaping symbols in code sample language names (the `lang` value in the `x-codeSamples` specification extension).
+- Resolved an issue with escaping symbols in code sample language names (the `lang` value in the `x-codeSamples` specification extension).
 
 ## 1.0.0-beta.98 (2022-05-18)
 
