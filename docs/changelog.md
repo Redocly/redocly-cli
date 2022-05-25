@@ -8,9 +8,8 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added `response-contains-header` & `response-contains-property` built-in rules.
-- Added bundle option to keep url references.
-- Added new built-in rule `scalar-property-missing-example`.
+- Added three new built-in rules: `response-contains-header`, `response-contains-property`, `scalar-property-missing-example`.
+- The `bundle` command supports a new option `--keep-url-references`. Use it to prevent Redocly CLI from resolving external URL references during bundling.
 
 ### Fixes
 
