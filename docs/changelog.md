@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.99 (2022-05-25)
+
+### Features
+
+- Added `response-contains-header` & `response-contains-property` built-in rules.
+- Added bundle option to keep url references.
+- Added new built-in rule `scalar-property-missing-example`.
+
+### Fixes
+
+- Escape symbols in the samples lang name.
+
 ## 1.0.0-beta.98 (2022-05-18)
 
 ### Features
