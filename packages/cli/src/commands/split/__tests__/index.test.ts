@@ -6,6 +6,8 @@ import {
 } from '../types'; 
 import { blue, green } from 'colorette';
 
+const utils = require('../../../utils');
+
 jest.mock('../../../utils', () => ({
   ...jest.requireActual('../../../utils'),
   writeYaml: jest.fn(),
@@ -19,7 +21,6 @@ jest.mock('@redocly/openapi-core', () => ({
 describe('#split', () => {
   const openapiDir = 'test';
   const componentsFiles: ComponentsFiles = {};
-  const utils = require('../../../utils');
 
   it('should split the file and show the success message', async () => {
     const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
