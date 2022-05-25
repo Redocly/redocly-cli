@@ -32,7 +32,7 @@ jobs:
         CI: true
       with:
         annotations: none
-        test-script: npx jest ./packages --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage || exit 0
+        test-script: npx jest ./packages --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
     - name: E2E Tests
       run: npm run e2e
       env:
