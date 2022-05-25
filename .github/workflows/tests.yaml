@@ -29,8 +29,8 @@ jobs:
     - name: Typechek
       run: npm run typecheck
     - name: Unit Tests
-      run: npm run unit
-    - name: Unit Tests & Coverage Report
+      run: npx jest ./packages --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage || exit 0
+    - name: Coverage Report
       uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
       env:
         CI: true
