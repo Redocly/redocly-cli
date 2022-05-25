@@ -5,7 +5,7 @@ import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 
-import { printExecutionTime, pathToFilename, readYaml, writeYaml, exitWithError, escapeLangChar } from '../../utils';
+import { printExecutionTime, pathToFilename, readYaml, writeYaml, exitWithError, escapeLanguageName } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
   Definition,
@@ -271,7 +271,7 @@ function iteratePathItems(
         const sampleFileName = path.join(
           openapiDir,
           'code_samples',
-          escapeLangChar(sample.lang),
+          escapeLanguageName(sample.lang),
           codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator),
           method + langToExt(sample.lang),
         );

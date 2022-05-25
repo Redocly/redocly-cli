@@ -19,6 +19,7 @@ jest.mock('@redocly/openapi-core', () => ({
 describe('#split', () => {
   const openapiDir = 'test';
   const componentsFiles: ComponentsFiles = {};
+  const utils = require('../../../utils');
 
   it('should split the file and show the success message', async () => {
     const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
@@ -46,7 +47,6 @@ describe('#split', () => {
   it('should use the correct separator', async () => {
     const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
 
-    const utils = require('../../../utils');
     jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
 
     await handleSplit (
@@ -92,5 +92,25 @@ describe('#split', () => {
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
+  });
+
+  it('should create correct folder name for code samples', async () => {
+    const openapi = require("./fixtures/samples.json");
+
+    jest.spyOn(utils, 'escapeLanguageName');
+    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
+
+    expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');
+    expect(utils.escapeLanguageName).nthReturnedWith(1, 'C_sharp');
+
+    expect(utils.escapeLanguageName).nthCalledWith(2, 'C/AL');
+    expect(utils.escapeLanguageName).nthReturnedWith(2, 'C_AL');
+
+    expect(utils.escapeLanguageName).nthCalledWith(3, 'Visual Basic');
+    expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
+
+    expect(utils.escapeLanguageName).toBeCalledTimes(3);
+
+    utils.escapeLanguageName.mockRestore();
   });
 });

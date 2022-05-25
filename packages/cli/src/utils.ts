@@ -74,7 +74,7 @@ export function pathToFilename(path: string, pathSeparator: string) {
     .replace(/\//g, pathSeparator);
 }
 
-export function escapeLangChar(lang: string) {
+export function escapeLanguageName(lang: string) {
   return lang
     .replace(/#/g, "_sharp")
     .replace(/\//, '_')
