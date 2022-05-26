@@ -98,6 +98,9 @@ describe('#split', () => {
   it('should create correct folder name for code samples', async () => {
     const openapi = require("./fixtures/samples.json");
 
+    const fs = require('fs')
+    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+
     jest.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
 
