@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.99 (2022-05-25)
+
+### Features
+
+- Added three new built-in rules: `response-contains-header`, `response-contains-property`, `scalar-property-missing-example`.
+- The `bundle` command supports a new option `--keep-url-references`. Use it to prevent Redocly CLI from resolving external URL references during bundling.
+- Added `addinionalItems`, `minContains` and `maxContains` array types.
+
+### Fixes
+
+- Resolved an issue with escaping symbols in code sample language names (the `lang` value in the `x-codeSamples` specification extension).
+
 ## 1.0.0-beta.98 (2022-05-18)
 
 ### Features
