@@ -109,7 +109,7 @@ bundled.yaml: validated in 72ms
 run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
 ```
 
-You got this response because `lint` uses rules to ensure that your file conforms to what you consider to be 'valid'. Redocly CLI ships with a set of built-in rules, but you can also customise your own, depending on how closely you want to follow the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html). In our example response above, we can see that there is one error [1] and one warning [2].
+You got this response because `lint` uses rules to ensure that your file conforms to what you consider to be 'valid'. Redocly CLI ships with a set of built-in rules, but you can also customize your own, depending on how closely you want to follow the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html). In our example response above, we can see that there is one error [1] and one warning [2].
 
 **Why you got an error**
 
