@@ -300,6 +300,15 @@ const Schema: NodeType = {
         return 'Schema';
       }
     },
+    additionalItems: (value: any) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else if (Array.isArray(value)) {
+        return listOf('Schema');
+      } else {
+        return 'Schema';
+      }
+    },
     additionalProperties: (value: any) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
