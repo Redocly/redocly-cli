@@ -36,7 +36,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
 };
 
 function isNotDefined(value: unknown): boolean {
-  return value === null || value === undefined;
+  return value === undefined;
 }
 
 function isScalarSchema(schema: Oas2Schema | Oas3Schema | Oas3_1Schema) {
