@@ -26,6 +26,7 @@ export type UserContext = {
   report(problem: Problem): void;
   location: Location;
   rawNode: any;
+  rawLocation: Location;
   resolve<T>(
     node: Referenced<T>,
   ): { location: Location; node: T } | { location: undefined; node: undefined };
@@ -124,6 +125,7 @@ export function walkDocument<T>(opts: {
     parent: any,
     key: string | number,
   ) {
+    const rawLocation = location;
     let currentLocation = location;
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
@@ -140,6 +142,7 @@ export function walkDocument<T>(opts: {
               report,
               resolve,
               rawNode: node,
+              rawLocation,
               location,
               type,
               parent,
@@ -325,6 +328,7 @@ export function walkDocument<T>(opts: {
               report,
               resolve,
               rawNode: node,
+              rawLocation,
               location,
               type,
               parent,
@@ -358,6 +362,7 @@ export function walkDocument<T>(opts: {
           resolve,
           rawNode: node,
           location: currentLocation,
+          rawLocation,
           type,
           parent,
           key,

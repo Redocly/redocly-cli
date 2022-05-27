@@ -44,7 +44,7 @@ paths:
               schema:
                 $ref: ./components/schemas/Error.yaml
   /owners:
-    $ref: components/schemas/Owners.yaml
+    $ref: components/paths/Owners.yaml
   /vets:
     $ref: components/Vets.yaml
 components:

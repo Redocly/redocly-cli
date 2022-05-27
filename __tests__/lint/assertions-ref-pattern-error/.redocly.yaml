@@ -9,10 +9,10 @@ lint:
         - type: Response
       subject: MediaType
       property: schema
-      message: Response MediaType schema should contain ref to components folder
-      ref: ^(\.\/)?components\/schema\/.*\.yaml$
+      message: Response MediaType schema should contain ref to components/schemas folder
+      ref: ^(\.\/)?components\/schemas\/.*\.yaml$
     assert/ref-pattern-no-properties:
       subject: PathItem
-      message: PathItem should contain ref to components folder
-      ref: ^(\.\/)?components\/schema\/.*\.yaml$
+      message: PathItem should contain ref to components/paths folder
+      ref: ^(\.\/)?components\/paths\/.*\.yaml$
   extends: []
