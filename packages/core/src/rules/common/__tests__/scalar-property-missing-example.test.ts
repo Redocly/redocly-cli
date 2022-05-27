@@ -204,4 +204,35 @@ describe('Oas3.1 scalar-property-missing-example', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should not report on a scalar property of falsy values', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            User:
+              type: object
+              properties:
+                testBool:
+                  type: boolean
+                  example: false
+                testString:
+                  type: string
+                  example: ""
+                testNumber:
+                  type: number
+                  example: 0
+      `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

@@ -19,7 +19,10 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
           continue;
         }
 
-        if (!propSchema.example && !(propSchema as Oas3_1Schema).examples) {
+        if (
+          isNotDefined(propSchema.example) &&
+          isNotDefined((propSchema as Oas3_1Schema).examples)
+        ) {
           report({
             message: `Scalar property should have "example"${
               oasVersion === OasVersion.Version3_1 ? ' or "examples"' : ''
@@ -31,6 +34,10 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
     },
   };
 };
+
+function isNotDefined(value: unknown): boolean {
+  return value === null || value === undefined;
+}
 
 function isScalarSchema(schema: Oas2Schema | Oas3Schema | Oas3_1Schema) {
   if (!schema.type) {
