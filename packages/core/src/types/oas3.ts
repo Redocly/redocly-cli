@@ -139,11 +139,6 @@ const Parameter: NodeType = {
   requiredOneOf: ['schema', 'content'],
 };
 
-const Callback = {
-  properties: {},
-  additionalProperties: 'PathItem',
-};
-
 const Operation: NodeType = {
   properties: {
     tags: {
@@ -479,7 +474,7 @@ export const Oas3Types: Record<string, NodeType> = {
   PathItem,
   Parameter,
   Operation,
-  Callback,
+  Callback: mapOf('PathItem'),
   RequestBody,
   MediaTypeMap,
   MediaType,
@@ -503,7 +498,7 @@ export const Oas3Types: Record<string, NodeType> = {
   NamedHeaders: mapOf('Header'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   NamedLinks: mapOf('Link'),
-  NamedCallbacks: mapOf('PathItem'),
+  NamedCallbacks: mapOf('Callback'),
   ImplicitFlow,
   PasswordFlow,
   ClientCredentials,
