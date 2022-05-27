@@ -20,8 +20,8 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
         }
 
         if (
-          isNotDefined(propSchema.example) &&
-          isNotDefined((propSchema as Oas3_1Schema).examples)
+          propSchema.example === undefined &&
+          (propSchema as Oas3_1Schema).examples === undefined
         ) {
           report({
             message: `Scalar property should have "example"${
@@ -34,10 +34,6 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
     },
   };
 };
-
-function isNotDefined(value: unknown): boolean {
-  return value === undefined;
-}
 
 function isScalarSchema(schema: Oas2Schema | Oas3Schema | Oas3_1Schema) {
   if (!schema.type) {
