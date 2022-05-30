@@ -566,6 +566,7 @@ const ConfigReferenceDocs: NodeType = {
     showExtensions: { type: 'boolean' },
     showNextButton: { type: 'boolean' },
     showRightPanelToggle: { type: 'boolean' },
+    showSecuritySchemeType: { type: 'boolean' },
     showWebhookVerb: { type: 'boolean' },
     showObjectSchemaExamples: { type: 'boolean' },
     disableTryItRequestUrlEncoding: { type: 'boolean' },

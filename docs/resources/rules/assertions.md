@@ -470,7 +470,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - NamedHeaders: mapOf('Header')
 - NamedSecuritySchemes: mapOf('SecurityScheme')
 - NamedLinks: mapOf('Link')
-- NamedCallbacks: mapOf('PathItem')
+- NamedCallbacks: mapOf('Callback')
 - ImplicitFlow
 - PasswordFlow
 - ClientCredentials
