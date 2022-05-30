@@ -105,6 +105,14 @@ lint:
       mutuallyRequired:
         - '200'
         - '201'
+#requiredOne example
+    assert/operation-required-one-description-or-external:
+      subject: Operation
+      message: "Operation must have one of properties defined: description or externalDocs"
+      severity: error
+      requireOne:
+        - description
+        - externalDocs
 #disallowed example
     assert/operation-disallowed:
       subject: Operation
