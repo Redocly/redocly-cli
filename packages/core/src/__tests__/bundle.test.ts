@@ -1,11 +1,10 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { bundleDocument, bundle } from '../src/bundle';
-
-import { parseYamlToDocument, yamlSerializer } from './utils';
-import { LintConfig, Config, ResolvedConfig } from '../src/config';
-import { BaseResolver } from '../src/resolve';
+import { bundleDocument, bundle } from '../bundle';
+import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils';
+import { LintConfig, Config, ResolvedConfig } from '../config';
+import { BaseResolver } from '../resolve';
 
 describe('bundle', () => {
   expect.addSnapshotSerializer(yamlSerializer);

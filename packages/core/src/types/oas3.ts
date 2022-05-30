@@ -139,11 +139,6 @@ const Parameter: NodeType = {
   requiredOneOf: ['schema', 'content'],
 };
 
-const Callback = {
-  properties: {},
-  additionalProperties: 'PathItem',
-};
-
 const Operation: NodeType = {
   properties: {
     tags: {
@@ -275,14 +270,14 @@ const Schema: NodeType = {
     minimum: { type: 'number' },
     exclusiveMaximum: { type: 'boolean' },
     exclusiveMinimum: { type: 'boolean' },
-    maxLength: { type: 'number', minimum: 0 },
-    minLength: { type: 'number', minimum: 0 },
+    maxLength: { type: 'integer', minimum: 0 },
+    minLength: { type: 'integer', minimum: 0 },
     pattern: { type: 'string' },
-    maxItems: { type: 'number', minimum: 0 },
-    minItems: { type: 'number', minimum: 0 },
+    maxItems: { type: 'integer', minimum: 0 },
+    minItems: { type: 'integer', minimum: 0 },
     uniqueItems: { type: 'boolean' },
-    maxProperties: { type: 'number', minimum: 0 },
-    minProperties: { type: 'number', minimum: 0 },
+    maxProperties: { type: 'integer', minimum: 0 },
+    minProperties: { type: 'integer', minimum: 0 },
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
     type: {
@@ -295,6 +290,15 @@ const Schema: NodeType = {
     properties: 'SchemaProperties',
     items: (value: any) => {
       if (Array.isArray(value)) {
+        return listOf('Schema');
+      } else {
+        return 'Schema';
+      }
+    },
+    additionalItems: (value: any) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else if (Array.isArray(value)) {
         return listOf('Schema');
       } else {
         return 'Schema';
@@ -470,7 +474,7 @@ export const Oas3Types: Record<string, NodeType> = {
   PathItem,
   Parameter,
   Operation,
-  Callback,
+  Callback: mapOf('PathItem'),
   RequestBody,
   MediaTypeMap,
   MediaType,
@@ -494,7 +498,7 @@ export const Oas3Types: Record<string, NodeType> = {
   NamedHeaders: mapOf('Header'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   NamedLinks: mapOf('Link'),
-  NamedCallbacks: mapOf('PathItem'),
+  NamedCallbacks: mapOf('Callback'),
   ImplicitFlow,
   PasswordFlow,
   ClientCredentials,

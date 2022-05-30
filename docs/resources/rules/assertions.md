@@ -313,7 +313,7 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 lint:
   rules:
     assert/put-200-and-201:
-      subject: ResponseMap
+      subject: ResponsesMap
       context:
         - type: Operation
           matchParentKeys:
@@ -470,7 +470,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - NamedHeaders: mapOf('Header')
 - NamedSecuritySchemes: mapOf('SecurityScheme')
 - NamedLinks: mapOf('Link')
-- NamedCallbacks: mapOf('PathItem')
+- NamedCallbacks: mapOf('Callback')
 - ImplicitFlow
 - PasswordFlow
 - ClientCredentials

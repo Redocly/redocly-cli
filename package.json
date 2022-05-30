@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.98",
+  "version": "1.0.0-beta.100",
   "description": "",
   "private": true,
   "engines": {
@@ -9,7 +9,10 @@
   "engineStrict": true,
   "scripts": {
     "test": "npm run typecheck && npm run unit",
-    "unit": "jest ./packages --coverage --coverageReporters lcov text-summary",
+    "jest": "jest ./packages",
+    "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
+    "coverage:cli": "jest --roots packages/cli/src --coverage",
+    "coverage:core": "jest --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
@@ -63,27 +66,5 @@
     "typescript": "4.3.3",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
-  },
-  "jest": {
-    "clearMocks": true,
-    "restoreMocks": true,
-    "preset": "ts-jest",
-    "collectCoverageFrom": [
-      "packages/**/*.ts",
-      "!packages/**/__tests__/**/*",
-      "!packages/cli/src/index.ts",
-      "!packages/core/src/benchmark/**/*",
-      "!packages/core/lib/**/*",
-      "!packages/cli/lib/**/*"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.test.ts",
-      "**/*.test.ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    }
   }
 }

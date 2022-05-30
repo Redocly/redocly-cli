@@ -1,4 +1,4 @@
-name: Unit/Integration Tests
+name: Unit/Integration Tests & Coverage
 
 on:
   pull_request:
@@ -11,20 +11,33 @@ jobs:
   build-and-unit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: "15.x"
-    - name: cache node modules
-      uses: actions/cache@v1
-      with:
-        path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-        key: npm-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          npm-${{ hashFiles('package-lock.json') }}
-          npm-
-    - run: npm i -g npm@7.0.2
-    - run: npm install
-    - run: npm test && npm run e2e
-      env:
-        CI: true
+      - uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ hashFiles('package-lock.json') }}
+            npm-
+      - name: Install modules
+        run: |
+          echo
+          echo Using Node $(node -v), NPM $(npm -v)
+          echo
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Coverage Report
+        uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
+        with:
+          skip-step: none
+          annotations: none
+          test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
+      - name: E2E Tests
+        run: npm run e2e
+        env:
+          CI: true

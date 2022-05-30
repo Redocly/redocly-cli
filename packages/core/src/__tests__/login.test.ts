@@ -1,4 +1,4 @@
-import { RedoclyClient } from '../src/redocly';
+import { RedoclyClient } from '../redocly';
 
 describe.skip('login', () => {
   it('should call login with setAccessTokens function', async () => {
