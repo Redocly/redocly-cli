@@ -26,9 +26,9 @@ export function popStack<T, P extends Stack<T>>(head: P) {
 
 export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
-export async function loadYaml(filename: string) {
+export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
-  return parseYaml(contents);
+  return parseYaml(contents) as T;
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
@@ -159,7 +159,11 @@ export function isPathParameter(pathSegment: string) {
  * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
  */
 export function slash(path: string): string {
+<<<<<<< HEAD
   const isExtendedLengthPath = /^\\\\\?\\/.test(path);
+=======
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+>>>>>>> 0ffc4be (feat: check errors in the configuration file)
   if (isExtendedLengthPath) {
     return path;
   }

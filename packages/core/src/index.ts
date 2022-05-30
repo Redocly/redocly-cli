@@ -33,6 +33,7 @@ export {
   getConfig,
   findConfig,
   CONFIG_FILE_NAMES,
+  RuleSeverity
 } from './config';
 
 

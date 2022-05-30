@@ -1,18 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, loadYaml } from '../utils';
+import { isEmptyObject,  loadYaml } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
 import type { RawConfig, Region } from './types';
 
-export async function loadConfig(
-  configPath: string | undefined = findConfig(),
-  customExtends?: string[],
-): Promise<Config> {
-  const rawConfig = await getConfig(configPath);
+async function addConfigMetadata({
+  rawConfig,
+  customExtends,
+  configPath
+}: {
+  rawConfig: RawConfig;
+  customExtends?: string[];
+  configPath?: string;
+  
+}): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
     rawConfig.lint.extends = customExtends;
@@ -55,6 +60,24 @@ export async function loadConfig(
 
   return resolveConfig(rawConfig, configPath);
 }
+
+export async function loadConfig(
+  configPath: string | undefined = findConfig(),
+  customExtends?: string[],
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void> 
+): Promise<Config> {
+  const rawConfig = await getConfig(configPath);
+  
+  if(typeof processRawConfig === 'function') {
+    await processRawConfig(rawConfig);
+  }
+  
+  return await addConfigMetadata({
+    rawConfig,
+    customExtends,
+    configPath
+  });
+};
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 

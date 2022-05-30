@@ -1,5 +1,4 @@
 export const getFallbackEntryPointsOrExit = jest.fn((entrypoints) => entrypoints.map(() => ({ path: '' })));
-export const getTotals = jest.fn(() => ({ errors: 0 }));
 export const dumpBundle = jest.fn(() => '');
 export const slash = jest.fn();
 export const pluralize = jest.fn();
@@ -9,4 +8,8 @@ export const printUnusedWarnings = jest.fn();
 export const printLintTotals = jest.fn();
 export const getOutputFileName = jest.fn(() => ({ outputFile: 'test.yaml', ext: 'yaml' }));
 export const handleError = jest.fn();
+<<<<<<< HEAD
 export const exitWithError = jest.fn();
+=======
+export const relativeFilePath = jest.fn();
+>>>>>>> 91118a1 (feat: check errors in the configuration file)

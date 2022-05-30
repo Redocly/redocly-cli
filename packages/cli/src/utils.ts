@@ -230,6 +230,24 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   process.stderr.write('\n');
 }
 
+export function printConfigLintTotals(totals: Totals): void {
+  if (totals.errors > 0) {
+    process.stderr.write(
+      red(
+        `❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}${
+          totals.warnings > 0
+            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
+            : ''
+        }.\n`,
+      ),
+    );
+  } else if (totals.warnings > 0) {
+    process.stderr.write(
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`),
+    );
+  };
+}
+
 export function getOutputFileName(
   entrypoint: string,
   entries: number,
@@ -304,4 +322,8 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
   return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+}
+
+export function relativeFilePath(filePath: string): string {
+  return filePath.replace(process.cwd(), '');
 }

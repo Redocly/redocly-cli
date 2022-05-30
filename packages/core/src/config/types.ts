@@ -11,17 +11,18 @@ import type {
 } from '../oas-types';
 import type { NodeType } from '../types';
 
+export type RuleSeverity = ProblemSeverity | 'off';
+
+export type PreprocessorSeverity = RuleSeverity | 'on';
+
 export type RuleConfig =
-  | ProblemSeverity
-  | 'off'
+  | RuleSeverity
   | ({
       severity?: ProblemSeverity;
     } & Record<string, any>);
 
 export type PreprocessorConfig =
-  | ProblemSeverity
-  | 'off'
-  | 'on'
+  | PreprocessorSeverity
   | ({
       severity?: ProblemSeverity;
     } & Record<string, any>);

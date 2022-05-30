@@ -3,7 +3,7 @@
 import './assert-node-version';
 import * as yargs from 'yargs';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
+import { RedoclyClient, OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -152,6 +152,15 @@ yargs
           description: 'Ignore certain preprocessors.',
           array: true,
           type: 'string',
+        },
+        'lint-config': {
+          description: 'Apply severity for linting config file.',
+          choices: [
+            'warn',
+            'error',
+            'off',
+          ] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
         },
         config: {
           description: 'Specify path to the config file.',

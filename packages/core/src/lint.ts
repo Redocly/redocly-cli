@@ -94,9 +94,10 @@ export async function lintDocument(opts: {
 }
 
 export async function lintConfig(opts: {
-  document: Document,
+  document: Document
+  severity?: ProblemSeverity 
 }) {
-  const { document } = opts;
+  const { document, severity } = opts;
 
   const ctx: WalkContext = {
     problems: [],
@@ -110,7 +111,7 @@ export async function lintConfig(opts: {
   });
 
   const types = normalizeTypes(ConfigTypes, config);
-  const rules = [{ severity: 'error' as ProblemSeverity, ruleId: 'spec', visitor: OasSpec({ severity: 'error' }) }];
+  const rules = [{ severity: severity || 'error', ruleId: 'spec', visitor: OasSpec({ severity: 'error' }) }];
   const normalizedVisitors = normalizeVisitors(rules, types);
 
   walkDocument({

@@ -1,6 +1,10 @@
-import { isSubdir, pathToFilename } from '../utils';
+import { Totals } from '@redocly/openapi-core';
+import { isSubdir, pathToFilename, printConfigLintTotals} from '../utils';
+import { red, yellow } from 'colorette';
 
-jest.mock("os");
+
+jest.mock('os');
+jest.mock('colorette')
 
 describe('isSubdir', () => {
   it('can correctly determine if subdir', () => {
@@ -46,5 +50,51 @@ describe('pathToFilename', () => {
   it('should use correct path separator', () => {
     const processedPath = pathToFilename('/user/createWithList', '_');
     expect(processedPath).toEqual('user_createWithList');
+  });
+});
+
+
+describe('printConfigLintTotals', () => {
+  const totalProblemsMock: Totals = {
+    errors: 1,
+    warnings: 0,
+    ignored: 0,
+  };
+
+  const redColloreteMocks = red as jest.Mock<any, any>;
+  const yelowColloreteMocks = yellow as jest.Mock<any, any>;
+
+  beforeEach(() => {
+    yelowColloreteMocks.mockImplementation((text: string) => text);
+    redColloreteMocks.mockImplementation((text: string) => text);
+    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+  });
+
+  it('should print errors if such exist', () => {
+    printConfigLintTotals(totalProblemsMock);
+    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+    expect(redColloreteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+  });
+
+  it('should print warnign and error', () => {
+    printConfigLintTotals({ ...totalProblemsMock, warnings: 2 });
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '❌ Your config has 1 error and 2 warnings.\n',
+    );
+    expect(redColloreteMocks).toHaveBeenCalledWith('❌ Your config has 1 error and 2 warnings.\n');
+  });
+
+  it('should print warnign if no error', () => {
+    printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
+    expect(process.stderr.write).toHaveBeenCalledWith('You have 2 warnings.\n');
+    expect(yelowColloreteMocks).toHaveBeenCalledWith('You have 2 warnings.\n');
+  });
+
+  it('should print nothing if no error and no warnings', () => {
+    const result = printConfigLintTotals({ ...totalProblemsMock, errors: 0 });
+    expect(result).toBeUndefined();
+    expect(process.stderr.write).toHaveBeenCalledTimes(0);
+    expect(yelowColloreteMocks).toHaveBeenCalledTimes(0);
+    expect(redColloreteMocks).toHaveBeenCalledTimes(0);
   });
 });
