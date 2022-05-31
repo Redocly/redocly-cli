@@ -569,6 +569,7 @@ const ConfigReferenceDocs: NodeType = {
     showSecuritySchemeType: { type: 'boolean' },
     showWebhookVerb: { type: 'boolean' },
     showObjectSchemaExamples: { type: 'boolean' },
+    disableTryItRequestUrlEncoding: { type: 'boolean' },
     sidebarLinks: 'ConfigSidebarLinks',
     sideNavStyle: { type: 'string' },
     simpleOneOfTypeLabel: { type: 'boolean' },
