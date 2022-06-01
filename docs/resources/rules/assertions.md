@@ -336,7 +336,7 @@ lint:
   rules:
     assert/operation-no-both-description-and-external-docs:
       subject: Operation
-      message: "Operation must have either one of properties: description or externalDocs"
+      message: "Operation must have one of the properties: description or externalDocs"
       severity: error
       requireAny:
         - description
