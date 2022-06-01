@@ -110,7 +110,7 @@ lint:
       subject: Operation
       message: "Operation must have one of properties defined: description or externalDocs"
       severity: error
-      requireOne:
+      requireAny:
         - description
         - externalDocs
 #disallowed example
