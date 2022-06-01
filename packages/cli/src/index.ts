@@ -83,6 +83,10 @@ yargs
             requiresArg: true,
             type: 'string',
           },
+          'skip-tags-check': {
+            description: 'Skip check tags on duplication and  population of x-tagGroups',
+            type: 'boolean'
+          }
         }),
     (argv) => {
       handleJoin(argv, version);

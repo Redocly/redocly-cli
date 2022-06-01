@@ -1,7 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join two-files-with-no-errors 1`] = `
+exports[`E2E join with-options skip-tags-check: should pass 1`] = `
 
+Conflict on tags => description : Pet in files: foo.yaml,bar.yaml 
+
+Warning: potential 1 conflict(s) on tags description.
 openapi: 3.0.0
 info:
   version: 1.0.0
@@ -10,6 +13,14 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+tags:
+  - name: Pet
+    description: Pet Discription
+    x-displayName: Pet
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
 servers:
   - url: https://redocly.com/v1
 paths:
@@ -39,18 +50,6 @@ paths:
           description: example description
       tags:
         - bar_other
-tags:
-  - name: foo_other
-    x-displayName: other
-  - name: bar_other
-    x-displayName: other
-x-tagGroups:
-  - name: foo
-    tags:
-      - foo_other
-  - name: bar
-    tags:
-      - bar_other
 components: {}
 
 openapi.yaml: join processed in <test>ms

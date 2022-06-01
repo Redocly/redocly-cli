@@ -1,15 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join reference-in-description 1`] = `
+exports[`E2E join with-options prefix-tags-with-filename: should pass 1`] = `
 
 openapi: 3.0.0
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
-  description: Test description from md file
+  description: Information about API
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+tags:
+  - name: foo_Pet
+    description: Pet Discription
+    x-displayName: Pet
+  - name: foo_other
+    x-displayName: other
+  - name: bar_Pet
+    description: Pet Discription
+    x-displayName: Pet
+  - name: bar_other
+    x-displayName: other
+x-tagGroups:
+  - name: foo
+    tags:
+      - foo_Pet
+      - foo_other
+    description: Information about API
+  - name: bar
+    tags:
+      - bar_Pet
+      - bar_other
+    description: Information about API
 servers:
   - url: https://redocly.com/v1
 paths:
@@ -39,18 +61,6 @@ paths:
           description: example description
       tags:
         - bar_other
-tags:
-  - name: foo_other
-    x-displayName: other
-  - name: bar_other
-    x-displayName: other
-x-tagGroups:
-  - name: foo
-    tags:
-      - foo_other
-  - name: bar
-    tags:
-      - bar_other
 components: {}
 
 openapi.yaml: join processed in <test>ms

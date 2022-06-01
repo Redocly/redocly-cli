@@ -114,40 +114,56 @@ describe('E2E', () => {
   });
 
   describe('join', () => {
-    const folderPath = join(__dirname, 'join');
-    const contents = readdirSync(folderPath);
 
-    for (const file of contents) {
-      const testPath = join(folderPath, file);
+    const args = [
+      '--transpile-only',
+      '../../../../packages/cli/src/index.ts',
+      'join',
+      'foo.yaml',
+      'bar.yaml'
+    ];
 
-      if (statSync(testPath).isFile()) {
-        continue;
-      }
+    describe('no-options', () => {
+      const folderPath = join(__dirname, 'join/no-options');
+      const contents = readdirSync(folderPath);
 
-      const args = [
-        '--transpile-only',
-        '../../../packages/cli/src/index.ts',
-        'join',
-        'foo.yaml',
-        'bar.yaml'
-      ];
+      for (const file of contents) {
+        const testPath = join(folderPath, file);
 
-      it(file, () => {
-        const r = spawnSync('ts-node', args, {
-          cwd: testPath,
-          env: {
-            ...process.env,
-            NODE_ENV: 'test',
-            NO_COLOR: 'TRUE',
-          },
+        if (statSync(testPath).isFile()) {
+          continue;
+        }
+
+        it(file, () => {
+          const r = spawnSync('ts-node', args, {
+            cwd: testPath,
+            env: {
+              ...process.env,
+              NODE_ENV: 'test',
+              NO_COLOR: 'TRUE',
+            },
+          });
+
+          const out = r.stdout.toString('utf-8');
+          const err = r.stderr.toString('utf-8');
+          const result = `${out}\n${err}`;
+          (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
         });
+       }
+    })
+   
 
-        const out = r.stdout.toString('utf-8');
-        const err = r.stderr.toString('utf-8');
-        const result = `${out}\n${err}`;
+    describe('with-options',() => {
+      it.each(['prefix-tags-with-info-prop','prefix-tags-with-filename','skip-tags-check'])('%s: should pass',(option) => {
+        const testPath = join(__dirname, `join/with-options/${option}`);
+        const optionType = option === 'prefix-tags-with-info-prop' ? [`--${option}=title`] : [`--${option}`]
+        const argsWithOptions = [...args, ...optionType];
+        console.log(argsWithOptions);
+        const result = getCommandOutput(argsWithOptions, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
-      });
-    }
+      })
+    })
+    
   });
 
   describe('bundle', () => {
