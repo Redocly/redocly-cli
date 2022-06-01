@@ -36,7 +36,7 @@ casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `
 mutuallyExclusive | [`string`] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [`string`] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
 required | [`string`] | Asserts all listed values are defined. See [required example](#required-example).
-requiredOne | [`string`] | Asserts that at least one of the listed properties (key names only) is defined. See [requiredOne example](#requiredOne-example).
+requireAny | [`string`] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireAny-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 undefined | `boolean` | Asserts a property is undefined. See [undefined example](#undefined-example).
@@ -326,7 +326,7 @@ lint:
         - '201'
 ```
 
-### `requiredOne` example
+### `requireAny` example
 
 The following example asserts that an operation must have either one `description` or `externalDocs` defined.
 This assertion evaluates only property keys for the node, but not property values.
@@ -338,7 +338,7 @@ lint:
       subject: Operation
       message: "Operation must have either one of properties: description or externalDocs"
       severity: error
-      requiredOne:
+      requireAny:
         - description
         - externalDocs
 ```
