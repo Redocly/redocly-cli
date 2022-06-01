@@ -328,7 +328,7 @@ lint:
 
 ### `requireAny` example
 
-The following example asserts that an operation must have either one `description` or `externalDocs` defined.
+The following example asserts that an operation must have either `description` or `externalDocs` defined.
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Response example
