@@ -120,42 +120,40 @@ describe('E2E', () => {
       '../../../packages/cli/src/index.ts',
       'join',
       'foo.yaml',
-      'bar.yaml'
+      'bar.yaml',
     ];
 
-    describe('join without options', () => {
+    describe('without options', () => {
       const testDirNames = [
         'fails-if-no-info-section',
         'fails-if-tags-duplication',
         'reference-in-description',
         'two-files-with-no-errors',
-        'fails-if-component-conflicts'
+        'fails-if-component-conflicts',
       ];
 
-      it.each(testDirNames)('test: %s', (dir) => {
+      test.each(testDirNames)('test: %s', (dir) => {
         const testPath = join(__dirname, `join/${dir}`);
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
-      });    
-    })
-   
-    describe('join with options', () => {
-      const options = [
-        'prefix-tags-with-info-prop',
-        'prefix-tags-with-filename',
-        'skip-tags-check',
-        'prefix-components-with-info-prop'
+      });
+    });
+
+    describe('with options', () => {
+      const options: { name: string; value: string | boolean }[] = [
+        { name: 'prefix-tags-with-info-prop', value: 'title' },
+        { name: 'prefix-tags-with-filename', value: true },
+        { name: 'skip-tags-check', value: true },
+        { name: 'prefix-components-with-info-prop', value: 'title' },
       ];
 
-      it.each(options)('test with option: %s', (option) => {
-        const testPath = join(__dirname, `join/${option}`);
-        const isPropOption = option === 'prefix-components-with-info-prop' || option === 'prefix-tags-with-info-prop';
-        const optionType = isPropOption ? [`--${option}=title`] : [`--${option}`]
-        const argsWithOptions = [...args, ...optionType];
+      test.each(options)('test with option: %s', (option) => {
+        const testPath = join(__dirname, `join/${option.name}`);
+        const argsWithOptions = [...args, ...[`--${option.name}=${option.value}`]];
         const result = getCommandOutput(argsWithOptions, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
-      })
-    })
+      });
+    });
   });
 
   describe('bundle', () => {

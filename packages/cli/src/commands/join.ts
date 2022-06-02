@@ -51,7 +51,6 @@ type JoinArgv = {
   'skip-tags-check'?: boolean;
 };
 
-type TagsOptions = Omit<JoinArgv, 'lint' | 'entrypoints' | 'prefix-components-with-info-prop'>;
 
 export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   const startedAt = performance.now();
@@ -66,23 +65,23 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     'skip-tags-check': skipTagsCheck,
   } = argv;
 
-  const isTagsOptionsLimit = handleTagsOptionsLimit({
-    prefixTagsWithInfoProp,
-    prefixTagsWithFilename,
-    skipTagsCheck,
-  } as TagsOptions);
+  const usedTagsOptions = [
+    prefixTagsWithFilename && 'prefix-tags-with-filename',
+    prefixTagsWithInfoProp && 'prefix-tags-with-info-prop',
+    skipTagsCheck && 'skip-tags-check',
+  ].filter(Boolean);
 
-  if (isTagsOptionsLimit) {
+  if (usedTagsOptions.length > 1) {
     return exitWithError(
-      `You use ${yellow('prefix-tags-with-filename')},${yellow('prefix-tags-with-info-prop')} or ${yellow('skip-tags-check')} together.\nPlease choose only one! \n\n`,
+      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one! \n\n`,
     );
   }
  
   const config: Config = await loadConfig();
-  const fetchedEntrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
-    fetchedEntrypoints.map(
+    entrypoints.map(
       ({ path }) => externalRefResolver.resolveDocument(null, path, true) as Promise<Document>
     )
   );
@@ -158,16 +157,16 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
-  iteratePotentialConflicts(potentialConflicts);
+  iteratePotentialConflicts(potentialConflicts, skipTagsCheck);
   const specFilename = 'openapi.yaml';
   const noRefs = true;
 
-  if (!potentialConflictsTotal) {
-    writeYaml(joinedDef, specFilename, noRefs);
-    return printExecutionTime('join', startedAt, specFilename);
-  }
+  if (potentialConflictsTotal) {
+    return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
+  } 
 
-  exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
+  writeYaml(joinedDef, specFilename, noRefs);
+  printExecutionTime('join', startedAt, specFilename);
 
   function populateTags({
     entrypoint,
@@ -199,16 +198,17 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         if (skipTagsCheck) {
           potentialConflicts.tags.description[entrypointTagName] = [entrypoint];
         }
-      } else if (skipTagsCheck) {
-        if (tag.hasOwnProperty('description')) {
-          const isTagDescriptionNotEqual = joinedDef.tags.find(
-            (item: any) => item.description !== tag.description,
-          );
-          potentialConflicts.tags.description[entrypointTagName] = [
-            ...(potentialConflicts.tags.description[entrypointTagName] || []),
-            ...(isTagDescriptionNotEqual ? [entrypoint] : []),
-          ];
-        }
+      }
+      // If tag already exist do not overwvite tag proprs,
+      // instead check if description are different for potential conflicts warning
+      else if (skipTagsCheck && tag.hasOwnProperty('description')) {
+        const isTagDescriptionNotEqual = joinedDef.tags.find(
+          (item: any) => item.description !== tag.description,
+        );
+        potentialConflicts.tags.description[entrypointTagName] = [
+          ...(potentialConflicts.tags.description[entrypointTagName] || []),
+          ...(isTagDescriptionNotEqual ? [entrypoint] : []),
+        ];
       }
 
       if (!skipTagsCheck) createXTagGroups(entrypointFilename);
@@ -434,7 +434,7 @@ function validateComponentsDifference(files: any) {
   return isDiffer;
 }
 
-function iteratePotentialConflicts(potentialConflicts: any) {
+function iteratePotentialConflicts(potentialConflicts: any, skipTagsCheck?: boolean) {
   for (const group of Object.keys(potentialConflicts)) {
     for (const [key, value] of Object.entries(potentialConflicts[group])) {
       const conflicts = filterConflicts(value as object);
@@ -449,18 +449,18 @@ function iteratePotentialConflicts(potentialConflicts: any) {
           }
         } else {
           showConflicts(green(group) + ' => ' + key, conflicts);
-          if (key !== 'description') {
+          if (!skipTagsCheck) {
             potentialConflictsTotal += conflicts.length;
           }
         }
-        prefixTagSuggestion(group, conflicts.length, key);
+        prefixTagSuggestion(group, conflicts.length, skipTagsCheck);
       }
     }
   }
 }
 
-function prefixTagSuggestion(group: string, conflictsLength: number, key?: string) {
-  if (group === 'tags' && key === 'description') {
+function prefixTagSuggestion(group: string, conflictsLength: number, skipTagsCheck?: boolean) {
+  if (skipTagsCheck) {
     process.stderr.write(
       yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`),
     );
@@ -562,8 +562,4 @@ function replace$Refs(obj: any, componentsPrefix: string) {
       }
     }
   });
-}
-
-function handleTagsOptionsLimit(argv: TagsOptions) {
-  return Object.values(argv).filter(Boolean).length > 1;
 }

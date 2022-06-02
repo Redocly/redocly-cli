@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join join with options test with option: skip-tags-check 1`] = `
+exports[`E2E join with options test with option: { name: 'skip-tags-check', value: true } 1`] = `
 
 Conflict on tags => description : Pet in files: foo.yaml,bar.yaml 
 

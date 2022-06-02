@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join join without options test: reference-in-description 1`] = `
+exports[`E2E join without options test: reference-in-description 1`] = `
 
 openapi: 3.0.0
 info:

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join join with options test with option: prefix-tags-with-filename 1`] = `
+exports[`E2E join with options test with option: { name: 'prefix-tags-with-filename', value: true } 1`] = `
 
 openapi: 3.0.0
 info:
