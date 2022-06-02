@@ -1,7 +1,7 @@
 openapi: 3.0.0
-tags: 
+tags:
   - name: Bar
-    description: Bar Discription  
+    description: Bar Discription
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
@@ -20,11 +20,8 @@ paths:
         '201':
           description: example description
 
-components: 
-  schemas: 
+components:
+  schemas:
     some-property:
       description: bar description
-      type: string 
-
-
-    
+      type: string

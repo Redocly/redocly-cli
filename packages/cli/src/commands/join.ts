@@ -67,10 +67,10 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   } = argv;
 
   const isTagsOptionsLimit = handleTagsOptionsLimit({
-      prefixTagsWithInfoProp,
-      prefixTagsWithFilename,
-      skipTagsCheck,
-    } as TagsOptions)
+    prefixTagsWithInfoProp,
+    prefixTagsWithFilename,
+    skipTagsCheck,
+  } as TagsOptions);
 
   if (isTagsOptionsLimit) {
     return exitWithError(
@@ -175,11 +175,17 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     tags,
     potentialConflicts,
     tagsPrefix,
-    componentsPrefix
+    componentsPrefix,
   }: JoinDocumentContext) {
-    if (!joinedDef.hasOwnProperty(Tags)) { joinedDef[Tags] = [] };
-    if (!potentialConflicts.tags.hasOwnProperty('all')) { potentialConflicts.tags['all'] = {} };
-    if (skipTagsCheck && !potentialConflicts.tags.hasOwnProperty('description')) {potentialConflicts.tags['description'] = {} };
+    if (!joinedDef.hasOwnProperty(Tags)) {
+      joinedDef[Tags] = [];
+    }
+    if (!potentialConflicts.tags.hasOwnProperty('all')) {
+      potentialConflicts.tags['all'] = {};
+    }
+    if (skipTagsCheck && !potentialConflicts.tags.hasOwnProperty('description')) {
+      potentialConflicts.tags['description'] = {};
+    }
     for (const tag of tags) {
       const entrypointTagName = addPrefix(tag.name, tagsPrefix);
       if (tag.description) {
@@ -195,7 +201,9 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         }
       } else if (skipTagsCheck) {
         if (tag.hasOwnProperty('description')) {
-          const isTagDescriptionNotEqual = joinedDef.tags.find((item: any) => item.description !== tag.description);
+          const isTagDescriptionNotEqual = joinedDef.tags.find(
+            (item: any) => item.description !== tag.description,
+          );
           potentialConflicts.tags.description[entrypointTagName] = [
             ...(potentialConflicts.tags.description[entrypointTagName] || []),
             ...(isTagDescriptionNotEqual ? [entrypoint] : []),
@@ -204,13 +212,13 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
       }
 
       if (!skipTagsCheck) createXTagGroups(entrypointFilename);
-      
+
       if (!skipTagsCheck) populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
 
-      const doesEntrypointExist = !potentialConflicts.tags.all[entrypointTagName] || (
-        potentialConflicts.tags.all[entrypointTagName] &&
-        !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint)
-      )
+      const doesEntrypointExist =
+        !potentialConflicts.tags.all[entrypointTagName] ||
+        (potentialConflicts.tags.all[entrypointTagName] &&
+          !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint));
       potentialConflicts.tags.all[entrypointTagName] = [
         ...(potentialConflicts.tags.all[entrypointTagName] || []),
         ...(!skipTagsCheck && doesEntrypointExist ? [entrypoint] : []),
@@ -454,16 +462,19 @@ function iteratePotentialConflicts(potentialConflicts: any) {
 function prefixTagSuggestion(group: string, conflictsLength: number, key?: string) {
   if (group === 'tags' && key === 'description') {
     process.stderr.write(
-      yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`)
+      yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`),
     );
     return;
   }
 
   if (group === 'tags') {
-    process.stderr.write(green(`
+    process.stderr.write(
+      green(`
     ${conflictsLength} conflict(s) on tags.
-    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue('prefix-tags-with-info-prop')} to prevent naming conflicts. \n\n`
-    ));
+    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
+        'prefix-tags-with-info-prop',
+      )} to prevent naming conflicts. \n\n`),
+    );
   }
 }
 
@@ -554,5 +565,5 @@ function replace$Refs(obj: any, componentsPrefix: string) {
 }
 
 function handleTagsOptionsLimit(argv: TagsOptions) {
-  return Object.values(argv).filter(Boolean).length > 1
+  return Object.values(argv).filter(Boolean).length > 1;
 }
