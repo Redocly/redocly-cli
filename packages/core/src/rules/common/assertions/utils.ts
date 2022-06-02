@@ -157,7 +157,7 @@ function runAssertion(
   location: any,
   report: (problem: Problem) => void,
 ) {
-  const lintResult = asserts[assert.name](values, assert.conditions, rawValues);
+  const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
   if (!lintResult.isValid) {
     report({
       message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,
