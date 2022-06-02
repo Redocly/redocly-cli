@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join no-options reference-in-description 1`] = `
+exports[`E2E join join without options test: two-files-with-no-errors 1`] = `
 
 openapi: 3.0.0
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
-  description: Test description from md file
+  description: Information about API
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT

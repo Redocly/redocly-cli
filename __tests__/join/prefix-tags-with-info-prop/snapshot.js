@@ -1,26 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join with-options skip-tags-check: should pass 1`] = `
+exports[`E2E join join with options test with option: prefix-tags-with-info-prop 1`] = `
 
-Conflict on tags => description : Pet in files: foo.yaml,bar.yaml 
-
-Warning: potential 1 conflict(s) on tags description.
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
+  title: Example OpenAPI 3 definition with foo title.
   description: Information about API
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 tags:
-  - name: Pet
+  - name: Example OpenAPI 3 definition with foo title._Pet
     description: Pet Discription
     x-displayName: Pet
-  - name: foo_other
+  - name: Example OpenAPI 3 definition with foo title._other
     x-displayName: other
-  - name: bar_other
+  - name: Example OpenAPI 3 definition._Pet
+    description: Pet Discription
+    x-displayName: Pet
+  - name: Example OpenAPI 3 definition._other
     x-displayName: other
+x-tagGroups:
+  - name: foo
+    tags:
+      - Example OpenAPI 3 definition with foo title._Pet
+      - Example OpenAPI 3 definition with foo title._other
+    description: Information about API
+  - name: bar
+    tags:
+      - Example OpenAPI 3 definition._Pet
+      - Example OpenAPI 3 definition._other
+    description: Information about API
 servers:
   - url: https://redocly.com/v1
 paths:
@@ -40,7 +51,7 @@ paths:
         '200':
           description: example description
       tags:
-        - foo_other
+        - Example OpenAPI 3 definition with foo title._other
   /pets/{petId}:
     post:
       summary: summary example
@@ -49,7 +60,7 @@ paths:
         '201':
           description: example description
       tags:
-        - bar_other
+        - Example OpenAPI 3 definition._other
 components: {}
 
 openapi.yaml: join processed in <test>ms

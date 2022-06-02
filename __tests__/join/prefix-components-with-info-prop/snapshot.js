@@ -1,35 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join with-options prefix-tags-with-filename: should pass 1`] = `
+exports[`E2E join join with options test with option: prefix-components-with-info-prop 1`] = `
 
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
+  title: Example OpenAPI 3 definition foo.
   description: Information about API
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 tags:
-  - name: foo_Pet
-    description: Pet Discription
-    x-displayName: Pet
+  - name: Foo
+    description: Foo Discription
+    x-displayName: Foo
   - name: foo_other
     x-displayName: other
-  - name: bar_Pet
-    description: Pet Discription
-    x-displayName: Pet
+  - name: Bar
+    description: Bar Discription
+    x-displayName: Bar
   - name: bar_other
     x-displayName: other
 x-tagGroups:
   - name: foo
     tags:
-      - foo_Pet
+      - Foo
       - foo_other
     description: Information about API
   - name: bar
     tags:
-      - bar_Pet
+      - Bar
       - bar_other
     description: Information about API
 servers:
@@ -61,7 +61,14 @@ paths:
           description: example description
       tags:
         - bar_other
-components: {}
+components:
+  schemas:
+    Example OpenAPI 3 definition foo._some-property:
+      description: foo description
+      type: string
+    Example OpenAPI 3 definition._some-property:
+      description: bar description
+      type: string
 
 openapi.yaml: join processed in <test>ms
 
