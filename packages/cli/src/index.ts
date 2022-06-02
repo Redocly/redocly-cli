@@ -84,7 +84,7 @@ yargs
             type: 'string',
           },
           'skip-tags-check': {
-            description: 'Skip check tags on duplication and  population of x-tagGroups',
+            description: 'Skip check tags on duplication and population of x-tagGroups',
             type: 'boolean'
           }
         }),

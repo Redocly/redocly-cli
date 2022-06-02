@@ -66,7 +66,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     'skip-tags-check': skipTagsCheck,
   } = argv;
 
-  const isTagsOptionsLimit = handleTagsOptionsNumber({
+  const isTagsOptionsLimit = handleTagsOptionsLimit({
       prefixTagsWithInfoProp,
       prefixTagsWithFilename,
       skipTagsCheck,
@@ -459,12 +459,12 @@ function prefixTagSuggestion(group: string, conflictsLength: number, key?: strin
     return;
   }
 
-  // if (group === 'tags') {
-  //   process.stderr.write(green(`
-  //   ${conflictsLength} conflict(s) on tags.
-  //   Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue('prefix-tags-with-info-prop')} to prevent naming conflicts. \n\n`
-  //   ));
-  // }
+  if (group === 'tags') {
+    process.stderr.write(green(`
+    ${conflictsLength} conflict(s) on tags.
+    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue('prefix-tags-with-info-prop')} to prevent naming conflicts. \n\n`
+    ));
+  }
 }
 
 function showConflicts(key: string, conflicts: any) {
@@ -553,6 +553,6 @@ function replace$Refs(obj: any, componentsPrefix: string) {
   });
 }
 
-function handleTagsOptionsNumber(argv: TagsOptions) {
+function handleTagsOptionsLimit(argv: TagsOptions) {
   return Object.values(argv).filter(Boolean).length > 1
 }
