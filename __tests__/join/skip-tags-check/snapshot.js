@@ -2,9 +2,6 @@
 
 exports[`E2E join with options test with option: { name: 'skip-tags-check', value: true } 1`] = `
 
-Conflict on tags => description : Pet in files: foo.yaml,bar.yaml 
-
-Warning: potential 1 conflict(s) on tags description.
 openapi: 3.0.0
 info:
   version: 1.0.0

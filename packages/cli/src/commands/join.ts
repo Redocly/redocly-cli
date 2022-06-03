@@ -190,7 +190,20 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
       if (tag.description) {
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
-      if (!joinedDef.tags.find((t: any) => t.name === entrypointTagName)) {
+
+      const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
+
+      if (tagDuplicate && skipTagsCheck) {
+        // If tag already exist and `skip-tags-check` option;
+        // check if description are different for potential conflicts warning;
+        const isTagDescriptionNotEqual =
+          tag.hasOwnProperty('description') && tagDuplicate.description !== tag.description;
+
+        potentialConflicts.tags.description[entrypointTagName].push(
+          ...(isTagDescriptionNotEqual ? [entrypoint] : []),
+        );
+      } else {
+        // Instead add tag to joinedDef;
         tag['x-displayName'] = tag['x-displayName'] || tag.name;
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
@@ -199,21 +212,11 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           potentialConflicts.tags.description[entrypointTagName] = [entrypoint];
         }
       }
-      // If tag already exist do not overwvite tag proprs,
-      // instead check if description are different for potential conflicts warning
-      else if (skipTagsCheck && tag.hasOwnProperty('description')) {
-        const isTagDescriptionNotEqual = joinedDef.tags.find(
-          (item: any) => item.description !== tag.description,
-        );
-        potentialConflicts.tags.description[entrypointTagName] = [
-          ...(potentialConflicts.tags.description[entrypointTagName] || []),
-          ...(isTagDescriptionNotEqual ? [entrypoint] : []),
-        ];
+
+      if (!skipTagsCheck) {
+        createXTagGroups(entrypointFilename);
+        populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
       }
-
-      if (!skipTagsCheck) createXTagGroups(entrypointFilename);
-
-      if (!skipTagsCheck) populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
 
       const doesEntrypointExist =
         !potentialConflicts.tags.all[entrypointTagName] ||
@@ -247,7 +250,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   }
 
   function populateXTagGroups(entrypointTagName: string, indexGroup: number) {
-    if (!joinedDef[xTagGroups][indexGroup][Tags].find((t: any) => t === entrypointTagName)) {
+    if (!joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag) => t.name === entrypointTagName)) {
       joinedDef[xTagGroups][indexGroup][Tags].push(entrypointTagName);
     }
   }
@@ -453,30 +456,30 @@ function iteratePotentialConflicts(potentialConflicts: any, skipTagsCheck?: bool
             potentialConflictsTotal += conflicts.length;
           }
         }
-        prefixTagSuggestion(group, conflicts.length, skipTagsCheck);
+        if (group === 'tags') {
+          prefixTagSuggestion(conflicts.length, skipTagsCheck);
+        }
       }
     }
   }
 }
 
-function prefixTagSuggestion(group: string, conflictsLength: number, skipTagsCheck?: boolean) {
-  if (skipTagsCheck) {
-    process.stderr.write(
-      yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`),
-    );
-    return;
-  }
-
-  if (group === 'tags') {
+function prefixTagSuggestion(conflictsLength: number, skipTagsCheck?: boolean) {
+  if (!skipTagsCheck) {
     process.stderr.write(
       green(`
-    ${conflictsLength} conflict(s) on tags.
-    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
+      ${conflictsLength} conflict(s) on tags.
+      Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
         'prefix-tags-with-info-prop',
       )} to prevent naming conflicts. \n\n`),
     );
+    return;
   }
+  process.stderr.write(
+    yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`),
+  );
 }
+
 
 function showConflicts(key: string, conflicts: any) {
   for (const [path, files] of conflicts) {
