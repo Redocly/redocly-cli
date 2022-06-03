@@ -33,8 +33,8 @@ function getPageHTML(
   <script src="/hot.js"></script>
   <script src="${
     useRedocPro
-      ? 'https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/redocly-reference-docs.min.js'
-      : 'https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js'
+      ? 'https://cdn.redoc.ly/reference-docs/latest/redocly-reference-docs.min.js'
+      : 'https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js'
   }"></script>
 `,
     redocHTML: `
@@ -43,7 +43,7 @@ function getPageHTML(
     var container = document.getElementById('redoc');
     ${
       useRedocPro
-        ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.jsdelivr.net/npm/@redocly/reference-docs@latest/dist/');"
+        ? "window[window.__REDOC_EXPORT].setPublicPath('https://cdn.redoc.ly/reference-docs/latest/');"
         : ''
     }
     window[window.__REDOC_EXPORT].init("/openapi.json", ${JSON.stringify(redocOptions)}, container)
