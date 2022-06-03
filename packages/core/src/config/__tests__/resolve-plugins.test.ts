@@ -8,7 +8,7 @@ describe('resolving a plugin', () => {
     const config = await loadConfig(configPath);
     const plugin = config.lint.plugins[0];
 
-    expect(plugin.rules?.oas3).toHaveProperty('test-plugin/openid-connect-url-well-known !1!!!11');
+    expect(plugin.rules?.oas3).toHaveProperty('test-plugin/openid-connect-url-well-known');
   });
 
   // it('should prefix preprocessor names with the plugin id', async () => {
