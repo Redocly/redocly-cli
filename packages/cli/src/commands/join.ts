@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
+import { outdent } from 'outdent';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 import {
@@ -467,11 +468,14 @@ function iteratePotentialConflicts(potentialConflicts: any, skipTagsCheck?: bool
 function prefixTagSuggestion(conflictsLength: number, skipTagsCheck?: boolean) {
   if (!skipTagsCheck) {
     process.stderr.write(
-      green(`
-      ${conflictsLength} conflict(s) on tags.
-      Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
-        'prefix-tags-with-info-prop',
-      )} to prevent naming conflicts. \n\n`),
+      green(
+        outdent`\n
+        ${conflictsLength} conflict(s) on tags.
+        Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
+          'prefix-tags-with-info-prop',
+        )} to prevent naming conflicts.\n\n
+      `,
+      ),
     );
     return;
   }
