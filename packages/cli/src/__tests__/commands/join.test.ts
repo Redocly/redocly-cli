@@ -19,14 +19,14 @@ describe('handleJoin fails', () => {
       {
         entrypoints: ['first.yaml', 'second.yaml'],
         'prefix-tags-with-info-prop': 'something',
-        'skip-tags-check': true,
+        'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
       'cli-version',
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, skip-tags-check together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`,
     );
   });
 
@@ -34,14 +34,14 @@ describe('handleJoin fails', () => {
     await handleJoin(
       {
         entrypoints: ['first.yaml', 'second.yaml'],
-        'skip-tags-check': true,
+        'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
       'cli-version',
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, skip-tags-check together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`,
     );
   });
 });

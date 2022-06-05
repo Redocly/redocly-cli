@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E join with options test with option: { name: 'skip-tags-check', value: true } 1`] = `
+exports[`E2E join with options test with option: { name: 'without-x-tag-groups', value: true } 1`] = `
 
 openapi: 3.0.0
 info:

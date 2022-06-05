@@ -83,8 +83,8 @@ yargs
             requiresArg: true,
             type: 'string',
           },
-          'skip-tags-check': {
-            description: 'Skip check tags on duplication and population of x-tagGroups',
+          'without-x-tag-groups': {
+            description: 'Join definitions without the creation of x-tagGroups property',
             type: 'boolean'
           }
         }),

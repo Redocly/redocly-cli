@@ -143,7 +143,7 @@ describe('E2E', () => {
       const options: { name: string; value: string | boolean }[] = [
         { name: 'prefix-tags-with-info-prop', value: 'title' },
         { name: 'prefix-tags-with-filename', value: true },
-        { name: 'skip-tags-check', value: true },
+        { name: 'without-x-tag-groups', value: true },
         { name: 'prefix-components-with-info-prop', value: 'title' },
       ];
 

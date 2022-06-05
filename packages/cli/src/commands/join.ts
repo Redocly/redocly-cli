@@ -49,7 +49,7 @@ type JoinArgv = {
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
-  'skip-tags-check'?: boolean;
+  'without-x-tag-groups'?: boolean;
 };
 
 
@@ -63,13 +63,13 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     'prefix-components-with-info-prop': prefixComponentsWithInfoProp,
     'prefix-tags-with-filename': prefixTagsWithFilename,
     'prefix-tags-with-info-prop': prefixTagsWithInfoProp,
-    'skip-tags-check': skipTagsCheck,
+    'without-x-tag-groups': withoutXTagGroups,
   } = argv;
 
   const usedTagsOptions = [
     prefixTagsWithFilename && 'prefix-tags-with-filename',
     prefixTagsWithInfoProp && 'prefix-tags-with-info-prop',
-    skipTagsCheck && 'skip-tags-check',
+    withoutXTagGroups && 'without-x-tag-groups',
   ].filter(Boolean);
 
   if (usedTagsOptions.length > 1) {
@@ -158,7 +158,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
-  iteratePotentialConflicts(potentialConflicts, skipTagsCheck);
+  iteratePotentialConflicts(potentialConflicts, withoutXTagGroups);
   const specFilename = 'openapi.yaml';
   const noRefs = true;
 
@@ -183,7 +183,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     if (!potentialConflicts.tags.hasOwnProperty('all')) {
       potentialConflicts.tags['all'] = {};
     }
-    if (skipTagsCheck && !potentialConflicts.tags.hasOwnProperty('description')) {
+    if (withoutXTagGroups && !potentialConflicts.tags.hasOwnProperty('description')) {
       potentialConflicts.tags['description'] = {};
     }
     for (const tag of tags) {
@@ -194,8 +194,8 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
       const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
 
-      if (tagDuplicate && skipTagsCheck) {
-        // If tag already exist and `skip-tags-check` option;
+      if (tagDuplicate && withoutXTagGroups) {
+        // If tag already exist and `without-x-tag-groups` option;
         // check if description are different for potential conflicts warning;
         const isTagDescriptionNotEqual =
           tag.hasOwnProperty('description') && tagDuplicate.description !== tag.description;
@@ -209,12 +209,12 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
 
-        if (skipTagsCheck) {
+        if (withoutXTagGroups) {
           potentialConflicts.tags.description[entrypointTagName] = [entrypoint];
         }
       }
 
-      if (!skipTagsCheck) {
+      if (!withoutXTagGroups) {
         createXTagGroups(entrypointFilename);
         populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
       }
@@ -225,7 +225,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint));
       potentialConflicts.tags.all[entrypointTagName] = [
         ...(potentialConflicts.tags.all[entrypointTagName] || []),
-        ...(!skipTagsCheck && doesEntrypointExist ? [entrypoint] : []),
+        ...(!withoutXTagGroups && doesEntrypointExist ? [entrypoint] : []),
       ];
     }
   }
@@ -438,7 +438,7 @@ function validateComponentsDifference(files: any) {
   return isDiffer;
 }
 
-function iteratePotentialConflicts(potentialConflicts: any, skipTagsCheck?: boolean) {
+function iteratePotentialConflicts(potentialConflicts: any, noXTagGroups?: boolean) {
   for (const group of Object.keys(potentialConflicts)) {
     for (const [key, value] of Object.entries(potentialConflicts[group])) {
       const conflicts = filterConflicts(value as object);
@@ -453,20 +453,20 @@ function iteratePotentialConflicts(potentialConflicts: any, skipTagsCheck?: bool
           }
         } else {
           showConflicts(green(group) + ' => ' + key, conflicts);
-          if (!skipTagsCheck) {
+          if (!noXTagGroups) {
             potentialConflictsTotal += conflicts.length;
           }
         }
         if (group === 'tags') {
-          prefixTagSuggestion(conflicts.length, skipTagsCheck);
+          prefixTagSuggestion(conflicts.length, noXTagGroups);
         }
       }
     }
   }
 }
 
-function prefixTagSuggestion(conflictsLength: number, skipTagsCheck?: boolean) {
-  if (!skipTagsCheck) {
+function prefixTagSuggestion(conflictsLength: number, noXTagGroups?: boolean) {
+  if (!noXTagGroups) {
     process.stderr.write(
       green(
         outdent`\n
