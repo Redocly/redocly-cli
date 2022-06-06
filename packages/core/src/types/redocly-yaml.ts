@@ -5,9 +5,21 @@ const ConfigRoot: NodeType = {
   properties: {
     organization: { type: 'string' },
     apis: 'ConfigApis',
+    apiDefinitions: {
+      type: 'object',
+      properties: {},
+      additionalProperties: { properties: { type: 'string' } }
+    }, // deprecated
     lint: 'RootConfigLint',
     'features.openapi': 'ConfigReferenceDocs',
+    referenceDocs: 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer',
+    region: { enum: ['us', 'eu'] },
+    resolve: {
+      properties: {
+        http: 'ConfigHTTP',
+      },
+    },
   },
 };
 
@@ -19,9 +31,17 @@ const ConfigApis: NodeType = {
 const ConfigApisProperties: NodeType = {
   properties: {
     root: { type: 'string' },
+    labels: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
     lint: 'ConfigLint',
     'features.openapi': 'ConfigReferenceDocs',
+    'features.mockServer': 'ConfigMockServer',
   },
+  required: ['root'],
 };
 
 const ConfigHTTP: NodeType = {
@@ -56,11 +76,6 @@ const ConfigLint: NodeType = {
     oas2Decorators: { type: 'object' },
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
-    resolve: {
-      properties: {
-        http: 'ConfigHTTP',
-      },
-    },
   },
 };
 
@@ -77,8 +92,11 @@ const RootConfigLint: NodeType = {
 const ConfigLanguage: NodeType = {
   properties: {
     label: { type: 'string' },
-    lang: { type: 'string' },
+    lang: {
+      enum: ['curl', 'C#', 'Go', 'Java', 'Java8+Apache', 'JavaScript', 'Node.js', 'PHP', 'Python', 'R', 'Ruby'],
+    },
   },
+  required: ['lang'],
 };
 
 const ConfigLabels: NodeType = {
@@ -102,11 +120,18 @@ const ConfigLabels: NodeType = {
 
 const ConfigSidebarLinks: NodeType = {
   properties: {
-    placement: { type: 'string' },
+    beforeInfo: listOf('CommonConfigSidebarLinks'),
+    end: listOf('CommonConfigSidebarLinks'),
+  },
+};
+
+const CommonConfigSidebarLinks: NodeType = {
+  properties: {
     label: { type: 'string' },
     link: { type: 'string' },
     target: { type: 'string' },
   },
+  required: ['label', 'link'],
 };
 
 const CommonThemeColors: NodeType = {
@@ -147,7 +172,7 @@ const HttpColors: NodeType = {
 
 const ResponseColors: NodeType = {
   properties: {
-    errors: 'CommonColorProps',
+    error: 'CommonColorProps',
     info: 'CommonColorProps',
     redirect: 'CommonColorProps',
     success: 'CommonColorProps',
@@ -242,12 +267,15 @@ const HttpBadgesConfig: NodeType = {
 const LabelControls: NodeType = {
   properties: {
     top: { type: 'string' },
+    width: { type: 'string' },
+    height: { type: 'string' },
   },
 };
 
 const Panels: NodeType = {
   properties: {
     borderRadius: { type: 'string' },
+    backgroundColor: { type: 'string' },
   },
 };
 
@@ -285,6 +313,7 @@ const StackedConfig: NodeType = {
 const ThreePanelConfig: NodeType = {
   properties: {
     maxWidth: 'Breakpoints',
+    middlePanelMaxWidth: 'Breakpoints',
   },
 };
 
@@ -378,7 +407,7 @@ const CodeConfig: NodeType = {
     ...FontConfig.properties,
     backgroundColor: { type: 'string' },
     color: { type: 'string' },
-    wordBreak: { type: 'string' },
+    wordBreak: { enum: ['break-all', 'break-word', 'keep-all', 'normal', 'revert', 'unset', 'inherit', 'initial'] },
     wrap: { type: 'boolean' },
   },
 };
@@ -413,7 +442,7 @@ const Typography: NodeType = {
     links: 'LinksConfig',
     optimizeSpeed: { type: 'boolean' },
     rightPanelHeading: 'Heading',
-    smoothing: { type: 'string' },
+    smoothing: { enum: ['auto', 'none', 'antialiased', 'subpixel-antialiased', 'grayscale'] },
   },
 };
 
@@ -437,6 +466,13 @@ const Logo: NodeType = {
     gutter: { type: 'string' },
     maxHeight: { type: 'string' },
     maxWidth: { type: 'string' },
+  },
+};
+
+const Fab: NodeType = {
+  properties: {
+    backgroundColor: { type: 'string' },
+    color: { type: 'string' },
   },
 };
 
@@ -484,6 +520,7 @@ const ConfigTheme: NodeType = {
     components: 'Components',
     layout: 'Layout',
     logo: 'Logo',
+    fab: 'Fab',
     overrides: 'Overrides',
     rightPanel: 'RightPanel',
     schema: 'Schema',
@@ -491,8 +528,8 @@ const ConfigTheme: NodeType = {
     sidebar: 'Sidebar',
     spacing: 'ThemeSpacing',
     typography: 'Typography',
-    links: { properties: { color: { type: 'string' } } },
-    codeSample: { properties: { backgroundColor: { type: 'string' } } },
+    links: { properties: { color: { type: 'string' } } }, // deprecated
+    codeSample: { properties: { backgroundColor: { type: 'string' } } }, // deprecated
   },
 };
 
@@ -501,6 +538,7 @@ const GenerateCodeSamples: NodeType = {
     skipOptionalParameters: { type: 'boolean' },
     languages: listOf('ConfigLanguage'),
   },
+  required: ['languages'],
 };
 
 const ConfigReferenceDocs: NodeType = {
@@ -527,43 +565,72 @@ const ConfigReferenceDocs: NodeType = {
     hideLoading: { type: 'boolean' },
     hideLogo: { type: 'boolean' },
     hideRequestPayloadSample: { type: 'boolean' },
+    hideRightPanel: { type: 'boolean' },
     hideSchemaPattern: { type: 'boolean' },
     hideSchemaTitles: { type: 'boolean' },
     hideSingleRequestSampleTab: { type: 'boolean' },
+    hideSecuritySection: { type: 'boolean' },
     hideTryItPanel: { type: 'boolean' },
     hideFab: { type: 'boolean' },
     hideOneOfDescription: { type: 'boolean'},
     htmlTemplate: { type: 'string' },
-    jsonSampleExpandLevel: { type: 'string' },
+    jsonSampleExpandLevel: (value: unknown) => {
+      if (typeof value === 'number') {
+        return { type: 'number', minimum: 1 };
+      } else {
+        return { type: 'string' };
+      }
+    },
     labels: 'ConfigLabels',
-    layout: { type: 'string' },
+    layout: { enum: ['stacked', 'three-panel'] },
     maxDisplayedEnumValues: { type: 'number' },
     menuToggle: { type: 'boolean' },
     nativeScrollbars: { type: 'boolean' },
-    noAutoAuth: { type: 'boolean' },
+    noAutoAuth: { type: 'boolean' }, // deprecated
     oAuth2RedirectURI: { type: 'string' },
     onDeepLinkClick: { type: 'object' },
     onlyRequiredInSamples: { type: 'boolean' },
-    pagination: { type: 'string' },
+    pagination: { enum: ['none', 'section', 'item'] },
     pathInMiddlePanel: { type: 'boolean' },
-    payloadSampleIdx: { type: 'number' },
+    payloadSampleIdx: { type: 'number', minimum: 0 },
     requestInterceptor: { type: 'object' },
     requiredPropsFirst: { type: 'boolean' },
     routingBasePath: { type: 'string' },
+    routingStrategy: { type: 'string' }, // deprecated
     samplesTabsMaxCount: { type: 'number' },
-    schemaExpansionLevel: { type: 'string' },
+    schemaExpansionLevel: (value: unknown) => {
+      if (typeof value === 'number') {
+        return { type: 'number', minimum: 0 };
+      } else {
+        return { type: 'string' };
+      } 
+    },
     schemaDefinitionsTagName: { type: 'string' },
-    minCharacterLengthToInitSearch: { type: 'number' },
-    maxResponseHeadersToShowInTryIt: {type: 'number'},
-    scrollYOffset: { type: 'string' },
+    minCharacterLengthToInitSearch: { type: 'number', minimum: 1 },
+    maxResponseHeadersToShowInTryIt: {type: 'number', minimum: 0 },
+    scrollYOffset: (value: unknown) => {
+      if (typeof value === 'number') {
+        return { type: 'number' };
+      } else {
+        return { type: 'string' };
+      } 
+    },
     searchAutoExpand: { type: 'boolean' },
-    searchFieldLevelBoost: { type: 'number' },
-    searchMode: { type: 'string' },
+    searchFieldLevelBoost: { type: 'number', minimum: 0 },
+    searchMaxDepth: { type: 'number', minimum: 1 },
+    searchMode: { enum: ['default', 'path-only'] },
     searchOperationTitleBoost: { type: 'number' },
     searchTagTitleBoost: { type: 'number' },
+    sendXUserAgentInTryIt: { type: 'boolean' },
     showChangeLayoutButton: { type: 'boolean' },
-    showConsole: { type: 'boolean' },
-    showExtensions: { type: 'boolean' },
+    showConsole: { type: 'boolean' }, // deprecated
+    showExtensions: (value: unknown) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return { type: 'string' };
+      } 
+    },
     showNextButton: { type: 'boolean' },
     showRightPanelToggle: { type: 'boolean' },
     showSecuritySchemeType: { type: 'boolean' },
@@ -571,14 +638,30 @@ const ConfigReferenceDocs: NodeType = {
     showObjectSchemaExamples: { type: 'boolean' },
     disableTryItRequestUrlEncoding: { type: 'boolean' },
     sidebarLinks: 'ConfigSidebarLinks',
-    sideNavStyle: { type: 'string' },
+    sideNavStyle: { enum: ['summary-only', 'path-first', 'id-only'] },
     simpleOneOfTypeLabel: { type: 'boolean' },
-    sortEnumValuesAlphabetically: { type: 'boolean' },
-    sortOperationsAlphabetically: { type: 'boolean' },
+    sortEnumValuesAlphabetically: (value: unknown) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return { type: 'string' };
+      } 
+    },
+    sortOperationsAlphabetically: (value: unknown) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return { type: 'string' };
+      } 
+    },
     sortPropsAlphabetically: { type: 'boolean' },
     sortTagsAlphabetically: { type: 'boolean' },
+    suppressWarnings: { type: 'boolean' }, // deprecated
+    unstable_externalDescription: { type: 'boolean' }, // deprecated
     unstable_ignoreMimeParameters: { type: 'boolean' },
     untrustedDefinition: { type: 'boolean' },
+    hooks: 'ConfigHooks',
+    events: 'ConfigEvents',
   },
   additionalProperties: { type: 'string' },
 };
@@ -590,11 +673,34 @@ const ConfigMockServer: NodeType = {
   },
 };
 
+const ConfigHooks: NodeType = {
+  properties: {
+    BeforeOperation: { type: 'object' },
+    BeforeOperationSummary: { type: 'object' },
+    AfterOperationSummary: { type: 'object' },
+    ReplaceTryItSecurityPanel: { type: 'object' },
+    onInit: { type: 'object' },
+    replaceSecurityLink: { type: 'object' },
+    sanitize: { type: 'object' },
+  },
+};
+
+const ConfigEvents: NodeType = {
+  properties: {
+    codeSamplesLanguageSwitch: { type: 'object' },
+    tryItOpen: { type: 'object' },
+    tryItSent: { type: 'object' },
+    panelToggle: { type: 'object' },
+  },
+};
+
 export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
   ConfigApis,
   ConfigApisProperties,
   RootConfigLint,
+  ConfigHooks,
+  ConfigEvents,
   ConfigLint,
   ConfigReferenceDocs,
   ConfigMockServer,
@@ -602,6 +708,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigLanguage,
   ConfigLabels,
   ConfigSidebarLinks,
+  CommonConfigSidebarLinks,
   ConfigTheme,
   ThemeColors,
   CommonThemeColors,
@@ -633,6 +740,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   TokenProps,
   CodeBlock,
   Logo,
+  Fab,
   ButtonOverrides,
   Overrides,
   RightPanel,
