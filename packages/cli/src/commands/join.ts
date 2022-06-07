@@ -485,9 +485,9 @@ function prefixTagSuggestion(conflictsLength: number) {
     green(
       outdent`\n
       ${conflictsLength} conflict(s) on tags.
-      Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
+      Suggestion: please use ${blue('prefix-tags-with-filename')}, ${blue(
         'prefix-tags-with-info-prop',
-      )} to prevent naming conflicts.\n\n
+      )} or ${blue('without-x-tag-groups')} to prevent naming conflicts.\n\n
     `,
     ),
   );
