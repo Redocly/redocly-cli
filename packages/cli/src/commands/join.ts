@@ -438,7 +438,7 @@ function validateComponentsDifference(files: any) {
   return isDiffer;
 }
 
-function iteratePotentialConflicts(potentialConflicts: any, noXTagGroups?: boolean) {
+function iteratePotentialConflicts(potentialConflicts: any, withoutXTagGroups?: boolean) {
   for (const group of Object.keys(potentialConflicts)) {
     for (const [key, value] of Object.entries(potentialConflicts[group])) {
       const conflicts = filterConflicts(value as object);
@@ -452,38 +452,46 @@ function iteratePotentialConflicts(potentialConflicts: any, noXTagGroups?: boole
             }
           }
         } else {
-          showConflicts(green(group) + ' => ' + key, conflicts);
-          if (!noXTagGroups) {
+          if (withoutXTagGroups && group === 'tags') {
+            duplicateTagDescriptionWarning(conflicts);
+          } else {
             potentialConflictsTotal += conflicts.length;
+            showConflicts(green(group) + ' => ' + key, conflicts);
           }
         }
-        if (group === 'tags') {
-          prefixTagSuggestion(conflicts.length, noXTagGroups);
+
+        if (group === 'tags' && !withoutXTagGroups) {
+          prefixTagSuggestion(conflicts.length);
         }
       }
     }
   }
 }
 
-function prefixTagSuggestion(conflictsLength: number, noXTagGroups?: boolean) {
-  if (!noXTagGroups) {
-    process.stderr.write(
-      green(
-        outdent`\n
-        ${conflictsLength} conflict(s) on tags.
-        Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
-          'prefix-tags-with-info-prop',
-        )} to prevent naming conflicts.\n\n
-      `,
-      ),
-    );
-    return;
-  }
+function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
+  const tagsKeys = conflicts.map(([tagName]) => `\`${tagName}\``);
+  const joinString = yellow(', ');
   process.stderr.write(
-    yellow(`\nWarning: potential ${conflictsLength} conflict(s) on tags description.\n`),
+    yellow(
+      `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
+        tagsKeys.join(joinString),
+      )} tags description.\n`,
+    ),
   );
 }
 
+function prefixTagSuggestion(conflictsLength: number) {
+  process.stderr.write(
+    green(
+      outdent`\n
+      ${conflictsLength} conflict(s) on tags.
+      Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue(
+        'prefix-tags-with-info-prop',
+      )} to prevent naming conflicts.\n\n
+    `,
+    ),
+  );
+}
 
 function showConflicts(key: string, conflicts: any) {
   for (const [path, files] of conflicts) {

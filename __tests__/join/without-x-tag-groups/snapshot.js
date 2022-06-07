@@ -2,6 +2,8 @@
 
 exports[`E2E join with options test with option: { name: 'without-x-tag-groups', value: true } 1`] = `
 
+
+warning: 1 conflict(s) on the \`Pet\` tags description.
 openapi: 3.0.0
 info:
   version: 1.0.0
