@@ -1,4 +1,7 @@
 openapi: 3.0.0
+tags: 
+  - name: Pet
+    description: Another description
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.

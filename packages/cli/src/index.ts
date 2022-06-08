@@ -83,6 +83,10 @@ yargs
             requiresArg: true,
             type: 'string',
           },
+          'without-x-tag-groups': {
+            description: 'Skip automated x-tagGroups creation',
+            type: 'boolean'
+          }
         }),
     (argv) => {
       handleJoin(argv, version);

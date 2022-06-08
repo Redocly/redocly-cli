@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { red, blue, yellow, green } from 'colorette';
+import { outdent } from 'outdent';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
 import {
@@ -29,29 +30,54 @@ import {
 import { isObject, isString } from '../js-utils';
 
 const COMPONENTS = 'components';
+const Tags = 'tags';
+const xTagGroups = 'x-tagGroups';
 let potentialConflictsTotal = 0;
 
 type JoinDocumentContext = {
-  entrypoint: string,
-  entrypointFilename: string,
-  tags: Oas3Tag[],
-  potentialConflicts: any,
-  tagsPrefix: string,
-  componentsPrefix: string | undefined
-}
+  entrypoint: string;
+  entrypointFilename: string;
+  tags: Oas3Tag[];
+  potentialConflicts: any;
+  tagsPrefix: string;
+  componentsPrefix: string | undefined;
+};
 
-export async function handleJoin (argv: {
-  entrypoints: string[],
-  lint?: boolean,
-  'prefix-tags-with-info-prop'?: string,
-  'prefix-tags-with-filename'?: boolean,
-  'prefix-components-with-info-prop'?: string
-},
-packageVersion: string
-) {
+type JoinArgv = {
+  entrypoints: string[];
+  lint?: boolean;
+  'prefix-tags-with-info-prop'?: string;
+  'prefix-tags-with-filename'?: boolean;
+  'prefix-components-with-info-prop'?: string;
+  'without-x-tag-groups'?: boolean;
+};
+
+
+export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   const startedAt = performance.now();
-  if (argv.entrypoints.length < 2) { return exitWithError(`At least 2 entrypoints should be provided. \n\n`); }
+  if (argv.entrypoints.length < 2) {
+    return exitWithError(`At least 2 entrypoints should be provided. \n\n`);
+  }
 
+  const {
+    'prefix-components-with-info-prop': prefixComponentsWithInfoProp,
+    'prefix-tags-with-filename': prefixTagsWithFilename,
+    'prefix-tags-with-info-prop': prefixTagsWithInfoProp,
+    'without-x-tag-groups': withoutXTagGroups,
+  } = argv;
+
+  const usedTagsOptions = [
+    prefixTagsWithFilename && 'prefix-tags-with-filename',
+    prefixTagsWithInfoProp && 'prefix-tags-with-info-prop',
+    withoutXTagGroups && 'without-x-tag-groups',
+  ].filter(Boolean);
+
+  if (usedTagsOptions.length > 1) {
+    return exitWithError(
+      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one! \n\n`,
+    );
+  }
+ 
   const config: Config = await loadConfig();
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const externalRefResolver = new BaseResolver(config.resolve);
@@ -71,7 +97,7 @@ packageVersion: string
     }))
   );
 
-  for (const { problems, bundle: document } of (bundleResults as any)) {
+  for (const { problems, bundle: document } of bundleResults as any) {
     const fileTotals = getTotals(problems);
     if (fileTotals.errors) {
       formatProblems(problems, {
@@ -104,17 +130,8 @@ packageVersion: string
     tags: {},
     paths: {},
     components: {},
-    xWebhooks: {}
+    xWebhooks: {},
   };
-
-  const prefixComponentsWithInfoProp = argv['prefix-components-with-info-prop'];
-  const prefixTagsWithFilename = argv['prefix-tags-with-filename'];
-  const prefixTagsWithInfoProp = argv['prefix-tags-with-info-prop'];
-  if (prefixTagsWithFilename && prefixTagsWithInfoProp) {
-    return exitWithError(
-      `You used ${yellow('prefix-tags-with-filename')} and ${yellow('prefix-tags-with-info-prop')} that do not go together.\nPlease choose only one! \n\n`
-    );
-  }
 
   addInfoSectionAndSpecVersion(documents, prefixComponentsWithInfoProp);
 
@@ -141,10 +158,15 @@ packageVersion: string
     if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
   }
 
-  iteratePotentialConflicts(potentialConflicts);
+  iteratePotentialConflicts(potentialConflicts, withoutXTagGroups);
   const specFilename = 'openapi.yaml';
   const noRefs = true;
-  if (!potentialConflictsTotal) { writeYaml(joinedDef, specFilename, noRefs); }
+
+  if (potentialConflictsTotal) {
+    return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
+  } 
+
+  writeYaml(joinedDef, specFilename, noRefs);
   printExecutionTime('join', startedAt, specFilename);
 
   function populateTags({
@@ -153,39 +175,84 @@ packageVersion: string
     tags,
     potentialConflicts,
     tagsPrefix,
-    componentsPrefix
+    componentsPrefix,
   }: JoinDocumentContext) {
-    const xTagGroups = 'x-tagGroups';
-    const Tags = 'tags';
-    if (!joinedDef.hasOwnProperty(Tags)) { joinedDef[Tags] = []; }
-    if (!joinedDef.hasOwnProperty(xTagGroups)) { joinedDef[xTagGroups] = []; }
-    if (!potentialConflicts.tags.hasOwnProperty('all')) { potentialConflicts.tags['all'] = {}; }
-    if (!joinedDef[xTagGroups].some((g: any) => g.name === entrypointFilename)) {
-      joinedDef[xTagGroups].push({ name: entrypointFilename, tags: [] });
+    if (!joinedDef.hasOwnProperty(Tags)) {
+      joinedDef[Tags] = [];
     }
-    const indexGroup = joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename);
-    if (!joinedDef[xTagGroups][indexGroup].hasOwnProperty(Tags)) { joinedDef[xTagGroups][indexGroup][Tags] = []; }
+    if (!potentialConflicts.tags.hasOwnProperty('all')) {
+      potentialConflicts.tags['all'] = {};
+    }
+    if (withoutXTagGroups && !potentialConflicts.tags.hasOwnProperty('description')) {
+      potentialConflicts.tags['description'] = {};
+    }
     for (const tag of tags) {
       const entrypointTagName = addPrefix(tag.name, tagsPrefix);
       if (tag.description) {
         tag.description = addComponentsPrefix(tag.description, componentsPrefix!);
       }
-      if (!joinedDef.tags.find((t: any) => t.name === entrypointTagName)) {
+
+      const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
+
+      if (tagDuplicate && withoutXTagGroups) {
+        // If tag already exist and `without-x-tag-groups` option;
+        // check if description are different for potential conflicts warning;
+        const isTagDescriptionNotEqual =
+          tag.hasOwnProperty('description') && tagDuplicate.description !== tag.description;
+
+        potentialConflicts.tags.description[entrypointTagName].push(
+          ...(isTagDescriptionNotEqual ? [entrypoint] : []),
+        );
+      } else {
+        // Instead add tag to joinedDef;
         tag['x-displayName'] = tag['x-displayName'] || tag.name;
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
-      }
-      if (!joinedDef[xTagGroups][indexGroup][Tags].find((t: any) => t === entrypointTagName)) {
-        joinedDef[xTagGroups][indexGroup][Tags].push(entrypointTagName);
+
+        if (withoutXTagGroups) {
+          potentialConflicts.tags.description[entrypointTagName] = [entrypoint];
+        }
       }
 
-      const doesEntrypointExist = !potentialConflicts.tags.all[entrypointTagName] || (
-        potentialConflicts.tags.all[entrypointTagName] &&
-        !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint)
-      )
+      if (!withoutXTagGroups) {
+        createXTagGroups(entrypointFilename);
+        populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
+      }
+
+      const doesEntrypointExist =
+        !potentialConflicts.tags.all[entrypointTagName] ||
+        (potentialConflicts.tags.all[entrypointTagName] &&
+          !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint));
       potentialConflicts.tags.all[entrypointTagName] = [
-        ...(potentialConflicts.tags.all[entrypointTagName] || []), ...(doesEntrypointExist ? [entrypoint] : [])
+        ...(potentialConflicts.tags.all[entrypointTagName] || []),
+        ...(!withoutXTagGroups && doesEntrypointExist ? [entrypoint] : []),
       ];
+    }
+  }
+
+  function getIndexGroup(entrypointFilename: string): number {
+    return joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename);
+  }
+
+  function createXTagGroups(entrypointFilename: string) {
+    if (!joinedDef.hasOwnProperty(xTagGroups)) {
+      joinedDef[xTagGroups] = [];
+    }
+
+    if (!joinedDef[xTagGroups].some((g: any) => g.name === entrypointFilename)) {
+      joinedDef[xTagGroups].push({ name: entrypointFilename, tags: [] });
+    }
+
+    const indexGroup = getIndexGroup(entrypointFilename);
+
+    if (!joinedDef[xTagGroups][indexGroup].hasOwnProperty(Tags)) {
+      joinedDef[xTagGroups][indexGroup][Tags] = [];
+    }
+  }
+
+  function populateXTagGroups(entrypointTagName: string, indexGroup: number) {
+    if (!joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag) => t.name === entrypointTagName)) {
+      joinedDef[xTagGroups][indexGroup][Tags].push(entrypointTagName);
     }
   }
 
@@ -210,15 +277,17 @@ packageVersion: string
   ) {
     const { info } = openapi;
     if (info?.description) {
-      const xTagGroups = 'x-tagGroups';
-      const groupIndex = joinedDef[xTagGroups] ? joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename) : -1;
+      const groupIndex = joinedDef[xTagGroups] ? getIndexGroup(entrypointFilename) : -1;
       if (
         joinedDef.hasOwnProperty(xTagGroups) &&
         groupIndex !== -1 &&
         joinedDef[xTagGroups][groupIndex]['tags'] &&
         joinedDef[xTagGroups][groupIndex]['tags'].length
       ) {
-        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(info.description, componentsPrefix!);
+        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(
+          info.description,
+          componentsPrefix!,
+        );
       }
     }
   }
@@ -369,7 +438,7 @@ function validateComponentsDifference(files: any) {
   return isDiffer;
 }
 
-function iteratePotentialConflicts(potentialConflicts: any) {
+function iteratePotentialConflicts(potentialConflicts: any, withoutXTagGroups?: boolean) {
   for (const group of Object.keys(potentialConflicts)) {
     for (const [key, value] of Object.entries(potentialConflicts[group])) {
       const conflicts = filterConflicts(value as object);
@@ -383,22 +452,45 @@ function iteratePotentialConflicts(potentialConflicts: any) {
             }
           }
         } else {
-          showConflicts(green(group) +' => '+ key, conflicts);
-          potentialConflictsTotal += conflicts.length;
+          if (withoutXTagGroups && group === 'tags') {
+            duplicateTagDescriptionWarning(conflicts);
+          } else {
+            potentialConflictsTotal += conflicts.length;
+            showConflicts(green(group) + ' => ' + key, conflicts);
+          }
         }
-        prefixTagSuggestion(group, conflicts.length);
+
+        if (group === 'tags' && !withoutXTagGroups) {
+          prefixTagSuggestion(conflicts.length);
+        }
       }
     }
   }
 }
 
-function prefixTagSuggestion(group: string, conflictsLength: number) {
-  if (group === 'tags') {
-    process.stderr.write(green(`
-    ${conflictsLength} conflict(s) on tags.
-    Suggestion: please use ${blue('prefix-tags-with-filename')} or ${blue('prefix-tags-with-info-prop')} to prevent naming conflicts. \n\n`
-    ));
-  }
+function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
+  const tagsKeys = conflicts.map(([tagName]) => `\`${tagName}\``);
+  const joinString = yellow(', ');
+  process.stderr.write(
+    yellow(
+      `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
+        tagsKeys.join(joinString),
+      )} tags description.\n`,
+    ),
+  );
+}
+
+function prefixTagSuggestion(conflictsLength: number) {
+  process.stderr.write(
+    green(
+      outdent`\n
+      ${conflictsLength} conflict(s) on tags.
+      Suggestion: please use ${blue('prefix-tags-with-filename')}, ${blue(
+        'prefix-tags-with-info-prop',
+      )} or ${blue('without-x-tag-groups')} to prevent naming conflicts.\n\n
+    `,
+    ),
+  );
 }
 
 function showConflicts(key: string, conflicts: any) {
@@ -484,5 +576,5 @@ function replace$Refs(obj: any, componentsPrefix: string) {
         }
       }
     }
-  })
+  });
 }
