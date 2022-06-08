@@ -63,6 +63,7 @@ paths:
     get:
       operationId: example
       summary: My resource
+      description: description
       responses:
         '201':
           description: Test description

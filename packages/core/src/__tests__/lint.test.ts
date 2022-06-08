@@ -192,4 +192,41 @@ describe('lint', () => {
       `Invalid OpenAPI version: should be a string but got "number"`,
     );
   });
+
+  it("spec rule shouldn't throw an error for named callback", async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        title: Callback test
+        version: 'alpha'
+      components:
+        callbacks:
+          resultCallback:
+            '{$url}':
+              post:
+                requestBody:
+                  description: Callback payload
+                  content:
+                    'application/json':
+                      schema:
+                        type: object
+                        properties:
+                          test:
+                            type: string
+                responses:
+                  '200':
+                    description: callback successfully processed
+    `,
+      'foobar.yaml',
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

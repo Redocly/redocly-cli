@@ -105,6 +105,14 @@ lint:
       mutuallyRequired:
         - '200'
         - '201'
+#requireAny example
+    assert/operation-require-any-description-or-external:
+      subject: Operation
+      message: "Operation must have one of properties defined: description or externalDocs"
+      severity: error
+      requireAny:
+        - description
+        - externalDocs
 #disallowed example
     assert/operation-disallowed:
       subject: Operation

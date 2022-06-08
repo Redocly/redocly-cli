@@ -142,9 +142,7 @@ const Schema: NodeType = {
     summary: { type: 'string' },
     properties: 'SchemaProperties',
     items: (value: any) => {
-      if (Array.isArray(value)) {
-        return listOf('Schema');
-      } else if (typeof value === 'boolean') {
+      if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
         return 'Schema';

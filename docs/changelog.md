@@ -4,6 +4,13 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.100 (2022-05-27)
+
+### Fixes
+
+- Fixed types for `Callback` and `NamedCallbacks`.
+- Fixed an issue with the `scalar-property-missing-example` built-in rule that didn't work on examples containing falsy values.
+  
 ## 1.0.0-beta.99 (2022-05-25)
 
 ### Features

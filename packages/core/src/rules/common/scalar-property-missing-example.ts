@@ -19,7 +19,10 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
           continue;
         }
 
-        if (!propSchema.example && !(propSchema as Oas3_1Schema).examples) {
+        if (
+          propSchema.example === undefined &&
+          (propSchema as Oas3_1Schema).examples === undefined
+        ) {
           report({
             message: `Scalar property should have "example"${
               oasVersion === OasVersion.Version3_1 ? ' or "examples"' : ''

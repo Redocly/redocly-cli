@@ -1,9 +1,11 @@
 openapi: 3.0.0
+tags:
+  - name: Foo
+    description: Foo Discription
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
-  description:
-    $ref: description.md
+  title: Example OpenAPI 3 definition foo.
+  description: Information about API
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -25,3 +27,9 @@ paths:
       responses:
         '200':
           description: example description
+
+components:
+  schemas:
+    some-property:
+      description: foo description
+      type: boolean

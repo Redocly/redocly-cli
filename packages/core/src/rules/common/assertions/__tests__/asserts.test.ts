@@ -227,5 +227,16 @@ describe('oas3 assertions', () => {
         expect(asserts.mutuallyRequired(Object.keys(fakeNode), ['foo', 'bar', 'test'])).toBeFalsy();
       });
     });
+
+    describe('requireAny', () => {
+      it('node must have at least one property from predefined list', () => {
+        expect(asserts.requireAny(Object.keys(fakeNode), ['foo', 'test'])).toBeTruthy();
+        expect(asserts.requireAny(Object.keys(fakeNode), ['test', 'bar'])).toBeTruthy();
+        expect(asserts.requireAny(Object.keys(fakeNode), [])).toBeFalsy();
+        expect(asserts.requireAny(Object.keys(fakeNode), ['test', 'test1'])).toBeFalsy();
+        expect(asserts.requireAny(Object.keys(fakeNode), ['foo', 'bar'])).toBeTruthy();
+        expect(asserts.requireAny(Object.keys(fakeNode), ['foo', 'bar', 'test'])).toBeTruthy();
+      });
+    });
   });
 });

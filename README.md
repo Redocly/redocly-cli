@@ -2,7 +2,7 @@
 
 Redocly CLI (fka OpenAPI CLI) toolbox with rich validation and bundling features.
 
-![Travis (.org)](https://img.shields.io/travis/Redocly/redocly-cli/master)
+![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
 ![NPM](https://img.shields.io/npm/l/@redocly/cli)
 
@@ -63,8 +63,8 @@ docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
 To build and run with a local image, run the following from the project root:
 
 ```
-docker build -t openapi-cli .
-docker run --rm -v $PWD:/spec openapi-cli lint path-to-root-file.yaml
+docker build -t redocly-cli .
+docker run --rm -v $PWD:/spec redocly-cli lint path-to-root-file.yaml
 ```
 
 ## [Read the docs](https://redocly.com/docs/cli/)

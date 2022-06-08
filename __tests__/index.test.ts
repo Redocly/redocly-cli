@@ -113,41 +113,47 @@ describe('E2E', () => {
     });
   });
 
+
   describe('join', () => {
-    const folderPath = join(__dirname, 'join');
-    const contents = readdirSync(folderPath);
+    const args = [
+      '--transpile-only',
+      '../../../packages/cli/src/index.ts',
+      'join',
+      'foo.yaml',
+      'bar.yaml',
+    ];
 
-    for (const file of contents) {
-      const testPath = join(folderPath, file);
-
-      if (statSync(testPath).isFile()) {
-        continue;
-      }
-
-      const args = [
-        '--transpile-only',
-        '../../../packages/cli/src/index.ts',
-        'join',
-        'foo.yaml',
-        'bar.yaml'
+    describe('without options', () => {
+      const testDirNames = [
+        'fails-if-no-info-section',
+        'fails-if-tags-duplication',
+        'reference-in-description',
+        'two-files-with-no-errors',
+        'fails-if-component-conflicts',
       ];
 
-      it(file, () => {
-        const r = spawnSync('ts-node', args, {
-          cwd: testPath,
-          env: {
-            ...process.env,
-            NODE_ENV: 'test',
-            NO_COLOR: 'TRUE',
-          },
-        });
-
-        const out = r.stdout.toString('utf-8');
-        const err = r.stderr.toString('utf-8');
-        const result = `${out}\n${err}`;
+      test.each(testDirNames)('test: %s', (dir) => {
+        const testPath = join(__dirname, `join/${dir}`);
+        const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
-    }
+    });
+
+    describe('with options', () => {
+      const options: { name: string; value: string | boolean }[] = [
+        { name: 'prefix-tags-with-info-prop', value: 'title' },
+        { name: 'prefix-tags-with-filename', value: true },
+        { name: 'without-x-tag-groups', value: true },
+        { name: 'prefix-components-with-info-prop', value: 'title' },
+      ];
+
+      test.each(options)('test with option: %s', (option) => {
+        const testPath = join(__dirname, `join/${option.name}`);
+        const argsWithOptions = [...args, ...[`--${option.name}=${option.value}`]];
+        const result = getCommandOutput(argsWithOptions, testPath);
+        (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+      });
+    });
   });
 
   describe('bundle', () => {

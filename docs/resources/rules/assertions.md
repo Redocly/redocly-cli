@@ -36,6 +36,7 @@ casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `
 mutuallyExclusive | [`string`] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [`string`] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
 required | [`string`] | Asserts all listed values are defined. See [required example](#required-example).
+requireAny | [`string`] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 undefined | `boolean` | Asserts a property is undefined. See [undefined example](#undefined-example).
@@ -325,6 +326,23 @@ lint:
         - '201'
 ```
 
+### `requireAny` example
+
+The following example asserts that an operation must have either `description` or `externalDocs` defined.
+This assertion evaluates only property keys for the node, but not property values.
+
+```yaml Response example
+lint:
+  rules:
+    assert/operation-no-both-description-and-external-docs:
+      subject: Operation
+      message: "Operation must have one of the properties: description or externalDocs"
+      severity: error
+      requireAny:
+        - description
+        - externalDocs
+```
+
 ### `disallowed` example
 
 The following example asserts that `x-code-samples` and `x-internal` are not defined.
@@ -470,7 +488,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - NamedHeaders: mapOf('Header')
 - NamedSecuritySchemes: mapOf('SecurityScheme')
 - NamedLinks: mapOf('Link')
-- NamedCallbacks: mapOf('PathItem')
+- NamedCallbacks: mapOf('Callback')
 - ImplicitFlow
 - PasswordFlow
 - ClientCredentials

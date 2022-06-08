@@ -134,4 +134,7 @@ export const asserts: Asserts = {
       ? getIntersectionLength(value, condition) === condition.length
       : true;
   },
+  requireAny: (value: string[], condition: string[]): boolean => {
+    return getIntersectionLength(value, condition) >= 1;
+  },
 };
