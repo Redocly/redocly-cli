@@ -1,5 +1,105 @@
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps } from '../utils';
+const customRulesRegexp = /^[a-zA-Z0-9]+\//;
+const builtInRulesList = [
+  'spec',
+  'info-description',
+  'info-contact',
+  'info-license',
+  'info-license-url',
+  'operation-2xx-response',
+  'operation-4xx-response',
+  'assertions',
+  'operation-operationId-unique',
+  'operation-parameters-unique',
+  'path-parameters-defined',
+  'operation-tag-defined',
+  'no-example-value-and-externalValue',
+  'no-enum-type-mismatch',
+  'no-path-trailing-slash',
+  'no-empty-servers',
+  'path-declaration-must-exist',
+  'operation-operationId-url-safe',
+  'operation-operationId',
+  'operation-summary',
+  'tags-alphabetical',
+  'no-server-example.com',
+  'no-server-trailing-slash',
+  'tag-description',
+  'operation-description',
+  'no-unused-components',
+  'path-not-include-query',
+  'path-params-defined',
+  'parameter-description',
+  'operation-singular-tag',
+  'operation-security-defined',
+  'no-unresolved-refs',
+  'paths-kebab-case',
+  'boolean-parameter-prefixes',
+  'path-http-verbs-order',
+  'no-invalid-media-type-examples',
+  'no-identical-paths',
+  'no-ambiguous-paths',
+  'no-undefined-server-variable',
+  'no-servers-empty-enum',
+  'no-http-verbs-in-paths',
+  'path-excludes-patterns',
+  'request-mime-type',
+  'response-mime-type',
+  'path-segment-plural',
+  'no-invalid-schema-examples',
+  'no-invalid-parameter-examples',
+  'response-contains-header',
+  'response-contains-property',
+];
+const nodeTypesList = [
+  'DefinitionRoot',
+  'Tag',
+  'ExternalDocs',
+  'Server',
+  'ServerVariable',
+  'SecurityRequirement',
+  'Info',
+  'Contact',
+  'License',
+  'PathMap',
+  'PathItem',
+  'Parameter',
+  'Operation',
+  'Callback',
+  'RequestBody',
+  'MediaTypeMap',
+  'MediaType',
+  'Example',
+  'Encoding',
+  'Header',
+  'ResponsesMap',
+  'Response',
+  'Link',
+  'Schema',
+  'Xml',
+  'SchemaProperties',
+  'DiscriminatorMapping',
+  'Discriminator',
+  'Components',
+  'NamedSchemas',
+  'NamedResponses',
+  'NamedParameters',
+  'NamedExamples',
+  'NamedRequestBodies',
+  'NamedHeaders',
+  'NamedSecuritySchemes',
+  'NamedLinks',
+  'NamedCallbacks',
+  'ImplicitFlow',
+  'PasswordFlow',
+  'ClientCredentials',
+  'AuthorizationCode',
+  'SecuritySchemeFlows',
+  'SecurityScheme',
+  'XCodeSample',
+  'WebhooksMap',
+];
 
 const ConfigRoot: NodeType = {
   properties: {
@@ -64,10 +164,10 @@ const ConfigLint: NodeType = {
       },
     },
     doNotResolveExamples: { type: 'boolean' },
-    rules: { type: 'object' },
-    oas2Rules: { type: 'object' },
-    oas3_0Rules: { type: 'object' },
-    oas3_1Rules: { type: 'object' },
+    rules: 'Rules',
+    oas2Rules: 'Rules',
+    oas3_0Rules: 'Rules',
+    oas3_1Rules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
@@ -87,6 +187,79 @@ const RootConfigLint: NodeType = {
     },
     ...ConfigLint.properties,
   },
+};
+
+const Rules: NodeType = {
+  properties: {},
+  additionalProperties: (value: unknown, key: string) => {
+    if (key.startsWith('assert/')) {
+      return 'Assert';
+    } else if (customRulesRegexp.test(key) || builtInRulesList.indexOf(key) !== -1) {
+      if (typeof value === 'string') {
+        return { enum: ['error', 'warn', 'off'] };
+      } else {
+        return 'ObjectRule';
+      }
+    }
+    // Otherwise is considered as invalid
+    return;
+  }
+};
+
+const ObjectRule: NodeType = {
+  properties: {
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
+  additionalProperties: {},
+  required: ['severity'],
+};
+
+const Assert: NodeType = {
+  properties: {
+    subject: (value: unknown) => {
+      if (Array.isArray(value)) {
+        return { type: 'array', items: { enum: nodeTypesList } };
+      } else {
+        return { enum: nodeTypesList };
+      }
+    },
+    property: (value: unknown) => {
+      if (Array.isArray(value)) {
+        return { type: 'array', items: { type: 'string' } };
+      } else if (value === null) {
+        return null;
+      } else {
+        return { type: 'string' };
+      }
+    },
+    context: 'Context',
+    message: { type: 'string' },
+    suggest: { type: 'array', items: { type: 'string' } },
+    severity: { enum: ['error', 'warn', 'off'] },
+    enum: { type: 'array', items: { type: 'string' } },
+    pattern: { type: 'string' },
+    casing: { enum: ['camelCase', 'kebab-case', 'snake_case', 'PascalCase', 'MACRO_CASE', 'COBOL-CASE', 'flatcase'] },
+    mutuallyExclusive: { type: 'array', items: { type: 'string' } },
+    mutuallyRequired: { type: 'array', items: { type: 'string' } },
+    required: { type: 'array', items: { type: 'string' } },
+    requireAny: { type: 'array', items: { type: 'string' } },
+    disallowed: { type: 'array', items: { type: 'string' } },
+    defined: { type: 'boolean' },
+    undefined: { type: 'boolean' },
+    nonEmpty: { type: 'boolean' },
+    minLength: { type: 'integer' },
+    maxLength: { type: 'integer' },
+  },
+  required: ['subject'],
+};
+
+const Context: NodeType = {
+  properties: {
+    type: { enum: nodeTypesList },
+    matchParentKeys: { type: 'array', items: { type: 'string' } },
+    excludeParentKeys: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['type'],
 };
 
 const ConfigLanguage: NodeType = {
@@ -665,6 +838,7 @@ const ConfigMockServer: NodeType = {
 };
 
 export const ConfigTypes: Record<string, NodeType> = {
+  Assert,
   ConfigRoot,
   ConfigApis,
   ConfigApisProperties,
@@ -678,6 +852,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
+  Context,
   ThemeColors,
   CommonThemeColors,
   BorderThemeColors,
@@ -711,7 +886,9 @@ export const ConfigTypes: Record<string, NodeType> = {
   Fab,
   ButtonOverrides,
   Overrides,
+  ObjectRule,
   RightPanel,
+  Rules,
   Shape,
   ThemeSpacing,
   GenerateCodeSamples,
