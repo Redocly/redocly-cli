@@ -84,7 +84,7 @@ yargs
             type: 'string',
           },
           'without-x-tag-groups': {
-            description: 'Join definitions without the creation of x-tagGroups property',
+            description: 'Skip automated x-tagGroups creation',
             type: 'boolean'
           }
         }),
