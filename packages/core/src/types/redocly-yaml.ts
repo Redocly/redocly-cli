@@ -628,8 +628,13 @@ const ConfigReferenceDocs: NodeType = {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
-        return { type: 'string' };
-      } 
+        return { 
+          type: 'array',
+          items: {
+            type: 'string',
+          }, 
+        };
+      }
     },
     showNextButton: { type: 'boolean' },
     showRightPanelToggle: { type: 'boolean' },
@@ -640,28 +645,14 @@ const ConfigReferenceDocs: NodeType = {
     sidebarLinks: 'ConfigSidebarLinks',
     sideNavStyle: { enum: ['summary-only', 'path-first', 'id-only'] },
     simpleOneOfTypeLabel: { type: 'boolean' },
-    sortEnumValuesAlphabetically: (value: unknown) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return { type: 'string' };
-      } 
-    },
-    sortOperationsAlphabetically: (value: unknown) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return { type: 'string' };
-      } 
-    },
+    sortEnumValuesAlphabetically: { type: 'boolean' },
+    sortOperationsAlphabetically: { type: 'boolean' },
     sortPropsAlphabetically: { type: 'boolean' },
     sortTagsAlphabetically: { type: 'boolean' },
     suppressWarnings: { type: 'boolean' }, // deprecated
     unstable_externalDescription: { type: 'boolean' }, // deprecated
     unstable_ignoreMimeParameters: { type: 'boolean' },
     untrustedDefinition: { type: 'boolean' },
-    hooks: 'ConfigHooks',
-    events: 'ConfigEvents',
   },
   additionalProperties: { type: 'string' },
 };
@@ -673,34 +664,11 @@ const ConfigMockServer: NodeType = {
   },
 };
 
-const ConfigHooks: NodeType = {
-  properties: {
-    BeforeOperation: { type: 'object' },
-    BeforeOperationSummary: { type: 'object' },
-    AfterOperationSummary: { type: 'object' },
-    ReplaceTryItSecurityPanel: { type: 'object' },
-    onInit: { type: 'object' },
-    replaceSecurityLink: { type: 'object' },
-    sanitize: { type: 'object' },
-  },
-};
-
-const ConfigEvents: NodeType = {
-  properties: {
-    codeSamplesLanguageSwitch: { type: 'object' },
-    tryItOpen: { type: 'object' },
-    tryItSent: { type: 'object' },
-    panelToggle: { type: 'object' },
-  },
-};
-
 export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
   ConfigApis,
   ConfigApisProperties,
   RootConfigLint,
-  ConfigHooks,
-  ConfigEvents,
   ConfigLint,
   ConfigReferenceDocs,
   ConfigMockServer,
