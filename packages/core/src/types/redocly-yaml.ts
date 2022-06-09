@@ -193,7 +193,7 @@ const Rules: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('assert/')) {
       return 'Assert';
-    } else if (isCustomRuleId(key) || builtInRulesList.indexOf(key) !== -1) {
+    } else if (isCustomRuleId(key) || builtInRulesList.includes(key)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
