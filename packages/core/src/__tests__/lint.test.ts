@@ -97,7 +97,7 @@ describe('lint', () => {
               "source": "",
             },
           ],
-          "message": "Expected type \`string\` but got \`object\`.",
+          "message": "\`layout\` can be one of the following only: \\"stacked\\", \\"three-panel\\".",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
@@ -123,6 +123,19 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/apis/lint",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`root\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
         Object {
           "location": Array [
             Object {
