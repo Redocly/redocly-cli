@@ -159,11 +159,7 @@ export function isPathParameter(pathSegment: string) {
  * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
  */
 export function slash(path: string): string {
-<<<<<<< HEAD
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path);
-=======
   const isExtendedLengthPath = /^\\\\\?\\/.test(path)
->>>>>>> 0ffc4be (feat: check errors in the configuration file)
   if (isExtendedLengthPath) {
     return path;
   }
