@@ -4,6 +4,11 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.102 (2022-06-09)
+
+### Fixes
+
+- Hotfix for version `1.0.0-beta.101`;
 ## 1.0.0-beta.101 (2022-06-09)
 
 ### Features 
