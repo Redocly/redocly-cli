@@ -6,6 +6,11 @@ tocMaxDepth: 2
 
 ## 1.0.0-beta.102 (2022-06-09)
 
+### Fixes
+
+- Hotfix for version `1.0.0-beta.101`.
+## 1.0.0-beta.101 (2022-06-09)
+
 ### Features 
 
 - The `join` command supports a new option `--without-x-tag-groups`. Use it to skip the creation and population of `x-tagGroups`.
@@ -15,10 +20,6 @@ tocMaxDepth: 2
 ### Fixes
 
 - Fixed issue with `additionalItems` array type.
-
-## 1.0.0-beta.101 (2022-06-09)
-
-Broken release.
 
 ## 1.0.0-beta.100 (2022-05-27)
 
