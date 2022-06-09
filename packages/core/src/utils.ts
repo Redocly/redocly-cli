@@ -5,7 +5,7 @@ import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import type { HttpResolveConfig } from './config';
-import { env } from "./config";
+import { env } from './config';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -155,14 +155,13 @@ export function isPathParameter(pathSegment: string) {
   return pathSegment.startsWith('{') && pathSegment.endsWith('}');
 }
 
-
 /**
  * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
  */
- export function slash(path: string): string {
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+export function slash(path: string): string {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path);
   if (isExtendedLengthPath) {
-    return path
+    return path;
   }
 
   return path.replace(/\\/g, '/');
@@ -191,3 +190,7 @@ export function assignExisting<T>(target: Record<string, T>, obj: Record<string,
 
 export const getMatchingStatusCodeRange = (code: number | string): string =>
   `${code}`.replace(/^(\d)\d\d$/, (_, firstDigit) => `${firstDigit}XX`);
+
+export function isCustomRuleId(id: string) {
+  return id.includes('/');
+}

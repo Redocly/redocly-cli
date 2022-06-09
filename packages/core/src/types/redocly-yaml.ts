@@ -1,6 +1,5 @@
 import { NodeType, listOf } from '.';
-import { omitObjectProps, pickObjectProps } from '../utils';
-const customRulesRegexp = /^[a-zA-Z0-9]+\//;
+import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 const builtInRulesList = [
   'spec',
   'info-description',
@@ -194,7 +193,7 @@ const Rules: NodeType = {
   additionalProperties: (value: unknown, key: string) => {
     if (key.startsWith('assert/')) {
       return 'Assert';
-    } else if (customRulesRegexp.test(key) || builtInRulesList.indexOf(key) !== -1) {
+    } else if (isCustomRuleId(key) || builtInRulesList.indexOf(key) !== -1) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {
@@ -203,7 +202,7 @@ const Rules: NodeType = {
     }
     // Otherwise is considered as invalid
     return;
-  }
+  },
 };
 
 const ObjectRule: NodeType = {
