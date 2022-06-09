@@ -8,12 +8,12 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Hotfix for version `1.0.0-beta.101`;
+- Hotfix for version `1.0.0-beta.101`.
 ## 1.0.0-beta.101 (2022-06-09)
 
 ### Features 
 
-- The `join` command supports a new option `--without-x-tag-groups`. Use it to skip the creation and population of `x-tagGroups`
+- The `join` command supports a new option `--without-x-tag-groups`. Use it to skip the creation and population of `x-tagGroups`.
 - Added new property `requireAny` to assertation object.
 - Updated types. Added `showSecuritySchemeType` and `disableTryItRequestUrlEncoding` configuration options.
 
