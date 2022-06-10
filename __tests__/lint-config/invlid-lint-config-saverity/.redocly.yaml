@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/path-item-mutually-required:
+      context:
+      - type: PathItem
+      subject: Operation
+      message: Operation should have summary and security fields simultaneously
+  extends: []

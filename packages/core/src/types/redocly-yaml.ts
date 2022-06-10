@@ -231,7 +231,7 @@ const Assert: NodeType = {
         return { type: 'string' };
       }
     },
-    context: 'Context',
+    context: listOf('Context'),
     message: { type: 'string' },
     suggest: { type: 'array', items: { type: 'string' } },
     severity: { enum: ['error', 'warn', 'off'] },
