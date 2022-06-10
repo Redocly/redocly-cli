@@ -1,3 +1,3 @@
 export const performance = {
-    now: jest.fn(() => 42)
+    now: jest.fn()
 }

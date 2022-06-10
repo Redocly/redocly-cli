@@ -35,6 +35,7 @@ describe('handleLint', () => {
 
   beforeEach(() => {
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    (performance.now as jest.Mock<any,any>).mockImplementation(() => 42);
     processExitMock = jest.spyOn(process, 'exit').mockImplementation();
     jest.spyOn(process, 'once').mockImplementation((_e, cb) => {
       exitCb = cb;
