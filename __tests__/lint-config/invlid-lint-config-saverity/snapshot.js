@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint-config test with option: { dirName: 'invlid-lint-config-saverity', option: 'somethig' } 1`] = `
+exports[`E2E lint-config test with option: { dirName: 'invlid-lint-config-saverity', option: 'something' } 1`] = `
 
 index.ts lint [entrypoints...]
 
@@ -27,6 +27,6 @@ Options:
                           file settings).                                [array]
 
 Invalid values:
-  Argument: lint-config, Given: "somethig", Choices: "warn", "error", "off"
+  Argument: lint-config, Given: "something", Choices: "warn", "error", "off"
 
 `;

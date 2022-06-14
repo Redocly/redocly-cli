@@ -64,18 +64,18 @@ async function addConfigMetadata({
 export async function loadConfig(
   configPath: string | undefined = findConfig(),
   customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void> 
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>,
 ): Promise<Config> {
   const rawConfig = await getConfig(configPath);
-  
-  if(typeof processRawConfig === 'function') {
+
+  if (typeof processRawConfig === 'function') {
     await processRawConfig(rawConfig);
   }
-  
+
   return await addConfigMetadata({
     rawConfig,
     customExtends,
-    configPath
+    configPath,
   });
 };
 

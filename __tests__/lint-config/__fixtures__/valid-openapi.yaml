@@ -11,11 +11,10 @@ info:
 paths:
   /pet/findByStatus:
     get:
-     summary: needExist
-     operationId: findByStatus
-     responses:
-      '200':
-        description: example description
-      '400':
-        description: some desc
-         
+      summary: needExist
+      operationId: findByStatus
+      responses:
+        '200':
+          description: example description
+        '400':
+          description: some desc

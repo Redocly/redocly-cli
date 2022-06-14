@@ -1,6 +1,6 @@
 import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
 import { spawnSync } from 'child_process';
-import { join } from 'path';
+import { join, relative } from 'path';
 //@ts-ignore
 import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
 import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
@@ -26,15 +26,19 @@ function getEntrypoints(folderPath: string) {
   return Object.keys(redoclyYaml.apis);
 }
 
-type CLICommands = 'lint' | 'bundle' | 'join' | 'login' | 'logout' | 'preview-docs' | 'push' | 'split' | 'stats';
+type CLICommands =
+  | 'lint'
+  | 'bundle'
+  | 'join'
+  | 'login'
+  | 'logout'
+  | 'preview-docs'
+  | 'push'
+  | 'split'
+  | 'stats';
 
 function getParams(command: CLICommands, args: string[] = []): string[] {
-  return [
-    '--transpile-only', 
-    '../../../packages/cli/src/index.ts', 
-    command, 
-    ...args
-  ];
+  return ['--transpile-only', '../../../packages/cli/src/index.ts', command, ...args];
 }
 
 function getCommandOutput(params: string[], folderPath: string) {
@@ -74,7 +78,7 @@ describe('E2E', () => {
       { dirName: 'invalid-conifg--lint-config-off', option: 'off' },
       { dirName: 'invalid-conifg--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-conifg--lint-config-error', option: 'error' },
-      { dirName: 'invlid-lint-config-saverity', option: 'somethig' },
+      { dirName: 'invlid-lint-config-saverity', option: 'something' },
       { dirName: 'invalid-config--no-option', option: null },
       { dirName: 'invalid-config-assertation-name', option: 'error' },
       { dirName: 'invalid-config-assertation-config-type', option: 'error' },
@@ -85,10 +89,9 @@ describe('E2E', () => {
 
     test.each(lintOptions)('test with option: %s', (lintOptions) => {
       const { dirName, option } = lintOptions;
-
       const folderPath = join(__dirname, `lint-config/${dirName}`);
-
-      const args = [validOpenapiFile, ...(option ? [`--lint-config=${option}`] : [])];
+      const relativeValidOpenapiFile = relative(folderPath, validOpenapiFile);
+      const args = [relativeValidOpenapiFile, ...(option ? [`--lint-config=${option}`] : [])];
 
       const passedArgs = getParams('lint', args);
 
@@ -98,9 +101,8 @@ describe('E2E', () => {
 
     test('invalid-definition-and-config', () => {
       const folderPath = join(__dirname, 'lint-config/invalid-definition-and-config');
-
-      const args = [invalidOpenapiFile, `--lint-config=error`];
-
+      const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
+      const args = [relativeInvalidOpenapiFile, `--lint-config=error`];
       const passedArgs = getParams('lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
@@ -143,10 +145,7 @@ describe('E2E', () => {
   });
 
   describe('join', () => {
-    const entrypoints = [
-      'foo.yaml',
-      'bar.yaml',
-    ];
+    const entrypoints = ['foo.yaml', 'bar.yaml'];
 
     describe('without options', () => {
       const testDirNames = [
@@ -195,14 +194,14 @@ describe('E2E', () => {
       }
 
       const entryPoints = getEntrypoints(testPath);
-      
+
       const args = getParams('bundle', [
         '--lint',
         '--max-problems=1',
         '--format=stylish',
         ...entryPoints,
       ]);
-   
+
       it(file, () => {
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
@@ -214,11 +213,11 @@ describe('E2E', () => {
     const folderPath = join(__dirname, 'bundle/bundle-lint-format');
     const entryPoints = getEntrypoints(folderPath);
     const args = getParams('bundle', [
-      '--lint', 
-      '--max-problems=1', 
-      '-o=/tmp/null', 
-      ...entryPoints]
-    );
+      '--lint',
+      '--max-problems=1',
+      '-o=/tmp/null',
+      ...entryPoints,
+    ]);
 
     test.each(['codeframe', 'stylish', 'json', 'checkstyle'])(
       'bundle lint: should be formatted by format: %s',
@@ -243,7 +242,7 @@ describe('E2E', () => {
   });
 
   describe('bundle with option: remove-unused-components', () => {
-    test.each(['oas2','oas3'])('%s: should remove unused components', (type) => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', (type) => {
       const folderPath = join(__dirname, `bundle/bundle-remove-unused-components/${type}`);
       const entryPoints = getEntrypoints(folderPath);
       const args = [
@@ -253,7 +252,9 @@ describe('E2E', () => {
         ...entryPoints,
       ];
       const result = getCommandOutput(args, folderPath);
-      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'remove-unused-components-snapshot.js'));
+      (<any>expect(result)).toMatchSpecificSnapshot(
+        join(folderPath, 'remove-unused-components-snapshot.js'),
+      );
     });
   });
 });

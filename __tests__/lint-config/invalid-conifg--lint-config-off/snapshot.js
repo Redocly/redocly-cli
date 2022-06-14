@@ -5,8 +5,8 @@ exports[`E2E lint-config test with option: { dirName: 'invalid-conifg--lint-conf
 No configurations were defined in extends -- using built in recommended configuration by default.
 Warning! This default behavior is going to be deprecated soon.
 
-validating /Users/yevhensmoliy/redocly/projects/openapi-cli/__tests__/lint-config/__fixtures__/valid-openapi.yaml...
-/Users/yevhensmoliy/redocly/projects/openapi-cli/__tests__/lint-config/__fixtures__/valid-openapi.yaml: validated in <test>ms
+validating ../__fixtures__/valid-openapi.yaml...
+../__fixtures__/valid-openapi.yaml: validated in <test>ms
 
 Woohoo! Your OpenAPI definition is valid. 🎉
 

@@ -6,7 +6,7 @@ lint:
   rules:
     assert/path-item-mutually-required:
       context:
-      - type: Invalid-type
+        - type: Invalid-type
       subject: Operation
       message: Operation should have summary and security fields simultaneously
   extends: []

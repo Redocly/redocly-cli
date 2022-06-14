@@ -8,4 +8,3 @@ paths:
   /pet/findByStatus:
     get:
       responses:
-        
