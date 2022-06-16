@@ -1,9 +1,9 @@
-import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
+import { readdirSync, statSync, existsSync } from 'fs';
 import { spawnSync } from 'child_process';
 import { join, relative } from 'path';
 //@ts-ignore
-import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
-import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
+import { toMatchSpecificSnapshot } from './specific-snapshot';
+import { getCommandOutput, getEntrypoints, callSerializer ,getParams } from './helpers';
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -11,49 +11,7 @@ expect.extend({
   },
 });
 
-addSerializer({
-  test: (val: any) => typeof val === 'string',
-  print: (v: any) => cleanUpVersion(v),
-});
-
-function cleanUpVersion(str: string): string {
-  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
-}
-
-function getEntrypoints(folderPath: string) {
-  const redoclyYamlFile = readFileSync(join(folderPath, '.redocly.yaml'), 'utf8');
-  const redoclyYaml = parseYaml(redoclyYamlFile) as { apis: Record<string, string> };
-  return Object.keys(redoclyYaml.apis);
-}
-
-type CLICommands =
-  | 'lint'
-  | 'bundle'
-  | 'join'
-  | 'login'
-  | 'logout'
-  | 'preview-docs'
-  | 'push'
-  | 'split'
-  | 'stats';
-
-function getParams(command: CLICommands, args: string[] = []): string[] {
-  return ['--transpile-only', '../../../packages/cli/src/index.ts', command, ...args];
-}
-
-function getCommandOutput(params: string[], folderPath: string) {
-  const result = spawnSync('ts-node', params, {
-    cwd: folderPath,
-    env: {
-      ...process.env,
-      NODE_ENV: 'test',
-      NO_COLOR: 'TRUE',
-    },
-  });
-  const out = result.stdout.toString('utf-8');
-  const err = result.stderr.toString('utf-8');
-  return `${out}\n${err}`;
-}
+callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
