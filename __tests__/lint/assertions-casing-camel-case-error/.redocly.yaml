@@ -6,8 +6,8 @@ lint:
   rules:
     assert/operation-get:
       context:
-      - type: Operation
-        matchParentKeys: [get]
+        - type: Operation
+          matchParentKeys: [get]
       subject: Operation
       property: operationId
       message: Operation id for get operation should be camelCase
@@ -17,4 +17,8 @@ lint:
       property: operationId
       message: Operation id should be camelCase
       casing: camelCase
+    assert/camel-case-on-value:
+      subject: NamedParameters
+      casing: camelCase
+      message: Named Parameters should be camelCase
   extends: []

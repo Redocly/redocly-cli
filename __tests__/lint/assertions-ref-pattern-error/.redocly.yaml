@@ -1,0 +1,18 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules:
+    assert/ref-pattern:
+      context:
+        - type: Response
+      subject: MediaType
+      property: schema
+      message: Response MediaType schema should contain ref to components/schemas folder
+      ref: ^(\.\/)?components\/schemas\/.*\.yaml$
+    assert/ref-pattern-no-properties:
+      subject: PathItem
+      message: PathItem should contain ref to components/paths folder
+      ref: ^(\.\/)?components\/paths\/.*\.yaml$
+  extends: []
