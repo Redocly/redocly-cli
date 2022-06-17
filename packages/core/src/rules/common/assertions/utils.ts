@@ -109,11 +109,23 @@ export function buildSubjectVisitor(
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          runAssertion(value, rawNode[property], assert, currentLocation.child(property), report);
+          runAssertion({
+            values: value,
+            rawValues: rawNode[property],
+            assert,
+            location: currentLocation.child(property),
+            report,
+          });
         }
       } else {
         const value = assert.name === 'ref' ? rawNode : Object.keys(node);
-        runAssertion(Object.keys(node), value, assert, currentLocation, report);
+        runAssertion({
+          values: Object.keys(node),
+          rawValues: value,
+          assert,
+          location: currentLocation,
+          report,
+        });
       }
     }
   };
@@ -153,13 +165,15 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
   return true;
 }
 
-function runAssertion(
-  values: string | string[],
-  rawValues: any,
-  assert: AssertToApply,
-  location: Location,
-  report: (problem: Problem) => void
-) {
+type RunAssertionParams = {
+  values: string | string[];
+  rawValues: any;
+  assert: AssertToApply;
+  location: Location;
+  report: (problem: Problem) => void;
+};
+
+function runAssertion({ values, rawValues, assert, location, report }: RunAssertionParams) {
   const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
   if (!lintResult.isValid) {
     report({

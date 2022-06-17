@@ -7,7 +7,14 @@ import {
   VisitFunction,
 } from './visitors';
 
-import { ResolvedRefMap, Document, ResolveError, YamlParseError, Source, makeRefId } from './resolve';
+import {
+  ResolvedRefMap,
+  Document,
+  ResolveError,
+  YamlParseError,
+  Source,
+  makeRefId,
+} from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
 import { NormalizedNodeType, isNamedType } from './types';
@@ -19,7 +26,7 @@ export type ResolveResult<T extends NonUndefined> =
 
 export type ResolveFn<T> = (
   node: Referenced<T>,
-  from?: string,
+  from?: string
 ) => { location: Location; node: T } | { location: undefined; node: undefined };
 
 export type UserContext = {
@@ -28,7 +35,7 @@ export type UserContext = {
   rawNode: any;
   rawLocation: Location;
   resolve<T>(
-    node: Referenced<T>,
+    node: Referenced<T>
   ): { location: Location; node: T } | { location: undefined; node: undefined };
   parentLocations: Record<string, Location>;
   type: NormalizedNodeType;
@@ -123,7 +130,7 @@ export function walkDocument<T>(opts: {
     type: NormalizedNodeType,
     location: Location,
     parent: any,
-    key: string | number,
+    key: string | number
   ) {
     const rawLocation = location;
     let currentLocation = location;
@@ -149,9 +156,9 @@ export function walkDocument<T>(opts: {
               key,
               parentLocations: {},
               oasVersion: ctx.oasVersion,
-              getVisitorData: getVisitorDataFn.bind(undefined, ruleId)
+              getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
             },
-            { node: resolvedNode, location: resolvedLocation, error },
+            { node: resolvedNode, location: resolvedLocation, error }
           );
           if (resolvedLocation?.source.absoluteRef && ctx.refTypes) {
             ctx.refTypes.set(resolvedLocation?.source.absoluteRef, type);
@@ -167,7 +174,7 @@ export function walkDocument<T>(opts: {
 
       const anyEnterVisitors = normalizedVisitors.any.enter;
       const currentEnterVisitors = anyEnterVisitors.concat(
-        normalizedVisitors[type.name]?.enter || [],
+        normalizedVisitors[type.name]?.enter || []
       );
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
@@ -210,7 +217,7 @@ export function walkDocument<T>(opts: {
             while (ctx) {
               ctx.activatedOn!.value.nextLevelTypeActivated = pushStack(
                 ctx.activatedOn!.value.nextLevelTypeActivated,
-                type,
+                type
               );
               ctx = ctx.parent;
             }
@@ -224,7 +231,7 @@ export function walkDocument<T>(opts: {
                 node,
                 context,
                 ruleId,
-                severity,
+                severity
               );
               if (ignoreNextVisitorsOnNode) break;
             }
@@ -288,7 +295,7 @@ export function walkDocument<T>(opts: {
 
       const anyLeaveVisitors = normalizedVisitors.any.leave;
       const currentLeaveVisitors = (normalizedVisitors[type.name]?.leave || []).concat(
-        anyLeaveVisitors,
+        anyLeaveVisitors
       );
 
       for (const context of activatedContexts.reverse()) {
@@ -300,7 +307,7 @@ export function walkDocument<T>(opts: {
             let ctx: VisitorLevelContext | null = context.parent;
             while (ctx) {
               ctx.activatedOn!.value.nextLevelTypeActivated = popStack(
-                ctx.activatedOn!.value.nextLevelTypeActivated,
+                ctx.activatedOn!.value.nextLevelTypeActivated
               );
               ctx = ctx.parent;
             }
@@ -335,9 +342,9 @@ export function walkDocument<T>(opts: {
               key,
               parentLocations: {},
               oasVersion: ctx.oasVersion,
-              getVisitorData: getVisitorDataFn.bind(undefined, ruleId)
+              getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
             },
-            { node: resolvedNode, location: resolvedLocation, error },
+            { node: resolvedNode, location: resolvedLocation, error }
           );
         }
       }
@@ -350,7 +357,7 @@ export function walkDocument<T>(opts: {
       node: any,
       context: VisitorLevelContext,
       ruleId: string,
-      severity: ProblemSeverity,
+      severity: ProblemSeverity
     ) {
       const report = reportFn.bind(undefined, ruleId, severity);
       let ignoreNextVisitorsOnNode = false;
@@ -368,18 +375,20 @@ export function walkDocument<T>(opts: {
           key,
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
-          ignoreNextVisitorsOnNode: () => { ignoreNextVisitorsOnNode = true; },
+          ignoreNextVisitorsOnNode: () => {
+            ignoreNextVisitorsOnNode = true;
+          },
           getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
         },
         collectParents(context),
-        context,
+        context
       );
       return { ignoreNextVisitorsOnNode };
     }
 
     function resolve<T>(
       ref: Referenced<T>,
-      from: string = currentLocation.source.absoluteRef,
+      from: string = currentLocation.source.absoluteRef
     ): ResolveResult<T> {
       if (!isRef(ref)) return { location, node: ref };
       const refId = makeRefId(from, ref.$ref);

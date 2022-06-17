@@ -12,7 +12,7 @@ lint:
       severity: error
       minLength: 13
       pattern: /\.$/
-#property example
+    # property example
     assert/path-item-get-defined:
       subject: PathItem
       property: get
@@ -30,7 +30,7 @@ lint:
         - description
       message: Every tag must have a name and description.
       defined: true
-#context example
+    # context example
     assert/media-type-map-not-pdf:
       subject:
         - MediaTypeMap
@@ -40,9 +40,9 @@ lint:
             - put
         - type: Response
           matchParentKeys: ['201', '200']
-      disallowed: [ 'application/pdf' ]
+      disallowed: ['application/pdf']
       message: Media type should not be pdf
-#enum example
+    # enum example
     assert/media-type-map-enum:
       subject: MediaTypeMap
       message: Only application/json and application/pdf can be used
@@ -61,29 +61,29 @@ lint:
       enum:
         - My resource
         - My collection
-#pattern example
+    # pattern example
     assert/operation-summary-pattern:
       subject: Operation
       property: summary
       message: Summary should match a regex
       severity: error
       pattern: /resource/
-#casing
+    # casing
     assert/operation-id-casing:
       subject: Operation
       property: operationId
       message: NamedExamples key must be in PascalCase
       severity: error
       casing: camelCase
-#mutuallyExclusive example
+    # mutuallyExclusive example
     assert/operation-mutually-exclusive:
       subject: Operation
-      message: "Operation must not define both properties together: description and externalDocs"
+      message: 'Operation must not define both properties together: description and externalDocs'
       severity: error
       mutuallyExclusive:
         - description
         - externalDocs
-#mutuallyRequired example
+    # mutuallyRequired example
     assert/schema-properties-mutually-required:
       subject: SchemaProperties
       context:
@@ -93,27 +93,27 @@ lint:
       mutuallyRequired:
         - created_at
         - updated_at
-#mutuallyRequired example with context
+    # mutuallyRequired example with context
     assert/response-map-required-with-context:
       subject: ResponsesMap
       context:
-          - type: Operation
-            matchParentKeys:
-              - put
+        - type: Operation
+          matchParentKeys:
+            - put
       message: Must mutually define 200 and 201 responses for PUT requests.
       severity: error
       mutuallyRequired:
         - '200'
         - '201'
-#requireAny example
+    # requireAny example
     assert/operation-require-any-description-or-external:
       subject: Operation
-      message: "Operation must have one of properties defined: description or externalDocs"
+      message: 'Operation must have one of properties defined: description or externalDocs'
       severity: error
       requireAny:
         - description
         - externalDocs
-#disallowed example
+    # disallowed example
     assert/operation-disallowed:
       subject: Operation
       message: x-code-samples and x-internal must not be defined
@@ -121,14 +121,14 @@ lint:
       disallowed:
         - x-code-samples
         - x-internal
-#defined example
+    # defined example
     assert/operation-defined:
       subject: Operation
       property: x-codeSamples
       message: x-codeSamples must be defined
       severity: error
       defined: true
-# undefined example
+    # undefined example
     assert/operation-undefined:
       subject: Operation
       property: x-code-samples
@@ -137,28 +137,28 @@ lint:
         - x-codeSamples instead of x-code-samples
       severity: error
       undefined: true
-#nonEmpty example
+    # nonEmpty example
     assert/operation-non-empty:
       subject: Operation
       property: summary
       message: Operation summary should not be empty
       severity: error
       nonEmpty: true
-#minLength example
+    # minLength example
     assert/operation-min-length:
       subject: Operation
       property: summary
       message: Operation summary must have minimum of 2 chars length
       severity: error
       minLength: 2
-#maxLength example
+    # maxLength example
     assert/operation-max-length:
       subject: Operation
       property: summary
       message: Operation summary must have a maximum of 2 characters
       severity: error
       maxLength: 20
-#ref example
+    # ref example
     assert/ref:
       subject: PathItem
       message: No refs on Path Items
