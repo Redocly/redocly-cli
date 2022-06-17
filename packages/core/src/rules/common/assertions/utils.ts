@@ -1,4 +1,4 @@
-import { isRef } from '../../../ref-utils';
+import { isRef, Location } from '../../../ref-utils';
 import { Problem, ProblemSeverity, UserContext } from '../../../walk';
 import { asserts } from './asserts';
 
@@ -23,7 +23,7 @@ export type AssertToApply = {
 export function buildVisitorObject(
   subject: string,
   context: Record<string, any>[],
-  subjectVisitor: any,
+  subjectVisitor: any
 ) {
   if (!context) {
     return { [subject]: subjectVisitor };
@@ -46,7 +46,7 @@ export function buildVisitorObject(
 
     if (matchParentKeys && excludeParentKeys) {
       throw new Error(
-        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`,
+        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`
       );
     }
 
@@ -75,9 +75,12 @@ export function buildVisitorObject(
 export function buildSubjectVisitor(
   properties: string | string[],
   asserts: AssertToApply[],
-  context?: Record<string, any>[],
+  context?: Record<string, any>[]
 ) {
-  return function (node: any, { report, location, rawLocation, key, type, resolve, rawNode }: UserContext) {
+  return (
+    node: any,
+    { report, location, rawLocation, key, type, resolve, rawNode }: UserContext
+  ) => {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
@@ -110,7 +113,7 @@ export function buildSubjectVisitor(
         }
       } else {
         const value = assert.name === 'ref' ? rawNode : Object.keys(node);
-        runAssertion(Object.keys(node), value, assert, currentLocation.key(), report);
+        runAssertion(Object.keys(node), value, assert, currentLocation, report);
       }
     }
   };
@@ -154,8 +157,8 @@ function runAssertion(
   values: string | string[],
   rawValues: any,
   assert: AssertToApply,
-  location: any,
-  report: (problem: Problem) => void,
+  location: Location,
+  report: (problem: Problem) => void
 ) {
   const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
   if (!lintResult.isValid) {

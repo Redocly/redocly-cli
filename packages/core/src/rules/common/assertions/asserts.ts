@@ -1,8 +1,18 @@
-import { Location } from 'core/src/ref-utils';
-import { OrderOptions, OrderDirection, isOrdered, getIntersectionLength, regexFromString } from './utils';
+import { Location } from '../../../ref-utils';
+import { isString as runOnValue } from '../../../utils';
+import {
+  OrderOptions,
+  OrderDirection,
+  isOrdered,
+  getIntersectionLength,
+  regexFromString,
+} from './utils';
 
-type AssertResult = {isValid: boolean, location?: Location};
-type Asserts = Record<string, (value: any, condition: any, baseLocation: Location, rawValue?: any) => AssertResult>;
+type AssertResult = { isValid: boolean; location?: Location };
+type Asserts = Record<
+  string,
+  (value: any, condition: any, baseLocation: Location, rawValue?: any) => AssertResult
+>;
 
 export const runOnKeysSet = new Set([
   'mutuallyExclusive',
@@ -28,27 +38,30 @@ export const runOnValuesSet = new Set([
   'maxLength',
   'casing',
   'sortOrder',
-  'ref'
+  'ref',
 ]);
 
 export const asserts: Asserts = {
   pattern: (value: string | string[], condition: string, baseLocation) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
-    const values = typeof value === 'string' ? [value] : value;
+    const values = runOnValue(value) ? [value] : value;
     const regx = regexFromString(condition);
     for (let _val of values) {
       if (!regx?.test(_val)) {
-        return { isValid: false, location: baseLocation };
+        return { isValid: false, location: runOnValue(value) ? baseLocation : baseLocation.key() };
       }
     }
     return { isValid: true };
   },
   enum: (value: string | string[], condition: string[], baseLocation) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
-    const values = typeof value === 'string' ? [value] : value;
+    const values = runOnValue(value) ? [value] : value;
     for (let _val of values) {
       if (!condition.includes(_val)) {
-        return { isValid: false, location: baseLocation };
+        return {
+          isValid: false,
+          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+        };
       }
     }
     return { isValid: true };
@@ -60,17 +73,20 @@ export const asserts: Asserts = {
   required: (value: string[], keys: string[], baseLocation) => {
     for (const requiredKey of keys) {
       if (!value.includes(requiredKey)) {
-        return { isValid: false, location: baseLocation };
+        return { isValid: false, location: baseLocation.key() };
       }
     }
     return { isValid: true };
   },
   disallowed: (value: string | string[], condition: string[], baseLocation) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
-    const values = typeof value === 'string' ? [value] : value;
+    const values = runOnValue(value) ? [value] : value;
     for (let _val of values) {
       if (condition.includes(_val)) {
-        return { isValid: false, location: baseLocation };
+        return {
+          isValid: false,
+          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+        };
       }
     }
     return { isValid: true };
@@ -93,7 +109,7 @@ export const asserts: Asserts = {
   },
   casing: (value: string | string[], condition: string, baseLocation) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
-    const values = typeof value === 'string' ? [value] : value;
+    const values: string[] = runOnValue(value) ? [value] : value;
     for (let _val of values) {
       let matchCase = false;
       switch (condition) {
@@ -120,7 +136,10 @@ export const asserts: Asserts = {
           break;
       }
       if (!matchCase) {
-        return { isValid: false, location: baseLocation };
+        return {
+          isValid: false,
+          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+        };
       }
     }
     return { isValid: true };
@@ -130,7 +149,7 @@ export const asserts: Asserts = {
     return { isValid: isOrdered(value, condition), location: baseLocation };
   },
   mutuallyExclusive: (value: string[], condition: string[], baseLocation) => {
-    return { isValid: getIntersectionLength(value, condition) < 2, location: baseLocation };
+    return { isValid: getIntersectionLength(value, condition) < 2, location: baseLocation.key() };
   },
   mutuallyRequired: (value: string[], condition: string[], baseLocation) => {
     return {
@@ -138,19 +157,25 @@ export const asserts: Asserts = {
         getIntersectionLength(value, condition) > 0
           ? getIntersectionLength(value, condition) === condition.length
           : true,
-      location: baseLocation,
+      location: baseLocation.key(),
     };
   },
   requireAny: (value: string[], condition: string[], baseLocation) => {
-    return { isValid: getIntersectionLength(value, condition) >= 1, location: baseLocation };
+    return { isValid: getIntersectionLength(value, condition) >= 1, location: baseLocation.key() };
   },
   ref: (_value: any, condition: string | boolean, baseLocation, rawValue: any) => {
     if (typeof rawValue === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
-      return { isValid: condition ? hasRef : !hasRef, location: baseLocation };
+      return {
+        isValid: condition ? hasRef : !hasRef,
+        location: hasRef ? baseLocation : baseLocation.key(),
+      };
     }
     const regex = regexFromString(condition);
-    return { isValid: hasRef && regex?.test(rawValue['$ref']), location: baseLocation };
+    return {
+      isValid: hasRef && regex?.test(rawValue['$ref']),
+      location: hasRef ? baseLocation : baseLocation.key(),
+    };
   },
 };

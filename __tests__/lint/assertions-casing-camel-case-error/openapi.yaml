@@ -35,3 +35,17 @@ paths:
           description: example description
         '404':
           description: example description
+
+components:
+  parameters:
+    camelCase:
+      in: query
+      name: type
+      schema:
+        type: string
+    Wrong_casE:
+      in: query
+      name: per_page
+      schema:
+        type: integer
+   
