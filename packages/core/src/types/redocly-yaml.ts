@@ -107,7 +107,7 @@ const ConfigRoot: NodeType = {
     apiDefinitions: {
       type: 'object',
       properties: {},
-      additionalProperties: { properties: { type: 'string' } }
+      additionalProperties: { properties: { type: 'string' } },
     }, // deprecated
     lint: 'RootConfigLint',
     'features.openapi': 'ConfigReferenceDocs',
@@ -237,7 +237,17 @@ const Assert: NodeType = {
     severity: { enum: ['error', 'warn', 'off'] },
     enum: { type: 'array', items: { type: 'string' } },
     pattern: { type: 'string' },
-    casing: { enum: ['camelCase', 'kebab-case', 'snake_case', 'PascalCase', 'MACRO_CASE', 'COBOL-CASE', 'flatcase'] },
+    casing: {
+      enum: [
+        'camelCase',
+        'kebab-case',
+        'snake_case',
+        'PascalCase',
+        'MACRO_CASE',
+        'COBOL-CASE',
+        'flatcase',
+      ],
+    },
     mutuallyExclusive: { type: 'array', items: { type: 'string' } },
     mutuallyRequired: { type: 'array', items: { type: 'string' } },
     required: { type: 'array', items: { type: 'string' } },
@@ -248,6 +258,8 @@ const Assert: NodeType = {
     nonEmpty: { type: 'boolean' },
     minLength: { type: 'integer' },
     maxLength: { type: 'integer' },
+    ref: (value: string | boolean) =>
+      typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
   },
   required: ['subject'],
 };
@@ -265,7 +277,19 @@ const ConfigLanguage: NodeType = {
   properties: {
     label: { type: 'string' },
     lang: {
-      enum: ['curl', 'C#', 'Go', 'Java', 'Java8+Apache', 'JavaScript', 'Node.js', 'PHP', 'Python', 'R', 'Ruby'],
+      enum: [
+        'curl',
+        'C#',
+        'Go',
+        'Java',
+        'Java8+Apache',
+        'JavaScript',
+        'Node.js',
+        'PHP',
+        'Python',
+        'R',
+        'Ruby',
+      ],
     },
   },
   required: ['lang'],
@@ -579,7 +603,18 @@ const CodeConfig: NodeType = {
     ...FontConfig.properties,
     backgroundColor: { type: 'string' },
     color: { type: 'string' },
-    wordBreak: { enum: ['break-all', 'break-word', 'keep-all', 'normal', 'revert', 'unset', 'inherit', 'initial'] },
+    wordBreak: {
+      enum: [
+        'break-all',
+        'break-word',
+        'keep-all',
+        'normal',
+        'revert',
+        'unset',
+        'inherit',
+        'initial',
+      ],
+    },
     wrap: { type: 'boolean' },
   },
 };
@@ -725,8 +760,8 @@ const ConfigReferenceDocs: NodeType = {
     downloadDefinitionUrl: { type: 'string' },
     expandDefaultServerVariables: { type: 'boolean' },
     enumSkipQuotes: { type: 'boolean' },
-    expandDefaultRequest: { type: 'boolean'},
-    expandDefaultResponse: { type: 'boolean'},
+    expandDefaultRequest: { type: 'boolean' },
+    expandDefaultResponse: { type: 'boolean' },
     expandResponses: { type: 'string' },
     expandSingleSchemaField: { type: 'boolean' },
     generateCodeSamples: 'GenerateCodeSamples',
@@ -744,7 +779,7 @@ const ConfigReferenceDocs: NodeType = {
     hideSecuritySection: { type: 'boolean' },
     hideTryItPanel: { type: 'boolean' },
     hideFab: { type: 'boolean' },
-    hideOneOfDescription: { type: 'boolean'},
+    hideOneOfDescription: { type: 'boolean' },
     htmlTemplate: { type: 'string' },
     jsonSampleExpandLevel: (value: unknown) => {
       if (typeof value === 'number') {
@@ -775,17 +810,17 @@ const ConfigReferenceDocs: NodeType = {
         return { type: 'number', minimum: 0 };
       } else {
         return { type: 'string' };
-      } 
+      }
     },
     schemaDefinitionsTagName: { type: 'string' },
     minCharacterLengthToInitSearch: { type: 'number', minimum: 1 },
-    maxResponseHeadersToShowInTryIt: {type: 'number', minimum: 0 },
+    maxResponseHeadersToShowInTryIt: { type: 'number', minimum: 0 },
     scrollYOffset: (value: unknown) => {
       if (typeof value === 'number') {
         return { type: 'number' };
       } else {
         return { type: 'string' };
-      } 
+      }
     },
     searchAutoExpand: { type: 'boolean' },
     searchFieldLevelBoost: { type: 'number', minimum: 0 },
@@ -800,11 +835,11 @@ const ConfigReferenceDocs: NodeType = {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
       } else {
-        return { 
+        return {
           type: 'array',
           items: {
             type: 'string',
-          }, 
+          },
         };
       }
     },
