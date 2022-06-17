@@ -60,7 +60,7 @@ export const asserts: Asserts = {
       if (!condition.includes(_val)) {
         return {
           isValid: false,
-          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+          location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
         };
       }
     }
@@ -85,7 +85,7 @@ export const asserts: Asserts = {
       if (condition.includes(_val)) {
         return {
           isValid: false,
-          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+          location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
         };
       }
     }
@@ -138,7 +138,7 @@ export const asserts: Asserts = {
       if (!matchCase) {
         return {
           isValid: false,
-          location: runOnValue(value) ? baseLocation.child(_val) : baseLocation.child(_val).key(),
+          location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
         };
       }
     }

@@ -48,7 +48,7 @@ describe('oas3 assertions', () => {
         expect(asserts.enum(['test'], ['test', 'example'], baseLocation)).toEqual({ isValid: true });
         expect(asserts.enum(['test', 'example'], ['test', 'example'], baseLocation)).toEqual({ isValid: true });
         expect(asserts.enum(['test', 'example', 'foo'], ['test', 'example'], baseLocation)).toEqual({ isValid: false, location: baseLocation.child('foo').key() });
-        expect(asserts.enum('test', ['foo', 'example'], baseLocation)).toEqual({ isValid: false, location: baseLocation.child('test') });
+        expect(asserts.enum('test', ['foo', 'example'], baseLocation)).toEqual({ isValid: false, location: baseLocation });
         expect(asserts.enum(['test', 'foo'], ['test', 'example'], baseLocation)).toEqual({ isValid: false, location: baseLocation.child('foo').key() });
       });
     });
@@ -124,70 +124,70 @@ describe('oas3 assertions', () => {
     describe('casing', () => {
       it('value should be camelCase', () => {
         expect(asserts.casing(['testExample', 'fooBar'], 'camelCase', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['testExample', 'FooBar'], 'camelCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/FooBar` } });
+        expect(asserts.casing(['testExample', 'FooBar'], 'camelCase', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('FooBar').key() });
         expect(asserts.casing('testExample', 'camelCase', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing('TestExample', 'camelCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test-example', 'camelCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
-        expect(asserts.casing('test_example', 'camelCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test_example` } });
+        expect(asserts.casing('TestExample', 'camelCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'camelCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test_example', 'camelCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be PascalCase', () => {
         expect(asserts.casing('TestExample', 'PascalCase', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['TestExample', 'FooBar'], 'PascalCase', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['TestExample', 'fooBar'], 'PascalCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/fooBar` } });
-        expect(asserts.casing('testExample', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('test-example', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
-        expect(asserts.casing('test_example', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test_example` } });
+        expect(asserts.casing(['TestExample', 'fooBar'], 'PascalCase', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('fooBar').key() });
+        expect(asserts.casing('testExample', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test_example', 'PascalCase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be kebab-case', () => {
         expect(asserts.casing('test-example', 'kebab-case', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['test-example', 'foo-bar'], 'kebab-case', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['test-example', 'foo_bar'], 'kebab-case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/foo_bar` } });
-        expect(asserts.casing('testExample', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('TestExample', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test_example', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test_example` } });
+        expect(asserts.casing(['test-example', 'foo_bar'], 'kebab-case', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('foo_bar').key() });
+        expect(asserts.casing('testExample', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TestExample', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test_example', 'kebab-case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be snake_case', () => {
         expect(asserts.casing('test_example', 'snake_case', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['test_example', 'foo_bar'], 'snake_case', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['test_example', 'foo-bar'], 'snake_case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/foo-bar` } });
-        expect(asserts.casing('testExample', 'snake_case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('TestExample', 'snake_case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test-example', 'snake_case', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
+        expect(asserts.casing(['test_example', 'foo-bar'], 'snake_case', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('foo-bar').key() });
+        expect(asserts.casing('testExample', 'snake_case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TestExample', 'snake_case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'snake_case', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be MACRO_CASE', () => {
         expect(asserts.casing('TEST_EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['TEST_EXAMPLE', 'FOO_BAR'], 'MACRO_CASE', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['TEST_EXAMPLE', 'FOO-BAR'], 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/FOO-BAR` } });
-        expect(asserts.casing('TEST_EXAMPLE_', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST_EXAMPLE_` } });
-        expect(asserts.casing('_TEST_EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/_TEST_EXAMPLE` } });
-        expect(asserts.casing('TEST__EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST__EXAMPLE` } });
-        expect(asserts.casing('TEST-EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST-EXAMPLE` } });
-        expect(asserts.casing('testExample', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('TestExample', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test-example', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
+        expect(asserts.casing(['TEST_EXAMPLE', 'FOO-BAR'], 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('FOO-BAR').key() });
+        expect(asserts.casing('TEST_EXAMPLE_', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('_TEST_EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TEST__EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TEST-EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('testExample', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TestExample', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'MACRO_CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be COBOL-CASE', () => {
         expect(asserts.casing('TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['TEST-EXAMPLE', 'FOO-BAR'], 'COBOL-CASE', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['TEST-EXAMPLE', 'FOO_BAR'], 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/FOO_BAR` } });
-        expect(asserts.casing('TEST-EXAMPLE-', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST-EXAMPLE-` } });
-        expect(asserts.casing('0TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/0TEST-EXAMPLE` } });
-        expect(asserts.casing('-TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/-TEST-EXAMPLE` } });
-        expect(asserts.casing('TEST--EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST--EXAMPLE` } });
-        expect(asserts.casing('TEST_EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TEST_EXAMPLE` } });
-        expect(asserts.casing('testExample', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('TestExample', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test-example', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
+        expect(asserts.casing(['TEST-EXAMPLE', 'FOO_BAR'], 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('FOO_BAR').key() });
+        expect(asserts.casing('TEST-EXAMPLE-', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('0TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('-TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TEST--EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TEST_EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('testExample', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TestExample', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'COBOL-CASE', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
       it('value should be flatcase', () => {
         expect(asserts.casing('testexample', 'flatcase', baseLocation)).toEqual({ isValid: true });
         expect(asserts.casing(['testexample', 'foobar'], 'flatcase', baseLocation)).toEqual({ isValid: true });
-        expect(asserts.casing(['testexample', 'foo_bar'], 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation.key(), pointer: `${baseLocation.pointer}/foo_bar` } });
-        expect(asserts.casing('testexample_', 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testexample_` } });
-        expect(asserts.casing('0testexample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/0testexample` } });
-        expect(asserts.casing('testExample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/testExample` } });
-        expect(asserts.casing('TestExample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/TestExample` } });
-        expect(asserts.casing('test-example', 'flatcase', baseLocation)).toEqual({ isValid: false, location: { ...baseLocation, pointer: `${baseLocation.pointer}/test-example` } });
+        expect(asserts.casing(['testexample', 'foo_bar'], 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation.child('foo_bar').key() });
+        expect(asserts.casing('testexample_', 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('0testexample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('testExample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('TestExample', 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
+        expect(asserts.casing('test-example', 'flatcase', baseLocation)).toEqual({ isValid: false, location: baseLocation });
       });
     });
 

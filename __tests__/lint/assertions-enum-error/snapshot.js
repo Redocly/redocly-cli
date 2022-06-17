@@ -3,7 +3,7 @@
 exports[`E2E lint assertions-enum-error 1`] = `
 
 validating /openapi.yaml...
-[1] openapi.yaml:20:16 at #/paths/~1pet~1findByStatus/get/summary/summary example
+[1] openapi.yaml:20:16 at #/paths/~1pet~1findByStatus/get/summary
 
 Operation summary value should be among of predefined values
 
