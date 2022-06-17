@@ -23,7 +23,7 @@ Response MediaType schema should contain ref to components/schemas folder
 
 37 |     application/json:
 38 |       schema:
-39 |         $ref: "#/components/schemas/Pets"
+39 |         $ref: '#/components/schemas/Pets'
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 40 | default:
 41 |   description: unexpected error
