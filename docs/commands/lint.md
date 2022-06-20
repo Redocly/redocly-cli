@@ -33,6 +33,7 @@ entrypoints | array | Array of API definition filenames that need to be linted. 
 --max-problems | integer | Truncate output to display the specified [maximum number of problems](#max-problems).
 --skip-preprocessor | array | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
 --skip-rule | array | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+--lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.
 --version | boolean | Show version number.
 
 ## Examples
@@ -238,3 +239,7 @@ redocly lint --skip-rule=no-sibling-refs,no-parent-tags
 :::success Tip
 To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
 :::
+
+### Lint config file
+
+The `lint` command also validate the configuration file. You may want to set saverity level by using the `--lint-config` option.  This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`. 
