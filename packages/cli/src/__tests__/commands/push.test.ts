@@ -1,4 +1,5 @@
 import { Config, getMergedConfig } from '@redocly/openapi-core';
+import { exitWithError } from '../../utils';
 import {
   getApiEntrypoint,
   getDestinationProps,
@@ -31,7 +32,9 @@ describe('push', () => {
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
-      'public': true
+      'public': true,
+      'batch-id': '123',
+      'batch-size': 2,
     });
 
     expect(redoclyClient.registryApi.prepareFileUpload).toBeCalledTimes(1);
@@ -45,7 +48,22 @@ describe('push', () => {
       organizationId: 'org',
       rootFilePath: 'filePath',
       version: '1.0.0',
+      batchId: '123',
+      batchSize: 2,
     });
+  });
+
+  it('fails if only batchId is defined', async () => {
+    await handlePush({
+      upsert: true,
+      entrypoint: 'spec.json',
+      destination: '@org/my-api@1.0.0',
+      branchName: 'test',
+      'public': true,
+      'batch-id': '123',
+    });
+
+    expect(exitWithError).toBeCalledTimes(1);
   });
 });
 

@@ -32,7 +32,8 @@ type PushArgs = {
   destination?: string;
   branchName?: string;
   upsert?: boolean;
-  'run-id'?: string;
+  'batch-id'?: string;
+  'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
   'public'?: boolean;
@@ -79,6 +80,12 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       `No entrypoint found that matches ${blue(
         `${name}@${version}`,
       )}. Please make sure you have provided the correct data in the config file.`,
+    );
+  }
+
+  if (argv['batch-id'] && !argv['batch-size']) {
+    exitWithError(
+      `The ${blue(`batch-id`,)} option should be used in combination with ${blue(`batch-size`,)} option.`,
     );
   }
 
@@ -148,7 +155,9 @@ export async function handlePush(argv: PushArgs): Promise<void> {
         filePaths,
         branch: branchName,
         isUpsert: upsert,
-        isPublic: argv['public']
+        isPublic: argv['public'],
+        batchId: argv['batch-id'],
+        batchSize: argv['batch-size'],
       });
     } catch (error) {
       if (error.message === 'ORGANIZATION_NOT_FOUND') {

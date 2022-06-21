@@ -17,6 +17,8 @@ export namespace RegistryApiTypes {
     branch?: string;
     isUpsert?: boolean;
     isPublic?: boolean;
+    batchId?: string;
+    batchSize?: number;
   }
 
   export interface PrepareFileuploadOKResponse {
