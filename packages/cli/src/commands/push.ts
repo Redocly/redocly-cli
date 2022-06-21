@@ -85,7 +85,9 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
   if (argv['batch-id'] && !argv['batch-size']) {
     exitWithError(
-      `The ${blue(`batch-id`,)} option should be used in combination with ${blue(`batch-size`,)} option.`,
+      `The ${blue(`batch-id`)} option should be used in combination with ${blue(
+        `batch-size`
+      )} option.`
     );
   }
 
