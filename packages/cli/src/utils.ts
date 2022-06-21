@@ -323,7 +323,3 @@ export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
   return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
 }
-
-export function relativeFilePath(filePath: string): string {
-  return filePath.replace(process.cwd(), '');
-}

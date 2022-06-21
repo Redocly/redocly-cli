@@ -8,7 +8,6 @@ import {
 } from '@redocly/openapi-core';
 import {
   getFallbackEntryPointsOrExit,
-  relativeFilePath,
   getExecutionTime,
   printUnusedWarnings,
   handleError,
@@ -74,7 +73,6 @@ describe('handleLint', () => {
       expect(performance.now).toHaveBeenCalled();
       expect(getMergedConfigMock).toHaveBeenCalledWith(ConfigFixture, undefined);
       expect(lint).toHaveBeenCalled();
-      expect(relativeFilePath).toHaveBeenCalledTimes(2);
     });
 
     it('should call skipRules,skipPreprocessors and addIgnore with argv', async () => {

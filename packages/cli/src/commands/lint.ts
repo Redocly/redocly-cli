@@ -8,12 +8,11 @@ import {
   getMergedConfig,
   OutputFormat,
   makeDocumentFromString,
-  NormalizedProblem,
   loadConfig,
   stringifyYaml,
   RawConfig,
   RuleSeverity,
-  ProblemSeverity
+  ProblemSeverity,
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -22,8 +21,7 @@ import {
   pluralize,
   printLintTotals,
   printConfigLintTotals,
-  printUnusedWarnings,
-  relativeFilePath,
+  printUnusedWarnings
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray, red } from 'colorette';
@@ -45,7 +43,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   const config: Config = await loadConfig(
     argv.config,
     argv.extends,
-    lintConfigCallback(argv, version),
+    lintConfigCallback(argv, version)
   );
 
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
@@ -73,7 +71,7 @@ export async function handleLint(argv: LintOptions, version: string) {
           )}\n\n`,
         );
       }
-      process.stderr.write(gray(`validating ${relativeFilePath(path)}...\n`));
+      process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
       const results = await lint({
         ref: path,
         config: resolvedConfig,
@@ -99,7 +97,7 @@ export async function handleLint(argv: LintOptions, version: string) {
       }
 
       const elapsed = getExecutionTime(startedAt);
-      printValidatingFile(path, elapsed);
+      process.stderr.write(gray(`${path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
       totals.errors++;
       handleError(e, path);
@@ -109,7 +107,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   if (argv['generate-ignore-file']) {
     config.lint.saveIgnore();
     process.stderr.write(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`,
+      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
   } else {
     printLintTotals(totals, entrypoints.length);
@@ -130,6 +128,7 @@ function lintConfigCallback(argv: LintOptions, version: string) {
   }
 
   return async (config: RawConfig) => {
+    const { 'max-problems': maxProblems, format } = argv;
     const configPath = findConfig(argv.config) || '';
     const stringYaml = stringifyYaml(config);
     const configContent = makeDocumentFromString(stringYaml, configPath);
@@ -137,39 +136,16 @@ function lintConfigCallback(argv: LintOptions, version: string) {
       document: configContent,
       severity: argv['lint-config'] as ProblemSeverity,
     });
-    await validateLintConfig({
-      problems,
-      outputFormat: argv.format,
-      maxProblems: argv['max-problems'],
+
+    const fileTotals = getTotals(problems);
+
+    formatProblems(problems, {
+      format,
+      maxProblems,
+      totals: fileTotals,
       version,
     });
+
+    printConfigLintTotals(fileTotals);
   };
-}
-
-async function validateLintConfig({
-  problems,
-  outputFormat,
-  maxProblems,
-  version,
-}: {
-  problems: NormalizedProblem[];
-  outputFormat: OutputFormat;
-  maxProblems?: number;
-  version: string;
-}): Promise<void> {
-  const fileTotals = getTotals(problems);
-
-  formatProblems(problems, {
-    format: outputFormat,
-    maxProblems,
-    totals: fileTotals,
-    version,
-  });
-  printConfigLintTotals(fileTotals);
-}
-
-function printValidatingFile(filePath: string, validationDuration: number | string): void {
-  process.stderr.write(
-    gray(`${relativeFilePath(filePath)}: validated in ${validationDuration}\n\n`),
-  );
 }

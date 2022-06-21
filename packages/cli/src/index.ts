@@ -154,7 +154,7 @@ yargs
           type: 'string',
         },
         'lint-config': {
-          description: 'Apply severity for linting config file.',
+          description: 'Apply severity for linting the config file.',
           choices: [
             'warn',
             'error',
