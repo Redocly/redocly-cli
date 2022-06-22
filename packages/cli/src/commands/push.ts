@@ -86,7 +86,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     );
   }
 
-  if (batchId && !batchId.trim()) {
+  if (!batchId?.trim()) {
     exitWithError(
       `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`
     );
