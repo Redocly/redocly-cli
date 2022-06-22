@@ -77,8 +77,6 @@ export async function lintDocument(opts: {
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', oasVersion);
   const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules] as any, types);
-
-  
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,

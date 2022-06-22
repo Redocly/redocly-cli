@@ -43,6 +43,10 @@ describe('handleLint', () => {
     getMergedConfigMock.mockReturnValue(ConfigFixture);
   });
 
+  afterEach(() => {
+    getMergedConfigMock.mockReset();
+  });
+
   describe('loadConfig and getEnrtypoints stage', () => {
     it('shoul call loadConfig and getFallbackEntryPointsOrExit', async () => {
       await handleLint(argvMock, versionMock);
