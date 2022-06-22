@@ -1,4 +1,4 @@
-import { isRef } from '../../../ref-utils';
+import { isRef, Location } from '../../../ref-utils';
 import { Problem, ProblemSeverity, UserContext } from '../../../walk';
 import { asserts } from './asserts';
 
@@ -23,7 +23,7 @@ export type AssertToApply = {
 export function buildVisitorObject(
   subject: string,
   context: Record<string, any>[],
-  subjectVisitor: any,
+  subjectVisitor: any
 ) {
   if (!context) {
     return { [subject]: subjectVisitor };
@@ -46,7 +46,7 @@ export function buildVisitorObject(
 
     if (matchParentKeys && excludeParentKeys) {
       throw new Error(
-        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`,
+        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`
       );
     }
 
@@ -75,9 +75,12 @@ export function buildVisitorObject(
 export function buildSubjectVisitor(
   properties: string | string[],
   asserts: AssertToApply[],
-  context?: Record<string, any>[],
+  context?: Record<string, any>[]
 ) {
-  return function (node: any, { report, location, key, type, resolve }: UserContext) {
+  return (
+    node: any,
+    { report, location, rawLocation, key, type, resolve, rawNode }: UserContext
+  ) => {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
@@ -101,14 +104,28 @@ export function buildSubjectVisitor(
     }
 
     for (const assert of asserts) {
+      const currentLocation = assert.name === 'ref' ? rawLocation : location;
       if (properties) {
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          runAssertion(value, assert, location.child(property), report);
+          runAssertion({
+            values: value,
+            rawValues: rawNode[property],
+            assert,
+            location: currentLocation.child(property),
+            report,
+          });
         }
       } else {
-        runAssertion(Object.keys(node), assert, location.key(), report);
+        const value = assert.name === 'ref' ? rawNode : Object.keys(node);
+        runAssertion({
+          values: Object.keys(node),
+          rawValues: value,
+          assert,
+          location: currentLocation,
+          report,
+        });
       }
     }
   };
@@ -148,20 +165,28 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
   return true;
 }
 
-function runAssertion(
-  values: string | string[],
-  assert: AssertToApply,
-  location: any,
-  report: (problem: Problem) => void,
-) {
-  const lintResult = asserts[assert.name](values, assert.conditions);
-  if (!lintResult) {
+type RunAssertionParams = {
+  values: string | string[];
+  rawValues: any;
+  assert: AssertToApply;
+  location: Location;
+  report: (problem: Problem) => void;
+};
+
+function runAssertion({ values, rawValues, assert, location, report }: RunAssertionParams) {
+  const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
+  if (!lintResult.isValid) {
     report({
       message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,
-      location,
+      location: lintResult.location || location,
       forceSeverity: assert.severity,
       suggest: assert.suggest,
       ruleId: assert.assertId,
     });
   }
+}
+
+export function regexFromString(input: string): RegExp | null {
+  const matches = input.match(/^\/(.*)\/(.*)|(.*)/);
+  return matches && new RegExp(matches[1] || matches[3], matches[2]);
 }
