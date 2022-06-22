@@ -15,8 +15,7 @@ describe('webpack-bundle test', () => {
   test('bundle check', () => {
     const folderPath = join(__dirname, 'webpack-bundle/bundle');
     const enryPoint = getEntrypoints(folderPath);
-    const args = getParams('bundle', [
-      '../../../dist/bundle.js',
+    const args = getParams('../../../dist/bundle.js', 'bundle', [
       '--max-problems=1',
       '-o=/tmp/null',
       '--lint',
@@ -28,8 +27,8 @@ describe('webpack-bundle test', () => {
 
   test('lint check', () => {
     const folderPath = join(__dirname, 'webpack-bundle/lint');
-    const enryPoint = getEntrypoints(folderPath);
-    const args = getParams('lint', ['--transpile-only', '../../../dist/bundle.js', ...enryPoint]);
+    const entryPoint = getEntrypoints(folderPath);
+    const args = getParams('../../../dist/bundle.js', 'lint', [...entryPoint]);
     const result = getCommandOutput(args, folderPath);
     (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
   });

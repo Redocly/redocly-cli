@@ -16,8 +16,12 @@ type CLICommands =
   | 'split'
   | 'stats';
 
-export function getParams(command: CLICommands, args: string[] = []): string[] {
-  return ['--transpile-only', '../../../packages/cli/src/index.ts', command, ...args];
+export function getParams(
+  indexEntryPoint: string,
+  command: CLICommands,
+  args: string[] = []
+): string[] {
+  return ['--transpile-only', indexEntryPoint, command, ...args];
 }
 
 export function getEntrypoints(folderPath: string) {
