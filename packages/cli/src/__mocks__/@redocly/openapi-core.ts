@@ -1,3 +1,5 @@
+import { ConfigFixture } from './../../__tests__/fixtures/config';
+
 export const __redoclyClient = {
   isAuthorizedWithRedocly: jest.fn().mockResolvedValue(true),
   isAuthorizedWithRedoclyByRegion: jest.fn().mockResolvedValue(true),
@@ -14,13 +16,11 @@ export const __redoclyClient = {
 };
 
 export const RedoclyClient = jest.fn(() => __redoclyClient);
-export const loadConfig = jest.fn(() => ({
-  configFile: null,
-  lint: { skipRules: jest.fn(), skipPreprocessors: jest.fn(), skipDecorators: jest.fn() },
-}));
+export const loadConfig = jest.fn(() => ConfigFixture);
 export const getMergedConfig = jest.fn();
 export const lint = jest.fn();
 export const bundle = jest.fn(() => ({ bundle: { parsed: null }, problems: null }));
 export const getTotals = jest.fn(() => ({ errors: 0 }));
 export const formatProblems = jest.fn();
 export const slash = jest.fn();
+export const findConfig = jest.fn();

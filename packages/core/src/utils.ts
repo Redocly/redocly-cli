@@ -26,9 +26,9 @@ export function popStack<T, P extends Stack<T>>(head: P) {
 
 export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 
-export async function loadYaml(filename: string) {
+export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
-  return parseYaml(contents);
+  return parseYaml(contents) as T;
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {

@@ -3,9 +3,16 @@ import {
   formatProblems,
   getTotals,
   lint,
-  loadConfig,
+  lintConfig,
+  findConfig,
   getMergedConfig,
   OutputFormat,
+  makeDocumentFromString,
+  loadConfig,
+  stringifyYaml,
+  RawConfig,
+  RuleSeverity,
+  ProblemSeverity,
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -13,26 +20,32 @@ import {
   handleError,
   pluralize,
   printLintTotals,
-  printUnusedWarnings,
+  printConfigLintTotals,
+  printUnusedWarnings
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray, red } from 'colorette';
 import { performance } from 'perf_hooks';
 
-export async function handleLint(
-  argv: {
-    entrypoints: string[];
-    'max-problems'?: number;
-    'generate-ignore-file'?: boolean;
-    'skip-rule'?: string[];
-    'skip-preprocessor'?: string[];
-    extends?: string[];
-    config?: string;
-    format: OutputFormat;
-  },
-  version: string,
-) {
-  const config: Config = await loadConfig(argv.config, argv.extends);
+export type LintOptions = {
+  entrypoints: string[];
+  'max-problems'?: number;
+  'generate-ignore-file'?: boolean;
+  'skip-rule'?: string[];
+  'skip-preprocessor'?: string[];
+  'lint-config': RuleSeverity;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+};
+
+export async function handleLint(argv: LintOptions, version: string) {
+  const config: Config = await loadConfig(
+    argv.config,
+    argv.extends,
+    lintConfigCallback(argv, version)
+  );
+
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
   if (argv['generate-ignore-file']) {
@@ -94,7 +107,7 @@ export async function handleLint(
   if (argv['generate-ignore-file']) {
     config.lint.saveIgnore();
     process.stderr.write(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`,
+      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
   } else {
     printLintTotals(totals, entrypoints.length);
@@ -107,4 +120,32 @@ export async function handleLint(
   process.once('exit', () =>
     process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1),
   );
+}
+
+function lintConfigCallback(argv: LintOptions, version: string) {
+  if (argv['lint-config'] === 'off') {
+    return;
+  }
+
+  return async (config: RawConfig) => {
+    const { 'max-problems': maxProblems, format } = argv;
+    const configPath = findConfig(argv.config) || '';
+    const stringYaml = stringifyYaml(config);
+    const configContent = makeDocumentFromString(stringYaml, configPath);
+    const problems = await lintConfig({
+      document: configContent,
+      severity: argv['lint-config'] as ProblemSeverity,
+    });
+
+    const fileTotals = getTotals(problems);
+
+    formatProblems(problems, {
+      format,
+      maxProblems,
+      totals: fileTotals,
+      version,
+    });
+
+    printConfigLintTotals(fileTotals);
+  };
 }
