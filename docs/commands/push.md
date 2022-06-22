@@ -253,7 +253,7 @@ Must be used only in combination with the `--batch-size` option.
 
 The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total will be performed within one batch to properly handle parallel pushes.
 
-Must be used in combination with the `--batch-id` option.
+Must be used only in combination with the `--batch-id` option. Must be an integer bigger than 1.
 
 ### Skip decorator
 

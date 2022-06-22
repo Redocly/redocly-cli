@@ -53,7 +53,21 @@ describe('push', () => {
     });
   });
 
-  it('fails if only batchId is defined', async () => {
+  it('fails if batchId value is an empty string', async () => {
+    await handlePush({
+      upsert: true,
+      entrypoint: 'spec.json',
+      destination: '@org/my-api@1.0.0',
+      branchName: 'test',
+      'public': true,
+      'batch-id': ' ',
+      'batch-size': 2,
+    });
+
+    expect(exitWithError).toBeCalledTimes(1);
+  });
+
+  it('fails if batchSize value is less than 2', async () => {
     await handlePush({
       upsert: true,
       entrypoint: 'spec.json',
@@ -61,6 +75,7 @@ describe('push', () => {
       branchName: 'test',
       'public': true,
       'batch-id': '123',
+      'batch-size': 1,
     });
 
     expect(exitWithError).toBeCalledTimes(1);

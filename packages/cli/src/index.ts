@@ -124,7 +124,9 @@ yargs
             description: 'Make API registry available to the public',
             type: 'boolean',
           },
-        }),
+        })
+        .implies('batch-id', 'batch-size')
+        .implies('batch-size', 'batch-id'),
     transformPush(handlePush)
   )
   .command(

@@ -52,6 +52,9 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const startedAt = performance.now();
   const { destination, branchName, upsert } = argv;
 
+  const batchId = argv['batch-id'];
+  const batchSize = argv['batch-size'];
+
   if (
     destination &&
     !(validateDestination(destination) || validateDestinationWithoutOrganization(destination))
@@ -83,11 +86,15 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     );
   }
 
-  if (argv['batch-id'] && !argv['batch-size']) {
+  if (batchId && !batchId.replace(/\s/g, '')) {
     exitWithError(
-      `The ${blue(`batch-id`)} option should be used in combination with ${blue(
-        `batch-size`
-      )} option.`
+      `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`
+    );
+  }
+
+  if (batchSize && batchSize < 2) {
+    exitWithError(
+      `The ${blue(`batch-size`)} option value is not valid, please use the integer bigger than 1.`
     );
   }
 
@@ -158,8 +165,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
         branch: branchName,
         isUpsert: upsert,
         isPublic: argv['public'],
-        batchId: argv['batch-id'],
-        batchSize: argv['batch-size'],
+        batchId: batchId,
+        batchSize: batchSize,
       });
     } catch (error) {
       if (error.message === 'ORGANIZATION_NOT_FOUND') {
