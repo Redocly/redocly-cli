@@ -75,9 +75,9 @@ describe('E2E', () => {
 
   describe('lint-config', () => {
     const lintOptions: { dirName: string; option: string | null }[] = [
-      { dirName: 'invalid-conifg--lint-config-off', option: 'off' },
-      { dirName: 'invalid-conifg--lint-config-warn', option: 'warn' },
-      { dirName: 'invalid-conifg--lint-config-error', option: 'error' },
+      { dirName: 'invalid-config--lint-config-off', option: 'off' },
+      { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
+      { dirName: 'invalid-config--lint-config-error', option: 'error' },
       { dirName: 'invlid-lint-config-saverity', option: 'something' },
       { dirName: 'invalid-config--no-option', option: null },
       { dirName: 'invalid-config-assertation-name', option: 'error' },

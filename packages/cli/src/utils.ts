@@ -307,7 +307,7 @@ export function printUnusedWarnings(config: LintConfig) {
   }
 
   if (rules.length || preprocessors.length) {
-    process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
+    process.stderr.write(`Check the spelling and verify the added plugin prefix.\n`);
   }
 }
 

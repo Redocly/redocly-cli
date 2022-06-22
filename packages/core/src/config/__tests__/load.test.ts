@@ -45,7 +45,7 @@ describe('loadConfig', () => {
     ]);
   });
 
-  it('should call calback if such passed', async () => {
+  it('should call callback if such passed', async () => {
     const mockFn = jest.fn();
     await loadConfig(undefined, undefined, mockFn);
     expect(mockFn).toHaveBeenCalled();

@@ -111,7 +111,7 @@ export async function lintConfig(opts: {
   });
 
   const types = normalizeTypes(ConfigTypes, config);
-  const rules = [{ severity: severity || 'error', ruleId: 'spec', visitor: OasSpec({ severity: 'error' }) }];
+  const rules = [{ severity: severity || 'error', ruleId: 'configuration spec', visitor: OasSpec({ severity: 'error' }) }];
   const normalizedVisitors = normalizeVisitors(rules, types);
 
   walkDocument({

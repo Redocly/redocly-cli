@@ -61,19 +61,19 @@ describe('printConfigLintTotals', () => {
     ignored: 0,
   };
 
-  const redColloreteMocks = red as jest.Mock<any, any>;
-  const yelowColloreteMocks = yellow as jest.Mock<any, any>;
+  const redColoretteMocks = red as jest.Mock<any, any>;
+  const yellowColoretteMocks = yellow as jest.Mock<any, any>;
 
   beforeEach(() => {
-    yelowColloreteMocks.mockImplementation((text: string) => text);
-    redColloreteMocks.mockImplementation((text: string) => text);
+    yellowColoretteMocks.mockImplementation((text: string) => text);
+    redColoretteMocks.mockImplementation((text: string) => text);
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   it('should print errors if such exist', () => {
     printConfigLintTotals(totalProblemsMock);
     expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
-    expect(redColloreteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
   });
 
   it('should print warnign and error', () => {
@@ -81,20 +81,20 @@ describe('printConfigLintTotals', () => {
     expect(process.stderr.write).toHaveBeenCalledWith(
       '❌ Your config has 1 error and 2 warnings.\n',
     );
-    expect(redColloreteMocks).toHaveBeenCalledWith('❌ Your config has 1 error and 2 warnings.\n');
+    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error and 2 warnings.\n');
   });
 
   it('should print warnign if no error', () => {
     printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
     expect(process.stderr.write).toHaveBeenCalledWith('You have 2 warnings.\n');
-    expect(yelowColloreteMocks).toHaveBeenCalledWith('You have 2 warnings.\n');
+    expect(yellowColoretteMocks).toHaveBeenCalledWith('You have 2 warnings.\n');
   });
 
   it('should print nothing if no error and no warnings', () => {
     const result = printConfigLintTotals({ ...totalProblemsMock, errors: 0 });
     expect(result).toBeUndefined();
     expect(process.stderr.write).toHaveBeenCalledTimes(0);
-    expect(yelowColloreteMocks).toHaveBeenCalledTimes(0);
-    expect(redColloreteMocks).toHaveBeenCalledTimes(0);
+    expect(yellowColoretteMocks).toHaveBeenCalledTimes(0);
+    expect(redColoretteMocks).toHaveBeenCalledTimes(0);
   });
 });
