@@ -43,7 +43,7 @@ export function filter(node: any, ctx: UserContext, criteria: (item: any) => boo
     }
 }
 
-export function checkIfMatchByStrategy(nodeValue: any, decoratorValue: any, strategy: string): boolean {
+export function checkIfMatchByStrategy(nodeValue: any, decoratorValue: any, strategy: 'all' | 'any'): boolean {
     if (!nodeValue || !decoratorValue) {
         return false;
     }
@@ -52,8 +52,8 @@ export function checkIfMatchByStrategy(nodeValue: any, decoratorValue: any, stra
         return nodeValue === decoratorValue;
     }
 
-    decoratorValue = toLowerCaseArrayIfNeeded(decoratorValue);
-    nodeValue = toLowerCaseArrayIfNeeded(nodeValue);
+    decoratorValue = toArrayIfNeeded(decoratorValue);
+    nodeValue = toArrayIfNeeded(nodeValue);
 
     if (strategy === 'any') {
         return decoratorValue.some((item: string) => nodeValue.includes(item));
@@ -64,11 +64,9 @@ export function checkIfMatchByStrategy(nodeValue: any, decoratorValue: any, stra
     return false;
 }
 
-function toLowerCaseArrayIfNeeded(value: string | string[]): string[] {
+function toArrayIfNeeded(value: string | string[]): string[] {
     if (!Array.isArray(value)) {
-        value = [value.toLowerCase()];
-    } else {
-        return value.map((item) => item.toLowerCase());
+        value = [value];
     }
     return value;
 }

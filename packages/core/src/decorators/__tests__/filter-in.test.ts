@@ -14,51 +14,19 @@ describe('oas3 filter-in', () => {
             x-audience: Global
             post:
               summary: test
-              requestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    schema:
-                      type: object
           /user:
             x-audience: [Public, Global]
             post:
               summary: test
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object            
+          /post:
+            get:
+              summary: test                        
           /order:
             x-audience: [Public, Protected]
             post:
               operationId: storeOrder
-              parameters:
-                - name: api_key
-                  schema:
-                    x-internal: true
-                    type: string
-              responses:
-                '200':
-                  x-internal: true
-                  content:
-                    application/json:
-                      examples:
-                        response:
-                          value: OK
-              requestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    x-internal: true
-                    schema:
-                      type: object
               callbacks:
-                access: protected
-                orderInProgress:
-                  x-internal: true
-                  '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-                    servers:
-                      - url: //callback-url.path-level/v1
-                        description: Path level server `,
+                access: protected`
   );
 
   it('should include /pet path', async () => {
@@ -81,7 +49,7 @@ describe('oas3 filter-in', () => {
           x:
             name: x
             
-    `,
+    `
     );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
@@ -104,7 +72,7 @@ describe('oas3 filter-in', () => {
     `);
   });
 
-  it('should include only /order path', async () => {
+  it('should include /order and /post paths', async () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
@@ -116,45 +84,23 @@ describe('oas3 filter-in', () => {
             value: ['Public', 'Protected'],
             matchStrategy: 'all',
           },
-        },
+        }
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
       paths:
+        /post:
+          get:
+            summary: test
         /order:
           x-audience:
             - Public
             - Protected
           post:
             operationId: storeOrder
-            parameters:
-              - name: api_key
-                schema:
-                  x-internal: true
-                  type: string
-            responses:
-              '200':
-                x-internal: true
-                content:
-                  application/json:
-                    examples:
-                      response:
-                        value: OK
-            requestBody:
-              content:
-                application/x-www-form-urlencoded:
-                  x-internal: true
-                  schema:
-                    type: object
             callbacks:
               access: protected
-              orderInProgress:
-                x-internal: true
-                '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-                  servers:
-                    - url: //callback-url.path-level/v1
-                      description: Path level server
       components: {}
 
     `);
@@ -169,51 +115,17 @@ describe('oas3 filter-in', () => {
             x-audience: Global
             post:
               summary: test
-              requestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    schema:
-                      type: object
           /user:
             x-audience: [Public, Global]
             post:
-              summary: test
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      type: object            
+              summary: test            
           /order:
             x-audience: [Public, Protected]
             post:
               operationId: storeOrder
               parameters:
                 - name: api_key
-                  schema:
-                    x-internal: true
-                    type: string
-              responses:
-                '200':
-                  x-internal: true
-                  content:
-                    application/json:
-                      examples:
-                        response:
-                          value: OK
-              requestBody:
-                content:
-                  application/x-www-form-urlencoded:
-                    x-internal: true
-                    schema:
-                      type: object
-              callbacks:
-                access: protected
-                orderInProgress:
-                  x-internal: true
-                  '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-                    servers:
-                      - url: //callback-url.path-level/v1
-                        description: Path level server `,
+                 `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -226,7 +138,7 @@ describe('oas3 filter-in', () => {
             value: ['Public', 'Global'],
             matchStrategy: 'any',
           },
-        },
+        }
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -236,22 +148,12 @@ describe('oas3 filter-in', () => {
           x-audience: Global
           post:
             summary: test
-            requestBody:
-              content:
-                application/x-www-form-urlencoded:
-                  schema:
-                    type: object
         /user:
           x-audience:
             - Public
             - Global
           post:
             summary: test
-            requestBody:
-              content:
-                application/json:
-                  schema:
-                    type: object
         /order:
           x-audience:
             - Public
@@ -260,37 +162,12 @@ describe('oas3 filter-in', () => {
             operationId: storeOrder
             parameters:
               - name: api_key
-                schema:
-                  x-internal: true
-                  type: string
-            responses:
-              '200':
-                x-internal: true
-                content:
-                  application/json:
-                    examples:
-                      response:
-                        value: OK
-            requestBody:
-              content:
-                application/x-www-form-urlencoded:
-                  x-internal: true
-                  schema:
-                    type: object
-            callbacks:
-              access: protected
-              orderInProgress:
-                x-internal: true
-                '{$request.body#/callbackUrl}?event={$request.body#/eventName}':
-                  servers:
-                    - url: //callback-url.path-level/v1
-                      description: Path level server
       components: {}
 
     `);
   });
 
-  it('should not include paths', async () => {
+  it('should include path without x-audience property ', async () => {
     const { bundle: res } = await bundleDocument({
       document: inputDoc,
       externalRefResolver: new BaseResolver(),
@@ -299,14 +176,18 @@ describe('oas3 filter-in', () => {
         {
           'filter-in': {
             property: 'x-audience',
-            value: 'all',
+            value: 'non-existing-audience',
             matchStrategy: 'any',
           },
-        },
+        }
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
+      paths:
+        /post:
+          get:
+            summary: test
       components: {}
 
     `);
@@ -340,7 +221,7 @@ describe('oas2 filter-in', () => {
                 '200':
                   description: List of recent media entries.
                   access: [private, protected]
-      `,
+      `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -353,7 +234,7 @@ describe('oas2 filter-in', () => {
             value: ['public', 'global'],
             matchStrategy: 'any',
           },
-        },
+        }
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
