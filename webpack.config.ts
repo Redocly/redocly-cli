@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: './packages/cli/src/index.ts',
+  mode: 'none',
   module: {
     rules: [
       {
@@ -12,8 +13,8 @@ module.exports = {
             loader: 'ts-loader',
           },
           {
-            loader: 'shebang-loader'
-         }
+            loader: 'shebang-loader',
+          },
         ],
         exclude: /node_modules/,
       },
@@ -27,22 +28,30 @@ module.exports = {
       {
         test: path.resolve(__dirname, 'node_modules/fsevents/fsevents.node'),
         use: 'null-loader',
-      }
+      },
     ],
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ],
-    mainFields: [ 'main' ]
+    extensions: ['.tsx', '.ts', '.js'],
+    mainFields: ['main'],
+    fallback: {
+      fs: false,
+    },
   },
 
   node: {
     __dirname: false,
-    fs: 'empty',
   },
 
   plugins: [
-    new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true }),
+    new webpack.BannerPlugin({ banner: '#!/usr/bin/env node', raw: true }),
   ],
+
+  optimization: {
+    splitChunks: {
+      minChunks: Infinity,
+    },
+  },
 
   output: {
     filename: 'bundle.js',
