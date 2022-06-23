@@ -354,9 +354,10 @@ lint:
 ### response-contains-property
 
 Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
-Priority is given to more precise status codes over the status code range.
+A specific status code takes priority over the status code range.
+
 ```yaml
-response-contains-header:
+response-contains-property:
   severity: error
   names:
     2XX:
@@ -364,7 +365,6 @@ response-contains-header:
     400:
       - title
 ```
-
 
 ### scalar-property-missing-example
 
