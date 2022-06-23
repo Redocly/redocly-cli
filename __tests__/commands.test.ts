@@ -1,9 +1,8 @@
-import { readdirSync, statSync, existsSync, readFileSync } from 'fs';
-import { spawnSync } from 'child_process';
+import { readdirSync, statSync, existsSync } from 'fs';
 import { join, relative } from 'path';
 //@ts-ignore
-import { toMatchSpecificSnapshot, addSerializer } from './specific-snapshot';
-import { parseYaml } from '../packages/core/src/utils'; // not able to import from @redocly/openapi-core
+import { toMatchSpecificSnapshot } from './specific-snapshot';
+import { getCommandOutput, getEntrypoints, callSerializer ,getParams } from './helpers';
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -11,49 +10,7 @@ expect.extend({
   },
 });
 
-addSerializer({
-  test: (val: any) => typeof val === 'string',
-  print: (v: any) => cleanUpVersion(v),
-});
-
-function cleanUpVersion(str: string): string {
-  return str.replace(/"version":\s(\".*\")*/g, '"version": "<version>"');
-}
-
-function getEntrypoints(folderPath: string) {
-  const redoclyYamlFile = readFileSync(join(folderPath, '.redocly.yaml'), 'utf8');
-  const redoclyYaml = parseYaml(redoclyYamlFile) as { apis: Record<string, string> };
-  return Object.keys(redoclyYaml.apis);
-}
-
-type CLICommands =
-  | 'lint'
-  | 'bundle'
-  | 'join'
-  | 'login'
-  | 'logout'
-  | 'preview-docs'
-  | 'push'
-  | 'split'
-  | 'stats';
-
-function getParams(command: CLICommands, args: string[] = []): string[] {
-  return ['--transpile-only', '../../../packages/cli/src/index.ts', command, ...args];
-}
-
-function getCommandOutput(params: string[], folderPath: string) {
-  const result = spawnSync('ts-node', params, {
-    cwd: folderPath,
-    env: {
-      ...process.env,
-      NODE_ENV: 'test',
-      NO_COLOR: 'TRUE',
-    },
-  });
-  const out = result.stdout.toString('utf-8');
-  const err = result.stderr.toString('utf-8');
-  return `${out}\n${err}`;
-}
+callSerializer();
 
 describe('E2E', () => {
   describe('lint', () => {
@@ -64,7 +21,7 @@ describe('E2E', () => {
       if (statSync(testPath).isFile()) continue;
       if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
 
-      const args = getParams('lint');
+      const args = getParams('../../../packages/cli/src/index.ts','lint');
 
       it(file, () => {
         const result = getCommandOutput(args, testPath);
@@ -93,7 +50,7 @@ describe('E2E', () => {
       const relativeValidOpenapiFile = relative(folderPath, validOpenapiFile);
       const args = [relativeValidOpenapiFile, ...(option ? [`--lint-config=${option}`] : [])];
 
-      const passedArgs = getParams('lint', args);
+      const passedArgs = getParams('../../../packages/cli/src/index.ts','lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
       (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -103,7 +60,7 @@ describe('E2E', () => {
       const folderPath = join(__dirname, 'lint-config/invalid-definition-and-config');
       const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
       const args = [relativeInvalidOpenapiFile, `--lint-config=error`];
-      const passedArgs = getParams('lint', args);
+      const passedArgs = getParams('../../../packages/cli/src/index.ts','lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
 
@@ -115,7 +72,7 @@ describe('E2E', () => {
     test('without option: outDir', () => {
       const folderPath = join(__dirname, `split/missing-outDir`);
 
-      const args = getParams('split', ['../../../__tests__/split/test-split/spec.json']);
+      const args = getParams('../../../packages/cli/src/index.ts','split', ['../../../__tests__/split/test-split/spec.json']);
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -124,7 +81,7 @@ describe('E2E', () => {
     test('swagger', () => {
       const folderPath = join(__dirname, `split/oas2`);
 
-      const args = getParams('split', [
+      const args = getParams('../../../packages/cli/src/index.ts','split', [
         '../../../__tests__/split/oas2/openapi.yaml',
         '--outDir=output',
       ]);
@@ -137,7 +94,7 @@ describe('E2E', () => {
       const folderPath = join(__dirname, `split/oas3-no-errors`);
       const file = '../../../__tests__/split/oas3-no-errors/openapi.yaml';
 
-      const args = getParams('split', [file, '--outDir=output']);
+      const args = getParams('../../../packages/cli/src/index.ts','split', [file, '--outDir=output']);
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -158,7 +115,7 @@ describe('E2E', () => {
 
       test.each(testDirNames)('test: %s', (dir) => {
         const testPath = join(__dirname, `join/${dir}`);
-        const args = getParams('join', entrypoints);
+        const args = getParams('../../../packages/cli/src/index.ts','join', entrypoints);
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
@@ -175,7 +132,7 @@ describe('E2E', () => {
       test.each(options)('test with option: %s', (option) => {
         const testPath = join(__dirname, `join/${option.name}`);
         const argsWithOptions = [...entrypoints, ...[`--${option.name}=${option.value}`]];
-        const args = getParams('join', argsWithOptions);
+        const args = getParams('../../../packages/cli/src/index.ts','join', argsWithOptions);
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
@@ -195,7 +152,7 @@ describe('E2E', () => {
 
       const entryPoints = getEntrypoints(testPath);
 
-      const args = getParams('bundle', [
+      const args = getParams('../../../packages/cli/src/index.ts','bundle', [
         '--lint',
         '--max-problems=1',
         '--format=stylish',
@@ -212,7 +169,7 @@ describe('E2E', () => {
   describe('bundle lint format', () => {
     const folderPath = join(__dirname, 'bundle/bundle-lint-format');
     const entryPoints = getEntrypoints(folderPath);
-    const args = getParams('bundle', [
+    const args = getParams('../../../packages/cli/src/index.ts','bundle', [
       '--lint',
       '--max-problems=1',
       '-o=/tmp/null',

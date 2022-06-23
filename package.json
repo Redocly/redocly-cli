@@ -14,7 +14,7 @@
     "coverage:cli": "jest --roots packages/cli/src --coverage",
     "coverage:core": "jest --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
-    "e2e": "jest --roots=./__tests__/",
+    "e2e": "npm run webpack-bundle && jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "watch": "tsc -b tsconfig.build.json --watch ",
@@ -64,7 +64,7 @@
     "ts-loader": "^8.0.2",
     "ts-node": "^9.0.0",
     "typescript": "4.3.3",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
   }
 }
