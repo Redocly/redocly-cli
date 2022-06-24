@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: './packages/cli/src/index.ts',
-  mode: 'none',
+  mode: 'production',
   module: {
     rules: [
       {
