@@ -26,44 +26,44 @@ describe('oas3 filter-in', () => {
             post:
               operationId: storeOrder
               callbacks:
-                access: protected`
+                x-access: protected`
   );
 
-  it('should include /pet path', async () => {
+  it('should include /user path and remove y parameter', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
       openapi: 3.0.0
       paths:
         /pet:
-          access: public
+          x-access: private
           get:
             parameters:
               - $ref: '#/components/parameters/x'
         /user:
-          access: private
+          x-access: public
           get:
             parameters:
-              - $ref: '#/components/parameters/x'      
+              - $ref: '#/components/parameters/y'      
       components:
         parameters:
           x:
             name: x
-            
+          y:
+            x-access: private
+            name: y            
     `
     );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-in': { value: 'public', property: 'access' } }),
+      config: await makeConfig({}, { 'filter-in': { value: 'public', property: 'x-access' } }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
       openapi: 3.0.0
       paths:
-        /pet:
-          access: public
-          get:
-            parameters:
-              - $ref: '#/components/parameters/x'
+        /user:
+          x-access: public
+          get: {}
       components:
         parameters:
           x:
@@ -100,7 +100,7 @@ describe('oas3 filter-in', () => {
           post:
             operationId: storeOrder
             callbacks:
-              access: protected
+              x-access: protected
       components: {}
 
     `);
@@ -192,6 +192,59 @@ describe('oas3 filter-in', () => {
 
     `);
   });
+
+  it('should include /pet and /account without post method', async () => {
+    const testDoc = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            x-audience: Global
+            post:
+              summary: test
+          /user:
+            x-audience: Private
+            post:
+              summary: test
+            get:
+               summary: get
+               x-audience: [Public, Global]
+          /account:
+            get:
+               summary: get
+            post: 
+               summary: test
+               x-audience: Private     
+                 `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDoc,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig(
+        {},
+        {
+          'filter-in': {
+            property: 'x-audience',
+            value: ['Public', 'Global'],
+            matchStrategy: 'any',
+          },
+        }
+      ),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          x-audience: Global
+          post:
+            summary: test
+        /account:
+          get:
+            summary: get
+      components: {}
+
+    `);
+  });
 });
 
 describe('oas2 filter-in', () => {
@@ -205,13 +258,13 @@ describe('oas2 filter-in', () => {
             get:
               parameters:
                 - description: The geography ID.
-                  access: private
+                  x-access: private
                   in: path
                   name: geo-id
                   required: true
                   type: string
                 - description: Max number of media to return.
-                  access: public
+                  x-access: public
                   format: int32
                   in: query
                   name: count
@@ -220,7 +273,7 @@ describe('oas2 filter-in', () => {
               responses:
                 '200':
                   description: List of recent media entries.
-                  access: [private, protected]
+                  x-access: [private, protected]
       `
     );
     const { bundle: res } = await bundleDocument({
@@ -230,7 +283,7 @@ describe('oas2 filter-in', () => {
         {},
         {
           'filter-in': {
-            property: 'access',
+            property: 'x-access',
             value: ['public', 'global'],
             matchStrategy: 'any',
           },
@@ -245,7 +298,7 @@ describe('oas2 filter-in', () => {
           get:
             parameters:
               - description: Max number of media to return.
-                access: public
+                x-access: public
                 format: int32
                 in: query
                 name: count

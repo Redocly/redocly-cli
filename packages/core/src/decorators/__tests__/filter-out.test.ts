@@ -25,33 +25,35 @@ describe('oas3 filter-out', () => {
               parameters:
                 - name: api_key
               callbacks:
-                access: protected
+                x-access: protected
                 orderInProgress:
                   x-internal: true
              `
   );
 
-  it('should remove /pet path', async () => {
+  it('should remove /pet path and y parameter', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
       openapi: 3.0.0
       paths:
         /pet:
-          access: private
+          x-access: private
           get:
             parameters:
-              - $ref: '#/components/parameters/x'
+              - $ref: '#/components/parameters/y'
       components:
         parameters:
           x:
             name: x
-            
+          y:
+            x-access: private
+            name: y  
     `
     );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: await makeConfig({}, { 'filter-out': { property: 'access', value: 'private' } }),
+      config: await makeConfig({}, { 'filter-out': { property: 'x-access', value: 'private' } }),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
           openapi: 3.0.0
@@ -126,7 +128,7 @@ describe('oas3 filter-out', () => {
             summary: test
             requestBody:
               content:
-                access: private
+                x-access: private
                 application/x-www-form-urlencoded:
                   schema:
                     type: object
@@ -141,7 +143,7 @@ describe('oas3 filter-out', () => {
         {},
         {
           'filter-out': {
-            property: 'access',
+            property: 'x-access',
             value: 'private',
             matchStrategy: 'any',
           },
@@ -171,22 +173,25 @@ describe('oas2 filter-out', () => {
             get:
               parameters:
                 - description: The geography ID.
-                  access: private
+                  x-access: private
                   in: path
                   name: geo-id
                   required: true
                   type: string
                 - description: Max number of media to return.
-                  access: protected
+                  x-access: protected
                   format: int32
                   in: query
                   name: count
                   required: false
                   type: integer
               responses:
-                '200':
+                $ref: '#/components/response/200'
+        components:
+          response:
+            '200':
                   description: List of recent media entries.
-                  access: [protected, public]
+                  x-access: [protected, public]            
       `
     );
     const { bundle: res } = await bundleDocument({
@@ -196,7 +201,7 @@ describe('oas2 filter-out', () => {
         {},
         {
           'filter-out': {
-            property: 'access',
+            property: 'x-access',
             value: ['private', 'protected'],
             matchStrategy: 'any',
           },
@@ -204,12 +209,19 @@ describe('oas2 filter-out', () => {
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
-          swagger: '2.0'
-          host: api.instagram.com
-          paths:
-            /geographies/{geo-id}/media/recent:
-              get: {}
+      swagger: '2.0'
+      host: api.instagram.com
+      paths:
+        /geographies/{geo-id}/media/recent:
+          get: {}
+      components:
+        response:
+          '200':
+            description: List of recent media entries.
+            x-access:
+              - protected
+              - public
 
-        `);
+    `);
   });
 });

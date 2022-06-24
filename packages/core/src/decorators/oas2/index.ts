@@ -4,8 +4,8 @@ import { OperationDescriptionOverride } from '../common/operation-description-ov
 import { TagDescriptionOverride } from '../common/tag-description-override';
 import { InfoDescriptionOverride } from '../common/info-description-override';
 import { RemoveXInternal } from '../common/remove-x-internal';
-import {FilterIn} from "../common/filters/filter-in";
-import {FilterOut} from "../common/filters/filter-out";
+import { FilterIn } from '../common/filters/filter-in';
+import { FilterOut } from '../common/filters/filter-out';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,
@@ -14,5 +14,5 @@ export const decorators = {
   'info-description-override': InfoDescriptionOverride as Oas2Decorator,
   'remove-x-internal': RemoveXInternal as Oas2Decorator,
   'filter-in': FilterIn as Oas2Decorator,
-  'filter-out': FilterOut as Oas2Decorator
+  'filter-out': FilterOut as Oas2Decorator,
 };
