@@ -242,4 +242,4 @@ To learn more about preprocessors and rules, refer to the [custom rules](../reso
 
 ### Lint config file
 
-The `lint` command also validate the configuration file. You may want to set saverity level by using the `--lint-config` option.  This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`. 
+The `lint` command also validates the configuration file. You may want to set severity level by using the `--lint-config` option.  This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`. 
