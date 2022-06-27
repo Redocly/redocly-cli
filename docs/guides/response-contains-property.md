@@ -21,7 +21,22 @@ Let's get started!
 ## Before you begin
 
 - [Use the openapi-starter repository](./openapi-starter.md) to set up a basic project that we will use for this guide.
-- Replace `openapi/paths/users_{username}.yaml` file [with the modified one](https://gist.github.com/bandantonio/8a5d6e3c93702495f0b0a367f8132eaa) for this guide
+- [Download the modified project files](https://gist.github.com/bandantonio/c6047e3ee70c90da013a2f8e6757edb0) and use them to
+replace the corresponding files in the `openapi` folder:
+
+```bash
+.
+└── openapi
+    ├── components
+    │   └── responses
+    │       ├── 200.yaml
+    │       ├── 201.yaml
+    │       └── 202.yaml
+    └── paths
+        ├── path-item-with-examples.yaml
+        ├── path-item.yaml
+        └── users_{username}.yaml
+```
 
 :::note
 Make sure that the @redocly/cli has version `1.0.0-beta.99` or later
