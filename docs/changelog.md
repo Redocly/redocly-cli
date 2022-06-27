@@ -10,6 +10,7 @@ tocMaxDepth: 2
 
 - Added new property `ref` to assertation object
 - Added the `--lint-config` option for the `lint` command. Use it to validate the configuration file with appropriate severity level.
+- Added new decorators `filter-in` and `filter-out`
 
 ### Fixes 
 

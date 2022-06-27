@@ -85,3 +85,32 @@ lint:
     remove-x-internal:
       internalFlagProperty: 'removeit'
 ```
+### filter-in
+
+Keep nodes that have specific `property` set to the specific `value`. Arrays supported too.
+To compare arrays, you can use `matchStrategy` that can take the values `all` and `any` (`any` by default)  
+If the property is not set on the node it will be keep too.
+
+```yaml
+lint:
+  decorators:
+    filter-in:
+      property: x-audience
+      value: [Public, Partner]
+      matchStrategy: any
+```
+
+### filter-out
+
+Remove nodes that have specific `property` set to the specific `value`.  
+If `value` is array you can use `matchStrategy` to compare values.
+The `matchStrategy` can take the values `all` and `any` (`any` by default)
+
+```yaml
+lint:
+  decorators:
+    filter-out:
+      property: x-audience
+      value: [Public, Partner]
+      matchStrategy: any
+```
