@@ -4,6 +4,19 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.103 (2022-06-27)
+
+### Features
+
+- Added new property `ref` to assertation object
+- Added the `--lint-config` option for the `lint` command. Use it to validate the configuration file with appropriate severity level.
+- Added new built-in decorators `filter-in` and `filter-out`
+
+### Fixes 
+
+- Resolved an issue with the `--run-id` option for the `push` command. The `--run-id` option renamed to the `--batch-id`, added the `--batch-size` option. 
+- Improved types for the configuration file. 
+
 ## 1.0.0-beta.102 (2022-06-09)
 
 ### Features 
