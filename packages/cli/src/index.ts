@@ -3,7 +3,7 @@
 import './assert-node-version';
 import * as yargs from 'yargs';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat } from '@redocly/openapi-core';
+import { RedoclyClient, OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -29,7 +29,7 @@ yargs
           default: 'stylish' as OutputFormat,
         },
       }),
-    handleStats,
+    handleStats
   )
   .command(
     'split [entrypoint]',
@@ -54,7 +54,7 @@ yargs
           },
         })
         .demandOption('entrypoint'),
-    handleSplit,
+    handleSplit
   )
   .command(
     'join [entrypoints...]',
@@ -85,12 +85,12 @@ yargs
           },
           'without-x-tag-groups': {
             description: 'Skip automated x-tagGroups creation',
-            type: 'boolean'
-          }
+            type: 'boolean',
+          },
         }),
     (argv) => {
       handleJoin(argv, version);
-    },
+    }
   )
   .command(
     'push [maybeEntrypointOrAliasOrDestination] [maybeDestination] [maybeBranchName]',
@@ -103,19 +103,31 @@ yargs
         .option({
           branch: { type: 'string', alias: 'b' },
           upsert: { type: 'boolean', alias: 'u' },
-          'run-id': { type: 'string', requiresArg: true },
+          'batch-id': {
+            description:
+              'Specifies the ID of the CI job that the current push will be associated with.',
+            type: 'string',
+            requiresArg: true,
+          },
+          'batch-size': {
+            description: 'Specifies the total number of CI jobs planned to be pushed.',
+            type: 'number',
+            requiresArg: true,
+          },
           region: { description: 'Specify a region.', alias: 'r', choices: regionChoices },
           'skip-decorator': {
             description: 'Ignore certain decorators.',
             array: true,
             type: 'string',
           },
-          'public': {
+          public: {
             description: 'Make API registry available to the public',
             type: 'boolean',
           },
-        }),
-    transformPush(handlePush),
+        })
+        .implies('batch-id', 'batch-size')
+        .implies('batch-size', 'batch-id'),
+    transformPush(handlePush)
   )
   .command(
     'lint [entrypoints...]',
@@ -153,6 +165,15 @@ yargs
           array: true,
           type: 'string',
         },
+        'lint-config': {
+          description: 'Apply severity for linting the config file.',
+          choices: [
+            'warn',
+            'error',
+            'off',
+          ] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
         config: {
           description: 'Specify path to the config file.',
           requiresArg: true,
@@ -167,7 +188,7 @@ yargs
       }),
     (argv) => {
       handleLint(argv, version);
-    },
+    }
   )
   .command(
     'bundle [entrypoints...]',
@@ -243,7 +264,7 @@ yargs
       }),
     (argv) => {
       handleBundle(argv, version);
-    },
+    }
   )
   .command(
     'login',
@@ -260,7 +281,7 @@ yargs
           choices: regionChoices,
         },
       }),
-    handleLogin,
+    handleLogin
   )
   .command(
     'logout',
@@ -270,7 +291,7 @@ yargs
       const client = new RedoclyClient();
       client.logout();
       process.stdout.write('Logged out from the Redocly account. ✋\n');
-    },
+    }
   )
   .command(
     'preview-docs [entrypoint]',
@@ -313,7 +334,7 @@ yargs
           type: 'string',
         },
       }),
-    previewDocs,
+    previewDocs
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)

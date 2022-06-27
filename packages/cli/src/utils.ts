@@ -230,6 +230,24 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   process.stderr.write('\n');
 }
 
+export function printConfigLintTotals(totals: Totals): void {
+  if (totals.errors > 0) {
+    process.stderr.write(
+      red(
+        `❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}${
+          totals.warnings > 0
+            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
+            : ''
+        }.\n`,
+      ),
+    );
+  } else if (totals.warnings > 0) {
+    process.stderr.write(
+      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`),
+    );
+  };
+}
+
 export function getOutputFileName(
   entrypoint: string,
   entries: number,
@@ -289,7 +307,7 @@ export function printUnusedWarnings(config: LintConfig) {
   }
 
   if (rules.length || preprocessors.length) {
-    process.stderr.write(`Check the spelling and verify you added plugin prefix.\n`);
+    process.stderr.write(`Check the spelling and verify the added plugin prefix.\n`);
   }
 }
 

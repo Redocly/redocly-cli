@@ -71,7 +71,7 @@ To authenticate to the API registry, you can use several approaches:
 ```bash
 redocly push [entrypoint] <destination>
 redocly push
-redocly push [-u] [--run-id id] <path/to/definition.yaml> <@organization-id/api-name@api-version> [--branch]
+redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml> <@organization-id/api-name@api-version> [--branch]
 ```
 
 ## Options
@@ -82,7 +82,8 @@ entrypoint       | string    | The API definition that you want to push to the R
 destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
 --branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --help       | boolean | Help output for the command.  |
---run-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Run ID section](#run-id) for more information.  |
+--batch-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Batch ID section](#batch-id) for more information.  |
+--batch-size       | number | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.  |
 --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
@@ -237,18 +238,22 @@ redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 -b develop
 redocly push -u test-api@v1 -b develop
 ```
 
-### Run ID
+### Batch ID
 
-The `--run-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job. It is auto-populated for the following CI systems so you don't have to pass it separately:
+The `--batch-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job.
 
-- Travis CI
-- CircleCI
-- GitHub Actions
-
-Below are possible use cases for the `--run-id` option:
+Below are possible use cases for the `--batch-id` option:
 
 - CI/CD systems: group pushes from a single CI job together so that each push does not trigger separate reference docs/portals rebuild.
 - External systems: a parameter that can be used in reports, metrics, analytics to refer to a specific application service state.
+
+Must be used only in combination with the `--batch-size` option.
+
+### Batch Size
+
+The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total will be performed within one batch to properly handle parallel pushes.
+
+Must be used only in combination with the `--batch-id` option. Must be an integer bigger than 1.
 
 ### Skip decorator
 
