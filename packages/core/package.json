@@ -16,7 +16,8 @@
     "fs": false,
     "path": "path-browserify",
     "os": false,
-    "node-fetch": false
+    "node-fetch": false,
+    "colorette": false
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
