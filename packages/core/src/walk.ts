@@ -24,19 +24,14 @@ export type ResolveResult<T extends NonUndefined> =
   | { node: T; location: Location; error?: ResolveError | YamlParseError }
   | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
 
-export type ResolveFn<T> = (
-  node: Referenced<T>,
-  from?: string
-) => { location: Location; node: T } | { location: undefined; node: undefined };
+export type ResolveFn = <T>(node: Referenced<T>, from?: string) => ResolveResult<T>;
 
 export type UserContext = {
   report(problem: Problem): void;
   location: Location;
   rawNode: any;
   rawLocation: Location;
-  resolve<T>(
-    node: Referenced<T>
-  ): { location: Location; node: T } | { location: undefined; node: undefined };
+  resolve: ResolveFn;
   parentLocations: Record<string, Location>;
   type: NormalizedNodeType;
   key: string | number;
@@ -132,6 +127,27 @@ export function walkDocument<T>(opts: {
     parent: any,
     key: string | number
   ) {
+    const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
+      if (!isRef(ref)) return { location, node: ref };
+      const refId = makeRefId(from, ref.$ref);
+      const resolvedRef = resolvedRefMap.get(refId);
+      if (!resolvedRef) {
+        return {
+          location: undefined,
+          node: undefined,
+        };
+      }
+
+      const { resolved, node, document, nodePointer, error } = resolvedRef;
+      const newLocation = resolved
+        ? new Location(document!.source, nodePointer!)
+        : error instanceof YamlParseError
+        ? new Location(error.source, '')
+        : undefined;
+
+      return { location: newLocation, node, error };
+    };
+
     const rawLocation = location;
     let currentLocation = location;
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
@@ -384,30 +400,6 @@ export function walkDocument<T>(opts: {
         context
       );
       return { ignoreNextVisitorsOnNode };
-    }
-
-    function resolve<T>(
-      ref: Referenced<T>,
-      from: string = currentLocation.source.absoluteRef
-    ): ResolveResult<T> {
-      if (!isRef(ref)) return { location, node: ref };
-      const refId = makeRefId(from, ref.$ref);
-      const resolvedRef = resolvedRefMap.get(refId);
-      if (!resolvedRef) {
-        return {
-          location: undefined,
-          node: undefined,
-        };
-      }
-
-      const { resolved, node, document, nodePointer, error } = resolvedRef;
-      const newLocation = resolved
-        ? new Location(document!.source, nodePointer!)
-        : error instanceof YamlParseError
-        ? new Location(error.source, '')
-        : undefined;
-
-      return { location: newLocation, node, error };
     }
 
     function reportFn(ruleId: string, severity: ProblemSeverity, opts: Problem) {

@@ -207,7 +207,7 @@ The context object contains additional functionality that is helpful for rules t
 Additionally, the context object has the following methods:
 
 - `report(descriptor)` - reports a problem in the definition (see the dedicated section).
-- `resolve(node)` - synchronously dereferences $ref node to its value. Works only with $refs from the original document.
+- `resolve(node)` - synchronously dereferences $ref node to its value. Works only with $refs from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
 
 
 ## Location Object
