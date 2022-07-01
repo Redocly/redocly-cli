@@ -50,6 +50,7 @@ const builtInRulesList = [
   'no-invalid-parameter-examples',
   'response-contains-header',
   'response-contains-property',
+  'scalar-property-missing-example',
 ];
 const nodeTypesList = [
   'DefinitionRoot',
