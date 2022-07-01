@@ -129,7 +129,7 @@ run `openapi lint --generate-ignore-file` to add all problems to the ignore file
 If you're using the Redocly OpenAPI extension for VS Code, this is how the lint errors look
 in the integrated terminal (Problems tab):
 
-![](./assets/response-contains-property-one.png)
+![Response contains property problem in VS Code](./assets/response-contains-property-one.png)
 
 **What does the lint output mean**
 
@@ -217,7 +217,7 @@ run `openapi lint --generate-ignore-file` to add all problems to the ignore file
 If you're using the Redocly OpenAPI extension for VS Code, this is how the lint errors look
 in the integrated terminal (Problems tab):
 
-![](./assets/response-contains-property-range.png)
+![Response contains property problem in VS Code](./assets/response-contains-property-range.png)
  
 **What does the lint output mean**
 
@@ -325,7 +325,7 @@ run `openapi lint --generate-ignore-file` to add all problems to the ignore file
 If you're using the Redocly OpenAPI extension for VS Code, this is how the lint errors look
 in the integrated terminal (Problems tab):
 
-![](./images/response-contains-property-multiple.png)
+![Response contains property problem in VS Code](./images/response-contains-property-multiple.png)
 
 **What does the lint output mean**
 
