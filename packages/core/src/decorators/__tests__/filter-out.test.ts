@@ -160,6 +160,110 @@ describe('oas3 filter-out', () => {
 
     `);
   });
+
+  it('should remove /pet path and /my/path/false path', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          x-access: private
+          get:
+            x-prop: false
+            parameters:
+              - $ref: '#/components/parameters/x'
+        /my/path/false:
+          x-access: private
+          x-prop: false
+          get:
+            parameters:
+              - $ref: '#/components/parameters/x'
+        /my/path/null:
+          x-access: private
+          x-prop: null
+          get:
+            parameters:
+              - $ref: '#/components/parameters/x'
+      components:
+        parameters:
+          x:
+            name: x
+            `);
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig({}, { 'filter-out': { property: 'x-prop', value: false } }),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /my/path/null:
+          x-access: private
+          x-prop: null
+          get:
+            parameters:
+              - $ref: '#/components/parameters/x'
+      components:
+        parameters:
+          x:
+            name: x
+            `);
+  });
+
+  it('should remove /my/path/null path ', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          x-access: private
+          get:
+            x-prop: false
+            parameters:
+              - $ref: '#/components/parameters/y'
+        /my/path/false:
+          x-access: private
+          x-prop: false
+          get:
+            parameters:
+              - $ref: '#/components/parameters/y'
+        /my/path/null:
+          x-access: private
+          x-prop: null
+          get:
+            parameters:
+              - $ref: '#/components/parameters/y'
+      components:
+        parameters:
+          x:
+            name: x
+            `);
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig({}, { 'filter-out': { property: 'x-prop', value: null } }),
+    });
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          x-access: private
+          get:
+            x-prop: false
+            parameters:
+              - $ref: '#/components/parameters/y'
+        /my/path/false:
+          x-access: private
+          x-prop: false
+          get:
+            parameters:
+              - $ref: '#/components/parameters/y'
+      components:
+        parameters:
+          x:
+            name: x
+            `);
+  });
 });
 
 describe('oas2 filter-out', () => {
