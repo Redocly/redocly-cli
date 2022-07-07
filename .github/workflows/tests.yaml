@@ -1,12 +1,12 @@
 name: Build and Test
 
 on:
-  # pull_request:
-  #  types: [opened, synchronize, reopened]
+  pull_request:
+   types: [opened, synchronize, reopened]
   push:
     branches:
       - master
-  pull_request_target:
+  # pull_request_target:
   
 # permissions: write-all
 
@@ -44,6 +44,50 @@ jobs:
           set
           echo HERE-LOGS
           ls -hla
+#       - name: Coverage Report
+#         uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
+#         with:
+#           skip-step: none
+#           coverage-file: report-incoming.json
+#           annotations: none
+#           test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
+      - name: E2E Tests
+        run: npm run e2e
+        env:
+          CI: true
+
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: built-and-unit
+    
+    steps:
+      - uses: actions/checkout@v3
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: |
+#             npm-${{ hashFiles('package-lock.json') }}
+#             npm-
+#       - name: Environments
+#         run: |
+#           echo
+#           echo Using Node $(node -v), NPM $(npm -v)
+#           echo
+#       - name: Install dependencies
+#         run: npm ci
+#         env:
+#           CI: true
+#       - name: Typecheck
+#         run: npm run typecheck
+#       - name: Unit Tests
+#         run: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report-incoming.json --bail --coverage
+#       - run: |
+#           set
+#           echo HERE-LOGS
+#           ls -hla
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
         with:
@@ -51,7 +95,8 @@ jobs:
           coverage-file: report-incoming.json
           annotations: none
           test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
-      - name: E2E Tests
-        run: npm run e2e
-        env:
-          CI: true
+     
+    
+    
+    
+    
