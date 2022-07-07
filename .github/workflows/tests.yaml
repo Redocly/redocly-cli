@@ -41,8 +41,8 @@ jobs:
         run: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report-incoming.json --bail --coverage
       - run: |
           set
-          echo HERE
-          cat report-incoming.json
+          echo HERE-LOGS
+          ls -hla
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
         with:
