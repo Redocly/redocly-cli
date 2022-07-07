@@ -1,8 +1,8 @@
 name: Build and Test
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  # pull_request:
+  #  types: [opened, synchronize, reopened]
   push:
     branches:
       - master
