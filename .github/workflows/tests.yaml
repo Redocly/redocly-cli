@@ -1,7 +1,7 @@
 name: Build and Test
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
   push:
     branches:
@@ -57,9 +57,9 @@ jobs:
           CI: true
 
 
-  coverage:
+  coverage_report:
     runs-on: ubuntu-latest
-    needs: built-and-unit
+    needs: build-and-unit
     steps:
       - uses: actions/checkout@v3
       - name: Coverage Report
