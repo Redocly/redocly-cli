@@ -8,13 +8,12 @@ redirectFrom:
 
 ## Overview
 
-This guide describes how to ensure that the API definition [contains a specific property](../resources/built-in-rules.md) and multiple properties.
-
-For this purpose, we will be checking the following cases:
+This guide describes how to ensure that the API operation's response [contains a specific property](../resources/built-in-rules.md)
+with three different cases:
 
 1. Single response containing one property
 1. Multiple responses containing one property
-1. Multiple properties for multiple responses
+1. Multiple responses containing multiple properties
 
 Let's get started!
 
