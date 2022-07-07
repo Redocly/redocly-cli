@@ -32,7 +32,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Unit Tests
-        run: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report-incoming.json --bail --coverage
+        run: npm run jest -- --silent --ci --testLocationInResults --bail --coverage
       - name: E2E Tests
         run: npm run e2e
         env:
@@ -61,8 +61,3 @@ jobs:
           CI: true
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
-        continue-on-error: true
-        with:
-          skip-step: none
-          annotations: none
-          test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
