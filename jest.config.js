@@ -10,12 +10,18 @@ module.exports = {
     '!packages/cli/src/assert-node-version.ts',
   ],
   coverageThreshold: {
-    global: {
+    'packages/core/': {
       statements: 100,
       branches: 100,
       functions: 100,
       lines: 100,
-    }
+    },
+    'packages/cli/': {
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
+    },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
   globals: {
