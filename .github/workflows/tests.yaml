@@ -7,12 +7,12 @@ on:
     branches:
       - master
 
-permissions: write-all
+# permissions: write-all
 
 jobs:
   build-and-unit:
     runs-on: ubuntu-latest
-    permissions: write-all
+    # permissions: write-all
     # permissions:
     #  contents: write
     #  pull-requests: write
