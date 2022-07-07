@@ -6,17 +6,10 @@ on:
   push:
     branches:
       - master
-  # pull_request_target:
-  
-# permissions: write-all
 
 jobs:
   build-and-unit:
     runs-on: ubuntu-latest
-    # permissions: write-all
-    # permissions:
-    #  contents: write
-    #  pull-requests: write
     steps:
       - uses: actions/checkout@v3
       - name: Cache dependencies
@@ -40,13 +33,12 @@ jobs:
         run: npm run typecheck
       - name: Unit Tests
         run: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report-incoming.json --bail --coverage
-#       - name: E2E Tests
-#         run: npm run e2e
-#         env:
-#           CI: true
+      - name: E2E Tests
+        run: npm run e2e
+        env:
+          CI: true
 
-
-  coverage_report:
+  coverage-report:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -73,9 +65,4 @@ jobs:
         with:
           skip-step: none
           annotations: none
-          test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage || exit 0
-     
-    
-    
-    
-    
+          test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
