@@ -10,9 +10,10 @@ on:
 jobs:
   build-and-unit:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+    permissions: write-all
+    # permissions:
+    #  contents: write
+    #  pull-requests: write
     steps:
       - uses: actions/checkout@v3
       - name: Cache dependencies
