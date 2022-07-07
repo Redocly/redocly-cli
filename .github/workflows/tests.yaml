@@ -48,7 +48,6 @@ jobs:
 
   coverage_report:
     runs-on: ubuntu-latest
-    needs: build-and-unit
     steps:
       - uses: actions/checkout@v3
       - name: Cache dependencies
@@ -70,9 +69,9 @@ jobs:
           CI: true
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
+        continue-on-error: true
         with:
           skip-step: none
-#           coverage-file: report-incoming.json
           annotations: none
           test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage || exit 0
      
