@@ -31,60 +31,6 @@ Optionally, you may specify `severity` as one of decorator options in the config
 
 ## List of built-in decorators
 
-### info-description-override
-
-Replaces any existing content in the `info.description` field with custom content from the specified Markdown file.
-
-```yaml
-lint:
-  decorators:
-    info-description-override:
-      filePath: ./my-custom-description.md
-```
-
-
-### operation-description-override
-
-Replaces any existing content in the `operation.description` field for the specified operation ID with custom content from the Markdown file.
-
-The `operationIds` option accepts one or more operation IDs mapped to Markdown files (in the format `operation ID: path to Markdown file`).
-
-
-```yaml
-lint:
-  decorators:
-    operation-description-override:
-      operationIds:
-        updatePet: ./my-custom-description.md
-```
-
-
-### tag-description-override
-
-Replaces any existing content in the `tags.description` field for the specified tag name with custom content from the Markdown file.
-
-The `tagNames` option accepts one or more tag names mapped to Markdown files (in the format `tag name: path to Markdown file`).
-
-```yaml
-lint:
-  decorators:
-    tag-description-override:
-      tagNames:
-        pet: ./my-custom-description.md
-```
-
-### remove-x-internal
-
-Remove all nodes that have a specific `internalFlagProperty` property (`x-internal` by default).
-
-Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
-
-```yaml
-lint:
-  decorators:
-    remove-x-internal:
-      internalFlagProperty: 'removeit'
-```
 ### filter-in
 
 Preserves nodes that have specific `property` set to the specific `value` and removes others. Nodes that don't have the `property` defined are not impacted.
@@ -114,3 +60,59 @@ lint:
       value: Internal
       matchStrategy: any
 ```
+
+### info-description-override
+
+Replaces any existing content in the `info.description` field with custom content from the specified Markdown file.
+
+```yaml
+lint:
+  decorators:
+    info-description-override:
+      filePath: ./my-custom-description.md
+```
+
+
+### operation-description-override
+
+Replaces any existing content in the `operation.description` field for the specified operation ID with custom content from the Markdown file.
+
+The `operationIds` option accepts one or more operation IDs mapped to Markdown files (in the format `operation ID: path to Markdown file`).
+
+
+```yaml
+lint:
+  decorators:
+    operation-description-override:
+      operationIds:
+        updatePet: ./my-custom-description.md
+```
+
+### remove-x-internal
+
+Remove all nodes that have a specific `internalFlagProperty` property (`x-internal` by default).
+
+Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
+
+```yaml
+lint:
+  decorators:
+    remove-x-internal:
+      internalFlagProperty: 'removeit'
+```
+
+
+### tag-description-override
+
+Replaces any existing content in the `tags.description` field for the specified tag name with custom content from the Markdown file.
+
+The `tagNames` option accepts one or more tag names mapped to Markdown files (in the format `tag name: path to Markdown file`).
+
+```yaml
+lint:
+  decorators:
+    tag-description-override:
+      tagNames:
+        pet: ./my-custom-description.md
+```
+
