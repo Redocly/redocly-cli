@@ -50,14 +50,11 @@ jobs:
           restore-keys: |
             npm-${{ hashFiles('package-lock.json') }}
             npm-
-      - name: Install dependencies
-        run: npm ci
-        env:
-          CI: true
+
       - name: Coverage Report
-        uses: artiomtr/jest-coverage-report-action@v2.0-rc.4
+        uses: artiomtr/jest-coverage-report-action@v2.0.8
         continue-on-error: true
         with:
           skip-step: none
           annotations: none
-          test-script: npm run jest -- --silent --ci --json --testLocationInResults --outputFile=report.json --bail --coverage
+          test-script: npm run jest
