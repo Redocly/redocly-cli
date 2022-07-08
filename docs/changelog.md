@@ -4,13 +4,20 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.104 (2022-07-11)
+
+### Fixes 
+
+- Fixed incorrect boolean filtering in `filter-out` rule.
+- Other internal stability fixes and improvements.
+
 ## 1.0.0-beta.103 (2022-06-27)
 
 ### Features
 
-- Added new property `ref` to assertation object
+- Added new property `ref` to assertation object.
 - Added the `--lint-config` option for the `lint` command. Use it to validate the configuration file with appropriate severity level.
-- Added new built-in decorators `filter-in` and `filter-out`
+- Added new built-in decorators `filter-in` and `filter-out`.
 
 ### Fixes 
 
