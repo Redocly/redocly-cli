@@ -47,7 +47,7 @@ export function checkIfMatchByStrategy(
   decoratorValue: any,
   strategy: 'all' | 'any'
 ): boolean {
-  if (!nodeValue || !decoratorValue) {
+  if (nodeValue===undefined || decoratorValue===undefined) {
     return false;
   }
 
