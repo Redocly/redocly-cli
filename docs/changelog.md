@@ -10,6 +10,7 @@ tocMaxDepth: 2
 
 - Fixed incorrect boolean filtering in `filter-out` rule.
 - Other internal stability fixes and improvements.
+- Fixed bug with tags duplication for the `join` command.
 
 ## 1.0.0-beta.103 (2022-06-27)
 
