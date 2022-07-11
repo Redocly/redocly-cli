@@ -200,10 +200,10 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           tag.hasOwnProperty('description') && tagDuplicate.description !== tag.description;
 
         potentialConflicts.tags.description[entrypointTagName].push(
-          ...(isTagDescriptionNotEqual ? [entrypoint] : []),
+          ...(isTagDescriptionNotEqual ? [entrypoint] : [])
         );
-      } else {
-        // Instead add tag to joinedDef;
+      } else if (!tagDuplicate) {
+        // Instead add tag to joinedDef if there no duplicate;
         tag['x-displayName'] = tag['x-displayName'] || tag.name;
         tag.name = entrypointTagName;
         joinedDef.tags.push(tag);
@@ -215,7 +215,9 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
       if (!withoutXTagGroups) {
         createXTagGroups(entrypointFilename);
-        populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
+        if (!tagDuplicate) {
+          populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
+        }
       }
 
       const doesEntrypointExist =
