@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { isEmptyObject, loadYaml } from '../utils';
-import { Config, DOMAINS } from './config';
+import { Config, DOMAINS,IGNORE_FILE } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
@@ -16,7 +16,6 @@ async function addConfigMetadata({
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
@@ -104,4 +103,9 @@ export async function getConfig(configPath: string | undefined = findConfig()) {
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
   }
+}
+
+export function findIgnoreFile(dir: string) {
+  if (!fs.hasOwnProperty('existsSync') || !fs.existsSync(path.resolve(dir, IGNORE_FILE))) return;
+  return path.resolve(dir, IGNORE_FILE);
 }

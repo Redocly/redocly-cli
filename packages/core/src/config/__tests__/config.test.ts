@@ -78,6 +78,7 @@ describe('getMergedConfig', () => {
           "doNotResolveExamples": false,
           "extendPaths": Array [],
           "ignore": Object {},
+          "ignoreFile": undefined,
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
@@ -174,6 +175,7 @@ describe('getMergedConfig', () => {
           "doNotResolveExamples": false,
           "extendPaths": Array [],
           "ignore": Object {},
+          "ignoreFile": undefined,
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {

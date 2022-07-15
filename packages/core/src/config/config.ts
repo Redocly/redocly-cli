@@ -46,6 +46,16 @@ function getDomains() {
   return domains;
 }
 
+function getIgnoreFilePath(ignoreFile?: string, configFile?: string): string {
+  if (ignoreFile) {
+    return ignoreFile;
+  } else if (configFile) {
+    return path.join(path.dirname(configFile), IGNORE_FILE);
+  } else {
+    return typeof process !== 'undefined' ? path.join(process.cwd(), IGNORE_FILE) : '';
+  }
+}
+
 export const DOMAINS = getDomains();
 export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
@@ -65,11 +75,15 @@ export class LintConfig {
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(public rawConfig: ResolvedLintConfig, public configFile?: string) {
+  constructor(
+    public rawConfig: ResolvedLintConfig,
+    public configFile?: string,
+    public ignoreFile?: string
+  ) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
-    this.recommendedFallback = rawConfig.recommendedFallback || false
+    this.recommendedFallback = rawConfig.recommendedFallback || false;
 
     this.rules = {
       [OasVersion.Version2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
@@ -91,29 +105,25 @@ export class LintConfig {
 
     this.extendPaths = rawConfig.extendPaths || [];
     this.pluginPaths = rawConfig.pluginPaths || [];
+    this.generateIgnore(getIgnoreFilePath(ignoreFile, configFile));
+  }
 
-    const dir = this.configFile
-      ? path.dirname(this.configFile)
-      : (typeof process !== 'undefined' && process.cwd()) || '';
-    const ignoreFile = path.join(dir, IGNORE_FILE);
+  generateIgnore(ignoreFile: string) {
+    if (!fs.hasOwnProperty('existsSync') || !fs.existsSync(ignoreFile)) return;
 
-    /* no crash when using it on the client */
-    if (fs.hasOwnProperty('existsSync') && fs.existsSync(ignoreFile)) {
-      // TODO: parse errors
-      this.ignore =
-        (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
-          string,
-          Record<string, Set<string>>
-        >) || {};
+    this.ignore =
+      (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
+        string,
+        Record<string, Set<string>>
+      >) || {};
 
-      // resolve ignore paths
-      for (const fileName of Object.keys(this.ignore)) {
-        this.ignore[path.resolve(path.dirname(ignoreFile), fileName)] = this.ignore[fileName];
-        for (const ruleId of Object.keys(this.ignore[fileName])) {
-          this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
-        }
-        delete this.ignore[fileName];
+    // resolve ignore paths
+    for (const fileName of Object.keys(this.ignore)) {
+      this.ignore[path.resolve(path.dirname(ignoreFile), fileName)] = this.ignore[fileName];
+      for (const ruleId of Object.keys(this.ignore[fileName])) {
+        this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
       }
+      delete this.ignore[fileName];
     }
   }
 
@@ -224,15 +234,13 @@ export class LintConfig {
 
     for (const usedVersion of Array.from(this._usedVersions)) {
       rules.push(
-        ...Object.keys(this.rules[usedVersion]).filter((name) => !this._usedRules.has(name)),
+        ...Object.keys(this.rules[usedVersion]).filter((name) => !this._usedRules.has(name))
       );
       decorators.push(
-        ...Object.keys(this.decorators[usedVersion]).filter((name) => !this._usedRules.has(name)),
+        ...Object.keys(this.decorators[usedVersion]).filter((name) => !this._usedRules.has(name))
       );
       preprocessors.push(
-        ...Object.keys(this.preprocessors[usedVersion]).filter(
-          (name) => !this._usedRules.has(name),
-        ),
+        ...Object.keys(this.preprocessors[usedVersion]).filter((name) => !this._usedRules.has(name))
       );
     }
 

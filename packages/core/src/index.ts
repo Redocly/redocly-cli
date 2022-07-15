@@ -32,6 +32,7 @@ export {
   loadConfig,
   getConfig,
   findConfig,
+  findIgnoreFile,
   CONFIG_FILE_NAMES,
   RuleSeverity
 } from './config';
