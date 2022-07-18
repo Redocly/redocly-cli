@@ -30,9 +30,9 @@ redocly login --verbose
 Option | Type | Description
 -- | -- | --
 --help | boolean | Show help.
+--region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx).
 --verbose | boolean | Include additional output.
 --version | boolean | Show version number.
---region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx).
 
 ## Examples
 

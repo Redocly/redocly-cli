@@ -29,12 +29,12 @@ Option | Type | Description
 entrypoints | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.
 --config | string | Specify path to the [config file](#custom-configuration-file).
 --dereferenced, -d | boolean | Generate fully dereferenced bundle.
---keep-url-references, -k | boolean | Keep absolute url references.
 --ext | string | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.
 --extends | [string] | Can be used in combination with `--lint` to [extend a specific configuration](./lint.md#extend-configuration).  Default values are taken from the Redocly configuration file.
 --force, -f | boolean | Generate bundle output even when errors occur.
 --format | string | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.
 --help | boolean | Show help.
+--keep-url-references, -k | boolean | Keep absolute url references.
 --lint | boolean | Lint definition files. Default value is `false`.
 --max-problems | integer | Truncate output to display the specified maximum number of problems. Default value is `100`.
 --metafile | string | Path for the bundle metadata file.

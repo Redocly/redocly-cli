@@ -299,6 +299,37 @@ lint:
 
 All path items should be in kebab-case.
 
+### response-contains-header
+
+Enforces using specified response headers.
+
+```yaml
+lint:
+  rules:
+    response-contains-header:
+      severity: error
+      names:
+        2XX:
+          - x-request-id
+        400:
+          - Content-Length
+```
+
+### response-contains-property
+
+Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
+A specific status code takes priority over the status code range.
+
+```yaml
+response-contains-property:
+  severity: error
+  names:
+    2XX:
+      - created_at
+    400:
+      - title
+```
+
 ### request-mime-type
 
 Limit the allowed request body mime types. The rule inverses behavior for webhooks and events: it enforces responses mime types.
@@ -323,6 +354,10 @@ lint:
       - application/json
 ```
 
+### scalar-property-missing-example
+
+Verifies that every scalar property has an example defined.
+
 ### spec
 
 Validate against the declared OpenAPI specification (currently supports version 2.0, 3.0, and 3.1).
@@ -335,40 +370,7 @@ Verifies that each tag has a description.
 
 Verifies that tags (names) are declared in alphabetical order.
 
-### response-contains-header
 
-Enforces using specified response headers.
-
-```yaml
-lint:
-  rules:
-    response-contains-header:
-      severity: error
-      names:
-        2XX: 
-          - x-request-id
-        400:
-          - Content-Length
-```
-
-### response-contains-property
-
-Enforces definition of specific response properties based on HTTP status code or HTTP status code range.
-A specific status code takes priority over the status code range.
-
-```yaml
-response-contains-property:
-  severity: error
-  names:
-    2XX:
-      - created_at
-    400:
-      - title
-```
-
-### scalar-property-missing-example
-
-Verifies that every scalar property has an example defined.
 
 ## Recommended config
 

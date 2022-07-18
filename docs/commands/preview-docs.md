@@ -27,8 +27,8 @@ entrypoints | array | Path to the API definition filename or alias that you want
 --config | string | Specify path to the [configuration file](#custom-configuration-file).
 --force, -f | boolean | Generate preview output even when errors occur.
 --help | boolean | Show help.
---port, -p | integer | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system. The default value is port `8080`.
 --host, -h | string | Specify the host where the documentation preview can be accessed. The default value is `127.0.0.1`.
+--port, -p | integer | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system. The default value is port `8080`.
 --skip-decorator | array | Ignore [certain decorators](#skip-preprocessor-or-decorator).
 --skip-preprocessor | array | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).
 --use-community-edition | boolean | Force using Redoc Community Edition for docs preview.

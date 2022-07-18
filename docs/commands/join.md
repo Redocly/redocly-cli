@@ -43,10 +43,10 @@ Option | Type | Description
 entrypoints | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
 --help | boolean | Show help.
 --lint | boolean | Lint definition files.
+--prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.
 --prefix-components-with-info-prop | string | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.
 --prefix-tags-with-info-prop | boolean | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.
 --without-x-tag-groups | boolean | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.
---prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.
 --version | boolean | Show version number.
 
 ## Examples
@@ -179,7 +179,7 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 
 ### without-x-tag-groups
 
-If you have the same tags in multiple API definitions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property will not be created in the joined file. 
+If you have the same tags in multiple API definitions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property will not be created in the joined file.
 
 #### Usage
 
@@ -187,7 +187,7 @@ If you have the same tags in multiple API definitions, you can allow tag duplica
 redocly join first-api.yaml second-api.json --without-x-tag-groups
 ```
 
-The tag description is taken from the first file that contains the tag. You may see a warning about conflicts in the command output: 
+The tag description is taken from the first file that contains the tag. You may see a warning about conflicts in the command output:
 
 ```bash
 warning: 1 conflict(s) on tags description.
