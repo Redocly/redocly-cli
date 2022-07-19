@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import {
   Config,
   formatProblems,
@@ -21,7 +22,8 @@ import {
   pluralize,
   printLintTotals,
   printConfigLintTotals,
-  printUnusedWarnings
+  printUnusedWarnings,
+  exitWithError
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray, red } from 'colorette';
@@ -40,6 +42,11 @@ export type LintOptions = {
 };
 
 export async function handleLint(argv: LintOptions, version: string) {
+
+  if(argv.config && !fs.existsSync(argv.config)) {
+    return exitWithError('Please, provide valid path to the configuration file');
+  }
+
   const config: Config = await loadConfig(
     argv.config,
     argv.extends,

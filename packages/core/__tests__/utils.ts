@@ -72,8 +72,7 @@ export function makeConfigForRuleset(
 export async function makeConfig(
   rules: Record<string, RuleConfig>,
   decorators?: Record<string, DecoratorConfig>,
-  configFile?: string,
-  ignoreFile?: string
+  configPath?: string
 ) {
   return new LintConfig(
     await resolveLint({
@@ -84,7 +83,6 @@ export async function makeConfig(
         decorators,
       },
     }),
-    configFile,
-    ignoreFile
+    configPath
   );
 }

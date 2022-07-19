@@ -1,10 +1,11 @@
 import * as fs from 'fs';
+import { extname } from 'path';
 import * as minimatch from 'minimatch';
 import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
-import type { HttpResolveConfig } from './config';
+import { HttpResolveConfig } from './config';
 import { env } from './config';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
@@ -77,16 +78,16 @@ function match(url: string, pattern: string) {
 
 export function pickObjectProps<T extends Record<string, unknown>>(
   object: T,
-  keys: Array<string>,
+  keys: Array<string>
 ): T {
   return Object.fromEntries(
-    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]]),
+    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]])
   ) as T;
 }
 
 export function omitObjectProps<T extends Record<string, unknown>>(
   object: T,
-  keys: Array<string>,
+  keys: Array<string>
 ): T {
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
@@ -106,7 +107,7 @@ export function splitCamelCaseIntoWords(str: string) {
 export function validateMimeType(
   { type, value }: any,
   { report, location }: UserContext,
-  allowedValues: string[],
+  allowedValues: string[]
 ) {
   const ruleType = type === 'consumes' ? 'request' : 'response';
   if (!allowedValues)
@@ -126,7 +127,7 @@ export function validateMimeType(
 export function validateMimeTypeOAS3(
   { type, value }: any,
   { report, location }: UserContext,
-  allowedValues: string[],
+  allowedValues: string[]
 ) {
   const ruleType = type === 'consumes' ? 'request' : 'response';
   if (!allowedValues)
@@ -188,9 +189,14 @@ export function assignExisting<T>(target: Record<string, T>, obj: Record<string,
   }
 }
 
-export const getMatchingStatusCodeRange = (code: number | string): string =>
-  `${code}`.replace(/^(\d)\d\d$/, (_, firstDigit) => `${firstDigit}XX`);
+export function getMatchingStatusCodeRange(code: number | string): string {
+  return `${code}`.replace(/^(\d)\d\d$/, (_, firstDigit) => `${firstDigit}XX`);
+}
 
 export function isCustomRuleId(id: string) {
   return id.includes('/');
+}
+
+export function isConfigFileExist(filePath: string): boolean {
+  return extname(filePath) === '.yaml' && fs.existsSync(filePath);
 }

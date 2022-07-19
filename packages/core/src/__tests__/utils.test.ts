@@ -1,4 +1,12 @@
-import { pickObjectProps, omitObjectProps, slash, getMatchingStatusCodeRange } from '../utils';
+import {
+  pickObjectProps,
+  omitObjectProps,
+  slash,
+  getMatchingStatusCodeRange,
+  isConfigFileExist,
+} from '../utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('utils', () => {
   const testObject = {
@@ -80,6 +88,27 @@ describe('utils', () => {
     it('should fail on a wrong input', () => {
       expect(getMatchingStatusCodeRange('2002')).toEqual('2002');
       expect(getMatchingStatusCodeRange(4000)).toEqual('4000');
+    });
+
+    describe('isConfigFileExist', () => {
+      beforeEach(() => {
+        jest.spyOn(fs, 'existsSync').mockImplementation((path) => path === 'redocly.yaml');
+        jest
+          .spyOn(path, 'extname')
+          .mockImplementation((path) => (path.endsWith('.yaml') ? '.yaml' : ''));
+      });
+
+      it('should return true because of valid path provided', () => {
+        expect(isConfigFileExist('redocly.yaml')).toBe(true);
+      });
+
+      it('should return false because of fail do not exist', () => {
+        expect(isConfigFileExist('redoccccly.yaml')).toBe(false);
+      });
+
+      it('should return false because of it is not yaml file', () => {
+        expect(isConfigFileExist('redocly.yam')).toBe(false);
+      });
     });
   });
 });

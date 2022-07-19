@@ -269,17 +269,12 @@ describe('lint', () => {
       absoluteRef
     );
 
-    const ignoreFile = path.join(__dirname, 'fixtures/ignore-file.yaml');
+    const configFilePath = path.join(__dirname, 'fixtures');
 
     const result = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig(
-        { 'operation-operationId': 'error' },
-        undefined,
-        undefined,
-        ignoreFile
-      ),
+      config: await makeConfig({ 'operation-operationId': 'error' }, undefined, configFilePath),
     });
     expect(result).toHaveLength(1);
     expect(result).toMatchObject([

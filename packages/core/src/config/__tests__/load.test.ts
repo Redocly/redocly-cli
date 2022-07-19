@@ -1,4 +1,4 @@
-import { loadConfig, findConfig, getConfig, findIgnoreFile } from '../load';
+import { loadConfig, findConfig, getConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
 
 const fs = require('fs');
@@ -85,22 +85,5 @@ describe('getConfig', () => {
   jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
   it('should return empty object if there is no configPath and config file is not found', () => {
     expect(getConfig()).toEqual(Promise.resolve({}));
-  });
-});
-
-describe('findIgnoreFile', () => {
-  it('should find ignore file', () => {
-    jest.spyOn(path, 'resolve').mockImplementation((dir) => `${dir}/.redocly.lint-ignore.yaml`);
-    jest
-      .spyOn(fs, 'existsSync')
-      .mockImplementationOnce((path) => path === 'dir/.redocly.lint-ignore.yaml');
-
-    const result = findIgnoreFile('dir');
-    expect(result).toEqual('dir/.redocly.lint-ignore.yaml');
-  });
-
-  it('should not find ignore file because it not exist', () => {
-    const result = findIgnoreFile('root/notIgnoreFile.yaml');
-    expect(result).toBeUndefined();
   });
 });

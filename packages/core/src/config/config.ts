@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
-import { slash } from '../utils';
+import { slash, isConfigFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
 
@@ -46,13 +46,13 @@ function getDomains() {
   return domains;
 }
 
-function getIgnoreFilePath(ignoreFile?: string, configFile?: string): string {
-  if (ignoreFile) {
-    return ignoreFile;
-  } else if (configFile) {
-    return path.join(path.dirname(configFile), IGNORE_FILE);
+function getIgnoreFilePath(configFile?: string): string | undefined {
+  if (configFile) {
+    return isConfigFileExist(configFile)
+      ? path.join(path.dirname(configFile), IGNORE_FILE)
+      : path.join(configFile, IGNORE_FILE);
   } else {
-    return typeof process !== 'undefined' ? path.join(process.cwd(), IGNORE_FILE) : '';
+    return typeof process !== 'undefined' ? path.join(process.cwd(), IGNORE_FILE) : undefined;
   }
 }
 
@@ -75,11 +75,7 @@ export class LintConfig {
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(
-    public rawConfig: ResolvedLintConfig,
-    public configFile?: string,
-    public ignoreFile?: string
-  ) {
+  constructor(public rawConfig: ResolvedLintConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
@@ -105,11 +101,11 @@ export class LintConfig {
 
     this.extendPaths = rawConfig.extendPaths || [];
     this.pluginPaths = rawConfig.pluginPaths || [];
-    this.generateIgnore(getIgnoreFilePath(ignoreFile, configFile));
+    this.resolveIgnore(getIgnoreFilePath(configFile));
   }
 
-  generateIgnore(ignoreFile: string) {
-    if (!fs.hasOwnProperty('existsSync') || !fs.existsSync(ignoreFile)) return;
+  resolveIgnore(ignoreFile?: string) {
+    if (!ignoreFile || !fs.hasOwnProperty('existsSync') || !fs.existsSync(ignoreFile)) return;
 
     this.ignore =
       (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<
