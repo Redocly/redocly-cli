@@ -13,7 +13,7 @@ import {
   RawConfig,
   RuleSeverity,
   ProblemSeverity,
-  doesConfigFileExist
+  doesYamlFileExist
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -43,7 +43,7 @@ export type LintOptions = {
 
 export async function handleLint(argv: LintOptions, version: string) {
 
-  if (argv.config && !doesConfigFileExist(argv.config)) {
+  if (argv.config && !doesYamlFileExist(argv.config)) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
 

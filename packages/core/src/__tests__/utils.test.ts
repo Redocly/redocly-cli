@@ -3,7 +3,7 @@ import {
   omitObjectProps,
   slash,
   getMatchingStatusCodeRange,
-  doesConfigFileExist,
+  doesYamlFileExist,
 } from '../utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -107,19 +107,19 @@ describe('utils', () => {
       });
 
       it('should return true because of valid path provided', () => {
-        expect(doesConfigFileExist('redocly.yaml')).toBe(true);
+        expect(doesYamlFileExist('redocly.yaml')).toBe(true);
       });
 
       it('should return true because of valid path provided with yml', () => {
-        expect(doesConfigFileExist('redocly.yml')).toBe(true);
+        expect(doesYamlFileExist('redocly.yml')).toBe(true);
       });
 
       it('should return false because of fail do not exist', () => {
-        expect(doesConfigFileExist('redoccccly.yaml')).toBe(false);
+        expect(doesYamlFileExist('redoccccly.yaml')).toBe(false);
       });
 
       it('should return false because of it is not yaml file', () => {
-        expect(doesConfigFileExist('redocly.yam')).toBe(false);
+        expect(doesYamlFileExist('redocly.yam')).toBe(false);
       });
     });
   });

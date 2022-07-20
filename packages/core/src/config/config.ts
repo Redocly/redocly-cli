@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
-import { slash, doesConfigFileExist } from '../utils';
+import { slash, doesYamlFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
 
@@ -48,7 +48,7 @@ function getDomains() {
 
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {
-    return doesConfigFileExist(configFile)
+    return doesYamlFileExist(configFile)
       ? path.join(path.dirname(configFile), IGNORE_FILE)
       : path.join(configFile, IGNORE_FILE);
   } else {
@@ -105,7 +105,7 @@ export class LintConfig {
   }
 
   resolveIgnore(ignoreFile?: string) {
-    if (!ignoreFile || !fs.hasOwnProperty('existsSync') || !fs.existsSync(ignoreFile)) return;
+    if (!ignoreFile || !doesYamlFileExist(ignoreFile)) return;
 
     this.ignore =
       (parseYaml(fs.readFileSync(ignoreFile, 'utf-8')) as Record<

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, loadYaml, doesConfigFileExist } from '../utils';
+import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
@@ -94,7 +94,7 @@ export function findConfig(dir?: string): string | undefined {
 }
 
 export async function getConfig(configPath: string | undefined = findConfig()) {
-  if (!configPath || !doesConfigFileExist(configPath)) return {};
+  if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     const rawConfig = ((await loadYaml(configPath)) || {}) as RawConfig;
     return transformConfig(rawConfig);

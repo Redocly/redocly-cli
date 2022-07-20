@@ -5,7 +5,7 @@ import {
   lint,
   getTotals,
   formatProblems,
-  doesConfigFileExist,
+  doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
   getFallbackEntryPointsOrExit,
@@ -43,7 +43,7 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesConfigFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
+    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
   });
 
   afterEach(() => {
@@ -56,7 +56,7 @@ describe('handleLint', () => {
       expect(exitWithError).toHaveBeenCalledWith(
         'Please, provide valid path to the configuration file'
       );
-      expect(loadConfig).not.toHaveBeenCalled();
+      expect(loadConfig).toHaveBeenCalledTimes(0);
     });
 
     it('should call loadConfig and getFallbackEntryPointsOrExit', async () => {

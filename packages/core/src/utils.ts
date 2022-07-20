@@ -197,7 +197,7 @@ export function isCustomRuleId(id: string) {
   return id.includes('/');
 }
 
-export function doesConfigFileExist(filePath: string): boolean {
+export function doesYamlFileExist(filePath: string): boolean {
   return (
     (extname(filePath) === '.yaml' || extname(filePath) === '.yml') &&
     fs.hasOwnProperty('existsSync') &&
