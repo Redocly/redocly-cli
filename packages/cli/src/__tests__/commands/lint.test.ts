@@ -1,11 +1,11 @@
 import { handleLint, LintOptions } from '../../commands/lint';
-import * as fs from 'fs';
 import {
   loadConfig,
   getMergedConfig,
   lint,
   getTotals,
   formatProblems,
+  doesConfigFileExist,
 } from '@redocly/openapi-core';
 import {
   getFallbackEntryPointsOrExit,
@@ -43,7 +43,7 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    jest.spyOn(fs, 'existsSync').mockImplementation((path) => path === 'redocly.yaml');
+    (doesConfigFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
   });
 
   afterEach(() => {

@@ -24,3 +24,4 @@ export const getTotals = jest.fn(() => ({ errors: 0 }));
 export const formatProblems = jest.fn();
 export const slash = jest.fn();
 export const findConfig = jest.fn();
+export const doesConfigFileExist = jest.fn();

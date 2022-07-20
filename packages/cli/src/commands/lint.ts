@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {
   Config,
   formatProblems,
@@ -14,6 +13,7 @@ import {
   RawConfig,
   RuleSeverity,
   ProblemSeverity,
+  doesConfigFileExist
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -43,7 +43,7 @@ export type LintOptions = {
 
 export async function handleLint(argv: LintOptions, version: string) {
 
-  if(argv.config && !fs.existsSync(argv.config)) {
+  if (argv.config && !doesConfigFileExist(argv.config)) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
 

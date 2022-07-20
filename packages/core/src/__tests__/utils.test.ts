@@ -3,7 +3,7 @@ import {
   omitObjectProps,
   slash,
   getMatchingStatusCodeRange,
-  isConfigFileExist,
+  doesConfigFileExist,
 } from '../utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -92,22 +92,34 @@ describe('utils', () => {
 
     describe('isConfigFileExist', () => {
       beforeEach(() => {
-        jest.spyOn(fs, 'existsSync').mockImplementation((path) => path === 'redocly.yaml');
         jest
-          .spyOn(path, 'extname')
-          .mockImplementation((path) => (path.endsWith('.yaml') ? '.yaml' : ''));
+          .spyOn(fs, 'existsSync')
+          .mockImplementation((path) => path === 'redocly.yaml' || path === 'redocly.yml');
+        jest.spyOn(path, 'extname').mockImplementation((path) => {
+          if (path.endsWith('.yaml')) {
+            return '.yaml';
+          } else if (path.endsWith('.yml')) {
+            return '.yml';
+          } else {
+            return '';
+          }
+        });
       });
 
       it('should return true because of valid path provided', () => {
-        expect(isConfigFileExist('redocly.yaml')).toBe(true);
+        expect(doesConfigFileExist('redocly.yaml')).toBe(true);
+      });
+
+      it('should return true because of valid path provided with yml', () => {
+        expect(doesConfigFileExist('redocly.yml')).toBe(true);
       });
 
       it('should return false because of fail do not exist', () => {
-        expect(isConfigFileExist('redoccccly.yaml')).toBe(false);
+        expect(doesConfigFileExist('redoccccly.yaml')).toBe(false);
       });
 
       it('should return false because of it is not yaml file', () => {
-        expect(isConfigFileExist('redocly.yam')).toBe(false);
+        expect(doesConfigFileExist('redocly.yam')).toBe(false);
       });
     });
   });

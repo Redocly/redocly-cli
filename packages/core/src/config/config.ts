@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
-import { slash, isConfigFileExist } from '../utils';
+import { slash, doesConfigFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
 
@@ -48,11 +48,11 @@ function getDomains() {
 
 function getIgnoreFilePath(configFile?: string): string | undefined {
   if (configFile) {
-    return isConfigFileExist(configFile)
+    return doesConfigFileExist(configFile)
       ? path.join(path.dirname(configFile), IGNORE_FILE)
       : path.join(configFile, IGNORE_FILE);
   } else {
-    return typeof process !== 'undefined' ? path.join(process.cwd(), IGNORE_FILE) : undefined;
+    return typeof process === 'undefined' ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
 
