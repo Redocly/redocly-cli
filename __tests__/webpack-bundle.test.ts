@@ -32,4 +32,29 @@ describe('webpack-bundle test', () => {
     const result = getCommandOutput(args, folderPath);
     (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
   });
+
+  test('bundle-workflows', () => {
+    const folderPath = join(__dirname, 'webpack-bundle/bundle-workflows');
+    const enryPoint = getEntrypoints(folderPath);
+    const args = getParams('../../../dist/bundle.js', 'bundle', [
+      '--extends=redocly-registry',
+      '--metafile=/tmp/null',
+      '-o=/tmp/null',
+      ...enryPoint,
+    ]);
+    const result = getCommandOutput(args, folderPath);
+    (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+  });
+
+  test('lint-workflows', () => {
+    const folderPath = join(__dirname, 'webpack-bundle/lint-workflows');
+    const enryPoint = getEntrypoints(folderPath);
+    const args = getParams('../../../dist/bundle.js', 'lint', [
+      '--format=stylish',
+      '--lint-config=off',
+      ...enryPoint,
+    ]);
+    const result = getCommandOutput(args, folderPath);
+    (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+  });
 });
