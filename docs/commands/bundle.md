@@ -39,6 +39,7 @@ entrypoints | [string] | List of API root definition filenames or names assigned
 --max-problems | integer | Truncate output to display the specified maximum number of problems. Default value is `100`.
 --metafile | string | Path for the bundle metadata file.
 --output, -o | string | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.**
+--remove-unused-components | boolean | Remove unused components from the `bundle` output.
 --skip-decorator | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
 --skip-preprocessor | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
 --skip-rule | [string] | Ignore certain rules. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).
