@@ -1,4 +1,12 @@
-import { pickObjectProps, omitObjectProps, slash, getMatchingStatusCodeRange } from '../utils';
+import {
+  pickObjectProps,
+  omitObjectProps,
+  slash,
+  getMatchingStatusCodeRange,
+  doesYamlFileExist,
+} from '../utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('utils', () => {
   const testObject = {
@@ -80,6 +88,39 @@ describe('utils', () => {
     it('should fail on a wrong input', () => {
       expect(getMatchingStatusCodeRange('2002')).toEqual('2002');
       expect(getMatchingStatusCodeRange(4000)).toEqual('4000');
+    });
+
+    describe('isConfigFileExist', () => {
+      beforeEach(() => {
+        jest
+          .spyOn(fs, 'existsSync')
+          .mockImplementation((path) => path === 'redocly.yaml' || path === 'redocly.yml');
+        jest.spyOn(path, 'extname').mockImplementation((path) => {
+          if (path.endsWith('.yaml')) {
+            return '.yaml';
+          } else if (path.endsWith('.yml')) {
+            return '.yml';
+          } else {
+            return '';
+          }
+        });
+      });
+
+      it('should return true because of valid path provided', () => {
+        expect(doesYamlFileExist('redocly.yaml')).toBe(true);
+      });
+
+      it('should return true because of valid path provided with yml', () => {
+        expect(doesYamlFileExist('redocly.yml')).toBe(true);
+      });
+
+      it('should return false because of fail do not exist', () => {
+        expect(doesYamlFileExist('redoccccly.yaml')).toBe(false);
+      });
+
+      it('should return false because of it is not yaml file', () => {
+        expect(doesYamlFileExist('redocly.yam')).toBe(false);
+      });
     });
   });
 });

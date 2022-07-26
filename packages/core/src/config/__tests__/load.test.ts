@@ -9,7 +9,7 @@ describe('loadConfig', () => {
     jest
       .spyOn(RedoclyClient.prototype, 'getTokens')
       .mockImplementation(() =>
-        Promise.resolve([{ region: 'us', token: 'accessToken', valid: true }]),
+        Promise.resolve([{ region: 'us', token: 'accessToken', valid: true }])
       );
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([
@@ -32,7 +32,7 @@ describe('loadConfig', () => {
     jest
       .spyOn(RedoclyClient.prototype, 'getTokens')
       .mockImplementation(() =>
-        Promise.resolve([{ region: 'eu', token: 'accessToken', valid: true }]),
+        Promise.resolve([{ region: 'eu', token: 'accessToken', valid: true }])
       );
     const config = await loadConfig();
     expect(config.resolve.http.headers).toStrictEqual([

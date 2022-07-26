@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { outdent } from 'outdent';
 
 import { lintFromString, lintConfig, lintDocument } from '../lint';
@@ -70,7 +71,7 @@ describe('lint', () => {
           links:
             color: '#6CC496'
       `,
-      '',
+      ''
     );
     const results = await lintConfig({ document });
 
@@ -117,7 +118,7 @@ describe('lint', () => {
         plugins:
           - './local-plugin.js'
       `,
-      '',
+      ''
     );
     const results = await lintConfig({ document });
 
@@ -182,7 +183,7 @@ describe('lint', () => {
                       type: string
                       const: ABC
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -199,10 +200,10 @@ describe('lint', () => {
       outdent`
       openapi: 3.0
     `,
-      '',
+      ''
     );
     expect(() => detectOpenAPI(testDocument.parsed)).toThrow(
-      `Invalid OpenAPI version: should be a string but got "number"`,
+      `Invalid OpenAPI version: should be a string but got "number"`
     );
   });
 
@@ -231,7 +232,7 @@ describe('lint', () => {
                   '200':
                     description: callback successfully processed
     `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -241,5 +242,51 @@ describe('lint', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should ignore error because ignore file passed', async () => {
+    const absoluteRef = path.join(__dirname, 'fixtures/openapi.yaml');
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      info:
+        version: 1.0.0
+        title: Example OpenAPI 3 definition.
+        description: Information about API
+        license:
+          name: MIT
+          url: 'https://opensource.org/licenses/MIT'
+      servers:
+        - url: 'https://redocly.com/v1'
+      paths:
+        '/pets/{petId}':
+          post:
+            responses:
+              '201':
+                summary: Exist 
+                description: example description
+      `,
+      absoluteRef
+    );
+
+    const configFilePath = path.join(__dirname, 'fixtures');
+
+    const result = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-operationId': 'error' }, undefined, configFilePath),
+    });
+    expect(result).toHaveLength(1);
+    expect(result).toMatchObject([
+      {
+        ignored: true,
+        location: [{ pointer: '#/paths/~1pets~1{petId}/post/operationId' }],
+        message: 'Operation object should contain `operationId` field.',
+        ruleId: 'operation-operationId',
+        severity: 'error',
+      },
+    ]);
+    expect(result[0]).toHaveProperty('ignored', true);
+    expect(result[0]).toHaveProperty('ruleId', 'operation-operationId');
   });
 });

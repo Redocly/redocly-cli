@@ -5,12 +5,14 @@ import {
   lint,
   getTotals,
   formatProblems,
+  doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
   getFallbackEntryPointsOrExit,
   getExecutionTime,
   printUnusedWarnings,
   handleError,
+  exitWithError,
 } from '../../utils';
 import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
@@ -41,6 +43,7 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
+    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
   });
 
   afterEach(() => {
@@ -48,7 +51,15 @@ describe('handleLint', () => {
   });
 
   describe('loadConfig and getEnrtypoints stage', () => {
-    it('shoul call loadConfig and getFallbackEntryPointsOrExit', async () => {
+    it('should fail if config file does not exist', async () => {
+      await handleLint({ ...argvMock, config: 'config.yaml' }, versionMock);
+      expect(exitWithError).toHaveBeenCalledWith(
+        'Please, provide valid path to the configuration file'
+      );
+      expect(loadConfig).toHaveBeenCalledTimes(0);
+    });
+
+    it('should call loadConfig and getFallbackEntryPointsOrExit', async () => {
       await handleLint(argvMock, versionMock);
       expect(loadConfig).toHaveBeenCalledWith(undefined, undefined, undefined);
       expect(getFallbackEntryPointsOrExit).toHaveBeenCalled();
@@ -56,10 +67,10 @@ describe('handleLint', () => {
 
     it('should call loadConfig with args if such exist', async () => {
       await handleLint(
-        { ...argvMock, config: '/path/redocly.yaml', extends: ['some/path'] },
-        versionMock,
+        { ...argvMock, config: 'redocly.yaml', extends: ['some/path'] },
+        versionMock
       );
-      expect(loadConfig).toHaveBeenCalledWith('/path/redocly.yaml', ['some/path'], undefined);
+      expect(loadConfig).toHaveBeenCalledWith('redocly.yaml', ['some/path'], undefined);
     });
 
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
@@ -85,7 +96,7 @@ describe('handleLint', () => {
           'skip-rule': ['rule'],
           'generate-ignore-file': true,
         },
-        versionMock,
+        versionMock
       );
       expect(ConfigFixture.lint.skipRules).toHaveBeenCalledWith(['rule']);
       expect(ConfigFixture.lint.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
