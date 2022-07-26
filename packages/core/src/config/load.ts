@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, loadYaml } from '../utils';
+import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
@@ -11,12 +11,11 @@ import type { RawConfig, Region } from './types';
 async function addConfigMetadata({
   rawConfig,
   customExtends,
-  configPath
+  configPath,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.lint = rawConfig.lint || {};
@@ -53,7 +52,7 @@ async function addConfigMetadata({
                 value: item.token,
               },
             ]
-          : []),
+          : [])
       );
     }
   }
@@ -64,27 +63,25 @@ async function addConfigMetadata({
 export async function loadConfig(
   configPath: string | undefined = findConfig(),
   customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>,
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
 ): Promise<Config> {
   const rawConfig = await getConfig(configPath);
-
   if (typeof processRawConfig === 'function') {
     await processRawConfig(rawConfig);
   }
-
   return await addConfigMetadata({
     rawConfig,
     customExtends,
     configPath,
   });
-};
+}
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
 
 export function findConfig(dir?: string): string | undefined {
   if (!fs.hasOwnProperty('existsSync')) return;
   const existingConfigFiles = CONFIG_FILE_NAMES.map((name) =>
-    dir ? path.resolve(dir, name) : name,
+    dir ? path.resolve(dir, name) : name
   ).filter(fs.existsSync);
   if (existingConfigFiles.length > 1) {
     throw new Error(`
@@ -97,7 +94,7 @@ export function findConfig(dir?: string): string | undefined {
 }
 
 export async function getConfig(configPath: string | undefined = findConfig()) {
-  if (!configPath) return {};
+  if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     const rawConfig = ((await loadYaml(configPath)) || {}) as RawConfig;
     return transformConfig(rawConfig);
