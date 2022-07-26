@@ -8,7 +8,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed bug when provided invalid path to the configuration file
+- Fixed bug with an invalid path to the configuration file causing issues with the ignore file.
 
 ## 1.0.0-beta.104 (2022-07-11)
 
