@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: 3.0.0
 info:
   version: 1.0.0
   title: Swagger Petstore
@@ -108,9 +108,9 @@ components:
       properties:
         pets:
           type: array
-          description: 'object containing a list of pets'
+          description: object containing a list of pets
           items:
-            $ref: Pet.yaml
+            $ref: '#/components/schemas/Pet'
         next_url:
           type: string
           description: this is the url to next page
@@ -125,7 +125,6 @@ components:
         next_token:
           type: string
           description: next token
-
     Error:
       description: An error in processing a service request
       required:
@@ -135,7 +134,23 @@ components:
         code:
           type: integer
           format: int32
-          description: 'code property'
+          description: code property
         message:
           type: string
-          description: 'message property'
+          description: message property
+    Pet:
+      description: A pet
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: id property
+        name:
+          type: string
+          description: name property
+        tag:
+          type: string
+          description: tag property
