@@ -41,17 +41,24 @@ export interface OasRef {
 
 export type Referenced<T> = OasRef | T;
 
-export interface Oas3PathItem {
+export enum Oas3Operations {
+  get = 'get',
+  put = 'put',
+  post = 'post',
+  delete = 'delete',
+  options = 'options',
+  head = 'head',
+  patch = 'patch',
+  trace = 'trace',
+}
+
+export type Oas3PathItemOperations = {
+  [operation in Oas3Operations]?: Oas3Operation;
+};
+
+export interface Oas3PathItem extends Oas3PathItemOperations {
   summary?: string;
   description?: string;
-  get?: Oas3Operation;
-  put?: Oas3Operation;
-  post?: Oas3Operation;
-  delete?: Oas3Operation;
-  options?: Oas3Operation;
-  head?: Oas3Operation;
-  patch?: Oas3Operation;
-  trace?: Oas3Operation;
   servers?: Oas3Server[];
   parameters?: Array<Referenced<Oas3Parameter>>;
 }

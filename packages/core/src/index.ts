@@ -16,6 +16,7 @@ export type {
   Oas3_1Webhooks,
   Referenced,
   OasRef,
+  Oas3Operations,
 } from './typings/openapi';
 export type { Oas2Definition } from './typings/swagger';
 export type { StatsAccumulator, StatsName } from './typings/common';

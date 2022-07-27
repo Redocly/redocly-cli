@@ -16,6 +16,7 @@ import {
   lintDocument,
   detectOpenAPI,
   bundleDocument,
+  Oas3Operations,
 } from '@redocly/openapi-core';
 
 import {
@@ -26,7 +27,7 @@ import {
   writeYaml,
   exitWithError,
 } from '../utils';
-import { isObject, isString } from '../js-utils';
+import { isObject, isString, keysOf } from '../js-utils';
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -332,18 +333,35 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const { paths } = openapi;
+
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
         joinedDef['paths'] = {};
       }
-      for (const path of Object.keys(paths)) {
+
+      for (const path of keysOf(paths)) {
         if (!joinedDef.paths.hasOwnProperty(path)) {
           joinedDef.paths[path] = {};
         }
         if (!potentialConflicts.paths.hasOwnProperty(path)) {
           potentialConflicts.paths[path] = {};
         }
-        for (const [operation, pathOperation] of Object.entries(paths[path])) {
+
+        const pathItem = paths[path];
+
+        if ('$ref' in pathItem) {
+          continue; // TODO: what do we do with refs?
+        }
+
+        // TODO: merge `parameters` and `servers`
+
+        for (const operation of keysOf(Oas3Operations)) {
+          const pathOperation = pathItem[operation];
+
+          if (!pathOperation) {
+            continue;
+          }
+
           joinedDef.paths[path][operation] = pathOperation;
           potentialConflicts.paths[path][operation] = [
             ...(potentialConflicts.paths[path][operation] || []),
