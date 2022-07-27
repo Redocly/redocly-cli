@@ -44,7 +44,7 @@ Reference docs describe an API in terms of its schema. For example, how requests
 
 ### Best practices for documenting APIs
 
-It just doesn't make sense to maintain documentation manually, making changes in some dusty old Word document each time the development team adds a new endpoint or deprecates an operation. The best way is to 'treat the docs like code'.
+It doesn't make sense to maintain documentation manually, making changes in some dusty old Word document each time the development team adds a new endpoint or deprecates an operation. The best way is to 'treat the docs like code'.
 
 ## Docs-as-code (Docs-like-code)
 
