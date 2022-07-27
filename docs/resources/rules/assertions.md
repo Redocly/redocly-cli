@@ -445,10 +445,10 @@ The following example asserts that schema in MediaType contains a Reference obje
 lint:
   rules:
     assert/mediatype-schema-has-ref:
-      - subject: MediaType
-        property: schema
-        message: Ref is required.
-        ref: true
+      subject: MediaType
+      property: schema
+      message: Ref is required.
+      ref: true
 ```
 
 Also, you can specify a Regular Expression to check if the reference object conforms to it:
@@ -457,10 +457,10 @@ Also, you can specify a Regular Expression to check if the reference object conf
 lint:
   rules:
     assert/mediatype-schema-ref-pattern:
-      - subject: MediaType
-        property: schema
-        message: Ref needs to point to components directory.
-        ref: /^(\.\/)?components\/.*\.yaml$/
+      subject: MediaType
+      property: schema
+      message: Ref needs to point to components directory.
+      ref: /^(\.\/)?components\/.*\.yaml$/
 ```
 
 Redocly CLI
