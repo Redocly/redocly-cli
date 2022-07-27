@@ -3,5 +3,7 @@ apis:
     root: ./openapi.yaml
 
 lint:
-  extends:
-    - recommended
+  rules: 
+    operation-operationId: warn
+    operation-summary: error
+  extends: []

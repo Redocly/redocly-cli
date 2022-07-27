@@ -58,7 +58,7 @@ describe('webpack-bundle test', () => {
     const folderPath = join(__dirname, 'webpack-bundle/lint-workflows');
     const entryPoint = getEntrypoints(folderPath);
     const args = getParams('../../../dist/bundle.js', 'lint', [
-      '--format=stylish',
+      '--format=json',
       '--lint-config=off',
       ...entryPoint,
     ]);
@@ -70,7 +70,7 @@ describe('webpack-bundle test', () => {
     const folderPath = join(__dirname, 'webpack-bundle/lint-workflows-fail');
     const entryPoint = getEntrypoints(folderPath);
     const args = getParams('../../../dist/bundle.js', 'lint', [
-      '--format=stylish',
+      '--format=json',
       '--lint-config=off',
       ...entryPoint,
     ]);
