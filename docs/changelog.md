@@ -4,6 +4,12 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.105 (2022-07-27)
+
+### Fixes
+
+- Fixed bug with an invalid path to the configuration file causing issues with the ignore file.
+
 ## 1.0.0-beta.104 (2022-07-11)
 
 ### Fixes 
