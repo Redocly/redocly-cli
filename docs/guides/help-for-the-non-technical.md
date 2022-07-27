@@ -1,4 +1,4 @@
-# Help for our less-technical users
+# Help for non-developers
 
 Here at Redocly, we want everyone to feel comfortable using our products. If you're new to open source, command lines, GitHub and docs-as-code, then this guide is for you!
 
@@ -28,11 +28,11 @@ Because APIs have no front end, the docs *are* the UI. Developers rely on up-to-
 
 ### Types of API documentation
 
-API docs consist of two types of content: *conceptual docs* and *reference docs*.
+API docs consist of two types of content: *contextual docs* and *reference docs*.
 
-##### Conceptual docs
+##### Contexual docs
 
-Conceptual docs cover things like:
+Contextual docs cover things like:
 * Getting started tutorials that help developers complete a few simple tasks and build their confidence using the API.
 * How calls to the API are authenticated.
 * A list of all possible status and error codes that might be returned by the API.
@@ -56,7 +56,7 @@ Redocly makes tools that utilize the docs-as-code approach to transform API defi
 
 In essence, docs-as-code makes it easier for developers and technical writers to create and maintain technical documentation such as API docs.
 
-In the docs-as-code universe, API definition files are authored in YAML or JSON following the OpenAPI Specification (more about this soon). Conceptual docs are written in [Markdown](https://www.markdownguide.org/), a simple formatting markup language that can be learned in 10 minutes. Files are managed in any source control system, such as GitHub. Traditional authoring systems and workflows are not needed. Writers get devs, and devs get writers. Everyone is happy!
+In the docs-as-code universe, API definition files are authored in YAML or JSON following the OpenAPI Specification (more about this soon). Contextual docs are written in [Markdown](https://www.markdownguide.org/), a simple formatting markup language that can be learned in 10 minutes. Files are managed in any source control system, such as GitHub. Traditional authoring systems and workflows are not needed. Writers get devs, and devs get writers. Everyone is happy!
 
 Redocly products are based entirely around this concept — including our open-source tools Redocly CLI and Redoc. Acting as a 'doc toolchain', they help you to organize your API source files for easy storage and maintenance, then allow you to validate and publish them using simple commands.
 
@@ -64,7 +64,9 @@ Not familiar with commands? Don't worry! You'll get them in no time — [we prom
 
 ## The OpenAPI Specification (OAS)
 
-An important part of docs-as-code — and documenting APIs — is the OpenAPI Specification (OAS). The OAS is a specification used to describe REST APIs. Usually written in the YAML language (sometimes in JSON), the OAS lets you define each part of an API in a standardized format so that it can be linted (validated) and published by tools such as Redocly CLI and Redoc.
+An important part of docs-as-code — and documenting APIs — is the OpenAPI Specification (OAS). The OAS is a specification used to describe REST APIs. Over 80% of APIs fall into the REST category. Some other types include GraphQL, gRPC, SOAP, and asynchronous protocols.
+
+Usually written in the YAML language (sometimes in JSON), the OAS lets you define each part of an API in a standardized format so that it can be linted (validated) and published by tools such as Redocly CLI and Redoc.
 
 For more information about the specification, take a look at our [introduction to OpenAPI](./docs/resources/learning-openapi.md).
 
@@ -114,9 +116,9 @@ Did you notice our wonderful [Quickstart guide](./docs/quickstart.md)? Did you r
 ### node.js
 The `node.js` terminal is a self-contained environment that works best when sending commands to Redocly CLI and Redoc. You need to install it on your computer.
 
-### GitHub (aka Git)
+### GitHub
 
-GitHub is an online version control system used to manage code, along with documentation in formats such as Markdown, HTML and XML. Git allows authorized team members to work on the same source content by checking it out, working in 'branches', then merging those branches back into the source.
+GitHub is an online version control system used to manage code, along with documentation in formats such as Markdown, HTML and XML. GitHub allows authorized team members to work on the same source content by checking it out, working in 'branches', then merging those branches back into the source.
 
 You guessed it. Using GitHub to maintain code and docs together is what we mean by docs-as-code!
 
@@ -143,7 +145,7 @@ We use [npm](https://www.w3schools.com/whatis/whatis_npm.asp) to package up our 
 
 ## How to run a command
 
-On your computer:
+On a Windows computer:
 1. Click **Search**.
 2. Type **cmd**.
 3. Select to open **Node.js command prompt**.
