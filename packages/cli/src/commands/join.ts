@@ -16,6 +16,7 @@ import {
   lintDocument,
   detectOpenAPI,
   bundleDocument,
+  Oas3Operations,
 } from '@redocly/openapi-core';
 
 import {
@@ -26,7 +27,7 @@ import {
   writeYaml,
   exitWithError,
 } from '../utils';
-import { isObject, isString } from '../js-utils';
+import { isObject, isString, keysOf } from '../js-utils';
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -332,26 +333,43 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const { paths } = openapi;
+
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
         joinedDef['paths'] = {};
       }
-      for (const path of Object.keys(paths)) {
+
+      for (const path of keysOf(paths)) {
         if (!joinedDef.paths.hasOwnProperty(path)) {
           joinedDef.paths[path] = {};
         }
         if (!potentialConflicts.paths.hasOwnProperty(path)) {
           potentialConflicts.paths[path] = {};
         }
-        for (const operation of Object.keys(paths[path])) {
-          // @ts-ignore
-          const pathOperation = paths[path][operation];
+
+        const pathItem = paths[path];
+
+        if ('$ref' in pathItem) {
+          continue; // TODO: what do we do with refs?
+        }
+
+        // TODO: merge `parameters` and `servers`
+
+        for (const operation of keysOf(Oas3Operations)) {
+          const pathOperation = pathItem[operation];
+
+          if (!pathOperation) {
+            continue;
+          }
+
           joinedDef.paths[path][operation] = pathOperation;
           potentialConflicts.paths[path][operation] = [
             ...(potentialConflicts.paths[path][operation] || []),
             api,
           ];
+
           const { operationId } = pathOperation;
+
           if (operationId) {
             if (!potentialConflicts.paths.hasOwnProperty('operationIds')) {
               potentialConflicts.paths['operationIds'] = {};
@@ -361,7 +379,9 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
               api,
             ];
           }
+
           let { tags, security } = joinedDef.paths[path][operation];
+
           if (tags) {
             joinedDef.paths[path][operation].tags = tags.map((tag: string) =>
               addPrefix(tag, tagsPrefix)

@@ -10,3 +10,7 @@ export function isEmptyObject(obj: any) {
 export function isString(str: string) {
   return Object.prototype.toString.call(str) === '[object String]';
 }
+
+export function keysOf<T>(obj: T) {
+  return Object.keys(obj) as (keyof T)[];
+}
