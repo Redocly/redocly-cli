@@ -545,6 +545,11 @@ paths:
               requestBody:
                 content:
                   application/json:
+                    example:
+                      {
+                        "orderId": 3,
+                        "test": 3
+                      }
                     schema:
                       type: object
                       properties:

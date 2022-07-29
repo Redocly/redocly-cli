@@ -29,7 +29,10 @@ yargs
           default: 'stylish' as OutputFormat,
         },
       }),
-    handleStats
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'stats';
+      handleStats(argv);
+    }
   )
   .command(
     'split [entrypoint]',
@@ -54,7 +57,10 @@ yargs
           },
         })
         .demandOption('entrypoint'),
-    handleSplit
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'split';
+      handleSplit(argv);
+    }
   )
   .command(
     'join [entrypoints...]',
@@ -89,6 +95,7 @@ yargs
           },
         }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'join';
       handleJoin(argv, version);
     }
   )
@@ -127,7 +134,10 @@ yargs
         })
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'batch-id'),
-    transformPush(handlePush)
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'push';
+      transformPush(handlePush)(argv);
+    }
   )
   .command(
     'lint [entrypoints...]',
@@ -167,11 +177,7 @@ yargs
         },
         'lint-config': {
           description: 'Apply severity for linting the config file.',
-          choices: [
-            'warn',
-            'error',
-            'off',
-          ] as ReadonlyArray<RuleSeverity>,
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
         config: {
@@ -187,6 +193,7 @@ yargs
         },
       }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'lint';
       handleLint(argv, version);
     }
   )
@@ -281,13 +288,17 @@ yargs
           choices: regionChoices,
         },
       }),
-    handleLogin
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'login';
+      handleLogin(argv);
+    }
   )
   .command(
     'logout',
     'Clear your stored credentials for the Redocly API registry.',
     (yargs) => yargs,
     async () => {
+      process.env.REDOCLY_CLI_COMMAND = 'logout';
       const client = new RedoclyClient();
       client.logout();
       process.stdout.write('Logged out from the Redocly account. ✋\n');
@@ -334,7 +345,10 @@ yargs
           type: 'string',
         },
       }),
-    previewDocs
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
+      previewDocs(argv);
+    }
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
