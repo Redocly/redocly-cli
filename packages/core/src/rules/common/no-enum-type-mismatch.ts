@@ -39,7 +39,7 @@ export const NoEnumTypeMismatch: Oas3Rule | Oas2Rule = () => {
 
         for (const mismatchedKey of Object.keys(mismatchedResults)) {
           report({
-            message: `Enum value \`${mismatchedKey}\` must be of one type. Allowed types: \`${schema.type}\`.`,
+            message: `Enum value \`${mismatchedKey}\` must be of allowed types: \`${schema.type}\`.`,
             location: location.child(['enum', schema.enum.indexOf(mismatchedKey)]),
           });
         };
