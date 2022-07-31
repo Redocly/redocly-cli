@@ -25,7 +25,7 @@ import { Config } from './config';
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
   if (rawConfig.lint?.extends?.some(isNotString)) {
     throw new Error(
-      `Error configuration format not detected in extends value must contain strings`,
+      `Error configuration format not detected in extends value must contain strings`
     );
   }
 
@@ -59,13 +59,13 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
       apis,
       lint,
     },
-    configPath,
+    configPath
   );
 }
 
 export function resolvePlugins(
   plugins: (string | Plugin)[] | null,
-  configPath: string = '',
+  configPath: string = ''
 ): Plugin[] {
   if (!plugins) return [];
 
@@ -95,9 +95,9 @@ export function resolvePlugins(
         throw new Error(
           red(
             `Plugin "id" must be unique. Plugin ${blue(p.toString())} uses id "${blue(
-              id,
-            )}" already seen in ${blue(pluginPath)}`,
-          ),
+              id
+            )}" already seen in ${blue(pluginPath)}`
+          )
         );
       }
 
@@ -124,7 +124,7 @@ export function resolvePlugins(
       if (pluginModule.preprocessors) {
         if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
           throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`,
+            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`
           );
         }
         plugin.preprocessors = {};
@@ -168,7 +168,7 @@ export async function resolveApis({
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
     if (apiContent.lint?.extends?.some(isNotString)) {
       throw new Error(
-        `Error configuration format not detected in extends value must contain strings`,
+        `Error configuration format not detected in extends value must contain strings`
       );
     }
     const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint);
@@ -193,13 +193,13 @@ async function resolveAndMergeNestedLint(
     resolver?: BaseResolver;
   },
   parentConfigPaths: string[] = [],
-  extendPaths: string[] = [],
+  extendPaths: string[] = []
 ): Promise<ResolvedLintConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
   const plugins = getUniquePlugins(
-    resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath),
+    resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath)
   );
   const pluginPaths = lintConfig?.plugins
     ?.filter(isString)
@@ -227,9 +227,9 @@ async function resolveAndMergeNestedLint(
           resolver: resolver,
         },
         [...parentConfigPaths, resolvedConfigPath],
-        extendPaths,
+        extendPaths
       );
-    }) || [],
+    }) || []
   );
 
   const { plugins: mergedPlugins = [], ...lint } = mergeExtends([
@@ -259,7 +259,7 @@ export async function resolveLint(
     resolver?: BaseResolver;
   },
   parentConfigPaths: string[] = [],
-  extendPaths: string[] = [],
+  extendPaths: string[] = []
 ): Promise<ResolvedLintConfig> {
   const resolvedLint = await resolveAndMergeNestedLint(lintOpts, parentConfigPaths, extendPaths);
 
@@ -281,9 +281,9 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedLi
     throw new Error(
       pluginId
         ? `Invalid config ${red(
-            presetName,
+            presetName
           )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-        : `Invalid config ${red(presetName)}: there is no such built-in config.`,
+        : `Invalid config ${red(presetName)}: there is no such built-in config.`
     );
   }
   return preset;
@@ -291,7 +291,7 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedLi
 
 async function loadExtendLintConfig(
   filePath: string,
-  resolver: BaseResolver,
+  resolver: BaseResolver
 ): Promise<LintRawConfig> {
   try {
     const fileSource = await resolver.loadExternalRef(filePath);
@@ -328,7 +328,7 @@ function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConf
 }
 
 function groupLintAssertionRules(
-  rules: Record<string, RuleConfig> | undefined,
+  rules: Record<string, RuleConfig> | undefined
 ): Record<string, RuleConfig> | undefined {
   if (!rules) {
     return rules;

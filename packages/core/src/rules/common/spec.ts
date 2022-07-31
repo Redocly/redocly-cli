@@ -6,7 +6,7 @@ import { isPlainObject } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode } ) {
+    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode }) {
       const nodeType = oasTypeOf(node);
 
       if (type.items) {
@@ -40,15 +40,16 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       const allowed = type.allowed?.(node);
       if (allowed && isPlainObject(node)) {
         for (const propName in node) {
-          if (allowed.includes(propName) ||
-           (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
-           !Object.keys(type.properties).includes(propName)
+          if (
+            allowed.includes(propName) ||
+            (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) ||
+            !Object.keys(type.properties).includes(propName)
           ) {
             continue;
           }
           report({
             message: `The field \`${propName}\` is not allowed here.`,
-            location: location.child([propName]).key()
+            location: location.child([propName]).key(),
           });
         }
       }
@@ -63,7 +64,9 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
         if (!hasProperty)
           report({
-            message: `Must contain at least one of the following fields: ${type.requiredOneOf?.join(', ')}.`,
+            message: `Must contain at least one of the following fields: ${type.requiredOneOf?.join(
+              ', '
+            )}.`,
             location: [{ reportOnKey: true }],
           });
       }
@@ -134,7 +137,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             report({
               message: `The value of the ${propName} field must be greater than or equal to ${propSchema.minimum}`,
               location: location.child([propName]),
-            })
+            });
           }
         }
       }

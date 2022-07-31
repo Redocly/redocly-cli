@@ -5,7 +5,7 @@ import { BaseResolver } from '../../../../resolve';
 
 export async function lintDoc(
   source: string,
-  rules: Record<string, RuleConfig> = { spec: 'error' },
+  rules: Record<string, RuleConfig> = { spec: 'error' }
 ) {
   const document = parseYamlToDocument(source, 'foobar.yaml');
 
@@ -19,7 +19,7 @@ export async function lintDoc(
           extends: [],
           rules,
         },
-      }),
+      })
     ),
   });
 

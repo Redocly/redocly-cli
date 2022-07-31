@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E bundle lint format bundle lint: no format parameter or empty value should be formatted as codeframe 1`] = `
+exports[
+  `E2E bundle lint format bundle lint: no format parameter or empty value should be formatted as codeframe 1`
+] = `
 
 [1] openapi.yaml:20:11 at #/paths/~1my_post/post/requestBody/content/application~1json
 

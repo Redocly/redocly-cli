@@ -11,7 +11,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
           servers:
             - url: https://somedomain.com/
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -46,7 +46,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
           servers:
             - url: https://somedomain.com
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -65,7 +65,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
           servers:
             - url: /
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

@@ -43,7 +43,9 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
+    (doesYamlFileExist as jest.Mock<any, any>).mockImplementation(
+      (path) => path === 'redocly.yaml'
+    );
   });
 
   afterEach(() => {

@@ -18,8 +18,8 @@ export class Location {
       this.source,
       joinPointer(
         this.pointer,
-        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/'),
-      ),
+        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/')
+      )
     );
   }
 

@@ -23,7 +23,7 @@ it('should not report if summary field is valid', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });
 
@@ -49,7 +49,7 @@ it('should report if summary field is not string ', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -82,7 +82,7 @@ it('should not report if description field is valid', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });
 
@@ -108,7 +108,7 @@ it('should report if description field is not string', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -140,7 +140,7 @@ it('should not report of a valid GET operation object', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });
 
@@ -170,7 +170,7 @@ it('should not report of a valid PUT operation object', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });
 
@@ -208,7 +208,7 @@ it('should not report of a valid Post operation object', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });
 
@@ -248,6 +248,6 @@ it('should not report of a valid delete operation object', async () => {
   expect(
     await validateDoc(source, {
       spec: 'error',
-    }),
+    })
   ).toMatchInlineSnapshot(`Array []`);
 });

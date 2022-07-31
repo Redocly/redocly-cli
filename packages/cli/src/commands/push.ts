@@ -36,7 +36,7 @@ type PushArgs = {
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
-  'public'?: boolean;
+  public?: boolean;
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -61,8 +61,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   ) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>',
-      )}`,
+        '<@organization-id/api-name@api-version>'
+      )}`
     );
   }
 
@@ -71,8 +71,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   if (!organizationId) {
     return exitWithError(
       `No organization provided, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>',
-      )} or specify the 'organization' field in the config file.`,
+        '<@organization-id/api-name@api-version>'
+      )} or specify the 'organization' field in the config file.`
     );
   }
   const entrypoint =
@@ -81,8 +81,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   if (name && version && !entrypoint) {
     exitWithError(
       `No entrypoint found that matches ${blue(
-        `${name}@${version}`,
-      )}. Please make sure you have provided the correct data in the config file.`,
+        `${name}@${version}`
+      )}. Please make sure you have provided the correct data in the config file.`
     );
   }
 
@@ -114,8 +114,8 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       process.stdout.write(
         `Uploading ${filesToUpload.files.length} ${pluralize(
           'file',
-          filesToUpload.files.length,
-        )}:\n`,
+          filesToUpload.files.length
+        )}:\n`
       );
 
       let uploaded = 0;
@@ -137,12 +137,12 @@ export async function handlePush(argv: PushArgs): Promise<void> {
         filePaths.push(filePath);
 
         process.stdout.write(
-          `Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`,
+          `Uploading ${file.contents ? 'bundle for ' : ''}${blue(file.filePath)}...`
         );
 
         const uploadResponse = await uploadFileToS3(
           signedUploadUrl,
-          file.contents || file.filePath,
+          file.contents || file.filePath
         );
 
         const fileCounter = `(${++uploaded}/${filesToUpload.files.length})`;
@@ -175,9 +175,9 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
       if (error.message === 'API_VERSION_NOT_FOUND') {
         exitWithError(`The definition version ${blue(name)}/${blue(
-          version,
+          version
         )} does not exist in organization ${blue(organizationId)}!\n${yellow(
-          'Suggestion:',
+          'Suggestion:'
         )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
         `);
       }
@@ -186,7 +186,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     }
 
     process.stdout.write(
-      `Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`,
+      `Definition: ${blue(entrypoint!)} is successfully pushed to Redocly API Registry \n`
     );
   }
   printExecutionTime('push', startedAt, entrypoint || `apis in organization ${organizationId}`);
@@ -222,9 +222,7 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
 
   if (fileTotals.errors === 0) {
     process.stdout.write(
-      `Created a bundle for ${blue(entrypoint)} ${
-        fileTotals.warnings > 0 ? 'with warnings' : ''
-      }\n`,
+      `Created a bundle for ${blue(entrypoint)} ${fileTotals.warnings > 0 ? 'with warnings' : ''}\n`
     );
   } else {
     exitWithError(`Failed to create a bundle for ${blue(entrypoint)}\n`);
@@ -232,7 +230,7 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
 
   const fileExt = path.extname(entrypointPath).split('.').pop();
   files.push(
-    getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat)),
+    getFileEntry(entrypointPath, dumpBundle(openapiBundle.parsed, fileExt as BundleOutputFormat))
   );
 
   if (fs.existsSync('package.json')) {
@@ -302,7 +300,7 @@ function validateDestinationWithoutOrganization(destination: string) {
 
 export function getDestinationProps(
   destination: string | undefined,
-  organization: string | undefined,
+  organization: string | undefined
 ) {
   return destination && validateDestination(destination)
     ? destination.substring(1).split(/[@\/]/)
@@ -330,8 +328,8 @@ export const transformPush =
     if (!!maybeBranchName) {
       process.stderr.write(
         yellow(
-          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.',
-        ),
+          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.'
+        )
       );
     }
     const entrypoint = maybeDestination ? maybeEntrypointOrAliasOrDestination : undefined;

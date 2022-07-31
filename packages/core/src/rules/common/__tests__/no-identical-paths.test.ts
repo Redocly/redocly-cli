@@ -28,7 +28,7 @@ describe('no-identical-paths', () => {
             get:
               summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

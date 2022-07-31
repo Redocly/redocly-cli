@@ -14,7 +14,7 @@ export const NoInvalidSchemaExamples: any = (opts: any) => {
               schema,
               ctx.location.child(['examples', schema.examples.indexOf(example)]),
               ctx,
-              disallowAdditionalProperties,
+              disallowAdditionalProperties
             );
           }
         }

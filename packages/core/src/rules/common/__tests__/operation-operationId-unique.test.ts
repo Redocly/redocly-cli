@@ -20,7 +20,7 @@ describe('Oas3 operation-operationId-unique', () => {
               post:
                 operationId: test2
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -62,7 +62,7 @@ describe('Oas3 operation-operationId-unique', () => {
               post:
                 operationId: test3
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

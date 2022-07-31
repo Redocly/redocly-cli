@@ -36,7 +36,7 @@ function getAjvValidator(
   schema: any,
   loc: Location,
   resolve: ResolveFn,
-  disallowAdditionalProperties: boolean,
+  disallowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, disallowAdditionalProperties);
 
@@ -53,7 +53,7 @@ export function validateJsonSchema(
   schemaLoc: Location,
   instancePath: string,
   resolve: ResolveFn,
-  disallowAdditionalProperties: boolean,
+  disallowAdditionalProperties: boolean
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate = getAjvValidator(schema, schemaLoc, resolve, disallowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
@@ -73,8 +73,7 @@ export function validateJsonSchema(
 
   function beatifyErrorMessage(error: ErrorObject) {
     let message = error.message;
-    let suggest =
-      error.keyword === 'enum' ? error.params.allowedValues : undefined;
+    let suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
     if (suggest) {
       message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
     }

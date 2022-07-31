@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint-config test with option: { dirName: 'invalid-config--lint-config-off', option: 'off' } 1`] = `
+exports[
+  `E2E lint-config test with option: { dirName: 'invalid-config--lint-config-off', option: 'off' } 1`
+] = `
 
 No configurations were defined in extends -- using built in recommended configuration by default.
 Warning! This default behavior is going to be deprecated soon.

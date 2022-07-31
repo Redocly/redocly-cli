@@ -23,7 +23,7 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
 }
 
 export function transformApiDefinitionsToApis(
-  apiDefinitions: Record<string, string> = {},
+  apiDefinitions: Record<string, string> = {}
 ): Record<string, Api> {
   let apis: Record<string, Api> = {};
   for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
@@ -69,11 +69,7 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
   for (let rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
-          rulesConf,
-          null,
-          2,
-        )}.`,
+        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
       );
     }
 
@@ -145,7 +141,7 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
           },
           // TODO: merge everything else here
         },
-        config.configFile,
+        config.configFile
       )
     : config;
 }
@@ -164,15 +160,15 @@ export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): Raw
   if (apiDefinitions) {
     process.stderr.write(
       `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
-        'apis',
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
+        'apis'
+      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
     );
   }
   if (referenceDocs) {
     process.stderr.write(
       `The ${yellow('referenceDocs')} field is deprecated. Use ${green(
-        'features.openapi',
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
+        'features.openapi'
+      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
     );
   }
   return {
@@ -199,9 +195,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      process.stderr.write(
-        `Duplicate plugin id "${yellow(p.id)}".\n`,
-      );
+      process.stderr.write(`Duplicate plugin id "${yellow(p.id)}".\n`);
     }
   }
   return results;

@@ -11,7 +11,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
           servers:
             - url: example.com
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -46,7 +46,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
           servers:
             - url: not-example.com
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

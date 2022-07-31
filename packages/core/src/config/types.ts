@@ -71,7 +71,7 @@ export type DecoratorsConfig = {
 
 export type TypesExtensionFn = (
   types: Record<string, NodeType>,
-  oasVersion: OasVersion,
+  oasVersion: OasVersion
 ) => Record<string, NodeType>;
 
 export type TypeExtensionsConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
@@ -137,7 +137,7 @@ export type Api = {
   'features.openapi'?: Record<string, any>;
   'features.mockServer'?: Record<string, any>;
 };
-export type ResolvedApi = Omit<Api, 'lint'> & { lint: Omit<ResolvedLintConfig, 'plugins'>};
+export type ResolvedApi = Omit<Api, 'lint'> & { lint: Omit<ResolvedLintConfig, 'plugins'> };
 
 export type RawConfig = {
   apis?: Record<string, Api>;
@@ -151,7 +151,7 @@ export type RawConfig = {
 
 export type ResolvedConfig = Omit<RawConfig, 'lint' | 'apis'> & {
   lint: ResolvedLintConfig;
-  apis: Record<string,ResolvedApi>
+  apis: Record<string, ResolvedApi>;
 };
 
 export type RulesFields =

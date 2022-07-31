@@ -35,12 +35,12 @@ describe('resolveLint', () => {
     expect(
       await resolveLint({
         lintConfig: { ...baseLintConfig, extends: ['minimal', 'recommended'] },
-      }),
+      })
     ).toEqual(await recommendedLintPreset);
     expect(
       await resolveLint({
         lintConfig: { ...baseLintConfig, extends: ['recommended', 'minimal'] },
-      }),
+      })
     ).toEqual(await minimalLintPreset);
   });
 
@@ -141,13 +141,13 @@ describe('resolveLint', () => {
     });
 
     expect(Array.isArray(lint.rules?.assertions)).toEqual(true);
-    expect(lint.rules?.assertions).toMatchObject( [
+    expect(lint.rules?.assertions).toMatchObject([
       {
         subject: 'PathItem',
         property: 'get',
         message: 'Every path item must have a GET operation.',
         defined: true,
-        assertionId: 'path-item-get-defined'
+        assertionId: 'path-item-get-defined',
       },
       {
         subject: 'Tag',
@@ -156,9 +156,9 @@ describe('resolveLint', () => {
         severity: 'error',
         minLength: 13,
         pattern: '/\\.$/',
-        assertionId: 'tag-description'
-      }
-    ])
+        assertionId: 'tag-description',
+      },
+    ]);
   });
 
   it('should resolve extends with url file config witch contains path to nested config', async () => {

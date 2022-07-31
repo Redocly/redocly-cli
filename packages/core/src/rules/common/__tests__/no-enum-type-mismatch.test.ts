@@ -23,7 +23,7 @@ describe('Oas3 typed enum', () => {
                             - 2
                             - 3
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -56,7 +56,7 @@ describe('Oas3 typed enum', () => {
                             - C
                             - null
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -86,7 +86,7 @@ describe('Oas3 typed enum', () => {
                             - string
                             - 3
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -114,7 +114,7 @@ describe('Oas3 typed enum', () => {
     `);
   });
 
-  it('should report on enum object, \'string\' value in enum does not have allowed types', async () => {
+  it("should report on enum object, 'string' value in enum does not have allowed types", async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.1.0
@@ -134,7 +134,7 @@ describe('Oas3 typed enum', () => {
                             - string
                             - 3
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -179,13 +179,13 @@ describe('Oas3 typed enum', () => {
                       application/json:
                         schema: null
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'spec': 'error', 'no-enum-type-mismatch': 'error' }),
+      config: await makeConfig({ spec: 'error', 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

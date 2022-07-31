@@ -18,7 +18,7 @@ describe('Oas3 path-params-defined', () => {
                  - name: b
                    in: path
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -46,7 +46,7 @@ describe('Oas3 path-params-defined', () => {
                  - name: b
                    in: query
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -90,7 +90,7 @@ describe('Oas3 path-params-defined', () => {
                  - name: c
                    in: path
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

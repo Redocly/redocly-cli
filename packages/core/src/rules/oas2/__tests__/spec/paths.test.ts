@@ -20,7 +20,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -37,7 +37,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -52,7 +52,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -76,7 +76,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -99,7 +99,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -133,7 +133,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         'paths-identical': 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -160,7 +160,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -187,7 +187,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -205,7 +205,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -239,7 +239,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 });

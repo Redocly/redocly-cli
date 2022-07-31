@@ -32,7 +32,7 @@ describe('push', () => {
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
-      'public': true,
+      public: true,
       'batch-id': '123',
       'batch-size': 2,
     });
@@ -59,7 +59,7 @@ describe('push', () => {
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
-      'public': true,
+      public: true,
       'batch-id': ' ',
       'batch-size': 2,
     });
@@ -73,7 +73,7 @@ describe('push', () => {
       entrypoint: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
-      'public': true,
+      public: true,
       'batch-id': '123',
       'batch-size': 1,
     });

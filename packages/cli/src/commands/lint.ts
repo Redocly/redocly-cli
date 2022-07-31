@@ -13,7 +13,7 @@ import {
   RawConfig,
   RuleSeverity,
   ProblemSeverity,
-  doesYamlFileExist
+  doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -23,7 +23,7 @@ import {
   printLintTotals,
   printConfigLintTotals,
   printUnusedWarnings,
-  exitWithError
+  exitWithError,
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray, red } from 'colorette';
@@ -42,7 +42,6 @@ export type LintOptions = {
 };
 
 export async function handleLint(argv: LintOptions, version: string) {
-
   if (argv.config && !doesYamlFileExist(argv.config)) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
@@ -72,10 +71,10 @@ export async function handleLint(argv: LintOptions, version: string) {
       if (resolvedConfig.lint.recommendedFallback) {
         process.stderr.write(
           `No configurations were defined in extends -- using built in ${blue(
-            'recommended',
+            'recommended'
           )} configuration by default.\n${red(
-            'Warning! This default behavior is going to be deprecated soon.',
-          )}\n\n`,
+            'Warning! This default behavior is going to be deprecated soon.'
+          )}\n\n`
         );
       }
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));
@@ -125,7 +124,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
   process.once('exit', () =>
-    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1),
+    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1)
   );
 }
 

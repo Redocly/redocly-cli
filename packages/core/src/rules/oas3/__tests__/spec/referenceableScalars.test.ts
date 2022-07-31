@@ -17,7 +17,7 @@ describe('Referenceable scalars', () => {
               $ref: fixtures/description.md
           paths: {}
         `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -32,7 +32,7 @@ describe('Referenceable scalars', () => {
               'no-unresolved-refs': 'error',
             },
           },
-        }),
+        })
       ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -54,7 +54,7 @@ describe('Referenceable scalars', () => {
                     example:
                       $ref: not $ref, example
         `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -69,7 +69,7 @@ describe('Referenceable scalars', () => {
             },
             doNotResolveExamples: true,
           },
-        }),
+        })
       ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

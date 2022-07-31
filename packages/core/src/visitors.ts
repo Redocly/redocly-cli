@@ -53,7 +53,7 @@ export type VisitFunction<T> = (
   node: T,
   ctx: UserContext & { ignoreNextVisitorsOnNode: () => void },
   parents?: any,
-  context?: any,
+  context?: any
 ) => void;
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
@@ -264,7 +264,7 @@ export type RuleInstanceConfig = {
 
 export function normalizeVisitors<T extends BaseVisitor>(
   visitorsConfig: (RuleInstanceConfig & { visitor: NestedVisitObject<any, T> })[],
-  types: Record<keyof T, NormalizedNodeType>,
+  types: Record<keyof T, NormalizedNodeType>
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
 
@@ -301,7 +301,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     from: NormalizedNodeType,
     to: NormalizedNodeType,
     parentContext: VisitorLevelContext,
-    stack: NormalizedNodeType[] = [],
+    stack: NormalizedNodeType[] = []
   ) {
     if (stack.includes(from)) return;
 
@@ -363,7 +363,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
     ruleConf: RuleInstanceConfig,
     visitor: NestedVisitObject<any, T>,
     parentContext: VisitorLevelContext | null,
-    depth = 0,
+    depth = 0
   ) {
     const visitorKeys = Object.keys(types) as Array<keyof T | 'any'>;
 
