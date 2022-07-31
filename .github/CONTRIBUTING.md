@@ -15,7 +15,7 @@ Hi! We're really excited that you are interested in contributing to Redocly CLI.
 
 - The best way to get your bug fixed is to provide a (reduced) test case. This means listing and explaining the steps we should take to try and hit the same problem you're having. It helps us understand in which conditions the issue appears, and gives us a better idea of what may be causing it.
 
-- Abide by our [Code of Conduct](https://redoc.ly/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
+- Abide by our [Code of Conduct](https://redocly.com/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
 
 ## Pull Request Guidelines
 Before submitting a pull request, please make sure the following is done:
