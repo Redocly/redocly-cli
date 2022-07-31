@@ -23,7 +23,7 @@ export function oasTypeOf(value: unknown) {
  */
 export function matchesJsonSchemaType(value: unknown, type: string, nullable: boolean): boolean {
   if (nullable && value === null) {
-    return value === null;
+    return true;
   }
 
   switch (type) {
@@ -35,6 +35,8 @@ export function matchesJsonSchemaType(value: unknown, type: string, nullable: bo
       return value === null;
     case 'integer':
       return Number.isInteger(value);
+    case 'any':
+      return true;
     default:
       return typeof value === type;
   }
