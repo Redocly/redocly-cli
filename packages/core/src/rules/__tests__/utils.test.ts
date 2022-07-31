@@ -1,13 +1,18 @@
 import {
+  fieldNonEmpty,
   matchesJsonSchemaType,
+  missingRequiredField,
+  oasTypeOf,
 } from '../utils';
 
-describe('matches-json-schema-type', () => {
-  it('should report true on any type', () => {
-    const results = matchesJsonSchemaType(123, 'any', false);
-    expect(results).toBe(true);
+describe('field-non-empty', () => {
+  it('should match expected message', () => {
+    const message = fieldNonEmpty('Car', 'color');
+    expect(message).toBe('Car object \`color\` must be non-empty string.');
   });
+});
 
+describe('matches-json-schema-type', () => {
   it('should report true on a null value with nullable type', () => {
     const results = matchesJsonSchemaType(null, 'string', true);
     expect(results).toBe(true);
@@ -69,5 +74,54 @@ describe('matches-json-schema-type', () => {
     const results = matchesJsonSchemaType(car, 'array', true);
     expect(results).toBe(false);
   });
+});
 
+describe('missing-required-field', () => {
+  it('should match expected message for missing required field', () => {
+    const message = missingRequiredField('Car', 'color');
+    expect(message).toBe('Car object should contain \`color\` field.');
+  });
+});
+
+describe('oas-type-of', () => {
+  it('should report the correct oas type for a string', () => {
+    const results = oasTypeOf('word');
+    expect(results).toBe('string');
+  });
+
+  it('should report the correct oas type for an integer', () => {
+    const results = oasTypeOf(123);
+    expect(results).toBe('integer');
+  });
+
+  it('should report the correct oas type for a number', () => {
+    const results = oasTypeOf(3.14);
+    expect(results).toBe('number');
+  });
+
+  it('should report the correct oas type for a null value', () => {
+    const results = oasTypeOf(null);
+    expect(results).toBe('null');
+  });
+
+  it('should report the correct oas type for a true boolean', () => {
+    const results = oasTypeOf(true);
+    expect(results).toBe('boolean');
+  });
+
+  it('should report the correct oas type for a false boolean', () => {
+    const results = oasTypeOf(false);
+    expect(results).toBe('boolean');
+  });
+
+  it('should report the correct oas type for an array', () => {
+    const results = oasTypeOf(['foo', 'bar']);
+    expect(results).toBe('array');
+  });
+
+  it('should report the correct oas type for an object', () => {
+    const car = {type:"Fiat", model:"500", color:"white"};
+    const results = oasTypeOf(car);
+    expect(results).toBe('object');
+  });
 });
