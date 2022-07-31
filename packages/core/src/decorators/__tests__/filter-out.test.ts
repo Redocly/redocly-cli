@@ -27,7 +27,8 @@ describe('oas3 filter-out', () => {
               callbacks:
                 x-access: protected
                 orderInProgress:
-                  x-internal: true`);
+                  x-internal: true`,
+  );
 
   it('should remove /pet path and y parameter', async () => {
     const testDocument = parseYamlToDocument(
@@ -46,7 +47,7 @@ describe('oas3 filter-out', () => {
           y:
             x-access: private
             name: y  
-    `
+    `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
@@ -75,7 +76,7 @@ describe('oas3 filter-out', () => {
             value: ['Private', 'Protected'],
             matchStrategy: 'all',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -106,7 +107,7 @@ describe('oas3 filter-out', () => {
             value: ['Private', 'Protected'],
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -132,7 +133,8 @@ describe('oas3 filter-out', () => {
                     type: object
       components: {}
             
-        `);
+        `,
+    );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
@@ -144,7 +146,7 @@ describe('oas3 filter-out', () => {
             value: 'private',
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -185,7 +187,8 @@ describe('oas3 filter-out', () => {
           x:
             name: x
             
-            `);
+            `,
+    );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
@@ -236,7 +239,8 @@ describe('oas3 filter-out', () => {
           x:
             name: x
             
-            `);
+            `,
+    );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
@@ -296,7 +300,7 @@ describe('oas2 filter-out', () => {
             '200':
                   description: List of recent media entries.
                   x-access: [protected, public]            
-      `
+      `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -309,7 +313,7 @@ describe('oas2 filter-out', () => {
             value: ['private', 'protected'],
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`

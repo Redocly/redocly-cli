@@ -78,16 +78,16 @@ function match(url: string, pattern: string) {
 
 export function pickObjectProps<T extends Record<string, unknown>>(
   object: T,
-  keys: Array<string>
+  keys: Array<string>,
 ): T {
   return Object.fromEntries(
-    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]])
+    keys.filter((key: string) => key in object).map((key: string) => [key, object[key]]),
   ) as T;
 }
 
 export function omitObjectProps<T extends Record<string, unknown>>(
   object: T,
-  keys: Array<string>
+  keys: Array<string>,
 ): T {
   return Object.fromEntries(Object.entries(object).filter(([key]) => !keys.includes(key))) as T;
 }
@@ -107,7 +107,7 @@ export function splitCamelCaseIntoWords(str: string) {
 export function validateMimeType(
   { type, value }: any,
   { report, location }: UserContext,
-  allowedValues: string[]
+  allowedValues: string[],
 ) {
   const ruleType = type === 'consumes' ? 'request' : 'response';
   if (!allowedValues)
@@ -127,7 +127,7 @@ export function validateMimeType(
 export function validateMimeTypeOAS3(
   { type, value }: any,
   { report, location }: UserContext,
-  allowedValues: string[]
+  allowedValues: string[],
 ) {
   const ruleType = type === 'consumes' ? 'request' : 'response';
   if (!allowedValues)

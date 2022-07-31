@@ -18,7 +18,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
                 enum: []
                 default: a
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({
@@ -72,7 +72,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
               var:
                 enum: []
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({
@@ -111,7 +111,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
           - url: https://example.com/{var}
             variables: {}
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({
@@ -135,7 +135,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
             variables:
               var: {}
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({
@@ -162,7 +162,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
                   - a
                 default: a
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({
@@ -191,7 +191,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
                   - null
                 default: 'some string'
         components: {}
-      `
+      `,
     );
 
     const results = await lintDocument({

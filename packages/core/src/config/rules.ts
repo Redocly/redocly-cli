@@ -31,7 +31,7 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
             severity: ruleSettings.severity,
             ruleId,
             visitor: visitor,
-          }))
+          }));
         }
 
         return {
@@ -41,6 +41,6 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
         };
       }),
     )
-    .flatMap(visitor => visitor)
+    .flatMap((visitor) => visitor)
     .filter(notUndefined);
 }

@@ -23,7 +23,7 @@ export type AssertToApply = {
 export function buildVisitorObject(
   subject: string,
   context: Record<string, any>[],
-  subjectVisitor: any
+  subjectVisitor: any,
 ) {
   if (!context) {
     return { [subject]: subjectVisitor };
@@ -46,7 +46,7 @@ export function buildVisitorObject(
 
     if (matchParentKeys && excludeParentKeys) {
       throw new Error(
-        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`
+        `Both 'matchParentKeys' and 'excludeParentKeys' can't be under one context item`,
       );
     }
 
@@ -75,11 +75,11 @@ export function buildVisitorObject(
 export function buildSubjectVisitor(
   properties: string | string[],
   asserts: AssertToApply[],
-  context?: Record<string, any>[]
+  context?: Record<string, any>[],
 ) {
   return (
     node: any,
-    { report, location, rawLocation, key, type, resolve, rawNode }: UserContext
+    { report, location, rawLocation, key, type, resolve, rawNode }: UserContext,
   ) => {
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,

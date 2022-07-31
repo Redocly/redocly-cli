@@ -1,4 +1,6 @@
-export const getFallbackEntryPointsOrExit = jest.fn((entrypoints) => entrypoints.map(() => ({ path: '' })));
+export const getFallbackEntryPointsOrExit = jest.fn((entrypoints) =>
+  entrypoints.map(() => ({ path: '' })),
+);
 export const dumpBundle = jest.fn(() => '');
 export const slash = jest.fn();
 export const pluralize = jest.fn();

@@ -7,7 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import {isAbsoluteUrl, isRef, Location, refBaseName} from './ref-utils';
+import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
@@ -113,10 +113,11 @@ export async function bundleDocument(opts: {
     decorators.push({
       severity: 'error',
       ruleId: 'remove-unused-components',
-      visitor: oasMajorVersion === OasMajorVersion.Version2
-        ? RemoveUnusedComponentsOas2({})
-        : RemoveUnusedComponentsOas3({})
-    })
+      visitor:
+        oasMajorVersion === OasMajorVersion.Version2
+          ? RemoveUnusedComponentsOas2({})
+          : RemoveUnusedComponentsOas3({}),
+    });
   }
 
   const resolvedRefMap = await resolveDocument({
@@ -287,7 +288,7 @@ function makeBundleVisitor(
   }
 
   function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref)
+    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref);
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
       isRemote: false,

@@ -29,7 +29,7 @@ yargs
           default: 'stylish' as OutputFormat,
         },
       }),
-    handleStats
+    handleStats,
   )
   .command(
     'split [entrypoint]',
@@ -54,7 +54,7 @@ yargs
           },
         })
         .demandOption('entrypoint'),
-    handleSplit
+    handleSplit,
   )
   .command(
     'join [entrypoints...]',
@@ -90,7 +90,7 @@ yargs
         }),
     (argv) => {
       handleJoin(argv, version);
-    }
+    },
   )
   .command(
     'push [maybeEntrypointOrAliasOrDestination] [maybeDestination] [maybeBranchName]',
@@ -127,7 +127,7 @@ yargs
         })
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'batch-id'),
-    transformPush(handlePush)
+    transformPush(handlePush),
   )
   .command(
     'lint [entrypoints...]',
@@ -167,11 +167,7 @@ yargs
         },
         'lint-config': {
           description: 'Apply severity for linting the config file.',
-          choices: [
-            'warn',
-            'error',
-            'off',
-          ] as ReadonlyArray<RuleSeverity>,
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
         config: {
@@ -188,7 +184,7 @@ yargs
       }),
     (argv) => {
       handleLint(argv, version);
-    }
+    },
   )
   .command(
     'bundle [entrypoints...]',
@@ -264,7 +260,7 @@ yargs
       }),
     (argv) => {
       handleBundle(argv, version);
-    }
+    },
   )
   .command(
     'login',
@@ -281,7 +277,7 @@ yargs
           choices: regionChoices,
         },
       }),
-    handleLogin
+    handleLogin,
   )
   .command(
     'logout',
@@ -291,7 +287,7 @@ yargs
       const client = new RedoclyClient();
       client.logout();
       process.stdout.write('Logged out from the Redocly account. ✋\n');
-    }
+    },
   )
   .command(
     'preview-docs [entrypoint]',
@@ -334,7 +330,7 @@ yargs
           type: 'string',
         },
       }),
-    previewDocs
+    previewDocs,
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)

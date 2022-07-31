@@ -4,9 +4,16 @@ import { Oas2Components } from '../../typings/swagger';
 import { isEmptyObject } from '../../utils';
 
 export const RemoveUnusedComponents: Oas2Rule = () => {
-  let components = new Map<string, { used: boolean; componentType?: keyof Oas2Components; name: string }>();
+  let components = new Map<
+    string,
+    { used: boolean; componentType?: keyof Oas2Components; name: string }
+  >();
 
-  function registerComponent(location: Location, componentType: keyof Oas2Components, name: string): void {
+  function registerComponent(
+    location: Location,
+    componentType: keyof Oas2Components,
+    name: string,
+  ): void {
     components.set(location.absolutePointer, {
       used: components.get(location.absolutePointer)?.used || false,
       componentType,
@@ -17,9 +24,7 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
   return {
     ref: {
       leave(ref, { type, resolve, key }) {
-        if (
-          ['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)
-        ) {
+        if (['Schema', 'Parameter', 'Response', 'SecurityScheme'].includes(type.name)) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
           components.set(resolvedRef.location.absolutePointer, {
@@ -27,7 +32,7 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
             name: key.toString(),
           });
         }
-      }
+      },
     },
     DefinitionRoot: {
       leave(root, ctx) {
@@ -35,7 +40,7 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
         data.removedCount = 0;
 
         let rootComponents = new Set<keyof Oas2Components>();
-        components.forEach(usageInfo => {
+        components.forEach((usageInfo) => {
           const { used, name, componentType } = usageInfo;
           if (!used && componentType) {
             rootComponents.add(componentType);
@@ -71,6 +76,6 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
       SecurityScheme(_securityScheme, { location, key }) {
         registerComponent(location, 'securityDefinitions', key.toString());
       },
-    }
+    },
   };
 };

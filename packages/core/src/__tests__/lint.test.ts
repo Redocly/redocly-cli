@@ -71,7 +71,7 @@ describe('lint', () => {
           links:
             color: '#6CC496'
       `,
-      ''
+      '',
     );
     const results = await lintConfig({ document });
 
@@ -118,7 +118,7 @@ describe('lint', () => {
         plugins:
           - './local-plugin.js'
       `,
-      ''
+      '',
     );
     const results = await lintConfig({ document });
 
@@ -183,7 +183,7 @@ describe('lint', () => {
                       type: string
                       const: ABC
         `,
-      'foobar.yaml'
+      'foobar.yaml',
     );
 
     const results = await lintDocument({
@@ -200,10 +200,10 @@ describe('lint', () => {
       outdent`
       openapi: 3.0
     `,
-      ''
+      '',
     );
     expect(() => detectOpenAPI(testDocument.parsed)).toThrow(
-      `Invalid OpenAPI version: should be a string but got "number"`
+      `Invalid OpenAPI version: should be a string but got "number"`,
     );
   });
 
@@ -232,7 +232,7 @@ describe('lint', () => {
                   '200':
                     description: callback successfully processed
     `,
-      'foobar.yaml'
+      'foobar.yaml',
     );
 
     const results = await lintDocument({
@@ -266,7 +266,7 @@ describe('lint', () => {
                 summary: Exist 
                 description: example description
       `,
-      absoluteRef
+      absoluteRef,
     );
 
     const configFilePath = path.join(__dirname, 'fixtures');

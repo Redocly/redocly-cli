@@ -230,13 +230,15 @@ export class LintConfig {
 
     for (const usedVersion of Array.from(this._usedVersions)) {
       rules.push(
-        ...Object.keys(this.rules[usedVersion]).filter((name) => !this._usedRules.has(name))
+        ...Object.keys(this.rules[usedVersion]).filter((name) => !this._usedRules.has(name)),
       );
       decorators.push(
-        ...Object.keys(this.decorators[usedVersion]).filter((name) => !this._usedRules.has(name))
+        ...Object.keys(this.decorators[usedVersion]).filter((name) => !this._usedRules.has(name)),
       );
       preprocessors.push(
-        ...Object.keys(this.preprocessors[usedVersion]).filter((name) => !this._usedRules.has(name))
+        ...Object.keys(this.preprocessors[usedVersion]).filter(
+          (name) => !this._usedRules.has(name),
+        ),
       );
     }
 

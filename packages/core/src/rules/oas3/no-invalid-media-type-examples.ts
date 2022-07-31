@@ -13,14 +13,22 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
         const { location, resolve } = ctx;
         if (!mediaType.schema) return;
         if (mediaType.example) {
-         resolveAndValidateExample(mediaType.example, location.child('example'));
+          resolveAndValidateExample(mediaType.example, location.child('example'));
         } else if (mediaType.examples) {
           for (const exampleName of Object.keys(mediaType.examples)) {
-            resolveAndValidateExample(mediaType.examples[exampleName], location.child(['examples', exampleName, 'value']), true);
+            resolveAndValidateExample(
+              mediaType.examples[exampleName],
+              location.child(['examples', exampleName, 'value']),
+              true,
+            );
           }
         }
 
-        function resolveAndValidateExample(example: Oas3Example | any, location: Location, isMultiple?: boolean) {
+        function resolveAndValidateExample(
+          example: Oas3Example | any,
+          location: Location,
+          isMultiple?: boolean,
+        ) {
           if (isRef(example)) {
             const resolved = resolve<Oas3Example>(example);
             if (!resolved.location) return;

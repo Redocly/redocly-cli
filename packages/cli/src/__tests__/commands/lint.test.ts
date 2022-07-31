@@ -43,7 +43,9 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
+    (doesYamlFileExist as jest.Mock<any, any>).mockImplementation(
+      (path) => path === 'redocly.yaml',
+    );
   });
 
   afterEach(() => {
@@ -54,7 +56,7 @@ describe('handleLint', () => {
     it('should fail if config file does not exist', async () => {
       await handleLint({ ...argvMock, config: 'config.yaml' }, versionMock);
       expect(exitWithError).toHaveBeenCalledWith(
-        'Please, provide valid path to the configuration file'
+        'Please, provide valid path to the configuration file',
       );
       expect(loadConfig).toHaveBeenCalledTimes(0);
     });
@@ -68,7 +70,7 @@ describe('handleLint', () => {
     it('should call loadConfig with args if such exist', async () => {
       await handleLint(
         { ...argvMock, config: 'redocly.yaml', extends: ['some/path'] },
-        versionMock
+        versionMock,
       );
       expect(loadConfig).toHaveBeenCalledWith('redocly.yaml', ['some/path'], undefined);
     });
@@ -96,7 +98,7 @@ describe('handleLint', () => {
           'skip-rule': ['rule'],
           'generate-ignore-file': true,
         },
-        versionMock
+        versionMock,
       );
       expect(ConfigFixture.lint.skipRules).toHaveBeenCalledWith(['rule']);
       expect(ConfigFixture.lint.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);

@@ -145,7 +145,7 @@ export class BaseResolver {
   async resolveDocument(
     base: string | null,
     ref: string,
-    isRoot: boolean = false
+    isRoot: boolean = false,
   ): Promise<Document | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
     const cachedDocument = this.cache.get(absoluteRef);
@@ -316,7 +316,10 @@ export async function resolveDocument(opts: {
       let targetDoc: Document;
       try {
         targetDoc = isRemote
-          ? ((await externalRefResolver.resolveDocument(document.source.absoluteRef, uri!)) as Document)
+          ? ((await externalRefResolver.resolveDocument(
+              document.source.absoluteRef,
+              uri!,
+            )) as Document)
           : document;
       } catch (error) {
         const resolvedRef = {

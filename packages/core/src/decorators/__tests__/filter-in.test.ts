@@ -26,7 +26,7 @@ describe('oas3 filter-in', () => {
             post:
               operationId: storeOrder
               callbacks:
-                x-access: protected`
+                x-access: protected`,
   );
 
   it('should include /user path and remove y parameter', async () => {
@@ -51,7 +51,7 @@ describe('oas3 filter-in', () => {
           y:
             x-access: private
             name: y            
-    `
+    `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
@@ -84,7 +84,7 @@ describe('oas3 filter-in', () => {
             value: ['Public', 'Protected'],
             matchStrategy: 'all',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -125,7 +125,7 @@ describe('oas3 filter-in', () => {
               operationId: storeOrder
               parameters:
                 - name: api_key
-                 `
+                 `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -138,7 +138,7 @@ describe('oas3 filter-in', () => {
             value: ['Public', 'Global'],
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -179,7 +179,7 @@ describe('oas3 filter-in', () => {
             value: 'non-existing-audience',
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -215,7 +215,7 @@ describe('oas3 filter-in', () => {
             post: 
                summary: test
                x-audience: Private     
-                 `
+                 `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -228,7 +228,7 @@ describe('oas3 filter-in', () => {
             value: ['Public', 'Global'],
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`
@@ -274,7 +274,7 @@ describe('oas2 filter-in', () => {
                 '200':
                   description: List of recent media entries.
                   x-access: [private, protected]
-      `
+      `,
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -287,7 +287,7 @@ describe('oas2 filter-in', () => {
             value: ['public', 'global'],
             matchStrategy: 'any',
           },
-        }
+        },
       ),
     });
     expect(res.parsed).toMatchInlineSnapshot(`

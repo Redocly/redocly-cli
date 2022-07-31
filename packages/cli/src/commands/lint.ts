@@ -13,7 +13,7 @@ import {
   RawConfig,
   RuleSeverity,
   ProblemSeverity,
-  doesYamlFileExist
+  doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
@@ -23,7 +23,7 @@ import {
   printLintTotals,
   printConfigLintTotals,
   printUnusedWarnings,
-  exitWithError
+  exitWithError,
 } from '../utils';
 import { Totals } from '../types';
 import { blue, gray, red } from 'colorette';
@@ -42,7 +42,6 @@ export type LintOptions = {
 };
 
 export async function handleLint(argv: LintOptions, version: string) {
-
   if (argv.config && !doesYamlFileExist(argv.config)) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
@@ -50,7 +49,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   const config: Config = await loadConfig(
     argv.config,
     argv.extends,
-    lintConfigCallback(argv, version)
+    lintConfigCallback(argv, version),
   );
 
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
@@ -114,7 +113,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   if (argv['generate-ignore-file']) {
     config.lint.saveIgnore();
     process.stderr.write(
-      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
+      `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`,
     );
   } else {
     printLintTotals(totals, entrypoints.length);

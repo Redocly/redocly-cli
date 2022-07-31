@@ -1,6 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint-config test with option: { dirName: 'invalid-config-assertation-config-type', option: 'error' } 1`] = `
+exports[
+  `E2E lint-config test with option: { dirName: 'invalid-config-assertation-config-type', option: 'error' } 1`
+] = `
 
 [1] .redocly.yaml:8:17 at #/lint/rules/assert~1path-item-mutually-required/context/0/type
 

@@ -1,5 +1,9 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../../__tests__/utils';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfig,
+} from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
 

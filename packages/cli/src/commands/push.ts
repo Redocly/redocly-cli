@@ -36,7 +36,7 @@ type PushArgs = {
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
-  'public'?: boolean;
+  public?: boolean;
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -88,13 +88,13 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
   if (batchId && !batchId.trim()) {
     exitWithError(
-      `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`
+      `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`,
     );
   }
 
   if (batchSize && batchSize < 2) {
     exitWithError(
-      `The ${blue(`batch-size`)} option value is not valid, please use the integer bigger than 1.`
+      `The ${blue(`batch-size`)} option value is not valid, please use the integer bigger than 1.`,
     );
   }
 

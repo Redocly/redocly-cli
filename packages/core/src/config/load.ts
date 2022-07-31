@@ -52,7 +52,7 @@ async function addConfigMetadata({
                 value: item.token,
               },
             ]
-          : [])
+          : []),
       );
     }
   }
@@ -63,7 +63,7 @@ async function addConfigMetadata({
 export async function loadConfig(
   configPath: string | undefined = findConfig(),
   customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>,
 ): Promise<Config> {
   const rawConfig = await getConfig(configPath);
   if (typeof processRawConfig === 'function') {
@@ -81,7 +81,7 @@ export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml'
 export function findConfig(dir?: string): string | undefined {
   if (!fs.hasOwnProperty('existsSync')) return;
   const existingConfigFiles = CONFIG_FILE_NAMES.map((name) =>
-    dir ? path.resolve(dir, name) : name
+    dir ? path.resolve(dir, name) : name,
   ).filter(fs.existsSync);
   if (existingConfigFiles.length > 1) {
     throw new Error(`

@@ -1,10 +1,9 @@
 import { Totals } from '@redocly/openapi-core';
-import { isSubdir, pathToFilename, printConfigLintTotals} from '../utils';
+import { isSubdir, pathToFilename, printConfigLintTotals } from '../utils';
 import { red, yellow } from 'colorette';
 
-
 jest.mock('os');
-jest.mock('colorette')
+jest.mock('colorette');
 
 describe('isSubdir', () => {
   it('can correctly determine if subdir', () => {
@@ -41,10 +40,9 @@ describe('isSubdir', () => {
   });
 
   afterEach(() => {
-    jest.resetModules()
-  })
+    jest.resetModules();
+  });
 });
-
 
 describe('pathToFilename', () => {
   it('should use correct path separator', () => {
@@ -52,7 +50,6 @@ describe('pathToFilename', () => {
     expect(processedPath).toEqual('user_createWithList');
   });
 });
-
 
 describe('printConfigLintTotals', () => {
   const totalProblemsMock: Totals = {

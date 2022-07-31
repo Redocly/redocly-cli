@@ -5,5 +5,13 @@ export interface StatsRow {
   items?: Set<string>;
 }
 
-export type StatsName = 'operations' | 'refs' | 'tags' | 'externalDocs' | 'pathItems' | 'links' | 'schemas' | 'parameters';
+export type StatsName =
+  | 'operations'
+  | 'refs'
+  | 'tags'
+  | 'externalDocs'
+  | 'pathItems'
+  | 'links'
+  | 'schemas'
+  | 'parameters';
 export type StatsAccumulator = Record<StatsName, StatsRow>;

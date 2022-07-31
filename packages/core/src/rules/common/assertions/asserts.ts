@@ -98,7 +98,7 @@ export const asserts: Asserts = {
   nonEmpty: (
     value: string | undefined | null,
     condition: boolean = true,
-    baseLocation: Location
+    baseLocation: Location,
   ) => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     return { isValid: condition ? !isEmpty : isEmpty, location: baseLocation };

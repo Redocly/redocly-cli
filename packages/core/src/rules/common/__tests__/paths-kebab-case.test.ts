@@ -84,25 +84,25 @@ describe('Oas3 paths-kebab-case', () => {
   });
 
   it('should allow trailing slash in path with "paths-kebab-case" rule', async () => {
-      const document = parseYamlToDocument(
-        outdent`
+    const document = parseYamlToDocument(
+      outdent`
             openapi: 3.0.0
             paths:
               /some/:
                 get:
                   summary: List all pets
           `,
-        'foobar.yaml',
-      );
+      'foobar.yaml',
+    );
 
-      const results = await lintDocument({
-        externalRefResolver: new BaseResolver(),
-        document,
-        config: await makeConfig({
-          'paths-kebab-case': 'error',
-          'no-path-trailing-slash': 'off',
-        }),
-      });
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'paths-kebab-case': 'error',
+        'no-path-trailing-slash': 'off',
+      }),
     });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

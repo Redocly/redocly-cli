@@ -106,7 +106,7 @@ export class RegistryApi {
     isUpsert,
     isPublic,
     batchId,
-    batchSize
+    batchSize,
   }: RegistryApiTypes.PushApiParams) {
     const response = await this.request(
       `/${organizationId}/${name}/${version}`,
@@ -123,7 +123,7 @@ export class RegistryApi {
           isUpsert,
           isPublic,
           batchId,
-          batchSize
+          batchSize,
         }),
       },
       this.region,

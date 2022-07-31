@@ -45,9 +45,9 @@ export function filter(node: any, ctx: UserContext, criteria: (item: any) => boo
 export function checkIfMatchByStrategy(
   nodeValue: any,
   decoratorValue: any,
-  strategy: 'all' | 'any'
+  strategy: 'all' | 'any',
 ): boolean {
-  if (nodeValue===undefined || decoratorValue===undefined) {
+  if (nodeValue === undefined || decoratorValue === undefined) {
     return false;
   }
 

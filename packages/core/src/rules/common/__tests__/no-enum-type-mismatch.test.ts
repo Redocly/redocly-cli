@@ -114,7 +114,7 @@ describe('Oas3 typed enum', () => {
     `);
   });
 
-  it('should report on enum object, \'string\' value in enum does not have allowed types', async () => {
+  it("should report on enum object, 'string' value in enum does not have allowed types", async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.1.0
@@ -185,7 +185,7 @@ describe('Oas3 typed enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'spec': 'error', 'no-enum-type-mismatch': 'error' }),
+      config: await makeConfig({ spec: 'error', 'no-enum-type-mismatch': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

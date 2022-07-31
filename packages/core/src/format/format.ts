@@ -14,7 +14,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { env } from "../config";
+import { env } from '../config';
 
 export type Totals = {
   errors: number;
@@ -243,7 +243,7 @@ export function formatProblems(
   function formatStylish(problem: OnlyLineColProblem, locationPad: number, ruleIdPad: number) {
     const color = COLORS[problem.severity];
     if (!SEVERITY_NAMES[problem.severity]) {
-      return 'Error not found severity. Please check your config file. Allowed values: \`warn,error,off\`'
+      return 'Error not found severity. Please check your config file. Allowed values: `warn,error,off`';
     }
     const severityName = color(SEVERITY_NAMES[problem.severity].toLowerCase().padEnd(7));
     const { start } = problem.location[0];

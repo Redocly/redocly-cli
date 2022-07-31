@@ -48,7 +48,7 @@ describe('js-yaml', () => {
 
   test('should correctly dump date and string', () => {
     expect(stringifyYaml(parseYaml(yamlToDump))).toMatchInlineSnapshot(
-    `
+      `
     "date: '2022-01-21T11:29:56.694Z'
     dateWithoutQuotes: '2020-01-01'
     dateWithQuotes: '2020-01-01'
@@ -57,7 +57,8 @@ describe('js-yaml', () => {
     stringWithQuotes: test
     stringWithDoubleQuotes: test
     "
-    `);
+    `,
+    );
   });
 
   test('parse and stringify', () => {
@@ -65,7 +66,8 @@ describe('js-yaml', () => {
   });
 
   test('should throw an error for unsupported types', () => {
-    expect(() => stringifyYaml({ foo: () => {} }))
-      .toThrow('unacceptable kind of an object to dump [object Function]');
+    expect(() => stringifyYaml({ foo: () => {} })).toThrow(
+      'unacceptable kind of an object to dump [object Function]',
+    );
   });
 });

@@ -31,7 +31,7 @@ function prepareRevision(revision) {
   const hash = exec(`git rev-parse "${revision}"`);
   const dir = path.join(os.tmpdir(), 'redocly-cli-benchmark', hash);
   if (fs.existsSync(dir)) {
-    fs.rmdirSync(dir, { recursive: true});
+    fs.rmdirSync(dir, { recursive: true });
   }
   fs.mkdirSync(dir, { recursive: true });
 
@@ -48,7 +48,10 @@ function tscBuild(dir) {
   process.chdir(dir);
   execSync('npm run compile', { stdio: 'inherit' });
   exec(
-    `cp ${path.join(dir, 'packages/core/src/benchmark/benches/*.yaml')} ${path.join(dir, 'packages/core/lib/benchmark/benches/')}`,
+    `cp ${path.join(dir, 'packages/core/src/benchmark/benches/*.yaml')} ${path.join(
+      dir,
+      'packages/core/lib/benchmark/benches/',
+    )}`,
   );
   process.chdir(oldCwd);
   return path.join(dir, 'packages/core/lib/benchmark/benches');
@@ -70,7 +73,8 @@ async function collectSamples(modulePath) {
 
 // T-Distribution two-tailed critical values for 95% confidence.
 // See http://www.itl.nist.gov/div898/handbook/eda/section3/eda3672.htm.
-const tTable = /* prettier-ignore */ {
+const tTable =
+  /* prettier-ignore */ {
   '1':  12.706, '2':  4.303, '3':  3.182, '4':  2.776, '5':  2.571, '6':  2.447,
   '7':  2.365,  '8':  2.306, '9':  2.262, '10': 2.228, '11': 2.201, '12': 2.179,
   '13': 2.16,   '14': 2.145, '15': 2.131, '16': 2.12,  '17': 2.11,  '18': 2.101,
@@ -255,7 +259,9 @@ function matchBenchmarks(patterns) {
   let benchmarks = findFiles(LOCAL_DIR('../lib/benchmark/benches'), '*.bench.js');
   if (patterns.length > 0) {
     benchmarks = benchmarks.filter((benchmark) =>
-      patterns.some((pattern) => path.join('../lib/benchmark/benches', benchmark).includes(pattern)),
+      patterns.some((pattern) =>
+        path.join('../lib/benchmark/benches', benchmark).includes(pattern),
+      ),
     );
   }
 

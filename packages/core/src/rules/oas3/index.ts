@@ -57,7 +57,7 @@ export const rules = {
   'info-license-url': InfoLicenseUrl,
   'operation-2xx-response': Operation2xxResponse,
   'operation-4xx-response': Operation4xxResponse,
-  'assertions': Assertions,
+  assertions: Assertions,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,

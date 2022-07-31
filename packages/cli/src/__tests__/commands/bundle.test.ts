@@ -6,7 +6,7 @@ import SpyInstance = jest.SpyInstance;
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
 
-(getMergedConfig as jest.Mock).mockImplementation(config => config)
+(getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
 describe('bundle', () => {
   let processExitMock: SpyInstance;
@@ -99,7 +99,7 @@ describe('bundle', () => {
     (getTotals as jest.Mock).mockReturnValue({
       errors: 1,
       warnings: 0,
-      ignored: 0
+      ignored: 0,
     });
 
     await handleBundle(
@@ -116,5 +116,4 @@ describe('bundle', () => {
     exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
-
 });

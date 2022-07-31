@@ -98,14 +98,14 @@ describe('bundle', () => {
   });
 
   it('should pull hosted schema', async () => {
-    const fetchMock = jest.fn(
-      () => Promise.resolve({
+    const fetchMock = jest.fn(() =>
+      Promise.resolve({
         ok: true,
         text: () => 'External schema content',
         headers: {
-          get: () => ''
-        }
-      })
+          get: () => '',
+        },
+      }),
     );
 
     const { bundle: res, problems } = await bundle({
@@ -113,31 +113,28 @@ describe('bundle', () => {
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
-          headers: []
-        }
+          headers: [],
+        },
       }),
-      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml')
+      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml'),
     });
 
     expect(problems).toHaveLength(0);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://someexternal.schema",
-      {
-        headers: {}
-      }
-    );
+    expect(fetchMock).toHaveBeenCalledWith('https://someexternal.schema', {
+      headers: {},
+    });
     expect(res.parsed).toMatchSnapshot();
   });
 
   it('should not bundle url refs if used with keepUrlRefs', async () => {
     const fetchMock = jest.fn(() =>
-        Promise.resolve({
-          ok: true,
-          text: () => 'External schema content',
-          headers: {
-            get: () => '',
-          },
-        }),
+      Promise.resolve({
+        ok: true,
+        text: () => 'External schema content',
+        headers: {
+          get: () => '',
+        },
+      }),
     );
     const { bundle: res, problems } = await bundle({
       config: new Config({} as ResolvedConfig),

@@ -19,7 +19,7 @@ type CLICommands =
 export function getParams(
   indexEntryPoint: string,
   command: CLICommands,
-  args: string[] = []
+  args: string[] = [],
 ): string[] {
   return ['--transpile-only', indexEntryPoint, command, ...args];
 }

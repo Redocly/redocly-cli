@@ -48,7 +48,7 @@ export const yamlSerializer = {
 export function makeConfigForRuleset(
   rules: Oas3RuleSet,
   plugin?: Partial<Plugin>,
-  version: string = 'oas3'
+  version: string = 'oas3',
 ) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
@@ -72,7 +72,7 @@ export function makeConfigForRuleset(
 export async function makeConfig(
   rules: Record<string, RuleConfig>,
   decorators?: Record<string, DecoratorConfig>,
-  configPath?: string
+  configPath?: string,
 ) {
   return new LintConfig(
     await resolveLint({
@@ -83,6 +83,6 @@ export async function makeConfig(
         decorators,
       },
     }),
-    configPath
+    configPath,
   );
 }

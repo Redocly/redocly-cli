@@ -4,7 +4,11 @@ import * as path from 'path';
 
 import { lintDocument } from '../lint';
 
-import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from '../../__tests__/utils';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfigForRuleset,
+} from '../../__tests__/utils';
 import { BaseResolver, Document } from '../resolve';
 import { listOf } from '../types';
 import { Oas3RuleSet } from '../oas-types';

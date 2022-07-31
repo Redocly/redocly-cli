@@ -1,6 +1,6 @@
 import { basename, dirname, extname, join, resolve } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
-import { performance } from "perf_hooks";
+import { performance } from 'perf_hooks';
 import * as glob from 'glob-promise';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,19 +13,23 @@ import {
   ResolveError,
   YamlParseError,
   parseYaml,
-  stringifyYaml
+  stringifyYaml,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
 
-export async function getFallbackEntryPointsOrExit(argsEntrypoints: string[] | undefined, config: Config): Promise<Entrypoint[]> {
-  const  { apis } = config;
-  const shouldFallbackToAllDefinitions = !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
+export async function getFallbackEntryPointsOrExit(
+  argsEntrypoints: string[] | undefined,
+  config: Config,
+): Promise<Entrypoint[]> {
+  const { apis } = config;
+  const shouldFallbackToAllDefinitions =
+    !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
     ? Object.entries(apis).map(([alias, { root }]) => ({
         path: resolve(getConfigDirectory(config), root),
         alias,
       }))
-    : (await expandGlobsInEntrypoints(argsEntrypoints!, config));
+    : await expandGlobsInEntrypoints(argsEntrypoints!, config);
   if (!isNotEmptyArray(res)) {
     process.stderr.write('error: missing required argument `entrypoints`.\n');
     process.exit(1);
@@ -48,11 +52,15 @@ function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
 }
 
 async function expandGlobsInEntrypoints(args: string[], config: Config) {
-  return (await Promise.all((args as string[]).map(async aliasOrPath => {
-    return glob.hasMagic(aliasOrPath)
-      ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
-      : getAliasOrPath(config, aliasOrPath);
-  }))).flat();
+  return (
+    await Promise.all(
+      (args as string[]).map(async (aliasOrPath) => {
+        return glob.hasMagic(aliasOrPath)
+          ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
+          : getAliasOrPath(config, aliasOrPath);
+      }),
+    )
+  ).flat();
 }
 
 export function getExecutionTime(startedAt: number) {
@@ -75,10 +83,7 @@ export function pathToFilename(path: string, pathSeparator: string) {
 }
 
 export function escapeLanguageName(lang: string) {
-  return lang
-    .replace(/#/g, "_sharp")
-    .replace(/\//, '_')
-    .replace(/\s/g, '');
+  return lang.replace(/#/g, '_sharp').replace(/\//, '_').replace(/\s/g, '');
 }
 
 export class CircularJSONNotSupportedError extends Error {
@@ -175,11 +180,12 @@ export function handleError(e: Error, ref: string) {
       `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
     );
     // TODO: codeframe
-  } else { // @ts-ignore
+  } else {
+    // @ts-ignore
     if (e instanceof CircularJSONNotSupportedError) {
       process.stderr.write(
         red(`Detected circular reference which can't be converted to JSON.\n`) +
-        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
+          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`,
       );
     } else {
       process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
@@ -245,7 +251,7 @@ export function printConfigLintTotals(totals: Totals): void {
     process.stderr.write(
       yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`),
     );
-  };
+  }
 }
 
 export function getOutputFileName(
@@ -312,7 +318,7 @@ export function printUnusedWarnings(config: LintConfig) {
 }
 
 export function exitWithError(message: string) {
-  process.stderr.write(red(message)+ '\n\n');
+  process.stderr.write(red(message) + '\n\n');
   process.exit(1);
 }
 

@@ -192,8 +192,11 @@ describe('collect refs', () => {
 
     expect(resolvedRefs).toBeDefined();
 
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)).sort())
-      .toMatchInlineSnapshot(`
+    expect(
+      Array.from(resolvedRefs.keys())
+        .map((ref) => ref.substring(cwd.length + 1))
+        .sort(),
+    ).toMatchInlineSnapshot(`
       Array [
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
@@ -208,7 +211,7 @@ describe('collect refs', () => {
           const getKey = (el: any): string => el?.allOf?.type || el?.type || '';
 
           return getKey(firstEl).localeCompare(getKey(secondEl));
-        })
+        }),
     ).toMatchInlineSnapshot(`
       Array [
         Object {

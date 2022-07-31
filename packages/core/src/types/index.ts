@@ -24,7 +24,7 @@ export type NodeType = {
   items?: string;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
-  allowed?: ((value: any) => string[] | undefined);
+  allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
 };
 type PropType = string | NodeType | ScalarSchema | undefined | null;
@@ -37,7 +37,7 @@ export type NormalizedNodeType = {
   items?: NormalizedNodeType;
   required?: string[] | ((value: any, key: string | number | undefined) => string[]);
   requiredOneOf?: string[];
-  allowed?: ((value: any) => string[] | undefined);
+  allowed?: (value: any) => string[] | undefined;
   extensionsPrefix?: string;
 };
 
