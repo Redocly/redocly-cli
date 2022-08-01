@@ -1,0 +1,9 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+lint:
+  rules: 
+    operation-operationId: warn
+    operation-summary: error
+  extends: []

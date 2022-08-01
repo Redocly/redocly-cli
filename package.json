@@ -29,7 +29,8 @@
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js",
-    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload"
+    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
+    "pack:prepare": "cd packages/cli && (mv \"$(npm pack | tail -n 1)\" ../../redocly-cli.tgz)"
   },
   "workspaces": [
     "packages/*"
