@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
+import { loadYaml, doesYamlFileExist } from '../utils';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
@@ -18,12 +18,12 @@ async function addConfigMetadata({
   configPath?: string;
 }): Promise<Config> {
   if (customExtends !== undefined) {
-    rawConfig.lint = rawConfig.lint || {};
-    rawConfig.lint.extends = customExtends;
-  } else if (isEmptyObject(rawConfig)) {
+    rawConfig.styleguide = rawConfig.styleguide || {};
+    rawConfig.styleguide.extends = customExtends;
+  } // else if (isEmptyObject(rawConfig)) {
     // TODO: check if we can add recommended here. add message here?
-    // rawConfig.lint = { extends: ['recommended'], recommendedFallback: true };
-  }
+    // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
+  //}
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();

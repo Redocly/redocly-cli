@@ -46,7 +46,7 @@ export async function handleBundle(
   const config = await loadConfig(argv.config, argv.extends);
   const removeUnusedComponents =
     argv['remove-unused-components'] &&
-    !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
+    !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -55,12 +55,14 @@ export async function handleBundle(
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
-      resolvedConfig.lint.skipRules(argv['skip-rule']);
-      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
-      resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+      const { styleguide } = resolvedConfig;
+      
+      styleguide.skipRules(argv['skip-rule']);
+      styleguide.skipPreprocessors(argv['skip-preprocessor']);
+      styleguide.skipDecorators(argv['skip-decorator']);
 
       if (argv.lint) {
-        if (config.lint.recommendedFallback) {
+        if (config.styleguide.recommendedFallback) {
           process.stderr.write(
             `No configurations were defined in extends -- using built in ${blue(
               'recommended',
@@ -172,7 +174,7 @@ export async function handleBundle(
     }
   }
 
-  printUnusedWarnings(config.lint);
+  printUnusedWarnings(config.styleguide);
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072

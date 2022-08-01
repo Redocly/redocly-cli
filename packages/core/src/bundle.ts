@@ -16,7 +16,7 @@ import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
 
-import type { Config, LintConfig } from './config';
+import type { Config, StyleGuideConfig } from './config';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -57,7 +57,7 @@ export async function bundle(opts: {
   return bundleDocument({
     document,
     ...opts,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
     externalRefResolver,
   });
 }
@@ -66,7 +66,7 @@ type BundleContext = WalkContext;
 
 export async function bundleDocument(opts: {
   document: Document;
-  config: LintConfig;
+  config: StyleGuideConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;

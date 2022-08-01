@@ -7,7 +7,7 @@ import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
-import { LintConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
+import { StyleGuideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
@@ -27,7 +27,7 @@ export async function lint(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
   });
 }
 
@@ -44,13 +44,13 @@ export async function lintFromString(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
   });
 }
 
 export async function lintDocument(opts: {
   document: Document;
-  config: LintConfig;
+  config: StyleGuideConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
@@ -105,7 +105,7 @@ export async function lintConfig(opts: {
     visitorsData: {},
   };
   const plugins = resolvePlugins([defaultPlugin]);
-  const config = new LintConfig({
+  const config = new StyleGuideConfig({
     plugins,
     rules: { spec: 'error' },
   });

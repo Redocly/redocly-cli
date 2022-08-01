@@ -29,7 +29,7 @@ export type PreprocessorConfig =
 
 export type DecoratorConfig = PreprocessorConfig;
 
-export type LintRawConfig = {
+export type StyleguideRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   doNotResolveExamples?: boolean;
@@ -51,7 +51,7 @@ export type LintRawConfig = {
   oas3_1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedLintConfig = PluginLintConfig & {
+export type ResolvedStyleGuideConfig = PluginStyleGuideConfig & {
   plugins?: Plugin[];
   recommendedFallback?: boolean;
   extends?: void | never;
@@ -71,7 +71,7 @@ export type DecoratorsConfig = {
 
 export type TypesExtensionFn = (
   types: Record<string, NodeType>,
-  oasVersion: OasVersion,
+  oasVersion: OasVersion
 ) => Record<string, NodeType>;
 
 export type TypeExtensionsConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
@@ -83,14 +83,14 @@ export type CustomRulesConfig = {
 
 export type Plugin = {
   id: string;
-  configs?: Record<string, PluginLintConfig>;
+  configs?: Record<string, PluginStyleGuideConfig>;
   rules?: CustomRulesConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
 };
 
-export type PluginLintConfig = Omit<LintRawConfig, 'plugins' | 'extends'>;
+export type PluginStyleGuideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;
 
 export type ResolveHeader =
   | {
@@ -125,34 +125,41 @@ export type AccessTokens = { [region in Region]?: string };
 
 export type DeprecatedRawConfig = {
   apiDefinitions?: Record<string, string>;
-  lint?: LintRawConfig;
-  resolve?: RawResolveConfig;
-  region?: Region;
+  lint?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
 };
 
-export type Api = {
-  root: string;
-  lint?: Omit<LintRawConfig, 'plugins'>;
+export type StyleguideConfig<T> = {
+  styleguide?: T;
+};
+
+export type FeaturesConfig = {
   'features.openapi'?: Record<string, any>;
   'features.mockServer'?: Record<string, any>;
 };
-export type ResolvedApi = Omit<Api, 'lint'> & { lint: Omit<ResolvedLintConfig, 'plugins'>};
+
+export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
+
+export type Api = {
+  root: string;
+} & StyleguideConfig<ApiStyleguideRawConfig> &
+  FeaturesConfig;
 
 export type RawConfig = {
   apis?: Record<string, Api>;
-  lint?: LintRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
-  'features.openapi'?: Record<string, any>;
-  'features.mockServer'?: Record<string, any>;
   organization?: string;
-};
+} & StyleguideConfig<StyleguideRawConfig> &
+  FeaturesConfig;
 
-export type ResolvedConfig = Omit<RawConfig, 'lint' | 'apis'> & {
-  lint: ResolvedLintConfig;
-  apis: Record<string,ResolvedApi>
-};
+export type ResolvedApi = Omit<Api, 'styleguide'> &
+  Required<StyleguideConfig<ResolvedStyleGuideConfig>>;
+
+export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> &
+  Required<StyleguideConfig<ResolvedStyleGuideConfig>> & {
+    apis: Record<string, ResolvedApi>;
+  };
 
 export type RulesFields =
   | 'rules'

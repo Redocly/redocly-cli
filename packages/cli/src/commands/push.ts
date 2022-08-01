@@ -102,7 +102,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
   for (const [apiNameAndVersion, { root: entrypoint }] of Object.entries(apis)) {
     const resolvedConfig = getMergedConfig(config, apiNameAndVersion);
-    resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+    resolvedConfig.styleguide.skipDecorators(argv['skip-decorator']);
 
     const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
     try {
@@ -243,14 +243,14 @@ async function collectFilesToUpload(entrypoint: string, config: Config) {
   }
   if (config.configFile) {
     // All config file paths including the root one
-    files.push(...[...new Set(config.lint.extendPaths)].map((f) => getFileEntry(f)));
+    files.push(...[...new Set(config.styleguide.extendPaths)].map((f) => getFileEntry(f)));
     if (config['features.openapi'].htmlTemplate) {
       const dir = getFolder(config['features.openapi'].htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
     let pluginFiles = new Set<string>();
-    for (const plugin of config.lint.pluginPaths) {
+    for (const plugin of config.styleguide.pluginPaths) {
       if (typeof plugin !== 'string') continue;
       const fileList = getFilesList(getFolder(plugin), []);
       fileList.forEach((f) => pluginFiles.add(f));

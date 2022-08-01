@@ -1,21 +1,21 @@
-import { resolveLint, resolveApis, resolveConfig } from '../config-resolvers';
+import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
 const path = require('path');
 
-import type { LintRawConfig, RawConfig } from '../types';
+import type { StyleguideRawConfig, RawConfig } from '../types';
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/.redocly.yaml');
-const baseLintConfig: LintRawConfig = {
+const baseLintConfig: StyleguideRawConfig = {
   rules: {
     'operation-2xx-response': 'warn',
   },
 };
 
-const minimalLintPreset = resolveLint({
-  lintConfig: { ...baseLintConfig, extends: ['minimal'] },
+const minimalLintPreset = resolveStyleguideConfig({
+  styleguideConfig: { ...baseLintConfig, extends: ['minimal'] },
 });
 
-const recommendedLintPreset = resolveLint({
-  lintConfig: { ...baseLintConfig, extends: ['recommended'] },
+const recommendedLintPreset = resolveStyleguideConfig({
+  styleguideConfig: { ...baseLintConfig, extends: ['recommended'] },
 });
 
 const removeAbsolutePath = (item: string) =>
@@ -23,7 +23,7 @@ const removeAbsolutePath = (item: string) =>
 
 describe('resolveLint', () => {
   it('should return the config with no recommended', async () => {
-    const lint = await resolveLint({ lintConfig: baseLintConfig });
+    const lint = await resolveStyleguideConfig({ styleguideConfig: baseLintConfig });
     expect(lint.plugins?.length).toEqual(1);
     expect(lint.plugins?.[0].id).toEqual('');
     expect(lint.rules).toEqual({
@@ -33,20 +33,20 @@ describe('resolveLint', () => {
 
   it('should return the config with correct order by preset', async () => {
     expect(
-      await resolveLint({
-        lintConfig: { ...baseLintConfig, extends: ['minimal', 'recommended'] },
+      await resolveStyleguideConfig({
+        styleguideConfig: { ...baseLintConfig, extends: ['minimal', 'recommended'] },
       }),
     ).toEqual(await recommendedLintPreset);
     expect(
-      await resolveLint({
-        lintConfig: { ...baseLintConfig, extends: ['recommended', 'minimal'] },
+      await resolveStyleguideConfig({
+        styleguideConfig: { ...baseLintConfig, extends: ['recommended', 'minimal'] },
       }),
     ).toEqual(await minimalLintPreset);
   });
 
   it('should return the same lintConfig when extends is empty array', async () => {
-    const configWithEmptyExtends = await resolveLint({
-      lintConfig: { ...baseLintConfig, extends: [] },
+    const configWithEmptyExtends = await resolveStyleguideConfig({
+      styleguideConfig: { ...baseLintConfig, extends: [] },
     });
     expect(configWithEmptyExtends.plugins?.length).toEqual(1);
     expect(configWithEmptyExtends.plugins?.[0].id).toEqual('');
@@ -61,8 +61,8 @@ describe('resolveLint', () => {
       extends: ['local-config.yaml'],
     };
 
-    const { plugins, ...lint } = await resolveLint({
-      lintConfig: config,
+    const { plugins, ...lint } = await resolveStyleguideConfig({
+      styleguideConfig: config,
       configPath,
     });
 
@@ -94,16 +94,16 @@ describe('resolveLint', () => {
       extends: ['local-config-with-circular.yaml'],
     };
     expect(() => {
-      resolveLint({ lintConfig: config, configPath });
+      resolveStyleguideConfig({ styleguideConfig: config, configPath });
     }).toThrow('Circular dependency in config file');
   });
 
   it('should resolve extends with local file config witch contains path to nested config', async () => {
-    const lintConfig = {
+    const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
-    const { plugins, ...lint } = await resolveLint({
-      lintConfig,
+    const { plugins, ...lint } = await resolveStyleguideConfig({
+      styleguideConfig,
       configPath,
     });
 
@@ -131,12 +131,12 @@ describe('resolveLint', () => {
   });
 
   it('should correctly merge assertions from nested config', async () => {
-    const lintConfig = {
+    const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
 
-    const lint = await resolveLint({
-      lintConfig,
+    const lint = await resolveStyleguideConfig({
+      styleguideConfig,
       configPath,
     });
 
@@ -162,15 +162,15 @@ describe('resolveLint', () => {
   });
 
   it('should resolve extends with url file config witch contains path to nested config', async () => {
-    const lintConfig = {
+    const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
         'https://raw.githubusercontent.com/Redocly/redocly-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
       ],
     };
 
-    const { plugins, ...lint } = await resolveLint({
-      lintConfig,
+    const { plugins, ...lint } = await resolveStyleguideConfig({
+      styleguideConfig,
       configPath,
     });
 
@@ -192,15 +192,15 @@ describe('resolveApis', () => {
       apis: {
         petstore: {
           root: 'some/path',
-          lint: {},
+          styleguide: {},
         },
       },
-      lint: {
+      styleguide: {
         extends: ['minimal'],
       },
     };
     const apisResult = await resolveApis({ rawConfig });
-    expect(apisResult['petstore'].lint).toEqual(await minimalLintPreset);
+    expect(apisResult['petstore'].styleguide).toEqual(await minimalLintPreset);
   });
 
   it('should not merge recommended extends by default by every level', async () => {
@@ -208,15 +208,15 @@ describe('resolveApis', () => {
       apis: {
         petstore: {
           root: 'some/path',
-          lint: {},
+          styleguide: {},
         },
       },
-      lint: {},
+      styleguide: {},
     };
 
     const apisResult = await resolveApis({ rawConfig, configPath });
 
-    expect(apisResult['petstore'].lint.extendPaths!.map(removeAbsolutePath)).toEqual([
+    expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/.redocly.yaml',
     ]);
     expect(apisResult['petstore'].lint.pluginPaths!.map(removeAbsolutePath)).toEqual([]);

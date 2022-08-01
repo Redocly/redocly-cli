@@ -138,9 +138,12 @@ export async function previewDocs(argv: {
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.entrypoint);
-    resolvedConfig.lint.skipRules(argv['skip-rule']);
-    resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
-    resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+    const { styleguide } = resolvedConfig;
+    
+    styleguide.skipRules(argv['skip-rule']);
+    styleguide.skipPreprocessors(argv['skip-preprocessor']);
+    styleguide.skipDecorators(argv['skip-decorator']);
+
     const referenceDocs = resolvedConfig['features.openapi'];
     redocOptions = {
       ...referenceDocs,
