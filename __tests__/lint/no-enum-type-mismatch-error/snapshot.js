@@ -5,7 +5,7 @@ exports[`E2E lint no-enum-type-mismatch-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:21:21 at #/paths/~1ping/get/responses/200/content/application~1json/schema/enum/3
 
-Enum value \`string\` must be of one type. Allowed types: \`integer,array\`.
+Enum value \`string\` must be of allowed types: \`integer,array\`.
 
 19 |                 - [ 1, 2, 3, string]
 20 |                 - 3

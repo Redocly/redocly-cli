@@ -153,7 +153,7 @@ describe('Oas3 typed enum', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Enum value \`string\` must be of one type. Allowed types: \`integer,array\`.",
+          "message": "Enum value \`string\` must be of allowed types: \`integer,array\`.",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
           "suggest": Array [],
