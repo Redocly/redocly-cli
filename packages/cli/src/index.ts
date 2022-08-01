@@ -270,6 +270,7 @@ yargs
         },
       }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'bundle';
       handleBundle(argv, version);
     }
   )
