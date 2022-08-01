@@ -1,10 +1,10 @@
 import { RuleSet, OasVersion } from '../oas-types';
-import { LintConfig } from './config';
+import { StyleGuideConfig } from './config';
 import { notUndefined } from '../utils';
 
 export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
-  config: LintConfig,
+  config: StyleGuideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: OasVersion,
 ) {
