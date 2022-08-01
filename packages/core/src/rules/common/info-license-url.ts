@@ -1,15 +1,10 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
-import { missingRequiredField } from '../utils';
+import { validateDefinedAndNonEmpty } from '../utils';
 
-export const InfoLicense: Oas3Rule | Oas2Rule = () => {
+export const InfoLicenseUrl: Oas3Rule | Oas2Rule = () => {
   return {
-    Info(info, { report }) {
-      if (!info.license) {
-        report({
-          message: missingRequiredField('Info', 'license'),
-          location: { reportOnKey: true }
-        });
-      }
+    License(license, ctx) {
+      validateDefinedAndNonEmpty('url', license, ctx);
     },
   };
 };
