@@ -369,7 +369,7 @@ lint:
 
 :::info
 
-See the [rules documentation](../resources/built-in-rules.md) for more information.
+See the [rules documentation](../rules.md) for more information.
 
 :::
 
@@ -389,7 +389,7 @@ lint:
       severity: error
 ```
 
-To know which rules support options, read the [built-in rules documentation](../resources/built-in-rules.md).
+To know which rules support options, read the [rules documentation](../rules.md).
 
 :::success Tip
 
@@ -426,7 +426,7 @@ If the version is not defined, it will fall back to the `rules` object.
 
 :::
 
-Read more about [built-in rules](../resources/built-in-rules.md).
+Read more about [rules](../rules.md).
 
 ## Resolve JSON references ($refs)
 

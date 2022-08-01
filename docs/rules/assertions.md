@@ -1,3 +1,7 @@
+---
+redirectFrom:
+  - /docs/cli/resources/rules/assertions/
+---
 # `assertions`
 
 Configure assertions to enforce your API design standards without coding custom rules in JavaScript.
