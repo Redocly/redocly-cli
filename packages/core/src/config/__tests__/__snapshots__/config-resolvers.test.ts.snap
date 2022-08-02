@@ -70,7 +70,7 @@ Object {
 }
 `;
 
-exports[`resolveLint should resolve extends with local file config witch contains path to nested config 1`] = `
+exports[`resolveStyleguideConfig should resolve extends with local file config witch contains path to nested config 1`] = `
 Object {
   "decorators": Object {},
   "doNotResolveExamples": undefined,

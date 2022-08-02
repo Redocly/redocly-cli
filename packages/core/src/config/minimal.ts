@@ -1,4 +1,4 @@
-import type { PluginStyleGuideConfig } from './types';
+import type { PluginStyleguideConfig } from './types';
 
 export default {
   rules: {
@@ -55,4 +55,4 @@ export default {
     'no-undefined-server-variable': 'warn',
     'no-servers-empty-enum': 'error',
   },
-} as PluginStyleGuideConfig;
+} as PluginStyleguideConfig;

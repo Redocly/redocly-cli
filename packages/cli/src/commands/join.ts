@@ -8,7 +8,7 @@ import {
   OasVersion,
   BaseResolver,
   Document,
-  StyleGuideConfig,
+  StyleguideConfig,
   Oas3Tag,
   loadConfig,
   formatProblems,
@@ -538,7 +538,7 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   return info[prefixArg];
 }
 
-async function validateEntrypoint(document: Document, config: StyleGuideConfig, externalRefResolver: BaseResolver, packageVersion: string) {
+async function validateEntrypoint(document: Document, config: StyleguideConfig, externalRefResolver: BaseResolver, packageVersion: string) {
   try {
     const results = await lintDocument({ document, config, externalRefResolver });
     const fileTotals = getTotals(results);

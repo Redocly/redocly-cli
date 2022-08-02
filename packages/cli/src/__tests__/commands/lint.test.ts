@@ -98,8 +98,8 @@ describe('handleLint', () => {
         },
         versionMock
       );
-      expect(ConfigFixture.lint.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(ConfigFixture.lint.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(ConfigFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(ConfigFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {

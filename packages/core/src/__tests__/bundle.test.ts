@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import { bundleDocument, bundle } from '../bundle';
 import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { LintConfig, Config, ResolvedConfig } from '../config';
+import { StyleguideConfig, Config, ResolvedConfig } from '../config';
 import { BaseResolver } from '../resolve';
 
 describe('bundle', () => {
@@ -45,7 +45,7 @@ describe('bundle', () => {
     const { bundle, problems } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new StyleguideConfig({}),
     });
 
     const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
@@ -78,7 +78,7 @@ describe('bundle', () => {
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new StyleguideConfig({}),
       document: testDocument,
       dereference: true,
     });

@@ -49,7 +49,7 @@ describe('lint', () => {
     const document = parseYamlToDocument(
       outdent`
       apis: error string
-      lint:
+      styleguide:
         plugins:
           - './local-plugin.js'
         extends:
@@ -107,14 +107,82 @@ describe('lint', () => {
     `);
   });
 
-  it("'plugins' shouldn't be allowed in 'apis' -> 'lint' field", async () => {
+  it('lintConfig should detect wrong fields and suggest correct ones', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      api: 
+        name@version:
+          root: ./file.yaml
+      syleguide:
+        rules:
+          operation-2xx-response: warn
+      `,
+      ''
+    );
+    const results = await lintConfig({ document });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/api",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`api\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [
+            "apis",
+          ],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/syleguide",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`syleguide\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [
+            "styleguide",
+          ],
+        },
+      ]
+    `);
+  });
+
+  it('lintConfig should work with legacy fields', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      apiDefinitions: 
+        entry: ./file.yaml
+      lint:
+        rules:
+          operation-2xx-response: warn
+      referenceDocs:
+        showConsole: true
+      `,
+      ''
+    );
+    const results = await lintConfig({ document });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it("'plugins' shouldn't be allowed in 'apis' -> 'styleguide' field", async () => {
     const document = parseYamlToDocument(
       outdent`
       apis: 
-        lint: 
+        styleguide: 
           plugins: 
             - './local-plugin.js'
-      lint:
+      styleguide:
         plugins:
           - './local-plugin.js'
       `,
@@ -127,7 +195,7 @@ describe('lint', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/apis/lint",
+              "pointer": "#/apis/styleguide",
               "reportOnKey": true,
               "source": "",
             },
@@ -140,7 +208,7 @@ describe('lint', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/apis/lint/plugins",
+              "pointer": "#/apis/styleguide/plugins",
               "reportOnKey": true,
               "source": "",
             },
