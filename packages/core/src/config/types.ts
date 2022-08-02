@@ -51,7 +51,9 @@ export type StyleguideRawConfig = {
   oas3_1Decorators?: Record<string, DecoratorConfig>;
 };
 
-export type ResolvedStyleGuideConfig = PluginStyleGuideConfig & {
+export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
+
+export type ResolvedStyleguideConfig = PluginStyleguideConfig & {
   plugins?: Plugin[];
   recommendedFallback?: boolean;
   extends?: void | never;
@@ -83,14 +85,14 @@ export type CustomRulesConfig = {
 
 export type Plugin = {
   id: string;
-  configs?: Record<string, PluginStyleGuideConfig>;
+  configs?: Record<string, PluginStyleguideConfig>;
   rules?: CustomRulesConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
 };
 
-export type PluginStyleGuideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;
+export type PluginStyleguideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;
 
 export type ResolveHeader =
   | {
@@ -129,37 +131,32 @@ export type DeprecatedRawConfig = {
   referenceDocs?: Record<string, any>;
 };
 
-export type StyleguideConfig<T> = {
-  styleguide?: T;
-};
-
-export type FeaturesConfig = {
-  'features.openapi'?: Record<string, any>;
-  'features.mockServer'?: Record<string, any>;
-};
-
-export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
-
 export type Api = {
   root: string;
-} & StyleguideConfig<ApiStyleguideRawConfig> &
-  FeaturesConfig;
+  styleguide?: ApiStyleguideRawConfig;
+} & FeaturesConfig;
+
+export type ResolvedApi = Omit<Api, 'styleguide'> & {
+  styleguide: ResolvedStyleguideConfig;
+};
 
 export type RawConfig = {
   apis?: Record<string, Api>;
+  styleguide?: StyleguideRawConfig;
   resolve?: RawResolveConfig;
   region?: Region;
   organization?: string;
-} & StyleguideConfig<StyleguideRawConfig> &
-  FeaturesConfig;
+} & FeaturesConfig;
 
-export type ResolvedApi = Omit<Api, 'styleguide'> &
-  Required<StyleguideConfig<ResolvedStyleGuideConfig>>;
+export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
+  apis: Record<string, ResolvedApi>;
+  styleguide: ResolvedStyleguideConfig;
+};
 
-export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> &
-  Required<StyleguideConfig<ResolvedStyleGuideConfig>> & {
-    apis: Record<string, ResolvedApi>;
-  };
+type FeaturesConfig = {
+  'features.openapi'?: Record<string, any>;
+  'features.mockServer'?: Record<string, any>;
+};
 
 export type RulesFields =
   | 'rules'

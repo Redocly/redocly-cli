@@ -9,7 +9,7 @@ import type {
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
-  ResolvedStyleGuideConfig,
+  ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
 
@@ -23,7 +23,7 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
 }
 
 export function transformApiDefinitionsToApis(
-  apiDefinitions: Record<string, string> = {}
+  apiDefinitions: DeprecatedRawConfig['apiDefinitions'] = {}
 ): Record<string, Api> {
   let apis: Record<string, Api> = {};
   for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
@@ -43,9 +43,9 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
   return res;
 }
 
-export function mergeExtends(rulesConfList: ResolvedStyleGuideConfig[]) {
-  const result: Omit<ResolvedStyleGuideConfig, RulesFields> &
-    Required<Pick<ResolvedStyleGuideConfig, RulesFields>> = {
+export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
+  const result: Omit<ResolvedStyleguideConfig, RulesFields> &
+    Required<Pick<ResolvedStyleguideConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -69,7 +69,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleGuideConfig[]) {
   for (let rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
+        `'extends' is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
       );
     }
 
@@ -146,13 +146,13 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     : config;
 }
 
-function verifyRelevantFieldsInUse(
+function checkForDeprecatedFields(
   deprecatedField: keyof DeprecatedRawConfig,
   updatedField: keyof RawConfig,
   rawConfig: DeprecatedRawConfig & RawConfig
 ): void {
   if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
-    throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
+    throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
   }
 
   if (rawConfig[deprecatedField]) {
@@ -164,19 +164,18 @@ function verifyRelevantFieldsInUse(
   }
 }
 
-export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
-  const configInUse = rawConfig as DeprecatedRawConfig & RawConfig;
+export function transformConfig(rawConfig: DeprecatedRawConfig & RawConfig): RawConfig {
   const migratedFields: [keyof DeprecatedRawConfig, keyof RawConfig][] = [
     ['apiDefinitions', 'apis'],
     ['referenceDocs', 'features.openapi'],
     ['lint', 'styleguide'], // TODO: update docs
   ];
 
-  migratedFields.forEach(([deprecatedField, updatedField]) =>
-    verifyRelevantFieldsInUse(deprecatedField, updatedField, configInUse)
-  );
+  for (const [deprecatedField, updatedField] of migratedFields) {
+    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig)
+  }
 
-  const { apiDefinitions, referenceDocs, lint, ...rest } = configInUse;
+  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
 
   return {
     'features.openapi': referenceDocs,

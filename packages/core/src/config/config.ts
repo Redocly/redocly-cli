@@ -14,7 +14,7 @@ import type {
   ResolveConfig,
   ResolvedApi,
   ResolvedConfig,
-  ResolvedStyleGuideConfig,
+  ResolvedStyleguideConfig,
   RuleConfig,
 } from './types';
 import { getResolveConfig } from './utils';
@@ -59,7 +59,7 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
 export const DOMAINS = getDomains();
 export const AVAILABLE_REGIONS = Object.keys(DOMAINS) as Region[];
 
-export class StyleGuideConfig {
+export class StyleguideConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
@@ -75,7 +75,7 @@ export class StyleGuideConfig {
   extendPaths: string[];
   pluginPaths: string[];
 
-  constructor(public rawConfig: ResolvedStyleGuideConfig, public configFile?: string) {
+  constructor(public rawConfig: ResolvedStyleguideConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
 
@@ -297,7 +297,7 @@ export class StyleGuideConfig {
 
 export class Config {
   apis: Record<string, ResolvedApi>;
-  styleguide: StyleGuideConfig;
+  styleguide: StyleguideConfig;
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
@@ -306,7 +306,7 @@ export class Config {
   organization?: string;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
-    this.styleguide = new StyleGuideConfig(rawConfig.styleguide || {}, configFile);
+    this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
     this['features.openapi'] = rawConfig['features.openapi'] || {};
     this['features.mockServer'] = rawConfig['features.mockServer'] || {};
     this.resolve = getResolveConfig(rawConfig?.resolve);

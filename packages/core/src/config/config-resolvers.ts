@@ -17,7 +17,7 @@ import type {
   Plugin,
   RawConfig,
   ResolvedApi,
-  ResolvedStyleGuideConfig,
+  ResolvedStyleguideConfig,
   RuleConfig,
 } from './types';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
@@ -198,7 +198,7 @@ async function resolveAndMergeNestedStyleguideConfig(
   },
   parentConfigPaths: string[] = [],
   extendPaths: string[] = []
-): Promise<ResolvedStyleGuideConfig> {
+): Promise<ResolvedStyleguideConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
@@ -213,7 +213,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     ? configPath
     : configPath && path.resolve(configPath);
 
-  const extendConfigs: ResolvedStyleGuideConfig[] = await Promise.all(
+  const extendConfigs: ResolvedStyleguideConfig[] = await Promise.all(
     styleguideConfig?.extends?.map(async (presetItem) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);
@@ -236,7 +236,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     }) || []
   );
 
-  const { plugins: mergedPlugins = [], ...lint } = mergeExtends([
+  const { plugins: mergedPlugins = [], ...styleguide } = mergeExtends([
     ...extendConfigs,
     {
       ...styleguideConfig,
@@ -248,8 +248,8 @@ async function resolveAndMergeNestedStyleguideConfig(
   ]);
 
   return {
-    ...lint,
-    extendPaths: lint.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
+    ...styleguide,
+    extendPaths: styleguide.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
     recommendedFallback: styleguideConfig?.recommendedFallback,
     doNotResolveExamples: styleguideConfig?.doNotResolveExamples,
@@ -264,7 +264,7 @@ export async function resolveStyleguideConfig(
   },
   parentConfigPaths: string[] = [],
   extendPaths: string[] = []
-): Promise<ResolvedStyleGuideConfig> {
+): Promise<ResolvedStyleguideConfig> {
   const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig(
     opts,
     parentConfigPaths,
@@ -279,14 +279,14 @@ export async function resolveStyleguideConfig(
   };
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedStyleGuideConfig {
+export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedStyleguideConfig {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
     throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
   }
 
-  const preset = plugin.configs?.[configName]! as ResolvedStyleGuideConfig;
+  const preset = plugin.configs?.[configName]! as ResolvedStyleguideConfig;
   if (!preset) {
     throw new Error(
       pluginId
