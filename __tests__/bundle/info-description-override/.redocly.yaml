@@ -2,7 +2,7 @@ apis:
   main:
     root: ./main.yaml
 
-lint:
+styleguide:
   decorators:
     info-description-override:
       filePath: ./test.md

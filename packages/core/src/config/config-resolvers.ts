@@ -19,6 +19,7 @@ import type {
   ResolvedApi,
   ResolvedStyleguideConfig,
   RuleConfig,
+  DeprecatedInRawConfig,
 } from './types';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
@@ -305,7 +306,7 @@ async function loadExtendStyleguideConfig(
 ): Promise<StyleguideRawConfig> {
   try {
     const fileSource = await resolver.loadExternalRef(filePath);
-    const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig);
+    const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig & DeprecatedInRawConfig);
     if (!rawConfig.styleguide) {
       throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
     }

@@ -125,16 +125,21 @@ export type Region = 'us' | 'eu';
 
 export type AccessTokens = { [region in Region]?: string };
 
-export type DeprecatedRawConfig = {
+export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
+  apis?: Record<string, Api & DeprecatedInApi>;
 };
 
 export type Api = {
   root: string;
   styleguide?: ApiStyleguideRawConfig;
 } & FeaturesConfig;
+
+export type DeprecatedInApi = {
+  lint?: ApiStyleguideRawConfig;
+};
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
