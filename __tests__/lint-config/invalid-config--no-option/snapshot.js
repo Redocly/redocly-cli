@@ -2,11 +2,11 @@
 
 exports[`E2E lint-config test with option: { dirName: 'invalid-config--no-option', option: null } 1`] = `
 
-[1] .redocly.yaml:6:5 at #/lint/rules/context
+[1] .redocly.yaml:6:5 at #/styleguide/rules/context
 
 Property \`context\` is not expected here.
 
-4 | lint:
+4 | styleguide:
 5 |   rules:
 6 |     context: null
   |     ^^^^^^^

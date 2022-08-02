@@ -4,7 +4,8 @@ import { Config } from './config';
 
 import type {
   Api,
-  DeprecatedRawConfig,
+  DeprecatedInApi,
+  DeprecatedInRawConfig,
   Plugin,
   RawConfig,
   RawResolveConfig,
@@ -23,11 +24,23 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
 }
 
 export function transformApiDefinitionsToApis(
-  apiDefinitions: DeprecatedRawConfig['apiDefinitions'] = {}
-): Record<string, Api> {
-  let apis: Record<string, Api> = {};
+  apiDefinitions?: DeprecatedInRawConfig['apiDefinitions']
+): Record<string, Api> | undefined {
+  if (!apiDefinitions) return undefined;
+  const apis: Record<string, Api> = {};
   for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
     apis[apiName] = { root: apiPath };
+  }
+  return apis;
+}
+
+function transformApis(
+  legacyApis?: Record<string, Api & DeprecatedInApi>
+): Record<string, Api> | undefined {
+  if (!legacyApis) return undefined;
+  const apis: Record<string, Api> = {};
+  for (const [apiName, { lint, ...apiContent }] of Object.entries(legacyApis)) {
+    apis[apiName] = { styleguide: lint, ...apiContent };
   }
   return apis;
 }
@@ -147,9 +160,9 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
 }
 
 function checkForDeprecatedFields(
-  deprecatedField: keyof DeprecatedRawConfig,
+  deprecatedField: keyof DeprecatedInRawConfig,
   updatedField: keyof RawConfig,
-  rawConfig: DeprecatedRawConfig & RawConfig
+  rawConfig: DeprecatedInRawConfig & RawConfig
 ): void {
   if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
     throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
@@ -164,22 +177,22 @@ function checkForDeprecatedFields(
   }
 }
 
-export function transformConfig(rawConfig: DeprecatedRawConfig & RawConfig): RawConfig {
-  const migratedFields: [keyof DeprecatedRawConfig, keyof RawConfig][] = [
+export function transformConfig(rawConfig: DeprecatedInRawConfig & RawConfig): RawConfig {
+  const migratedFields: [keyof DeprecatedInRawConfig, keyof RawConfig][] = [
     ['apiDefinitions', 'apis'],
     ['referenceDocs', 'features.openapi'],
     ['lint', 'styleguide'], // TODO: update docs
   ];
 
   for (const [deprecatedField, updatedField] of migratedFields) {
-    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig)
+    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig);
   }
 
-  const { apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
+  const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
 
   return {
     'features.openapi': referenceDocs,
-    apis: transformApiDefinitionsToApis(apiDefinitions),
+    apis: transformApis(apis) || transformApiDefinitionsToApis(apiDefinitions),
     styleguide: lint,
     ...rest,
   };

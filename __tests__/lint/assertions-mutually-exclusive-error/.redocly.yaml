@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 
-lint:
+styleguide:
   rules:
     assert/path-item-mutually-exclusive:
       context:

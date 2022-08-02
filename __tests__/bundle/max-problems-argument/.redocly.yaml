@@ -4,6 +4,6 @@ apis:
   bar:
     root: ./bar.yaml
 
-lint:
+styleguide:
   extends: 
     - recommended

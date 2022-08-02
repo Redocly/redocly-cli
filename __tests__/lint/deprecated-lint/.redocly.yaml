@@ -1,0 +1,11 @@
+apis:
+  api@legacy:
+    root: ./openapi.yaml
+    lint: 
+      rules: 
+        operation-4xx-response: error
+
+lint:
+  rules:
+    info-contact: warn
+  extends: []

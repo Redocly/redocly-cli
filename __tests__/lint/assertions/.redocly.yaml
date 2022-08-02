@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 
-lint:
+styleguide:
   extends: []
   rules:
     assert/tag-description:
