@@ -88,7 +88,7 @@ apis:
   external@latest:
     root: ./sample.yaml
 ```
-Finally, we want the [remove-x-internal](../resources/built-in-decorators.md) decorator to be applied to the external API.
+Finally, we want the [remove-x-internal](../decorators/remove-x-internal.md) decorator to be applied to the external API.
 To accomplish that, add the last three lines as shown in the following example.
 
 ```yaml
