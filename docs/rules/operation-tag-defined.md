@@ -28,7 +28,7 @@ This rule helps prevent typos and tag explosion.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-tag-defined: error
 ```
@@ -39,7 +39,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-tag-defined: error
 ```

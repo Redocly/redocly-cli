@@ -25,7 +25,7 @@ Its root cause is inexperience with OpenAPI (no holy war here).
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     : error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     : error
 ```

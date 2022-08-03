@@ -56,7 +56,7 @@ organization: testing_redocly
 apis:
   core@v2:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules:
         no-ambiguous-paths: error
   external@v1:
@@ -66,7 +66,7 @@ apis:
     features.openapi:
       hideLogo: true
 
-lint:
+styleguide:
   extends:
     - recommended
 
@@ -105,7 +105,7 @@ apis:
     root: ./openapi/openapi.yaml
     labels:
       - production
-    lint: {}
+    styleguide: {}
     features.openapi: {}
 ```
 
@@ -160,7 +160,7 @@ You may also import plugins and extends their configurations.
 #### Example
 
 ```yaml
-lint:
+styleguide:
   extends:
     - recommended
   rules:

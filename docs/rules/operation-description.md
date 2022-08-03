@@ -30,7 +30,7 @@ Do this, and your API consumers will thank you.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-description: error
 ```
@@ -40,7 +40,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-description: error
 ```

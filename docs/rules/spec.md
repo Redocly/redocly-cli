@@ -26,7 +26,7 @@ It's important to conform to the specification so that tools work with your API 
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     spec: error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     spec: error
 ```

@@ -48,7 +48,7 @@ With the `splitIntoWords` enabled it will be identified as a resource and not tr
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-http-verbs-in-paths: error
 ```
@@ -56,7 +56,7 @@ lint:
 An example configuration with `splitIntoWords` enabled:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-http-verbs-in-paths:
       severity: error
@@ -68,7 +68,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-http-verbs-in-paths: error
 ```
@@ -94,7 +94,7 @@ paths:
 Given the following configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-http-verbs-in-paths:
       severity: error

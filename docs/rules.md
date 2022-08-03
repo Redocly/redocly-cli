@@ -100,10 +100,10 @@ You can format each entry in the `lint` and `rules` object in one of the followi
 apis:
   main:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules:
         specific-api-rule: warn
-lint:
+styleguide:
   rules:
     example-rule-name: error
 ```
@@ -114,11 +114,11 @@ lint:
 apis:
   main:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules:
         specific-api-rule:
           severity: warn
-lint:
+styleguide:
   rules:
     example-rule-name:
       severity: error
@@ -145,7 +145,7 @@ There are two built-in configurations:
 The recommended configuration can be enabled by adding
 
 ```yaml
-lint:
+styleguide:
   extends:
     - recommended
 ```

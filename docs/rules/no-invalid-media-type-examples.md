@@ -46,7 +46,7 @@ It's much nicer to get this alert from Redocly before you ship than from your bi
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-media-type-examples:
       severity: error
@@ -58,7 +58,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-media-type-examples:
       severity: error

@@ -97,7 +97,7 @@ apis:
     root: ./sample.yaml
   external@latest:
     root: ./sample.yaml
-    lint:
+    styleguide:
       decorators:
         remove-x-internal: on
 ```

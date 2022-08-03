@@ -41,7 +41,7 @@ security: []
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-security-defined: error
 ```
@@ -51,7 +51,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-security-defined: error
 ```

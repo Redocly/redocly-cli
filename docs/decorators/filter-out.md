@@ -18,7 +18,7 @@ Giant monolithic API docs can overwhelm anyone. By filtering what is most releva
 Example of configuration:
 
 ```yaml
-lint:
+styleguide:
   decorators:
     filter-out:
       property: x-audience

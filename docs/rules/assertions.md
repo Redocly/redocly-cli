@@ -9,7 +9,7 @@ Configure assertions to enforce your API design standards without coding custom 
 Define assertions in the `rules` map of the `lint` object in the Redocly configuration file.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/assertion-name:
       ...
@@ -76,7 +76,7 @@ In addition, the `Operation` summary property must:
 The following example shows how to configure those assertions:
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/tag-description:
       subject: Tag
@@ -118,7 +118,7 @@ lint:
 The following example asserts that every path item has a GET operation defined.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/path-item-get-operation-defined:
       subject: PathItem
@@ -131,7 +131,7 @@ A different way to declare the same assertion is to require that the `PathItem` 
 Notice we don't need to include `property` in this approach.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/path-item-operation-required:
       subject: PathItem
@@ -143,7 +143,7 @@ lint:
 The following example asserts that Tags have both name and description defined.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/tag-name-and-desc-defined:
       subject: Tag
@@ -157,7 +157,7 @@ lint:
 Another way to compose that rule is to require the subject keys:
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/tag-name-and-desc-required:
       subject: Tag
@@ -191,7 +191,7 @@ assert/no-pdf-in-ok-response:
 The following example asserts that only `application/json` can be used as a key of the MediaTypeMap.
 
 ```yaml keys
-lint:
+styleguide:
   rules:
     assert/media-type-map-application-json:
       subject: MediaTypeMap
@@ -204,7 +204,7 @@ lint:
 The following example asserts that the operation summary must match one of the listed enums.
 
 ```yaml values
-lint:
+styleguide:
   rules:
     assert/operation-summary-match:
       subject: Operation
@@ -224,7 +224,7 @@ lint:
 The following example asserts that the operation summary contains "test".
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/operation-summary-contains-test:
       subject: Operation
@@ -239,7 +239,7 @@ lint:
 The following example asserts the casing style is `PascalCase` for NamedExamples map keys.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/named-examples-pascal-case:
       subject: NamedExamples
@@ -264,7 +264,7 @@ The following example asserts the operation `description` and `externalDocs` mus
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/operation-no-both-description-and-external-docs:
       subject: Operation
@@ -281,7 +281,7 @@ The following example asserts that a response body schema must have both `amount
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Schema example
-lint:
+styleguide:
   rules:
     assert/schema-properties-both-created-at-and-updated-at:
       subject: SchemaProperties
@@ -295,7 +295,7 @@ lint:
 The following example asserts that when `PUT` requests have either `200` or `201` defined, both `200` and `201` responses must be defined.
 
 ```yaml Response example
-lint:
+styleguide:
   rules:
     assert/put-200-and-201:
       subject: ResponsesMap
@@ -316,7 +316,7 @@ The following example asserts that `PUT` requests have both `200` and `201` resp
 The difference between `mutuallyRequired` is that neither `200` and `201` need to be defined for it to meet `mutuallyRequired` evaluations.
 
 ```yaml Response example
-lint:
+styleguide:
   rules:
     assert/put-200-and-201:
       subject: ResponsesMap
@@ -337,7 +337,7 @@ The following example asserts that an operation must have either `description` o
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Response example
-lint:
+styleguide:
   rules:
     assert/operation-no-both-description-and-external-docs:
       subject: Operation
@@ -353,7 +353,7 @@ lint:
 The following example asserts that `x-code-samples` and `x-internal` are not defined.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/no-x-code-samples-and-x-internal:
       subject: Operation
@@ -369,7 +369,7 @@ lint:
 The following example asserts that `x-codeSamples` is defined.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/x-code-samples-defined:
       subject: Operation
@@ -384,7 +384,7 @@ lint:
 The following example asserts that `x-code-samples` is undefined.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/x-code-samples-undefined:
       subject: Operation
@@ -401,7 +401,7 @@ lint:
 The following example asserts that the operation summary is not empty.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/operation-summary-non-empty:
       subject: Operation
@@ -416,7 +416,7 @@ lint:
 The following example asserts that the minimum length of each operation summary is 20 characters.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/operation-summary-min-length:
       subject: Operation
@@ -431,7 +431,7 @@ lint:
 The following example asserts that the maximum length of each operation summary is 20 characters.
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/operation-summary-max-length:
       subject: Operation
@@ -446,7 +446,7 @@ lint:
 The following example asserts that schema in MediaType contains a Reference object ($ref).
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/mediatype-schema-has-ref:
       subject: MediaType
@@ -458,7 +458,7 @@ lint:
 Also, you can specify a Regular Expression to check if the reference object conforms to it:
 
 ```yaml
-lint:
+styleguide:
   rules:
     assert/mediatype-schema-ref-pattern:
       subject: MediaType

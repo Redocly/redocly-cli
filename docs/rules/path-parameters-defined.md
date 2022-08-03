@@ -25,7 +25,7 @@ This rule verifies the path parameters are defined.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-parameters-defined: error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-parameters-defined: error
 ```

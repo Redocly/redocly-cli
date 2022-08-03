@@ -42,7 +42,7 @@ Solve it before you ship it.
 |disallowAdditionalProperties|boolean|Determines if additional properties are allowed in examples. Default `true`. |
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-parameter-examples:
       severity: error
@@ -54,7 +54,7 @@ lint:
 Given the following configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-parameter-examples:
       severity: error

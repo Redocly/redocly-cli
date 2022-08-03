@@ -32,7 +32,7 @@ It is important to fix these errors to help clients consume APIs.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-undefined-server-variable: error
 ```
@@ -42,7 +42,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-undefined-server-variable: error
 ```

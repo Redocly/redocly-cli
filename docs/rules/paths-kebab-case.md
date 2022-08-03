@@ -34,7 +34,7 @@ We don't want to say we told ya so!
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     paths-kebab-case: error
 ```
@@ -45,7 +45,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     paths-kebab-case: error
 ```

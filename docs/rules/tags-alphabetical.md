@@ -37,7 +37,7 @@ This rule is intended to prevent bikeshedding and diffuse tension between teamma
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: error
 ```
@@ -47,7 +47,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: error
 ```

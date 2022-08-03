@@ -50,7 +50,7 @@ Such paths are considered ambiguous and should be avoided, because API users and
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-ambiguous-paths: error
 ```
@@ -60,7 +60,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-ambiguous-paths: error
 ```

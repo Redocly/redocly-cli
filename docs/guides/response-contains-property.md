@@ -80,7 +80,7 @@ function ResponseContainsProperty (options) {
 We would configure this in our Redocly configuration file like this:
 
 ```yaml
-lint:
+styleguide:
   rules:
     demo/response-contains-property:
       severity: warn
@@ -205,7 +205,7 @@ apis:
     root: openapi/internal.yaml
   main:
     root: openapi/external.yaml
-lint:
+styleguide:
   extends:
     - recommended
   plugins:
