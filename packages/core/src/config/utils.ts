@@ -164,11 +164,17 @@ function checkForDeprecatedFields(
   updatedField: keyof RawConfig,
   rawConfig: DeprecatedInRawConfig & RawConfig
 ): void {
+  const isDeprecatedFieldInApis =
+    rawConfig.apis &&
+    Object.values(rawConfig.apis).some(
+      (api: Api & DeprecatedInApi & DeprecatedInRawConfig) => api[deprecatedField]
+    );
+
   if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
     throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
   }
 
-  if (rawConfig[deprecatedField]) {
+  if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
     process.stderr.write(
       `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
         updatedField
