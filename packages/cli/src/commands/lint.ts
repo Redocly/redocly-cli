@@ -53,6 +53,7 @@ export async function handleLint(argv: LintOptions, version: string) {
     lintConfigCallback(argv, version)
   );
 
+
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
   if (argv['generate-ignore-file']) {
