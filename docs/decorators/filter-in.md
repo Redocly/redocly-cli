@@ -8,7 +8,6 @@ Giant monolithic API docs can overwhelm anyone. By filtering what is most releva
 
 ## Configuration
 
-This decorator supports array values. To adjust arrays comparison, you can use `matchStrategy` that can take the values `all` and `any` (`any` by default).
 |Option|Type|Description|
 |---|---|---|
 |property|string|**REQUIRED.** The property name used for evaluation. It will attempt to match the values.|
