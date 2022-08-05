@@ -6,7 +6,7 @@ import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
-import type { RawConfig, Region } from './types';
+import type { DeprecatedInRawConfig, RawConfig, Region } from './types';
 
 async function addConfigMetadata({
   rawConfig,
@@ -18,11 +18,11 @@ async function addConfigMetadata({
   configPath?: string;
 }): Promise<Config> {
   if (customExtends !== undefined) {
-    rawConfig.lint = rawConfig.lint || {};
-    rawConfig.lint.extends = customExtends;
+    rawConfig.styleguide = rawConfig.styleguide || {};
+    rawConfig.styleguide.extends = customExtends;
   } else if (isEmptyObject(rawConfig)) {
     // TODO: check if we can add recommended here. add message here?
-    // rawConfig.lint = { extends: ['recommended'], recommendedFallback: true };
+    // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
   const redoclyClient = new RedoclyClient();
@@ -93,10 +93,10 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(configPath: string | undefined = findConfig()) {
+export async function getConfig(configPath: string | undefined = findConfig()): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    const rawConfig = ((await loadYaml(configPath)) || {}) as RawConfig;
+    const rawConfig = (await loadYaml<RawConfig & DeprecatedInRawConfig>(configPath)) || {};
     return transformConfig(rawConfig);
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);

@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
   Config,
-  LintConfig,
+  StyleguideConfig,
   loadConfig,
   normalizeTypes,
   Oas3Types,
@@ -70,7 +70,7 @@ export async function handleStats (argv: {
   const [{ path }] = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
-  const lintConfig: LintConfig = config.lint;
+  const lintConfig: StyleguideConfig = config.styleguide;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const types = normalizeTypes(

@@ -8,9 +8,9 @@ import { preprocessors as oas2Preprocessors } from '../rules/oas2';
 import { decorators as oas3Decorators } from '../decorators/oas3';
 import { decorators as oas2Decorators } from '../decorators/oas2';
 
-import type { CustomRulesConfig, LintRawConfig, Plugin } from './types';
+import type { CustomRulesConfig, StyleguideRawConfig, Plugin } from './types';
 
-export const builtInConfigs: Record<string, LintRawConfig> = {
+export const builtInConfigs: Record<string, StyleguideRawConfig> = {
   recommended,
   minimal,
   all,

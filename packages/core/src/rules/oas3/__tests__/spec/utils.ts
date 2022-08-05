@@ -1,4 +1,4 @@
-import { LintConfig, RuleConfig, resolveLint } from '../../../../config';
+import { StyleguideConfig, RuleConfig, resolveStyleguideConfig } from '../../../../config';
 import { parseYamlToDocument } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
 import { BaseResolver } from '../../../../resolve';
@@ -12,9 +12,9 @@ export async function validateDoc(
   const results = await lintDocument({
     externalRefResolver: new BaseResolver(),
     document,
-    config: new LintConfig(
-      await resolveLint({
-        lintConfig: {
+    config: new StyleguideConfig(
+      await resolveStyleguideConfig({
+        styleguideConfig: {
           plugins: [],
           extends: [],
           rules,

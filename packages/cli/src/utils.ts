@@ -9,7 +9,7 @@ import { Writable } from 'stream';
 import {
   BundleOutputFormat,
   Config,
-  LintConfig,
+  StyleguideConfig,
   ResolveError,
   YamlParseError,
   parseYaml,
@@ -278,7 +278,7 @@ export function getOutputFileName(
   return { outputFile, ext };
 }
 
-export function printUnusedWarnings(config: LintConfig) {
+export function printUnusedWarnings(config: StyleguideConfig) {
   const { preprocessors, rules, decorators } = config.getUnusedRules();
   if (rules.length) {
     process.stderr.write(

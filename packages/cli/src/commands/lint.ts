@@ -56,7 +56,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
 
   if (argv['generate-ignore-file']) {
-    config.lint.ignore = {}; // clear ignore
+    config.styleguide.ignore = {}; // clear ignore
   }
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   let totalIgnored = 0;
@@ -66,10 +66,12 @@ export async function handleLint(argv: LintOptions, version: string) {
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
-      resolvedConfig.lint.skipRules(argv['skip-rule']);
-      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
+      const { styleguide } = resolvedConfig;
 
-      if (resolvedConfig.lint.recommendedFallback) {
+      styleguide.skipRules(argv['skip-rule']);
+      styleguide.skipPreprocessors(argv['skip-preprocessor']);
+
+      if (styleguide.recommendedFallback) {
         process.stderr.write(
           `No configurations were defined in extends -- using built in ${blue(
             'recommended',
@@ -91,7 +93,7 @@ export async function handleLint(argv: LintOptions, version: string) {
 
       if (argv['generate-ignore-file']) {
         for (let m of results) {
-          config.lint.addIgnore(m);
+          config.styleguide.addIgnore(m);
           totalIgnored++;
         }
       } else {
@@ -112,7 +114,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   }
 
   if (argv['generate-ignore-file']) {
-    config.lint.saveIgnore();
+    config.styleguide.saveIgnore();
     process.stderr.write(
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
@@ -120,7 +122,7 @@ export async function handleLint(argv: LintOptions, version: string) {
     printLintTotals(totals, entrypoints.length);
   }
 
-  printUnusedWarnings(config.lint);
+  printUnusedWarnings(config.styleguide);
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072

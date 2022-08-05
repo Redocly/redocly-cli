@@ -23,7 +23,7 @@ export { Stats } from './rules/other/stats';
 
 export {
   Config,
-  LintConfig,
+  StyleguideConfig,
   RawConfig,
   IGNORE_FILE,
   Region,

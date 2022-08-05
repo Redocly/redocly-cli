@@ -2,6 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-lint:
+styleguide:
   rules:
     context:

@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import { Document, Source, NormalizedProblem, parseYaml, stringifyYaml } from '../src';
-import { LintConfig, resolveLint, resolvePlugins } from '../src/config';
+import { StyleguideConfig, resolveStyleguideConfig, resolvePlugins } from '../src/config';
 import { Oas3RuleSet } from '../src/oas-types';
 
 import type { RuleConfig, Plugin, DecoratorConfig } from '../src/config';
@@ -63,7 +63,7 @@ export function makeConfigForRuleset(
     },
   ]);
 
-  return new LintConfig({
+  return new StyleguideConfig({
     plugins,
     rules: rulesConf,
   });
@@ -74,9 +74,9 @@ export async function makeConfig(
   decorators?: Record<string, DecoratorConfig>,
   configPath?: string
 ) {
-  return new LintConfig(
-    await resolveLint({
-      lintConfig: {
+  return new StyleguideConfig(
+    await resolveStyleguideConfig({
+      styleguideConfig: {
         plugins: [],
         extends: [],
         rules,

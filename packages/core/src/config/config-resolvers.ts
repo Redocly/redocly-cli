@@ -12,28 +12,30 @@ import {
   transformConfig,
 } from './utils';
 import type {
-  LintRawConfig,
+  StyleguideRawConfig,
+  ApiStyleguideRawConfig,
   Plugin,
   RawConfig,
   ResolvedApi,
-  ResolvedLintConfig,
+  ResolvedStyleguideConfig,
   RuleConfig,
+  DeprecatedInRawConfig,
 } from './types';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 
-export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
-  if (rawConfig.lint?.extends?.some(isNotString)) {
+export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
+  if (rawConfig.styleguide?.extends?.some(isNotString)) {
     throw new Error(
-      `Error configuration format not detected in extends value must contain strings`,
+      `Error configuration format not detected in extends value must contain strings`
     );
   }
 
   const resolver = new BaseResolver(getResolveConfig(rawConfig.resolve));
-  const configExtends = rawConfig?.lint?.extends ?? ['recommended'];
-  const recommendedFallback = !rawConfig?.lint?.extends;
-  const lintConfig = {
-    ...rawConfig?.lint,
+  const configExtends = rawConfig?.styleguide?.extends ?? ['recommended'];
+  const recommendedFallback = !rawConfig?.styleguide?.extends;
+  const styleguideConfig = {
+    ...rawConfig?.styleguide,
     extends: configExtends,
     recommendedFallback,
   };
@@ -41,14 +43,14 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
   const apis = await resolveApis({
     rawConfig: {
       ...rawConfig,
-      lint: lintConfig,
+      styleguide: styleguideConfig,
     },
     configPath,
     resolver,
   });
 
-  const lint = await resolveLint({
-    lintConfig,
+  const styleguide = await resolveStyleguideConfig({
+    styleguideConfig,
     configPath,
     resolver,
   });
@@ -57,15 +59,15 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string) {
     {
       ...rawConfig,
       apis,
-      lint,
+      styleguide,
     },
-    configPath,
+    configPath
   );
 }
 
 export function resolvePlugins(
   plugins: (string | Plugin)[] | null,
-  configPath: string = '',
+  configPath: string = ''
 ): Plugin[] {
   if (!plugins) return [];
 
@@ -95,9 +97,9 @@ export function resolvePlugins(
         throw new Error(
           red(
             `Plugin "id" must be unique. Plugin ${blue(p.toString())} uses id "${blue(
-              id,
-            )}" already seen in ${blue(pluginPath)}`,
-          ),
+              id
+            )}" already seen in ${blue(pluginPath)}`
+          )
         );
       }
 
@@ -124,7 +126,7 @@ export function resolvePlugins(
       if (pluginModule.preprocessors) {
         if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
           throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`,
+            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`
           );
         }
         plugin.preprocessors = {};
@@ -163,45 +165,48 @@ export async function resolveApis({
   configPath?: string;
   resolver?: BaseResolver;
 }): Promise<Record<string, ResolvedApi>> {
-  const { apis = {}, lint: lintConfig = {} } = rawConfig;
+  const { apis = {}, styleguide: styleguideConfig = {} } = rawConfig;
   let resolvedApis: Record<string, ResolvedApi> = {};
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
-    if (apiContent.lint?.extends?.some(isNotString)) {
+    if (apiContent.styleguide?.extends?.some(isNotString)) {
       throw new Error(
-        `Error configuration format not detected in extends value must contain strings`,
+        `Error configuration format not detected in extends value must contain strings`
       );
     }
-    const rawLintConfig = getMergedLintRawConfig(lintConfig, apiContent.lint);
-    const apiLint = await resolveLint({
-      lintConfig: rawLintConfig,
+    const rawStyleguideConfig = getMergedRawStyleguideConfig(
+      styleguideConfig,
+      apiContent.styleguide
+    );
+    const resolvedApiConfig = await resolveStyleguideConfig({
+      styleguideConfig: rawStyleguideConfig,
       configPath,
       resolver,
     });
-    resolvedApis[apiName] = { ...apiContent, lint: apiLint };
+    resolvedApis[apiName] = { ...apiContent, styleguide: resolvedApiConfig };
   }
   return resolvedApis;
 }
 
-async function resolveAndMergeNestedLint(
+async function resolveAndMergeNestedStyleguideConfig(
   {
-    lintConfig,
+    styleguideConfig,
     configPath = '',
     resolver = new BaseResolver(),
   }: {
-    lintConfig?: LintRawConfig;
+    styleguideConfig?: StyleguideRawConfig;
     configPath?: string;
     resolver?: BaseResolver;
   },
   parentConfigPaths: string[] = [],
-  extendPaths: string[] = [],
-): Promise<ResolvedLintConfig> {
+  extendPaths: string[] = []
+): Promise<ResolvedStyleguideConfig> {
   if (parentConfigPaths.includes(configPath)) {
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
   const plugins = getUniquePlugins(
-    resolvePlugins([...(lintConfig?.plugins || []), defaultPlugin], configPath),
+    resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
   );
-  const pluginPaths = lintConfig?.plugins
+  const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)
     .map((p) => path.resolve(path.dirname(configPath), p));
 
@@ -209,8 +214,8 @@ async function resolveAndMergeNestedLint(
     ? configPath
     : configPath && path.resolve(configPath);
 
-  const extendConfigs: ResolvedLintConfig[] = await Promise.all(
-    lintConfig?.extends?.map(async (presetItem) => {
+  const extendConfigs: ResolvedStyleguideConfig[] = await Promise.all(
+    styleguideConfig?.extends?.map(async (presetItem) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);
       }
@@ -219,23 +224,23 @@ async function resolveAndMergeNestedLint(
         : isAbsoluteUrl(configPath)
         ? new URL(presetItem, configPath).href
         : path.resolve(path.dirname(configPath), presetItem);
-      const extendedLintConfig = await loadExtendLintConfig(pathItem, resolver);
-      return await resolveAndMergeNestedLint(
+      const extendedStyleguideConfig = await loadExtendStyleguideConfig(pathItem, resolver);
+      return await resolveAndMergeNestedStyleguideConfig(
         {
-          lintConfig: extendedLintConfig,
+          styleguideConfig: extendedStyleguideConfig,
           configPath: pathItem,
           resolver: resolver,
         },
         [...parentConfigPaths, resolvedConfigPath],
-        extendPaths,
+        extendPaths
       );
-    }) || [],
+    }) || []
   );
 
-  const { plugins: mergedPlugins = [], ...lint } = mergeExtends([
+  const { plugins: mergedPlugins = [], ...styleguide } = mergeExtends([
     ...extendConfigs,
     {
-      ...lintConfig,
+      ...styleguideConfig,
       plugins,
       extends: undefined,
       extendPaths: [...parentConfigPaths, resolvedConfigPath],
@@ -244,91 +249,123 @@ async function resolveAndMergeNestedLint(
   ]);
 
   return {
-    ...lint,
-    extendPaths: lint.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
+    ...styleguide,
+    extendPaths: styleguide.extendPaths?.filter((path) => path && !isAbsoluteUrl(path)),
     plugins: getUniquePlugins(mergedPlugins),
-    recommendedFallback: lintConfig?.recommendedFallback,
-    doNotResolveExamples: lintConfig?.doNotResolveExamples,
+    recommendedFallback: styleguideConfig?.recommendedFallback,
+    doNotResolveExamples: styleguideConfig?.doNotResolveExamples,
   };
 }
 
-export async function resolveLint(
-  lintOpts: {
-    lintConfig?: LintRawConfig;
+export async function resolveStyleguideConfig(
+  opts: {
+    styleguideConfig?: StyleguideRawConfig;
     configPath?: string;
     resolver?: BaseResolver;
   },
   parentConfigPaths: string[] = [],
-  extendPaths: string[] = [],
-): Promise<ResolvedLintConfig> {
-  const resolvedLint = await resolveAndMergeNestedLint(lintOpts, parentConfigPaths, extendPaths);
+  extendPaths: string[] = []
+): Promise<ResolvedStyleguideConfig> {
+  const resolvedStyleguideConfig = await resolveAndMergeNestedStyleguideConfig(
+    opts,
+    parentConfigPaths,
+    extendPaths
+  );
 
   return {
-    ...resolvedLint,
-    rules: resolvedLint.rules && groupLintAssertionRules(resolvedLint.rules),
+    ...resolvedStyleguideConfig,
+    rules:
+      resolvedStyleguideConfig.rules &&
+      groupStyleguideAssertionRules(resolvedStyleguideConfig.rules),
   };
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedLintConfig {
+export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedStyleguideConfig {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
     throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
   }
 
-  const preset = plugin.configs?.[configName]! as ResolvedLintConfig;
+  const preset = plugin.configs?.[configName]! as ResolvedStyleguideConfig;
   if (!preset) {
     throw new Error(
       pluginId
         ? `Invalid config ${red(
-            presetName,
+            presetName
           )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-        : `Invalid config ${red(presetName)}: there is no such built-in config.`,
+        : `Invalid config ${red(presetName)}: there is no such built-in config.`
     );
   }
   return preset;
 }
 
-async function loadExtendLintConfig(
+async function loadExtendStyleguideConfig(
   filePath: string,
-  resolver: BaseResolver,
-): Promise<LintRawConfig> {
+  resolver: BaseResolver
+): Promise<StyleguideRawConfig> {
   try {
     const fileSource = await resolver.loadExternalRef(filePath);
-    const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig);
-    if (!rawConfig.lint) {
-      throw new Error(`Lint configuration format not detected: "${filePath}"`);
+    const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig & DeprecatedInRawConfig);
+    if (!rawConfig.styleguide) {
+      throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
     }
 
-    return rawConfig.lint;
+    return rawConfig.styleguide;
   } catch (error) {
     throw new Error(`Failed to load "${filePath}": ${error.message}`);
   }
 }
 
-function getMergedLintRawConfig(configLint: LintRawConfig, apiLint?: LintRawConfig) {
+function getMergedRawStyleguideConfig(
+  rootStyleguideConfig: StyleguideRawConfig,
+  apiStyleguideConfig?: ApiStyleguideRawConfig
+) {
   const resultLint = {
-    ...configLint,
-    ...apiLint,
-    rules: { ...configLint?.rules, ...apiLint?.rules },
-    oas2Rules: { ...configLint?.oas2Rules, ...apiLint?.oas2Rules },
-    oas3_0Rules: { ...configLint?.oas3_0Rules, ...apiLint?.oas3_0Rules },
-    oas3_1Rules: { ...configLint?.oas3_1Rules, ...apiLint?.oas3_1Rules },
-    preprocessors: { ...configLint?.preprocessors, ...apiLint?.preprocessors },
-    oas2Preprocessors: { ...configLint?.oas2Preprocessors, ...apiLint?.oas2Preprocessors },
-    oas3_0Preprocessors: { ...configLint?.oas3_0Preprocessors, ...apiLint?.oas3_0Preprocessors },
-    oas3_1Preprocessors: { ...configLint?.oas3_1Preprocessors, ...apiLint?.oas3_1Preprocessors },
-    decorators: { ...configLint?.decorators, ...apiLint?.decorators },
-    oas2Decorators: { ...configLint?.oas2Decorators, ...apiLint?.oas2Decorators },
-    oas3_0Decorators: { ...configLint?.oas3_0Decorators, ...apiLint?.oas3_0Decorators },
-    oas3_1Decorators: { ...configLint?.oas3_1Decorators, ...apiLint?.oas3_1Decorators },
-    recommendedFallback: apiLint?.extends ? false : configLint.recommendedFallback,
+    ...rootStyleguideConfig,
+    ...apiStyleguideConfig,
+    rules: { ...rootStyleguideConfig?.rules, ...apiStyleguideConfig?.rules },
+    oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
+    oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },
+    oas3_1Rules: { ...rootStyleguideConfig?.oas3_1Rules, ...apiStyleguideConfig?.oas3_1Rules },
+    preprocessors: {
+      ...rootStyleguideConfig?.preprocessors,
+      ...apiStyleguideConfig?.preprocessors,
+    },
+    oas2Preprocessors: {
+      ...rootStyleguideConfig?.oas2Preprocessors,
+      ...apiStyleguideConfig?.oas2Preprocessors,
+    },
+    oas3_0Preprocessors: {
+      ...rootStyleguideConfig?.oas3_0Preprocessors,
+      ...apiStyleguideConfig?.oas3_0Preprocessors,
+    },
+    oas3_1Preprocessors: {
+      ...rootStyleguideConfig?.oas3_1Preprocessors,
+      ...apiStyleguideConfig?.oas3_1Preprocessors,
+    },
+    decorators: { ...rootStyleguideConfig?.decorators, ...apiStyleguideConfig?.decorators },
+    oas2Decorators: {
+      ...rootStyleguideConfig?.oas2Decorators,
+      ...apiStyleguideConfig?.oas2Decorators,
+    },
+    oas3_0Decorators: {
+      ...rootStyleguideConfig?.oas3_0Decorators,
+      ...apiStyleguideConfig?.oas3_0Decorators,
+    },
+    oas3_1Decorators: {
+      ...rootStyleguideConfig?.oas3_1Decorators,
+      ...apiStyleguideConfig?.oas3_1Decorators,
+    },
+    recommendedFallback: apiStyleguideConfig?.extends
+      ? false
+      : rootStyleguideConfig.recommendedFallback,
   };
   return resultLint;
 }
 
-function groupLintAssertionRules(
-  rules: Record<string, RuleConfig> | undefined,
+function groupStyleguideAssertionRules(
+  rules: Record<string, RuleConfig> | undefined
 ): Record<string, RuleConfig> | undefined {
   if (!rules) {
     return rules;

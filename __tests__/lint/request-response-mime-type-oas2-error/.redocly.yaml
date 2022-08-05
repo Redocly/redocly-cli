@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 
-lint:
+styleguide:
   rules:
     request-mime-type:
       severity: error

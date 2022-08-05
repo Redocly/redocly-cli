@@ -8,7 +8,7 @@ import {
   OasVersion,
   BaseResolver,
   Document,
-  LintConfig,
+  StyleguideConfig,
   Oas3Tag,
   loadConfig,
   formatProblems,
@@ -89,7 +89,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   const bundleResults = await Promise.all(
     documents.map(document => bundleDocument({
       document,
-      config: config.lint,
+      config: config.styleguide,
       externalRefResolver
     }).catch(e => {
       exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`)
@@ -120,7 +120,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   if (argv.lint) {
     for (const document of documents) {
-      await validateEntrypoint(document, config.lint, externalRefResolver, packageVersion);
+      await validateEntrypoint(document, config.styleguide, externalRefResolver, packageVersion);
     }
   }
 
@@ -538,7 +538,7 @@ function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   return info[prefixArg];
 }
 
-async function validateEntrypoint(document: Document, config: LintConfig, externalRefResolver: BaseResolver, packageVersion: string) {
+async function validateEntrypoint(document: Document, config: StyleguideConfig, externalRefResolver: BaseResolver, packageVersion: string) {
   try {
     const results = await lintDocument({ document, config, externalRefResolver });
     const fileTotals = getTotals(results);
