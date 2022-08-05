@@ -35,12 +35,12 @@ describe('resolveStyleguideConfig', () => {
     expect(
       await resolveStyleguideConfig({
         styleguideConfig: { ...baseStyleguideConfig, extends: ['minimal', 'recommended'] },
-      }),
+      })
     ).toEqual(await recommendedStyleguidePreset);
     expect(
       await resolveStyleguideConfig({
         styleguideConfig: { ...baseStyleguideConfig, extends: ['recommended', 'minimal'] },
-      }),
+      })
     ).toEqual(await minimalStyleguidePreset);
   });
 
@@ -141,13 +141,13 @@ describe('resolveStyleguideConfig', () => {
     });
 
     expect(Array.isArray(styleguide.rules?.assertions)).toEqual(true);
-    expect(styleguide.rules?.assertions).toMatchObject( [
+    expect(styleguide.rules?.assertions).toMatchObject([
       {
         subject: 'PathItem',
         property: 'get',
         message: 'Every path item must have a GET operation.',
         defined: true,
-        assertionId: 'path-item-get-defined'
+        assertionId: 'path-item-get-defined',
       },
       {
         subject: 'Tag',
@@ -156,9 +156,9 @@ describe('resolveStyleguideConfig', () => {
         severity: 'error',
         minLength: 13,
         pattern: '/\\.$/',
-        assertionId: 'tag-description'
-      }
-    ])
+        assertionId: 'tag-description',
+      },
+    ]);
   });
 
   it('should resolve extends with url file config witch contains path to nested config', async () => {
@@ -288,7 +288,9 @@ describe('resolveApis', () => {
     expect(apisResult['petstore'].styleguide.rules).toBeDefined();
     expect(apisResult['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // think about prioritize in merge ???
     expect(apisResult['petstore'].styleguide.rules?.['operation-4xx-response']).toEqual('error');
-    expect(apisResult['petstore'].styleguide.rules?.['local/operation-id-not-test']).toEqual('error');
+    expect(apisResult['petstore'].styleguide.rules?.['local/operation-id-not-test']).toEqual(
+      'error'
+    );
     //@ts-ignore
     expect(apisResult['petstore'].styleguide.plugins.length).toEqual(2);
 

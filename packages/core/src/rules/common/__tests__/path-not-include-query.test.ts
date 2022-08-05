@@ -13,7 +13,7 @@ describe('Oas3 path-not-include-query', () => {
               get:
                 summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -50,7 +50,7 @@ describe('Oas3 path-not-include-query', () => {
           get:
             summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

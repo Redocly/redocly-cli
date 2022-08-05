@@ -31,7 +31,7 @@ export class RegistryApi {
 
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
-      Object.assign({}, options, { headers }),
+      Object.assign({}, options, { headers })
     );
 
     if (response.status === 401) {
@@ -49,7 +49,7 @@ export class RegistryApi {
   async authStatus(
     accessToken: string,
     region: Region,
-    verbose = false,
+    verbose = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
     try {
       const response = await this.request('', { headers: { authorization: accessToken } }, region);
@@ -86,7 +86,7 @@ export class RegistryApi {
           isUpsert,
         }),
       },
-      this.region,
+      this.region
     );
 
     if (response.ok) {
@@ -106,7 +106,7 @@ export class RegistryApi {
     isUpsert,
     isPublic,
     batchId,
-    batchSize
+    batchSize,
   }: RegistryApiTypes.PushApiParams) {
     const response = await this.request(
       `/${organizationId}/${name}/${version}`,
@@ -123,10 +123,10 @@ export class RegistryApi {
           isUpsert,
           isPublic,
           batchId,
-          batchSize
+          batchSize,
         }),
       },
-      this.region,
+      this.region
     );
 
     if (response.ok) {

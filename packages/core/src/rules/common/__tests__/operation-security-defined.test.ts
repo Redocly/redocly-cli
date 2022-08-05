@@ -13,7 +13,7 @@ describe('Oas3 operation-security-defined', () => {
               get:
                 security:
                   - some: []`,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -55,7 +55,7 @@ describe('Oas3 operation-security-defined', () => {
           some:
             type: http
             scheme: basic`,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

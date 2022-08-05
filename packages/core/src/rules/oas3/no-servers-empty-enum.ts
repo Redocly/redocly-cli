@@ -25,16 +25,17 @@ export const NoEmptyEnumServers: Oas3Rule = () => {
         invalidVariables.push(...enumErrors);
       }
 
-      for(const invalidVariable of invalidVariables) {
-        if(invalidVariable === enumError.empty) {
+      for (const invalidVariable of invalidVariables) {
+        if (invalidVariable === enumError.empty) {
           report({
             message: 'Server variable with `enum` must be a non-empty array.',
             location: location.child(['servers']).key(),
           });
         }
-        if(invalidVariable === enumError.invalidDefaultValue) {
+        if (invalidVariable === enumError.invalidDefaultValue) {
           report({
-            message: 'Server variable define `enum` and `default`. `enum` must include default value',
+            message:
+              'Server variable define `enum` and `default`. `enum` must include default value',
             location: location.child(['servers']).key(),
           });
         }
@@ -43,20 +44,18 @@ export const NoEmptyEnumServers: Oas3Rule = () => {
   };
 };
 
-function checkEnumVariables(server: Oas3Server): enumError[] | undefined{
-  if (server.variables && Object.keys(server.variables).length === 0)
-    return;
+function checkEnumVariables(server: Oas3Server): enumError[] | undefined {
+  if (server.variables && Object.keys(server.variables).length === 0) return;
 
   const errors: enumError[] = [];
-  for(var variable in server.variables) {
+  for (var variable in server.variables) {
     const serverVariable = server.variables[variable];
     if (!serverVariable.enum) continue;
 
     if (Array.isArray(serverVariable.enum) && serverVariable.enum?.length === 0)
       errors.push(enumError.empty);
 
-    if (!serverVariable.default)
-      continue;
+    if (!serverVariable.default) continue;
 
     const defaultValue = server.variables[variable].default;
     if (serverVariable.enum && !serverVariable.enum.includes(defaultValue))

@@ -5,9 +5,9 @@ import { promptUser } from '../utils';
 export function promptClientToken(domain: string) {
   return promptUser(
     green(
-      `\n  🔑 Copy your API key from ${blue(`https://app.${domain}/profile`)} and paste it below`,
+      `\n  🔑 Copy your API key from ${blue(`https://app.${domain}/profile`)} and paste it below`
     ),
-    true,
+    true
   );
 }
 

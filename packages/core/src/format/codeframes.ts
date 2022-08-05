@@ -63,7 +63,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     line: string,
     startIdx: number = -1,
     endIdx: number = +Infinity,
-    variant = gray,
+    variant = gray
   ) {
     if (!color) return line;
     if (!line) return line;
@@ -84,14 +84,14 @@ function printPrefixedLines(lines: [string, string][]): string {
 
   const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));
   const dedentLen = Math.min(
-    ...existingLines.map(([_, line]) => (line === '' ? Infinity : padSize(line))),
+    ...existingLines.map(([_, line]) => (line === '' ? Infinity : padSize(line)))
   );
 
   return existingLines
     .map(
       ([prefix, line]) =>
         gray(leftPad(padLen, prefix) + ' |') +
-        (line ? ' ' + limitLineLength(line.substring(dedentLen)) : ''),
+        (line ? ' ' + limitLineLength(line.substring(dedentLen)) : '')
     )
     .join('\n');
 }
@@ -146,7 +146,7 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
 function positionsToLoc(
   source: string,
   startPos: number,
-  endPos: number,
+  endPos: number
 ): { start: Loc; end: Loc } {
   let currentLine = 1;
   let currentCol = 1;

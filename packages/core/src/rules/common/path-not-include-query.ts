@@ -12,6 +12,6 @@ export const PathNotIncludeQuery: Oas3Rule | Oas2Rule = () => {
           });
         }
       },
-    }
+    },
   };
 };

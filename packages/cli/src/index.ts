@@ -167,11 +167,7 @@ yargs
         },
         'lint-config': {
           description: 'Apply severity for linting the config file.',
-          choices: [
-            'warn',
-            'error',
-            'off',
-          ] as ReadonlyArray<RuleSeverity>,
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
         config: {

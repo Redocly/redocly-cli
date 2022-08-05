@@ -36,7 +36,7 @@ describe('Oas3 no-unused-components', () => {
                 - 1
                 - 2
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

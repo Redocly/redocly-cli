@@ -16,7 +16,7 @@ describe('Oas3 operation-parameters-unique', () => {
                 - name: a
                   in: query
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -59,7 +59,7 @@ describe('Oas3 operation-parameters-unique', () => {
                   - name: a
                     in: query
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -89,7 +89,7 @@ describe('Oas3 operation-parameters-unique', () => {
                   - name: a
                     in: query
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -137,7 +137,7 @@ describe('Oas3 operation-parameters-unique', () => {
                 in: query
                 name: a
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

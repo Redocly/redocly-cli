@@ -59,55 +59,57 @@ describe('RedoclyClient', () => {
 
   it('should resolve all tokens', async () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
-      return { token: "accessToken", us: "accessToken", eu: "eu-accessToken" };
+      return { token: 'accessToken', us: 'accessToken', eu: 'eu-accessToken' };
     });
     const client = new RedoclyClient();
     const tokens = client.getAllTokens();
     expect(tokens).toStrictEqual([
       { region: 'us', token: 'accessToken' },
-      { region: 'eu', token: 'eu-accessToken' }
+      { region: 'eu', token: 'eu-accessToken' },
     ]);
     spy.mockRestore();
   });
 
   it('should resolve valid tokens data', async () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => {
-      return { us: "accessToken", eu: "eu-accessToken" }
+      return { us: 'accessToken', eu: 'eu-accessToken' };
     });
     const client = new RedoclyClient();
     const tokens = await client.getValidTokens();
     expect(tokens).toStrictEqual([
       { region: 'us', token: 'accessToken', valid: true },
-      { region: 'eu', token: 'eu-accessToken', valid: true }
+      { region: 'eu', token: 'eu-accessToken', valid: true },
     ]);
     spy.mockRestore();
   });
 
   it('should not call setAccessTokens by default', () => {
-    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({}));
+    let spy = jest
+      .spyOn(RedoclyClient.prototype, 'readCredentialsFile')
+      .mockImplementation(() => ({}));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient();
-    expect(client.setAccessTokens).not.toHaveBeenCalled()
+    expect(client.setAccessTokens).not.toHaveBeenCalled();
     spy.mockRestore();
   });
 
   it('should set correct accessTokens - backward compatibility: default US region', () => {
-    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    let spy = jest
+      .spyOn(RedoclyClient.prototype, 'readCredentialsFile')
+      .mockImplementation(() => ({ token: testToken }));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient();
-    expect(client.setAccessTokens).toBeCalledWith(
-      expect.objectContaining({ us: testToken })
-    );
+    expect(client.setAccessTokens).toBeCalledWith(expect.objectContaining({ us: testToken }));
     spy.mockRestore();
   });
 
   it('should set correct accessTokens - backward compatibility: EU region', () => {
-    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    let spy = jest
+      .spyOn(RedoclyClient.prototype, 'readCredentialsFile')
+      .mockImplementation(() => ({ token: testToken }));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient('eu');
-    expect(client.setAccessTokens).toBeCalledWith(
-      expect.objectContaining({ eu: testToken })
-    );
+    expect(client.setAccessTokens).toBeCalledWith(expect.objectContaining({ eu: testToken }));
     spy.mockRestore();
   });
 
@@ -116,25 +118,29 @@ describe('RedoclyClient', () => {
     let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation();
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient();
-    expect(client.setAccessTokens).toHaveBeenNthCalledWith(1, { "us": REDOCLY_AUTHORIZATION_TOKEN });
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(1, { us: REDOCLY_AUTHORIZATION_TOKEN });
     spy.mockRestore();
   });
 
   it('should set correct accessTokens prioritizing REDOCLY_AUTHORIZATION env over token in file', () => {
     process.env.REDOCLY_AUTHORIZATION = REDOCLY_AUTHORIZATION_TOKEN;
-    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ token: testToken }));
+    let spy = jest
+      .spyOn(RedoclyClient.prototype, 'readCredentialsFile')
+      .mockImplementation(() => ({ token: testToken }));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient();
-    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { "us": REDOCLY_AUTHORIZATION_TOKEN });
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { us: REDOCLY_AUTHORIZATION_TOKEN });
     spy.mockRestore();
   });
 
   it('should set correct accessTokens prioritizing REDOCLY_AUTHORIZATION env over EU token', () => {
     process.env.REDOCLY_AUTHORIZATION = REDOCLY_AUTHORIZATION_TOKEN;
-    let spy = jest.spyOn(RedoclyClient.prototype, 'readCredentialsFile').mockImplementation(() => ({ us: testToken }));
+    let spy = jest
+      .spyOn(RedoclyClient.prototype, 'readCredentialsFile')
+      .mockImplementation(() => ({ us: testToken }));
     jest.spyOn(RedoclyClient.prototype, 'setAccessTokens').mockImplementation();
     const client = new RedoclyClient('eu');
-    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { "eu": REDOCLY_AUTHORIZATION_TOKEN });
+    expect(client.setAccessTokens).toHaveBeenNthCalledWith(2, { eu: REDOCLY_AUTHORIZATION_TOKEN });
     spy.mockRestore();
   });
 });

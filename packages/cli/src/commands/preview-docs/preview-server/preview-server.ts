@@ -12,7 +12,7 @@ function getPageHTML(
   htmlTemplate: string,
   redocOptions: object = {},
   useRedocPro: boolean,
-  wsPort: number,
+  wsPort: number
 ) {
   let templateSrc = readFileSync(htmlTemplate, 'utf-8');
 
@@ -58,7 +58,7 @@ export default async function startPreviewServer(
     getBundle,
     getOptions,
     useRedocPro,
-  }: { getBundle: Function; getOptions: Function; useRedocPro: boolean },
+  }: { getBundle: Function; getOptions: Function; useRedocPro: boolean }
 ) {
   const defaultTemplate = path.join(__dirname, 'default.hbs');
   const handler = async (request: IncomingMessage, response: any) => {
@@ -72,7 +72,7 @@ export default async function startPreviewServer(
         response,
         {
           'Content-Type': 'text/html',
-        },
+        }
       );
     } else if (request.url === '/openapi.json') {
       const bundle = await getBundle();
@@ -90,7 +90,7 @@ export default async function startPreviewServer(
           response,
           {
             'Content-Type': 'application/json',
-          },
+          }
         );
       } else {
         respondWithGzip(JSON.stringify(bundle), request, response, {
@@ -134,7 +134,7 @@ export default async function startPreviewServer(
             request,
             response,
             {},
-            500,
+            500
           );
         }
       }
@@ -147,7 +147,7 @@ export default async function startPreviewServer(
   const server = startHttpServer(port, host, handler);
   server.on('listening', () => {
     process.stdout.write(
-      `\n  🔎  Preview server running at ${colorette.blue(`http://${host}:${port}\n`)}`,
+      `\n  🔎  Preview server running at ${colorette.blue(`http://${host}:${port}\n`)}`
     );
   });
 

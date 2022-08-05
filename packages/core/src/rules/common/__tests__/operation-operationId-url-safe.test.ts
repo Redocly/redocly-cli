@@ -15,7 +15,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
               put:
                 operationId: "invalid❤️"
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

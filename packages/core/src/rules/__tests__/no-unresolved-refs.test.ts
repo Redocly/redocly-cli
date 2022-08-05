@@ -15,7 +15,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               requestBody:
                 $ref: 'invalid.yaml'
       `,
-      path.join(__dirname, 'foobar.yaml'),
+      path.join(__dirname, 'foobar.yaml')
     );
 
     const results = await lintDocument({
@@ -55,7 +55,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               requestBody:
                 $ref: 'fixtures/invalid-yaml.yaml'
       `,
-      path.join(__dirname, 'foobar.yaml'),
+      path.join(__dirname, 'foobar.yaml')
     );
 
     const results = await lintDocument({
@@ -112,7 +112,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               requestBody:
                 $ref: 'fixtures/ref.yaml'
       `,
-      path.join(__dirname, 'foobar.yaml'),
+      path.join(__dirname, 'foobar.yaml')
     );
 
     const results = await lintDocument({
@@ -136,7 +136,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               requestBody:
                 $ref: '#/components/requestBodies/a'
       `,
-      path.join(__dirname, 'foobar.yaml'),
+      path.join(__dirname, 'foobar.yaml')
     );
 
     const results = await lintDocument({

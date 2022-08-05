@@ -29,7 +29,7 @@ export async function previewDocs(argv: {
 
   const entrypoints = await getFallbackEntryPointsOrExit(
     argv.entrypoint ? [argv.entrypoint] : [],
-    config,
+    config
   );
   const entrypoint = entrypoints[0];
 
@@ -68,8 +68,8 @@ export async function previewDocs(argv: {
             : colorette.yellow(
                 `Created a bundle for ${
                   entrypoint.alias || entrypoint.path
-                } with errors. Docs may be broken or not accurate\n`,
-              ),
+                } with errors. Docs may be broken or not accurate\n`
+              )
         );
       }
 
@@ -87,8 +87,8 @@ export async function previewDocs(argv: {
   if (!isAuthorized) {
     process.stderr.write(
       `Using Redoc community edition.\nLogin with redocly ${colorette.blue(
-        'login',
-      )} or use an enterprise license key to preview with the premium docs.\n\n`,
+        'login'
+      )} or use an enterprise license key to preview with the premium docs.\n\n`
     );
   }
 
@@ -128,8 +128,8 @@ export async function previewDocs(argv: {
   watcher.on('ready', () => {
     process.stdout.write(
       `\n  👀  Watching ${colorette.blue(
-        entrypoint.path,
-      )} and all related resources for changes\n\n`,
+        entrypoint.path
+      )} and all related resources for changes\n\n`
     );
   });
 
@@ -139,7 +139,7 @@ export async function previewDocs(argv: {
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.entrypoint);
     const { styleguide } = resolvedConfig;
-    
+
     styleguide.skipRules(argv['skip-rule']);
     styleguide.skipPreprocessors(argv['skip-preprocessor']);
     styleguide.skipDecorators(argv['skip-decorator']);
@@ -179,11 +179,11 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
     process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
     );
   } else if (e instanceof YamlParseError) {
     process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`,
+      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
     );
   } else {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);

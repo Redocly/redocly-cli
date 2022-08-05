@@ -35,7 +35,7 @@ describe('Oas3 Structural visitor basic', () => {
             license: invalid
           paths: {}
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -163,7 +163,7 @@ describe('Oas3 Structural visitor basic', () => {
               x-test: vendor
           paths: {}
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -232,7 +232,7 @@ describe('Oas3 Structural visitor basic', () => {
             contact:
               name: string
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

@@ -15,7 +15,7 @@ describe('oas2 boolean-parameter-prefixes', () => {
               in: path
               type: boolean
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -67,7 +67,7 @@ describe('oas2 boolean-parameter-prefixes', () => {
                   schema:
                     type: boolean
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -91,7 +91,7 @@ describe('oas2 boolean-parameter-prefixes', () => {
                 schema:
                   type: boolean
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

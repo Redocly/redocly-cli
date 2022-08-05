@@ -27,7 +27,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -100,7 +100,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -160,7 +160,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -210,7 +210,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -263,7 +263,7 @@ describe('no-invalid-media-type-examples', () => {
                         b: 35
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -295,7 +295,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -330,7 +330,7 @@ describe('no-invalid-media-type-examples', () => {
                         $ref: '#/components/schemas/C'
 
       `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -358,7 +358,7 @@ describe('no-invalid-media-type-examples', () => {
                         nullable: true
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

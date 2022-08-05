@@ -14,7 +14,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
       },
       Parameter(
         parameter: Oas2Parameter | Oas3Parameter,
-        { report, key, parentLocations }: UserContext,
+        { report, key, parentLocations }: UserContext
       ) {
         const paramId = `${parameter.in}___${parameter.name}`;
         if (seenPathParams.has(paramId)) {
@@ -31,7 +31,7 @@ export const OperationParametersUnique: Oas3Rule | Oas2Rule = () => {
         },
         Parameter(
           parameter: Oas2Parameter | Oas3Parameter,
-          { report, key, parentLocations }: UserContext,
+          { report, key, parentLocations }: UserContext
         ) {
           const paramId = `${parameter.in}___${parameter.name}`;
           if (seenOperationParams.has(paramId)) {

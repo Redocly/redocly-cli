@@ -89,7 +89,7 @@ export function validateExample(
   schema: Referenced<Oas3Schema>,
   dataLoc: Location,
   { resolve, location, report }: UserContext,
-  disallowAdditionalProperties: boolean,
+  disallowAdditionalProperties: boolean
 ) {
   try {
     const { valid, errors } = validateJsonSchema(
@@ -98,7 +98,7 @@ export function validateExample(
       location.child('schema'),
       dataLoc.pointer,
       resolve,
-      disallowAdditionalProperties,
+      disallowAdditionalProperties
     );
     if (!valid) {
       for (let error of errors) {
