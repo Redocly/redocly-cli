@@ -306,7 +306,9 @@ async function loadExtendStyleguideConfig(
 ): Promise<StyleguideRawConfig> {
   try {
     const fileSource = await resolver.loadExternalRef(filePath);
-    const rawConfig = transformConfig(parseYaml(fileSource.body) as RawConfig & DeprecatedInRawConfig);
+    const rawConfig = transformConfig(
+      parseYaml(fileSource.body) as RawConfig & DeprecatedInRawConfig
+    );
     if (!rawConfig.styleguide) {
       throw new Error(`Styleguide configuration format not detected: "${filePath}"`);
     }

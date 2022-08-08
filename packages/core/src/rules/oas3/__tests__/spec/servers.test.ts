@@ -24,7 +24,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -49,7 +49,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -81,7 +81,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -114,7 +114,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -146,7 +146,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -171,7 +171,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -208,7 +208,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -243,7 +243,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -277,7 +277,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -317,7 +317,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         'no-undefined-server-variable': 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -357,7 +357,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -403,7 +403,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -447,7 +447,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -469,7 +469,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -493,7 +493,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 });

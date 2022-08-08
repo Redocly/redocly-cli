@@ -10,7 +10,7 @@ export const count = 10;
 const rebillyDefinitionRef = path.resolve(path.join(__dirname, 'rebilly.yaml'));
 const rebillyDocument = parseYamlToDocument(
   readFileSync(rebillyDefinitionRef, 'utf-8'),
-  rebillyDefinitionRef,
+  rebillyDefinitionRef
 );
 const externalRefResolver = new BaseResolver();
 

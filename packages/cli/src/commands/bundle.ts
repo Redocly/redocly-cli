@@ -41,7 +41,7 @@ export async function handleBundle(
     'remove-unused-components'?: boolean;
     'keep-url-references'?: boolean;
   },
-  version: string,
+  version: string
 ) {
   const config = await loadConfig(argv.config, argv.extends);
   const removeUnusedComponents =
@@ -56,7 +56,7 @@ export async function handleBundle(
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
       const { styleguide } = resolvedConfig;
-      
+
       styleguide.skipRules(argv['skip-rule']);
       styleguide.skipPreprocessors(argv['skip-preprocessor']);
       styleguide.skipDecorators(argv['skip-decorator']);
@@ -65,10 +65,10 @@ export async function handleBundle(
         if (config.styleguide.recommendedFallback) {
           process.stderr.write(
             `No configurations were defined in extends -- using built in ${blue(
-              'recommended',
+              'recommended'
             )} configuration by default.\n${red(
-              'Warning! This default behavior is going to be deprecated soon.',
-            )}\n\n`,
+              'Warning! This default behavior is going to be deprecated soon.'
+            )}\n\n`
           );
         }
         const results = await lint({
@@ -109,7 +109,7 @@ export async function handleBundle(
         path,
         entrypoints.length,
         argv.output,
-        argv.ext,
+        argv.ext
       );
 
       if (fileTotals.errors === 0 || argv.force) {
@@ -136,7 +136,7 @@ export async function handleBundle(
       if (argv.metafile) {
         if (entrypoints.length > 1) {
           process.stderr.write(
-            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`),
+            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`)
           );
         }
         {
@@ -149,19 +149,19 @@ export async function handleBundle(
         if (argv.force) {
           process.stderr.write(
             `❓ Created a bundle for ${blue(path)} at ${blue(outputFile)} with errors ${green(
-              elapsed,
-            )}.\n${yellow('Errors ignored because of --force')}.\n`,
+              elapsed
+            )}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
           process.stderr.write(
             `❌ Errors encountered while bundling ${blue(
-              path,
-            )}: bundle not created (use --force to ignore errors).\n`,
+              path
+            )}: bundle not created (use --force to ignore errors).\n`
           );
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
+          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`
         );
       }
 

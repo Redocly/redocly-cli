@@ -15,8 +15,8 @@ export const builtInConfigs: Record<string, StyleguideRawConfig> = {
   minimal,
   all,
   'redocly-registry': {
-    decorators: { 'registry-dependencies': 'on' }
-  }
+    decorators: { 'registry-dependencies': 'on' },
+  },
 };
 
 export const defaultPlugin: Plugin = {
@@ -34,4 +34,4 @@ export const defaultPlugin: Plugin = {
     oas2: oas2Decorators,
   },
   configs: builtInConfigs,
-}
+};

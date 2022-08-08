@@ -12,6 +12,6 @@ export const OperationOperationId: Oas3Rule | Oas2Rule = () => {
           validateDefinedAndNonEmpty('operationId', operation, ctx);
         },
       },
-    }
+    },
   };
 };

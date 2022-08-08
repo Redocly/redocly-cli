@@ -4,10 +4,26 @@ import { StatsAccumulator } from '../../typings/common';
 
 export const Stats = (statsAccumulator: StatsAccumulator) => {
   return {
-    ExternalDocs: { leave() { statsAccumulator.externalDocs.total++; }},
-    ref: { enter(ref: OasRef) { statsAccumulator.refs.items!.add(ref['$ref']); }},
-    Tag: { leave(tag: Oas3Tag) { statsAccumulator.tags.items!.add(tag.name); }},
-    Link: { leave(link: any) { statsAccumulator.links.items!.add(link.operationId); }},
+    ExternalDocs: {
+      leave() {
+        statsAccumulator.externalDocs.total++;
+      },
+    },
+    ref: {
+      enter(ref: OasRef) {
+        statsAccumulator.refs.items!.add(ref['$ref']);
+      },
+    },
+    Tag: {
+      leave(tag: Oas3Tag) {
+        statsAccumulator.tags.items!.add(tag.name);
+      },
+    },
+    Link: {
+      leave(link: any) {
+        statsAccumulator.links.items!.add(link.operationId);
+      },
+    },
     DefinitionRoot: {
       leave() {
         statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
@@ -19,26 +35,39 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
     WebhooksMap: {
       Operation: {
         leave(operation: any) {
-          operation.tags.forEach((tag: string) => { statsAccumulator.tags.items!.add(tag); })
-        }
-      }
+          operation.tags.forEach((tag: string) => {
+            statsAccumulator.tags.items!.add(tag);
+          });
+        },
+      },
     },
     PathMap: {
       PathItem: {
-        leave() { statsAccumulator.pathItems.total++; },
+        leave() {
+          statsAccumulator.pathItems.total++;
+        },
         Operation: {
           leave(operation: any) {
             statsAccumulator.operations.total++;
-            operation.tags && operation.tags.forEach((tag: string) => { statsAccumulator.tags.items!.add(tag); })
-          }
+            operation.tags &&
+              operation.tags.forEach((tag: string) => {
+                statsAccumulator.tags.items!.add(tag);
+              });
+          },
         },
-        Parameter: { leave(parameter: Oas2Parameter | Oas3Parameter) {
-          statsAccumulator.parameters.items!.add(parameter.name)
-        }},
+        Parameter: {
+          leave(parameter: Oas2Parameter | Oas3Parameter) {
+            statsAccumulator.parameters.items!.add(parameter.name);
+          },
+        },
       },
     },
     NamedSchemas: {
-      Schema: { leave() { statsAccumulator.schemas.total++; }}
-    }
-  }
-}
+      Schema: {
+        leave() {
+          statsAccumulator.schemas.total++;
+        },
+      },
+    },
+  };
+};

@@ -232,7 +232,7 @@ export async function resolveDocument(opts: {
     rootNode: any,
     rootNodeDocument: Document,
     rootNodePointer: string,
-    type: any,
+    type: any
   ) {
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
 
@@ -295,7 +295,7 @@ export async function resolveDocument(opts: {
               resolvedRef.node,
               resolvedRef.document,
               resolvedRef.nodePointer!,
-              type,
+              type
             );
           }
         });
@@ -306,7 +306,7 @@ export async function resolveDocument(opts: {
     async function followRef(
       document: Document,
       ref: OasRef,
-      refStack: RefFrame,
+      refStack: RefFrame
     ): Promise<ResolvedRef> {
       if (hasRef(refStack.prev, ref)) {
         throw new Error('Self-referencing circular pointer');
@@ -316,7 +316,10 @@ export async function resolveDocument(opts: {
       let targetDoc: Document;
       try {
         targetDoc = isRemote
-          ? ((await externalRefResolver.resolveDocument(document.source.absoluteRef, uri!)) as Document)
+          ? ((await externalRefResolver.resolveDocument(
+              document.source.absoluteRef,
+              uri!
+            )) as Document)
           : document;
       } catch (error) {
         const resolvedRef = {

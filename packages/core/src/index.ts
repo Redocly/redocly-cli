@@ -33,9 +33,8 @@ export {
   getConfig,
   findConfig,
   CONFIG_FILE_NAMES,
-  RuleSeverity
+  RuleSeverity,
 } from './config';
-
 
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 

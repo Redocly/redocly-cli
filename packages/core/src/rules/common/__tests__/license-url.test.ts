@@ -12,7 +12,7 @@ describe('Oas3 license-url', () => {
             license:
               name: MIT
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -49,7 +49,7 @@ describe('Oas3 license-url', () => {
               name: MIT
               url: google.com
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

@@ -22,7 +22,7 @@ describe('Normalize visitors', () => {
         ruleId,
         severity: 'error' as 'error',
         visitor: ruleset[ruleId]({}),
-      })),
+      }))
     );
 
     const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
@@ -66,7 +66,7 @@ describe('Normalize visitors', () => {
         ruleId,
         severity: 'error' as 'error',
         visitor: ruleset[ruleId]({}),
-      })),
+      }))
     );
 
     const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
@@ -104,7 +104,7 @@ describe('Normalize visitors', () => {
         ruleId,
         severity: 'error' as 'error',
         visitor: ruleset[ruleId]({}),
-      })),
+      }))
     );
 
     const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
@@ -139,7 +139,7 @@ describe('Normalize visitors', () => {
         ruleId,
         severity: 'error' as 'error',
         visitor: ruleset[ruleId]({}),
-      })),
+      }))
     );
 
     const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));

@@ -4,7 +4,11 @@ import * as path from 'path';
 
 import { lintDocument } from '../lint';
 
-import { parseYamlToDocument, replaceSourceWithRef, makeConfigForRuleset } from '../../__tests__/utils';
+import {
+  parseYamlToDocument,
+  replaceSourceWithRef,
+  makeConfigForRuleset,
+} from '../../__tests__/utils';
 import { BaseResolver, Document } from '../resolve';
 import { listOf } from '../types';
 import { Oas3RuleSet } from '../oas-types';
@@ -43,7 +47,7 @@ describe('walk order', () => {
           contact: {}
           license: {}
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -70,14 +74,10 @@ describe('walk order', () => {
             leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `enter operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
               leave: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `leave operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
@@ -110,7 +110,7 @@ describe('walk order', () => {
                 - name: post_a
 
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -154,14 +154,10 @@ describe('walk order', () => {
             leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `enter operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
               leave: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `leave operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
@@ -194,7 +190,7 @@ describe('walk order', () => {
                 - name: post_a
 
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -238,14 +234,10 @@ describe('walk order', () => {
             leave: jest.fn((op) => calls.push(`leave operation: ${op.operationId}`)),
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `enter operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
               leave: jest.fn((param, _ctx, parents) =>
-                calls.push(
-                  `leave operation ${parents.Operation.operationId} > param ${param.name}`,
-                ),
+                calls.push(`leave operation ${parents.Operation.operationId} > param ${param.name}`)
               ),
             },
           },
@@ -279,7 +271,7 @@ describe('walk order', () => {
             shared_a:
               name: shared-a
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -317,7 +309,7 @@ describe('walk order', () => {
           PathItem: {
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
           },
@@ -351,7 +343,7 @@ describe('walk order', () => {
             shared_a:
               name: shared-a
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -379,15 +371,15 @@ describe('walk order', () => {
           PathItem: {
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
             Operation: {
               Parameter: {
                 enter: jest.fn((param, _ctx, parents) =>
                   calls.push(
-                    `enter operation ${parents.Operation.operationId} > param ${param.name}`,
-                  ),
+                    `enter operation ${parents.Operation.operationId} > param ${param.name}`
+                  )
                 ),
               },
             },
@@ -423,7 +415,7 @@ describe('walk order', () => {
             shared_b:
               name: shared-b
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -452,10 +444,10 @@ describe('walk order', () => {
           PathItem: {
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
               leave: jest.fn((param, _ctx, parents) =>
-                calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
             Operation(op, _ctx, parents) {
@@ -490,7 +482,7 @@ describe('walk order', () => {
             shared_a:
               name: shared-a
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -544,7 +536,7 @@ describe('walk order', () => {
                 - $ref: "#/components/parameters/shared_a"
                 - id: 'nested'
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -569,7 +561,7 @@ describe('walk order', () => {
         return {
           Parameter: {
             Schema: jest.fn((schema: any, _ctx, parents) =>
-              calls.push(`enter param ${parents.Parameter.name} > schema ${schema.id}`),
+              calls.push(`enter param ${parents.Parameter.name} > schema ${schema.id}`)
             ),
           },
         };
@@ -600,7 +592,7 @@ describe('walk order', () => {
                 - $ref: "#/components/parameters/shared_a"
                 - id: 'nested'
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -642,7 +634,7 @@ describe('walk order', () => {
             put:
               operationId: put
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -668,7 +660,7 @@ describe('walk order', () => {
           Operation: {
             skip: (op) => op.operationId === 'put',
             Parameter: jest.fn((param, _ctx, parents) =>
-              calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`),
+              calls.push(`enter operation ${parents.Operation.operationId} > param ${param.name}`)
             ),
           },
         };
@@ -697,7 +689,7 @@ describe('walk order', () => {
             shared_a:
               name: shared-a
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -724,10 +716,10 @@ describe('walk order', () => {
           PathItem: {
             Parameter: {
               enter: jest.fn((param, _ctx, parents) =>
-                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`enter path ${parents.PathItem.id} > param ${param.name}`)
               ),
               leave: jest.fn((param, _ctx, parents) =>
-                calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`),
+                calls.push(`leave path ${parents.PathItem.id} > param ${param.name}`)
               ),
             },
             Operation: {
@@ -735,13 +727,13 @@ describe('walk order', () => {
               Parameter: {
                 enter: jest.fn((param, _ctx, parents) =>
                   calls.push(
-                    `enter operation ${parents.Operation.operationId} > param ${param.name}`,
-                  ),
+                    `enter operation ${parents.Operation.operationId} > param ${param.name}`
+                  )
                 ),
                 leave: jest.fn((param, _ctx, parents) =>
                   calls.push(
-                    `leave operation ${parents.Operation.operationId} > param ${param.name}`,
-                  ),
+                    `leave operation ${parents.Operation.operationId} > param ${param.name}`
+                  )
                 ),
               },
             },
@@ -783,7 +775,7 @@ describe('walk order', () => {
             shared_b:
               name: shared-b
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -817,10 +809,10 @@ describe('walk order', () => {
           Schema: {
             Schema: {
               enter: jest.fn((schema: any, _ctx, parents) =>
-                calls.push(`enter nested schema ${parents.Schema.id} > ${schema.id}`),
+                calls.push(`enter nested schema ${parents.Schema.id} > ${schema.id}`)
               ),
               leave: jest.fn((schema: any, _ctx, parents) =>
-                calls.push(`leave nested schema ${parents.Schema.id} > ${schema.id}`),
+                calls.push(`leave nested schema ${parents.Schema.id} > ${schema.id}`)
               ),
             },
           },
@@ -862,7 +854,7 @@ describe('walk order', () => {
                     a:
                       id: inline-nested-nested
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     await lintDocument({
@@ -934,7 +926,7 @@ describe('walk order', () => {
             schema:
               $ref: '#/components/parameters/shared_b'
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     await lintDocument({
@@ -978,7 +970,7 @@ describe('walk order', () => {
           b:
             type: number
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     await lintDocument({
@@ -1043,7 +1035,7 @@ describe('walk order', () => {
             a:
               type: object
       `,
-      '',
+      ''
     );
 
     await lintDocument({
@@ -1131,7 +1123,7 @@ describe('context.report', () => {
             shared_a:
               name: shared_a
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -1207,7 +1199,7 @@ describe('context.report', () => {
     const externalRefResolver = new BaseResolver();
     const document = (await externalRefResolver.resolveDocument(
       null,
-      `${cwd}/openapi-with-external-refs.yaml`,
+      `${cwd}/openapi-with-external-refs.yaml`
     )) as Document;
 
     if (document === null) {
@@ -1319,7 +1311,7 @@ describe('context.resolve', () => {
                 a:
                   $ref: '#/components/schemas/b'
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     await lintDocument({
@@ -1368,7 +1360,7 @@ describe('type extensions', () => {
           parameters:
             - name: a
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     await lintDocument({
@@ -1462,7 +1454,7 @@ describe('ignoreNextRules', () => {
             put:
               operationId: put
       `,
-      '',
+      ''
     );
 
     await lintDocument({
