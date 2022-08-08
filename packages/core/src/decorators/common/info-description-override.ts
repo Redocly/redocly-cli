@@ -8,7 +8,7 @@ export const InfoDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ filePat
       leave(info, { report, location }: UserContext) {
         if (!filePath)
           throw new Error(
-            `Parameter "filePath" is not provided for "info-description-override" rule`,
+            `Parameter "filePath" is not provided for "info-description-override" rule`
           );
         try {
           info.description = readFileAsStringSync(filePath);

@@ -1,19 +1,16 @@
 import { BaseResolver, resolveDocument, Document, makeDocumentFromString } from './resolve';
-import {
-  normalizeVisitors,
-} from './visitors';
+import { normalizeVisitors } from './visitors';
 import { Oas3_1Types } from './types/oas3_1';
 import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
-import { LintConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
+import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { OasSpec } from './rules/common/spec';
-
 
 export async function lint(opts: {
   ref: string;
@@ -27,7 +24,7 @@ export async function lint(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
   });
 }
 
@@ -44,13 +41,13 @@ export async function lintFromString(opts: {
     document,
     ...opts,
     externalRefResolver,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
   });
 }
 
 export async function lintDocument(opts: {
   document: Document;
-  config: LintConfig;
+  config: StyleguideConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
 }) {
@@ -62,10 +59,14 @@ export async function lintDocument(opts: {
   const rules = config.getRulesForOasVersion(oasMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3 ? (oasVersion === OasVersion.Version3_1 ? Oas3_1Types : Oas3Types) : Oas2Types,
-      oasVersion,
+      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
+        ? oasVersion === OasVersion.Version3_1
+          ? Oas3_1Types
+          : Oas3Types
+        : Oas2Types,
+      oasVersion
     ),
-    config,
+    config
   );
 
   const ctx: WalkContext = {
@@ -80,7 +81,7 @@ export async function lintDocument(opts: {
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.DefinitionRoot,
-    externalRefResolver
+    externalRefResolver,
   });
 
   walkDocument({
@@ -93,10 +94,7 @@ export async function lintDocument(opts: {
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
-export async function lintConfig(opts: {
-  document: Document
-  severity?: ProblemSeverity 
-}) {
+export async function lintConfig(opts: { document: Document; severity?: ProblemSeverity }) {
   const { document, severity } = opts;
 
   const ctx: WalkContext = {
@@ -105,13 +103,19 @@ export async function lintConfig(opts: {
     visitorsData: {},
   };
   const plugins = resolvePlugins([defaultPlugin]);
-  const config = new LintConfig({
+  const config = new StyleguideConfig({
     plugins,
     rules: { spec: 'error' },
   });
 
   const types = normalizeTypes(ConfigTypes, config);
-  const rules = [{ severity: severity || 'error', ruleId: 'configuration spec', visitor: OasSpec({ severity: 'error' }) }];
+  const rules = [
+    {
+      severity: severity || 'error',
+      ruleId: 'configuration spec',
+      visitor: OasSpec({ severity: 'error' }),
+    },
+  ];
   const normalizedVisitors = normalizeVisitors(rules, types);
 
   walkDocument({

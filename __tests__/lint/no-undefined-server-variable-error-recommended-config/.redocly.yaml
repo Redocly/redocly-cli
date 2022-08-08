@@ -1,6 +1,6 @@
 apiDefinitions:
   main: ./openapi.yaml
 
-lint:
+styleguide:
   extends:
     - recommended # This is the default (and built in) configuration.

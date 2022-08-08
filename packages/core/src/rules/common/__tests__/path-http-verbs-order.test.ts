@@ -17,7 +17,7 @@ describe('Common path-http-verbs-order', () => {
             get:
               summary: post
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -81,7 +81,7 @@ describe('Common path-http-verbs-order', () => {
           trace:
             summary: trace
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

@@ -1,4 +1,4 @@
-import type { PluginLintConfig } from './types';
+import type { PluginStyleguideConfig } from './types';
 
 export default {
   rules: {
@@ -18,7 +18,7 @@ export default {
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
     'operation-4xx-response': 'off',
-    'assertions': 'warn',
+    assertions: 'warn',
     'operation-operationId': 'warn',
     'operation-summary': 'warn',
     'operation-operationId-unique': 'warn',
@@ -55,4 +55,4 @@ export default {
     'no-undefined-server-variable': 'warn',
     'no-servers-empty-enum': 'error',
   },
-} as PluginLintConfig;
+} as PluginStyleguideConfig;

@@ -2,11 +2,11 @@
 
 exports[`E2E lint-config test with option: { dirName: 'invalid-config-assertation-name', option: 'error' } 1`] = `
 
-[1] .redocly.yaml:6:5 at #/lint/rules/asset~1path-item-mutually-required
+[1] .redocly.yaml:6:5 at #/styleguide/rules/asset~1path-item-mutually-required
 
 The field \`severity\` must be present on this level.
 
-4 | lint:
+4 | styleguide:
 5 |   rules:
 6 |     asset/path-item-mutually-required:
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

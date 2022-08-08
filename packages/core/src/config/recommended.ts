@@ -1,4 +1,4 @@
-import type { PluginLintConfig } from './types';
+import type { PluginStyleguideConfig } from './types';
 
 export default {
   rules: {
@@ -17,7 +17,7 @@ export default {
     'path-parameters-defined': 'error',
     'operation-description': 'off',
     'operation-2xx-response': 'warn',
-    'assertions': 'warn',
+    assertions: 'warn',
     'operation-4xx-response': 'warn',
     'operation-operationId': 'warn',
     'operation-summary': 'error',
@@ -55,4 +55,4 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-servers-empty-enum': 'error',
   },
-} as PluginLintConfig;
+} as PluginStyleguideConfig;

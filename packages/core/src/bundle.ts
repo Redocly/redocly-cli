@@ -7,7 +7,7 @@ import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
-import {isAbsoluteUrl, isRef, Location, refBaseName} from './ref-utils';
+import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject } from './utils';
@@ -16,7 +16,7 @@ import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
 
-import type { Config, LintConfig } from './config';
+import type { Config, StyleguideConfig } from './config';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -57,7 +57,7 @@ export async function bundle(opts: {
   return bundleDocument({
     document,
     ...opts,
-    config: opts.config.lint,
+    config: opts.config.styleguide,
     externalRefResolver,
   });
 }
@@ -66,7 +66,7 @@ type BundleContext = WalkContext;
 
 export async function bundleDocument(opts: {
   document: Document;
-  config: LintConfig;
+  config: StyleguideConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
   dereference?: boolean;
@@ -94,9 +94,9 @@ export async function bundleDocument(opts: {
           ? Oas3_1Types
           : Oas3Types
         : Oas2Types,
-      oasVersion,
+      oasVersion
     ),
-    config,
+    config
   );
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
@@ -113,10 +113,11 @@ export async function bundleDocument(opts: {
     decorators.push({
       severity: 'error',
       ruleId: 'remove-unused-components',
-      visitor: oasMajorVersion === OasMajorVersion.Version2
-        ? RemoveUnusedComponentsOas2({})
-        : RemoveUnusedComponentsOas3({})
-    })
+      visitor:
+        oasMajorVersion === OasMajorVersion.Version2
+          ? RemoveUnusedComponentsOas2({})
+          : RemoveUnusedComponentsOas3({}),
+    });
   }
 
   const resolvedRefMap = await resolveDocument({
@@ -137,12 +138,12 @@ export async function bundleDocument(opts: {
           skipRedoclyRegistryRefs,
           document,
           resolvedRefMap,
-          keepUrlRefs,
+          keepUrlRefs
         ),
       },
       ...decorators,
     ] as any,
-    types,
+    types
   );
 
   walkDocument({
@@ -210,7 +211,7 @@ function makeBundleVisitor(
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
   resolvedRefMap: ResolvedRefMap,
-  keepUrlRefs: boolean,
+  keepUrlRefs: boolean
 ) {
   let components: Record<string, Record<string, any>>;
 
@@ -287,7 +288,7 @@ function makeBundleVisitor(
   }
 
   function resolveBundledComponent(node: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref)
+    const newRefId = makeRefId(ctx.location.source.absoluteRef, node.$ref);
     resolvedRefMap.set(newRefId, {
       document: rootDocument,
       isRemote: false,
@@ -310,7 +311,7 @@ function makeBundleVisitor(
   function saveComponent(
     componentType: string,
     target: { node: any; location: Location },
-    ctx: UserContext,
+    ctx: UserContext
   ) {
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
@@ -325,7 +326,7 @@ function makeBundleVisitor(
   function isEqualOrEqualRef(
     node: any,
     target: { node: any; location: Location },
-    ctx: UserContext,
+    ctx: UserContext
   ) {
     if (
       isRef(node) &&
@@ -340,7 +341,7 @@ function makeBundleVisitor(
   function getComponentName(
     target: { node: any; location: Location },
     componentType: string,
-    ctx: UserContext,
+    ctx: UserContext
   ) {
     const [fileRef, pointer] = [target.location.source.absoluteRef, target.location.pointer];
     const componentsGroup = components[componentType];

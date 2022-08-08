@@ -18,7 +18,7 @@ describe('oas3 remove-x-internal', () => {
         parameters:
           x:
             name: x
-    `,
+    `
   );
 
   it('should use `internalFlagProperty` option to remove internal paths', async () => {
@@ -87,7 +87,7 @@ describe('oas3 remove-x-internal', () => {
               name: x
             y:
               name: y
-      `,
+      `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -160,7 +160,7 @@ describe('oas3 remove-x-internal', () => {
                     servers:
                       - url: //callback-url.path-level/v1
                         description: Path level server
-      `,
+      `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -234,7 +234,7 @@ describe('oas3 remove-x-internal', () => {
               schema:
                 type: string
               x-internal: true
-      `,
+      `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
@@ -297,7 +297,7 @@ describe('oas2 remove-x-internal', () => {
                 '200':
                   x-internal: true
                   description: List of recent media entries.
-      `,
+      `
     );
     const { bundle: res } = await bundleDocument({
       document: testDoc,

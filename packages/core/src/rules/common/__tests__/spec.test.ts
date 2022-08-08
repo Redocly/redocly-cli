@@ -19,13 +19,13 @@ describe('Oas3 spec', () => {
               200:
                 description: Ok
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'spec': 'error' }),
+      config: await makeConfig({ spec: 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`

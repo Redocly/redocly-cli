@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 
-lint:
+styleguide:
   decorators:
     operation-description-override:
       operationIds:

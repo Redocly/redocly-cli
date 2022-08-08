@@ -2,7 +2,7 @@
 
 exports[`E2E lint-config test with option: { dirName: 'invalid-config-assertation-config-type', option: 'error' } 1`] = `
 
-[1] .redocly.yaml:8:17 at #/lint/rules/assert~1path-item-mutually-required/context/0/type
+[1] .redocly.yaml:8:17 at #/styleguide/rules/assert~1path-item-mutually-required/context/0/type
 
 \`type\` can be one of the following only: "DefinitionRoot", "Tag", "ExternalDocs", "Server", "ServerVariable", "SecurityRequirement", "Info", "Contact", "License", "PathMap", "PathItem", "Parameter", "Operation", "Callback", "RequestBody", "MediaTypeMap", "MediaType", "Example", "Encoding", "Header", "ResponsesMap", "Response", "Link", "Schema", "Xml", "SchemaProperties", "DiscriminatorMapping", "Discriminator", "Components", "NamedSchemas", "NamedResponses", "NamedParameters", "NamedExamples", "NamedRequestBodies", "NamedHeaders", "NamedSecuritySchemes", "NamedLinks", "NamedCallbacks", "ImplicitFlow", "PasswordFlow", "ClientCredentials", "AuthorizationCode", "SecuritySchemeFlows", "SecurityScheme", "XCodeSample", "WebhooksMap".
 

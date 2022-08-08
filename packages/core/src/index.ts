@@ -23,7 +23,7 @@ export { Stats } from './rules/other/stats';
 
 export {
   Config,
-  LintConfig,
+  StyleguideConfig,
   RawConfig,
   IGNORE_FILE,
   Region,
@@ -33,9 +33,8 @@ export {
   getConfig,
   findConfig,
   CONFIG_FILE_NAMES,
-  RuleSeverity
+  RuleSeverity,
 } from './config';
-
 
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 

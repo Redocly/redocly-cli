@@ -1,6 +1,6 @@
 export const ConfigFixture = {
   configFile: null,
-  lint: {
+  styleguide: {
     addIgnore: jest.fn(),
     skipRules: jest.fn(),
     skipPreprocessors: jest.fn(),

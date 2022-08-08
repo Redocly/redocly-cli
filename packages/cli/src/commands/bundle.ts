@@ -41,12 +41,12 @@ export async function handleBundle(
     'remove-unused-components'?: boolean;
     'keep-url-references'?: boolean;
   },
-  version: string,
+  version: string
 ) {
   const config = await loadConfig(argv.config, argv.extends);
   const removeUnusedComponents =
     argv['remove-unused-components'] &&
-    !config.rawConfig.lint?.decorators?.hasOwnProperty('remove-unused-components');
+    !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -55,18 +55,20 @@ export async function handleBundle(
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
-      resolvedConfig.lint.skipRules(argv['skip-rule']);
-      resolvedConfig.lint.skipPreprocessors(argv['skip-preprocessor']);
-      resolvedConfig.lint.skipDecorators(argv['skip-decorator']);
+      const { styleguide } = resolvedConfig;
+
+      styleguide.skipRules(argv['skip-rule']);
+      styleguide.skipPreprocessors(argv['skip-preprocessor']);
+      styleguide.skipDecorators(argv['skip-decorator']);
 
       if (argv.lint) {
-        if (config.lint.recommendedFallback) {
+        if (config.styleguide.recommendedFallback) {
           process.stderr.write(
             `No configurations were defined in extends -- using built in ${blue(
-              'recommended',
+              'recommended'
             )} configuration by default.\n${red(
-              'Warning! This default behavior is going to be deprecated soon.',
-            )}\n\n`,
+              'Warning! This default behavior is going to be deprecated soon.'
+            )}\n\n`
           );
         }
         const results = await lint({
@@ -107,7 +109,7 @@ export async function handleBundle(
         path,
         entrypoints.length,
         argv.output,
-        argv.ext,
+        argv.ext
       );
 
       if (fileTotals.errors === 0 || argv.force) {
@@ -134,7 +136,7 @@ export async function handleBundle(
       if (argv.metafile) {
         if (entrypoints.length > 1) {
           process.stderr.write(
-            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`),
+            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`)
           );
         }
         {
@@ -147,19 +149,19 @@ export async function handleBundle(
         if (argv.force) {
           process.stderr.write(
             `❓ Created a bundle for ${blue(path)} at ${blue(outputFile)} with errors ${green(
-              elapsed,
-            )}.\n${yellow('Errors ignored because of --force')}.\n`,
+              elapsed
+            )}.\n${yellow('Errors ignored because of --force')}.\n`
           );
         } else {
           process.stderr.write(
             `❌ Errors encountered while bundling ${blue(
-              path,
-            )}: bundle not created (use --force to ignore errors).\n`,
+              path
+            )}: bundle not created (use --force to ignore errors).\n`
           );
         }
       } else {
         process.stderr.write(
-          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`,
+          `📦 Created a bundle for ${blue(path)} at ${blue(outputFile)} ${green(elapsed)}.\n`
         );
       }
 
@@ -172,7 +174,7 @@ export async function handleBundle(
     }
   }
 
-  printUnusedWarnings(config.lint);
+  printUnusedWarnings(config.styleguide);
 
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072

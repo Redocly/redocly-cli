@@ -13,7 +13,7 @@ describe('Oas3 tags-alphabetical', () => {
             - name: b
             - name: a
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -50,7 +50,7 @@ describe('Oas3 tags-alphabetical', () => {
         - name: a
         - name: b
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

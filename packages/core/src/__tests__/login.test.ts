@@ -6,10 +6,10 @@ describe.skip('login', () => {
     Object.defineProperty(client, 'registryApi', {
       value: {
         setAccessTokens: jest.fn(),
-        authStatus: jest.fn(() => true)
+        authStatus: jest.fn(() => true),
       },
       writable: true,
-      configurable: true
+      configurable: true,
     });
     await client.login('token'); // TODO: bug with rewrite local config file
     expect(client.registryApi.setAccessTokens).toHaveBeenCalled();

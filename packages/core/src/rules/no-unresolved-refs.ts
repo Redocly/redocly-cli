@@ -25,7 +25,7 @@ export const NoUnresolvedRefs: Oas3Rule = () => {
 export function reportUnresolvedRef(
   resolved: ResolveResult<any>,
   report: (m: Problem) => void,
-  location: Location,
+  location: Location
 ) {
   const error = resolved.error;
   if (error instanceof YamlParseError) {

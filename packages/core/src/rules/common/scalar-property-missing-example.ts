@@ -10,7 +10,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
   return {
     SchemaProperties(
       properties: { [name: string]: Oas2Schema | Oas3Schema | Oas3_1Schema },
-      { report, location, oasVersion, resolve }: UserContext,
+      { report, location, oasVersion, resolve }: UserContext
     ) {
       for (const propName of Object.keys(properties)) {
         const propSchema = resolve(properties[propName]).node;

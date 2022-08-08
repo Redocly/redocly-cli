@@ -20,7 +20,7 @@ describe('OpenAPI Schema 2.0', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -47,7 +47,7 @@ describe('OpenAPI Schema 2.0', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -81,7 +81,7 @@ describe('OpenAPI Schema 2.0', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -117,7 +117,7 @@ describe('OpenAPI Schema 2.0', () => {
     expect(
       await lintDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 });

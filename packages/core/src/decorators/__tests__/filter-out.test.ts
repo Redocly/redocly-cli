@@ -27,7 +27,8 @@ describe('oas3 filter-out', () => {
               callbacks:
                 x-access: protected
                 orderInProgress:
-                  x-internal: true`);
+                  x-internal: true`
+  );
 
   it('should remove /pet path and y parameter', async () => {
     const testDocument = parseYamlToDocument(
@@ -132,7 +133,8 @@ describe('oas3 filter-out', () => {
                     type: object
       components: {}
             
-        `);
+        `
+    );
     const { bundle: res } = await bundleDocument({
       document: testDoc,
       externalRefResolver: new BaseResolver(),
@@ -185,7 +187,8 @@ describe('oas3 filter-out', () => {
           x:
             name: x
             
-            `);
+            `
+    );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
@@ -236,7 +239,8 @@ describe('oas3 filter-out', () => {
           x:
             name: x
             
-            `);
+            `
+    );
     const { bundle: res } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),

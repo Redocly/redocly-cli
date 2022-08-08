@@ -22,11 +22,11 @@ describe('handleJoin fails', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      'cli-version',
+      'cli-version'
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`
     );
   });
 
@@ -37,11 +37,11 @@ describe('handleJoin fails', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      'cli-version',
+      'cli-version'
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`
     );
   });
 });

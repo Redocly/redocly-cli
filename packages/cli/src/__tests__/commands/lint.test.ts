@@ -43,7 +43,9 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
+    (doesYamlFileExist as jest.Mock<any, any>).mockImplementation(
+      (path) => path === 'redocly.yaml'
+    );
   });
 
   afterEach(() => {
@@ -98,8 +100,8 @@ describe('handleLint', () => {
         },
         versionMock
       );
-      expect(ConfigFixture.lint.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(ConfigFixture.lint.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(ConfigFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(ConfigFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {

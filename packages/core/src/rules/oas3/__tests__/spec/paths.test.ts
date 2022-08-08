@@ -23,7 +23,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -43,7 +43,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -61,7 +61,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -88,7 +88,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -114,7 +114,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -151,7 +151,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         'no-identical-paths': 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -188,7 +188,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -218,7 +218,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -239,7 +239,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 
@@ -278,7 +278,7 @@ describe('OpenAPI Schema', () => {
     expect(
       await validateDoc(source, {
         spec: 'error',
-      }),
+      })
     ).toMatchInlineSnapshot(`Array []`);
   });
 });

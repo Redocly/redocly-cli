@@ -18,7 +18,7 @@ describe('Oas3 operation-singular-tag', () => {
                   - a
                   - b
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -58,7 +58,7 @@ describe('Oas3 operation-singular-tag', () => {
             tags:
               - a
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

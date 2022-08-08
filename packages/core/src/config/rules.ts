@@ -1,12 +1,12 @@
 import { RuleSet, OasVersion } from '../oas-types';
-import { LintConfig } from './config';
+import { StyleguideConfig } from './config';
 import { notUndefined } from '../utils';
 
 export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
-  config: LintConfig,
+  config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
-  oasVersion: OasVersion,
+  oasVersion: OasVersion
 ) {
   return rules
     .flatMap((ruleset) =>
@@ -31,7 +31,7 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
             severity: ruleSettings.severity,
             ruleId,
             visitor: visitor,
-          }))
+          }));
         }
 
         return {
@@ -39,8 +39,8 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
           ruleId,
           visitor: visitors, // note: actually it is only one visitor object
         };
-      }),
+      })
     )
-    .flatMap(visitor => visitor)
+    .flatMap((visitor) => visitor)
     .filter(notUndefined);
 }

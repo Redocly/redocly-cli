@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
 import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils';
 import { lintDocument } from '../../../../lint';
-import { LintConfig } from '../../../..';
+import { StyleguideConfig } from '../../../..';
 import { BaseResolver } from '../../../../resolve';
-import { resolveLint } from '../../../../config';
+import { resolveStyleguideConfig } from '../../../../config';
 
 describe('Referenceable scalars', () => {
   it('should not report $ref description', async () => {
@@ -17,22 +17,22 @@ describe('Referenceable scalars', () => {
               $ref: fixtures/description.md
           paths: {}
         `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig(
-        await resolveLint({
-          lintConfig: {
+      config: new StyleguideConfig(
+        await resolveStyleguideConfig({
+          styleguideConfig: {
             extends: [],
             rules: {
               spec: 'error',
               'no-unresolved-refs': 'error',
             },
           },
-        }),
+        })
       ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
@@ -54,22 +54,22 @@ describe('Referenceable scalars', () => {
                     example:
                       $ref: not $ref, example
         `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: new LintConfig(
-        await resolveLint({
-          lintConfig: {
+      config: new StyleguideConfig(
+        await resolveStyleguideConfig({
+          styleguideConfig: {
             extends: [],
             rules: {
               'no-unresolved-refs': 'error',
             },
             doNotResolveExamples: true,
           },
-        }),
+        })
       ),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);

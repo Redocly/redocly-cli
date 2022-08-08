@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "npm run webpack-bundle -- --mode=none && jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "prettier:check": "npx prettier --check \"**/*.{ts,js}\"",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "watch": "tsc -b tsconfig.build.json --watch ",
     "compile": "tsc -b tsconfig.build.json",

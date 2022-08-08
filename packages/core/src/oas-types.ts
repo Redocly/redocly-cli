@@ -1,9 +1,4 @@
-import {
-  Oas3Rule,
-  Oas3Preprocessor,
-  Oas2Rule,
-  Oas2Preprocessor,
-} from './visitors';
+import { Oas3Rule, Oas3Preprocessor, Oas2Rule, Oas2Preprocessor } from './visitors';
 
 export type RuleSet<T> = Record<string, T>;
 
