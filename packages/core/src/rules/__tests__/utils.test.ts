@@ -1,14 +1,9 @@
-import {
-  fieldNonEmpty,
-  matchesJsonSchemaType,
-  missingRequiredField,
-  oasTypeOf,
-} from '../utils';
+import { fieldNonEmpty, matchesJsonSchemaType, missingRequiredField, oasTypeOf } from '../utils';
 
 describe('field-non-empty', () => {
   it('should match expected message', () => {
     const message = fieldNonEmpty('Car', 'color');
-    expect(message).toBe('Car object \`color\` must be non-empty string.');
+    expect(message).toBe('Car object `color` must be non-empty string.');
   });
 });
 
@@ -64,13 +59,13 @@ describe('matches-json-schema-type', () => {
   });
 
   it('should report true on an object value with object type', () => {
-    const car = {type:"Fiat", model:"500", color:"white"};
+    const car = { type: 'Fiat', model: '500', color: 'white' };
     const results = matchesJsonSchemaType(car, 'object', true);
     expect(results).toBe(true);
   });
 
   it('should report false on an object value with array type', () => {
-    const car = {type:"Fiat", model:"500", color:"white"};
+    const car = { type: 'Fiat', model: '500', color: 'white' };
     const results = matchesJsonSchemaType(car, 'array', true);
     expect(results).toBe(false);
   });
@@ -79,7 +74,7 @@ describe('matches-json-schema-type', () => {
 describe('missing-required-field', () => {
   it('should match expected message for missing required field', () => {
     const message = missingRequiredField('Car', 'color');
-    expect(message).toBe('Car object should contain \`color\` field.');
+    expect(message).toBe('Car object should contain `color` field.');
   });
 });
 
@@ -120,7 +115,7 @@ describe('oas-type-of', () => {
   });
 
   it('should report the correct oas type for an object', () => {
-    const car = {type:"Fiat", model:"500", color:"white"};
+    const car = { type: 'Fiat', model: '500', color: 'white' };
     const results = oasTypeOf(car);
     expect(results).toBe('object');
   });

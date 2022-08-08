@@ -10,7 +10,7 @@ export function oasTypeOf(value: unknown) {
   } else if (value === null) {
     return 'null';
   } else if (Number.isInteger(value)) {
-    return 'integer';  
+    return 'integer';
   } else {
     return typeof value;
   }
