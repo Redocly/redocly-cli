@@ -120,7 +120,7 @@ describe('handleLint', () => {
     it('should catch error in handleError if something fails', async () => {
       (lint as jest.Mock<any, any>).mockRejectedValueOnce('error');
       await handleLint(argvMock, versionMock);
-      expect(handleError).toHaveBeenCalledWith('error', '');
+      expect(handleError).toHaveBeenCalledWith('error', 'openapi.yaml');
     });
   });
 

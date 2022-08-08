@@ -189,9 +189,10 @@ export function handleError(e: Error, ref: string) {
       );
     } else {
       process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
-      throw e;
     }
   }
+  process.exitCode = 1;
+  throw e;
 }
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {

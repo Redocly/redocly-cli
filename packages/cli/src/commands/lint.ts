@@ -107,7 +107,6 @@ export async function handleLint(argv: LintOptions, version: string) {
       const elapsed = getExecutionTime(startedAt);
       process.stderr.write(gray(`${path.replace(process.cwd(), '')}: validated in ${elapsed}\n\n`));
     } catch (e) {
-      totals.errors++;
       handleError(e, path);
     }
   }
