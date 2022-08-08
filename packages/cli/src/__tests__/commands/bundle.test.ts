@@ -63,6 +63,12 @@ describe('bundle', () => {
   it('bundles definitions w/ linting', async () => {
     const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 0,
+      warnings: 0,
+      ignored: 0,
+    });
+
     await handleBundle(
       {
         entrypoints,
@@ -74,7 +80,7 @@ describe('bundle', () => {
     );
 
     expect(lint).toBeCalledTimes(entrypoints.length);
-    expect(bundle).toBeCalledTimes(0);
+    expect(bundle).toBeCalledTimes(entrypoints.length);
   });
 
   it('exits with code 0 when bundles definitions w/linting w/o errors', async () => {
