@@ -139,7 +139,7 @@ describe('bundle', () => {
     expect(handleError).toHaveBeenCalledWith(new Error('Invalid definition'), 'invalid.json');
   });
 
-  it('handleError isn\'t called when bundles a valid definition', async () => {
+  it("handleError isn't called when bundles a valid definition", async () => {
     const entrypoints = ['foo.yaml'];
 
     (getTotals as jest.Mock).mockReturnValue({
