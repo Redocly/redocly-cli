@@ -1,6 +1,7 @@
 import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
 import { handleBundle } from '../../commands/bundle';
+import { handleError } from '../../utils';
 import SpyInstance = jest.SpyInstance;
 
 jest.mock('@redocly/openapi-core');
@@ -24,7 +25,7 @@ describe('bundle', () => {
   afterEach(() => {
     (lint as jest.Mock).mockClear();
     (bundle as jest.Mock).mockClear();
-    (getTotals as jest.Mock).mockClear();
+    (getTotals as jest.Mock).mockReset();
   });
 
   it('bundles definitions w/o linting', async () => {
@@ -61,6 +62,12 @@ describe('bundle', () => {
 
   it('bundles definitions w/ linting', async () => {
     const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
+
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 0,
+      warnings: 0,
+      ignored: 0,
+    });
 
     await handleBundle(
       {
@@ -115,5 +122,48 @@ describe('bundle', () => {
     expect(lint).toBeCalledTimes(entrypoints.length);
     exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
+  });
+
+  it('handleError is called when bundles an invalid definition', async () => {
+    const entrypoints = ['invalid.json'];
+
+    (bundle as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('Invalid definition');
+    });
+
+    await handleBundle(
+      {
+        entrypoints,
+        ext: 'json',
+        format: 'codeframe',
+        lint: false,
+      },
+      '1.0.0'
+    );
+
+    expect(handleError).toHaveBeenCalledTimes(1);
+    expect(handleError).toHaveBeenCalledWith(new Error('Invalid definition'), 'invalid.json');
+  });
+
+  it("handleError isn't called when bundles a valid definition", async () => {
+    const entrypoints = ['foo.yaml'];
+
+    (getTotals as jest.Mock).mockReturnValue({
+      errors: 0,
+      warnings: 0,
+      ignored: 0,
+    });
+
+    await handleBundle(
+      {
+        entrypoints,
+        ext: 'yaml',
+        format: 'codeframe',
+        lint: false,
+      },
+      '1.0.0'
+    );
+
+    expect(handleError).toHaveBeenCalledTimes(0);
   });
 });

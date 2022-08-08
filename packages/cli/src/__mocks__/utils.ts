@@ -1,5 +1,5 @@
 export const getFallbackEntryPointsOrExit = jest.fn((entrypoints) =>
-  entrypoints.map(() => ({ path: '' }))
+  entrypoints.map((path: string) => ({ path }))
 );
 export const dumpBundle = jest.fn(() => '');
 export const slash = jest.fn();
