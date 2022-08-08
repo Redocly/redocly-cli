@@ -41,7 +41,7 @@ replace the corresponding files in the `openapi` folder:
 Make sure that the @redocly/cli has version `1.0.0-beta.99` or later
 :::
 
-- If you're using VS Code as your favorite code editor, we recommend you to install the [Redocly OpenAPI VS Code extension](../../redocly-openapi/index.md).
+- If you're using VS Code as your favorite code editor, we recommend you install the [Redocly OpenAPI VS Code extension](../../redocly-openapi/index.md).
 
 :::note We do, You do
 This guide is most effective when you follow along and complete the steps.
@@ -51,13 +51,10 @@ This guide is most effective when you follow along and complete the steps.
 
 After downloading the `openapi-starter` repository, ensure that you installed the project's dependencies via `npm install`.
 
-Once completed, in the project folder, execute the `npm test` command. You should receive confirmation that the OpenAPI definition is valid:
+Once completed, in the project folder, execute the `npx redocly lint` command. You should receive confirmation that the OpenAPI definition is valid:
 
 ```bash
-npm test
-
-> acme-api@1.0.0 test
-> redocly lint
+npx redocly lint
 
 validating /openapi/openapi.yaml...
 /openapi/openapi.yaml: validated in 39ms
@@ -85,11 +82,8 @@ rules:
         - user_id
 ```
 
-```bash npm test
-npm test
-
-> acme-api@1.0.0 test
-> redocly lint
+```bash npx redocly lint
+npx redocly lint
 
 validating /openapi/openapi.yaml...
 [1] openapi/components/responses/200.yaml:2:1 at #/properties
@@ -155,11 +149,8 @@ rules:
         - user_id
 ```
 
-```bash npm test
-npm test
-
-> acme-api@1.0.0 test
-> redocly lint
+```bash npx redocly lint
+npx redocly lint
 
 validating /openapi/openapi.yaml...
 [1] openapi/components/responses/200.yaml:2:1 at #/properties
@@ -245,11 +236,8 @@ rules:
         - ref_id
 ```
 
-```bash npm test
-npm test
-
-> acme-api@1.0.0 test
-> redocly lint
+```bash npx redocly lint
+npx redocly lint
 
 validating /openapi/openapi.yaml...
 [1] openapi/components/responses/200.yaml:2:1 at #/properties
