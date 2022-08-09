@@ -36,7 +36,7 @@ function getAjvValidator(
   schema: any,
   loc: Location,
   resolve: ResolveFn,
-  allowAdditionalProperties: boolean,
+  allowAdditionalProperties: boolean
 ): ValidateFunction | undefined {
   const ajv = getAjv(resolve, allowAdditionalProperties);
 
@@ -53,7 +53,7 @@ export function validateJsonSchema(
   schemaLoc: Location,
   instancePath: string,
   resolve: ResolveFn,
-  allowAdditionalProperties: boolean,
+  allowAdditionalProperties: boolean
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
   const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported

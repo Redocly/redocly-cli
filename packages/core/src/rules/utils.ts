@@ -129,7 +129,9 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
   }
 
   if (opts.allowAdditionalProperties !== undefined) {
-    throw new Error('Conflict between disallowAdditionalProperties and allowAdditionalProperties options');
+    throw new Error(
+      'Conflict between disallowAdditionalProperties and allowAdditionalProperties options'
+    );
   }
 
   process.stderr.write(
