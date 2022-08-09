@@ -3,6 +3,7 @@ import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
 import { Oas3Schema, Referenced } from '../typings/openapi';
+import { yellow } from 'colorette';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -89,7 +90,7 @@ export function validateExample(
   schema: Referenced<Oas3Schema>,
   dataLoc: Location,
   { resolve, location, report }: UserContext,
-  disallowAdditionalProperties: boolean
+  allowAdditionalProperties: boolean
 ) {
   try {
     const { valid, errors } = validateJsonSchema(
@@ -98,7 +99,7 @@ export function validateExample(
       location.child('schema'),
       dataLoc.pointer,
       resolve,
-      disallowAdditionalProperties
+      allowAdditionalProperties
     );
     if (!valid) {
       for (let error of errors) {
@@ -120,4 +121,22 @@ export function validateExample(
       from: location,
     });
   }
+}
+
+export function getAdditionalPropertiesOption(opts: Record<string, any>): boolean {
+  if (opts.disallowAdditionalProperties === undefined) {
+    return opts.allowAdditionalProperties;
+  }
+
+  if (opts.allowAdditionalProperties !== undefined) {
+    throw new Error('Conflict between disallowAdditionalProperties and allowAdditionalProperties options');
+  }
+
+  process.stderr.write(
+    `${yellow(
+      'Warning! The disallowAdditionalProperties option is deprecated. Use allowAdditionalProperties option instead'
+    )}`
+  );
+
+  return !opts.disallowAdditionalProperties;
 }

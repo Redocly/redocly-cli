@@ -8,7 +8,7 @@ export function releaseAjvInstance() {
   ajvInstance = null;
 }
 
-function getAjv(resolve: ResolveFn, disallowAdditionalProperties: boolean) {
+function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
   if (!ajvInstance) {
     ajvInstance = new Ajv({
       schemaId: '$id',
@@ -20,7 +20,7 @@ function getAjv(resolve: ResolveFn, disallowAdditionalProperties: boolean) {
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: false, // TODO: fix it
-      defaultAdditionalProperties: !disallowAdditionalProperties,
+      defaultAdditionalProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string) {
         const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return false;
@@ -36,9 +36,9 @@ function getAjvValidator(
   schema: any,
   loc: Location,
   resolve: ResolveFn,
-  disallowAdditionalProperties: boolean
+  allowAdditionalProperties: boolean,
 ): ValidateFunction | undefined {
-  const ajv = getAjv(resolve, disallowAdditionalProperties);
+  const ajv = getAjv(resolve, allowAdditionalProperties);
 
   if (!ajv.getSchema(loc.absolutePointer)) {
     ajv.addSchema({ $id: loc.absolutePointer, ...schema }, loc.absolutePointer);
@@ -53,9 +53,9 @@ export function validateJsonSchema(
   schemaLoc: Location,
   instancePath: string,
   resolve: ResolveFn,
-  disallowAdditionalProperties: boolean
+  allowAdditionalProperties: boolean,
 ): { valid: boolean; errors: (ErrorObject & { suggest?: string[] })[] } {
-  const validate = getAjvValidator(schema, schemaLoc, resolve, disallowAdditionalProperties);
+  const validate = getAjvValidator(schema, schemaLoc, resolve, allowAdditionalProperties);
   if (!validate) return { valid: true, errors: [] }; // unresolved refs are reported
 
   const valid = validate(data, {

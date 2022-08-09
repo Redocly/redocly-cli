@@ -1,11 +1,11 @@
 import { Oas3Rule } from '../../visitors';
 import { Location, isRef } from '../../ref-utils';
 import { Oas3Example } from '../../typings/openapi';
-import { validateExample } from '../utils';
+import { getAdditionalPropertiesOption, validateExample } from '../utils';
 import { UserContext } from '../../walk';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
-  const disallowAdditionalProperties = opts.disallowAdditionalProperties ?? true;
+  let allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
 
   return {
     MediaType: {
@@ -40,7 +40,7 @@ export const ValidContentExamples: Oas3Rule = (opts) => {
             mediaType.schema!,
             location,
             ctx,
-            disallowAdditionalProperties
+            allowAdditionalProperties
           );
         }
       },
