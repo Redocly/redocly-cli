@@ -6,7 +6,6 @@ import {
   lintConfig,
   findConfig,
   getMergedConfig,
-  OutputFormat,
   makeDocumentFromString,
   loadConfig,
   stringifyYaml,
@@ -17,7 +16,7 @@ import {
 } from '@redocly/openapi-core';
 import {
   getExecutionTime,
-  getFallbackEntryPointsOrExit,
+  getFallbackApisOrExit,
   handleError,
   pluralize,
   printLintTotals,
@@ -25,21 +24,14 @@ import {
   printUnusedWarnings,
   exitWithError,
 } from '../utils';
-import { Totals } from '../types';
+import type { CommonOptions, Skips, Totals } from '../types';
 import { blue, gray, red } from 'colorette';
 import { performance } from 'perf_hooks';
 
-export type LintOptions = {
-  entrypoints: string[];
-  'max-problems'?: number;
+export type LintOptions = CommonOptions & {
   'generate-ignore-file'?: boolean;
-  'skip-rule'?: string[];
-  'skip-preprocessor'?: string[];
   'lint-config': RuleSeverity;
-  extends?: string[];
-  config?: string;
-  format: OutputFormat;
-};
+} & Omit<Skips, 'skip-decorator'>;
 
 export async function handleLint(argv: LintOptions, version: string) {
   if (argv.config && !doesYamlFileExist(argv.config)) {
@@ -52,7 +44,7 @@ export async function handleLint(argv: LintOptions, version: string) {
     lintConfigCallback(argv, version)
   );
 
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+  const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (argv['generate-ignore-file']) {
     config.styleguide.ignore = {}; // clear ignore
@@ -61,7 +53,7 @@ export async function handleLint(argv: LintOptions, version: string) {
   let totalIgnored = 0;
 
   // TODO: use shared externalRef resolver, blocked by preprocessors now as they can mutate documents
-  for (const { path, alias } of entrypoints) {
+  for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
@@ -117,7 +109,7 @@ export async function handleLint(argv: LintOptions, version: string) {
       `Generated ignore file with ${totalIgnored} ${pluralize('problem', totalIgnored)}.\n\n`
     );
   } else {
-    printLintTotals(totals, entrypoints.length);
+    printLintTotals(totals, apis.length);
   }
 
   printUnusedWarnings(config.styleguide);

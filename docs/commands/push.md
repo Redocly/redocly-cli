@@ -69,7 +69,7 @@ To authenticate to the API registry, you can use several approaches:
 ## Usage
 
 ```bash
-redocly push [entrypoint] <destination>
+redocly push [api] <destination>
 redocly push
 redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml> <@organization-id/api-name@api-version> [--branch]
 ```
@@ -78,7 +78,7 @@ redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml
 
 Option           | Type      | Description    |
 -----------------|:---------:|------------|
-entrypoint       | string    | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.  |
+api              | string    | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.  |
 destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
 --branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
 --batch-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Batch ID section](#batch-id) for more information.  |
@@ -165,7 +165,7 @@ The version of your API should contain only supported characters (`a-z`, `A-Z`, 
 
 ### Set options explicitly
 
-Provide the `entrypoint` as a path to the root API definition file, and specify the organization ID, API name and version.
+Provide the `api` as a path to the root API definition file, and specify the organization ID, API name and version.
 
 ```bash
 redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1

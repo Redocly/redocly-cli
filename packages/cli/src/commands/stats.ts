@@ -21,7 +21,7 @@ import {
   bundle,
 } from '@redocly/openapi-core';
 
-import { getFallbackEntryPointsOrExit } from '../utils';
+import { getFallbackApisOrExit } from '../utils';
 import { printExecutionTime } from '../utils';
 
 const statsAccumulator: StatsAccumulator = {
@@ -53,8 +53,8 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
-function printStats(statsAccumulator: StatsAccumulator, entrypoint: string, format: string) {
-  process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
+function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
+  process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
   switch (format) {
     case 'stylish':
       printStatsStylish(statsAccumulator);
@@ -65,10 +65,10 @@ function printStats(statsAccumulator: StatsAccumulator, entrypoint: string, form
   }
 }
 
-export async function handleStats(argv: { config?: string; entrypoint?: string; format: string }) {
+export async function handleStats(argv: { config?: string; api?: string; format: string }) {
   const config: Config = await loadConfig(argv.config);
-  const [{ path }] = await getFallbackEntryPointsOrExit(
-    argv.entrypoint ? [argv.entrypoint] : [],
+  const [{ path }] = await getFallbackApisOrExit(
+    argv.api ? [argv.api] : [],
     config
   );
   const externalRefResolver = new BaseResolver(config.resolve);

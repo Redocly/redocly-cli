@@ -29,11 +29,11 @@ describe('bundle', () => {
   });
 
   it('bundles definitions w/o linting', async () => {
-    const entrypoints = ['foo.yaml', 'bar.yaml'];
+    const apis = ['foo.yaml', 'bar.yaml'];
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
       },
@@ -41,15 +41,15 @@ describe('bundle', () => {
     );
 
     expect(lint).toBeCalledTimes(0);
-    expect(bundle).toBeCalledTimes(entrypoints.length);
+    expect(bundle).toBeCalledTimes(apis.length);
   });
 
   it('exits with code 0 when bundles definitions', async () => {
-    const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
+    const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
       },
@@ -61,7 +61,7 @@ describe('bundle', () => {
   });
 
   it('bundles definitions w/ linting', async () => {
-    const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
+    const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     (getTotals as jest.Mock).mockReturnValue({
       errors: 0,
@@ -71,7 +71,7 @@ describe('bundle', () => {
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
         lint: true,
@@ -79,16 +79,16 @@ describe('bundle', () => {
       '1.0.0'
     );
 
-    expect(lint).toBeCalledTimes(entrypoints.length);
-    expect(bundle).toBeCalledTimes(entrypoints.length);
+    expect(lint).toBeCalledTimes(apis.length);
+    expect(bundle).toBeCalledTimes(apis.length);
   });
 
   it('exits with code 0 when bundles definitions w/linting w/o errors', async () => {
-    const entrypoints = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
+    const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
         lint: true,
@@ -101,7 +101,7 @@ describe('bundle', () => {
   });
 
   it('exits with code 1 when bundles definitions w/linting w/errors', async () => {
-    const entrypoints = ['foo.yaml'];
+    const apis = ['foo.yaml'];
 
     (getTotals as jest.Mock).mockReturnValue({
       errors: 1,
@@ -111,7 +111,7 @@ describe('bundle', () => {
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
         lint: true,
@@ -119,13 +119,13 @@ describe('bundle', () => {
       '1.0.0'
     );
 
-    expect(lint).toBeCalledTimes(entrypoints.length);
+    expect(lint).toBeCalledTimes(apis.length);
     exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
   it('handleError is called when bundles an invalid definition', async () => {
-    const entrypoints = ['invalid.json'];
+    const apis = ['invalid.json'];
 
     (bundle as jest.Mock).mockImplementationOnce(() => {
       throw new Error('Invalid definition');
@@ -133,7 +133,7 @@ describe('bundle', () => {
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'json',
         format: 'codeframe',
         lint: false,
@@ -146,7 +146,7 @@ describe('bundle', () => {
   });
 
   it("handleError isn't called when bundles a valid definition", async () => {
-    const entrypoints = ['foo.yaml'];
+    const apis = ['foo.yaml'];
 
     (getTotals as jest.Mock).mockReturnValue({
       errors: 0,
@@ -156,7 +156,7 @@ describe('bundle', () => {
 
     await handleBundle(
       {
-        entrypoints,
+        apis,
         ext: 'yaml',
         format: 'codeframe',
         lint: false,

@@ -1,4 +1,5 @@
-import { BundleOutputFormat, Region } from '@redocly/openapi-core';
+import type { BundleOutputFormat, OutputFormat, Region } from '@redocly/openapi-core';
+
 export type Totals = {
   errors: number;
   warnings: number;
@@ -11,3 +12,15 @@ export type Entrypoint = {
 export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleOutputFormat>;
 export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined;
 export const regionChoices = ['us', 'eu'] as ReadonlyArray<Region>;
+export type CommonOptions = {
+  apis: string[];
+  'max-problems'?: number;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+};
+export type Skips = {
+  'skip-rule'?: string[];
+  'skip-decorator'?: string[];
+  'skip-preprocessor'?: string[];
+};

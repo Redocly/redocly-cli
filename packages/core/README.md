@@ -9,9 +9,9 @@ See https://github.com/Redocly/redocly-cli
 ```js
 import { formatProblems, lint, loadConfig } from '@redocly/openapi-core';
 
-const pathToEntryPoint = 'openapi.yaml';
+const pathToApi = 'openapi.yaml';
 const config = loadConfig('optional/path/to/.redocly.yaml');
-const lintResults = await lint({ ref: pathToEntryPoint, config });
+const lintResults = await lint({ ref: pathToApi, config });
 ```
 
 ### Bundle
@@ -19,7 +19,7 @@ const lintResults = await lint({ ref: pathToEntryPoint, config });
 ```js
 import { formatProblems, bundle, loadConfig } from '@redocly/openapi-core';
 
-const pathToEntryPoint = 'openapi.yaml';
+const pathToApi = 'openapi.yaml';
 const config = loadConfig('optional/path/to/.redocly.yaml');
-const { bundle, problems } = await bundle({ ref: pathToEntryPoint, config });
+const { bundle, problems } = await bundle({ ref: pathToApi, config });
 ```
