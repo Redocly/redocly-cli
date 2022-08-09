@@ -13,22 +13,21 @@ import { getFallbackApisOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from 'cli/src/types';
 
-export async function previewDocs(argv: {
-  port: number;
-  host: string;
-  'use-community-edition'?: boolean;
-  config?: string;
-  api?: string;
-  force?: boolean;
-} & Omit<Skips, 'skip-rule'>) {
+export async function previewDocs(
+  argv: {
+    port: number;
+    host: string;
+    'use-community-edition'?: boolean;
+    config?: string;
+    api?: string;
+    force?: boolean;
+  } & Omit<Skips, 'skip-rule'>
+) {
   let isAuthorizedWithRedocly: boolean = false;
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const apis = await getFallbackApisOrExit(
-    argv.api ? [argv.api] : [],
-    config
-  );
+  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const api = apis[0];
 
   let cachedBundle: any;
@@ -125,9 +124,7 @@ export async function previewDocs(argv: {
 
   watcher.on('ready', () => {
     process.stdout.write(
-      `\n  👀  Watching ${colorette.blue(
-        api.path
-      )} and all related resources for changes\n\n`
+      `\n  👀  Watching ${colorette.blue(api.path)} and all related resources for changes\n\n`
     );
   });
 
@@ -175,13 +172,9 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
 
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
-    process.stderr.write(
-      `Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else if (e instanceof YamlParseError) {
-    process.stderr.write(
-      `Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
   }

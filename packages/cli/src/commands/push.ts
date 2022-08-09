@@ -75,8 +75,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       )} or specify the 'organization' field in the config file.`
     );
   }
-  const api =
-    argv.api || (name && version && getApiRoot({ name, version, config }));
+  const api = argv.api || (name && version && getApiRoot({ name, version, config }));
 
   if (name && version && !api) {
     exitWithError(
@@ -318,13 +317,7 @@ type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  ({
-    maybeApiOrDestination,
-    maybeDestination,
-    maybeBranchName,
-    branch,
-    ...rest
-  }: BarePushArgs) => {
+  ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs) => {
     if (!!maybeBranchName) {
       process.stderr.write(
         yellow(

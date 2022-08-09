@@ -172,13 +172,9 @@ export function pluralize(label: string, num: number) {
 
 export function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
-    process.stderr.write(
-      `Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else if (e instanceof YamlParseError) {
-    process.stderr.write(
-      `Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
     // TODO: codeframe
   } else {
     // @ts-ignore

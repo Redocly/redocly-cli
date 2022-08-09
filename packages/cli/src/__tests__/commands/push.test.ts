@@ -1,11 +1,6 @@
 import { Config, getMergedConfig } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils';
-import {
-  getApiRoot,
-  getDestinationProps,
-  handlePush,
-  transformPush,
-} from '../../commands/push';
+import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({

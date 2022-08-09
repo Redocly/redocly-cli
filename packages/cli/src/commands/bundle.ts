@@ -21,16 +21,17 @@ import { performance } from 'perf_hooks';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
-export type BundleOptions = CommonOptions & {
-  output?: string;
-  ext: OutputExtensions;
-  dereferenced?: boolean;
-  force?: boolean;
-  lint?: boolean;
-  metafile?: string;
-  'remove-unused-components'?: boolean;
-  'keep-url-references'?: boolean;
-} & Skips;
+export type BundleOptions = CommonOptions &
+  Skips & {
+    output?: string;
+    ext: OutputExtensions;
+    dereferenced?: boolean;
+    force?: boolean;
+    lint?: boolean;
+    metafile?: string;
+    'remove-unused-components'?: boolean;
+    'keep-url-references'?: boolean;
+  };
 
 export async function handleBundle(argv: BundleOptions, version: string) {
   const config = await loadConfig(argv.config, argv.extends);

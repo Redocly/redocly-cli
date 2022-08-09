@@ -28,10 +28,11 @@ import type { CommonOptions, Skips, Totals } from '../types';
 import { blue, gray, red } from 'colorette';
 import { performance } from 'perf_hooks';
 
-export type LintOptions = CommonOptions & {
-  'generate-ignore-file'?: boolean;
-  'lint-config': RuleSeverity;
-} & Omit<Skips, 'skip-decorator'>;
+export type LintOptions = CommonOptions &
+  Omit<Skips, 'skip-decorator'> & {
+    'generate-ignore-file'?: boolean;
+    'lint-config': RuleSeverity;
+  };
 
 export async function handleLint(argv: LintOptions, version: string) {
   if (argv.config && !doesYamlFileExist(argv.config)) {
