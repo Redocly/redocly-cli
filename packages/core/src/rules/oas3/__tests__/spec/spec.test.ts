@@ -110,7 +110,7 @@ describe('Oas3 Structural visitor basic', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Expected type \`string\` but got \`number\`.",
+          "message": "Expected type \`string\` but got \`integer\`.",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],

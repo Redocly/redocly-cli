@@ -9,6 +9,8 @@ export function oasTypeOf(value: unknown) {
     return 'array';
   } else if (value === null) {
     return 'null';
+  } else if (Number.isInteger(value)) {
+    return 'integer';
   } else {
     return typeof value;
   }
@@ -23,7 +25,7 @@ export function oasTypeOf(value: unknown) {
  */
 export function matchesJsonSchemaType(value: unknown, type: string, nullable: boolean): boolean {
   if (nullable && value === null) {
-    return value === null;
+    return true;
   }
 
   switch (type) {
