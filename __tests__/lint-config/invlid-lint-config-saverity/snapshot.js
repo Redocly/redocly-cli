@@ -2,12 +2,12 @@
 
 exports[`E2E lint-config test with option: { dirName: 'invlid-lint-config-saverity', option: 'something' } 1`] = `
 
-index.ts lint [entrypoints...]
+index.ts lint [apis...]
 
 Lint definition.
 
 Positionals:
-  entrypoints                                              [array] [default: []]
+  apis                                                     [array] [default: []]
 
 Options:
   --version               Show version number.                         [boolean]
