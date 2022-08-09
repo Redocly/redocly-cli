@@ -3,7 +3,7 @@ import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
 import { Oas3Schema, Referenced } from '../typings/openapi';
-import { yellow } from 'colorette';
+import {showErrorForDeprecatedField, showWarningForDeprecatedField} from "../utils";
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
@@ -129,16 +129,9 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
   }
 
   if (opts.allowAdditionalProperties !== undefined) {
-    throw new Error(
-      'Conflict between disallowAdditionalProperties and allowAdditionalProperties options'
-    );
+    showErrorForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
   }
 
-  process.stderr.write(
-    `${yellow(
-      'Warning! The disallowAdditionalProperties option is deprecated. Use allowAdditionalProperties option instead'
-    )}`
-  );
-
+  showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
   return !opts.disallowAdditionalProperties;
 }
