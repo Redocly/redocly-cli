@@ -17,21 +17,21 @@ import {
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
 
-export async function getFallbackEntryPointsOrExit(
-  argsEntrypoints: string[] | undefined,
+export async function getFallbackApisOrExit(
+  argsApis: string[] | undefined,
   config: Config
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
-    !isNotEmptyArray(argsEntrypoints) && apis && Object.keys(apis).length > 0;
+    !isNotEmptyArray(argsApis) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
     ? Object.entries(apis).map(([alias, { root }]) => ({
         path: resolve(getConfigDirectory(config), root),
         alias,
       }))
-    : await expandGlobsInEntrypoints(argsEntrypoints!, config);
+    : await expandGlobsInEntrypoints(argsApis!, config);
   if (!isNotEmptyArray(res)) {
-    process.stderr.write('error: missing required argument `entrypoints`.\n');
+    process.stderr.write('error: missing required argument `apis`.\n');
     process.exit(1);
   }
   return res;
@@ -69,9 +69,9 @@ export function getExecutionTime(startedAt: number) {
     : `${Math.ceil(performance.now() - startedAt)}ms`;
 }
 
-export function printExecutionTime(commandName: string, startedAt: number, entrypoint: string) {
+export function printExecutionTime(commandName: string, startedAt: number, api: string) {
   const elapsed = getExecutionTime(startedAt);
-  process.stderr.write(gray(`\n${entrypoint}: ${commandName} processed in ${elapsed}\n\n`));
+  process.stderr.write(gray(`\n${api}: ${commandName} processed in ${elapsed}\n\n`));
 }
 
 export function pathToFilename(path: string, pathSeparator: string) {
@@ -172,13 +172,9 @@ export function pluralize(label: string, num: number) {
 
 export function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
-    process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else if (e instanceof YamlParseError) {
-    process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
     // TODO: codeframe
   } else {
     // @ts-ignore

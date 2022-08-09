@@ -29,7 +29,7 @@ describe('push-with-region', () => {
     redoclyClient.domain = 'redoc.ly';
     await handlePush({
       upsert: true,
-      entrypoint: 'spec.json',
+      api: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
     });
@@ -41,7 +41,7 @@ describe('push-with-region', () => {
     redoclyClient.domain = 'eu.redocly.com';
     await handlePush({
       upsert: true,
-      entrypoint: 'spec.json',
+      api: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
     });

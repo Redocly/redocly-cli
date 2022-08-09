@@ -14,7 +14,7 @@ To learn more about preprocessors and rules, refer to the [custom rules](../reso
 
 ```bash
 redocly lint
-redocly lint <entrypoints>...
+redocly lint <apis>...
 redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 redocly lint [--generate-ignore-file] [--help]
 redocly lint --version
@@ -24,7 +24,7 @@ redocly lint --version
 
 Option | Type | Description
 -- | -- | --
-entrypoints | array | Array of API definition filenames that need to be linted. See [the Entrypoints section](#entrypoints) for more options.
+apis | array | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.
 --config | string | Specify path to the [configuration file](#custom-configuration-file).
 --extends | array | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).
 --format | string | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`.
@@ -38,11 +38,11 @@ entrypoints | array | Array of API definition filenames that need to be linted. 
 
 ## Examples
 
-### Entrypoints
+### Apis
 
-The `lint` command behaves differently depending on how you pass entrypoints to it and whether the [configuration file](#custom-configuration-file) exists.
+The `lint` command behaves differently depending on how you pass apis to it and whether the [configuration file](#custom-configuration-file) exists.
 
-#### Pass entrypoints directly
+#### Pass apis directly
 
 ```bash
 redocly lint openapi/openapi.yaml
@@ -50,11 +50,11 @@ redocly lint openapi/openapi.yaml
 
 In this case, `lint` will validate the definition(s) passed to the command. The configuration file is ignored.
 
-The `entrypoints` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
+The `apis` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 
-#### Pass entrypoints via configuration file
+#### Pass apis via configuration file
 
-Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file as entrypoints.
+Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file.
 
 ```bash Command
 redocly lint core@v1
@@ -68,9 +68,9 @@ apis:
 
 In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` will validate the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
-#### Empty entrypoints
+#### Empty apis
 
-You can omit entrypoints completely when executing the `lint` command.
+You can omit apis completely when executing the `lint` command.
 
 ```bash Command
 redocly lint
@@ -86,11 +86,11 @@ apis:
     root: ./openapi/sandbox.yaml
 ```
 
-In this case, if no API definitions are specified, `lint` validates all entrypoints listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
+In this case, if no API definitions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
 
 :::warning Important
 
-If you try to execute the `lint` command without entrypoints when your project doesn't have any configuration files, the `lint` command will display an error.
+If you try to execute the `lint` command without apis when your project doesn't have any configuration files, the `lint` command will display an error.
 
 :::
 
