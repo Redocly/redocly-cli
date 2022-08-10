@@ -25,7 +25,7 @@ describe('#split', () => {
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit({
-      entrypoint: filePath,
+      api: filePath,
       outDir: openapiDir,
       separator: '_',
     });
@@ -46,7 +46,7 @@ describe('#split', () => {
     jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
 
     await handleSplit({
-      entrypoint: filePath,
+      api: filePath,
       outDir: openapiDir,
       separator: '_',
     });

@@ -16,8 +16,8 @@ The `stats` command provides statistics about the structure of one or more API d
 ## Usage
 
 ```bash
-redocly stats <entrypoint>
-redocly stats <entrypoint> [--format] [--config=<path>]
+redocly stats <api>
+redocly stats <api> [--format] [--config=<path>]
 redocly stats --version
 ```
 
@@ -25,7 +25,7 @@ redocly stats --version
 
 Option | Type | Description
 -- | -- | --
-entrypoint | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
+api | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
 --config | string | Specify path to the [configuration file](#custom-configuration-file).
 --format | string | Format for the output.<br />**Possible values:** `stylish`, `json`.
 --help | boolean | Show help.
@@ -33,11 +33,11 @@ entrypoint | string | **REQUIRED.** Path to the API definition file that you wan
 
 ## Examples
 
-### Entrypoint
+### Api
 
-The `stats` command behaves differently depending on how you pass the entrypoint to it and whether the [configuration file](#custom-configuration-file) exists.
+The `stats` command behaves differently depending on how you pass the api to it and whether the [configuration file](#custom-configuration-file) exists.
 
-#### Pass entrypoint directly
+#### Pass api directly
 
 ```bash
 redocly stats openapi/openapi.yaml
@@ -45,9 +45,9 @@ redocly stats openapi/openapi.yaml
 
 In this case, `stats` will show statistics for the definition that was passed to the command. The configuration file is ignored.
 
-#### Pass entrypoint via configuration file
+#### Pass api via configuration file
 
-Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file as entrypoints.
+Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file.
 
 ```bash Command
 redocly stats core@v1

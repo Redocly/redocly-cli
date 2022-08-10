@@ -33,17 +33,17 @@ import {
   Referenced,
 } from './types';
 
-export async function handleSplit(argv: { entrypoint: string; outDir: string; separator: string }) {
+export async function handleSplit(argv: { api: string; outDir: string; separator: string }) {
   const startedAt = performance.now();
-  const { entrypoint, outDir, separator } = argv;
-  validateDefinitionFileName(entrypoint!);
-  const openapi = readYaml(entrypoint!) as Oas3Definition | Oas3_1Definition;
+  const { api, outDir, separator } = argv;
+  validateDefinitionFileName(api!);
+  const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
   splitDefinition(openapi, outDir, separator);
   process.stderr.write(
-    `🪓 Document: ${blue(entrypoint!)} ${green('is successfully split')}
+    `🪓 Document: ${blue(api!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
-  printExecutionTime('split', startedAt, entrypoint!);
+  printExecutionTime('split', startedAt, api!);
 }
 
 function splitDefinition(

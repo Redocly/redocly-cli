@@ -2,12 +2,12 @@
 
 exports[`E2E split without option: outDir 1`] = `
 
-index.ts split [entrypoint]
+index.ts split [api]
 
 Split definition into a multi-file structure.
 
 Positionals:
-  entrypoint  API definition file that you want to split     [string] [required]
+  api  API definition file that you want to split            [string] [required]
 
 Options:
   --version    Show version number.                                    [boolean]

@@ -122,7 +122,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
   return result;
 }
 
-export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+export function getMergedConfig(config: Config, apiName?: string): Config {
   const extendPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.extendPaths),
     config.rawConfig?.styleguide?.extendPaths,
@@ -137,24 +137,24 @@ export function getMergedConfig(config: Config, entrypointAlias?: string): Confi
     .flat()
     .filter(Boolean) as string[];
 
-  return entrypointAlias
+  return apiName
     ? new Config(
         {
           ...config.rawConfig,
           styleguide: {
-            ...(config.apis[entrypointAlias]
-              ? config.apis[entrypointAlias].styleguide
+            ...(config.apis[apiName]
+              ? config.apis[apiName].styleguide
               : config.rawConfig.styleguide),
             extendPaths,
             pluginPaths,
           },
           'features.openapi': {
             ...config['features.openapi'],
-            ...config.apis[entrypointAlias]?.['features.openapi'],
+            ...config.apis[apiName]?.['features.openapi'],
           },
           'features.mockServer': {
             ...config['features.mockServer'],
-            ...config.apis[entrypointAlias]?.['features.mockServer'],
+            ...config.apis[apiName]?.['features.mockServer'],
           },
           // TODO: merge everything else here
         },

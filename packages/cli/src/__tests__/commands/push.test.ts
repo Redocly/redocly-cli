@@ -1,11 +1,6 @@
 import { Config, getMergedConfig } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils';
-import {
-  getApiEntrypoint,
-  getDestinationProps,
-  handlePush,
-  transformPush,
-} from '../../commands/push';
+import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({
@@ -29,7 +24,7 @@ describe('push', () => {
   it('pushes definition', async () => {
     await handlePush({
       upsert: true,
-      entrypoint: 'spec.json',
+      api: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
       public: true,
@@ -56,7 +51,7 @@ describe('push', () => {
   it('fails if batchId value is an empty string', async () => {
     await handlePush({
       upsert: true,
-      entrypoint: 'spec.json',
+      api: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
       public: true,
@@ -70,7 +65,7 @@ describe('push', () => {
   it('fails if batchSize value is less than 2', async () => {
     await handlePush({
       upsert: true,
-      entrypoint: 'spec.json',
+      api: 'spec.json',
       destination: '@org/my-api@1.0.0',
       branchName: 'test',
       public: true,
@@ -86,23 +81,23 @@ describe('transformPush', () => {
   it('should adapt the existing syntax', () => {
     const cb = jest.fn();
     transformPush(cb)({
-      maybeEntrypointOrAliasOrDestination: 'openapi.yaml',
+      maybeApiOrDestination: 'openapi.yaml',
       maybeDestination: '@testing_org/main@v1',
     });
     expect(cb).toBeCalledWith({
-      entrypoint: 'openapi.yaml',
+      api: 'openapi.yaml',
       destination: '@testing_org/main@v1',
     });
   });
   it('should adapt the existing syntax (including branchName)', () => {
     const cb = jest.fn();
     transformPush(cb)({
-      maybeEntrypointOrAliasOrDestination: 'openapi.yaml',
+      maybeApiOrDestination: 'openapi.yaml',
       maybeDestination: '@testing_org/main@v1',
       maybeBranchName: 'other',
     });
     expect(cb).toBeCalledWith({
-      entrypoint: 'openapi.yaml',
+      api: 'openapi.yaml',
       destination: '@testing_org/main@v1',
       branchName: 'other',
     });
@@ -110,13 +105,13 @@ describe('transformPush', () => {
   it('should use --branch option firstly', () => {
     const cb = jest.fn();
     transformPush(cb)({
-      maybeEntrypointOrAliasOrDestination: 'openapi.yaml',
+      maybeApiOrDestination: 'openapi.yaml',
       maybeDestination: '@testing_org/main@v1',
       maybeBranchName: 'other',
       branch: 'priority-branch',
     });
     expect(cb).toBeCalledWith({
-      entrypoint: 'openapi.yaml',
+      api: 'openapi.yaml',
       destination: '@testing_org/main@v1',
       branchName: 'priority-branch',
     });
@@ -124,7 +119,7 @@ describe('transformPush', () => {
   it('should work for a destination only', () => {
     const cb = jest.fn();
     transformPush(cb)({
-      maybeEntrypointOrAliasOrDestination: '@testing_org/main@v1',
+      maybeApiOrDestination: '@testing_org/main@v1',
     });
     expect(cb).toBeCalledWith({
       destination: '@testing_org/main@v1',
@@ -133,12 +128,12 @@ describe('transformPush', () => {
   it('should accept aliases for the old syntax', () => {
     const cb = jest.fn();
     transformPush(cb)({
-      maybeEntrypointOrAliasOrDestination: 'alias',
+      maybeApiOrDestination: 'alias',
       maybeDestination: '@testing_org/main@v1',
     });
     expect(cb).toBeCalledWith({
       destination: '@testing_org/main@v1',
-      entrypoint: 'alias',
+      api: 'alias',
     });
   });
   it('should accept no arguments at all', () => {
@@ -171,7 +166,7 @@ describe('getDestinationProps', () => {
   });
 });
 
-describe('getApiEntrypoint', () => {
+describe('getApiRoot', () => {
   let config: Config = {
     apis: {
       'main@v1': {
@@ -183,9 +178,9 @@ describe('getApiEntrypoint', () => {
     },
   } as unknown as Config;
   it('should resolve the correct api for a valid name & version', () => {
-    expect(getApiEntrypoint({ name: 'main', version: 'v1', config })).toEqual('openapi.yaml');
+    expect(getApiRoot({ name: 'main', version: 'v1', config })).toEqual('openapi.yaml');
   });
   it('should resolve the latest version of api if there is no matching version', () => {
-    expect(getApiEntrypoint({ name: 'main', version: 'latest', config })).toEqual('latest.yaml');
+    expect(getApiRoot({ name: 'main', version: 'latest', config })).toEqual('latest.yaml');
   });
 });

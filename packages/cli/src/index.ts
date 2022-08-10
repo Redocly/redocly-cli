@@ -18,10 +18,10 @@ yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
   .command(
-    'stats [entrypoint]',
+    'stats [api]',
     'Gathering statistics for a document.',
     (yargs) =>
-      yargs.positional('entrypoint', { type: 'string' }).option({
+      yargs.positional('api', { type: 'string' }).option({
         config: { description: 'Specify path to the config file.', type: 'string' },
         format: {
           description: 'Use a specific output format.',
@@ -32,11 +32,11 @@ yargs
     handleStats
   )
   .command(
-    'split [entrypoint]',
+    'split [api]',
     'Split definition into a multi-file structure.',
     (yargs) =>
       yargs
-        .positional('entrypoint', {
+        .positional('api', {
           description: 'API definition file that you want to split',
           type: 'string',
         })
@@ -53,15 +53,15 @@ yargs
             default: '_',
           },
         })
-        .demandOption('entrypoint'),
+        .demandOption('api'),
     handleSplit
   )
   .command(
-    'join [entrypoints...]',
+    'join [apis...]',
     'Join definitions [experimental].',
     (yargs) =>
       yargs
-        .positional('entrypoints', {
+        .positional('apis', {
           array: true,
           type: 'string',
           demandOption: true,
@@ -93,11 +93,11 @@ yargs
     }
   )
   .command(
-    'push [maybeEntrypointOrAliasOrDestination] [maybeDestination] [maybeBranchName]',
+    'push [maybeApiOrDestination] [maybeDestination] [maybeBranchName]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
-        .positional('maybeEntrypointOrAliasOrDestination', { type: 'string' })
+        .positional('maybeApiOrDestination', { type: 'string' })
         .positional('maybeDestination', { type: 'string' })
         .positional('maybeBranchName', { type: 'string' })
         .option({
@@ -130,10 +130,10 @@ yargs
     transformPush(handlePush)
   )
   .command(
-    'lint [entrypoints...]',
+    'lint [apis...]',
     'Lint definition.',
     (yargs) =>
-      yargs.positional('entrypoints', { array: true, type: 'string', demandOption: true }).option({
+      yargs.positional('apis', { array: true, type: 'string', demandOption: true }).option({
         format: {
           description: 'Use a specific output format.',
           choices: [
@@ -187,10 +187,10 @@ yargs
     }
   )
   .command(
-    'bundle [entrypoints...]',
+    'bundle [apis...]',
     'Bundle definition.',
     (yargs) =>
-      yargs.positional('entrypoints', { array: true, type: 'string', demandOption: true }).options({
+      yargs.positional('apis', { array: true, type: 'string', demandOption: true }).options({
         output: { type: 'string', alias: 'o' },
         format: {
           description: 'Use a specific output format.',
@@ -290,10 +290,10 @@ yargs
     }
   )
   .command(
-    'preview-docs [entrypoint]',
+    'preview-docs [api]',
     'Preview API reference docs for the specified definition.',
     (yargs) =>
-      yargs.positional('entrypoint', { type: 'string' }).options({
+      yargs.positional('api', { type: 'string' }).options({
         port: {
           alias: 'p',
           type: 'number',

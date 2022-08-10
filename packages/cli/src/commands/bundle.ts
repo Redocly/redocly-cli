@@ -3,55 +3,46 @@ import {
   getTotals,
   loadConfig,
   getMergedConfig,
-  OutputFormat,
   lint,
   bundle,
 } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
-  getFallbackEntryPointsOrExit,
+  getFallbackApisOrExit,
   getOutputFileName,
   handleError,
   printUnusedWarnings,
   saveBundle,
   printLintTotals,
 } from '../utils';
-import { OutputExtensions, Totals } from '../types';
+import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
-export async function handleBundle(
-  argv: {
-    entrypoints: string[];
+export type BundleOptions = CommonOptions &
+  Skips & {
     output?: string;
     ext: OutputExtensions;
-    'max-problems'?: number;
-    'skip-rule'?: string[];
-    'skip-preprocessor'?: string[];
-    'skip-decorator'?: string[];
     dereferenced?: boolean;
     force?: boolean;
-    config?: string;
     lint?: boolean;
-    format: OutputFormat;
     metafile?: string;
-    extends?: string[];
     'remove-unused-components'?: boolean;
     'keep-url-references'?: boolean;
-  },
-  version: string
-) {
+  };
+
+export async function handleBundle(argv: BundleOptions, version: string) {
   const config = await loadConfig(argv.config, argv.extends);
   const removeUnusedComponents =
     argv['remove-unused-components'] &&
     !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+  const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
 
-  for (const { path, alias } of entrypoints) {
+  for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
@@ -105,12 +96,7 @@ export async function handleBundle(
       });
 
       const fileTotals = getTotals(problems);
-      const { outputFile, ext } = getOutputFileName(
-        path,
-        entrypoints.length,
-        argv.output,
-        argv.ext
-      );
+      const { outputFile, ext } = getOutputFileName(path, apis.length, argv.output, argv.ext);
 
       if (fileTotals.errors === 0 || argv.force) {
         if (!argv.output) {
@@ -134,9 +120,9 @@ export async function handleBundle(
       });
 
       if (argv.metafile) {
-        if (entrypoints.length > 1) {
+        if (apis.length > 1) {
           process.stderr.write(
-            yellow(`[WARNING] "--metafile" cannot be used with multiple entrypoints. Skipping...`)
+            yellow(`[WARNING] "--metafile" cannot be used with multiple apis. Skipping...`)
           );
         }
         {
