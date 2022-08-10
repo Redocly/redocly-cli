@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.106 (2022-08-09)
+
+### Fixes
+
+- Now errors exit with return code `1`.
+
+### Changes
+
+- Renamed `lint` into `styleguide` in Redocly configuration.
+- Improved naming consistency.
+
 ## 1.0.0-beta.105 (2022-07-27)
 
 ### Fixes
