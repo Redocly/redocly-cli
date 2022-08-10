@@ -19,7 +19,7 @@ export const NoInvalidSchemaExamples: any = (opts: any) => {
           }
         }
         if (schema.example) {
-          validateExample(schema.example, schema, ctx.location.child('example'), ctx, false);
+          validateExample(schema.example, schema, ctx.location.child('example'), ctx, true);
         }
       },
     },
