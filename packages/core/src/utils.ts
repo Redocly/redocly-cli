@@ -7,7 +7,7 @@ import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import { HttpResolveConfig } from './config';
 import { env } from './config';
-import {green, yellow} from "colorette";
+import { green, yellow } from 'colorette';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -206,11 +206,11 @@ export function doesYamlFileExist(filePath: string): boolean {
   );
 }
 
-export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string ) {
+export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string) {
   process.stderr.write(
-      `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
-          updatedField
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
+    `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
+      updatedField
+    )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );
 }
 

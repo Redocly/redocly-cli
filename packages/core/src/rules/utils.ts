@@ -3,7 +3,7 @@ import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
 import { Oas3Schema, Referenced } from '../typings/openapi';
-import {showErrorForDeprecatedField, showWarningForDeprecatedField} from "../utils";
+import { showErrorForDeprecatedField, showWarningForDeprecatedField } from '../utils';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
