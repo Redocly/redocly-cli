@@ -5,7 +5,7 @@ import { getAdditionalPropertiesOption, validateExample } from '../utils';
 import { UserContext } from '../../walk';
 
 export const ValidContentExamples: Oas3Rule = (opts) => {
-  let allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
+  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
 
   return {
     MediaType: {

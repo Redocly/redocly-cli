@@ -3,7 +3,7 @@ import { Oas3Parameter } from '../../typings/openapi';
 import { getAdditionalPropertiesOption, validateExample } from '../utils';
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
-  let allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
+  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {

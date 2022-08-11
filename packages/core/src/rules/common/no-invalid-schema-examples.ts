@@ -3,7 +3,7 @@ import { Oas3_1Schema } from '../../typings/openapi';
 import { getAdditionalPropertiesOption, validateExample } from '../utils';
 
 export const NoInvalidSchemaExamples: any = (opts: any) => {
-  let allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
+  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
   return {
     Schema: {
       leave(schema: Oas3_1Schema, ctx: UserContext) {
