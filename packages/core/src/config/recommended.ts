@@ -47,10 +47,7 @@ export default {
     'no-servers-empty-enum': 'error',
   },
   oas3_1Rules: {
-    'no-invalid-media-type-examples': {
-      severity: 'warn',
-      allowAdditionalProperties: false,
-    },
+    'no-invalid-media-type-examples': 'warn',
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
