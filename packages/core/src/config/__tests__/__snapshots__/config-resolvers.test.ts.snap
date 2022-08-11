@@ -24,6 +24,7 @@ Object {
   "oas3_1Rules": Object {
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
+    "no-invalid-media-type-examples": "error",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
     "no-servers-empty-enum": "error",
@@ -94,6 +95,7 @@ Object {
   "oas3_1Rules": Object {
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
+    "no-invalid-media-type-examples": "warn",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
     "no-servers-empty-enum": "error",

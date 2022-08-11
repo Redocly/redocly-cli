@@ -36,7 +36,7 @@ export default {
   oas3_0Rules: {
     'no-invalid-media-type-examples': {
       severity: 'warn',
-      disallowAdditionalProperties: true,
+      allowAdditionalProperties: false,
     },
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
@@ -47,6 +47,7 @@ export default {
     'no-servers-empty-enum': 'error',
   },
   oas3_1Rules: {
+    'no-invalid-media-type-examples': 'warn',
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',

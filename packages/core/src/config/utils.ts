@@ -1,5 +1,9 @@
-import { green, yellow } from 'colorette';
-import { assignExisting } from '../utils';
+import { yellow } from 'colorette';
+import {
+  assignExisting,
+  showErrorForDeprecatedField,
+  showWarningForDeprecatedField,
+} from '../utils';
 import { Config } from './config';
 
 import type {
@@ -171,15 +175,11 @@ function checkForDeprecatedFields(
     );
 
   if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
-    throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
+    showErrorForDeprecatedField(deprecatedField, updatedField);
   }
 
   if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
-    process.stderr.write(
-      `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
-        updatedField
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
-    );
+    showWarningForDeprecatedField(deprecatedField, updatedField);
   }
 }
 

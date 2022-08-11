@@ -76,7 +76,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should report on invalid example with disallowAdditionalProperties', async () => {
+  it('should report on invalid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -109,7 +109,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
@@ -137,7 +137,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should not on invalid example with disallowAdditionalProperties', async () => {
+  it('should not on invalid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -169,7 +169,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
@@ -219,7 +219,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
