@@ -37,7 +37,7 @@ Minimize it in APIs to make them as easy as possible to use.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-identical-paths: error
 ```
@@ -47,7 +47,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-identical-paths: error
 ```

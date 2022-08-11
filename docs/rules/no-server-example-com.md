@@ -35,7 +35,7 @@ If you can't reveal a production server, consider a [Redocly mock server](/docs/
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-server-example-com: error
 ```
@@ -45,7 +45,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-server-example-com: error
 ```

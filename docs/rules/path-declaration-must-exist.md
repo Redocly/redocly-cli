@@ -25,7 +25,7 @@ This rule is not opinionated.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-declaration-must-exist: error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-declaration-must-exist: error
 ```

@@ -32,7 +32,7 @@ Other ideas are around casing (other than kebab-case, which is a common approach
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-excludes-patterns:
       severity: error
@@ -45,7 +45,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-excludes-patterns:
       severity: error

@@ -18,7 +18,7 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-lint:
+styleguide:
   decorators:
     operation-description-override:
       operationIds:

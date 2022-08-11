@@ -35,7 +35,7 @@ Plugins need to be explicitly defined in the configuration file (except for the 
 Plugins then are consumed by designating their configuration in the `extends` section of the configuration.
 
 ```yaml
-lint:
+styleguide:
   plugins:
     - 'my-plugin.js'
   extends:

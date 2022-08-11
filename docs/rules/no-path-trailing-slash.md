@@ -26,7 +26,7 @@ When it comes to developer experience, consistency rules.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-path-trailing-slash: error
 ```
@@ -35,7 +35,7 @@ lint:
 
 Given this configuration:
 ```yaml
-lint:
+styleguide:
   rules:
     no-path-trailing-slash: error
 ```

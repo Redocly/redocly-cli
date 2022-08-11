@@ -36,11 +36,11 @@ The following example shows how to configure a decorator in the [Redocly configu
 apis:
   main:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       decorators:
         decorator-name:
           decorator-option: example-value
-lint:
+styleguide:
   decorators:
     decorator-name:
       decorator-option: example-value

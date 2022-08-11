@@ -27,7 +27,7 @@ You can greatly improve the developer and user experience of your APIs by making
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-2xx-response: error
 ```
@@ -37,7 +37,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-2xx-response: error
 ```

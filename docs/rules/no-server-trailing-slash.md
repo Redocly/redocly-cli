@@ -37,7 +37,7 @@ Hands-down a good rule for every API designer.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-server-trailing-slash: error
 ```
@@ -47,7 +47,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-server-trailing-slash: error
 ```

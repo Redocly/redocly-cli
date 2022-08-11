@@ -24,7 +24,7 @@ Redocly uses the summary as the header for the operation, as well as the sidebar
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-summary: error
 ```
@@ -34,7 +34,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-summary: error
 ```
