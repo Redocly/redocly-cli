@@ -25,7 +25,7 @@ Solve it before you ship it.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-parameters-unique: error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-parameters-unique: error
 ```

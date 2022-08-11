@@ -42,7 +42,7 @@ properties:
             If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
           items:
             type: string
-        lint:
+        styleguide:
           type: object
           description: >-
             Configures linting options for the specified API.
@@ -60,7 +60,7 @@ properties:
             Defines mock server behavior for an API definition.
             Supports the same format and options as the global `features.mockServer` object.
             API-level configuration will always override global configuration.
-  lint:
+  styleguide:
     type: object
     description: Lets you set rules and decorators that control how the `lint` and `bundle` commands behave.
     properties:

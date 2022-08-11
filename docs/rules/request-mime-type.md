@@ -31,7 +31,7 @@ It doesn't matter to me... keep it consistent across your entire API if possible
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     request-mime-type:
       severity: error
@@ -44,7 +44,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     request-mime-type:
       severity: error

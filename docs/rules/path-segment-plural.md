@@ -34,7 +34,7 @@ Nothing wrong with that.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-segment-plural: error
 ```
@@ -42,7 +42,7 @@ lint:
 Another example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-segment-plural:
       severity: error
@@ -58,7 +58,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     path-segment-plural: error
 ```

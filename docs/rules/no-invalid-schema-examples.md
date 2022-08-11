@@ -45,7 +45,7 @@ Solve it before you ship it.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-schema-examples:
       severity: error
@@ -57,7 +57,7 @@ lint:
 Given the following configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-schema-examples:
       severity: error

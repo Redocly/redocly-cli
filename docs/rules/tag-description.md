@@ -41,7 +41,7 @@ To configure the rule, add it to the `lint.rules` section of your configuration 
 Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
 
 ```yaml
-lint:
+styleguide:
   rules:
     info-contact: error
 ```
@@ -56,7 +56,7 @@ lint:
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     : error
 ```
@@ -67,7 +67,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     : error
 ```

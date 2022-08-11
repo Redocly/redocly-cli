@@ -25,7 +25,7 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-4xx-response: error
 ```
@@ -35,7 +35,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-4xx-response: error
 ```

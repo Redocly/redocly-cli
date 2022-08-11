@@ -24,7 +24,7 @@ This rule is unopinionated.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-operationId-url-safe: error
 ```
@@ -34,7 +34,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-operationId-url-safe: error
 ```

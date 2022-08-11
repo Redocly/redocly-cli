@@ -35,7 +35,7 @@ If that describes your use-case, turn this rule off.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-unused-components: error
 ```
@@ -45,7 +45,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-unused-components: error
 ```

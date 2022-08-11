@@ -24,7 +24,7 @@ In some cases, it is important to design an API so that it consistently returns 
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     response-contains-property:
       severity: error
@@ -42,7 +42,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     response-contains-property:
       severity: error

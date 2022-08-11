@@ -36,7 +36,7 @@ By being upfront with the API license, you can reduce friction towards usage.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     info-license-url: error
 ```
@@ -45,7 +45,7 @@ lint:
 
 Given the following configuration:
 ```yaml
-lint:
+styleguide:
   rules:
     info-license-url: error
 ```

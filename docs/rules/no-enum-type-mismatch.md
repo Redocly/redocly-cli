@@ -42,7 +42,7 @@ Lack of compliance is most likely the result of a typo.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-enum-type-mismatch: error
 ```
@@ -52,7 +52,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-enum-type-mismatch: error
 ```

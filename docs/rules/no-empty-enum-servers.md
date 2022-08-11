@@ -34,7 +34,7 @@ In the case of environment-driven variables, you may want to predefine all of th
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-empty-enum-servers: error
 ```
@@ -44,7 +44,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-empty-enum-servers: error
 ```

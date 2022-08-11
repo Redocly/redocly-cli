@@ -28,7 +28,7 @@ Simple wins.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-singular-tag: error
 ```
@@ -38,7 +38,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-singular-tag: error
 ```

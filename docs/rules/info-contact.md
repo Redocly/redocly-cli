@@ -31,7 +31,7 @@ If they need help to purchase, integrate, or troubleshoot, your contact info sho
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     info-contact: warn
 ```
@@ -40,7 +40,7 @@ lint:
 
 Given this configuration:
 ```yaml
-lint:
+styleguide:
   rules:
     info-contact: error
 ```

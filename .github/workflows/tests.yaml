@@ -3,8 +3,6 @@ name: Build and Test
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - 'docs/**'
   push:
     branches:
       - master

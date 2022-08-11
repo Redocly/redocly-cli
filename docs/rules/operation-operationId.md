@@ -24,7 +24,7 @@ If it annoys the lazy or minimalists, offer them an alternative: two weeks at Re
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-operationId: error
 ```
@@ -34,7 +34,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     operation-operationId: error
 ```
