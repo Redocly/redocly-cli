@@ -8,6 +8,8 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictPropertyInitialization": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
