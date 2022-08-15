@@ -5,6 +5,12 @@ tocMaxDepth: 2
 # Redocly CLI changelog
 
 
+## 1.0.0-beta.107 (2022-08-15)
+
+### Changes
+
+- Add `allowAdditionalProperties` to built-in rules and mark `disallowAdditionalProperties` as deprecated
+
 ## 1.0.0-beta.106 (2022-08-09)
 
 ### Fixes
