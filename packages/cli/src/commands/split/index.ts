@@ -1,6 +1,7 @@
 import { red, blue, yellow, green } from 'colorette';
 import * as fs from 'fs';
-import { parseYaml, slash, isRef } from '@redocly/openapi-core';
+import { parseYaml, slash, isRef, isTruthy } from '@redocly/openapi-core';
+import type {  OasRef } from '@redocly/openapi-core';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 const isEqual = require('lodash.isequal');
@@ -32,8 +33,6 @@ import {
   OPENAPI3_COMPONENT_NAMES,
   Referenced,
 } from './types';
-import type { OasRef } from 'core/src/typings/openapi';
-import { isTruthy } from 'core/src/utils';
 
 export async function handleSplit(argv: { api: string; outDir: string; separator: string }) {
   const startedAt = performance.now();
