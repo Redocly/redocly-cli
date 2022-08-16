@@ -7,7 +7,7 @@ import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import { HttpResolveConfig } from './config';
 import { env } from './config';
-import { green, yellow } from 'colorette';
+import colorize from './colorize';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -31,6 +31,11 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
   return parseYaml(contents) as T;
+}
+
+export function isBrowser(): boolean {
+  // @ts-ignore
+  return typeof window !== undefined;
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
@@ -208,7 +213,7 @@ export function doesYamlFileExist(filePath: string): boolean {
 
 export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string) {
   process.stderr.write(
-    `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
+    `The ${colorize.yellow(deprecatedField)} field is deprecated. Use ${colorize.green(
       updatedField
     )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );

@@ -1,7 +1,7 @@
-import { gray, red, options as colorOptions } from 'colorette';
 import * as yamlAst from 'yaml-ast-parser';
 import { unescapePointer } from '../ref-utils';
 import { LineColLocationObject, Loc, LocationObject } from '../walk';
+import colorize, { options as colorOptions } from '../colorize';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };
@@ -39,14 +39,14 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     let startIdx = i === startLineNum ? start.col - 1 : currentPad;
     let endIdx = i === endLineNum ? end.col - 1 : line.length;
 
-    prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, red)]);
+    prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, colorize.red)]);
     if (!color) prefixedLines.push(['', underlineLine(line, startIdx, endIdx)]);
   }
 
   if (skipLines > 0) {
-    prefixedLines.push([`…`, `${whitespace(currentPad)}${gray(`< ${skipLines} more lines >`)}`]);
+    prefixedLines.push([`…`, `${whitespace(currentPad)}${colorize.gray(`< ${skipLines} more lines >`)}`]);
     // print last line
-    prefixedLines.push([`${endLineNum}`, markLine(lines[endLineNum - 1], -1, end.col - 1, red)]);
+    prefixedLines.push([`${endLineNum}`, markLine(lines[endLineNum - 1], -1, end.col - 1, colorize.red)]);
 
     if (!color) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
   }
@@ -63,7 +63,7 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     line: string,
     startIdx: number = -1,
     endIdx: number = +Infinity,
-    variant = gray
+    variant = colorize.gray
   ) {
     if (!color) return line;
     if (!line) return line;
@@ -90,7 +90,7 @@ function printPrefixedLines(lines: [string, string][]): string {
   return existingLines
     .map(
       ([prefix, line]) =>
-        gray(leftPad(padLen, prefix) + ' |') +
+        colorize.gray(leftPad(padLen, prefix) + ' |') +
         (line ? ' ' + limitLineLength(line.substring(dedentLen)) : '')
     )
     .join('\n');
@@ -99,7 +99,7 @@ function printPrefixedLines(lines: [string, string][]): string {
 function limitLineLength(line: string, maxLen: number = MAX_LINE_LENGTH) {
   const overflowLen = line.length - maxLen;
   if (overflowLen > 0) {
-    const charsMoreText = gray(`...<${overflowLen} chars>`);
+    const charsMoreText = colorize.gray(`...<${overflowLen} chars>`);
     return line.substring(0, maxLen - charsMoreText.length) + charsMoreText;
   } else {
     return line;

@@ -1,4 +1,3 @@
-import { yellow } from 'colorette';
 import {
   assignExisting,
   showErrorForDeprecatedField,
@@ -17,6 +16,7 @@ import type {
   ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
+import colorize from '../colorize';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -221,7 +221,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      process.stderr.write(`Duplicate plugin id "${yellow(p.id)}".\n`);
+      process.stderr.write(`Duplicate plugin id "${colorize.yellow(p.id)}".\n`);
     }
   }
   return results;

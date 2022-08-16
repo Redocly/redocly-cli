@@ -1,5 +1,4 @@
 import * as path from 'path';
-import { blue, red } from 'colorette';
 import { isAbsoluteUrl } from '../ref-utils';
 import { BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
@@ -21,8 +20,9 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
 } from './types';
-import { isNotString, isString, notUndefined, parseYaml } from '../utils';
+import { isBrowser, isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
+import colorize from '../colorize';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
@@ -71,6 +71,11 @@ export function resolvePlugins(
 ): Plugin[] {
   if (!plugins) return [];
 
+  if (isBrowser()) {
+    // TODO: show warning that plugins are not supported in browser
+    return plugins as Plugin[];
+  }
+
   // @ts-ignore
   const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
 
@@ -79,7 +84,7 @@ export function resolvePlugins(
   return plugins
     .map((p) => {
       if (isString(p) && isAbsoluteUrl(p)) {
-        throw new Error(red(`We don't support remote plugins yet.`));
+        throw new Error(colorize.red(`We don't support remote plugins yet.`));
       }
 
       // TODO: resolve npm packages similar to eslint
@@ -89,16 +94,18 @@ export function resolvePlugins(
 
       const id = pluginModule.id;
       if (typeof id !== 'string') {
-        throw new Error(red(`Plugin must define \`id\` property in ${blue(p.toString())}.`));
+        throw new Error(
+          colorize.red(`Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`)
+        );
       }
 
       if (seenPluginIds.has(id)) {
         const pluginPath = seenPluginIds.get(id)!;
         throw new Error(
-          red(
-            `Plugin "id" must be unique. Plugin ${blue(p.toString())} uses id "${blue(
-              id
-            )}" already seen in ${blue(pluginPath)}`
+          colorize.red(
+            `Plugin "id" must be unique. Plugin ${colorize.blue(
+              p.toString()
+            )} uses id "${colorize.blue(id)}" already seen in ${colorize.blue(pluginPath)}`
           )
         );
       }
@@ -284,17 +291,19 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedSt
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
-    throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
+    throw new Error(
+      `Invalid config ${colorize.red(presetName)}: plugin ${pluginId} is not included.`
+    );
   }
 
   const preset = plugin.configs?.[configName]! as ResolvedStyleguideConfig;
   if (!preset) {
     throw new Error(
       pluginId
-        ? `Invalid config ${red(
+        ? `Invalid config ${colorize.red(
             presetName
           )}: plugin ${pluginId} doesn't export config with name ${configName}.`
-        : `Invalid config ${red(presetName)}: there is no such built-in config.`
+        : `Invalid config ${colorize.red(presetName)}: there is no such built-in config.`
     );
   }
   return preset;
