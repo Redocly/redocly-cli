@@ -129,14 +129,14 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
     config.rawConfig?.styleguide?.extendPaths,
   ]
     .flat()
-    .filter(isTruthy)
+    .filter(isTruthy);
 
   const pluginPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
     config.rawConfig?.styleguide?.pluginPaths,
   ]
     .flat()
-    .filter(isTruthy)
+    .filter(isTruthy);
 
   return apiName
     ? new Config(

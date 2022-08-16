@@ -1,10 +1,14 @@
 import fetch, { RequestInit, HeadersInit } from 'node-fetch';
-import type { NotFoundProblemResponse, PrepareFileuploadOKResponse, PrepareFileuploadParams, PushApiParams } from './registry-api-types';
+import type {
+  NotFoundProblemResponse,
+  PrepareFileuploadOKResponse,
+  PrepareFileuploadParams,
+  PushApiParams,
+} from './registry-api-types';
 import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
-
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}

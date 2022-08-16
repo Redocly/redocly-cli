@@ -288,7 +288,7 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedSt
     throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
   }
 
-  const preset = plugin.configs?.[configName]
+  const preset = plugin.configs?.[configName];
   if (!preset) {
     throw new Error(
       pluginId

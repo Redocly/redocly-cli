@@ -218,8 +218,8 @@ export function showErrorForDeprecatedField(deprecatedField: string, updatedFiel
   throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
 }
 
-export type Falsy = undefined | null | false | "" | 0
+export type Falsy = undefined | null | false | '' | 0;
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
-  return !!value
+  return !!value;
 }

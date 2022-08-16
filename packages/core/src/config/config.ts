@@ -205,7 +205,7 @@ export class StyleguideConfig {
     const settings = this.preprocessors[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? ('error' ) : settings,
+        severity: settings === 'on' ? 'error' : settings,
       };
     } else {
       return { severity: 'error', ...settings };
@@ -218,7 +218,7 @@ export class StyleguideConfig {
     const settings = this.decorators[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? ('error') : settings,
+        severity: settings === 'on' ? 'error' : settings,
       };
     } else {
       return { severity: 'error', ...settings };
