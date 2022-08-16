@@ -99,6 +99,7 @@ export default async function startPreviewServer(
       }
     } else {
       let filePath =
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         {
           '/hot.js': path.join(__dirname, 'hot.js'),
@@ -142,7 +143,7 @@ export default async function startPreviewServer(
     console.timeEnd(colorette.dim(`GET ${request.url}`));
   };
 
-  let wsPort = await portfinder.getPortPromise({ port: 32201 });
+  const wsPort = await portfinder.getPortPromise({ port: 32201 });
 
   const server = startHttpServer(port, host, handler);
   server.on('listening', () => {

@@ -104,7 +104,7 @@ export function validateExample(
       allowAdditionalProperties
     );
     if (!valid) {
-      for (let error of errors) {
+      for (const error of errors) {
         report({
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {

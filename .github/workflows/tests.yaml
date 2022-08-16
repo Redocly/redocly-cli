@@ -102,3 +102,17 @@ jobs:
             npm-${{ hashFiles('package-lock.json') }}
             npm-
       - run: npm run prettier:check
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ hashFiles('package-lock.json') }}
+            npm-
+      - run: npm run eslint

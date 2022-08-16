@@ -1,4 +1,3 @@
-export namespace RegistryApiTypes {
   interface VersionParams {
     organizationId: string;
     name: string;
@@ -31,4 +30,3 @@ export namespace RegistryApiTypes {
     title: 'Not Found';
     code: 'ORGANIZATION_NOT_FOUND' | 'API_VERSION_NOT_FOUND';
   }
-}

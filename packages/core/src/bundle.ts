@@ -302,6 +302,8 @@ function makeBundleVisitor(
     if (!isPlainObject(resolved.node)) {
       ctx.parent[ctx.key] = resolved.node;
     } else {
+      // TODO: why $ref isn't optional in OasRef?
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       delete ref.$ref;
       Object.assign(ref, resolved.node);

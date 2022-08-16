@@ -71,6 +71,7 @@ export function resolvePlugins(
 ): Plugin[] {
   if (!plugins) return [];
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
 
@@ -166,7 +167,7 @@ export async function resolveApis({
   resolver?: BaseResolver;
 }): Promise<Record<string, ResolvedApi>> {
   const { apis = {}, styleguide: styleguideConfig = {} } = rawConfig;
-  let resolvedApis: Record<string, ResolvedApi> = {};
+  const resolvedApis: Record<string, ResolvedApi> = {};
   for (const [apiName, apiContent] of Object.entries(apis || {})) {
     if (apiContent.styleguide?.extends?.some(isNotString)) {
       throw new Error(
@@ -287,7 +288,7 @@ export function resolvePreset(presetName: string, plugins: Plugin[]): ResolvedSt
     throw new Error(`Invalid config ${red(presetName)}: plugin ${pluginId} is not included.`);
   }
 
-  const preset = plugin.configs?.[configName]! as ResolvedStyleguideConfig;
+  const preset = plugin.configs?.[configName]
   if (!preset) {
     throw new Error(
       pluginId

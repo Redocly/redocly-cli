@@ -1,10 +1,10 @@
 import fetch, { RequestInit, HeadersInit } from 'node-fetch';
-import { RegistryApiTypes } from './registry-api-types';
+import type { NotFoundProblemResponse, PrepareFileuploadOKResponse, PrepareFileuploadParams, PushApiParams } from './registry-api-types';
+import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
 
-import type { AccessTokens, Region } from '../config/types';
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
@@ -39,7 +39,7 @@ export class RegistryApi {
     }
 
     if (response.status === 404) {
-      const body: RegistryApiTypes.NotFoundProblemResponse = await response.json();
+      const body: NotFoundProblemResponse = await response.json();
       throw new Error(body.code);
     }
 
@@ -71,7 +71,7 @@ export class RegistryApi {
     filesHash,
     filename,
     isUpsert,
-  }: RegistryApiTypes.PrepareFileuploadParams): Promise<RegistryApiTypes.PrepareFileuploadOKResponse> {
+  }: PrepareFileuploadParams): Promise<PrepareFileuploadOKResponse> {
     const response = await this.request(
       `/${organizationId}/${name}/${version}/prepare-file-upload`,
       {
@@ -107,7 +107,7 @@ export class RegistryApi {
     isPublic,
     batchId,
     batchSize,
-  }: RegistryApiTypes.PushApiParams) {
+  }: PushApiParams) {
     const response = await this.request(
       `/${organizationId}/${name}/${version}`,
       {

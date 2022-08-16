@@ -32,6 +32,8 @@ import {
   OPENAPI3_COMPONENT_NAMES,
   Referenced,
 } from './types';
+import type { OasRef } from 'core/src/typings/openapi';
+import { isTruthy } from 'core/src/utils';
 
 export async function handleSplit(argv: { api: string; outDir: string; separator: string }) {
   const startedAt = performance.now();
@@ -267,11 +269,11 @@ function gatherComponentsFiles(
   componentName: string,
   filename: string
 ) {
-  let inherits = [];
+  let inherits: string[] = [];
   if (componentType === OPENAPI3_COMPONENT.Schemas) {
     inherits = ((components?.[componentType]?.[componentName] as Oas3Schema)?.allOf || [])
-      .map((s: any) => s.$ref)
-      .filter(Boolean);
+      .map((s) => s.$ref)
+      .filter(isTruthy);
   }
   componentsFiles[componentType] = componentsFiles[componentType] || {};
   componentsFiles[componentType][componentName] = { inherits, filename };
@@ -301,7 +303,7 @@ function iteratePathItems(
         continue;
       }
       for (const sample of methodDataXCode) {
-        if (sample.source && (sample.source as any).$ref) continue;
+        if (sample.source && (sample.source as unknown as OasRef).$ref) continue;
         const sampleFileName = path.join(
           openapiDir,
           'code_samples',
@@ -312,6 +314,7 @@ function iteratePathItems(
 
         fs.mkdirSync(path.dirname(sampleFileName), { recursive: true });
         fs.writeFileSync(sampleFileName, sample.source);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         sample.source = {
           $ref: slash(path.relative(outDir, sampleFileName)),
@@ -340,6 +343,7 @@ function iterateComponents(
     componentTypes.forEach(iterateAndGatherComponentsFiles);
     componentTypes.forEach(iterateComponentTypes);
 
+    // eslint-disable-next-line no-inner-declarations
     function iterateAndGatherComponentsFiles(componentType: Oas3ComponentName) {
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
@@ -348,6 +352,7 @@ function iterateComponents(
       }
     }
 
+    // eslint-disable-next-line no-inner-declarations
     function iterateComponentTypes(componentType: Oas3ComponentName) {
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
