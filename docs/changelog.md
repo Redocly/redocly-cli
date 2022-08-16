@@ -11,6 +11,11 @@ tocMaxDepth: 2
 
 - Add `allowAdditionalProperties` to built-in rules and mark `disallowAdditionalProperties` as deprecated
 
+### Fixes
+
+- Introduced severity level `off` for Assertions
+
+
 ## 1.0.0-beta.106 (2022-08-09)
 
 ### Fixes
