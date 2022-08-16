@@ -271,7 +271,7 @@ function gatherComponentsFiles(
   let inherits: string[] = [];
   if (componentType === OPENAPI3_COMPONENT.Schemas) {
     inherits = ((components?.[componentType]?.[componentName] as Oas3Schema)?.allOf || [])
-      .map((s) => s.$ref)
+      .map(({ $ref }) => $ref)
       .filter(isTruthy);
   }
   componentsFiles[componentType] = componentsFiles[componentType] || {};
