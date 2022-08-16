@@ -5,7 +5,7 @@ tocMaxDepth: 2
 # Redocly CLI changelog
 
 
-## 1.0.0-beta.107 (2022-08-15)
+## 1.0.0-beta.107 (2022-08-16)
 
 ### Changes
 
