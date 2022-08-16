@@ -28,6 +28,7 @@ import {
   exitWithError,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
+import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -333,7 +334,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const { paths } = openapi;
-
+    const operationsSet = new Set(keysOf(Oas3Operations));
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
         joinedDef['paths'] = {};
@@ -353,74 +354,163 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           continue; // TODO: what do we do with refs?
         }
 
-        // TODO: merge `parameters` and `servers`
-
-        for (const operation of keysOf(Oas3Operations)) {
-          const pathOperation = pathItem[operation];
-
-          if (!pathOperation) {
-            continue;
+        for (const field of Object.keys(pathItem) as Array<keyof Oas3PathItem>) {
+          if (operationsSet.has(field as Oas3Operations)) {
+            collectPathOperation(pathItem, path, field as Oas3Operations);
           }
-
-          joinedDef.paths[path][operation] = pathOperation;
-          potentialConflicts.paths[path][operation] = [
-            ...(potentialConflicts.paths[path][operation] || []),
-            api,
-          ];
-
-          const { operationId } = pathOperation;
-
-          if (operationId) {
-            if (!potentialConflicts.paths.hasOwnProperty('operationIds')) {
-              potentialConflicts.paths['operationIds'] = {};
-            }
-            potentialConflicts.paths.operationIds[operationId] = [
-              ...(potentialConflicts.paths.operationIds[operationId] || []),
-              api,
-            ];
+          if (field === 'servers') {
+            collectPathServers(pathItem, path);
           }
-
-          let { tags, security } = joinedDef.paths[path][operation];
-
-          if (tags) {
-            joinedDef.paths[path][operation].tags = tags.map((tag: string) =>
-              addPrefix(tag, tagsPrefix)
-            );
-            populateTags({
-              api,
-              apiFilename,
-              tags: formatTags(tags),
-              potentialConflicts,
-              tagsPrefix,
-              componentsPrefix,
-            });
-          } else {
-            joinedDef.paths[path][operation]['tags'] = [
-              addPrefix('other', tagsPrefix || apiFilename),
-            ];
-            populateTags({
-              api,
-              apiFilename,
-              tags: formatTags(['other']),
-              potentialConflicts,
-              tagsPrefix: tagsPrefix || apiFilename,
-              componentsPrefix,
-            });
+          if (field === 'parameters') {
+            collectPathParameters(pathItem, path);
           }
-          if (!security && openapi.hasOwnProperty('security')) {
-            joinedDef.paths[path][operation]['security'] = addSecurityPrefix(
-              openapi.security,
-              componentsPrefix!
-            );
-          } else if (pathOperation.security) {
-            joinedDef.paths[path][operation].security = addSecurityPrefix(
-              pathOperation.security,
-              componentsPrefix!
-            );
+          if (typeof pathItem[field] === 'string') {
+            collectPathStringFields(pathItem, path, field);
           }
         }
       }
     }
+
+    function collectPathStringFields(
+      pathItem: Oas3PathItem,
+      path: string | number,
+      field: keyof Oas3PathItem
+    ) {
+      const fieldValue = pathItem[field];
+      if (
+        joinedDef.paths[path].hasOwnProperty(field) &&
+        joinedDef.paths[path][field] !== fieldValue
+      ) {
+        process.stderr.write(yellow(`warning: different ${field} values in ${path}\n`));
+        return;
+      }
+      joinedDef.paths[path][field] = fieldValue;
+    }
+
+    function collectPathServers(pathItem: Oas3PathItem, path: string | number) {
+      if (!pathItem.servers) {
+        return;
+      }
+
+      if (!joinedDef.paths[path].hasOwnProperty('servers')) {
+        joinedDef.paths[path].servers = [];
+      }
+
+      for (const server of pathItem.servers) {
+        let isFoundServer = false;
+        for (const pathServer of joinedDef.paths[path].servers) {
+          if (pathServer.url === server.url) {
+            isFoundServer = true;
+            if (!isServersEqual(pathServer, server)) {
+              exitWithError(`Different server values for (${server.url}) in ${path}`);
+            }
+          }
+        }
+
+        if (!isFoundServer) {
+          joinedDef.paths[path].servers.push(server);
+        }
+      }
+    }
+
+    function collectPathParameters(pathItem: Oas3PathItem, path: string | number) {
+      if (!pathItem.parameters) {
+        return;
+      }
+      if (!joinedDef.paths[path].hasOwnProperty('parameters')) {
+        joinedDef.paths[path].parameters = [];
+      }
+
+      for (const parameter of pathItem.parameters as Oas3Parameter[]) {
+        let isFoundParameter = false;
+        for (const pathParameter of joinedDef.paths[path].parameters) {
+          if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
+            isFoundParameter = true;
+            if (!isEqual(pathParameter.schema, parameter.schema)) {
+              exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
+            }
+          }
+        }
+
+        if (!isFoundParameter) {
+          joinedDef.paths[path].parameters.push(parameter);
+        }
+      }
+    }
+
+    function collectPathOperation(
+      pathItem: Oas3PathItem,
+      path: string | number,
+      operation: Oas3Operations
+    ) {
+      const pathOperation = pathItem[operation];
+
+      if (!pathOperation) {
+        return;
+      }
+
+      joinedDef.paths[path][operation] = pathOperation;
+      potentialConflicts.paths[path][operation] = [
+        ...(potentialConflicts.paths[path][operation] || []),
+        api,
+      ];
+
+      const { operationId } = pathOperation;
+
+      if (operationId) {
+        if (!potentialConflicts.paths.hasOwnProperty('operationIds')) {
+          potentialConflicts.paths['operationIds'] = {};
+        }
+        potentialConflicts.paths.operationIds[operationId] = [
+          ...(potentialConflicts.paths.operationIds[operationId] || []),
+          api,
+        ];
+      }
+
+      let { tags, security } = joinedDef.paths[path][operation];
+
+      if (tags) {
+        joinedDef.paths[path][operation].tags = tags.map((tag: string) =>
+          addPrefix(tag, tagsPrefix)
+        );
+        populateTags({
+          api,
+          apiFilename,
+          tags: formatTags(tags),
+          potentialConflicts,
+          tagsPrefix,
+          componentsPrefix,
+        });
+      } else {
+        joinedDef.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix || apiFilename)];
+        populateTags({
+          api,
+          apiFilename,
+          tags: formatTags(['other']),
+          potentialConflicts,
+          tagsPrefix: tagsPrefix || apiFilename,
+          componentsPrefix,
+        });
+      }
+      if (!security && openapi.hasOwnProperty('security')) {
+        joinedDef.paths[path][operation]['security'] = addSecurityPrefix(
+          openapi.security,
+          componentsPrefix!
+        );
+      } else if (pathOperation.security) {
+        joinedDef.paths[path][operation].security = addSecurityPrefix(
+          pathOperation.security,
+          componentsPrefix!
+        );
+      }
+    }
+  }
+
+  function isServersEqual(serverOne: Oas3Server, serverTwo: Oas3Server) {
+    if (serverOne.description !== serverTwo.description) {
+      return false;
+    }
+    return isEqual(serverOne.variables, serverTwo.variables);
   }
 
   function collectComponents(
