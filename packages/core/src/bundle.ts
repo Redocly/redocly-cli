@@ -10,7 +10,7 @@ import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
-import { isPlainObject } from './utils';
+import { isPlainObject, isTruthy } from './utils';
 import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
@@ -350,7 +350,7 @@ function makeBundleVisitor(
 
     let name = '';
 
-    const refParts = pointer.slice(2).split('/').filter(Boolean); // slice(2) removes "#/"
+    const refParts = pointer.slice(2).split('/').filter(isTruthy); // slice(2) removes "#/"
     while (refParts.length > 0) {
       name = refParts.pop() + (name ? `-${name}` : '');
       if (

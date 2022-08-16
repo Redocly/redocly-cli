@@ -96,7 +96,7 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 export function splitCamelCaseIntoWords(str: string) {
   const camel = str
     .split(/(?:[-._])|([A-Z][a-z]+)/)
-    .filter(Boolean)
+    .filter(isTruthy)
     .map((item) => item.toLocaleLowerCase());
   const caps = str
     .split(/([A-Z]{2,})/)
@@ -218,7 +218,7 @@ export function showErrorForDeprecatedField(deprecatedField: string, updatedFiel
   throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
 }
 
-export type Falsy = | undefined | null | false | "" | 0
+export type Falsy = undefined | null | false | "" | 0
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
   return !!value

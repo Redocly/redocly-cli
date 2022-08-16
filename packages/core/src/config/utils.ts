@@ -1,6 +1,7 @@
 import { yellow } from 'colorette';
 import {
   assignExisting,
+  isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
 } from '../utils';
@@ -128,14 +129,14 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
     config.rawConfig?.styleguide?.extendPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy)
 
   const pluginPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
     config.rawConfig?.styleguide?.pluginPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy)
 
   return apiName
     ? new Config(
