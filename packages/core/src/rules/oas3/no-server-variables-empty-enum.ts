@@ -6,7 +6,7 @@ enum enumError {
   invalidDefaultValue = 'invalidDefaultValue',
 }
 
-export const NoEmptyEnumServers: Oas3Rule = () => {
+export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
   return {
     DefinitionRoot(root, { report, location }) {
       if (!root.servers || root.servers.length === 0) return;

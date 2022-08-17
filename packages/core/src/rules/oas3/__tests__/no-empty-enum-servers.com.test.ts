@@ -3,8 +3,8 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('Oas3 as3-no-servers-empty-enum', () => {
-  it('oas3-no-servers-empty-enum: should report on server object with empty enum and unknown enum value', async () => {
+describe('Oas3 as3-no-server-variables-empty-enum', () => {
+  it('oas3-no-server-variables-empty-enum: should report on server object with empty enum and unknown enum value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -24,7 +24,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -38,7 +38,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
             },
           ],
           "message": "Server variable with \`enum\` must be a non-empty array.",
-          "ruleId": "no-servers-empty-enum",
+          "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": Array [],
         },
@@ -51,7 +51,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
             },
           ],
           "message": "Server variable define \`enum\` and \`default\`. \`enum\` must include default value",
-          "ruleId": "no-servers-empty-enum",
+          "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": Array [],
         },
@@ -59,7 +59,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     `);
   });
 
-  it('oas3-no-servers-empty-enum: should report on server object with empty enum', async () => {
+  it('oas3-no-server-variables-empty-enum: should report on server object with empty enum', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -78,7 +78,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -92,7 +92,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
             },
           ],
           "message": "Server variable with \`enum\` must be a non-empty array.",
-          "ruleId": "no-servers-empty-enum",
+          "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
           "suggest": Array [],
         },
@@ -100,7 +100,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     `);
   });
 
-  it('oas3-no-servers-empty-enum: should be success because variables is empty object', async () => {
+  it('oas3-no-server-variables-empty-enum: should be success because variables is empty object', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -117,13 +117,13 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('oas3-no-servers-empty-enum: should be success because variable is empty object', async () => {
+  it('oas3-no-server-variables-empty-enum: should be success because variable is empty object', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -141,13 +141,13 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('oas3-no-servers-empty-enum: should be success because enum contains default value', async () => {
+  it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -168,13 +168,13 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('oas3-no-servers-empty-enum: should be success because enum contains default value', async () => {
+  it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -197,7 +197,7 @@ describe('Oas3 as3-no-servers-empty-enum', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'no-servers-empty-enum': 'error' }),
+      config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
