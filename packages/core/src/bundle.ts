@@ -304,7 +304,8 @@ function makeBundleVisitor(
     } else {
       // @ts-ignore
       delete ref.$ref;
-      Object.assign(ref, resolved.node);
+      const obj = Object.assign({}, resolved.node, ref);
+      Object.assign(ref, obj);
     }
   }
 
