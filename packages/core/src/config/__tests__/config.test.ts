@@ -1,3 +1,4 @@
+import { OasVersion } from '../../oas-types';
 import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 
@@ -240,5 +241,31 @@ describe('getMergedConfig', () => {
         },
       }
     `);
+  });
+});
+
+describe('StyleguideConfig', () => {
+  it('should call correct types in the extendTypes method', () => {
+    const oas3 = jest.fn();
+    const oas2 = jest.fn();
+    const testRawConfigStyleguide = {
+      plugins: [
+        {
+          id: 'test-types-plugin',
+          typeExtension: {
+            oas3,
+            oas2,
+          },
+        },
+      ],
+      recommendedFallback: false,
+    };
+    const styleguideConfig = new StyleguideConfig(
+      testRawConfigStyleguide,
+      './fixtures/type-extension/types-redocly.yaml'
+    );
+    styleguideConfig.extendTypes({}, OasVersion.Version3_0);
+    expect(oas3).toHaveBeenCalledTimes(1);
+    expect(oas2).toHaveBeenCalledTimes(0);
   });
 });
