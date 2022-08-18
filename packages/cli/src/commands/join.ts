@@ -463,7 +463,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         ];
       }
 
-      let { tags, security } = joinedDef.paths[path][operation];
+      const { tags, security } = joinedDef.paths[path][operation];
 
       if (tags) {
         joinedDef.paths[path][operation].tags = tags.map((tag: string) =>

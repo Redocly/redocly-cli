@@ -15,13 +15,13 @@ export type {
   Oas3Tag,
   Oas3_1Webhooks,
   Referenced,
-  Oas3Operations,
   OasRef,
 } from './typings/openapi';
 export type { Oas2Definition } from './typings/swagger';
 export type { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
+export { Oas3Operations } from './typings/openapi';
 
 export {
   Config,
