@@ -70,7 +70,7 @@ type NestedVisitObject<T, P> = VisitObject<T> & NestedVisitor<P>;
 
 type VisitFunctionOrObject<T> = VisitFunction<T> | VisitObject<T>;
 
-type VisitorNode<T extends any> = {
+type VisitorNode<T> = {
   ruleId: string;
   severity: ProblemSeverity;
   context: VisitorLevelContext | VisitorSkippedLevelContext;
@@ -309,7 +309,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
     const possibleChildren = new Set<NormalizedNodeType>();
 
-    for (let type of Object.values(from.properties)) {
+    for (const type of Object.values(from.properties)) {
       if (type === to) {
         addWeakFromStack(ruleConf, stack);
         continue;
@@ -333,7 +333,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
       }
     }
 
-    for (let fromType of Array.from(possibleChildren.values())) {
+    for (const fromType of Array.from(possibleChildren.values())) {
       addWeakNodes(ruleConf, fromType, to, parentContext, stack);
     }
 
@@ -350,7 +350,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
           visit: () => undefined,
           depth: 0,
           context: {
-            isSkippedLevel: true as true,
+            isSkippedLevel: true,
             seen: new Set(),
             parent: parentContext,
           },
@@ -407,7 +407,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
         activatedOn: null,
         type: types[typeName],
         parent: parentContext,
-        isSkippedLevel: false as false,
+        isSkippedLevel: false,
       };
 
       if (typeof typeVisitor === 'object') {

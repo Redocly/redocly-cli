@@ -185,7 +185,7 @@ export function formatProblems(
       totals,
       version,
       problems: problems.map((p) => {
-        let problem = {
+        const problem = {
           ...p,
           location: p.location.map((location: any) => ({
             ...location,
@@ -320,6 +320,7 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
 };
 
 function xmlEscape(s: string): string {
+  // eslint-disable-next-line no-control-regex
   return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
     switch (char) {
       case '<':

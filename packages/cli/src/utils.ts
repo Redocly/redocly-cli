@@ -177,7 +177,6 @@ export function handleError(e: Error, ref: string) {
     process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
     // TODO: codeframe
   } else {
-    // @ts-ignore
     if (e instanceof CircularJSONNotSupportedError) {
       process.stderr.write(
         red(`Detected circular reference which can't be converted to JSON.\n`) +

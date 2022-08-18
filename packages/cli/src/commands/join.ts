@@ -131,8 +131,8 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     }
   }
 
-  let joinedDef: any = {};
-  let potentialConflicts = {
+  const joinedDef: any = {};
+  const potentialConflicts = {
     tags: {},
     paths: {},
     components: {},
@@ -343,9 +343,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         if (!potentialConflicts.paths.hasOwnProperty(path)) {
           potentialConflicts.paths[path] = {};
         }
-        for (const operation of Object.keys(paths[path])) {
-          // @ts-ignore
-          const pathOperation = paths[path][operation];
+        for (const [operation, pathOperation] of Object.entries(paths[path])) {
           joinedDef.paths[path][operation] = pathOperation;
           potentialConflicts.paths[path][operation] = [
             ...(potentialConflicts.paths[path][operation] || []),
@@ -361,7 +359,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
               api,
             ];
           }
-          let { tags, security } = joinedDef.paths[path][operation];
+          const { tags, security } = joinedDef.paths[path][operation];
           if (tags) {
             joinedDef.paths[path][operation].tags = tags.map((tag: string) =>
               addPrefix(tag, tagsPrefix)
@@ -412,13 +410,11 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
       if (!joinedDef.hasOwnProperty(COMPONENTS)) {
         joinedDef[COMPONENTS] = {};
       }
-      for (const component of Object.keys(components)) {
+      for (const [component, componentObj] of Object.entries(components)) {
         if (!potentialConflicts[COMPONENTS].hasOwnProperty(component)) {
           potentialConflicts[COMPONENTS][component] = {};
           joinedDef[COMPONENTS][component] = {};
         }
-        // @ts-ignore
-        const componentObj = components[component];
         for (const item of Object.keys(componentObj)) {
           const componentPrefix = addPrefix(item, componentsPrefix!);
           potentialConflicts.components[component][componentPrefix] = [
@@ -436,7 +432,6 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const xWebhooks = 'x-webhooks';
-    // @ts-ignore
     const openapiXWebhooks = openapi[xWebhooks];
     if (openapiXWebhooks) {
       if (!joinedDef.hasOwnProperty(xWebhooks)) {
@@ -455,7 +450,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           ];
         }
         for (const operationKey of Object.keys(joinedDef[xWebhooks][webhook])) {
-          let { tags } = joinedDef[xWebhooks][webhook][operationKey];
+          const { tags } = joinedDef[xWebhooks][webhook][operationKey];
           if (tags) {
             joinedDef[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) =>
               addPrefix(tag, tagsPrefix)
@@ -498,7 +493,7 @@ function doesComponentsDiffer(curr: object, next: object) {
 function validateComponentsDifference(files: any) {
   let isDiffer = false;
   for (let i = 0, len = files.length; i < len; i++) {
-    let next = files[i + 1];
+    const next = files[i + 1];
     if (next && doesComponentsDiffer(files[i], next)) {
       isDiffer = true;
     }

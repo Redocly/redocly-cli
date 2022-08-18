@@ -23,7 +23,7 @@ export async function previewDocs(
     force?: boolean;
   } & Omit<Skips, 'skip-rule'>
 ) {
-  let isAuthorizedWithRedocly: boolean = false;
+  let isAuthorizedWithRedocly = false;
   let redocOptions: any = {};
   let config = await reloadConfig();
 
@@ -129,7 +129,7 @@ export async function previewDocs(
   });
 
   async function reloadConfig() {
-    let config = await loadConfig(argv.config);
+    const config = await loadConfig(argv.config);
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.api);
@@ -152,7 +152,9 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout | null;
 
   return function executedFunction(...args: any[]) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const context = this;
 
     const later = () => {
