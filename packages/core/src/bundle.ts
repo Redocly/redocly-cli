@@ -304,7 +304,8 @@ function makeBundleVisitor(
     } else {
       // @ts-ignore
       delete ref.$ref;
-      Object.assign(ref, resolved.node, ref); // assign ref itself again so ref fields take precedence
+      const obj = Object.assign({}, resolved.node, ref);
+      Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
     }
   }
 
