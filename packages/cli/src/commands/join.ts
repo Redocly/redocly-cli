@@ -348,11 +348,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
           potentialConflicts.paths[path] = {};
         }
 
-        const pathItem = paths[path];
-
-        if ('$ref' in pathItem) {
-          continue; // TODO: what do we do with refs?
-        }
+        const pathItem = paths[path] as Oas3PathItem;
 
         for (const field of Object.keys(pathItem) as Array<keyof Oas3PathItem>) {
           if (operationsSet.has(field as Oas3Operations)) {
