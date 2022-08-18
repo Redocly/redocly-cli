@@ -5,7 +5,7 @@ import { RegistryApi } from './registry-api';
 import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS, env } from '../config/config';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
-import colorize from '../colorize';
+import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
 

@@ -1,7 +1,7 @@
 import * as yamlAst from 'yaml-ast-parser';
 import { unescapePointer } from '../ref-utils';
 import { LineColLocationObject, Loc, LocationObject } from '../walk';
-import colorize, { options as colorOptions } from '../colorize';
+import { colorize, colorOptions } from '../logger';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
 type YAMLMap = yamlAst.YamlMap & { kind: yamlAst.Kind.MAP };

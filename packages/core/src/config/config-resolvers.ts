@@ -22,7 +22,7 @@ import type {
 } from './types';
 import { isBrowser, isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
-import colorize from '../colorize';
+import { colorize } from '../logger';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {

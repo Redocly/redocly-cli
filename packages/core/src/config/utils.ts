@@ -17,7 +17,7 @@ import type {
   ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
-import colorize from '../colorize';
+import { logger, colorize} from '../logger';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -222,7 +222,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      process.stderr.write(`Duplicate plugin id "${colorize.yellow(p.id)}".\n`);
+      logger.error(`Duplicate plugin id "${colorize.yellow(p.id)}".\n`);
     }
   }
   return results;
