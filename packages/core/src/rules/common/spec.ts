@@ -28,7 +28,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       const required =
         typeof type.required === 'function' ? type.required(node, key) : type.required;
 
-      for (let propName of required || []) {
+      for (const propName of required || []) {
         if (!(node as object).hasOwnProperty(propName)) {
           report({
             message: `The field \`${propName}\` must be present on this level.`,
@@ -57,7 +57,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       const requiredOneOf = type.requiredOneOf || null;
       if (requiredOneOf) {
         let hasProperty = false;
-        for (let propName of requiredOneOf || []) {
+        for (const propName of requiredOneOf || []) {
           if ((node as object).hasOwnProperty(propName)) {
             hasProperty = true;
           }

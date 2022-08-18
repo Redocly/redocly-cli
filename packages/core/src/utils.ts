@@ -96,7 +96,7 @@ export function omitObjectProps<T extends Record<string, unknown>>(
 export function splitCamelCaseIntoWords(str: string) {
   const camel = str
     .split(/(?:[-._])|([A-Z][a-z]+)/)
-    .filter(Boolean)
+    .filter(isTruthy)
     .map((item) => item.toLocaleLowerCase());
   const caps = str
     .split(/([A-Z]{2,})/)
@@ -183,7 +183,7 @@ export function isNotString<T>(value: string | T): value is T {
 }
 
 export function assignExisting<T>(target: Record<string, T>, obj: Record<string, T>) {
-  for (let k of Object.keys(obj)) {
+  for (const k of Object.keys(obj)) {
     if (target.hasOwnProperty(k)) {
       target[k] = obj[k];
     }
@@ -216,4 +216,10 @@ export function showWarningForDeprecatedField(deprecatedField: string, updatedFi
 
 export function showErrorForDeprecatedField(deprecatedField: string, updatedField: string) {
   throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
+}
+
+export type Falsy = undefined | null | false | '' | 0;
+
+export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
+  return !!value;
 }

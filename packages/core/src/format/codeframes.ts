@@ -36,8 +36,8 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
     if (skipLines > 0 && i >= endLineNum - skipLines) break;
     const line = lines[i - 1] || '';
     if (line !== '') currentPad = padSize(line);
-    let startIdx = i === startLineNum ? start.col - 1 : currentPad;
-    let endIdx = i === endLineNum ? end.col - 1 : line.length;
+    const startIdx = i === startLineNum ? start.col - 1 : currentPad;
+    const endIdx = i === endLineNum ? end.col - 1 : line.length;
 
     prefixedLines.push([`${i}`, markLine(line, startIdx, endIdx, red)]);
     if (!color) prefixedLines.push(['', underlineLine(line, startIdx, endIdx)]);
