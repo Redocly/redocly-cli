@@ -1,4 +1,5 @@
 // TODO: add a type for "types" https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/js-yaml/index.d.ts
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { JSON_SCHEMA, types, LoadOptions, DumpOptions, load, dump } from 'js-yaml';
 

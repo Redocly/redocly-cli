@@ -48,7 +48,7 @@ function checkEnumVariables(server: Oas3Server): enumError[] | undefined {
   if (server.variables && Object.keys(server.variables).length === 0) return;
 
   const errors: enumError[] = [];
-  for (var variable in server.variables) {
+  for (const variable in server.variables) {
     const serverVariable = server.variables[variable];
     if (!serverVariable.enum) continue;
 
