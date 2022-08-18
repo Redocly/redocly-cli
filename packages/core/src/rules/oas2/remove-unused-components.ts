@@ -4,7 +4,7 @@ import { Oas2Components } from '../../typings/swagger';
 import { isEmptyObject } from '../../utils';
 
 export const RemoveUnusedComponents: Oas2Rule = () => {
-  let components = new Map<
+  const components = new Map<
     string,
     { used: boolean; componentType?: keyof Oas2Components; name: string }
   >();
@@ -39,7 +39,7 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
         const data = ctx.getVisitorData() as { removedCount: number };
         data.removedCount = 0;
 
-        let rootComponents = new Set<keyof Oas2Components>();
+        const rootComponents = new Set<keyof Oas2Components>();
         components.forEach((usageInfo) => {
           const { used, name, componentType } = usageInfo;
           if (!used && componentType) {

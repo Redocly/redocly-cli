@@ -3,7 +3,7 @@ import { AssertToApply, buildSubjectVisitor, buildVisitorObject } from './utils'
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
-  let visitors: any[] = [];
+  const visitors: any[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here

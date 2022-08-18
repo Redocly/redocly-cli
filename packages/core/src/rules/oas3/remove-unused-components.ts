@@ -4,7 +4,7 @@ import { Oas3Components } from '../../typings/openapi';
 import { isEmptyObject } from '../../utils';
 
 export const RemoveUnusedComponents: Oas3Rule = () => {
-  let components = new Map<
+  const components = new Map<
     string,
     { used: boolean; componentType?: keyof Oas3Components; name: string }
   >();
@@ -45,12 +45,12 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
 
         components.forEach((usageInfo) => {
           const { used, componentType, name } = usageInfo;
-          if (!used && componentType) {
-            let componentChild = root.components![componentType];
+          if (!used && componentType && root.components) {
+            const componentChild = root.components[componentType];
             delete componentChild![name];
             data.removedCount++;
             if (isEmptyObject(componentChild)) {
-              delete root.components![componentType];
+              delete root.components[componentType];
             }
           }
         });

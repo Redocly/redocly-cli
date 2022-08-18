@@ -73,7 +73,7 @@ export function validateJsonSchema(
 
   function beatifyErrorMessage(error: ErrorObject) {
     let message = error.message;
-    let suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
+    const suggest = error.keyword === 'enum' ? error.params.allowedValues : undefined;
     if (suggest) {
       message += ` ${suggest.map((e: any) => `"${e}"`).join(', ')}`;
     }

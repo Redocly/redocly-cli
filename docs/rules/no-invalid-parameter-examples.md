@@ -36,17 +36,17 @@ Solve it before you ship it.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn`. |
-|disallowAdditionalProperties|boolean|Determines if additional properties are allowed in examples. Default `true`. |
+|Option|Type| Description                                                                   |
+|---|---|-------------------------------------------------------------------------------|
+|severity|string| Possible values: `off`, `warn`, `error`. Default `warn`.                      |
+|allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
 
 ```yaml
 styleguide:
   rules:
     no-invalid-parameter-examples:
       severity: error
-      disallowAdditionalProperties: true
+      allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -58,7 +58,7 @@ styleguide:
   rules:
     no-invalid-parameter-examples:
       severity: error
-      disallowAdditionalProperties: true
+      allowAdditionalProperties: false
 ```
 
 Example of **incorrect** parameter example:

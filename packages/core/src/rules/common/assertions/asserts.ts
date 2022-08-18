@@ -46,7 +46,7 @@ export const asserts: Asserts = {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
     const regx = regexFromString(condition);
-    for (let _val of values) {
+    for (const _val of values) {
       if (!regx?.test(_val)) {
         return { isValid: false, location: runOnValue(value) ? baseLocation : baseLocation.key() };
       }
@@ -56,7 +56,7 @@ export const asserts: Asserts = {
   enum: (value: string | string[], condition: string[], baseLocation: Location) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
-    for (let _val of values) {
+    for (const _val of values) {
       if (!condition.includes(_val)) {
         return {
           isValid: false,
@@ -81,7 +81,7 @@ export const asserts: Asserts = {
   disallowed: (value: string | string[], condition: string[], baseLocation: Location) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
-    for (let _val of values) {
+    for (const _val of values) {
       if (condition.includes(_val)) {
         return {
           isValid: false,
@@ -114,7 +114,7 @@ export const asserts: Asserts = {
   casing: (value: string | string[], condition: string, baseLocation: Location) => {
     if (typeof value === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
     const values: string[] = runOnValue(value) ? [value] : value;
-    for (let _val of values) {
+    for (const _val of values) {
       let matchCase = false;
       switch (condition) {
         case 'camelCase':

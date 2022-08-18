@@ -119,7 +119,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
       let uploaded = 0;
 
-      for (let file of filesToUpload.files) {
+      for (const file of filesToUpload.files) {
         const { signedUploadUrl, filePath } = await client.registryApi.prepareFileUpload({
           organizationId,
           name,
@@ -206,7 +206,7 @@ function getFilesList(dir: string, files?: any): string[] {
 }
 
 async function collectFilesToUpload(api: string, config: Config) {
-  let files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
+  const files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const [{ path: apiPath }] = await getFallbackApisOrExit([api], config);
 
   process.stdout.write('Bundling definition\n');
@@ -246,7 +246,7 @@ async function collectFilesToUpload(api: string, config: Config) {
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
-    let pluginFiles = new Set<string>();
+    const pluginFiles = new Set<string>();
     for (const plugin of config.styleguide.pluginPaths) {
       if (typeof plugin !== 'string') continue;
       const fileList = getFilesList(getFolder(plugin), []);
@@ -282,7 +282,7 @@ function getFolder(filePath: string) {
 }
 
 function hashFiles(filePaths: { filePath: string }[]) {
-  let sum = createHash('sha256');
+  const sum = createHash('sha256');
   filePaths.forEach((file) => sum.update(fs.readFileSync(file.filePath)));
   return sum.digest('hex');
 }
@@ -318,7 +318,7 @@ type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
 export const transformPush =
   (callback: typeof handlePush) =>
   ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs) => {
-    if (!!maybeBranchName) {
+    if (maybeBranchName) {
       process.stderr.write(
         yellow(
           'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.'
@@ -353,7 +353,7 @@ function uploadFileToS3(url: string, filePathOrBuffer: string | Buffer) {
     typeof filePathOrBuffer === 'string'
       ? fs.statSync(filePathOrBuffer).size
       : filePathOrBuffer.byteLength;
-  let readStream =
+  const readStream =
     typeof filePathOrBuffer === 'string' ? fs.createReadStream(filePathOrBuffer) : filePathOrBuffer;
 
   return fetch(url, {

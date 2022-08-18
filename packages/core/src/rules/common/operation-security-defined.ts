@@ -5,7 +5,7 @@ import { Oas2SecurityScheme } from '../../typings/swagger';
 import { Oas3SecurityScheme } from '../../typings/openapi';
 
 export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
-  let referencedSchemes = new Map<
+  const referencedSchemes = new Map<
     string,
     {
       defined?: boolean;
