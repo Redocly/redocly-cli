@@ -37,7 +37,7 @@ import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
-import { NoEmptyEnumServers } from './no-servers-empty-enum';
+import { NoServerVariablesEmptyEnum } from './no-server-variables-empty-enum';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
@@ -89,7 +89,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers,
+  'no-server-variables-empty-enum': NoServerVariablesEmptyEnum,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths,
   'path-excludes-patterns': PathExcludesPatterns,
   'request-mime-type': RequestMimeType,
