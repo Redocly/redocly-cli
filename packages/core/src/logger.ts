@@ -15,25 +15,25 @@ export const colorize = new Proxy(colorette, {
   },
 });
 
-type StdArgs = [string, (err?: Error) => void];
+type StdArgs = [string | Uint8Array];
 
-function stderr(...args: any[]) {
-  process.stderr.write(...(args as StdArgs));
+function stderr(...args: StdArgs) {
+  process.stderr.write(...args);
 }
 
-function stdout(...args: any[]) {
-  process.stdout.write(...(args as StdArgs));
+function stdout(...args: StdArgs) {
+  process.stdout.write(...args);
 }
 class Logger {
-  info(...args: any[]) {
+  info(...args: StdArgs) {
     return isBrowser() ? console.log(...args) : stdout(...args);
   }
 
-  warn(...args: any[]) {
+  warn(...args: StdArgs) {
     return isBrowser() ? console.warn(...args) : stderr(...args);
   }
 
-  error(...args: any[]) {
+  error(...args: StdArgs) {
     return isBrowser() ? console.error(...args) : stderr(...args);
   }
 }
