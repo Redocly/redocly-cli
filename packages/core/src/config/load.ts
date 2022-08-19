@@ -19,7 +19,7 @@ async function addConfigMetadata({
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
-  tokens?: RegionalTokenWithValidity[]
+  tokens?: RegionalTokenWithValidity[];
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
@@ -111,16 +111,19 @@ export async function getConfig(configPath: string | undefined = findConfig()): 
 
 interface CreateConfigOptions {
   extends?: string[];
-  tokens?: RegionalTokenWithValidity[],
+  tokens?: RegionalTokenWithValidity[];
 }
 
-export async function createConfig (config: string | RawConfig, options?: CreateConfigOptions): Promise<Config> {
+export async function createConfig(
+  config: string | RawConfig,
+  options?: CreateConfigOptions
+): Promise<Config> {
   if (typeof config === 'string') {
     config = parseYaml(config) as RawConfig;
   }
 
   return addConfigMetadata({
     rawConfig: transformConfig(config),
-    ...options
+    ...options,
   });
 }
