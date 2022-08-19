@@ -4,7 +4,7 @@ import { logger, colorize } from '../logger';
 describe('Logger in nodejs', () => {
   it('should call "process.stderr.write" for error severity', () => {
     const spyingStderr = jest.spyOn(process.stderr, 'write').mockImplementation();
-    
+
     logger.error('error');
 
     expect(spyingStderr).toBeCalledTimes(1);
@@ -20,7 +20,7 @@ describe('Logger in nodejs', () => {
 
     expect(spyingStderr).toBeCalledTimes(1);
     expect(spyingStderr).toBeCalledWith('warn');
-    
+
     spyingStderr.mockRestore();
   });
 

@@ -19,12 +19,12 @@ describe('Logger in Browser', () => {
 
   it('should call "console.log"', () => {
     const log = jest.spyOn(console, 'log').mockImplementation();
-    
+
     logger.info('info');
 
     expect(log).toBeCalledTimes(1);
     expect(log).toBeCalledWith('info');
-    
+
     log.mockRestore();
   });
 
