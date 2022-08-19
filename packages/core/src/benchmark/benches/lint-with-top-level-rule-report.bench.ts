@@ -15,7 +15,6 @@ const rebillyDocument = parseYamlToDocument(
 const config = makeConfigForRuleset({
   test: () => {
     return {
-      // @ts-ignore
       Schema(schema, ctx) {
         if (schema.type === 'number') {
           ctx.report({

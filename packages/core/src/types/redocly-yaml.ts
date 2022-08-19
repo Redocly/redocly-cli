@@ -40,7 +40,7 @@ const builtInRulesList = [
   'no-identical-paths',
   'no-ambiguous-paths',
   'no-undefined-server-variable',
-  'no-servers-empty-enum',
+  'no-server-variables-empty-enum',
   'no-http-verbs-in-paths',
   'path-excludes-patterns',
   'request-mime-type',

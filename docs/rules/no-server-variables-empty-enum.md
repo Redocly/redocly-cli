@@ -1,4 +1,8 @@
-# no-empty-enum-servers
+---
+redirectFrom:
+  - /docs/cli/rules/no-empty-enum-servers/
+---
+# no-server-variables-empty-enum
 
 Disallow server variables without enum list defined.
 
@@ -36,7 +40,7 @@ An example configuration:
 ```yaml
 styleguide:
   rules:
-    no-empty-enum-servers: error
+    no-server-variables-empty-enum: error
 ```
 
 ## Examples
@@ -46,7 +50,7 @@ Given this configuration:
 ```yaml
 styleguide:
   rules:
-    no-empty-enum-servers: error
+    no-server-variables-empty-enum: error
 ```
 
 Example of **incorrect** server variables:
@@ -80,10 +84,10 @@ servers:
 ## Related rules
 
 - [no-empty-servers](./no-empty-servers.md)
-- [no-server-example-com](./no-server-example-com.md)
+- [no-server-example.com](./no-server-example-com.md)
 - [no-undefined-server-variable](./no-undefined-server-variable.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-servers-empty-enum.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-server-variables-empty-enum.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)

@@ -84,7 +84,7 @@ export async function handleLint(argv: LintOptions, version: string) {
       totals.ignored += fileTotals.ignored;
 
       if (argv['generate-ignore-file']) {
-        for (let m of results) {
+        for (const m of results) {
           config.styleguide.addIgnore(m);
           totalIgnored++;
         }

@@ -1,6 +1,7 @@
 import { yellow } from 'colorette';
 import {
   assignExisting,
+  isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
 } from '../utils';
@@ -83,7 +84,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     extendPaths: [],
   };
 
-  for (let rulesConf of rulesConfList) {
+  for (const rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
         `'extends' is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
@@ -128,14 +129,14 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
     config.rawConfig?.styleguide?.extendPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
   const pluginPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
     config.rawConfig?.styleguide?.pluginPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
   return apiName
     ? new Config(

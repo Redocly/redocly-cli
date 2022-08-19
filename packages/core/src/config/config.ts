@@ -172,9 +172,11 @@ export class StyleguideConfig {
           case OasVersion.Version3_1:
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
+            break;
           case OasVersion.Version2:
             if (!plugin.typeExtension.oas2) continue;
             extendedTypes = plugin.typeExtension.oas2(extendedTypes, version);
+            break;
           default:
             throw new Error('Not implemented');
         }
@@ -192,7 +194,7 @@ export class StyleguideConfig {
         severity: settings,
       };
     } else {
-      return { severity: 'error' as 'error', ...settings };
+      return { severity: 'error', ...settings };
     }
   }
 
@@ -203,10 +205,10 @@ export class StyleguideConfig {
     const settings = this.preprocessors[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? ('error' as 'error') : settings,
+        severity: settings === 'on' ? 'error' : settings,
       };
     } else {
-      return { severity: 'error' as 'error', ...settings };
+      return { severity: 'error', ...settings };
     }
   }
 
@@ -216,10 +218,10 @@ export class StyleguideConfig {
     const settings = this.decorators[oasVersion][ruleId] || 'off';
     if (typeof settings === 'string') {
       return {
-        severity: settings === 'on' ? ('error' as 'error') : settings,
+        severity: settings === 'on' ? 'error' : settings,
       };
     } else {
-      return { severity: 'error' as 'error', ...settings };
+      return { severity: 'error', ...settings };
     }
   }
 
@@ -250,12 +252,14 @@ export class StyleguideConfig {
   getRulesForOasVersion(version: OasMajorVersion) {
     switch (version) {
       case OasMajorVersion.Version3:
+        // eslint-disable-next-line no-case-declarations
         const oas3Rules: Oas3RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         this.plugins.forEach((p) => p.decorators?.oas3 && oas3Rules.push(p.decorators.oas3));
         return oas3Rules;
       case OasMajorVersion.Version2:
+        // eslint-disable-next-line no-case-declarations
         const oas2Rules: Oas2RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.preprocessors?.oas2 && oas2Rules.push(p.preprocessors.oas2));
         this.plugins.forEach((p) => p.rules?.oas2 && oas2Rules.push(p.rules.oas2));

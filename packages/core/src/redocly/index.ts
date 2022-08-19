@@ -152,7 +152,7 @@ export class RedoclyClient {
 
     const credentials = {
       ...this.readCredentialsFile(credentialsPath),
-      [this.region!]: accessToken,
+      [this.region]: accessToken,
       token: accessToken, // FIXME: backward compatibility, remove on 1.0.0
     };
     this.accessTokens = credentials;

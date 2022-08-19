@@ -1,3 +1,4 @@
+import { OasVersion } from '../../oas-types';
 import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 
@@ -240,5 +241,39 @@ describe('getMergedConfig', () => {
         },
       }
     `);
+  });
+});
+
+describe('StyleguideConfig.extendTypes', () => {
+  let oas3 = jest.fn();
+  let oas2 = jest.fn();
+  let testRawConfigStyleguide = {
+    plugins: [
+      {
+        id: 'test-types-plugin',
+        typeExtension: {
+          oas3,
+          oas2,
+        },
+      },
+    ],
+  };
+  it('should call only oas3 types extension', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    styleguideConfig.extendTypes({}, OasVersion.Version3_0);
+    expect(oas3).toHaveBeenCalledTimes(1);
+    expect(oas2).toHaveBeenCalledTimes(0);
+  });
+  it('should call only oas2 types extension', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    styleguideConfig.extendTypes({}, OasVersion.Version2);
+    expect(oas3).toHaveBeenCalledTimes(0);
+    expect(oas2).toHaveBeenCalledTimes(1);
+  });
+  it('should throw error if for oas version different from 2 and 3', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    expect(() => styleguideConfig.extendTypes({}, 'something else' as OasVersion)).toThrowError(
+      'Not implemented'
+    );
   });
 });

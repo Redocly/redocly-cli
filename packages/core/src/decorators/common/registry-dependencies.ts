@@ -4,7 +4,7 @@ import { isRedoclyRegistryURL } from '../../redocly';
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
 export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
-  let registryDependencies = new Set<string>();
+  const registryDependencies = new Set<string>();
 
   return {
     DefinitionRoot: {
