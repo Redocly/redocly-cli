@@ -51,6 +51,7 @@ const builtInRulesList = [
   'response-contains-header',
   'response-contains-property',
   'scalar-property-missing-example',
+  'spec-example-field-name',
 ];
 const nodeTypesList = [
   'DefinitionRoot',
