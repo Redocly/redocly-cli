@@ -8,6 +8,7 @@ const builtInRulesList = [
   'info-license-url',
   'operation-2xx-response',
   'operation-4xx-response',
+  'operation-4xx-problem-details-rfc7807',
   'assertions',
   'operation-operationId-unique',
   'operation-parameters-unique',

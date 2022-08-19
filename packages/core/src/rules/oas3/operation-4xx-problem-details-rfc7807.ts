@@ -1,4 +1,4 @@
-import { Oas3Parameter, Oas3Response, Oas3Schema } from 'core/src/typings/openapi';
+import { Oas3Response, Oas3Schema } from 'core/src/typings/openapi';
 import { Oas3Rule } from '../../visitors';
 import { UserContext } from '../../walk';
 import { validateDefinedAndNonEmpty } from '../utils';
@@ -10,7 +10,7 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
   return {
     ResponsesMap(responses: Record<string, object>, { report, location }: UserContext) {
       const codes = Object.keys(responses);
-      for (let code of codes) {
+      for (const code of codes) {
         if (!/4[Xx0-9]{2}/.test(code)) continue;
         const response = responses[code] as Oas3Response;
         if (!response.content || !response.content['application/problem+json']) {
