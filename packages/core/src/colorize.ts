@@ -2,7 +2,7 @@ import * as colorette from 'colorette';
 
 import { isBrowser } from './utils';
 
-const identity = (string: string): string => string;
+const identity = <T>(value: T): T => value;
 
 export default new Proxy(colorette, {
   get(target: typeof colorette, prop: string): typeof identity {
