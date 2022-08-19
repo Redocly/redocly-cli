@@ -118,12 +118,10 @@ export async function createConfig(
   config: string | RawConfig,
   options?: CreateConfigOptions
 ): Promise<Config> {
-  if (typeof config === 'string') {
-    config = parseYaml(config) as RawConfig;
-  }
-
   return addConfigMetadata({
-    rawConfig: transformConfig(config),
+    rawConfig: transformConfig(
+      typeof config === 'string' ? (parseYaml(config) as RawConfig) : config
+    ),
     ...options,
   });
 }
