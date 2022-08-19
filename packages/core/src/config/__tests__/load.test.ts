@@ -115,7 +115,7 @@ describe('createConfig', () => {
         rules: {
           'info-license': 'off',
           'tag-description': 'off',
-          'operation-2xx-response': 'off'
+          'operation-2xx-response': 'off',
         },
       },
     };
