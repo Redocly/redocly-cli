@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2019';
+import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv';
 import { Location, escapePointer } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
