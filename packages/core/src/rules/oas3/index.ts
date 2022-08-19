@@ -48,6 +48,7 @@ import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examp
 import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
+import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 
 export const rules = {
   spec: OasSpec,
@@ -57,6 +58,7 @@ export const rules = {
   'info-license-url': InfoLicenseUrl,
   'operation-2xx-response': Operation2xxResponse,
   'operation-4xx-response': Operation4xxResponse,
+  'operation-4xx-problem-details-rfc7807': Operation4xxProblemDetailsRfc7807,
   assertions: Assertions,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,

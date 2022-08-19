@@ -40,6 +40,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
+import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -57,6 +58,7 @@ export const rules = {
   'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
   'operation-2xx-response': Operation2xxResponse as Oas2Rule,
   'operation-4xx-response': Operation4xxResponse as Oas2Rule,
+  'operation-4xx-problem-details-rfc7807': Operation4xxProblemDetailsRfc7807,
   assertions: Assertions as Oas2Rule,
   'operation-operationId-unique': OperationIdUnique as Oas2Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
