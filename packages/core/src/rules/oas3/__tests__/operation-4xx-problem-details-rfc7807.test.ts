@@ -44,7 +44,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Response \`4xx\` must have content type \`application/problem+json\`.",
+          "message": "Response \`4xx\` must have content-type \`application/problem+json\`.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": Array [],
