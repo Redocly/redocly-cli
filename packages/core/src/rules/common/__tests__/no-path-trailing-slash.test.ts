@@ -13,7 +13,7 @@ describe('no-path-trailing-slash', () => {
             get:
               summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -50,7 +50,7 @@ describe('no-path-trailing-slash', () => {
             get:
               summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -71,7 +71,7 @@ describe('no-path-trailing-slash', () => {
             get:
               summary: List all pets
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

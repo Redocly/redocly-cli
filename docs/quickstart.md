@@ -113,7 +113,7 @@ You got this response because `lint` uses rules to ensure that your file conform
 
 **Why you got an error**
 
-Because you changed a property that is strictly defined in the OpenAPI Specification. The linter's built-in [`spec`](./resources/built-in-rules.md#spec) rule will throw an error whenever it finds something that is not defined in the specification. That error in detail:
+Because you changed a property that is strictly defined in the OpenAPI Specification. The linter's built-in [`spec`](./rules/spec.md) rule will throw an error whenever it finds something that is not defined in the specification. That error in detail:
 
 * [1] bundled.yaml:40:7 (the error is somewhere on line 40 near the 7th character).
 * Property `operationIdentifier` is not expected here.
@@ -121,7 +121,7 @@ Because you changed a property that is strictly defined in the OpenAPI Specifica
 
 **Why you received a warning**
 
-The warning results from the error. When you changed the `operationId` property, you also changed the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) which is a non-negotiable object within the OpenAPI Specification. Since `operationId` is no longer there, the matching built-in rule ([operation-operationId](./resources/built-in-rules.md#operation-operationid)) triggered a warning. That warning in detail:
+The warning results from the error. When you changed the `operationId` property, you also changed the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) which is a non-negotiable object within the OpenAPI Specification. Since `operationId` is no longer there, the matching built-in rule ([operation-operationId](./rules/operation-operationId.md)) triggered a warning. That warning in detail:
 
 * [2] bundled.yaml:33:5 (the issue is somewhere on line 33 near the 5th character).
 * Operation object should contain `operationId` field (there should be a particular field here).

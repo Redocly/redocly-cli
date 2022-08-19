@@ -13,7 +13,7 @@ describe('Oas3 tag-description', () => {
             - name: secondTag
               description: some description goes here
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -51,7 +51,7 @@ describe('Oas3 tag-description', () => {
             - name: secondTag
               description: some description goes here
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

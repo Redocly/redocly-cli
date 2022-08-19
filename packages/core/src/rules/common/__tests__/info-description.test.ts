@@ -11,7 +11,7 @@ describe('Oas3 info-description', () => {
           info:
             version: '1.0'
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -49,7 +49,7 @@ describe('Oas3 info-description', () => {
             version: '1.0'
             description: ''
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -86,7 +86,7 @@ describe('Oas3 info-description', () => {
           info:
             description: test description
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

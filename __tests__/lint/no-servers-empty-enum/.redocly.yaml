@@ -1,8 +1,0 @@
-apis:
-  main:
-    root: ./openapi.yaml
-
-lint:
-  rules:
-    no-servers-empty-enum: error
-  extends: []

@@ -40,7 +40,7 @@ const builtInRulesList = [
   'no-identical-paths',
   'no-ambiguous-paths',
   'no-undefined-server-variable',
-  'no-servers-empty-enum',
+  'no-server-variables-empty-enum',
   'no-http-verbs-in-paths',
   'path-excludes-patterns',
   'request-mime-type',
@@ -110,7 +110,8 @@ const ConfigRoot: NodeType = {
       properties: {},
       additionalProperties: { properties: { type: 'string' } },
     }, // deprecated
-    lint: 'RootConfigLint',
+    styleguide: 'RootConfigStyleguide',
+    lint: 'RootConfigStyleguide', // deprecated
     'features.openapi': 'ConfigReferenceDocs',
     referenceDocs: 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer',
@@ -137,7 +138,7 @@ const ConfigApisProperties: NodeType = {
         type: 'string',
       },
     },
-    lint: 'ConfigLint',
+    styleguide: 'ConfigStyleguide',
     'features.openapi': 'ConfigReferenceDocs',
     'features.mockServer': 'ConfigMockServer',
   },
@@ -155,7 +156,7 @@ const ConfigHTTP: NodeType = {
   },
 };
 
-const ConfigLint: NodeType = {
+const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
       type: 'array',
@@ -179,13 +180,13 @@ const ConfigLint: NodeType = {
   },
 };
 
-const RootConfigLint: NodeType = {
+const RootConfigStyleguide: NodeType = {
   properties: {
     plugins: {
       type: 'array',
       items: { type: 'string' },
     },
-    ...ConfigLint.properties,
+    ...ConfigStyleguide.properties,
   },
 };
 
@@ -877,8 +878,8 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigRoot,
   ConfigApis,
   ConfigApisProperties,
-  RootConfigLint,
-  ConfigLint,
+  RootConfigStyleguide,
+  ConfigStyleguide,
   ConfigReferenceDocs,
   ConfigMockServer,
   ConfigHTTP,

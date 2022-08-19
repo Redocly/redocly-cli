@@ -156,7 +156,7 @@ export interface Oas3Schema {
 export type Oas3_1Schema = Oas3Schema & {
   type?: string | string[];
   examples?: any[];
-}
+};
 
 export interface Oas3_1Definition extends Oas3Definition {
   webhooks?: Oas3_1Webhooks;

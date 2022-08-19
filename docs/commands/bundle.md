@@ -15,10 +15,10 @@ To learn more about preprocessors, rules, and decorators, refer to the [custom r
 ## Usage
 
 ```bash
-redocly bundle <entrypoints>...
-redocly bundle <entrypoints> [--max-problems=<n>]
-redocly bundle <entrypoints> [--lint] [--config=<path>]
-redocly bundle <entrypoints>... -o <outputName> --ext <ext>
+redocly bundle <apis>...
+redocly bundle <apis> [--max-problems=<n>]
+redocly bundle <apis> [--lint] [--config=<path>]
+redocly bundle <apis>... -o <outputName> --ext <ext>
 redocly bundle --version
 ```
 
@@ -26,7 +26,7 @@ redocly bundle --version
 
 Option | Type | Description
 -- | -- | --
-entrypoints | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.
+apis | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.
 --config | string | Specify path to the [config file](#custom-configuration-file).
 --dereferenced, -d | boolean | Generate fully dereferenced bundle.
 --ext | string | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.
@@ -58,7 +58,7 @@ redocly bundle openapi/openapi.yaml --output dist/openapi.json
 
 ### Bundle multiple API definitions
 
-This command creates one bundled file for each of the specified entrypoints in the `dist/` folder. Bundled files are in JSON format.
+This command creates one bundled file for each of the specified apis in the `dist/` folder. Bundled files are in JSON format.
 
 ```bash Command
 redocly bundle --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml

@@ -18,7 +18,7 @@ describe('collect refs', () => {
             contact: {}
             license: {}
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const resolvedRefs = await resolveDocument({
@@ -35,7 +35,7 @@ describe('collect refs', () => {
       Array [
         "foobar.yaml::#/defs/info",
       ]
-    `,
+    `
     );
     expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([
       { contact: {}, license: {} },
@@ -56,7 +56,7 @@ describe('collect refs', () => {
             contact: {}
             license: {}
       `,
-      '',
+      ''
     );
 
     try {
@@ -89,7 +89,7 @@ describe('collect refs', () => {
             contact: {}
             license: {}
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const resolvedRefs = await resolveDocument({
@@ -125,7 +125,7 @@ describe('collect refs', () => {
         loop2:
           $ref: '#/info'
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     try {
@@ -147,7 +147,7 @@ describe('collect refs', () => {
         info:
           $ref: "./externalInfo.yaml#/info"
       `,
-      path.join(cwd, 'foobar.yaml'),
+      path.join(cwd, 'foobar.yaml')
     );
 
     const resolvedRefs = await resolveDocument({
@@ -181,7 +181,7 @@ describe('collect refs', () => {
     const externalRefResolver = new BaseResolver();
     const rootDocument = await externalRefResolver.resolveDocument(
       null,
-      `${cwd}/openapi-with-back.yaml`,
+      `${cwd}/openapi-with-back.yaml`
     );
 
     const resolvedRefs = await resolveDocument({
@@ -192,8 +192,11 @@ describe('collect refs', () => {
 
     expect(resolvedRefs).toBeDefined();
 
-    expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)).sort())
-      .toMatchInlineSnapshot(`
+    expect(
+      Array.from(resolvedRefs.keys())
+        .map((ref) => ref.substring(cwd.length + 1))
+        .sort()
+    ).toMatchInlineSnapshot(`
       Array [
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
@@ -345,7 +348,7 @@ describe('collect refs', () => {
     const externalRefResolver = new BaseResolver();
     const rootDocument = await externalRefResolver.resolveDocument(
       null,
-      `${cwd}/openapi-with-md-description.yaml`,
+      `${cwd}/openapi-with-md-description.yaml`
     );
 
     expect(rootDocument).toBeDefined();
@@ -383,7 +386,7 @@ describe('collect refs', () => {
         components:
           $ref: "./transitive/components.yaml#/components/schemas/a"
       `,
-      path.join(cwd, 'foobar.yaml'),
+      path.join(cwd, 'foobar.yaml')
     );
 
     const resolvedRefs = await resolveDocument({

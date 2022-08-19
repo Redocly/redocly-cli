@@ -2,7 +2,7 @@ import outdent from 'outdent';
 import { parseYamlToDocument } from '../../__tests__/utils';
 import { parseRef, refBaseName } from '../ref-utils';
 import { lintDocument } from '../lint';
-import { LintConfig } from '../config';
+import { StyleguideConfig } from '../config';
 import { BaseResolver } from '../resolve';
 
 describe('ref-utils', () => {
@@ -84,37 +84,37 @@ describe('ref-utils', () => {
                 name:
                   type: string
       `,
-      '',
+      ''
     );
 
     const result = await lintDocument({
       document,
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new StyleguideConfig({}),
     });
 
     expect(result).toMatchInlineSnapshot(`Array []`);
   });
 
   describe('refBaseName', () => {
-    it("returns base name for file reference", () => {
-      expect(refBaseName("../testcase/Pet.yaml")).toStrictEqual("Pet");
+    it('returns base name for file reference', () => {
+      expect(refBaseName('../testcase/Pet.yaml')).toStrictEqual('Pet');
     });
 
-    it("returns base name for local file reference", () => {
-      expect(refBaseName("Cat.json")).toStrictEqual("Cat");
+    it('returns base name for local file reference', () => {
+      expect(refBaseName('Cat.json')).toStrictEqual('Cat');
     });
 
-    it("returns base name for url reference", () => {
-      expect(refBaseName("http://example.com/tests/crocodile.json")).toStrictEqual("crocodile");
+    it('returns base name for url reference', () => {
+      expect(refBaseName('http://example.com/tests/crocodile.json')).toStrictEqual('crocodile');
     });
 
-    it("returns base name for file with multiple dots in name", () => {
-      expect(refBaseName("feline.tiger.v1.yaml")).toStrictEqual("feline.tiger.v1");
+    it('returns base name for file with multiple dots in name', () => {
+      expect(refBaseName('feline.tiger.v1.yaml')).toStrictEqual('feline.tiger.v1');
     });
 
-    it("returns base name for file without any dots in name", () => {
-      expect(refBaseName("abcdefg")).toStrictEqual("abcdefg");
+    it('returns base name for file without any dots in name', () => {
+      expect(refBaseName('abcdefg')).toStrictEqual('abcdefg');
     });
   });
 });

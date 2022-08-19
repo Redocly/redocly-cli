@@ -1,4 +1,5 @@
-import { Config } from '../config';
+import { OasVersion } from '../../oas-types';
+import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 
 const testConfig: Config = {
@@ -6,11 +7,11 @@ const testConfig: Config = {
     apis: {
       'test@v1': {
         root: 'resources/pets.yaml',
-        lint: { rules: { 'operation-summary': 'warn' } },
+        styleguide: { rules: { 'operation-summary': 'warn' } },
       },
     },
     organization: 'redocly-test',
-    lint: {
+    styleguide: {
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
       plugins: [],
     },
@@ -19,11 +20,11 @@ const testConfig: Config = {
   apis: {
     'test@v1': {
       root: 'resources/pets.yaml',
-      lint: { rules: { 'operation-summary': 'warn' } },
+      styleguide: { rules: { 'operation-summary': 'warn' } },
     },
   },
-  // @ts-ignore
-  lint: {
+
+  styleguide: {
     rawConfig: {
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
       plugins: [],
@@ -42,7 +43,7 @@ const testConfig: Config = {
     },
     preprocessors: { oas2: {}, oas3_0: {}, oas3_1: {} },
     decorators: { oas2: {}, oas3_0: {}, oas3_1: {} },
-  },
+  } as unknown as StyleguideConfig,
   'features.openapi': {},
   'features.mockServer': {},
   resolve: { http: { headers: [] } },
@@ -50,23 +51,53 @@ const testConfig: Config = {
 };
 
 describe('getMergedConfig', () => {
-  it('should get lint defined in "apis" section', () => {
+  it('should get styleguide defined in "apis" section', () => {
     expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
       Config {
         "apis": Object {
           "test@v1": Object {
-            "lint": Object {
+            "root": "resources/pets.yaml",
+            "styleguide": Object {
               "rules": Object {
                 "operation-summary": "warn",
               },
             },
-            "root": "resources/pets.yaml",
           },
         },
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
-        "lint": LintConfig {
+        "organization": "redocly-test",
+        "rawConfig": Object {
+          "apis": Object {
+            "test@v1": Object {
+              "root": "resources/pets.yaml",
+              "styleguide": Object {
+                "rules": Object {
+                  "operation-summary": "warn",
+                },
+              },
+            },
+          },
+          "features.mockServer": Object {},
+          "features.openapi": Object {},
+          "organization": "redocly-test",
+          "styleguide": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
+            "rules": Object {
+              "operation-summary": "warn",
+            },
+          },
+        },
+        "region": undefined,
+        "resolve": Object {
+          "http": Object {
+            "customFetch": undefined,
+            "headers": Array [],
+          },
+        },
+        "styleguide": StyleguideConfig {
           "_usedRules": Set {},
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
@@ -103,36 +134,6 @@ describe('getMergedConfig', () => {
             "oas3_1": Object {
               "operation-summary": "warn",
             },
-          },
-        },
-        "organization": "redocly-test",
-        "rawConfig": Object {
-          "apis": Object {
-            "test@v1": Object {
-              "lint": Object {
-                "rules": Object {
-                  "operation-summary": "warn",
-                },
-              },
-              "root": "resources/pets.yaml",
-            },
-          },
-          "features.mockServer": Object {},
-          "features.openapi": Object {},
-          "lint": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "rules": Object {
-              "operation-summary": "warn",
-            },
-          },
-          "organization": "redocly-test",
-        },
-        "region": undefined,
-        "resolve": Object {
-          "http": Object {
-            "customFetch": undefined,
-            "headers": Array [],
           },
         },
       }
@@ -141,28 +142,60 @@ describe('getMergedConfig', () => {
   it('should take into account a config file', () => {
     const result = getMergedConfig(testConfig, 'test@v1');
     expect(result.configFile).toEqual('redocly.yaml');
-    expect(result.lint.configFile).toEqual('redocly.yaml');
+    expect(result.styleguide.configFile).toEqual('redocly.yaml');
   });
   it('should return the same config when there is no alias provided', () => {
     expect(getMergedConfig(testConfig)).toEqual(testConfig);
   });
-  it('should handle wrong alias - return the same lint, empty features', () => {
+  it('should handle wrong alias - return the same styleguide, empty features', () => {
     expect(getMergedConfig(testConfig, 'wrong-alias')).toMatchInlineSnapshot(`
       Config {
         "apis": Object {
           "test@v1": Object {
-            "lint": Object {
+            "root": "resources/pets.yaml",
+            "styleguide": Object {
               "rules": Object {
                 "operation-summary": "warn",
               },
             },
-            "root": "resources/pets.yaml",
           },
         },
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
-        "lint": LintConfig {
+        "organization": "redocly-test",
+        "rawConfig": Object {
+          "apis": Object {
+            "test@v1": Object {
+              "root": "resources/pets.yaml",
+              "styleguide": Object {
+                "rules": Object {
+                  "operation-summary": "warn",
+                },
+              },
+            },
+          },
+          "features.mockServer": Object {},
+          "features.openapi": Object {},
+          "organization": "redocly-test",
+          "styleguide": Object {
+            "extendPaths": Array [],
+            "pluginPaths": Array [],
+            "plugins": Array [],
+            "rules": Object {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
+          },
+        },
+        "region": undefined,
+        "resolve": Object {
+          "http": Object {
+            "customFetch": undefined,
+            "headers": Array [],
+          },
+        },
+        "styleguide": StyleguideConfig {
           "_usedRules": Set {},
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
@@ -206,39 +239,41 @@ describe('getMergedConfig', () => {
             },
           },
         },
-        "organization": "redocly-test",
-        "rawConfig": Object {
-          "apis": Object {
-            "test@v1": Object {
-              "lint": Object {
-                "rules": Object {
-                  "operation-summary": "warn",
-                },
-              },
-              "root": "resources/pets.yaml",
-            },
-          },
-          "features.mockServer": Object {},
-          "features.openapi": Object {},
-          "lint": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "plugins": Array [],
-            "rules": Object {
-              "no-empty-servers": "error",
-              "operation-summary": "error",
-            },
-          },
-          "organization": "redocly-test",
-        },
-        "region": undefined,
-        "resolve": Object {
-          "http": Object {
-            "customFetch": undefined,
-            "headers": Array [],
-          },
-        },
       }
     `);
+  });
+});
+
+describe('StyleguideConfig.extendTypes', () => {
+  let oas3 = jest.fn();
+  let oas2 = jest.fn();
+  let testRawConfigStyleguide = {
+    plugins: [
+      {
+        id: 'test-types-plugin',
+        typeExtension: {
+          oas3,
+          oas2,
+        },
+      },
+    ],
+  };
+  it('should call only oas3 types extension', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    styleguideConfig.extendTypes({}, OasVersion.Version3_0);
+    expect(oas3).toHaveBeenCalledTimes(1);
+    expect(oas2).toHaveBeenCalledTimes(0);
+  });
+  it('should call only oas2 types extension', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    styleguideConfig.extendTypes({}, OasVersion.Version2);
+    expect(oas3).toHaveBeenCalledTimes(0);
+    expect(oas2).toHaveBeenCalledTimes(1);
+  });
+  it('should throw error if for oas version different from 2 and 3', () => {
+    const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
+    expect(() => styleguideConfig.extendTypes({}, 'something else' as OasVersion)).toThrowError(
+      'Not implemented'
+    );
   });
 });

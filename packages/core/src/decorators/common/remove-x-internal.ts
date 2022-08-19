@@ -53,7 +53,7 @@ export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({ internalFlagPro
     any: {
       enter: (node, ctx) => {
         removeInternal(node, ctx);
-      }
-    }
-  }
-}
+      },
+    },
+  };
+};

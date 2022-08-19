@@ -19,7 +19,7 @@ describe('Resolve http-headers', () => {
             C:
               $ref: 'https://sample.com/test/a/test.yaml'
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const fetchMock = jest.fn(() => Promise.resolve({ ok: true, text: Promise.resolve('') }));

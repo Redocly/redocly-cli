@@ -17,7 +17,7 @@ describe('Location', () => {
             license:
               name: MIT
               url: https://google.com
-        `,
+        `
       ),
     };
     const preciseLocation = getLineColLocation(loc);
@@ -37,7 +37,7 @@ describe('Location', () => {
             license:
               name: MIT
               url: https://google.com
-        `,
+        `
       ),
     };
     const preciseLocation = getLineColLocation(loc);
@@ -57,7 +57,7 @@ describe('Location', () => {
             license:
               name: MIT
               url: https://google.com
-        `,
+        `
       ),
     };
     const preciseLocation = getLineColLocation(loc);
@@ -77,7 +77,7 @@ describe('Location', () => {
             license:
               name: MIT
               url: https://google.com
-        `,
+        `
       ),
     };
     const preciseLocation = getLineColLocation(loc);
@@ -98,14 +98,13 @@ describe('Location', () => {
             license:
               name: MIT
               url: https://google.com
-        `,
+        `
       ),
     };
     const preciseLocation = getLineColLocation(loc);
     expect(preciseLocation.start).toEqual({ line: 2, col: 1 });
     expect(preciseLocation.end).toEqual({ line: 2, col: 9 });
   });
-
 
   it('should return first line for empty doc', () => {
     const loc = {
@@ -158,7 +157,7 @@ describe('codeframes', () => {
             license:
               name: MIT
               url: https://google.com
-            `,
+            `
       ),
     };
 
@@ -222,7 +221,7 @@ describe('codeframes', () => {
             license:
               name: MIT
               url: https://google.com
-            `,
+            `
       ),
     };
 
@@ -256,7 +255,7 @@ describe('codeframes', () => {
               name: MIT,
               url: https://google.com
             }
-            `,
+            `
       ),
     };
 
@@ -299,7 +298,7 @@ describe('codeframes', () => {
               field5: MIT
               url: https://google.com
           openapi: 3.0.2
-          `,
+          `
       ),
     };
 
@@ -343,7 +342,7 @@ describe('codeframes', () => {
               field3: MIT
               field4: MIT
               field5: MIT
-          `,
+          `
       ),
     };
 
@@ -390,7 +389,7 @@ describe('codeframes', () => {
                     in: wrong
               post:
                 operationId: test2
-          `,
+          `
       ),
     };
 
@@ -425,7 +424,7 @@ describe('codeframes', () => {
             license:
               name: MIT
               url: https://google.com
-          `,
+          `
       ),
     };
 
@@ -483,7 +482,7 @@ describe('codeframes', () => {
           license:
             name: MIT
             url: https://google.com
-      `,
+      `
       ),
     };
 

@@ -8,7 +8,7 @@ export const TagDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ tagNames
       leave(tag, { report }: UserContext) {
         if (!tagNames)
           throw new Error(
-            `Parameter "tagNames" is not provided for "tag-description-override" rule`,
+            `Parameter "tagNames" is not provided for "tag-description-override" rule`
           );
         if (tagNames[tag.name]) {
           try {

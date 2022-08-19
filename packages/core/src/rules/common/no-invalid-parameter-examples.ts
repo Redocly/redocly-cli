@@ -1,9 +1,9 @@
 import { UserContext } from '../../walk';
 import { Oas3Parameter } from '../../typings/openapi';
-import { validateExample } from '../utils';
+import { getAdditionalPropertiesOption, validateExample } from '../utils';
 
 export const NoInvalidParameterExamples: any = (opts: any) => {
-  const disallowAdditionalProperties = opts.disallowAdditionalProperties ?? true;
+  const allowAdditionalProperties = getAdditionalPropertiesOption(opts) ?? false;
   return {
     Parameter: {
       leave(parameter: Oas3Parameter, ctx: UserContext) {
@@ -13,7 +13,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
             parameter.schema!,
             ctx.location.child('example'),
             ctx,
-            disallowAdditionalProperties,
+            allowAdditionalProperties
           );
         }
 
@@ -25,7 +25,7 @@ export const NoInvalidParameterExamples: any = (opts: any) => {
                 parameter.schema!,
                 ctx.location.child(['examples', key]),
                 ctx,
-                false,
+                true
               );
             }
           }

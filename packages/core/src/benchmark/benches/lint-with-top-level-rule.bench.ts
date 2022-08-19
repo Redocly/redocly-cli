@@ -8,7 +8,7 @@ export const count = 10;
 const rebillyDefinitionRef = pathResolve(pathJoin(__dirname, 'rebilly.yaml'));
 const rebillyDocument = parseYamlToDocument(
   readFileSync(rebillyDefinitionRef, 'utf-8'),
-  rebillyDefinitionRef,
+  rebillyDefinitionRef
 );
 
 const config = makeConfigForRuleset({

@@ -1,15 +1,21 @@
-import { green, yellow } from 'colorette';
-import { assignExisting } from '../utils';
+import { yellow } from 'colorette';
+import {
+  assignExisting,
+  isTruthy,
+  showErrorForDeprecatedField,
+  showWarningForDeprecatedField,
+} from '../utils';
 import { Config } from './config';
 
 import type {
   Api,
-  DeprecatedRawConfig,
+  DeprecatedInApi,
+  DeprecatedInRawConfig,
   Plugin,
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
-  ResolvedLintConfig,
+  ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
 
@@ -23,11 +29,23 @@ export function parsePresetName(presetName: string): { pluginId: string; configN
 }
 
 export function transformApiDefinitionsToApis(
-  apiDefinitions: Record<string, string> = {},
-): Record<string, Api> {
-  let apis: Record<string, Api> = {};
+  apiDefinitions?: DeprecatedInRawConfig['apiDefinitions']
+): Record<string, Api> | undefined {
+  if (!apiDefinitions) return undefined;
+  const apis: Record<string, Api> = {};
   for (const [apiName, apiPath] of Object.entries(apiDefinitions)) {
     apis[apiName] = { root: apiPath };
+  }
+  return apis;
+}
+
+function transformApis(
+  legacyApis?: Record<string, Api & DeprecatedInApi>
+): Record<string, Api> | undefined {
+  if (!legacyApis) return undefined;
+  const apis: Record<string, Api> = {};
+  for (const [apiName, { lint, ...apiContent }] of Object.entries(legacyApis)) {
+    apis[apiName] = { styleguide: lint, ...apiContent };
   }
   return apis;
 }
@@ -43,9 +61,9 @@ export function prefixRules<T extends Record<string, any>>(rules: T, prefix: str
   return res;
 }
 
-export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
-  const result: Omit<ResolvedLintConfig, RulesFields> &
-    Required<Pick<ResolvedLintConfig, RulesFields>> = {
+export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
+  const result: Omit<ResolvedStyleguideConfig, RulesFields> &
+    Required<Pick<ResolvedStyleguideConfig, RulesFields>> = {
     rules: {},
     oas2Rules: {},
     oas3_0Rules: {},
@@ -66,14 +84,10 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
     extendPaths: [],
   };
 
-  for (let rulesConf of rulesConfList) {
+  for (const rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
-        `\`extends\` is not supported in shared configs yet: ${JSON.stringify(
-          rulesConf,
-          null,
-          2,
-        )}.`,
+        `'extends' is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
       );
     }
 
@@ -109,75 +123,84 @@ export function mergeExtends(rulesConfList: ResolvedLintConfig[]) {
   return result;
 }
 
-export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+export function getMergedConfig(config: Config, apiName?: string): Config {
   const extendPaths = [
-    ...Object.values(config.apis).map((api) => api?.lint?.extendPaths),
-    config.rawConfig?.lint?.extendPaths,
+    ...Object.values(config.apis).map((api) => api?.styleguide?.extendPaths),
+    config.rawConfig?.styleguide?.extendPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
   const pluginPaths = [
-    ...Object.values(config.apis).map((api) => api?.lint?.pluginPaths),
-    config.rawConfig?.lint?.pluginPaths,
+    ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
+    config.rawConfig?.styleguide?.pluginPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
-  return entrypointAlias
+  return apiName
     ? new Config(
         {
           ...config.rawConfig,
-          lint: {
-            ...(config.apis[entrypointAlias]
-              ? config.apis[entrypointAlias].lint
-              : config.rawConfig.lint),
+          styleguide: {
+            ...(config.apis[apiName]
+              ? config.apis[apiName].styleguide
+              : config.rawConfig.styleguide),
             extendPaths,
             pluginPaths,
           },
           'features.openapi': {
             ...config['features.openapi'],
-            ...config.apis[entrypointAlias]?.['features.openapi'],
+            ...config.apis[apiName]?.['features.openapi'],
           },
           'features.mockServer': {
             ...config['features.mockServer'],
-            ...config.apis[entrypointAlias]?.['features.mockServer'],
+            ...config.apis[apiName]?.['features.mockServer'],
           },
           // TODO: merge everything else here
         },
-        config.configFile,
+        config.configFile
       )
     : config;
 }
 
-export function transformConfig(rawConfig: DeprecatedRawConfig | RawConfig): RawConfig {
-  if ((rawConfig as RawConfig).apis && (rawConfig as DeprecatedRawConfig).apiDefinitions) {
-    throw new Error("Do not use 'apiDefinitions' field. Use 'apis' instead.\n");
-  }
-  if (
-    (rawConfig as RawConfig)['features.openapi'] &&
-    (rawConfig as DeprecatedRawConfig).referenceDocs
-  ) {
-    throw new Error("Do not use 'referenceDocs' field. Use 'features.openapi' instead.\n");
-  }
-  const { apiDefinitions, referenceDocs, ...rest } = rawConfig as DeprecatedRawConfig & RawConfig;
-  if (apiDefinitions) {
-    process.stderr.write(
-      `The ${yellow('apiDefinitions')} field is deprecated. Use ${green(
-        'apis',
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
+function checkForDeprecatedFields(
+  deprecatedField: keyof DeprecatedInRawConfig,
+  updatedField: keyof RawConfig,
+  rawConfig: DeprecatedInRawConfig & RawConfig
+): void {
+  const isDeprecatedFieldInApis =
+    rawConfig.apis &&
+    Object.values(rawConfig.apis).some(
+      (api: Api & DeprecatedInApi & DeprecatedInRawConfig) => api[deprecatedField]
     );
+
+  if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
+    showErrorForDeprecatedField(deprecatedField, updatedField);
   }
-  if (referenceDocs) {
-    process.stderr.write(
-      `The ${yellow('referenceDocs')} field is deprecated. Use ${green(
-        'features.openapi',
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`,
-    );
+
+  if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
+    showWarningForDeprecatedField(deprecatedField, updatedField);
   }
+}
+
+export function transformConfig(rawConfig: DeprecatedInRawConfig & RawConfig): RawConfig {
+  const migratedFields: [keyof DeprecatedInRawConfig, keyof RawConfig][] = [
+    ['apiDefinitions', 'apis'],
+    ['referenceDocs', 'features.openapi'],
+    ['lint', 'styleguide'], // TODO: update docs
+  ];
+
+  for (const [deprecatedField, updatedField] of migratedFields) {
+    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig);
+  }
+
+  const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
+
   return {
     'features.openapi': referenceDocs,
-    apis: transformApiDefinitionsToApis(apiDefinitions),
+    apis: transformApis(apis) || transformApiDefinitionsToApis(apiDefinitions),
+    styleguide: lint,
     ...rest,
   };
 }
@@ -199,9 +222,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      process.stderr.write(
-        `Duplicate plugin id "${yellow(p.id)}".\n`,
-      );
+      process.stderr.write(`Duplicate plugin id "${yellow(p.id)}".\n`);
     }
   }
   return results;

@@ -8,7 +8,7 @@ import {
   doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
-  getFallbackEntryPointsOrExit,
+  getFallbackApisOrExit,
   getExecutionTime,
   printUnusedWarnings,
   handleError,
@@ -22,7 +22,7 @@ jest.mock('../../utils');
 jest.mock('perf_hooks');
 
 const argvMock: LintOptions = {
-  entrypoints: ['openapi.yaml'],
+  apis: ['openapi.yaml'],
   'lint-config': 'off',
   format: 'codeframe',
 };
@@ -43,7 +43,9 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
     getMergedConfigMock.mockReturnValue(ConfigFixture);
-    (doesYamlFileExist  as jest.Mock<any, any>).mockImplementation((path) => path === 'redocly.yaml')
+    (doesYamlFileExist as jest.Mock<any, any>).mockImplementation(
+      (path) => path === 'redocly.yaml'
+    );
   });
 
   afterEach(() => {
@@ -59,10 +61,10 @@ describe('handleLint', () => {
       expect(loadConfig).toHaveBeenCalledTimes(0);
     });
 
-    it('should call loadConfig and getFallbackEntryPointsOrExit', async () => {
+    it('should call loadConfig and getFallbackApisOrExit', async () => {
       await handleLint(argvMock, versionMock);
       expect(loadConfig).toHaveBeenCalledWith(undefined, undefined, undefined);
-      expect(getFallbackEntryPointsOrExit).toHaveBeenCalled();
+      expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
 
     it('should call loadConfig with args if such exist', async () => {
@@ -98,8 +100,8 @@ describe('handleLint', () => {
         },
         versionMock
       );
-      expect(ConfigFixture.lint.skipRules).toHaveBeenCalledWith(['rule']);
-      expect(ConfigFixture.lint.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
+      expect(ConfigFixture.styleguide.skipRules).toHaveBeenCalledWith(['rule']);
+      expect(ConfigFixture.styleguide.skipPreprocessors).toHaveBeenCalledWith(['preprocessor']);
     });
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
@@ -118,7 +120,7 @@ describe('handleLint', () => {
     it('should catch error in handleError if something fails', async () => {
       (lint as jest.Mock<any, any>).mockRejectedValueOnce('error');
       await handleLint(argvMock, versionMock);
-      expect(handleError).toHaveBeenCalledWith('error', '');
+      expect(handleError).toHaveBeenCalledWith('error', 'openapi.yaml');
     });
   });
 

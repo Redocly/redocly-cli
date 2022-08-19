@@ -9,9 +9,21 @@ import {
   Oas3ComponentName,
   Oas3_1Webhooks,
   Oas2Definition,
-  Referenced
-} from "@redocly/openapi-core";
-export { Oas3_1Definition, Oas3Definition, Oas2Definition, Oas3Components, Oas3Paths, Oas3PathItem, Oas3ComponentName, Oas3_1Schema, Oas3Schema, Oas3_1Webhooks, Referenced }
+  Referenced,
+} from '@redocly/openapi-core';
+export {
+  Oas3_1Definition,
+  Oas3Definition,
+  Oas2Definition,
+  Oas3Components,
+  Oas3Paths,
+  Oas3PathItem,
+  Oas3ComponentName,
+  Oas3_1Schema,
+  Oas3Schema,
+  Oas3_1Webhooks,
+  Referenced,
+};
 export type Definition = Oas3_1Definition | Oas3Definition | Oas2Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
@@ -34,7 +46,7 @@ enum OPENAPI3_METHOD {
   Options = 'options',
   Head = 'head',
   Patch = 'patch',
-  Trace = 'trace'
+  Trace = 'trace',
 }
 
 export const OPENAPI3_METHOD_NAMES: OPENAPI3_METHOD[] = [
@@ -45,7 +57,7 @@ export const OPENAPI3_METHOD_NAMES: OPENAPI3_METHOD[] = [
   OPENAPI3_METHOD.Options,
   OPENAPI3_METHOD.Head,
   OPENAPI3_METHOD.Patch,
-  OPENAPI3_METHOD.Trace
+  OPENAPI3_METHOD.Trace,
 ];
 
 export enum OPENAPI3_COMPONENT {
@@ -57,7 +69,7 @@ export enum OPENAPI3_COMPONENT {
   RequestBodies = 'requestBodies',
   Links = 'links',
   Callbacks = 'callbacks',
-  SecuritySchemes = 'securitySchemes'
+  SecuritySchemes = 'securitySchemes',
 }
 
 export const OPENAPI3_COMPONENT_NAMES: OPENAPI3_COMPONENT[] = [
@@ -69,5 +81,5 @@ export const OPENAPI3_COMPONENT_NAMES: OPENAPI3_COMPONENT[] = [
   OPENAPI3_COMPONENT.Headers,
   OPENAPI3_COMPONENT.Links,
   OPENAPI3_COMPONENT.Callbacks,
-  OPENAPI3_COMPONENT.SecuritySchemes
+  OPENAPI3_COMPONENT.SecuritySchemes,
 ];

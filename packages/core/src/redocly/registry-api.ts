@@ -1,5 +1,11 @@
 import fetch, { RequestInit, HeadersInit } from 'node-fetch';
-import { RegistryApiTypes } from './registry-api-types';
+import type {
+  NotFoundProblemResponse,
+  PrepareFileuploadOKResponse,
+  PrepareFileuploadParams,
+  PushApiParams,
+} from './registry-api-types';
+import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
@@ -36,7 +42,7 @@ export class RegistryApi {
 
     const response = await fetch(
       `${this.getBaseUrl(region)}${path}`,
-      Object.assign({}, options, { headers }),
+      Object.assign({}, options, { headers })
     );
 
     if (response.status === 401) {
@@ -44,7 +50,7 @@ export class RegistryApi {
     }
 
     if (response.status === 404) {
-      const body: RegistryApiTypes.NotFoundProblemResponse = await response.json();
+      const body: NotFoundProblemResponse = await response.json();
       throw new Error(body.code);
     }
 
@@ -54,7 +60,7 @@ export class RegistryApi {
   async authStatus(
     accessToken: string,
     region: Region,
-    verbose = false,
+    verbose = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
     try {
       const response = await this.request('', { headers: { authorization: accessToken } }, region);
@@ -76,7 +82,7 @@ export class RegistryApi {
     filesHash,
     filename,
     isUpsert,
-  }: RegistryApiTypes.PrepareFileuploadParams): Promise<RegistryApiTypes.PrepareFileuploadOKResponse> {
+  }: PrepareFileuploadParams): Promise<PrepareFileuploadOKResponse> {
     const response = await this.request(
       `/${organizationId}/${name}/${version}/prepare-file-upload`,
       {
@@ -91,7 +97,7 @@ export class RegistryApi {
           isUpsert,
         }),
       },
-      this.region,
+      this.region
     );
 
     if (response.ok) {
@@ -111,8 +117,8 @@ export class RegistryApi {
     isUpsert,
     isPublic,
     batchId,
-    batchSize
-  }: RegistryApiTypes.PushApiParams) {
+    batchSize,
+  }: PushApiParams) {
     const response = await this.request(
       `/${organizationId}/${name}/${version}`,
       {
@@ -128,10 +134,10 @@ export class RegistryApi {
           isUpsert,
           isPublic,
           batchId,
-          batchSize
+          batchSize,
         }),
       },
-      this.region,
+      this.region
     );
 
     if (response.ok) {

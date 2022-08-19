@@ -28,7 +28,7 @@ export function respondWithGzip(
   request: http.IncomingMessage,
   response: http.ServerResponse,
   headers = {},
-  code = 200,
+  code = 200
 ) {
   let compressedStream;
   const acceptEncoding = (request.headers['accept-encoding'] as string) || '';

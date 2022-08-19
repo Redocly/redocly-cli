@@ -15,7 +15,7 @@ Object {
     "no-invalid-media-type-examples": "error",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
-    "no-servers-empty-enum": "error",
+    "no-server-variables-empty-enum": "error",
     "no-undefined-server-variable": "error",
     "no-unused-components": "warn",
   },
@@ -24,9 +24,10 @@ Object {
   "oas3_1Rules": Object {
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
+    "no-invalid-media-type-examples": "error",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
-    "no-servers-empty-enum": "error",
+    "no-server-variables-empty-enum": "error",
     "no-undefined-server-variable": "error",
     "no-unused-components": "warn",
   },
@@ -70,7 +71,7 @@ Object {
 }
 `;
 
-exports[`resolveLint should resolve extends with local file config witch contains path to nested config 1`] = `
+exports[`resolveStyleguideConfig should resolve extends with local file config witch contains path to nested config 1`] = `
 Object {
   "decorators": Object {},
   "doNotResolveExamples": undefined,
@@ -85,7 +86,7 @@ Object {
     "no-invalid-media-type-examples": "warn",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
-    "no-servers-empty-enum": "error",
+    "no-server-variables-empty-enum": "error",
     "no-undefined-server-variable": "error",
     "no-unused-components": "warn",
   },
@@ -94,9 +95,10 @@ Object {
   "oas3_1Rules": Object {
     "no-empty-servers": "error",
     "no-example-value-and-externalValue": "error",
+    "no-invalid-media-type-examples": "warn",
     "no-server-example.com": "warn",
     "no-server-trailing-slash": "error",
-    "no-servers-empty-enum": "error",
+    "no-server-variables-empty-enum": "error",
     "no-undefined-server-variable": "error",
     "no-unused-components": "warn",
   },

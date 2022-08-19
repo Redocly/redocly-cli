@@ -1,5 +1,6 @@
 import { Source } from './resolve';
 import { OasRef } from './typings/openapi';
+import { isTruthy } from './utils';
 
 export function joinPointer(base: string, key: string | number) {
   if (base === '') base = '#/';
@@ -18,8 +19,8 @@ export class Location {
       this.source,
       joinPointer(
         this.pointer,
-        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/'),
-      ),
+        (Array.isArray(components) ? components : [components]).map(escapePointer).join('/')
+      )
     );
   }
 
@@ -45,7 +46,7 @@ export function parseRef(ref: string): { uri: string | null; pointer: string[] }
   const [uri, pointer] = ref.split('#/');
   return {
     uri: uri || null,
-    pointer: pointer ? pointer.split('/').map(unescapePointer).filter(Boolean) : [],
+    pointer: pointer ? pointer.split('/').map(unescapePointer).filter(isTruthy) : [],
   };
 }
 

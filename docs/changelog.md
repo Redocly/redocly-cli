@@ -4,6 +4,29 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.107 (2022-08-16)
+
+### Changes
+
+- Add `allowAdditionalProperties` to built-in rules and mark `disallowAdditionalProperties` as deprecated
+
+### Fixes
+
+- Introduced severity level `off` for Assertions
+
+
+## 1.0.0-beta.106 (2022-08-09)
+
+### Fixes
+
+- Now errors exit with return code `1`.
+
+### Changes
+
+- Renamed `lint` into `styleguide` in Redocly configuration.
+- Improved naming consistency.
+
 ## 1.0.0-beta.105 (2022-07-27)
 
 ### Fixes
@@ -12,7 +35,7 @@ tocMaxDepth: 2
 
 ## 1.0.0-beta.104 (2022-07-11)
 
-### Fixes 
+### Fixes
 
 - Fixed incorrect boolean filtering in `filter-out` rule.
 - Fixed bug with tags duplication for the `join` command.
@@ -26,14 +49,14 @@ tocMaxDepth: 2
 - Added the `--lint-config` option for the `lint` command. Use it to validate the configuration file with appropriate severity level.
 - Added new built-in decorators `filter-in` and `filter-out`.
 
-### Fixes 
+### Fixes
 
-- Resolved an issue with the `--run-id` option for the `push` command. The `--run-id` option renamed to the `--batch-id`, added the `--batch-size` option. 
-- Improved types for the configuration file. 
+- Resolved an issue with the `--run-id` option for the `push` command. The `--run-id` option renamed to the `--batch-id`, added the `--batch-size` option.
+- Improved types for the configuration file.
 
 ## 1.0.0-beta.102 (2022-06-09)
 
-### Features 
+### Features
 
 - The `join` command supports a new option `--without-x-tag-groups`. Use it to skip the creation and population of `x-tagGroups`.
 - Added new property `requireAny` to assertation object.
@@ -53,7 +76,7 @@ Broken release.
 
 - Fixed types for `Callback` and `NamedCallbacks`.
 - Fixed an issue with the `scalar-property-missing-example` built-in rule that didn't work on examples containing falsy values.
-  
+
 ## 1.0.0-beta.99 (2022-05-25)
 
 ### Features
@@ -157,7 +180,7 @@ lint:
 
 ### Features
 
-- Introduced [assertions](./resources/rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
+- Introduced [assertions](./rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
 - The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes
@@ -371,8 +394,8 @@ lint:
 
 - Added support for the [region](./configuration/index.mdx) option with the `login`, `push`, and other commands.
 - Added two new built-in rules:
-  - [no-invalid-schema-examples](./resources/built-in-rules.md#no-invalid-schema-examples)
-  - [no-invalid-parameter-examples](./resources/built-in-rules.md#no-invalid-parameter-examples)
+  - [no-invalid-schema-examples](./rules/no-invalid-schema-examples.md)
+  - [no-invalid-parameter-examples](./rules/no-invalid-parameter-examples.md)
 
 ### Fixes
 
@@ -405,7 +428,7 @@ lint:
 
 ### Features
 
-- Added a new built-in rule: [operation-4xx-response](./resources/built-in-rules.md#operation-4xx-response).
+- Added a new built-in rule: [operation-4xx-response](./rules/operation-4xx-response.md).
 
 ---
 
@@ -414,11 +437,11 @@ lint:
 ### Features
 
 - Added five new built-in rules:
-  - [path-excludes-patterns](./resources/built-in-rules.md#path-segment-plural)
-  - [no-http-verbs-in-paths](./resources/built-in-rules.md#no-http-verbs-in-paths)
-  - [path-excludes-patterns](./resources/built-in-rules.md#path-excludes-patterns)
-  - [request-mime-type](./resources/built-in-rules.md#request-mime-type)
-  - [response-mime-type](./resources/built-in-rules.md#response-mime-type)
+  - [path-excludes-patterns](./rules/path-excludes-patterns.md)
+  - [no-http-verbs-in-paths](./rules/no-http-verbs-in-paths.md)
+  - [path-excludes-patterns](./rules/path-excludes-patterns.md)
+  - [request-mime-type](./rules/request-mime-type.md)
+  - [response-mime-type](./rules/response-mime-type.md)
 
 ### Fixes
 

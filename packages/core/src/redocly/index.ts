@@ -28,12 +28,14 @@ export class RedoclyClient {
 
   loadRegion(region?: Region) {
     if (region && !DOMAINS[region]) {
-      throw new Error(`Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".`);
+      throw new Error(
+        `Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".`
+      );
     }
 
     if (env.REDOCLY_DOMAIN) {
       return (AVAILABLE_REGIONS.find(
-        (region) => DOMAINS[region as Region] === env.REDOCLY_DOMAIN,
+        (region) => DOMAINS[region as Region] === env.REDOCLY_DOMAIN
       ) || DEFAULT_REGION) as Region;
     }
     return region || DEFAULT_REGION;
@@ -91,7 +93,7 @@ export class RedoclyClient {
     const allTokens = this.getAllTokens();
 
     const verifiedTokens = await Promise.allSettled(
-      allTokens.map(({ token, region }) => this.verifyToken(token, region)),
+      allTokens.map(({ token, region }) => this.verifyToken(token, region))
     );
 
     return allTokens
@@ -134,7 +136,7 @@ export class RedoclyClient {
   async verifyToken(
     accessToken: string,
     region: Region,
-    verbose: boolean = false,
+    verbose: boolean = false
   ): Promise<{ viewerId: string; organizations: string[] }> {
     return this.registryApi.authStatus(accessToken, region, verbose);
   }
@@ -150,7 +152,7 @@ export class RedoclyClient {
 
     const credentials = {
       ...this.readCredentialsFile(credentialsPath),
-      [this.region!]: accessToken,
+      [this.region]: accessToken,
       token: accessToken, // FIXME: backward compatibility, remove on 1.0.0
     };
     this.accessTokens = credentials;

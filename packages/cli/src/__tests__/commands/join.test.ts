@@ -10,38 +10,38 @@ describe('handleJoin fails', () => {
   colloreteYellowMock.mockImplementation((string: string) => string);
 
   it('should call exitWithError because only one entrypoint', async () => {
-    await handleJoin({ entrypoints: ['first.yaml'] }, 'cli-version');
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 entrypoints should be provided. \n\n`);
+    await handleJoin({ apis: ['first.yaml'] }, 'cli-version');
+    expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided. \n\n`);
   });
 
   it('should call exitWithError because passed all 3 options for tags', async () => {
     await handleJoin(
       {
-        entrypoints: ['first.yaml', 'second.yaml'],
+        apis: ['first.yaml', 'second.yaml'],
         'prefix-tags-with-info-prop': 'something',
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      'cli-version',
+      'cli-version'
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one! \n\n`
     );
   });
 
   it('should call exitWithError because passed all 2 options for tags', async () => {
     await handleJoin(
       {
-        entrypoints: ['first.yaml', 'second.yaml'],
+        apis: ['first.yaml', 'second.yaml'],
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
-      'cli-version',
+      'cli-version'
     );
 
     expect(exitWithError).toHaveBeenCalledWith(
-      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`,
+      `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`
     );
   });
 });

@@ -11,7 +11,7 @@ export const OperationDescriptionOverride: Oas3Decorator | Oas2Decorator = ({ op
         if (!operation.operationId) return;
         if (!operationIds)
           throw new Error(
-            `Parameter "operationIds" is not provided for "operation-description-override" rule`,
+            `Parameter "operationIds" is not provided for "operation-description-override" rule`
           );
         const operationId = operation.operationId;
         if (operationIds[operationId]) {

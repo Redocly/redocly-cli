@@ -1,9 +1,9 @@
-export { BundleOutputFormat, readFileFromUrl, slash, doesYamlFileExist } from './utils';
+export { BundleOutputFormat, readFileFromUrl, slash, doesYamlFileExist, isTruthy } from './utils';
 export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
 export { ConfigTypes } from './types/redocly-yaml';
-export {
+export type {
   Oas3Definition,
   Oas3_1Definition,
   Oas3Components,
@@ -15,15 +15,16 @@ export {
   Oas3Tag,
   Oas3_1Webhooks,
   Referenced,
+  OasRef,
 } from './typings/openapi';
-export { Oas2Definition } from './typings/swagger';
-export { StatsAccumulator, StatsName } from './typings/common';
+export type { Oas2Definition } from './typings/swagger';
+export type { StatsAccumulator, StatsName } from './typings/common';
 export { normalizeTypes } from './types';
 export { Stats } from './rules/other/stats';
 
 export {
   Config,
-  LintConfig,
+  StyleguideConfig,
   RawConfig,
   IGNORE_FILE,
   Region,
@@ -33,9 +34,8 @@ export {
   getConfig,
   findConfig,
   CONFIG_FILE_NAMES,
-  RuleSeverity
+  RuleSeverity,
 } from './config';
-
 
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 

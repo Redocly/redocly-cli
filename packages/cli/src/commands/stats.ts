@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
   Config,
-  LintConfig,
+  StyleguideConfig,
   loadConfig,
   normalizeTypes,
   Oas3Types,
@@ -18,22 +18,22 @@ import {
   WalkContext,
   walkDocument,
   Stats,
-  bundle
+  bundle,
 } from '@redocly/openapi-core';
 
-import { getFallbackEntryPointsOrExit } from '../utils'
+import { getFallbackApisOrExit } from '../utils';
 import { printExecutionTime } from '../utils';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
   externalDocs: { metric: '📦 External Documents', total: 0, color: 'magenta' },
-  schemas: { metric: '📈 Schemas', total: 0, color: 'white'},
+  schemas: { metric: '📈 Schemas', total: 0, color: 'white' },
   parameters: { metric: '👉 Parameters', total: 0, color: 'yellow', items: new Set() },
   links: { metric: '🔗 Links', total: 0, color: 'cyan', items: new Set() },
   pathItems: { metric: '➡️ Path Items', total: 0, color: 'green' },
   operations: { metric: '👷 Operations', total: 0, color: 'yellow' },
   tags: { metric: '🔖 Tags', total: 0, color: 'white', items: new Set() },
-}
+};
 
 function printStatsStylish(statsAccumulator: StatsAccumulator) {
   for (const node in statsAccumulator) {
@@ -48,35 +48,35 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
     json[key] = {
       metric: statsAccumulator[key as StatsName].metric,
       total: statsAccumulator[key as StatsName].total,
-    }
+    };
   }
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
-function printStats(statsAccumulator: StatsAccumulator, entrypoint: string, format: string) {
-  process.stderr.write(`Document: ${colors.magenta(entrypoint)} stats:\n\n`);
+function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
+  process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
   switch (format) {
-    case 'stylish': printStatsStylish(statsAccumulator); break;
-    case 'json': printStatsJson(statsAccumulator); break;
+    case 'stylish':
+      printStatsStylish(statsAccumulator);
+      break;
+    case 'json':
+      printStatsJson(statsAccumulator);
+      break;
   }
 }
 
-export async function handleStats (argv: {
-  config?: string;
-  entrypoint?: string;
-  format: string;
-}) {
+export async function handleStats(argv: { config?: string; api?: string; format: string }) {
   const config: Config = await loadConfig(argv.config);
-  const [{ path }] = await getFallbackEntryPointsOrExit(argv.entrypoint ? [argv.entrypoint] : [], config);
+  const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
-  const lintConfig: LintConfig = config.lint;
+  const lintConfig: StyleguideConfig = config.styleguide;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);
   const types = normalizeTypes(
     lintConfig.extendTypes(
       oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
-      oasVersion,
+      oasVersion
     ),
     lintConfig
   );
@@ -86,7 +86,7 @@ export async function handleStats (argv: {
     problems: [],
     oasVersion: oasVersion,
     visitorsData: {},
-  }
+  };
 
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
@@ -94,11 +94,14 @@ export async function handleStats (argv: {
     externalRefResolver,
   });
 
-  const statsVisitor = normalizeVisitors([{
-    severity: 'warn',
-    ruleId: 'stats',
-    visitor: Stats(statsAccumulator)
-  }],
+  const statsVisitor = normalizeVisitors(
+    [
+      {
+        severity: 'warn',
+        ruleId: 'stats',
+        visitor: Stats(statsAccumulator),
+      },
+    ],
     types
   );
 

@@ -8,7 +8,7 @@ import {
   OasVersion,
   BaseResolver,
   Document,
-  LintConfig,
+  StyleguideConfig,
   Oas3Tag,
   loadConfig,
   formatProblems,
@@ -19,12 +19,12 @@ import {
 } from '@redocly/openapi-core';
 
 import {
-  getFallbackEntryPointsOrExit,
+  getFallbackApisOrExit,
   printExecutionTime,
   handleError,
   printLintTotals,
   writeYaml,
-  exitWithError
+  exitWithError,
 } from '../utils';
 import { isObject, isString } from '../js-utils';
 
@@ -34,8 +34,8 @@ const xTagGroups = 'x-tagGroups';
 let potentialConflictsTotal = 0;
 
 type JoinDocumentContext = {
-  entrypoint: string;
-  entrypointFilename: string;
+  api: string;
+  apiFilename: string;
   tags: Oas3Tag[];
   potentialConflicts: any;
   tagsPrefix: string;
@@ -43,7 +43,7 @@ type JoinDocumentContext = {
 };
 
 type JoinArgv = {
-  entrypoints: string[];
+  apis: string[];
   lint?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
@@ -51,11 +51,10 @@ type JoinArgv = {
   'without-x-tag-groups'?: boolean;
 };
 
-
 export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   const startedAt = performance.now();
-  if (argv.entrypoints.length < 2) {
-    return exitWithError(`At least 2 entrypoints should be provided. \n\n`);
+  if (argv.apis.length < 2) {
+    return exitWithError(`At least 2 apis should be provided. \n\n`);
   }
 
   const {
@@ -73,27 +72,29 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   if (usedTagsOptions.length > 1) {
     return exitWithError(
-      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one! \n\n`,
+      `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one! \n\n`
     );
   }
- 
+
   const config: Config = await loadConfig();
-  const entrypoints = await getFallbackEntryPointsOrExit(argv.entrypoints, config);
+  const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(
-    entrypoints.map(
+    apis.map(
       ({ path }) => externalRefResolver.resolveDocument(null, path, true) as Promise<Document>
     )
   );
 
   const bundleResults = await Promise.all(
-    documents.map(document => bundleDocument({
-      document,
-      config: config.lint,
-      externalRefResolver
-    }).catch(e => {
-      exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`)
-    }))
+    documents.map((document) =>
+      bundleDocument({
+        document,
+        config: config.styleguide,
+        externalRefResolver,
+      }).catch((e) => {
+        exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
+      })
+    )
   );
 
   for (const { problems, bundle: document } of bundleResults as any) {
@@ -101,17 +102,23 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     if (fileTotals.errors) {
       formatProblems(problems, {
         totals: fileTotals,
-        version: document.parsed.version
+        version: document.parsed.version,
       });
-      exitWithError(`❌ Errors encountered while bundling ${blue(document.source.absoluteRef)}: join will not proceed.\n`);
+      exitWithError(
+        `❌ Errors encountered while bundling ${blue(
+          document.source.absoluteRef
+        )}: join will not proceed.\n`
+      );
     }
   }
 
   for (const document of documents) {
     try {
-      const version = detectOpenAPI(document.parsed)
+      const version = detectOpenAPI(document.parsed);
       if (version !== OasVersion.Version3_0) {
-        return exitWithError(`Only OpenAPI 3 is supported: ${blue(document.source.absoluteRef)} \n\n`);
+        return exitWithError(
+          `Only OpenAPI 3 is supported: ${blue(document.source.absoluteRef)} \n\n`
+        );
       }
     } catch (e) {
       return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
@@ -120,12 +127,12 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   if (argv.lint) {
     for (const document of documents) {
-      await validateEntrypoint(document, config.lint, externalRefResolver, packageVersion);
+      await validateApi(document, config.styleguide, externalRefResolver, packageVersion);
     }
   }
 
-  let joinedDef: any = {};
-  let potentialConflicts = {
+  const joinedDef: any = {};
+  const potentialConflicts = {
     tags: {},
     paths: {},
     components: {},
@@ -137,24 +144,37 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   for (const document of documents) {
     const openapi = document.parsed;
     const { tags, info } = openapi;
-    const entrypoint = path.relative(process.cwd(), document.source.absoluteRef);
-    const entrypointFilename = getEntrypointFilename(entrypoint);
-    const tagsPrefix = prefixTagsWithFilename ? entrypointFilename : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
+    const api = path.relative(process.cwd(), document.source.absoluteRef);
+    const apiFilename = getApiFilename(api);
+    const tagsPrefix = prefixTagsWithFilename
+      ? apiFilename
+      : getInfoPrefix(info, prefixTagsWithInfoProp, 'tags');
     const componentsPrefix = getInfoPrefix(info, prefixComponentsWithInfoProp, COMPONENTS);
 
     if (openapi.hasOwnProperty('x-tagGroups')) {
-      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(entrypoint)} will be skipped \n`));
+      process.stderr.write(yellow(`warning: x-tagGroups at ${blue(api)} will be skipped \n`));
     }
 
-    const context = { entrypoint, entrypointFilename, tags, potentialConflicts, tagsPrefix, componentsPrefix };
-    if (tags) { populateTags(context); }
+    const context = {
+      api,
+      apiFilename,
+      tags,
+      potentialConflicts,
+      tagsPrefix,
+      componentsPrefix,
+    };
+    if (tags) {
+      populateTags(context);
+    }
     collectServers(openapi);
     collectInfoDescriptions(openapi, context);
     collectExternalDocs(openapi, context);
     collectPaths(openapi, context);
     collectComponents(openapi, context);
     collectXWebhooks(openapi, context);
-    if (componentsPrefix) { replace$Refs(openapi, componentsPrefix); }
+    if (componentsPrefix) {
+      replace$Refs(openapi, componentsPrefix);
+    }
   }
 
   iteratePotentialConflicts(potentialConflicts, withoutXTagGroups);
@@ -163,14 +183,14 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   if (potentialConflictsTotal) {
     return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
-  } 
+  }
 
   writeYaml(joinedDef, specFilename, noRefs);
   printExecutionTime('join', startedAt, specFilename);
 
   function populateTags({
-    entrypoint,
-    entrypointFilename,
+    api,
+    apiFilename,
     tags,
     potentialConflicts,
     tagsPrefix,
@@ -194,13 +214,13 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
       const tagDuplicate = joinedDef.tags.find((t: Oas3Tag) => t.name === entrypointTagName);
 
       if (tagDuplicate && withoutXTagGroups) {
-        // If tag already exist and `without-x-tag-groups` option;
-        // check if description are different for potential conflicts warning;
+        // If tag already exist and `without-x-tag-groups` option,
+        // check if description are different for potential conflicts warning.
         const isTagDescriptionNotEqual =
           tag.hasOwnProperty('description') && tagDuplicate.description !== tag.description;
 
         potentialConflicts.tags.description[entrypointTagName].push(
-          ...(isTagDescriptionNotEqual ? [entrypoint] : [])
+          ...(isTagDescriptionNotEqual ? [api] : [])
         );
       } else if (!tagDuplicate) {
         // Instead add tag to joinedDef if there no duplicate;
@@ -209,42 +229,42 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         joinedDef.tags.push(tag);
 
         if (withoutXTagGroups) {
-          potentialConflicts.tags.description[entrypointTagName] = [entrypoint];
+          potentialConflicts.tags.description[entrypointTagName] = [api];
         }
       }
 
       if (!withoutXTagGroups) {
-        createXTagGroups(entrypointFilename);
+        createXTagGroups(apiFilename);
         if (!tagDuplicate) {
-          populateXTagGroups(entrypointTagName, getIndexGroup(entrypointFilename));
+          populateXTagGroups(entrypointTagName, getIndexGroup(apiFilename));
         }
       }
 
       const doesEntrypointExist =
         !potentialConflicts.tags.all[entrypointTagName] ||
         (potentialConflicts.tags.all[entrypointTagName] &&
-          !potentialConflicts.tags.all[entrypointTagName].includes(entrypoint));
+          !potentialConflicts.tags.all[entrypointTagName].includes(api));
       potentialConflicts.tags.all[entrypointTagName] = [
         ...(potentialConflicts.tags.all[entrypointTagName] || []),
-        ...(!withoutXTagGroups && doesEntrypointExist ? [entrypoint] : []),
+        ...(!withoutXTagGroups && doesEntrypointExist ? [api] : []),
       ];
     }
   }
 
-  function getIndexGroup(entrypointFilename: string): number {
-    return joinedDef[xTagGroups].findIndex((item: any) => item.name === entrypointFilename);
+  function getIndexGroup(apiFilename: string): number {
+    return joinedDef[xTagGroups].findIndex((item: any) => item.name === apiFilename);
   }
 
-  function createXTagGroups(entrypointFilename: string) {
+  function createXTagGroups(apiFilename: string) {
     if (!joinedDef.hasOwnProperty(xTagGroups)) {
       joinedDef[xTagGroups] = [];
     }
 
-    if (!joinedDef[xTagGroups].some((g: any) => g.name === entrypointFilename)) {
-      joinedDef[xTagGroups].push({ name: entrypointFilename, tags: [] });
+    if (!joinedDef[xTagGroups].some((g: any) => g.name === apiFilename)) {
+      joinedDef[xTagGroups].push({ name: apiFilename, tags: [] });
     }
 
-    const indexGroup = getIndexGroup(entrypointFilename);
+    const indexGroup = getIndexGroup(apiFilename);
 
     if (!joinedDef[xTagGroups][indexGroup].hasOwnProperty(Tags)) {
       joinedDef[xTagGroups][indexGroup][Tags] = [];
@@ -252,7 +272,9 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   }
 
   function populateXTagGroups(entrypointTagName: string, indexGroup: number) {
-    if (!joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag) => t.name === entrypointTagName)) {
+    if (
+      !joinedDef[xTagGroups][indexGroup][Tags].find((t: Oas3Tag) => t.name === entrypointTagName)
+    ) {
       joinedDef[xTagGroups][indexGroup][Tags].push(entrypointTagName);
     }
   }
@@ -260,7 +282,9 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   function collectServers(openapi: Oas3Definition) {
     const { servers } = openapi;
     if (servers) {
-      if (!joinedDef.hasOwnProperty('servers')) { joinedDef['servers'] = []; }
+      if (!joinedDef.hasOwnProperty('servers')) {
+        joinedDef['servers'] = [];
+      }
       for (const server of servers) {
         if (!joinedDef.servers.some((s: any) => s.url === server.url)) {
           joinedDef.servers.push(server);
@@ -271,14 +295,11 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   function collectInfoDescriptions(
     openapi: Oas3Definition,
-    {
-      entrypointFilename,
-      componentsPrefix
-    }: JoinDocumentContext
+    { apiFilename, componentsPrefix }: JoinDocumentContext
   ) {
     const { info } = openapi;
     if (info?.description) {
-      const groupIndex = joinedDef[xTagGroups] ? getIndexGroup(entrypointFilename) : -1;
+      const groupIndex = joinedDef[xTagGroups] ? getIndexGroup(apiFilename) : -1;
       if (
         joinedDef.hasOwnProperty(xTagGroups) &&
         groupIndex !== -1 &&
@@ -287,17 +308,19 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
       ) {
         joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(
           info.description,
-          componentsPrefix!,
+          componentsPrefix!
         );
       }
     }
   }
 
-  function collectExternalDocs(openapi: Oas3Definition, { entrypoint }: JoinDocumentContext) {
+  function collectExternalDocs(openapi: Oas3Definition, { api }: JoinDocumentContext) {
     const { externalDocs } = openapi;
     if (externalDocs) {
       if (joinedDef.hasOwnProperty('externalDocs')) {
-        process.stderr.write(yellow(`warning: skip externalDocs from ${blue(path.basename(entrypoint))} \n`));
+        process.stderr.write(
+          yellow(`warning: skip externalDocs from ${blue(path.basename(api))} \n`)
+        );
         return;
       }
       joinedDef['externalDocs'] = externalDocs;
@@ -306,42 +329,72 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   function collectPaths(
     openapi: Oas3Definition,
-    {
-      entrypointFilename,
-      entrypoint,
-      potentialConflicts,
-      tagsPrefix,
-      componentsPrefix
-    }: JoinDocumentContext
+    { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const { paths } = openapi;
     if (paths) {
-      if (!joinedDef.hasOwnProperty('paths')) { joinedDef['paths'] = {}; }
+      if (!joinedDef.hasOwnProperty('paths')) {
+        joinedDef['paths'] = {};
+      }
       for (const path of Object.keys(paths)) {
-        if (!joinedDef.paths.hasOwnProperty(path)) { joinedDef.paths[path] = {}; }
-        if (!potentialConflicts.paths.hasOwnProperty(path)) { potentialConflicts.paths[path] = {}; }
-        for (const operation of Object.keys(paths[path])) {
-          // @ts-ignore
-          const pathOperation = paths[path][operation];
+        if (!joinedDef.paths.hasOwnProperty(path)) {
+          joinedDef.paths[path] = {};
+        }
+        if (!potentialConflicts.paths.hasOwnProperty(path)) {
+          potentialConflicts.paths[path] = {};
+        }
+        for (const [operation, pathOperation] of Object.entries(paths[path])) {
           joinedDef.paths[path][operation] = pathOperation;
-          potentialConflicts.paths[path][operation] = [...(potentialConflicts.paths[path][operation] || []), entrypoint];
+          potentialConflicts.paths[path][operation] = [
+            ...(potentialConflicts.paths[path][operation] || []),
+            api,
+          ];
           const { operationId } = pathOperation;
           if (operationId) {
-            if (!potentialConflicts.paths.hasOwnProperty('operationIds')) { potentialConflicts.paths['operationIds'] = {}; }
-            potentialConflicts.paths.operationIds[operationId] = [...(potentialConflicts.paths.operationIds[operationId] || []), entrypoint];
+            if (!potentialConflicts.paths.hasOwnProperty('operationIds')) {
+              potentialConflicts.paths['operationIds'] = {};
+            }
+            potentialConflicts.paths.operationIds[operationId] = [
+              ...(potentialConflicts.paths.operationIds[operationId] || []),
+              api,
+            ];
           }
-          let { tags, security } = joinedDef.paths[path][operation];
+          const { tags, security } = joinedDef.paths[path][operation];
           if (tags) {
-            joinedDef.paths[path][operation].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix });
+            joinedDef.paths[path][operation].tags = tags.map((tag: string) =>
+              addPrefix(tag, tagsPrefix)
+            );
+            populateTags({
+              api,
+              apiFilename,
+              tags: formatTags(tags),
+              potentialConflicts,
+              tagsPrefix,
+              componentsPrefix,
+            });
           } else {
-            joinedDef.paths[path][operation]['tags'] = [addPrefix('other', tagsPrefix || entrypointFilename)];
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags(['other']), potentialConflicts, tagsPrefix: tagsPrefix || entrypointFilename, componentsPrefix });
+            joinedDef.paths[path][operation]['tags'] = [
+              addPrefix('other', tagsPrefix || apiFilename),
+            ];
+            populateTags({
+              api,
+              apiFilename,
+              tags: formatTags(['other']),
+              potentialConflicts,
+              tagsPrefix: tagsPrefix || apiFilename,
+              componentsPrefix,
+            });
           }
           if (!security && openapi.hasOwnProperty('security')) {
-            joinedDef.paths[path][operation]['security'] = addSecurityPrefix(openapi.security, componentsPrefix!);
+            joinedDef.paths[path][operation]['security'] = addSecurityPrefix(
+              openapi.security,
+              componentsPrefix!
+            );
           } else if (pathOperation.security) {
-            joinedDef.paths[path][operation].security = addSecurityPrefix(pathOperation.security, componentsPrefix!);
+            joinedDef.paths[path][operation].security = addSecurityPrefix(
+              pathOperation.security,
+              componentsPrefix!
+            );
           }
         }
       }
@@ -350,26 +403,23 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   function collectComponents(
     openapi: Oas3Definition,
-    {
-      entrypoint,
-      potentialConflicts,
-      componentsPrefix
-    }: JoinDocumentContext
+    { api, potentialConflicts, componentsPrefix }: JoinDocumentContext
   ) {
     const { components } = openapi;
     if (components) {
-      if (!joinedDef.hasOwnProperty(COMPONENTS)) { joinedDef[COMPONENTS] = {}; }
-      for (const component of Object.keys(components)) {
+      if (!joinedDef.hasOwnProperty(COMPONENTS)) {
+        joinedDef[COMPONENTS] = {};
+      }
+      for (const [component, componentObj] of Object.entries(components)) {
         if (!potentialConflicts[COMPONENTS].hasOwnProperty(component)) {
           potentialConflicts[COMPONENTS][component] = {};
           joinedDef[COMPONENTS][component] = {};
         }
-        // @ts-ignore
-        const componentObj = components[component];
         for (const item of Object.keys(componentObj)) {
           const componentPrefix = addPrefix(item, componentsPrefix!);
           potentialConflicts.components[component][componentPrefix] = [
-            ...(potentialConflicts.components[component][item] || []), { [entrypoint]: componentObj[item]}
+            ...(potentialConflicts.components[component][item] || []),
+            { [api]: componentObj[item] },
           ];
           joinedDef.components[component][componentPrefix] = componentObj[item];
         }
@@ -379,40 +429,52 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   function collectXWebhooks(
     openapi: Oas3Definition,
-    {
-      entrypointFilename,
-      entrypoint,
-      potentialConflicts,
-      tagsPrefix,
-      componentsPrefix
-    }: JoinDocumentContext
+    { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const xWebhooks = 'x-webhooks';
-    // @ts-ignore
     const openapiXWebhooks = openapi[xWebhooks];
     if (openapiXWebhooks) {
-      if (!joinedDef.hasOwnProperty(xWebhooks)) { joinedDef[xWebhooks] = {}; }
+      if (!joinedDef.hasOwnProperty(xWebhooks)) {
+        joinedDef[xWebhooks] = {};
+      }
       for (const webhook of Object.keys(openapiXWebhooks)) {
         joinedDef[xWebhooks][webhook] = openapiXWebhooks[webhook];
 
-        if (!potentialConflicts.xWebhooks.hasOwnProperty(webhook)) { potentialConflicts.xWebhooks[webhook] = {}; }
+        if (!potentialConflicts.xWebhooks.hasOwnProperty(webhook)) {
+          potentialConflicts.xWebhooks[webhook] = {};
+        }
         for (const operation of Object.keys(openapiXWebhooks[webhook])) {
-          potentialConflicts.xWebhooks[webhook][operation] = [...(potentialConflicts.xWebhooks[webhook][operation] || []), entrypoint];
+          potentialConflicts.xWebhooks[webhook][operation] = [
+            ...(potentialConflicts.xWebhooks[webhook][operation] || []),
+            api,
+          ];
         }
         for (const operationKey of Object.keys(joinedDef[xWebhooks][webhook])) {
-          let { tags } = joinedDef[xWebhooks][webhook][operationKey];
+          const { tags } = joinedDef[xWebhooks][webhook][operationKey];
           if (tags) {
-            joinedDef[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) => addPrefix(tag, tagsPrefix));
-            populateTags({ entrypoint, entrypointFilename, tags: formatTags(tags), potentialConflicts, tagsPrefix, componentsPrefix });
+            joinedDef[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) =>
+              addPrefix(tag, tagsPrefix)
+            );
+            populateTags({
+              api,
+              apiFilename,
+              tags: formatTags(tags),
+              potentialConflicts,
+              tagsPrefix,
+              componentsPrefix,
+            });
           }
         }
       }
     }
   }
 
-  function addInfoSectionAndSpecVersion(documents: any, prefixComponentsWithInfoProp: string | undefined) {
-    const firstEntrypoint = documents[0];
-    const openapi = firstEntrypoint.parsed;
+  function addInfoSectionAndSpecVersion(
+    documents: any,
+    prefixComponentsWithInfoProp: string | undefined
+  ) {
+    const firstApi = documents[0];
+    const openapi = firstApi.parsed;
     const componentsPrefix = getInfoPrefix(openapi.info, prefixComponentsWithInfoProp, COMPONENTS);
     if (!openapi.openapi) exitWithError('Version of specification is not found in. \n');
     if (!openapi.info) exitWithError('Info section is not found in specification. \n');
@@ -431,7 +493,7 @@ function doesComponentsDiffer(curr: object, next: object) {
 function validateComponentsDifference(files: any) {
   let isDiffer = false;
   for (let i = 0, len = files.length; i < len; i++) {
-    let next = files[i + 1];
+    const next = files[i + 1];
     if (next && doesComponentsDiffer(files[i], next)) {
       isDiffer = true;
     }
@@ -475,9 +537,9 @@ function duplicateTagDescriptionWarning(conflicts: [string, any][]) {
   process.stderr.write(
     yellow(
       `\nwarning: ${tagsKeys.length} conflict(s) on the ${red(
-        tagsKeys.join(joinString),
-      )} tags description.\n`,
-    ),
+        tagsKeys.join(joinString)
+      )} tags description.\n`
+    )
   );
 }
 
@@ -503,12 +565,12 @@ function filterConflicts(entities: object) {
   return Object.entries(entities).filter(([_, files]) => files.length > 1);
 }
 
-function getEntrypointFilename(filePath: string) {
-  return path.basename(filePath, path.extname(filePath))
+function getApiFilename(filePath: string) {
+  return path.basename(filePath, path.extname(filePath));
 }
 
 function addPrefix(tag: string, tagsPrefix: string) {
-  return tagsPrefix ? tagsPrefix +'_'+ tag : tag;
+  return tagsPrefix ? tagsPrefix + '_' + tag : tag;
 }
 
 function formatTags(tags: string[]) {
@@ -519,26 +581,44 @@ function addComponentsPrefix(description: string, componentsPrefix: string) {
   return description.replace(/"(#\/components\/.*?)"/g, (match) => {
     const componentName = path.basename(match);
     return match.replace(componentName, addPrefix(componentName, componentsPrefix));
-  })
+  });
 }
 
 function addSecurityPrefix(security: any, componentsPrefix: string) {
-  return componentsPrefix ? security?.map((s: any) => {
-    const key = Object.keys(s)[0];
-    return { [componentsPrefix +'_'+ key]: s[key] }
-  }) : security;
+  return componentsPrefix
+    ? security?.map((s: any) => {
+        const key = Object.keys(s)[0];
+        return { [componentsPrefix + '_' + key]: s[key] };
+      })
+    : security;
 }
 
 function getInfoPrefix(info: any, prefixArg: string | undefined, type: string) {
   if (!prefixArg) return '';
   if (!info) exitWithError('Info section is not found in specification. \n');
-  if (!info[prefixArg]) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`);
-  if (!isString(info[prefixArg])) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value should be string. \n\n`);
-  if (info[prefixArg].length > 50) exitWithError(`${yellow(`prefix-${type}-with-info-prop`)} argument value length should not exceed 50 characters. \n\n`);
+  if (!info[prefixArg])
+    exitWithError(
+      `${yellow(`prefix-${type}-with-info-prop`)} argument value is not found in info section. \n`
+    );
+  if (!isString(info[prefixArg]))
+    exitWithError(
+      `${yellow(`prefix-${type}-with-info-prop`)} argument value should be string. \n\n`
+    );
+  if (info[prefixArg].length > 50)
+    exitWithError(
+      `${yellow(
+        `prefix-${type}-with-info-prop`
+      )} argument value length should not exceed 50 characters. \n\n`
+    );
   return info[prefixArg];
 }
 
-async function validateEntrypoint(document: Document, config: LintConfig, externalRefResolver: BaseResolver, packageVersion: string) {
+async function validateApi(
+  document: Document,
+  config: StyleguideConfig,
+  externalRefResolver: BaseResolver,
+  packageVersion: string
+) {
   try {
     const results = await lintDocument({ document, config, externalRefResolver });
     const fileTotals = getTotals(results);
@@ -561,7 +641,7 @@ function replace$Refs(obj: any, componentsPrefix: string) {
   crawl(obj, (node: any) => {
     if (node.$ref && isString(node.$ref) && node.$ref.startsWith(`#/${COMPONENTS}/`)) {
       const name = path.basename(node.$ref);
-      node.$ref = node.$ref.replace(name, componentsPrefix +'_'+ name);
+      node.$ref = node.$ref.replace(name, componentsPrefix + '_' + name);
     } else if (
       node.discriminator &&
       node.discriminator.mapping &&
@@ -570,9 +650,14 @@ function replace$Refs(obj: any, componentsPrefix: string) {
       const { mapping } = node.discriminator;
       for (const name of Object.keys(mapping)) {
         if (isString(mapping[name]) && mapping[name].startsWith(`#/${COMPONENTS}/`)) {
-          mapping[name] = mapping[name].split('/').map((name: string, i: number, arr: []) => {
-            return (arr.length - 1 === i && !name.includes(componentsPrefix)) ? componentsPrefix+'_'+name : name;
-          }).join('/')
+          mapping[name] = mapping[name]
+            .split('/')
+            .map((name: string, i: number, arr: []) => {
+              return arr.length - 1 === i && !name.includes(componentsPrefix)
+                ? componentsPrefix + '_' + name
+                : name;
+            })
+            .join('/');
         }
       }
     }

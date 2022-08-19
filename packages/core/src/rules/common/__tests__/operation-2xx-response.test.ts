@@ -15,7 +15,7 @@ describe('Oas3 operation-2xx-response', () => {
                   400:
                     description: bad response
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -54,7 +54,7 @@ describe('Oas3 operation-2xx-response', () => {
                   200:
                     description: ok
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -77,7 +77,7 @@ describe('Oas3 operation-2xx-response', () => {
                   default:
                     description: ok
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

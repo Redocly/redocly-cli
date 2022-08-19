@@ -3,7 +3,7 @@ import { AssertToApply, buildSubjectVisitor, buildVisitorObject } from './utils'
 import { Oas2Rule, Oas3Rule } from '../../../visitors';
 
 export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
-  let visitors: any[] = [];
+  const visitors: any[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here
@@ -11,7 +11,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   // that is why we need to iterate through 'opts' values;
   // before - filter only object 'opts' values
   const assertions: any[] = Object.values(opts).filter(
-    (opt: unknown) => typeof opt === 'object' && opt !== null,
+    (opt: unknown) => typeof opt === 'object' && opt !== null
   );
 
   for (const [index, assertion] of assertions.entries()) {
@@ -42,21 +42,21 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
       });
 
     const shouldRunOnKeys: AssertToApply | undefined = assertsToApply.find(
-      (assert: AssertToApply) => assert.runsOnKeys && !assert.runsOnValues,
+      (assert: AssertToApply) => assert.runsOnKeys && !assert.runsOnValues
     );
     const shouldRunOnValues: AssertToApply | undefined = assertsToApply.find(
-      (assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys,
+      (assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys
     );
 
     if (shouldRunOnValues && !assertion.property) {
       throw new Error(
-        `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`,
+        `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`
       );
     }
 
     if (shouldRunOnKeys && assertion.property) {
       throw new Error(
-        `${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`,
+        `${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`
       );
     }
 
@@ -64,7 +64,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
       const subjectVisitor = buildSubjectVisitor(
         assertion.property,
         assertsToApply,
-        assertion.context,
+        assertion.context
       );
       const visitorObject = buildVisitorObject(subject, assertion.context, subjectVisitor);
       visitors.push(visitorObject);

@@ -1,9 +1,7 @@
 import { iteratePathItems, handleSplit } from '../index';
 import * as path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
-import {
-  ComponentsFiles,
-} from '../types'; 
+import { ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
 
 const utils = require('../../../utils');
@@ -23,16 +21,14 @@ describe('#split', () => {
   const componentsFiles: ComponentsFiles = {};
 
   it('should split the file and show the success message', async () => {
-    const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
-    await handleSplit (
-      {
-        entrypoint: filePath,
-        outDir: openapiDir,
-        separator: '_',
-      }
-    );
+    await handleSplit({
+      api: filePath,
+      outDir: openapiDir,
+      separator: '_',
+    });
 
     expect(process.stderr.write).toBeCalledTimes(2);
     expect((process.stderr.write as jest.Mock).mock.calls[0][0]).toBe(
@@ -44,65 +40,86 @@ describe('#split', () => {
     );
   });
 
-
   it('should use the correct separator', async () => {
-    const filePath = "packages/cli/src/commands/split/__tests__/fixtures/spec.json";
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
     jest.spyOn(utils, 'pathToFilename').mockImplementation(() => 'newFilePath');
 
-    await handleSplit (
-      {
-        entrypoint: filePath,
-        outDir: openapiDir,
-        separator: '_',
-      }
-    );
+    await handleSplit({
+      api: filePath,
+      outDir: openapiDir,
+      separator: '_',
+    });
 
     expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');
     utils.pathToFilename.mockRestore();
   });
 
   it('should have correct path with paths', () => {
-    const openapi = require("./fixtures/spec.json");
-    
+    const openapi = require('./fixtures/spec.json');
+
     jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
     jest.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
-    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
+    iteratePathItems(
+      openapi.paths,
+      openapiDir,
+      path.join(openapiDir, 'paths'),
+      componentsFiles,
+      '_'
+    );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/paths/test.yaml');
   });
 
   it('should have correct path with webhooks', () => {
-    const openapi = require("./fixtures/webhooks.json");
+    const openapi = require('./fixtures/webhooks.json');
 
     jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     jest.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
-    iteratePathItems(openapi.webhooks, openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
+    iteratePathItems(
+      openapi.webhooks,
+      openapiDir,
+      path.join(openapiDir, 'webhooks'),
+      componentsFiles,
+      'webhook_'
+    );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
   });
 
   it('should have correct path with x-webhooks', () => {
-    const openapi = require("./fixtures/spec.json");
+    const openapi = require('./fixtures/spec.json');
 
     jest.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
     jest.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
-    iteratePathItems(openapi['x-webhooks'], openapiDir, path.join(openapiDir, 'webhooks'), componentsFiles, 'webhook_');
+    iteratePathItems(
+      openapi['x-webhooks'],
+      openapiDir,
+      path.join(openapiDir, 'webhooks'),
+      componentsFiles,
+      'webhook_'
+    );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
     expect(path.relative).toHaveBeenCalledWith('test', 'test/webhooks/test.yaml');
   });
 
   it('should create correct folder name for code samples', async () => {
-    const openapi = require("./fixtures/samples.json");
+    const openapi = require('./fixtures/samples.json');
 
-    const fs = require('fs')
+    const fs = require('fs');
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
 
     jest.spyOn(utils, 'escapeLanguageName');
-    iteratePathItems(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), componentsFiles, '_');
+    iteratePathItems(
+      openapi.paths,
+      openapiDir,
+      path.join(openapiDir, 'paths'),
+      componentsFiles,
+      '_'
+    );
 
     expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');
     expect(utils.escapeLanguageName).nthReturnedWith(1, 'C_sharp');

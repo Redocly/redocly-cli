@@ -3,12 +3,15 @@ import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
 import { Oas3Schema, Referenced } from '../typings/openapi';
+import { showErrorForDeprecatedField, showWarningForDeprecatedField } from '../utils';
 
 export function oasTypeOf(value: unknown) {
   if (Array.isArray(value)) {
     return 'array';
   } else if (value === null) {
     return 'null';
+  } else if (Number.isInteger(value)) {
+    return 'integer';
   } else {
     return typeof value;
   }
@@ -23,7 +26,7 @@ export function oasTypeOf(value: unknown) {
  */
 export function matchesJsonSchemaType(value: unknown, type: string, nullable: boolean): boolean {
   if (nullable && value === null) {
-    return value === null;
+    return true;
   }
 
   switch (type) {
@@ -89,7 +92,7 @@ export function validateExample(
   schema: Referenced<Oas3Schema>,
   dataLoc: Location,
   { resolve, location, report }: UserContext,
-  disallowAdditionalProperties: boolean,
+  allowAdditionalProperties: boolean
 ) {
   try {
     const { valid, errors } = validateJsonSchema(
@@ -98,10 +101,10 @@ export function validateExample(
       location.child('schema'),
       dataLoc.pointer,
       resolve,
-      disallowAdditionalProperties,
+      allowAdditionalProperties
     );
     if (!valid) {
-      for (let error of errors) {
+      for (const error of errors) {
         report({
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
@@ -120,4 +123,17 @@ export function validateExample(
       from: location,
     });
   }
+}
+
+export function getAdditionalPropertiesOption(opts: Record<string, any>): boolean {
+  if (opts.disallowAdditionalProperties === undefined) {
+    return opts.allowAdditionalProperties;
+  }
+
+  if (opts.allowAdditionalProperties !== undefined) {
+    showErrorForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
+  }
+
+  showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
+  return !opts.disallowAdditionalProperties;
 }

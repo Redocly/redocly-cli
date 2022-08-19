@@ -65,8 +65,8 @@ properties:
       description: >-
         List each rule by name.
         For example, `no-empty-servers`.
-        Redocly has over [40 built-in rules](../resources/built-in-rules/) you can configure.
-        Some are highly configurable, including [assertions](../resources/rules/assertions/).
+        Redocly has over [40 built-in rules](../rules/) you can configure.
+        Some are highly configurable, including [assertions](../rules/assertions/).
         For further customization, you can [create custom plugins with custom rules](../resources/custom-rules/).
       oneOf:
         - type: string

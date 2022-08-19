@@ -14,7 +14,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { env } from "../config";
+import { env } from '../config';
 
 export type Totals = {
   errors: number;
@@ -84,7 +84,7 @@ export function formatProblems(
     color?: boolean;
     totals: Totals;
     version: string;
-  },
+  }
 ) {
   const {
     maxProblems = 100,
@@ -120,7 +120,7 @@ export function formatProblems(
     case 'stylish': {
       const groupedByFile = groupByFiles(problems);
       for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
-        groupedByFile,
+        groupedByFile
       )) {
         process.stderr.write(`${blue(path.relative(cwd, file))}:\n`);
 
@@ -156,8 +156,8 @@ export function formatProblems(
   if (totalProblems - ignoredProblems > maxProblems) {
     process.stderr.write(
       `< ... ${totalProblems - maxProblems} more problems hidden > ${gray(
-        'increase with `--max-problems N`',
-      )}\n`,
+        'increase with `--max-problems N`'
+      )}\n`
     );
   }
 
@@ -185,7 +185,7 @@ export function formatProblems(
       totals,
       version,
       problems: problems.map((p) => {
-        let problem = {
+        const problem = {
           ...p,
           location: p.location.map((location: any) => ({
             ...location,
@@ -243,12 +243,12 @@ export function formatProblems(
   function formatStylish(problem: OnlyLineColProblem, locationPad: number, ruleIdPad: number) {
     const color = COLORS[problem.severity];
     if (!SEVERITY_NAMES[problem.severity]) {
-      return 'Error not found severity. Please check your config file. Allowed values: \`warn,error,off\`'
+      return 'Error not found severity. Please check your config file. Allowed values: `warn,error,off`';
     }
     const severityName = color(SEVERITY_NAMES[problem.severity].toLowerCase().padEnd(7));
     const { start } = problem.location[0];
     return `  ${`${start.line}:${start.col}`.padEnd(
-      locationPad,
+      locationPad
     )}  ${severityName}  ${problem.ruleId.padEnd(ruleIdPad)}  ${problem.message}`;
   }
 
@@ -258,7 +258,7 @@ export function formatProblems(
     const message = xmlEscape(problem.message);
     const source = xmlEscape(problem.ruleId);
     process.stdout.write(
-      `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`,
+      `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`
     );
   }
 }
@@ -307,12 +307,12 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
     fileGroups[absoluteRef].fileProblems.push(mappedProblem);
     fileGroups[absoluteRef].ruleIdPad = Math.max(
       problem.ruleId.length,
-      fileGroups[absoluteRef].ruleIdPad,
+      fileGroups[absoluteRef].ruleIdPad
     );
 
     fileGroups[absoluteRef].locationPad = Math.max(
       Math.max(...mappedProblem.location.map((loc) => `${loc.start.line}:${loc.start.col}`.length)),
-      fileGroups[absoluteRef].locationPad,
+      fileGroups[absoluteRef].locationPad
     );
   }
 
@@ -320,6 +320,7 @@ const groupByFiles = (problems: NormalizedProblem[]) => {
 };
 
 function xmlEscape(s: string): string {
+  // eslint-disable-next-line no-control-regex
   return s.replace(/[<>&"'\x00-\x1F\x7F\u0080-\uFFFF]/gu, (char) => {
     switch (char) {
       case '<':

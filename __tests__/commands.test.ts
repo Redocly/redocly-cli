@@ -2,7 +2,7 @@ import { readdirSync, statSync, existsSync } from 'fs';
 import { join, relative } from 'path';
 //@ts-ignore
 import { toMatchSpecificSnapshot } from './specific-snapshot';
-import { getCommandOutput, getEntrypoints, callSerializer ,getParams } from './helpers';
+import { getCommandOutput, getEntrypoints, callSerializer, getParams } from './helpers';
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -21,7 +21,7 @@ describe('E2E', () => {
       if (statSync(testPath).isFile()) continue;
       if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
 
-      const args = getParams('../../../packages/cli/src/index.ts','lint');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint');
 
       it(file, () => {
         const result = getCommandOutput(args, testPath);
@@ -50,7 +50,7 @@ describe('E2E', () => {
       const relativeValidOpenapiFile = relative(folderPath, validOpenapiFile);
       const args = [relativeValidOpenapiFile, ...(option ? [`--lint-config=${option}`] : [])];
 
-      const passedArgs = getParams('../../../packages/cli/src/index.ts','lint', args);
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
       (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -60,7 +60,7 @@ describe('E2E', () => {
       const folderPath = join(__dirname, 'lint-config/invalid-definition-and-config');
       const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
       const args = [relativeInvalidOpenapiFile, `--lint-config=error`];
-      const passedArgs = getParams('../../../packages/cli/src/index.ts','lint', args);
+      const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
 
@@ -72,7 +72,9 @@ describe('E2E', () => {
     test('without option: outDir', () => {
       const folderPath = join(__dirname, `split/missing-outDir`);
 
-      const args = getParams('../../../packages/cli/src/index.ts','split', ['../../../__tests__/split/test-split/spec.json']);
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        '../../../__tests__/split/test-split/spec.json',
+      ]);
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -81,7 +83,7 @@ describe('E2E', () => {
     test('swagger', () => {
       const folderPath = join(__dirname, `split/oas2`);
 
-      const args = getParams('../../../packages/cli/src/index.ts','split', [
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
         '../../../__tests__/split/oas2/openapi.yaml',
         '--outDir=output',
       ]);
@@ -94,7 +96,10 @@ describe('E2E', () => {
       const folderPath = join(__dirname, `split/oas3-no-errors`);
       const file = '../../../__tests__/split/oas3-no-errors/openapi.yaml';
 
-      const args = getParams('../../../packages/cli/src/index.ts','split', [file, '--outDir=output']);
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        file,
+        '--outDir=output',
+      ]);
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
@@ -111,12 +116,12 @@ describe('E2E', () => {
         'reference-in-description',
         'two-files-with-no-errors',
         'fails-if-component-conflicts',
-        'multiple-tags-in-same-files'
+        'multiple-tags-in-same-files',
       ];
 
       test.each(testDirNames)('test: %s', (dir) => {
         const testPath = join(__dirname, `join/${dir}`);
-        const args = getParams('../../../packages/cli/src/index.ts','join', entrypoints);
+        const args = getParams('../../../packages/cli/src/index.ts', 'join', entrypoints);
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
@@ -133,7 +138,7 @@ describe('E2E', () => {
       test.each(options)('test with option: %s', (option) => {
         const testPath = join(__dirname, `join/${option.name}`);
         const argsWithOptions = [...entrypoints, ...[`--${option.name}=${option.value}`]];
-        const args = getParams('../../../packages/cli/src/index.ts','join', argsWithOptions);
+        const args = getParams('../../../packages/cli/src/index.ts', 'join', argsWithOptions);
         const result = getCommandOutput(args, testPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
@@ -153,7 +158,7 @@ describe('E2E', () => {
 
       const entryPoints = getEntrypoints(testPath);
 
-      const args = getParams('../../../packages/cli/src/index.ts','bundle', [
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         '--lint',
         '--max-problems=1',
         '--format=stylish',
@@ -170,7 +175,7 @@ describe('E2E', () => {
   describe('bundle lint format', () => {
     const folderPath = join(__dirname, 'bundle/bundle-lint-format');
     const entryPoints = getEntrypoints(folderPath);
-    const args = getParams('../../../packages/cli/src/index.ts','bundle', [
+    const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
       '--lint',
       '--max-problems=1',
       '-o=/tmp/null',
@@ -183,9 +188,9 @@ describe('E2E', () => {
         const params = [...args, `--format=${format}`];
         const result = getCommandOutput(params, folderPath);
         (<any>expect(result)).toMatchSpecificSnapshot(
-          join(folderPath, `${format}-format-snapshot.js`),
+          join(folderPath, `${format}-format-snapshot.js`)
         );
-      },
+      }
     );
 
     test.each(['noFormatParameter', 'emptyFormatValue'])(
@@ -195,7 +200,7 @@ describe('E2E', () => {
         const params = [...args, ...formatArgument];
         const result = getCommandOutput(params, folderPath);
         (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, `${format}-snapshot.js`));
-      },
+      }
     );
   });
 
@@ -211,8 +216,21 @@ describe('E2E', () => {
       ];
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(
-        join(folderPath, 'remove-unused-components-snapshot.js'),
+        join(folderPath, 'remove-unused-components-snapshot.js')
       );
+    });
+  });
+
+  describe('bundle with option: dereferenced', () => {
+    it('description should not be from $ref', () => {
+      const folderPath = join(__dirname, `bundle/bundle-description-dereferenced`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'test.yaml',
+        '--dereferenced',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
 });

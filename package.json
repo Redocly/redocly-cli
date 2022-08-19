@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.105",
+  "version": "1.0.0-beta.107",
   "description": "",
   "private": true,
   "engines": {
@@ -16,6 +16,8 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "npm run webpack-bundle -- --mode=none && jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js}\"",
+    "prettier:check": "npx prettier --check \"**/*.{ts,js}\"",
+    "eslint": "eslint packages/**",
     "clean": "rm -rf packages/**/lib packages/**/node_modules packages/**/*.tsbuildinfo package-lock.json node_modules",
     "watch": "tsc -b tsconfig.build.json --watch ",
     "compile": "tsc -b tsconfig.build.json",
@@ -29,7 +31,8 @@
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js",
-    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload"
+    "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
+    "pack:prepare": "cd packages/cli && (mv \"$(npm pack | tail -n 1)\" ../../redocly-cli.tgz)"
   },
   "workspaces": [
     "packages/*"
@@ -55,6 +58,9 @@
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "@types/node": "^17.0.31",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "eslint": "^8.22.0",
     "jest": "^26.6.3",
     "null-loader": "^4.0.0",
     "outdent": "^0.7.1",

@@ -18,13 +18,13 @@ import { NoServerTrailingSlash } from './no-server-trailing-slash';
 import { InfoDescription } from '../common/info-description';
 import { TagDescription } from '../common/tag-description';
 import { InfoContact } from '../common/info-contact';
-import { InfoLicense } from '../common/info-license-url';
+import { InfoLicense } from '../common/info-license';
+import { InfoLicenseUrl } from '../common/info-license-url';
 import { OperationDescription } from '../common/operation-description';
 import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
 import { ParameterDescription } from '../common/parameter-description';
 import { OperationSingularTag } from '../common/operation-singular-tag';
-import { InfoLicenseUrl } from '../common/license-url';
 import { OperationSecurityDefined } from '../common/operation-security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
@@ -37,7 +37,7 @@ import { NoUndefinedServerVariable } from './no-undefined-server-variable';
 import { OperationOperationId } from '../common/operation-operationId';
 import { OperationSummary } from '../common/operation-summary';
 import { NoAmbiguousPaths } from '../common/no-ambiguous-paths';
-import { NoEmptyEnumServers } from './no-servers-empty-enum';
+import { NoServerVariablesEmptyEnum } from './no-server-variables-empty-enum';
 import { NoHttpVerbsInPaths } from '../common/no-http-verbs-in-paths';
 import { RequestMimeType } from './request-mime-type';
 import { ResponseMimeType } from './response-mime-type';
@@ -57,7 +57,7 @@ export const rules = {
   'info-license-url': InfoLicenseUrl,
   'operation-2xx-response': Operation2xxResponse,
   'operation-4xx-response': Operation4xxResponse,
-  'assertions': Assertions,
+  assertions: Assertions,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
   'path-parameters-defined': PathParamsDefined,
@@ -89,7 +89,7 @@ export const rules = {
   'no-identical-paths': NoIdenticalPaths,
   'no-ambiguous-paths': NoAmbiguousPaths,
   'no-undefined-server-variable': NoUndefinedServerVariable,
-  'no-servers-empty-enum': NoEmptyEnumServers,
+  'no-server-variables-empty-enum': NoServerVariablesEmptyEnum,
   'no-http-verbs-in-paths': NoHttpVerbsInPaths,
   'path-excludes-patterns': PathExcludesPatterns,
   'request-mime-type': RequestMimeType,

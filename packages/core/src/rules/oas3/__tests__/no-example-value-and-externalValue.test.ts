@@ -14,7 +14,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
                 value: 12
                 externalValue: https://1.1.1.1
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -51,7 +51,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
               some:
                 value: 12
         `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

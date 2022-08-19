@@ -14,10 +14,10 @@ The Redocly configuration file supports global lint settings (configured in the 
 apis:
   main@v1:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules: []
       (...)
-lint:
+styleguide:
   rules: []
   (...)
 ```
@@ -29,7 +29,7 @@ If per-API and global settings modify the same properties, per-API settings will
 The `lint` configuration consists of several lists and objects. The following code block shows an example `lint` configuration. Its contents are described further in the text.
 
 ```yaml
-lint:
+styleguide:
   plugins:
     - './local-plugin.js'
   extends:
@@ -69,13 +69,13 @@ Community plugins are not supported.
 ### Examples
 
 ```yaml Import a single plugin
-lint:
+styleguide:
   plugins:
     - './local-plugin.js'
 ```
 
 ```yaml Import multiple plugins
-lint:
+styleguide:
   plugins:
     - ['./local-plugin.js', './another-local-plugin.js']
 ```
@@ -108,7 +108,7 @@ It supports the following types of values:
 When providing values as URLs, they must be publicly accessible.
 
 ```yaml
-lint:
+styleguide:
   extends:
     - built-in-configuration-name
     - local-plugin-name/configuration-name
@@ -140,13 +140,13 @@ Any additional configuration must be in a YAML file, and must conform to the Red
 **Example: using an additional configuration file**
 
 ```yaml Main redocly.yaml
-lint:
+styleguide:
   extends:
     - ./other-configuration.yaml
 ```
 
 ```yaml Linked other-configuration.yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: error
     no-invalid-schema-examples:
@@ -161,7 +161,7 @@ If you add another Redocly configuration file to the `extends` list, the setting
 **Example: using an additional configuration file**
 
 ```yaml Main redocly.yaml
-lint:
+styleguide:
   extends:
     - ./testing/redocly.yaml
 ```
@@ -170,7 +170,7 @@ lint:
 apis:
   testing-api:
     (...)
-lint:
+styleguide:
   rules:
     tags-alphabetical: error
     no-invalid-schema-examples:
@@ -192,13 +192,13 @@ Custom plugins can't contain the `extends` list because recursive extension is n
 The following examples illustrate configuration nesting with multiple configuration files.
 
 ```yaml Main redocly.yaml
-lint:
+styleguide:
   extends:
     - custom.yaml
 ```
 
 ```yaml custom.yaml
-lint:
+styleguide:
   extends:
     - nested.yaml
   rules:
@@ -207,7 +207,7 @@ lint:
 ```
 
 ```yaml nested.yaml
-lint:
+styleguide:
   rules:
     path-parameters-defined: error
     tag-description: warn
@@ -228,7 +228,7 @@ Due to the conflict, priority goes to the inline `rules` over the `extends` list
 
 
 ```yaml redocly.yaml
-lint:
+styleguide:
   extends:
     - custom.yaml
   rules:
@@ -237,7 +237,7 @@ lint:
 ```
 
 ```yaml custom.yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: warn
     path-parameters-defined: warn
@@ -252,21 +252,21 @@ In the following example, Redocly CLI will use the setting for the conflicting `
 This means you can control the priority of configurations by reordering them in the `extends` list, and override all lint configurations (custom and built-in) by specifying individual rule settings in the `rules` object.
 
 ```yaml redocly.yaml
-lint:
+styleguide:
   extends:
     - custom.yaml
     - testing.yaml
 ```
 
 ```yaml custom.yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: warn
     paths-kebab-case: warn
 ```
 
 ```yaml testing.yaml
-lint:
+styleguide:
   rules:
     tags-alphabetical: error
     path-parameters-defined: warn
@@ -301,13 +301,13 @@ For `bundle` command: rules run *between* preprocessors and decorators.
 ### Examples
 
 ```yaml Short syntax
-lint:
+styleguide:
   rules:
     no-sibling-refs: error
 ```
 
 ```yaml Verbose syntax
-lint:
+styleguide:
   rules:
     no-sibling-refs:
       severity: error
@@ -316,7 +316,7 @@ lint:
 ```yaml Rules with additional configuration
 # Use verbose configuration syntax to define additional configuration
 # The boolean-parameter-prefixes example overrides the default "prefixes".
-lint:
+styleguide:
   rules:
     boolean-parameter-prefixes:
       severity: error
@@ -348,7 +348,7 @@ For the `bundle` command, linting happens only when the `--lint` flag is used.
 With the short configuration syntax, you can't configure [additional options](#additional-rule-options) for any given rule (if it supports them).
 
 ```yaml Short syntax
-lint:
+styleguide:
   extends:
     - recommended
   rules:
@@ -357,7 +357,7 @@ lint:
 ```
 
 ```yaml Verbose syntax
-lint:
+styleguide:
   extends:
     - recommended
   rules:
@@ -369,7 +369,7 @@ lint:
 
 :::info
 
-See the [rules documentation](../resources/built-in-rules.md) for more information.
+See the [rules documentation](../rules.md) for more information.
 
 :::
 
@@ -378,7 +378,7 @@ See the [rules documentation](../resources/built-in-rules.md) for more informati
 The example below shows additional rule options for the `boolean-parameter-prefixes` rule:
 
 ```yaml
-lint:
+styleguide:
   extends:
     - recommended
   rules:
@@ -389,7 +389,7 @@ lint:
       severity: error
 ```
 
-To know which rules support options, read the [built-in rules documentation](../resources/built-in-rules.md).
+To know which rules support options, read the [rules documentation](../rules.md).
 
 :::success Tip
 
@@ -403,7 +403,7 @@ Be sure to document those options for your users.
 Redocly CLI supports OpenAPI versions 2.0, 3.0, and 3.1. Most of the time, you will use one of them. However, you may need to configure different rules based on the version. You can do that by using special objects in your configuration.
 
 ```yaml
-lint:
+styleguide:
   extends:
     - recommended
   rules:
@@ -426,7 +426,7 @@ If the version is not defined, it will fall back to the `rules` object.
 
 :::
 
-Read more about [built-in rules](../resources/built-in-rules.md).
+Read more about [rules](../rules.md).
 
 ## Resolve JSON references ($refs)
 
@@ -437,7 +437,7 @@ Starting from version `beta-30` onward, Redocly CLI automatically resolves all `
 To disable resolving `$refs` in examples, use the `doNotResolveExamples` option in the `lint` object of the Redocly configuration file. This does not affect `$ref` resolution in other parts of the API definition:
 
 ```yaml
-lint:
+styleguide:
   doNotResolveExamples: true
   extends:
     - recommended

@@ -2,11 +2,21 @@ import outdent from 'outdent';
 import * as path from 'path';
 
 import { bundleDocument, bundle } from '../bundle';
-import { parseYamlToDocument, yamlSerializer } from '../../__tests__/utils';
-import { LintConfig, Config, ResolvedConfig } from '../config';
+import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
+import { StyleguideConfig, Config, ResolvedConfig } from '../config';
 import { BaseResolver } from '../resolve';
 
 describe('bundle', () => {
+  const fetchMock = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      text: () => 'External schema content',
+      headers: {
+        get: () => '',
+      },
+    })
+  );
+
   expect.addSnapshotSerializer(yamlSerializer);
 
   const testDocument = parseYamlToDocument(
@@ -28,14 +38,14 @@ describe('bundle', () => {
           shared_a:
             name: shared-a
     `,
-    '',
+    ''
   );
 
   it('change nothing with only internal refs', async () => {
     const { bundle, problems } = await bundleDocument({
       document: testDocument,
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new StyleguideConfig({}),
     });
 
     const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
@@ -60,7 +70,7 @@ describe('bundle', () => {
     });
     expect(problems).toHaveLength(1);
     expect(problems[0].message).toEqual(
-      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`,
+      `Two schemas are referenced with the same name but different content. Renamed param-b to param-b-2.`
     );
     expect(res.parsed).toMatchSnapshot();
   });
@@ -68,7 +78,7 @@ describe('bundle', () => {
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),
-      config: new LintConfig({}),
+      config: new StyleguideConfig({}),
       document: testDocument,
       dereference: true,
     });
@@ -98,47 +108,25 @@ describe('bundle', () => {
   });
 
   it('should pull hosted schema', async () => {
-    const fetchMock = jest.fn(
-      () => Promise.resolve({
-        ok: true,
-        text: () => 'External schema content',
-        headers: {
-          get: () => ''
-        }
-      })
-    );
-
     const { bundle: res, problems } = await bundle({
       config: new Config({} as ResolvedConfig),
       externalRefResolver: new BaseResolver({
         http: {
           customFetch: fetchMock,
-          headers: []
-        }
+          headers: [],
+        },
       }),
-      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml')
+      ref: path.join(__dirname, 'fixtures/refs/hosted.yaml'),
     });
 
     expect(problems).toHaveLength(0);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://someexternal.schema",
-      {
-        headers: {}
-      }
-    );
+    expect(fetchMock).toHaveBeenCalledWith('https://someexternal.schema', {
+      headers: {},
+    });
     expect(res.parsed).toMatchSnapshot();
   });
 
   it('should not bundle url refs if used with keepUrlRefs', async () => {
-    const fetchMock = jest.fn(() =>
-        Promise.resolve({
-          ok: true,
-          text: () => 'External schema content',
-          headers: {
-            get: () => '',
-          },
-        }),
-    );
     const { bundle: res, problems } = await bundle({
       config: new Config({} as ResolvedConfig),
       externalRefResolver: new BaseResolver({
@@ -152,5 +140,51 @@ describe('bundle', () => {
     });
     expect(problems).toHaveLength(0);
     expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should add to meta ref from redocly registry', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              operationId: get
+              parameters:
+                - $ref: '#/components/parameters/shared_a'
+                - name: get_b
+            post:
+              operationId: post
+              parameters:
+                - $ref: 'https://api.redocly.com/registry/params'
+        components:
+          parameters:
+            shared_a:
+              name: shared-a
+      `,
+      ''
+    );
+
+    const config = await makeConfig({}, { 'registry-dependencies': 'on' });
+
+    const {
+      bundle: result,
+      problems,
+      ...meta
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver({
+        http: {
+          customFetch: fetchMock,
+          headers: [],
+        },
+      }),
+    });
+
+    const parsedMeta = JSON.parse(JSON.stringify(meta));
+
+    expect(problems).toHaveLength(0);
+    expect(parsedMeta).toMatchSnapshot();
   });
 });

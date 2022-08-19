@@ -4,8 +4,8 @@ import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { InfoDescription } from '../common/info-description';
 import { InfoContact } from '../common/info-contact';
-import { InfoLicense } from '../common/info-license-url';
-import { InfoLicenseUrl } from '../common/license-url';
+import { InfoLicense } from '../common/info-license';
+import { InfoLicenseUrl } from '../common/info-license-url';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
@@ -57,7 +57,7 @@ export const rules = {
   'no-path-trailing-slash': NoPathTrailingSlash as Oas2Rule,
   'operation-2xx-response': Operation2xxResponse as Oas2Rule,
   'operation-4xx-response': Operation4xxResponse as Oas2Rule,
-  'assertions': Assertions as Oas2Rule,
+  assertions: Assertions as Oas2Rule,
   'operation-operationId-unique': OperationIdUnique as Oas2Rule,
   'operation-parameters-unique': OperationParametersUnique as Oas2Rule,
   'path-parameters-defined': PathParamsDefined as Oas2Rule,

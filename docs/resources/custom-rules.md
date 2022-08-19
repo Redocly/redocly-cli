@@ -7,7 +7,7 @@ redirectFrom:
 # Custom plugins and rules
 
 Custom plugins are a powerful way to extend Redocly that requires knowledge of the OpenAPI spec, JavaScript, and the plugin interface.
-Redocly recommends using the highly configurable [assertions rule](./rules/assertions.md) as a first option before creating a custom plugin.
+Redocly recommends using the highly configurable [assertions rule](../rules/assertions.md) as a first option before creating a custom plugin.
 
 ## Concepts
 
@@ -35,7 +35,7 @@ Plugins need to be explicitly defined in the configuration file (except for the 
 Plugins then are consumed by designating their configuration in the `extends` section of the configuration.
 
 ```yaml
-lint:
+styleguide:
   plugins:
     - 'my-plugin.js'
   extends:

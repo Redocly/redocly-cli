@@ -27,7 +27,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -76,7 +76,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should report on invalid example with disallowAdditionalProperties', async () => {
+  it('should report on invalid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -100,7 +100,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -109,7 +109,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
@@ -137,7 +137,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should not on invalid example with disallowAdditionalProperties', async () => {
+  it('should not on invalid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -160,7 +160,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -169,7 +169,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
@@ -210,7 +210,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -219,7 +219,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({
         'no-invalid-media-type-examples': {
           severity: 'error',
-          disallowAdditionalProperties: true,
+          allowAdditionalProperties: false,
         },
       }),
     });
@@ -263,7 +263,7 @@ describe('no-invalid-media-type-examples', () => {
                         b: 35
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -295,7 +295,7 @@ describe('no-invalid-media-type-examples', () => {
                             type: number
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -330,7 +330,7 @@ describe('no-invalid-media-type-examples', () => {
                         $ref: '#/components/schemas/C'
 
       `,
-      __dirname + '/foobar.yaml',
+      __dirname + '/foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -358,7 +358,7 @@ describe('no-invalid-media-type-examples', () => {
                         nullable: true
 
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

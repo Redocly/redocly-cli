@@ -13,17 +13,17 @@ To preview docs using the premium Redocly API reference docs, you must first aut
 ## Usage
 
 ```bash
-redocly preview-docs <entrypoint> [branchName]
-redocly preview-docs <entrypoint> [--config=<path>] [--port=<value>] [--host=<host>] [branchName]
-redocly preview-docs <entrypoint> [--force] [--help] [--version] [branchName]
-redocly preview-docs <entrypoint> --version
+redocly preview-docs <api>
+redocly preview-docs <api> [--config=<path>] [--port=<value>] [--host=<host>]
+redocly preview-docs <api> [--force] [--help] [--version]
+redocly preview-docs <api> --version
 ```
 
 ## Options
 
 Option | Type | Description
 -- | -- | --
-entrypoints | array | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the entrypoints section](#entrypoints) for more options.
+api | string | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.
 --config | string | Specify path to the [configuration file](#custom-configuration-file).
 --force, -f | boolean | Generate preview output even when errors occur.
 --help | boolean | Show help.
@@ -36,11 +36,11 @@ entrypoints | array | Path to the API definition filename or alias that you want
 
 ## Examples
 
-### Entrypoints
+### Api
 
-The command behaves differently depending on how you pass the entrypoint to it, and whether the [configuration file](#custom-configuration-file) exists.
+The command behaves differently depending on how you pass the api to it, and whether the [configuration file](#custom-configuration-file) exists.
 
-#### Pass entrypoint directly
+#### Pass api directly
 
 ```bash
 redocly preview-docs openapi/openapi.yaml
@@ -48,9 +48,9 @@ redocly preview-docs openapi/openapi.yaml
 
 In this case, `preview-docs` will preview the definition that was passed to the command. The configuration file is ignored.
 
-#### Pass entrypoint alias
+#### Pass api alias
 
-Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file as the entrypoint.
+Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
 
 ```bash Command
 redocly preview-docs core@v1

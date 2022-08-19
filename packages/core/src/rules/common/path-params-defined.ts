@@ -16,7 +16,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         definedPathParams = new Set();
         currentPath = key as string;
         pathTemplateParams = new Set(
-          Array.from(key!.toString().matchAll(pathRegex)).map((m) => m[1]),
+          Array.from(key!.toString().matchAll(pathRegex)).map((m) => m[1])
         );
       },
       Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {

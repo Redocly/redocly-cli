@@ -26,7 +26,7 @@ Apart from providing individual API definition files as the input, you can also 
 ### Usage
 
 ```bash
-redocly join <entrypoint> <entrypoint>...
+redocly join <api> <api>...
 redocly join <path-to-folder>/<wildcard-pattern> [--lint]
 redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
@@ -40,7 +40,7 @@ redocly join --version
 
 Option | Type | Description
 -- | -- | --
-entrypoints | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
+apis | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
 --help | boolean | Show help.
 --lint | boolean | Lint definition files.
 --prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.

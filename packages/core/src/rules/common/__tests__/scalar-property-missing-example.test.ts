@@ -18,7 +18,7 @@ describe('Oas3 scalar-property-missing-example', () => {
                   type: string
                   format: email
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -62,7 +62,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   type: string
                   format: email
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -105,7 +105,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   format: email
                   example: john.smith@example.com
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -134,7 +134,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   - john.smith@example.com
                   - other@example.com
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -168,7 +168,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                     type: string
                     format: url
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -193,7 +193,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   type: string
                   format: binary
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -224,7 +224,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   type: number
                   example: 0
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({
@@ -250,7 +250,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
                   nullable: true
                   example: null
       `,
-      'foobar.yaml',
+      'foobar.yaml'
     );
 
     const results = await lintDocument({

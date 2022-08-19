@@ -10,3 +10,4 @@ lib/
 output/
 *.tar.gz
 *.tsbuildinfo
+*.tgz
