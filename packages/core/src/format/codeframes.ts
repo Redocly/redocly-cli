@@ -44,9 +44,15 @@ export function getCodeframe(location: LineColLocationObject, color: boolean) {
   }
 
   if (skipLines > 0) {
-    prefixedLines.push([`…`, `${whitespace(currentPad)}${colorize.gray(`< ${skipLines} more lines >`)}`]);
+    prefixedLines.push([
+      `…`,
+      `${whitespace(currentPad)}${colorize.gray(`< ${skipLines} more lines >`)}`,
+    ]);
     // print last line
-    prefixedLines.push([`${endLineNum}`, markLine(lines[endLineNum - 1], -1, end.col - 1, colorize.red)]);
+    prefixedLines.push([
+      `${endLineNum}`,
+      markLine(lines[endLineNum - 1], -1, end.col - 1, colorize.red),
+    ]);
 
     if (!color) prefixedLines.push(['', underlineLine(lines[endLineNum - 1], -1, end.col - 1)]);
   }

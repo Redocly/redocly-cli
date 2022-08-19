@@ -29,7 +29,9 @@ export class RedoclyClient {
   loadRegion(region?: Region) {
     if (region && !DOMAINS[region]) {
       throw new Error(
-        `Invalid argument: region in config file.\nGiven: ${colorize.green(region)}, choices: "us", "eu".`
+        `Invalid argument: region in config file.\nGiven: ${colorize.green(
+          region
+        )}, choices: "us", "eu".`
       );
     }
 

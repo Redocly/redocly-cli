@@ -17,7 +17,7 @@ import type {
   ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
-import { logger, colorize} from '../logger';
+import { logger, colorize } from '../logger';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
