@@ -28,6 +28,11 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
         }
         return false;
       },
+      enter(response: Oas3Response, ctx: UserContext) {
+        if (!response.content?.['application/problem+json']) return;
+        const content = response.content['application/problem+json'];
+        validateDefinedAndNonEmpty('schema', content, ctx);
+      },
       SchemaProperties(schema: Oas3Schema, ctx: UserContext) {
         validateDefinedAndNonEmpty('type', schema, ctx);
         validateDefinedAndNonEmpty('title', schema, ctx);
