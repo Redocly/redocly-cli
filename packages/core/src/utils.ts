@@ -34,6 +34,7 @@ export async function loadYaml<T>(filename: string): Promise<T> {
 }
 
 export function isBrowser(): boolean {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return typeof window !== 'undefined';
 }
