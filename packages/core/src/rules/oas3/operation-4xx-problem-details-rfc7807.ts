@@ -15,7 +15,7 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
         const response = responses[code] as Oas3Response;
         if (!response.content || !response.content['application/problem+json']) {
           report({
-            message: 'Response `4xx` must have content type `application/problem+json`.',
+            message: 'Response `4xx` must have content-type `application/problem+json`.',
             location: location.child(code).key(),
           });
         }
