@@ -51,7 +51,7 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
-    'no-servers-empty-enum': 'error',
+    'no-server-variables-empty-enum': 'error',
   },
   oas3_1Rules: {
     'no-server-example.com': 'error',
@@ -60,6 +60,6 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
-    'no-servers-empty-enum': 'error',
+    'no-server-variables-empty-enum': 'error',
   },
 } as PluginStyleguideConfig;

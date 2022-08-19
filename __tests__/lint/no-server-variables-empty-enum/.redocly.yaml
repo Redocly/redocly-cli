@@ -4,5 +4,5 @@ apis:
 
 styleguide:
   rules:
-    no-servers-empty-enum: error
+    no-server-variables-empty-enum: error
   extends: []
