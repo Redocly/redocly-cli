@@ -114,15 +114,13 @@ interface CreateConfigOptions {
   tokens?: RegionalTokenWithValidity[],
 }
 
-export async function createConfig (content: string, options?: CreateConfigOptions): Promise<Config>;
-export async function createConfig (rawConfig: RawConfig, options?: CreateConfigOptions): Promise<Config>;
-export async function createConfig (rawConfig: any, options: CreateConfigOptions = {}): Promise<Config> {
-  if (typeof rawConfig === 'string') {
-    rawConfig = parseYaml(rawConfig);
+export async function createConfig (config: string | RawConfig, options?: CreateConfigOptions): Promise<Config> {
+  if (typeof config === 'string') {
+    config = parseYaml(config) as RawConfig;
   }
 
   return addConfigMetadata({
-    rawConfig: transformConfig(rawConfig),
+    rawConfig: transformConfig(config),
     ...options
   });
 }
