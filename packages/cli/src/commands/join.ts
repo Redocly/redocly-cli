@@ -503,10 +503,11 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   }
 
   function isServersEqual(serverOne: Oas3Server, serverTwo: Oas3Server) {
-    if (serverOne.description !== serverTwo.description) {
-      return false;
+    if (serverOne.description === serverTwo.description) {
+      return isEqual(serverOne.variables, serverTwo.variables);
     }
-    return isEqual(serverOne.variables, serverTwo.variables);
+    
+    return false;
   }
 
   function collectComponents(
