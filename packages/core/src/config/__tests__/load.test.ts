@@ -100,11 +100,9 @@ describe('createConfig', () => {
           info-license: off
     `);
 
-    const overridenRules: Record<string, RuleConfig> = { 'info-license': 'off' };
-
     verifyExtendedConfig(config, {
       extendsRuleSet: 'recommended',
-      overridenRules,
+      overridesRules: { 'info-license': 'off' },
     });
   });
 
@@ -123,7 +121,7 @@ describe('createConfig', () => {
 
     verifyExtendedConfig(config, {
       extendsRuleSet: 'minimal',
-      overridenRules: rawConfig.styleguide!.rules as Record<string, RuleConfig>,
+      overridesRules: rawConfig.styleguide!.rules as Record<string, RuleConfig>,
     });
   });
 });
@@ -132,8 +130,8 @@ function verifyExtendedConfig(
   config: Config,
   {
     extendsRuleSet,
-    overridenRules,
-  }: { extendsRuleSet: string; overridenRules: Record<string, RuleConfig> }
+    overridesRules,
+  }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
 ) {
   const defaultPlugin = config.styleguide.plugins.find((plugin) => plugin.id === '');
   expect(defaultPlugin).toBeDefined();
@@ -141,29 +139,29 @@ function verifyExtendedConfig(
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(config.styleguide.rules.oas2, overridenRules, recommendedRules?.rules || {});
+  verifyOasRules(config.styleguide.rules.oas2, overridesRules, recommendedRules?.rules || {});
   verifyOasRules(
     config.styleguide.rules.oas3_0,
-    overridenRules,
+    overridesRules,
     Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_0Rules)
   );
   verifyOasRules(
     config.styleguide.rules.oas3_1,
-    overridenRules,
+    overridesRules,
     Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_1Rules)
   );
 }
 
 function verifyOasRules(
-  styleguideRuleset: Record<string, RuleConfig>,
-  overridenRules: Record<string, RuleConfig>,
-  ruleSet: Record<string, RuleConfig>
+  finalRuleset: Record<string, RuleConfig>,
+  overridesRules: Record<string, RuleConfig>,
+  defaultRuleset: Record<string, RuleConfig>
 ) {
-  Object.entries(styleguideRuleset).forEach(([ruleName, ruleValue]) => {
-    if (ruleName in overridenRules) {
-      expect(ruleValue).toBe(overridenRules[ruleName]);
+  Object.entries(finalRuleset).forEach(([ruleName, ruleValue]) => {
+    if (ruleName in overridesRules) {
+      expect(ruleValue).toBe(overridesRules[ruleName]);
     } else {
-      expect(ruleValue).toBe(ruleSet[ruleName]);
+      expect(ruleValue).toBe(defaultRuleset[ruleName]);
     }
   });
 }
