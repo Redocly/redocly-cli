@@ -233,4 +233,13 @@ describe('E2E', () => {
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
+  describe('bundle with long description', () => {
+    it('description should not be in folded mode', () => {
+      const folderPath = join(__dirname, `bundle/bundle-description-long`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['test.yaml']);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+  });
 });

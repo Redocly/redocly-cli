@@ -107,6 +107,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
   } else {
     return stringifyYaml(obj, {
       noRefs: !dereference,
+      lineWidth: -1,
     });
   }
 }
