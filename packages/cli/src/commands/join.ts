@@ -350,7 +350,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
         const pathItem = paths[path] as Oas3PathItem;
 
-        for (const field of Object.keys(pathItem) as Array<keyof Oas3PathItem>) {
+        for (const field of keysOf(pathItem)) {
           if (operationsSet.has(field as Oas3Operations)) {
             collectPathOperation(pathItem, path, field as Oas3Operations);
           }
@@ -396,10 +396,10 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         let isFoundServer = false;
         for (const pathServer of joinedDef.paths[path].servers) {
           if (pathServer.url === server.url) {
-            isFoundServer = true;
             if (!isServersEqual(pathServer, server)) {
               exitWithError(`Different server values for (${server.url}) in ${path}`);
             }
+            isFoundServer = true;
           }
         }
 
@@ -421,10 +421,10 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         let isFoundParameter = false;
         for (const pathParameter of joinedDef.paths[path].parameters) {
           if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
-            isFoundParameter = true;
             if (!isEqual(pathParameter.schema, parameter.schema)) {
               exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
             }
+            isFoundParameter = true;
           }
         }
 
