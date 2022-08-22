@@ -6,7 +6,7 @@ const coreVersion = require('../../package.json').version;
 
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
-import { env } from '../config';
+import { env } from '../env';
 
 export type Totals = {
   errors: number;

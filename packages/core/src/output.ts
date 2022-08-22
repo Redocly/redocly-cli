@@ -1,9 +1,7 @@
-import { isBrowser, stdout, StdArgs } from './utils';
+import { isBrowser } from './env';
 
 export const output = {
-  write(...args: StdArgs) {
-    if (isBrowser()) return;
-
-    return stdout(...args);
+  write(str: string) {
+    return isBrowser ? undefined : process.stdout.write(str);
   },
 };

@@ -6,7 +6,7 @@ import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import { HttpResolveConfig } from './config';
-import { env } from './config';
+import { env } from './env';
 import { logger, colorize } from './logger';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
@@ -31,12 +31,6 @@ export type BundleOutputFormat = 'json' | 'yml' | 'yaml';
 export async function loadYaml<T>(filename: string): Promise<T> {
   const contents = await fs.promises.readFile(filename, 'utf-8');
   return parseYaml(contents) as T;
-}
-
-export function isBrowser(): boolean {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return typeof window !== 'undefined';
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
@@ -232,14 +226,4 @@ export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
 
 export function identity<T>(value: T): T {
   return value;
-}
-
-export type StdArgs = [string | Uint8Array];
-
-export function stderr(...args: StdArgs) {
-  process.stderr.write(...args);
-}
-
-export function stdout(...args: StdArgs) {
-  process.stdout.write(...args);
 }

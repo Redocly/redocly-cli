@@ -4,8 +4,8 @@ import {
   slash,
   getMatchingStatusCodeRange,
   doesYamlFileExist,
-  isBrowser,
 } from '../utils';
+import { isBrowser } from '../env';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -126,7 +126,7 @@ describe('utils', () => {
 
     describe('isBrowser', () => {
       it('should not be browser', () => {
-        expect(isBrowser()).toBe(false);
+        expect(isBrowser).toBe(false);
       });
     });
   });

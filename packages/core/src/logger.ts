@@ -1,11 +1,12 @@
 import * as colorette from 'colorette';
 export { options as colorOptions } from 'colorette';
 
-import { isBrowser, identity, stderr } from './utils';
+import { isBrowser } from './env';
+import { identity } from './utils';
 
 export const colorize = new Proxy(colorette, {
   get(target: typeof colorette, prop: string): typeof identity {
-    if (isBrowser()) {
+    if (isBrowser) {
       return identity;
     }
 
@@ -13,16 +14,20 @@ export const colorize = new Proxy(colorette, {
   },
 });
 class Logger {
+  protected stderr(str: string) {
+    return process.stderr.write(str);
+  }
+
   info(str: string) {
-    return isBrowser() ? console.log(str) : stderr(str);
+    return isBrowser ? console.log(str) : this.stderr(str);
   }
 
   warn(str: string) {
-    return isBrowser() ? console.warn(str) : stderr(colorize.yellow(str));
+    return isBrowser ? console.warn(str) : this.stderr(colorize.yellow(str));
   }
 
   error(str: string) {
-    return isBrowser() ? console.error(str) : stderr(colorize.red(str));
+    return isBrowser ? console.error(str) : this.stderr(colorize.red(str));
   }
 }
 

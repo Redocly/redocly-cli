@@ -20,7 +20,8 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
 } from './types';
-import { isBrowser, isNotString, isString, notUndefined, parseYaml } from '../utils';
+import { isBrowser } from '../env';
+import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 import { colorize } from '../logger';
 
@@ -71,7 +72,7 @@ export function resolvePlugins(
 ): Plugin[] {
   if (!plugins) return [];
 
-  if (isBrowser()) {
+  if (isBrowser) {
     // TODO: show warning that plugins are not supported in browser
     return plugins as Plugin[];
   }
