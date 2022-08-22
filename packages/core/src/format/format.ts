@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { colorOptions, colorize, logger } from '../logger';
+import { output } from '../output';
 
 const coreVersion = require('../../package.json').version;
 
@@ -105,7 +106,7 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        logger.error(`${formatCodeframe(problem, i)}\n`);
+        logger.info(`${formatCodeframe(problem, i)}\n`);
       }
       break;
     case 'stylish': {
@@ -113,30 +114,30 @@ export function formatProblems(
       for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
         groupedByFile
       )) {
-        logger.error(`${colorize.blue(path.relative(cwd, file))}:\n`);
+        logger.info(`${colorize.blue(path.relative(cwd, file))}:\n`);
 
         for (let i = 0; i < fileProblems.length; i++) {
           const problem = fileProblems[i];
-          logger.error(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
+          logger.info(`${formatStylish(problem, positionPad, ruleIdPad)}\n`);
         }
 
-        logger.error('\n');
+        logger.info('\n');
       }
       break;
     }
     case 'checkstyle': {
       const groupedByFile = groupByFiles(problems);
 
-      logger.info('<?xml version="1.0" encoding="UTF-8"?>\n');
-      logger.info('<checkstyle version="4.3">\n');
+      output.write('<?xml version="1.0" encoding="UTF-8"?>\n');
+      output.write('<checkstyle version="4.3">\n');
 
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
-        logger.info(`<file name="${xmlEscape(path.relative(cwd, file))}">\n`);
+        output.write(`<file name="${xmlEscape(path.relative(cwd, file))}">\n`);
         fileProblems.forEach(formatCheckstyle);
-        logger.info(`</file>\n`);
+        output.write(`</file>\n`);
       }
 
-      logger.info(`</checkstyle>\n`);
+      output.write(`</checkstyle>\n`);
       break;
     }
     case 'codeclimate':
@@ -145,7 +146,7 @@ export function formatProblems(
   }
 
   if (totalProblems - ignoredProblems > maxProblems) {
-    logger.error(
+    logger.info(
       `< ... ${totalProblems - maxProblems} more problems hidden > ${colorize.gray(
         'increase with `--max-problems N`'
       )}\n`
@@ -168,7 +169,7 @@ export function formatProblems(
         fingerprint: `${p.ruleId}${p.location.length > 0 ? '-' + p.location[0].pointer : ''}`,
       };
     });
-    logger.info(JSON.stringify(issues, null, 2));
+    output.write(JSON.stringify(issues, null, 2));
   }
 
   function outputJSON() {
@@ -202,7 +203,7 @@ export function formatProblems(
         return problem;
       }),
     };
-    logger.info(JSON.stringify(resultObject, null, 2));
+    output.write(JSON.stringify(resultObject, null, 2));
   }
 
   function getBgColor(problem: NormalizedProblem) {
@@ -250,7 +251,7 @@ export function formatProblems(
     const severity = problem.severity == 'warn' ? 'warning' : 'error';
     const message = xmlEscape(problem.message);
     const source = xmlEscape(problem.ruleId);
-    logger.info(
+    output.write(
       `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`
     );
   }

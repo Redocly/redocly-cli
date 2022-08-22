@@ -214,7 +214,7 @@ export function doesYamlFileExist(filePath: string): boolean {
 
 export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string) {
   logger.warn(
-    `The ${colorize.yellow(deprecatedField)} field is deprecated. Use ${colorize.green(
+    `The ${colorize.red(deprecatedField)} field is deprecated. Use ${colorize.green(
       updatedField
     )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );
@@ -228,4 +228,18 @@ export type Falsy = undefined | null | false | '' | 0;
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
   return !!value;
+}
+
+export function identity<T>(value: T): T {
+  return value;
+}
+
+export type StdArgs = [string | Uint8Array];
+
+export function stderr(...args: StdArgs) {
+  process.stderr.write(...args);
+}
+
+export function stdout(...args: StdArgs) {
+  process.stdout.write(...args);
 }

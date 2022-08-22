@@ -2,37 +2,35 @@ import * as colorette from 'colorette';
 import { logger, colorize } from '../logger';
 
 describe('Logger in nodejs', () => {
-  it('should call "process.stderr.write" for error severity', () => {
-    const spyingStderr = jest.spyOn(process.stderr, 'write').mockImplementation();
+  let spyingStderr: jest.SpyInstance;
 
+  beforeEach(() => {
+    spyingStderr = jest.spyOn(process.stderr, 'write').mockImplementation();
+  });
+
+  afterEach(() => {
+    spyingStderr.mockRestore();
+  });
+
+  it('should call "process.stderr.write" for error severity', () => {
     logger.error('error');
 
     expect(spyingStderr).toBeCalledTimes(1);
-    expect(spyingStderr).toBeCalledWith('error');
-
-    spyingStderr.mockRestore();
+    expect(spyingStderr).toBeCalledWith(colorette.red('error'));
   });
 
   it('should call "process.stderr.write" for warn severity', () => {
-    const spyingStderr = jest.spyOn(process.stderr, 'write').mockImplementation();
-
     logger.warn('warn');
 
     expect(spyingStderr).toBeCalledTimes(1);
-    expect(spyingStderr).toBeCalledWith('warn');
-
-    spyingStderr.mockRestore();
+    expect(spyingStderr).toBeCalledWith(colorette.yellow('warn'));
   });
 
-  it('should call "process.stdout.write"', () => {
-    const spyingStdout = jest.spyOn(process.stdout, 'write').mockImplementation();
-
+  it('should call "process.stderr.write" for info severity', () => {
     logger.info('info');
 
-    expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith('info');
-
-    spyingStdout.mockRestore();
+    expect(spyingStderr).toBeCalledTimes(1);
+    expect(spyingStderr).toBeCalledWith('info');
   });
 });
 

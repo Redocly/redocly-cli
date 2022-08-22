@@ -222,7 +222,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      logger.error(`Duplicate plugin id "${colorize.yellow(p.id)}".\n`);
+      logger.warn(`Duplicate plugin id "${colorize.red(p.id)}".\n`);
     }
   }
   return results;
