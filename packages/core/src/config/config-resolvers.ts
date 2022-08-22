@@ -23,7 +23,7 @@ import type {
 import { isBrowser } from '../env';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
-import { colorize } from '../logger';
+import { colorize, logger } from '../logger';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
@@ -72,14 +72,27 @@ export function resolvePlugins(
 ): Plugin[] {
   if (!plugins) return [];
 
-  if (isBrowser) {
-    // TODO: show warning that plugins are not supported in browser
-    return plugins as Plugin[];
-  }
+  // TODO: implement or reuse Resolver approach so it will work in node and browser envs
+  const requireFunc = (plugin: string | Plugin): Plugin | undefined => {
+    if (isBrowser && isString(plugin)) {
+      logger.error(`Cannot load ${plugin}. Plugins aren't supported in browser yet.`);
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+      return undefined;
+    }
+
+    if (isString(plugin)) {
+      const absoltePluginPath = path.resolve(path.dirname(configPath), plugin);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return typeof __webpack_require__ === 'function'
+        ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          __non_webpack_require__(absoltePluginPath)
+        : require(absoltePluginPath);
+    }
+
+    return plugin;
+  };
 
   const seenPluginIds = new Map<string, string>();
 
@@ -90,9 +103,11 @@ export function resolvePlugins(
       }
 
       // TODO: resolve npm packages similar to eslint
-      const pluginModule = isString(p)
-        ? (requireFunc(path.resolve(path.dirname(configPath), p)) as Plugin)
-        : p;
+      const pluginModule = requireFunc(p);
+
+      if (!pluginModule) {
+        return;
+      }
 
       const id = pluginModule.id;
       if (typeof id !== 'string') {

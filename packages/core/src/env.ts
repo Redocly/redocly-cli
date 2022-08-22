@@ -1,4 +1,5 @@
+export const isBrowser =
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-export const isBrowser = typeof window !== 'undefined';
+  typeof window !== 'undefined' || typeof self !== 'undefined' || typeof process === 'undefined'; // main and worker thread
 export const env = isBrowser ? {} : process.env || {};
