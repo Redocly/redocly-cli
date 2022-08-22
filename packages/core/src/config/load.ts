@@ -112,7 +112,7 @@ export async function getConfig(configPath: string | undefined = findConfig()): 
 type CreateConfigOptions = {
   extends?: string[];
   tokens?: RegionalTokenWithValidity[];
-}
+};
 
 export async function createConfig(
   config: string | RawConfig,
