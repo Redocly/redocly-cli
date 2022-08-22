@@ -109,7 +109,7 @@ export async function getConfig(configPath: string | undefined = findConfig()): 
   }
 }
 
-interface CreateConfigOptions {
+type CreateConfigOptions = {
   extends?: string[];
   tokens?: RegionalTokenWithValidity[];
 }
