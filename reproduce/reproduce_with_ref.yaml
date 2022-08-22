@@ -1,0 +1,7 @@
+openapi: 3.0.1
+info:
+  title: Demo API
+  version: '1.0'
+  description:
+    $ref: './referal_text.md'
+paths: {}

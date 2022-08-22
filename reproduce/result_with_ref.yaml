@@ -1,0 +1,7 @@
+openapi: 3.0.1
+info:
+  title: Demo API
+  version: '1.0'
+  description: "# Heading\r\nList:\r\n- first item\r\n- second item\r\n\r\nLine.\r\nSame Line"
+paths: {}
+components: {}
