@@ -16,9 +16,9 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
             names[getMatchingStatusCodeRange(key).toLowerCase()] ||
             [];
           for (const expectedHeader of expectedHeaders) {
-            if (!response.headers?.[expectedHeader]) {
+            if (!response.headers?.[expectedHeader.toLowerCase()]) {
               report({
-                message: `Response object must contain a "${expectedHeader}" header.`,
+                message: `Response object must contain a "${expectedHeader.toLowerCase()}" header.`,
                 location: location.child('headers').key(),
               });
             }
