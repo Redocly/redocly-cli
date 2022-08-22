@@ -36,7 +36,7 @@ export default {
   oas3_0Rules: {
     'no-invalid-media-type-examples': {
       severity: 'warn',
-      disallowAdditionalProperties: true,
+      allowAdditionalProperties: false,
     },
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
@@ -44,15 +44,16 @@ export default {
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
-    'no-servers-empty-enum': 'error',
+    'no-server-variables-empty-enum': 'error',
   },
   oas3_1Rules: {
+    'no-invalid-media-type-examples': 'warn',
     'no-server-example.com': 'warn',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
     'no-example-value-and-externalValue': 'error',
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
-    'no-servers-empty-enum': 'error',
+    'no-server-variables-empty-enum': 'error',
   },
 } as PluginStyleguideConfig;

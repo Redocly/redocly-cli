@@ -25,7 +25,7 @@ Document it!
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     parameter-description: error
 ```
@@ -36,7 +36,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     parameter-description: error
 ```

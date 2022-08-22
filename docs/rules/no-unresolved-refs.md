@@ -25,7 +25,7 @@ This rule prevents that from happening.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-unresolved-refs: error
 ```
@@ -35,7 +35,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-unresolved-refs: error
 ```

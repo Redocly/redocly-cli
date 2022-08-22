@@ -38,19 +38,19 @@ Trust us.
 It's much nicer to get this alert from Redocly before you ship than from your biggest customer three months later.
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn`. |
-|disallowAdditionalProperties|boolean|Determines if additional properties are allowed in examples. Default `true`. |
+|Option|Type| Description                                                                   |
+|---|---|-------------------------------------------------------------------------------|
+|severity|string| Possible values: `off`, `warn`, `error`. Default `warn`.                      |
+|allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
 
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-media-type-examples:
       severity: error
-      disallowAdditionalProperties: true
+      allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -58,11 +58,11 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-invalid-media-type-examples:
       severity: error
-      disallowAdditionalProperties: true
+      allowAdditionalProperties: false
 ```
 
 Example of an **incorrect** media type example:

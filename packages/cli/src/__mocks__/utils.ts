@@ -1,4 +1,4 @@
-export const getFallbackEntryPointsOrExit = jest.fn((entrypoints) =>
+export const getFallbackApisOrExit = jest.fn((entrypoints) =>
   entrypoints.map((path: string) => ({ path }))
 );
 export const dumpBundle = jest.fn(() => '');

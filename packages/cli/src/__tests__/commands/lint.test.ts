@@ -8,7 +8,7 @@ import {
   doesYamlFileExist,
 } from '@redocly/openapi-core';
 import {
-  getFallbackEntryPointsOrExit,
+  getFallbackApisOrExit,
   getExecutionTime,
   printUnusedWarnings,
   handleError,
@@ -22,7 +22,7 @@ jest.mock('../../utils');
 jest.mock('perf_hooks');
 
 const argvMock: LintOptions = {
-  entrypoints: ['openapi.yaml'],
+  apis: ['openapi.yaml'],
   'lint-config': 'off',
   format: 'codeframe',
 };
@@ -61,10 +61,10 @@ describe('handleLint', () => {
       expect(loadConfig).toHaveBeenCalledTimes(0);
     });
 
-    it('should call loadConfig and getFallbackEntryPointsOrExit', async () => {
+    it('should call loadConfig and getFallbackApisOrExit', async () => {
       await handleLint(argvMock, versionMock);
       expect(loadConfig).toHaveBeenCalledWith(undefined, undefined, undefined);
-      expect(getFallbackEntryPointsOrExit).toHaveBeenCalled();
+      expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
 
     it('should call loadConfig with args if such exist', async () => {

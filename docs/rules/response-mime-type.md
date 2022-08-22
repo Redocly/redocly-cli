@@ -32,7 +32,7 @@ Keep it consistent across your entire API if possible.
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     response-mime-type:
       severity: error
@@ -45,7 +45,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     response-mime-type:
       severity: error

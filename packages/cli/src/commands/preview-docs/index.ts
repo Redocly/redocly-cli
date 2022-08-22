@@ -9,29 +9,26 @@ import {
   getTotals,
   getMergedConfig,
 } from '@redocly/openapi-core';
-import { getFallbackEntryPointsOrExit } from '../../utils';
+import { getFallbackApisOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
+import type { Skips } from 'cli/src/types';
 
-export async function previewDocs(argv: {
-  port: number;
-  host: string;
-  'use-community-edition'?: boolean;
-  config?: string;
-  entrypoint?: string;
-  'skip-rule'?: string[];
-  'skip-decorator'?: string[];
-  'skip-preprocessor'?: string[];
-  force?: boolean;
-}) {
-  let isAuthorizedWithRedocly: boolean = false;
+export async function previewDocs(
+  argv: {
+    port: number;
+    host: string;
+    'use-community-edition'?: boolean;
+    config?: string;
+    api?: string;
+    force?: boolean;
+  } & Omit<Skips, 'skip-rule'>
+) {
+  let isAuthorizedWithRedocly = false;
   let redocOptions: any = {};
   let config = await reloadConfig();
 
-  const entrypoints = await getFallbackEntryPointsOrExit(
-    argv.entrypoint ? [argv.entrypoint] : [],
-    config
-  );
-  const entrypoint = entrypoints[0];
+  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const api = apis[0];
 
   let cachedBundle: any;
   const deps = new Set<string>();
@@ -48,7 +45,7 @@ export async function previewDocs(argv: {
         problems,
         fileDependencies,
       } = await bundle({
-        ref: entrypoint.path,
+        ref: api.path,
         config,
       });
       const removed = [...deps].filter((x) => !fileDependencies.has(x));
@@ -62,12 +59,12 @@ export async function previewDocs(argv: {
       if (fileTotals.errors === 0) {
         process.stdout.write(
           fileTotals.errors === 0
-            ? `Created a bundle for ${entrypoint.alias || entrypoint.path} ${
+            ? `Created a bundle for ${api.alias || api.path} ${
                 fileTotals.warnings > 0 ? 'with warnings' : 'successfully'
               }\n`
             : colorette.yellow(
                 `Created a bundle for ${
-                  entrypoint.alias || entrypoint.path
+                  api.alias || api.path
                 } with errors. Docs may be broken or not accurate\n`
               )
         );
@@ -75,7 +72,7 @@ export async function previewDocs(argv: {
 
       return openapiBundle.parsed;
     } catch (e) {
-      handleError(e, entrypoint.path);
+      handleError(e, api.path);
     }
   }
 
@@ -98,7 +95,7 @@ export async function previewDocs(argv: {
     useRedocPro: isAuthorized && !redocOptions.useCommunityEdition,
   });
 
-  const watchPaths = [entrypoint.path, config.configFile!].filter((e) => !!e);
+  const watchPaths = [api.path, config.configFile!].filter((e) => !!e);
   const watcher = chockidar.watch(watchPaths, {
     disableGlobbing: true,
     ignoreInitial: true,
@@ -127,20 +124,17 @@ export async function previewDocs(argv: {
 
   watcher.on('ready', () => {
     process.stdout.write(
-      `\n  👀  Watching ${colorette.blue(
-        entrypoint.path
-      )} and all related resources for changes\n\n`
+      `\n  👀  Watching ${colorette.blue(api.path)} and all related resources for changes\n\n`
     );
   });
 
   async function reloadConfig() {
-    let config = await loadConfig(argv.config);
+    const config = await loadConfig(argv.config);
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
-    const resolvedConfig = getMergedConfig(config, argv.entrypoint);
+    const resolvedConfig = getMergedConfig(config, argv.api);
     const { styleguide } = resolvedConfig;
 
-    styleguide.skipRules(argv['skip-rule']);
     styleguide.skipPreprocessors(argv['skip-preprocessor']);
     styleguide.skipDecorators(argv['skip-decorator']);
 
@@ -158,7 +152,9 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout | null;
 
   return function executedFunction(...args: any[]) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const context = this;
 
     const later = () => {
@@ -178,13 +174,9 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
 
 function handleError(e: Error, ref: string) {
   if (e instanceof ResolveError) {
-    process.stderr.write(
-      `Failed to resolve entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else if (e instanceof YamlParseError) {
-    process.stderr.write(
-      `Failed to parse entrypoint definition at ${ref}:\n\n  - ${e.message}.\n\n`
-    );
+    process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
   } else {
     process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
   }

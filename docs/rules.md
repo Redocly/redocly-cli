@@ -75,7 +75,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [no-empty-servers](./rules/no-empty-servers.md)
 - [no-server-example.com](./rules/no-server-example-com.md)
 - [no-server-trailing-slash](./rules/no-server-trailing-slash.md)
-- [no-empty-enum-servers](./rules/no-empty-enum-servers.md)
+- [no-server-variables-empty-enum](./rules/no-server-variables-empty-enum.md)
 - [no-undefined-server-variable](./rules/no-undefined-server-variable.md)
 
 ### Tags
@@ -100,10 +100,10 @@ You can format each entry in the `lint` and `rules` object in one of the followi
 apis:
   main:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules:
         specific-api-rule: warn
-lint:
+styleguide:
   rules:
     example-rule-name: error
 ```
@@ -114,11 +114,11 @@ lint:
 apis:
   main:
     root: ./openapi/openapi.yaml
-    lint:
+    styleguide:
       rules:
         specific-api-rule:
           severity: warn
-lint:
+styleguide:
   rules:
     example-rule-name:
       severity: error
@@ -145,7 +145,7 @@ There are two built-in configurations:
 The recommended configuration can be enabled by adding
 
 ```yaml
-lint:
+styleguide:
   extends:
     - recommended
 ```

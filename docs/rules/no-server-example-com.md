@@ -1,4 +1,4 @@
-# no-server-example-com
+# no-server-example.com
 
 Prevents using `example.com` as the value of the `servers.url` fields in your API definitions.
 The rule checks for all URL schemes (`http`, `https`...).
@@ -35,9 +35,9 @@ If you can't reveal a production server, consider a [Redocly mock server](/docs/
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
-    no-server-example-com: error
+    no-server-example.com: error
 ```
 
 ## Examples
@@ -45,9 +45,9 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
-    no-server-example-com: error
+    no-server-example.com: error
 ```
 
 Example of **incorrect** server:

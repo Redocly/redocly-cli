@@ -1,5 +1,10 @@
-import { green, yellow } from 'colorette';
-import { assignExisting } from '../utils';
+import { yellow } from 'colorette';
+import {
+  assignExisting,
+  isTruthy,
+  showErrorForDeprecatedField,
+  showWarningForDeprecatedField,
+} from '../utils';
 import { Config } from './config';
 
 import type {
@@ -79,7 +84,7 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     extendPaths: [],
   };
 
-  for (let rulesConf of rulesConfList) {
+  for (const rulesConf of rulesConfList) {
     if (rulesConf.extends) {
       throw new Error(
         `'extends' is not supported in shared configs yet: ${JSON.stringify(rulesConf, null, 2)}.`
@@ -118,39 +123,39 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
   return result;
 }
 
-export function getMergedConfig(config: Config, entrypointAlias?: string): Config {
+export function getMergedConfig(config: Config, apiName?: string): Config {
   const extendPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.extendPaths),
     config.rawConfig?.styleguide?.extendPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
   const pluginPaths = [
     ...Object.values(config.apis).map((api) => api?.styleguide?.pluginPaths),
     config.rawConfig?.styleguide?.pluginPaths,
   ]
     .flat()
-    .filter(Boolean) as string[];
+    .filter(isTruthy);
 
-  return entrypointAlias
+  return apiName
     ? new Config(
         {
           ...config.rawConfig,
           styleguide: {
-            ...(config.apis[entrypointAlias]
-              ? config.apis[entrypointAlias].styleguide
+            ...(config.apis[apiName]
+              ? config.apis[apiName].styleguide
               : config.rawConfig.styleguide),
             extendPaths,
             pluginPaths,
           },
           'features.openapi': {
             ...config['features.openapi'],
-            ...config.apis[entrypointAlias]?.['features.openapi'],
+            ...config.apis[apiName]?.['features.openapi'],
           },
           'features.mockServer': {
             ...config['features.mockServer'],
-            ...config.apis[entrypointAlias]?.['features.mockServer'],
+            ...config.apis[apiName]?.['features.mockServer'],
           },
           // TODO: merge everything else here
         },
@@ -171,15 +176,11 @@ function checkForDeprecatedFields(
     );
 
   if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
-    throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
+    showErrorForDeprecatedField(deprecatedField, updatedField);
   }
 
   if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
-    process.stderr.write(
-      `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
-        updatedField
-      )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
-    );
+    showWarningForDeprecatedField(deprecatedField, updatedField);
   }
 }
 

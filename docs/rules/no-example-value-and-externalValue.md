@@ -42,7 +42,7 @@ The intended use of the `value` field is to provide in-line example values, whil
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-example-value-and-externalValue: error
 ```
@@ -51,7 +51,7 @@ lint:
 
 Given this configuration:
 ```yaml
-lint:
+styleguide:
   rules:
     no-example-value-and-externalValue: error
 ```

@@ -220,4 +220,17 @@ describe('E2E', () => {
       );
     });
   });
+
+  describe('bundle with option: dereferenced', () => {
+    it('description should not be from $ref', () => {
+      const folderPath = join(__dirname, `bundle/bundle-description-dereferenced`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'test.yaml',
+        '--dereferenced',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+  });
 });

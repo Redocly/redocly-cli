@@ -17,7 +17,7 @@ This is a mechanism that can be used to maintain them together but generate two 
 Example of a configuration that uses `x-internal` as the flag property:
 
 ```yaml
-lint:
+styleguide:
   decorators:
     remove-x-internal: on
 ```
@@ -25,7 +25,7 @@ lint:
 Example of another configuration that changes the flag property:
 
 ```yaml
-lint:
+styleguide:
   decorators:
     remove-x-internal:
       internalFlagProperty: 'x-private'

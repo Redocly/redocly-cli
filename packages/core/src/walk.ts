@@ -18,6 +18,8 @@ import {
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
 import { NormalizedNodeType, isNamedType } from './types';
+import type { RuleSeverity } from './config';
+
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
@@ -66,7 +68,7 @@ export type Problem = {
   suggest?: string[];
   location?: Partial<LocationObject> | Array<Partial<LocationObject>>;
   from?: LocationObject;
-  forceSeverity?: ProblemSeverity;
+  forceSeverity?: RuleSeverity;
   ruleId?: string;
 };
 
@@ -409,17 +411,19 @@ export function walkDocument<T>(opts: {
           : [opts.location]
         : [{ ...currentLocation, reportOnKey: false }];
 
-      ctx.problems.push({
-        ruleId: opts.ruleId || ruleId,
-        severity: opts.forceSeverity || severity,
-        ...opts,
-        suggest: opts.suggest || [],
-        location: loc.map((loc: any) => {
-          return { ...currentLocation, reportOnKey: false, ...loc };
-        }),
-      });
+      const ruleSeverity = opts.forceSeverity || severity;
+      if (ruleSeverity !== 'off') {
+        ctx.problems.push({
+          ruleId: opts.ruleId || ruleId,
+          severity: ruleSeverity,
+          ...opts,
+          suggest: opts.suggest || [],
+          location: loc.map((loc: any) => {
+            return { ...currentLocation, reportOnKey: false, ...loc };
+          }),
+        });
+      }
     }
-
     function getVisitorDataFn(ruleId: string) {
       ctx.visitorsData[ruleId] = ctx.visitorsData[ruleId] || {};
       return ctx.visitorsData[ruleId];

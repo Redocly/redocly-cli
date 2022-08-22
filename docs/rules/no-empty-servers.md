@@ -43,7 +43,7 @@ servers:
 An example configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-empty-servers: error
 ```
@@ -53,7 +53,7 @@ lint:
 Given this configuration:
 
 ```yaml
-lint:
+styleguide:
   rules:
     no-empty-servers: error
 ```
@@ -73,7 +73,7 @@ servers:
 ```
 
 ## Related rules
-- [no-server-example-com](./no-server-example-com.md)
+- [no-server-example.com](./no-server-example-com.md)
 - [no-server-trailing-slash](./no-server-trailing-slash.md)
 
 ## Resources

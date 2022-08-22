@@ -104,7 +104,7 @@ To use the decorator, you will need to register your plugin in your Redocly conf
 apis:
   main:
     root: openapi/openapi.yaml
-lint:
+styleguide:
   extends:
     - recommended
   plugins:
