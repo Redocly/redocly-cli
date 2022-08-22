@@ -1,11 +1,12 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { green } from 'colorette';
 import { RegistryApi } from './registry-api';
-import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS, env } from '../config/config';
+import { DEFAULT_REGION, DOMAINS, AVAILABLE_REGIONS } from '../config/config';
+import { env } from '../env';
 import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types';
 import { isNotEmptyObject } from '../utils';
+import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
 
@@ -29,7 +30,9 @@ export class RedoclyClient {
   loadRegion(region?: Region) {
     if (region && !DOMAINS[region]) {
       throw new Error(
-        `Invalid argument: region in config file.\nGiven: ${green(region)}, choices: "us", "eu".`
+        `Invalid argument: region in config file.\nGiven: ${colorize.green(
+          region
+        )}, choices: "us", "eu".`
       );
     }
 

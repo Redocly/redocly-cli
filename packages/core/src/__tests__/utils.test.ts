@@ -5,6 +5,7 @@ import {
   getMatchingStatusCodeRange,
   doesYamlFileExist,
 } from '../utils';
+import { isBrowser } from '../env';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -120,6 +121,12 @@ describe('utils', () => {
 
       it('should return false because of it is not yaml file', () => {
         expect(doesYamlFileExist('redocly.yam')).toBe(false);
+      });
+    });
+
+    describe('isBrowser', () => {
+      it('should not be browser', () => {
+        expect(isBrowser).toBe(false);
       });
     });
   });
