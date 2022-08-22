@@ -71,6 +71,7 @@ const nodeTypesList = [
   'MediaTypeMap',
   'MediaType',
   'Example',
+  'ExampleMap',
   'Encoding',
   'Header',
   'ResponsesMap',

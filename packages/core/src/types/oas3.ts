@@ -132,7 +132,7 @@ const Parameter: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
+    examples: 'ExampleMap',
     content: 'MediaTypeMap',
   },
   required: ['name', 'in'],
@@ -189,7 +189,7 @@ const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
+    examples: 'ExampleMap',
     encoding: mapOf('Encoding'),
   },
 };
@@ -228,7 +228,7 @@ const Header: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
+    examples: 'ExampleMap',
     content: 'MediaTypeMap',
   },
 };
@@ -488,6 +488,7 @@ export const Oas3Types: Record<string, NodeType> = {
   DiscriminatorMapping,
   Discriminator,
   Components,
+  ExampleMap: mapOf('Example'),
   NamedSchemas: mapOf('Schema'),
   NamedResponses: mapOf('Response'),
   NamedParameters: mapOf('Parameter'),
