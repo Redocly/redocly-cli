@@ -12,7 +12,7 @@ All Redocly CLI rules are listed on this page.
 To learn how to configure rules, read more about their [configuration syntax](#rule-configuration-syntax).
 
 Rules are roughly grouped by the OpenAPI object they apply to.
-The *Special rules* group contains rules that may apply to multiple objects or to the entire OpenAPI document.
+The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
 
 ### Special rules
 
@@ -31,6 +31,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 
 - [operation-2xx-response](./rules/operation-2xx-response.md)
 - [operation-4xx-response](./rules/operation-4xx-response.md)
+- [operation-4xx-problem-details-rfc7807](./rules/operation-4xx-problem-details-rfc7807.md)
 - [operation-description](./rules/operation-description.md)
 - [operation-operationId](./rules/operation-operationId.md)
 - [operation-operationId-unique](./rules/operation-operationId-unique.md)
@@ -85,7 +86,6 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [tag-description](./rules/tag-description.md)
 - [tags-alphabetical](./rules/tags-alphabetical.md)
 
-
 ## Rule configuration syntax
 
 To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
@@ -136,7 +136,6 @@ Severity settings determine how the rule is treated during the validation proces
 
 ## Recommended config
 
-
 There are two built-in configurations:
 
 - minimal
@@ -157,35 +156,35 @@ You may then override the severity for any specific rule in the `rules` object.
 Here is the equivalent of the `recommended` configuration values:
 
 ```yaml
-    info-description: warn
-    info-license: warn
-    info-license-url: warn
-    tag-description: warn
-    no-path-trailing-slash: error
-    no-ambiguous-paths: warn
-    path-declaration-must-exist: error
-    path-not-include-query: error
-    path-parameters-defined: error
-    operation-2xx-response: warn
-    operation-4xx-response: warn
-    operation-operationId: warn
-    operation-summary: error
-    operation-operationId-unique: error
-    operation-operationId-url-safe: error
-    operation-parameters-unique: error
-    operation-security-defined: error
-    no-unresolved-refs: error
-    no-enum-type-mismatch: error
-    spec: error
-    no-invalid-media-type-examples:
-      severity: warn
-      disallowAdditionalProperties: true
-    no-server-example.com: warn
-    no-server-trailing-slash: error
-    no-empty-servers: error
-    no-example-value-and-externalValue: error
-    no-unused-components: warn
-    no-undefined-server-variable: error
+info-description: warn
+info-license: warn
+info-license-url: warn
+tag-description: warn
+no-path-trailing-slash: error
+no-ambiguous-paths: warn
+path-declaration-must-exist: error
+path-not-include-query: error
+path-parameters-defined: error
+operation-2xx-response: warn
+operation-4xx-response: warn
+operation-operationId: warn
+operation-summary: error
+operation-operationId-unique: error
+operation-operationId-url-safe: error
+operation-parameters-unique: error
+operation-security-defined: error
+no-unresolved-refs: error
+no-enum-type-mismatch: error
+spec: error
+no-invalid-media-type-examples:
+  severity: warn
+  disallowAdditionalProperties: true
+no-server-example.com: warn
+no-server-trailing-slash: error
+no-empty-servers: error
+no-example-value-and-externalValue: error
+no-unused-components: warn
+no-undefined-server-variable: error
 ```
 
 ## Rule ideas

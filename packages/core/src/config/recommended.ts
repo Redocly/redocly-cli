@@ -45,6 +45,7 @@ export default {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
+    'operation-4xx-problem-details-rfc7807': 'warn',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'warn',
@@ -55,5 +56,6 @@ export default {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
+    'operation-4xx-problem-details-rfc7807': 'warn',
   },
 } as PluginStyleguideConfig;
