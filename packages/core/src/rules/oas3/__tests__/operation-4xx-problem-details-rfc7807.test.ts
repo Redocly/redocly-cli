@@ -129,12 +129,12 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/paths/~1pets/get/responses/400/schema",
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Response object should contain \`schema\` field.",
+          "message": "MediaType object should contain \`schema\` field.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": Array [],

@@ -239,7 +239,8 @@ components:
 foo.yaml:
   29:11  error    spec  Property \`header\` is not expected here.
 
-❌ Validation failed with 1 error.
+< ... 3 more problems hidden > increase with \`--max-problems N\`
+❌ Validation failed with 4 errors.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling ./foo.yaml...
@@ -247,8 +248,8 @@ bundling ./foo.yaml...
 bar.yaml:
   14:7  error    spec  Property \`summay\` is not expected here.
 
-< ... 3 more problems hidden > increase with \`--max-problems N\`
-❌ Validation failed with 3 errors and 1 warning.
+< ... 6 more problems hidden > increase with \`--max-problems N\`
+❌ Validation failed with 6 errors and 1 warning.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling ./bar.yaml...
