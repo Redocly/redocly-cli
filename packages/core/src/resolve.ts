@@ -116,7 +116,7 @@ export class BaseResolver {
         return new Source(absoluteRef, body, mimeType);
       } else {
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
-        // in some cases file have \r\n line delimeters like on windows, we should skip it.
+        // In some cases file have \r\n line delimeters like on windows, we should skip it.
         return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
       }
     } catch (error) {
