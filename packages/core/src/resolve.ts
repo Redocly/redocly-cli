@@ -91,7 +91,7 @@ export function makeDocumentFromString(sourceString: string, absoluteRef: string
 export class BaseResolver {
   cache: Map<string, Promise<Document | ResolveError>> = new Map();
 
-  constructor(private config: ResolveConfig = { http: { headers: [] } }) {}
+  constructor(protected config: ResolveConfig = { http: { headers: [] } }) {}
 
   getFiles() {
     return new Set(Array.from(this.cache.keys()));
@@ -115,7 +115,9 @@ export class BaseResolver {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
-        return new Source(absoluteRef, await fs.promises.readFile(absoluteRef, 'utf-8'));
+        const content = await fs.promises.readFile(absoluteRef, 'utf-8');
+        // In some cases file have \r\n line delimeters like on windows, we should skip it.
+        return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
       }
     } catch (error) {
       throw new ResolveError(error);

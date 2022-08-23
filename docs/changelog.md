@@ -4,16 +4,33 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.108 (2022-08-22)
+
+### Changes
+
+- Renamed `no-servers-empty-enum` to `no-server-variables-empty-enum` and fixed incorrect docs of `no-empty-enum-servers`.
+
+### Features
+
+- Add browser support for `openapi-core`.
+- Allow accessing `config` field in subclasses extending `BaseResolver` class.
+- Ability to create config (e.g. `redocly.yaml`) from string or object.
+
+### Fixes
+
+- Fixed docs for `no-server-example.com`.
+- Incorrect schema description dereferenced.
+
 
 ## 1.0.0-beta.107 (2022-08-16)
 
 ### Changes
 
-- Add `allowAdditionalProperties` to built-in rules and mark `disallowAdditionalProperties` as deprecated
+- Add `allowAdditionalProperties` to built-in rules and mark `disallowAdditionalProperties` as deprecated.
 
 ### Fixes
 
-- Introduced severity level `off` for Assertions
+- Introduced severity level `off` for assertions.
 
 
 ## 1.0.0-beta.106 (2022-08-09)

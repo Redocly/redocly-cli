@@ -1,4 +1,3 @@
-import { yellow } from 'colorette';
 import {
   assignExisting,
   isTruthy,
@@ -18,6 +17,7 @@ import type {
   ResolvedStyleguideConfig,
   RulesFields,
 } from './types';
+import { logger, colorize } from '../logger';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -222,7 +222,7 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
       results.push(p);
       seen.add(p.id);
     } else if (p.id) {
-      process.stderr.write(`Duplicate plugin id "${yellow(p.id)}".\n`);
+      logger.warn(`Duplicate plugin id "${colorize.red(p.id)}".\n`);
     }
   }
   return results;
