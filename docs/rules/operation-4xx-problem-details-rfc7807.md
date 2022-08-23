@@ -18,9 +18,9 @@ Every operation with (400-499) HTTP response should have content-type `applicati
 
 ## Configuration
 
-| Option   | Type   | Description                                                                               |
-| -------- | ------ | ----------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
