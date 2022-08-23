@@ -4,6 +4,7 @@ import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
+import { env } from '../env';
 
 import type { NodeType } from '../types';
 import type {
@@ -18,9 +19,6 @@ import type {
   RuleConfig,
 } from './types';
 import { getResolveConfig } from './utils';
-
-// Alias environment here so this file can work in browser environments too.
-export const env = typeof process !== 'undefined' ? process.env || {} : {};
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =

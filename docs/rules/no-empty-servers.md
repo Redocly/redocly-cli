@@ -73,7 +73,7 @@ servers:
 ```
 
 ## Related rules
-- [no-server-example-com](./no-server-example-com.md)
+- [no-server-example.com](./no-server-example-com.md)
 - [no-server-trailing-slash](./no-server-trailing-slash.md)
 
 ## Resources

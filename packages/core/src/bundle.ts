@@ -306,7 +306,8 @@ function makeBundleVisitor(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       delete ref.$ref;
-      Object.assign(ref, resolved.node);
+      const obj = Object.assign({}, resolved.node, ref);
+      Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
     }
   }
 

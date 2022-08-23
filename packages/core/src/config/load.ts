@@ -2,20 +2,24 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
 import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
+import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
 import type { DeprecatedInRawConfig, RawConfig, Region } from './types';
+import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 
 async function addConfigMetadata({
   rawConfig,
   customExtends,
   configPath,
+  tokens,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
+  tokens?: RegionalTokenWithValidity[];
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
@@ -25,10 +29,7 @@ async function addConfigMetadata({
     // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
-  const redoclyClient = new RedoclyClient();
-  const tokens = await redoclyClient.getTokens();
-
-  if (tokens.length) {
+  if (tokens?.length) {
     if (!rawConfig.resolve) rawConfig.resolve = {};
     if (!rawConfig.resolve.http) rawConfig.resolve.http = {};
     rawConfig.resolve.http.headers = [...(rawConfig.resolve.http.headers ?? [])];
@@ -69,10 +70,15 @@ export async function loadConfig(
   if (typeof processRawConfig === 'function') {
     await processRawConfig(rawConfig);
   }
-  return await addConfigMetadata({
+
+  const redoclyClient = new RedoclyClient();
+  const tokens = await redoclyClient.getTokens();
+
+  return addConfigMetadata({
     rawConfig,
     customExtends,
     configPath,
+    tokens,
   });
 }
 
@@ -101,4 +107,21 @@ export async function getConfig(configPath: string | undefined = findConfig()): 
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
   }
+}
+
+type CreateConfigOptions = {
+  extends?: string[];
+  tokens?: RegionalTokenWithValidity[];
+};
+
+export async function createConfig(
+  config: string | RawConfig,
+  options?: CreateConfigOptions
+): Promise<Config> {
+  return addConfigMetadata({
+    rawConfig: transformConfig(
+      typeof config === 'string' ? (parseYaml(config) as RawConfig) : config
+    ),
+    ...options,
+  });
 }
