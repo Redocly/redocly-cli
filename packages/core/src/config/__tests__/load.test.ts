@@ -1,5 +1,7 @@
-import { loadConfig, findConfig, getConfig } from '../load';
+import { loadConfig, findConfig, getConfig, createConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
+import { RuleConfig, RawConfig } from './../types';
+import { Config } from '../config';
 
 const fs = require('fs');
 const path = require('path');
@@ -87,3 +89,79 @@ describe('getConfig', () => {
     expect(getConfig()).toEqual(Promise.resolve({}));
   });
 });
+
+describe('createConfig', () => {
+  it('should create config from string', async () => {
+    const config = await createConfig(`
+      styleguide:
+        extends:
+          - recommended
+        rules:
+          info-license: off
+    `);
+
+    verifyExtendedConfig(config, {
+      extendsRuleSet: 'recommended',
+      overridesRules: { 'info-license': 'off' },
+    });
+  });
+
+  it('should create config from object', async () => {
+    const rawConfig: RawConfig = {
+      styleguide: {
+        extends: ['minimal'],
+        rules: {
+          'info-license': 'off',
+          'tag-description': 'off',
+          'operation-2xx-response': 'off',
+        },
+      },
+    };
+    const config = await createConfig(rawConfig);
+
+    verifyExtendedConfig(config, {
+      extendsRuleSet: 'minimal',
+      overridesRules: rawConfig.styleguide!.rules as Record<string, RuleConfig>,
+    });
+  });
+});
+
+function verifyExtendedConfig(
+  config: Config,
+  {
+    extendsRuleSet,
+    overridesRules,
+  }: { extendsRuleSet: string; overridesRules: Record<string, RuleConfig> }
+) {
+  const defaultPlugin = config.styleguide.plugins.find((plugin) => plugin.id === '');
+  expect(defaultPlugin).toBeDefined();
+
+  const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
+  expect(recommendedRules).toBeDefined();
+
+  verifyOasRules(config.styleguide.rules.oas2, overridesRules, recommendedRules?.rules || {});
+  verifyOasRules(
+    config.styleguide.rules.oas3_0,
+    overridesRules,
+    Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_0Rules)
+  );
+  verifyOasRules(
+    config.styleguide.rules.oas3_1,
+    overridesRules,
+    Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_1Rules)
+  );
+}
+
+function verifyOasRules(
+  finalRuleset: Record<string, RuleConfig>,
+  overridesRules: Record<string, RuleConfig>,
+  defaultRuleset: Record<string, RuleConfig>
+) {
+  Object.entries(finalRuleset).forEach(([ruleName, ruleValue]) => {
+    if (ruleName in overridesRules) {
+      expect(ruleValue).toBe(overridesRules[ruleName]);
+    } else {
+      expect(ruleValue).toBe(defaultRuleset[ruleName]);
+    }
+  });
+}

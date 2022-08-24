@@ -31,10 +31,8 @@ tags:
       <SchemaDefinition schemaRef="#/components/schemas/Pet" />
   - name: store_model
     x-displayName: The Order Model
-    description: >
-      <SchemaDefinition schemaRef="#/components/schemas/Order"
-      exampleRef="#/components/examples/Order" showReadOnly={true}
-      showWriteOnly={true} />
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
 paths:
   /pet/findByStatus:
     get:
