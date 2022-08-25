@@ -1,0 +1,27 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+styleguide:
+  extends: []
+  rules:
+    assert/headerMap:
+      subject: HeaderMap
+      property: x-next
+      defined: false
+
+    assert/encodingMap:
+      subject: EncodingMap
+      casing: kebab-case
+
+    assert/linkMap:
+      subject: LinkMap
+      pattern: /^pet/
+
+    assert/serverVariableMap:
+      subject: ServerVariableMap
+      casing: flatcase
+
+    assert/callbackMap:
+      subject: CallbackMap
+      casing: snake_case
