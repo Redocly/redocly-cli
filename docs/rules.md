@@ -158,35 +158,35 @@ You may then override the severity for any specific rule in the `rules` object.
 Here is the equivalent of the `recommended` configuration values:
 
 ```yaml
-  info-description: warn
-  info-license: warn
-  info-license-url: warn
-  tag-description: warn
-  no-path-trailing-slash: error
-  no-ambiguous-paths: warn
-  path-declaration-must-exist: error
-  path-not-include-query: error
-  path-parameters-defined: error
-  operation-2xx-response: warn
-  operation-4xx-response: warn
-  operation-operationId: warn
-  operation-summary: error
-  operation-operationId-unique: error
-  operation-operationId-url-safe: error
-  operation-parameters-unique: error
-  operation-security-defined: error
-  no-unresolved-refs: error
-  no-enum-type-mismatch: error
-  spec: error
-  no-invalid-media-type-examples:
-    severity: warn
-    disallowAdditionalProperties: true
-  no-server-example.com: warn
-  no-server-trailing-slash: error
-  no-empty-servers: error
-  no-example-value-and-externalValue: error
-  no-unused-components: warn
-  no-undefined-server-variable: error
+    info-description: warn
+    info-license: warn
+    info-license-url: warn
+    tag-description: warn
+    no-path-trailing-slash: error
+    no-ambiguous-paths: warn
+    path-declaration-must-exist: error
+    path-not-include-query: error
+    path-parameters-defined: error
+    operation-2xx-response: warn
+    operation-4xx-response: warn
+    operation-operationId: warn
+    operation-summary: error
+    operation-operationId-unique: error
+    operation-operationId-url-safe: error
+    operation-parameters-unique: error
+    operation-security-defined: error
+    no-unresolved-refs: error
+    no-enum-type-mismatch: error
+    spec: error
+    no-invalid-media-type-examples:
+      severity: warn
+      disallowAdditionalProperties: true
+    no-server-example.com: warn
+    no-server-trailing-slash: error
+    no-empty-servers: error
+    no-example-value-and-externalValue: error
+    no-unused-components: warn
+    no-undefined-server-variable: error
 ```
 
 ## Rule ideas
