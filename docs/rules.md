@@ -12,7 +12,7 @@ All Redocly CLI rules are listed on this page.
 To learn how to configure rules, read more about their [configuration syntax](#rule-configuration-syntax).
 
 Rules are roughly grouped by the OpenAPI object they apply to.
-The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
+The *Special rules* group contains rules that may apply to multiple objects or to the entire OpenAPI document.
 
 ### Special rules
 
@@ -21,7 +21,7 @@ The _Special rules_ group contains rules that may apply to multiple objects or t
 - [no-unused-components](./rules/no-unused-components.md)
 - [spec](./rules/spec.md)
 
-### Info
+### Infox
 
 - [info-contact](./rules/info-contact.md)
 - [info-license](./rules/info-license.md)
@@ -156,35 +156,35 @@ You may then override the severity for any specific rule in the `rules` object.
 Here is the equivalent of the `recommended` configuration values:
 
 ```yaml
-info-description: warn
-info-license: warn
-info-license-url: warn
-tag-description: warn
-no-path-trailing-slash: error
-no-ambiguous-paths: warn
-path-declaration-must-exist: error
-path-not-include-query: error
-path-parameters-defined: error
-operation-2xx-response: warn
-operation-4xx-response: warn
-operation-operationId: warn
-operation-summary: error
-operation-operationId-unique: error
-operation-operationId-url-safe: error
-operation-parameters-unique: error
-operation-security-defined: error
-no-unresolved-refs: error
-no-enum-type-mismatch: error
-spec: error
-no-invalid-media-type-examples:
-  severity: warn
-  disallowAdditionalProperties: true
-no-server-example.com: warn
-no-server-trailing-slash: error
-no-empty-servers: error
-no-example-value-and-externalValue: error
-no-unused-components: warn
-no-undefined-server-variable: error
+  info-description: warn
+  info-license: warn
+  info-license-url: warn
+  tag-description: warn
+  no-path-trailing-slash: error
+  no-ambiguous-paths: warn
+  path-declaration-must-exist: error
+  path-not-include-query: error
+  path-parameters-defined: error
+  operation-2xx-response: warn
+  operation-4xx-response: warn
+  operation-operationId: warn
+  operation-summary: error
+  operation-operationId-unique: error
+  operation-operationId-url-safe: error
+  operation-parameters-unique: error
+  operation-security-defined: error
+  no-unresolved-refs: error
+  no-enum-type-mismatch: error
+  spec: error
+  no-invalid-media-type-examples:
+    severity: warn
+    disallowAdditionalProperties: true
+  no-server-example.com: warn
+  no-server-trailing-slash: error
+  no-empty-servers: error
+  no-example-value-and-externalValue: error
+  no-unused-components: warn
+  no-undefined-server-variable: error
 ```
 
 ## Rule ideas
