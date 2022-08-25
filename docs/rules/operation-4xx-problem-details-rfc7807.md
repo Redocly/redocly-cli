@@ -61,7 +61,7 @@ Example of **correct** operation response:
 
 ```yaml
 post:
-  rresponses:
+  responses:
     '400':
       content:
         application/problem+json:

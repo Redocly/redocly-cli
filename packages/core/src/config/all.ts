@@ -52,7 +52,6 @@ export default {
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
-    'operation-4xx-problem-details-rfc7807': 'error',
   },
   oas3_1Rules: {
     'no-server-example.com': 'error',
@@ -62,6 +61,5 @@ export default {
     'no-unused-components': 'error',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
-    'operation-4xx-problem-details-rfc7807': 'error',
   },
 } as PluginStyleguideConfig;
