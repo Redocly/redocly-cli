@@ -231,6 +231,7 @@ const Header: NodeType = {
     examples: 'ExampleMap',
     content: 'MediaTypeMap',
   },
+  requiredOneOf: ['schema', 'content'],
 };
 
 const ResponsesMap: NodeType = {
