@@ -21,7 +21,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [no-unused-components](./rules/no-unused-components.md)
 - [spec](./rules/spec.md)
 
-### Infox
+### Info
 
 - [info-contact](./rules/info-contact.md)
 - [info-license](./rules/info-license.md)
@@ -86,6 +86,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [tag-description](./rules/tag-description.md)
 - [tags-alphabetical](./rules/tags-alphabetical.md)
 
+
 ## Rule configuration syntax
 
 To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
@@ -135,6 +136,7 @@ Severity settings determine how the rule is treated during the validation proces
 - `severity: off` - disables the rule altogether. The rule is skipped during validation.
 
 ## Recommended config
+
 
 There are two built-in configurations:
 
