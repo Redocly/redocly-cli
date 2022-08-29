@@ -191,6 +191,7 @@ describe('Oas3 typed enum', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema",
