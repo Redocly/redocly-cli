@@ -6,13 +6,15 @@ import { isPlainObject } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, key, resolve, ignoreNextVisitorsOnNode }) {
+    any(node: any, { report, type, location, rawLocation, key, resolve, ignoreNextVisitorsOnNode }) {
       const nodeType = oasTypeOf(node);
+      const refLocation = rawLocation !== location ? rawLocation : undefined;
 
       if (type.items) {
         if (nodeType !== 'array') {
           report({
             message: `Expected type \`${type.name}\` (array) but got \`${nodeType}\``,
+            from: refLocation,
           });
           ignoreNextVisitorsOnNode();
         }
@@ -20,6 +22,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
       } else if (nodeType !== 'object') {
         report({
           message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
+          from: refLocation,
         });
         ignoreNextVisitorsOnNode();
         return;
@@ -32,6 +35,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         if (!(node as object).hasOwnProperty(propName)) {
           report({
             message: `The field \`${propName}\` must be present on this level.`,
+            from: refLocation,
             location: [{ reportOnKey: true }],
           });
         }
@@ -49,6 +53,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           }
           report({
             message: `The field \`${propName}\` is not allowed here.`,
+            from: refLocation,
             location: location.child([propName]).key(),
           });
         }
@@ -67,6 +72,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             message: `Must contain at least one of the following fields: ${type.requiredOneOf?.join(
               ', '
             )}.`,
+            from: refLocation,
             location: [{ reportOnKey: true }],
           });
       }
@@ -91,6 +97,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           report({
             message: `Property \`${propName}\` is not expected here.`,
             suggest: getSuggest(propName, Object.keys(type.properties)),
+            from: refLocation,
             location: propLocation.key(),
           });
           continue;
@@ -111,12 +118,14 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
               message: `\`${propName}\` can be one of the following only: ${propSchema.enum
                 .map((i) => `"${i}"`)
                 .join(', ')}.`,
+              from: refLocation,
               suggest: getSuggest(propValue, propSchema.enum),
             });
           }
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({
             message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
+            from: refLocation,
             location: propLocation,
           });
         } else if (propValueType === 'array' && propSchema.items?.type) {
@@ -126,6 +135,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             if (!matchesJsonSchemaType(item, itemsType, false)) {
               report({
                 message: `Expected type \`${itemsType}\` but got \`${oasTypeOf(item)}\`.`,
+                from: refLocation,
                 location: propLocation.child([i]),
               });
             }
@@ -136,6 +146,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           if (propSchema.minimum > node[propName]) {
             report({
               message: `The value of the ${propName} field must be greater than or equal to ${propSchema.minimum}`,
+              from: refLocation,
               location: location.child([propName]),
             });
           }
