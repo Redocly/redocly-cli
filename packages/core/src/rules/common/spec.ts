@@ -6,7 +6,10 @@ import { isPlainObject } from '../../utils';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
-    any(node: any, { report, type, location, rawLocation, key, resolve, ignoreNextVisitorsOnNode }) {
+    any(
+      node: any,
+      { report, type, location, rawLocation, key, resolve, ignoreNextVisitorsOnNode }
+    ) {
       const nodeType = oasTypeOf(node);
       const refLocation = rawLocation !== location ? rawLocation : undefined;
 
