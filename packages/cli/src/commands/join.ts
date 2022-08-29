@@ -16,7 +16,6 @@ import {
   lintDocument,
   detectOpenAPI,
   bundleDocument,
-  Oas3Operations,
 } from '@redocly/openapi-core';
 
 import {
@@ -29,6 +28,7 @@ import {
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
+import { OPENAPI3_METHOD } from './split/types';
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -334,7 +334,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
     const { paths } = openapi;
-    const operationsSet = new Set(keysOf(Oas3Operations));
+    const operationsSet = new Set(keysOf<typeof OPENAPI3_METHOD>(OPENAPI3_METHOD));
     if (paths) {
       if (!joinedDef.hasOwnProperty('paths')) {
         joinedDef['paths'] = {};
@@ -351,8 +351,8 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         const pathItem = paths[path] as Oas3PathItem;
 
         for (const field of keysOf(pathItem)) {
-          if (operationsSet.has(field as Oas3Operations)) {
-            collectPathOperation(pathItem, path, field as Oas3Operations);
+          if (operationsSet.has(field as OPENAPI3_METHOD)) {
+            collectPathOperation(pathItem, path, field as OPENAPI3_METHOD);
           }
           if (field === 'servers') {
             collectPathServers(pathItem, path);
@@ -437,7 +437,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     function collectPathOperation(
       pathItem: Oas3PathItem,
       path: string | number,
-      operation: Oas3Operations
+      operation: OPENAPI3_METHOD
     ) {
       const pathOperation = pathItem[operation];
 
@@ -506,7 +506,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     if (serverOne.description === serverTwo.description) {
       return isEqual(serverOne.variables, serverTwo.variables);
     }
-    
+
     return false;
   }
 
