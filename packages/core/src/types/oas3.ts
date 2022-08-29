@@ -38,7 +38,7 @@ const Server: NodeType = {
   properties: {
     url: { type: 'string' },
     description: { type: 'string' },
-    variables: mapOf('ServerVariable'),
+    variables: 'ServerVariableMap',
   },
   required: ['url'],
 };
@@ -132,7 +132,7 @@ const Parameter: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
+    examples: 'ExampleMap',
     content: 'MediaTypeMap',
   },
   required: ['name', 'in'],
@@ -155,7 +155,7 @@ const Operation: NodeType = {
     requestBody: 'RequestBody',
     responses: 'ResponsesMap',
     deprecated: { type: 'boolean' },
-    callbacks: mapOf('Callback'),
+    callbacks: 'CallbackMap',
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
@@ -189,8 +189,8 @@ const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
-    encoding: mapOf('Encoding'),
+    examples: 'ExampleMap',
+    encoding: 'EncodingMap',
   },
 };
 
@@ -206,7 +206,7 @@ const Example: NodeType = {
 const Encoding: NodeType = {
   properties: {
     contentType: { type: 'string' },
-    headers: mapOf('Header'),
+    headers: 'HeaderMap',
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
@@ -228,9 +228,10 @@ const Header: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: mapOf('Example'),
+    examples: 'ExampleMap',
     content: 'MediaTypeMap',
   },
+  requiredOneOf: ['schema', 'content'],
 };
 
 const ResponsesMap: NodeType = {
@@ -242,9 +243,9 @@ const ResponsesMap: NodeType = {
 const Response: NodeType = {
   properties: {
     description: { type: 'string' },
-    headers: mapOf('Header'),
+    headers: 'HeaderMap',
     content: 'MediaTypeMap',
-    links: mapOf('Link'),
+    links: 'LinkMap',
   },
   required: ['description'],
 };
@@ -464,6 +465,7 @@ export const Oas3Types: Record<string, NodeType> = {
   ExternalDocs,
   Server,
   ServerVariable,
+  ServerVariableMap: mapOf('ServerVariable'),
   SecurityRequirement,
   Info,
   Contact,
@@ -473,12 +475,16 @@ export const Oas3Types: Record<string, NodeType> = {
   Parameter,
   Operation,
   Callback: mapOf('PathItem'),
+  CallbackMap: mapOf('Callback'),
   RequestBody,
   MediaTypeMap,
   MediaType,
   Example,
+  ExampleMap: mapOf('Example'),
   Encoding,
+  EncodingMap: mapOf('Encoding'),
   Header,
+  HeaderMap: mapOf('Header'),
   ResponsesMap,
   Response,
   Link,
@@ -488,6 +494,7 @@ export const Oas3Types: Record<string, NodeType> = {
   DiscriminatorMapping,
   Discriminator,
   Components,
+  LinkMap: mapOf('Link'),
   NamedSchemas: mapOf('Schema'),
   NamedResponses: mapOf('Response'),
   NamedParameters: mapOf('Parameter'),
