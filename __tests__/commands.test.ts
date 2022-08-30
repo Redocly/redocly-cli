@@ -143,6 +143,16 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     });
+
+    describe('with metadata', () => {
+      const testPath = join(__dirname, `join/with-metadata`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'join', [
+        'test.yaml',
+        'pet.yaml',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
   });
 
   describe('bundle', () => {

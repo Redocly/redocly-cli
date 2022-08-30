@@ -1,6 +1,7 @@
 import { handleJoin } from '../../commands/join';
-import { exitWithError } from '../../utils';
+import { exitWithError, writeYaml } from '../../utils';
 import { yellow } from 'colorette';
+import { detectOpenAPI } from '@redocly/openapi-core';
 
 jest.mock('../../utils');
 jest.mock('colorette');
@@ -43,5 +44,26 @@ describe('handleJoin fails', () => {
     expect(exitWithError).toHaveBeenCalledWith(
       `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one! \n\n`
     );
+  });
+
+  it('should call exitWithError because Only OpenAPI 3 is supported', async () => {
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+      },
+      'cli-version'
+    );
+    expect(exitWithError).toHaveBeenCalledWith('Only OpenAPI 3 is supported: undefined \n\n');
+  });
+
+  it('should call writeYaml function', async () => {
+    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+      },
+      'cli-version'
+    );
+    expect(writeYaml).toHaveBeenCalled();
   });
 });
