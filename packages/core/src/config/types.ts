@@ -84,13 +84,17 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
-
 export type AssertResult = { isValid: boolean; location?: Location };
-export type CustomFunction  = (options: any, value: any, baseLocation: Location, rawValue?: any) => AssertResult
+export type CustomFunction = (
+  options: any,
+  value: any,
+  baseLocation: Location,
+  rawValue?: any
+) => AssertResult;
 
 export type AssertionsConfig = {
   [key: string]: CustomFunction;
-}
+};
 
 export type Plugin = {
   id: string;

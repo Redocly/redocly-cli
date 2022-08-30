@@ -304,7 +304,10 @@ export async function resolveStyleguideConfig(
     ...resolvedStyleguideConfig,
     rules:
       resolvedStyleguideConfig.rules &&
-      groupStyleguideAssertionRules(resolvedStyleguideConfig.rules, resolvedStyleguideConfig.plugins),
+      groupStyleguideAssertionRules(
+        resolvedStyleguideConfig.rules,
+        resolvedStyleguideConfig.plugins
+      ),
   };
 }
 
@@ -413,9 +416,9 @@ function groupStyleguideAssertionRules(
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
       if (assertion.function && plugins) {
-        const [pluginId, fn] = assertion.function.name.split("/");
+        const [pluginId, fn] = assertion.function.name.split('/');
         const options = assertion.function.options;
-        const plugin = plugins.find(plugin => plugin.id === pluginId)
+        const plugin = plugins.find((plugin) => plugin.id === pluginId);
         // Throw Error when can not find plugin?
         if (plugin && plugin.assertions && plugin.assertions[fn]) {
           assertion.function = plugin.assertions[fn].bind(null, options);

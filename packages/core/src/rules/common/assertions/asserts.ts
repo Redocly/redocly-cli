@@ -183,6 +183,6 @@ export const asserts: Asserts = {
     };
   },
   function: (value: string[], condition: CustomFunction, baseLocation: Location) => {
-    return condition.call(null, value, baseLocation)
-  }
+    return condition.call(null, value, baseLocation);
+  },
 };
