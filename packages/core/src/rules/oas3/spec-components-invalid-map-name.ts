@@ -3,7 +3,7 @@ import { Problem, UserContext } from '../../walk';
 import { Location } from '../../ref-utils';
 
 export const SpecComponentsInvalidMapName: Oas3Rule = () => {
-  const KEYS_REGEX = '^[a-zA-Z0-9.\\-_]+$';
+  const KEYS_REGEX = '^[a-zA-Z0-9\\.\\-_]+$';
 
   function validateKey(
     key: string | number,
