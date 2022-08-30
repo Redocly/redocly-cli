@@ -416,7 +416,8 @@ function groupStyleguideAssertionRules(
         const [pluginId, fn] = assertion.function.name.split("/");
         const options = assertion.function.options;
         const plugin = plugins.find(plugin => plugin.id === pluginId)
-        if (plugin && plugin.assertions) {
+        // Throw Error when can not find plugin?
+        if (plugin && plugin.assertions && plugin.assertions[fn]) {
           assertion.function = plugin.assertions[fn].bind(null, options);
         }
       }
