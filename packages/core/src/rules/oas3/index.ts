@@ -48,7 +48,7 @@ import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examp
 import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
-import { SpecExampleFieldName } from './spec-example-field-name';
+import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name';
 
 export const rules = {
   spec: OasSpec,
@@ -101,7 +101,7 @@ export const rules = {
   'response-contains-header': ResponseContainsHeader,
   'response-contains-property': ResponseContainsProperty,
   'scalar-property-missing-example': ScalarPropertyMissingExample,
-  'spec-example-field-name': SpecExampleFieldName,
+  'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
