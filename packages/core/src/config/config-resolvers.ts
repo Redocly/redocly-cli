@@ -175,6 +175,10 @@ export function resolvePlugins(
         }
       }
 
+      if (pluginModule.assertions) {
+        plugin.assertions = pluginModule.assertions;
+      }
+
       return plugin;
     })
     .filter(notUndefined);
@@ -300,7 +304,7 @@ export async function resolveStyleguideConfig(
     ...resolvedStyleguideConfig,
     rules:
       resolvedStyleguideConfig.rules &&
-      groupStyleguideAssertionRules(resolvedStyleguideConfig.rules),
+      groupStyleguideAssertionRules(resolvedStyleguideConfig.rules, resolvedStyleguideConfig.plugins),
   };
 }
 
@@ -393,7 +397,8 @@ function getMergedRawStyleguideConfig(
 }
 
 function groupStyleguideAssertionRules(
-  rules: Record<string, RuleConfig> | undefined
+  rules: Record<string, RuleConfig> | undefined,
+  plugins?: Plugin[]
 ): Record<string, RuleConfig> | undefined {
   if (!rules) {
     return rules;
@@ -407,6 +412,14 @@ function groupStyleguideAssertionRules(
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
+      if (assertion.function && plugins) {
+        const [pluginId, fn] = assertion.function.name.split("/");
+        const options = assertion.function.options;
+        const plugin = plugins.find(plugin => plugin.id === pluginId)
+        if (plugin && plugin.assertions) {
+          assertion.function = plugin.assertions[fn].bind(null, options);
+        }
+      }
       assertions.push({
         ...assertion,
         assertionId: ruleKey.replace('assert/', ''),

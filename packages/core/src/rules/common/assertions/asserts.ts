@@ -1,3 +1,4 @@
+import { AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
 import { isString as runOnValue } from '../../../utils';
 import {
@@ -8,7 +9,6 @@ import {
   regexFromString,
 } from './utils';
 
-type AssertResult = { isValid: boolean; location?: Location };
 type Asserts = Record<
   string,
   (value: any, condition: any, baseLocation: Location, rawValue?: any) => AssertResult
@@ -182,4 +182,7 @@ export const asserts: Asserts = {
       location: hasRef ? baseLocation : baseLocation.key(),
     };
   },
+  function: (value: string[], condition: CustomFunction, baseLocation: Location) => {
+    return condition.call(null, value, baseLocation)
+  }
 };
