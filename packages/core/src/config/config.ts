@@ -17,6 +17,7 @@ import type {
   ResolvedConfig,
   ResolvedStyleguideConfig,
   RuleConfig,
+  RuleSettings,
 } from './types';
 import { getResolveConfig } from './utils';
 
@@ -183,7 +184,7 @@ export class StyleguideConfig {
     return extendedTypes;
   }
 
-  getRuleSettings(ruleId: string, oasVersion: OasVersion) {
+  getRuleSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.rules[oasVersion][ruleId] || 'off';
@@ -196,7 +197,7 @@ export class StyleguideConfig {
     }
   }
 
-  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion) {
+  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
 
@@ -210,7 +211,7 @@ export class StyleguideConfig {
     }
   }
 
-  getDecoratorSettings(ruleId: string, oasVersion: OasVersion) {
+  getDecoratorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.decorators[oasVersion][ruleId] || 'off';
