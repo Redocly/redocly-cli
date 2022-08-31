@@ -143,6 +143,16 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     });
+
+    describe('with metadata', () => {
+      const testPath = join(__dirname, `join/with-metadata`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'join', [
+        'test.yaml',
+        'pet.yaml',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
   });
 
   describe('bundle', () => {
@@ -228,6 +238,15 @@ describe('E2E', () => {
         'test.yaml',
         '--dereferenced',
       ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+  });
+  describe('bundle with long description', () => {
+    it('description should not be in folded mode', () => {
+      const folderPath = join(__dirname, `bundle/bundle-description-long`);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', ['test.yaml']);
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));

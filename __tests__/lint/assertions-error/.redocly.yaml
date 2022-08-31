@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 styleguide:
-  extends: 
+  extends:
     - recommended
   rules:
     assert/tag-description-pattern:
@@ -150,3 +150,9 @@ styleguide:
       message: Operation summary must have a maximum of 2 characters
       severity: error
       maxLength: 2
+# Example map subject example
+    assert/exampleMap:
+      subject: ExampleMap
+      message: Examples names must use camelCase
+      casing: camelCase
+      severity: error

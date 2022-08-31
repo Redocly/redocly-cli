@@ -1,4 +1,5 @@
 coverage/
+dist/
 packages/cli/lib/
 packages/core/lib/
 *snapshot.js

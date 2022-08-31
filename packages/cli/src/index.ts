@@ -29,7 +29,10 @@ yargs
           default: 'stylish' as OutputFormat,
         },
       }),
-    handleStats
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'stats';
+      handleStats(argv);
+    }
   )
   .command(
     'split [api]',
@@ -54,7 +57,10 @@ yargs
           },
         })
         .demandOption('api'),
-    handleSplit
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'split';
+      handleSplit(argv);
+    }
   )
   .command(
     'join [apis...]',
@@ -89,6 +95,7 @@ yargs
           },
         }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'join';
       handleJoin(argv, version);
     }
   )
@@ -127,7 +134,10 @@ yargs
         })
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'batch-id'),
-    transformPush(handlePush)
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'push';
+      transformPush(handlePush)(argv);
+    }
   )
   .command(
     'lint [apis...]',
@@ -183,6 +193,7 @@ yargs
         },
       }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'lint';
       handleLint(argv, version);
     }
   )
@@ -259,6 +270,7 @@ yargs
         },
       }),
     (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'bundle';
       handleBundle(argv, version);
     }
   )
@@ -277,13 +289,17 @@ yargs
           choices: regionChoices,
         },
       }),
-    handleLogin
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'login';
+      handleLogin(argv);
+    }
   )
   .command(
     'logout',
     'Clear your stored credentials for the Redocly API registry.',
     (yargs) => yargs,
     async () => {
+      process.env.REDOCLY_CLI_COMMAND = 'logout';
       const client = new RedoclyClient();
       client.logout();
       process.stdout.write('Logged out from the Redocly account. ✋\n');
@@ -330,7 +346,10 @@ yargs
           type: 'string',
         },
       }),
-    previewDocs
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
+      previewDocs(argv);
+    }
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)

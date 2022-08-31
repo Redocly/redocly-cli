@@ -6,8 +6,8 @@ import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';
 import { UserContext } from './walk';
 import { HttpResolveConfig } from './config';
-import { env } from './config';
-import { green, yellow } from 'colorette';
+import { env } from './env';
+import { logger, colorize } from './logger';
 
 export { parseYaml, stringifyYaml } from './js-yaml';
 
@@ -207,8 +207,8 @@ export function doesYamlFileExist(filePath: string): boolean {
 }
 
 export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string) {
-  process.stderr.write(
-    `The ${yellow(deprecatedField)} field is deprecated. Use ${green(
+  logger.warn(
+    `The ${colorize.red(deprecatedField)} field is deprecated. Use ${colorize.green(
       updatedField
     )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );
@@ -222,4 +222,8 @@ export type Falsy = undefined | null | false | '' | 0;
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
   return !!value;
+}
+
+export function identity<T>(value: T): T {
+  return value;
 }
