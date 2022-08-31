@@ -10,11 +10,11 @@ Ensures that every operation with (400-499) HTTP response has content-type `appl
 
 ## API design principles
 
-Problem Details for HTTP APIs as a way to carry machine-
+Problem Details for HTTP APIs are a way to carry machine-
 readable details of errors in a HTTP response to avoid the need to
 define new error response formats for HTTP APIs.
 
-Every operation with (400-499) HTTP response should have content-type `application/problem+json` and fields `title` and `type`. According to [specification](https://datatracker.ietf.org/doc/html/rfc7807).
+Every operation with (400-499) HTTP response should have content-type `application/problem+json` and fields `title` and `type` according to the [specification](https://datatracker.ietf.org/doc/html/rfc7807).
 
 ## Configuration
 
