@@ -34,7 +34,7 @@ export type BundleOptions = CommonOptions &
   };
 
 export async function handleBundle(argv: BundleOptions, version: string) {
-  const config = await loadConfig(argv.config, argv.extends);
+  const config = await loadConfig({ configPath: argv.config, customExtends: argv.extends });
   const removeUnusedComponents =
     argv['remove-unused-components'] &&
     !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');

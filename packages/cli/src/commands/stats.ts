@@ -66,7 +66,7 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
 }
 
 export async function handleStats(argv: { config?: string; api?: string; format: string }) {
-  const config: Config = await loadConfig(argv.config);
+  const config: Config = await loadConfig({ configPath: argv.config });
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });

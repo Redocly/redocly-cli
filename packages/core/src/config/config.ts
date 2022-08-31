@@ -307,7 +307,6 @@ export class Config {
   'features.mockServer'?: Record<string, any>;
   organization?: string;
   files?: string[];
-
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
@@ -317,10 +316,5 @@ export class Config {
     this.region = rawConfig.region;
     this.organization = rawConfig.organization;
     this.files = rawConfig.files;
-  }
-
-  setFiles(files: string[]) {
-    this.files = files;
-    this.rawConfig.files = files;
   }
 }

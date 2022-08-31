@@ -41,8 +41,8 @@ type PushArgs = {
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfig();
-  const region = argv.region || config.region;
+  const config = await loadConfig({ argv });
+  const region = config.region;
   const client = new RedoclyClient(region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -96,10 +96,6 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     exitWithError(
       `The ${blue(`batch-size`)} option value is not valid, please use the integer bigger than 1.`
     );
-  }
-
-  if (argv.files) {
-    config.setFiles(argv.files);
   }
 
   const apis = api ? { [`${name}@${version}`]: { root: api } } : config.apis;

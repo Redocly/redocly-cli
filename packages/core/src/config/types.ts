@@ -177,3 +177,15 @@ export type RulesFields =
   | 'oas2Decorators'
   | 'oas3_0Decorators'
   | 'oas3_1Decorators';
+
+export enum ConfigArgsOverrideFields {
+  files = 'files',
+  region = 'region',
+}
+
+export const CONFIG_ARGS_OVERRIDE_FIELDS = [
+  ConfigArgsOverrideFields.files,
+  ConfigArgsOverrideFields.region,
+];
+
+export type ArgsType = { [key: string]: any };

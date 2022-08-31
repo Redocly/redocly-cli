@@ -7,7 +7,7 @@ import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
-import type { DeprecatedInRawConfig, RawConfig, Region } from './types';
+import { ArgsType, ConfigArgsOverrideFields, CONFIG_ARGS_OVERRIDE_FIELDS, DeprecatedInRawConfig, RawConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 
 async function addConfigMetadata({
@@ -62,11 +62,15 @@ async function addConfigMetadata({
 }
 
 export async function loadConfig(
-  configPath: string | undefined = findConfig(),
-  customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    argv?: ArgsType;
+  } = {}
 ): Promise<Config> {
-  const rawConfig = await getConfig(configPath);
+  const { configPath = findConfig(), customExtends, processRawConfig, argv } = options;
+  const rawConfig = { ...(await getConfig(configPath)), ...getConfigArgv(argv), argv };
   if (typeof processRawConfig === 'function') {
     await processRawConfig(rawConfig);
   }
@@ -80,6 +84,19 @@ export async function loadConfig(
     configPath,
     tokens,
   });
+}
+
+function getConfigArgv(argv?: ArgsType) {
+  if (!argv) return {};
+  
+  const result: {[key in ConfigArgsOverrideFields]?: any}= {};
+
+  for (const field of CONFIG_ARGS_OVERRIDE_FIELDS) {
+    if (argv[field]) {
+      result[field] = argv[field];
+    }
+  }
+  return result;
 }
 
 export const CONFIG_FILE_NAMES = ['redocly.yaml', 'redocly.yml', '.redocly.yaml', '.redocly.yml'];
