@@ -66,6 +66,29 @@ describe('Oas3 operation-4xx-response', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
+  it('should not report for present 4XX response', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test/':
+              put:
+                responses:
+                  4XX:
+                    description: error response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-response': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
   it('should report if default is present but missing 4xx response', async () => {
     const document = parseYamlToDocument(
       outdent`
