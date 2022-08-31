@@ -37,6 +37,7 @@ type PushArgs = {
   region?: Region;
   'skip-decorator'?: string[];
   public?: boolean;
+  files?: string[];
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -95,6 +96,10 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     exitWithError(
       `The ${blue(`batch-size`)} option value is not valid, please use the integer bigger than 1.`
     );
+  }
+
+  if (argv.files) {
+    config.setFiles(argv.files);
   }
 
   const apis = api ? { [`${name}@${version}`]: { root: api } } : config.apis;
@@ -253,6 +258,17 @@ async function collectFilesToUpload(api: string, config: Config) {
       fileList.forEach((f) => pluginFiles.add(f));
     }
     files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
+    console.log(config.files);
+    if (config.files) {
+      for (const file of config.files) {
+        if (fs.statSync(file).isDirectory()) {
+          const fileList = getFilesList(file, []);
+          files.push(...fileList.map((f) => getFileEntry(f)));
+        } else {
+          files.push(getFileEntry(file));
+        }
+      }
+    }
   }
   return {
     files,

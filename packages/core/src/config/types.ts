@@ -151,6 +151,7 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   organization?: string;
+  files?: string[];
 } & FeaturesConfig;
 
 export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
