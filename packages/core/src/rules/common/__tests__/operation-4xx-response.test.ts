@@ -34,7 +34,7 @@ describe('Oas3 operation-4xx-response', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Operation must have at least one \`4xx\` response.",
+          "message": "Operation must have at least one \`4XX\` response.",
           "ruleId": "operation-4xx-response",
           "severity": "error",
           "suggest": Array [],
@@ -43,7 +43,7 @@ describe('Oas3 operation-4xx-response', () => {
     `);
   });
 
-  it('should not report for present 4xx response', async () => {
+  it('should not report for present 400 response', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -119,7 +119,7 @@ describe('Oas3 operation-4xx-response', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Operation must have at least one \`4xx\` response.",
+          "message": "Operation must have at least one \`4XX\` response.",
           "ruleId": "operation-4xx-response",
           "severity": "error",
           "suggest": Array [],
