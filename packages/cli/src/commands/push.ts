@@ -258,7 +258,7 @@ async function collectFilesToUpload(api: string, config: Config) {
       fileList.forEach((f) => pluginFiles.add(f));
     }
     files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
-    console.log(config.files);
+    
     if (config.files) {
       for (const file of config.files) {
         if (fs.statSync(file).isDirectory()) {
