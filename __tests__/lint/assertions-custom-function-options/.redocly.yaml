@@ -1,0 +1,19 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+
+
+styleguide:
+  plugins:
+    - ./plugin.js
+  rules:
+    assert/operation-summary-length:
+      subject: Operation
+      property: summary
+      message: Operation summary should be longer
+      function:
+        name: local/checkLength
+        options: 
+          min: 100
+  extends: []

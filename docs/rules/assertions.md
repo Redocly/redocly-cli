@@ -47,7 +47,8 @@ undefined | `boolean` | Asserts a property is undefined. See [undefined example]
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+function | [Function object](#function-object) | Custom assert that describes in plugin. Custom function which validate value.|
 
 ## Context object
 
@@ -58,6 +59,15 @@ matchParentKeys | [`string`] | The list of parent object key names to evaluate w
 excludeParentKeys | [`string`] | The list of parent object key names to not evaluate with respect to the subject.
 
 See the [context example](#context-example).
+
+## Function object
+
+Property | Type | Description
+-- | -- | --
+name | `string` | Function name in plugin file.
+options | `options` | Options that  will be as a first parameter in custom function.
+
+See the [custom function example](#custom-function-example).
 
 ## Examples
 
@@ -184,6 +194,36 @@ assert/no-pdf-in-ok-response:
     matchParentKeys: ['201', '200']
   subject: MediaTypeMap
   disallowed: ['application/pdf']
+```
+
+### Custom function example
+
+The following example asserts that `Operation` summary can not be shorter than `options.min` characters.
+
+`.redocly.yaml`
+```yaml
+assert/:
+  subject: Operation
+  property: summary
+  message: Operation summary should be longer
+  function:
+    name: local/checkLength
+    options: 
+      min: 100
+```
+`plugin.js`
+```js
+module.exports = {
+  id: 'local',
+  assertions: {
+    checkLength: (opts, value, location) => {
+      if (value.length < opts.min) {
+        return { isValid: false, location };
+      }
+      return { isValid: true };
+    },
+  },
+};
 ```
 
 ### `enum` example

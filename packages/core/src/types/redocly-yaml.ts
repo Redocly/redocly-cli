@@ -268,6 +268,13 @@ const Assert: NodeType = {
     maxLength: { type: 'integer' },
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+    function: {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        options: { type: 'array' },
+      },
+    },
   },
   required: ['subject'],
 };

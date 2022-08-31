@@ -624,5 +624,25 @@ describe('oas3 assertions', () => {
         ).toEqual({ isValid: true, location: baseLocation.key() });
       });
     });
+
+    describe('function', () => {
+      it('node must have at least one property from predefined list', () => {
+        expect(
+          asserts.function(
+            Object.keys(fakeNode),
+            (value: string[], location: Location) => {
+              if (value[0] === 'foo') {
+                return { isValid: false, location: location.key() };
+              }
+              return { isValid: true };
+            },
+            baseLocation
+          )
+        ).toEqual({
+          isValid: false,
+          location: baseLocation.key(),
+        });
+      });
+    });
   });
 });

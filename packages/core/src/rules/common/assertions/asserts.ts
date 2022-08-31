@@ -182,7 +182,7 @@ export const asserts: Asserts = {
       location: hasRef ? baseLocation : baseLocation.key(),
     };
   },
-  function: (value: string[], condition: CustomFunction, baseLocation: Location) => {
-    return condition.call(null, value, baseLocation);
+  function: (value: string[], func: CustomFunction, baseLocation: Location) => {
+    return func.call(null, value, baseLocation);
   },
 };

@@ -303,11 +303,7 @@ export async function resolveStyleguideConfig(
   return {
     ...resolvedStyleguideConfig,
     rules:
-      resolvedStyleguideConfig.rules &&
-      groupStyleguideAssertionRules(
-        resolvedStyleguideConfig.rules,
-        resolvedStyleguideConfig.plugins
-      ),
+      resolvedStyleguideConfig.rules && groupStyleguideAssertionRules(resolvedStyleguideConfig),
   };
 }
 
@@ -400,9 +396,9 @@ function getMergedRawStyleguideConfig(
 }
 
 function groupStyleguideAssertionRules(
-  rules: Record<string, RuleConfig> | undefined,
-  plugins?: Plugin[]
+  resolvedStyleguideConfig: ResolvedStyleguideConfig
 ): Record<string, RuleConfig> | undefined {
+  const { rules, plugins } = resolvedStyleguideConfig;
   if (!rules) {
     return rules;
   }
@@ -415,14 +411,21 @@ function groupStyleguideAssertionRules(
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
-      if (assertion.function && plugins) {
+      if (assertion.function && typeof assertion.function !== 'function' && plugins) {
         const [pluginId, fn] = assertion.function.name.split('/');
         const options = assertion.function.options;
         const plugin = plugins.find((plugin) => plugin.id === pluginId);
-        // Throw Error when can not find plugin?
-        if (plugin && plugin.assertions && plugin.assertions[fn]) {
-          assertion.function = plugin.assertions[fn].bind(null, options);
+        if (!plugin) {
+          throw Error(`Plugin ${colorize.red(pluginId)} isn't found.`);
         }
+        if (!plugin.assertions || !plugin.assertions[fn]) {
+          throw Error(
+            `Plugin ${colorize.red(
+              pluginId
+            )} doesn't export assertions function with name ${colorize.red(fn)}.`
+          );
+        }
+        assertion.function = plugin.assertions[fn].bind(null, options);
       }
       assertions.push({
         ...assertion,
