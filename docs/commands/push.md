@@ -288,8 +288,9 @@ redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --files ./path/t
 You can also add files and folders providing them in `.redocly.yaml`:
 
 ```yaml
-apiDefinitions:
-  main: ./openapi.yam;
+apis:
+  main: 
+     root: ./openapi.yam;
 files:
   - ./path/to/folder
   - ./path/to/another-folder/file.md
