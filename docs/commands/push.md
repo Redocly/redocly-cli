@@ -296,6 +296,8 @@ files:
   - ./file.md
 ```
 
+**`--files` has bigger priority than `.redocly.yaml`**
+
 ### Set up CI from Redocly Workflows
 
 The Redocly Workflows interface can help you get started with the `push` command.

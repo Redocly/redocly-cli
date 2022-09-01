@@ -41,7 +41,7 @@ type PushArgs = {
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfig({ argv });
+  const config = await loadConfig({ region: argv.region, files: argv.files });
   const region = config.region;
   const client = new RedoclyClient(region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
