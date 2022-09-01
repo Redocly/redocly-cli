@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+styleguide:
+  rules:
+    operation-4xx-problem-details-rfc7807: error
+  extends: []
