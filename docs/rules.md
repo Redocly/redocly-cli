@@ -20,6 +20,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [no-unresolved-refs](./rules/no-unresolved-refs.md)
 - [no-unused-components](./rules/no-unused-components.md)
 - [spec](./rules/spec.md)
+- [spec-components-invalid-map-name](./rules/spec-components-invalid-map-name.md)
 
 ### Info
 
