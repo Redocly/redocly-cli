@@ -92,9 +92,7 @@ export type CustomFunction = (
   rawValue?: any
 ) => AssertResult;
 
-export type AssertionsConfig = {
-  [key: string]: CustomFunction;
-};
+export type AssertionsConfig = Record<sting, CustomFunction>;
 
 export type Plugin = {
   id: string;
