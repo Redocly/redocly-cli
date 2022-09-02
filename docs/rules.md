@@ -31,6 +31,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 
 - [operation-2xx-response](./rules/operation-2xx-response.md)
 - [operation-4xx-response](./rules/operation-4xx-response.md)
+- [operation-4xx-problem-details-rfc7807](./rules/operation-4xx-problem-details-rfc7807.md)
 - [operation-description](./rules/operation-description.md)
 - [operation-operationId](./rules/operation-operationId.md)
 - [operation-operationId-unique](./rules/operation-operationId-unique.md)
