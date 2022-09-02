@@ -1,9 +1,6 @@
 apis:
   main:
     root: ./openapi.yaml
-
-
-
 styleguide:
   plugins:
     - ./plugin.js
@@ -13,5 +10,7 @@ styleguide:
       property: summary
       message: Operation summary should be longer
       function:
-        name: local/checkLength
+        name: local/checkLength2
+        options: 
+          min: 10
   extends: []

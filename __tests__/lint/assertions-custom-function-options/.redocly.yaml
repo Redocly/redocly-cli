@@ -12,5 +12,5 @@ styleguide:
       function:
         name: local/checkLength
         options: 
-          min: 100
+          min: 10
   extends: []

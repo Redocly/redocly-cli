@@ -1,4 +1,4 @@
-import { AssertResult, CustomFunction } from 'core/src/config/types';
+import { AssertResult, CustomFunctionObject } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
 import { isString as runOnValue } from '../../../utils';
 import {
@@ -182,7 +182,7 @@ export const asserts: Asserts = {
       location: hasRef ? baseLocation : baseLocation.key(),
     };
   },
-  function: (value: string[], func: CustomFunction, baseLocation: Location) => {
-    return func.call(null, value, baseLocation);
+  function: (value: string[], functionObj: CustomFunctionObject, baseLocation: Location) => {
+    return functionObj.fn.call(null, value, functionObj.options, baseLocation);
   },
 };

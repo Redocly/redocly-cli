@@ -64,7 +64,7 @@ See the [context example](#context-example).
 
 Property | Type | Description
 -- | -- | --
-name | `string` | Function name in plugin file.
+name | `string` | Function name in plugin file. Should be in pattern `{pluginId}/{functionName}`.
 options | `options` | Options that  will be as a first parameter in custom function.
 
 See the [custom function example](#custom-function-example).
@@ -216,7 +216,7 @@ assert/:
 module.exports = {
   id: 'local',
   assertions: {
-    checkLength: (opts, value, location) => {
+    checkLength: (value, opts, location) => {
       if (value.length < opts.min) {
         return { isValid: false, location };
       }

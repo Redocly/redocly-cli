@@ -85,14 +85,14 @@ export type CustomRulesConfig = {
 };
 
 export type AssertResult = { isValid: boolean; location?: Location };
-export type CustomFunction = (
-  options: any,
-  value: any,
-  baseLocation: Location,
-  rawValue?: any
-) => AssertResult;
+export type CustomFunction = (value: any, options: any, baseLocation: Location) => AssertResult;
+export type CustomFunctionObject = {
+  name: string;
+  fn: CustomFunction;
+  options?: any;
+};
 
-export type AssertionsConfig = Record<sting, CustomFunction>;
+export type AssertionsConfig = Record<string, CustomFunction>;
 
 export type Plugin = {
   id: string;

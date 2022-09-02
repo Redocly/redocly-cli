@@ -411,9 +411,8 @@ function groupStyleguideAssertionRules(
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
-      if (assertion.function && typeof assertion.function !== 'function' && plugins) {
+      if (assertion.function && !assertion.function.fn && plugins) {
         const [pluginId, fn] = assertion.function.name.split('/');
-        const options = assertion.function.options;
         const plugin = plugins.find((plugin) => plugin.id === pluginId);
         if (!plugin) {
           throw Error(`Plugin ${colorize.red(pluginId)} isn't found.`);
@@ -425,7 +424,7 @@ function groupStyleguideAssertionRules(
             )} doesn't export assertions function with name ${colorize.red(fn)}.`
           );
         }
-        assertion.function = plugin.assertions[fn].bind(null, options);
+        assertion.function.fn = plugin.assertions[fn];
       }
       assertions.push({
         ...assertion,
