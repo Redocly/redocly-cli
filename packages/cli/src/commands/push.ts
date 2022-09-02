@@ -253,15 +253,15 @@ async function collectFilesToUpload(api: string, config: Config) {
       fileList.forEach((f) => pluginFiles.add(f));
     }
     files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
+  }
 
-    if (config.files) {
-      for (const file of config.files) {
-        if (fs.statSync(file).isDirectory()) {
-          const fileList = getFilesList(file, []);
-          files.push(...fileList.map((f) => getFileEntry(f)));
-        } else {
-          files.push(getFileEntry(file));
-        }
+  if (config.files) {
+    for (const file of config.files) {
+      if (fs.statSync(file).isDirectory()) {
+        const fileList = getFilesList(file, []);
+        files.push(...fileList.map((f) => getFileEntry(f)));
+      } else {
+        files.push(getFileEntry(file));
       }
     }
   }
