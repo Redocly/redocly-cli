@@ -56,6 +56,6 @@ export default {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
-    'spec-components-invalid-map-name': 'warn',
+    'spec-components-invalid-map-name': 'error',
   },
 } as PluginStyleguideConfig;
