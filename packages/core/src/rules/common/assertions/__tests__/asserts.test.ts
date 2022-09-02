@@ -628,7 +628,7 @@ describe('oas3 assertions', () => {
     describe('function', () => {
       it('node must have at least one property from predefined list', () => {
         const customFn = jest.fn((value: string[], options: any, location: Location) => {
-          expect(this).toBe({});
+          expect(this).toEqual({});
           if (value[0] === 'foo') {
             return { isValid: false, location: location.key() };
           }
@@ -643,8 +643,8 @@ describe('oas3 assertions', () => {
           isValid: false,
           location: baseLocation.key(),
         });
-        expect(customFn.mock).toHaveBeenCalledTimes(1);
-        expect(customFn.mock.calls[0][0]).toBe(Object.keys(fakeNode));
+        expect(customFn.mock.calls.length).toBe(1);
+        expect(customFn.mock.calls[0][0]).toEqual(Object.keys(fakeNode));
       });
     });
   });
