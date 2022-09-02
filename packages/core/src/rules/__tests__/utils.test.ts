@@ -153,7 +153,7 @@ describe('get-additional-properties-option', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toEqual(
-        "Do not use 'disallowAdditionalProperties' field. Use 'allowAdditionalProperties' instead.\n"
+        "Do not use 'disallowAdditionalProperties' field. Use 'allowAdditionalProperties' instead. \n"
       );
     }
   });

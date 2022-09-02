@@ -2,14 +2,13 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    request-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-    response-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-  extends: []
+rules:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+extends: []
