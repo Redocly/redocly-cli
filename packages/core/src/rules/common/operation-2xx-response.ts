@@ -7,7 +7,7 @@ export const Operation2xxResponse: Oas3Rule | Oas2Rule = () => {
       const codes = Object.keys(responses);
       if (!codes.some((code) => code === 'default' || /2[Xx0-9]{2}/.test(code))) {
         report({
-          message: 'Operation must have at least one `2xx` response.',
+          message: 'Operation must have at least one `2XX` response.',
           location: { reportOnKey: true },
         });
       }
