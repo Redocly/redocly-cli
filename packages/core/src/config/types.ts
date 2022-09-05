@@ -129,6 +129,7 @@ export type AccessTokens = { [region in Region]?: string };
 export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: StyleguideRawConfig;
+  styleguide?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
   apis?: Record<string, Api & DeprecatedInApi>;
 };

@@ -42,7 +42,11 @@ export function transformApiDefinitionsToApis(
   return apis;
 }
 
-const extractStyleguide = <T>({
+function extractFlatConfig<
+  T extends Partial<
+    (Api & DeprecatedInApi & FlatApi) & (DeprecatedInRawConfig & RawConfig & FlatRawConfig)
+  >
+>({
   plugins,
   extends: _extends,
 
@@ -62,10 +66,10 @@ const extractStyleguide = <T>({
   oas3_1Decorators,
 
   ...rawConfigRest
-}: T & Pick<StyleguideRawConfig, 'plugins' | 'extends' | RulesFields>): {
+}: T): {
   styleguideConfig?: StyleguideRawConfig;
   rawConfigRest: Omit<T, 'plugins' | 'extends' | RulesFields>;
-} => {
+} {
   const styleguideConfig = {
     plugins,
     extends: _extends,
@@ -95,7 +99,7 @@ const extractStyleguide = <T>({
 
     rawConfigRest,
   };
-};
+}
 
 function transformApis(
   legacyApis?: Record<string, Api & DeprecatedInApi & FlatApi>
@@ -103,7 +107,7 @@ function transformApis(
   if (!legacyApis) return undefined;
   const apis: Record<string, Api> = {};
   for (const [apiName, { lint, ...apiContent }] of Object.entries(legacyApis)) {
-    const { styleguideConfig, rawConfigRest } = extractStyleguide(apiContent);
+    const { styleguideConfig, rawConfigRest } = extractFlatConfig(apiContent);
     apis[apiName] = {
       styleguide: styleguideConfig || lint,
       ...rawConfigRest,
@@ -270,7 +274,7 @@ export function transformConfig(
 
   const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
 
-  const { styleguideConfig, rawConfigRest } = extractStyleguide(rest);
+  const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
 
   return {
     'features.openapi': referenceDocs,
