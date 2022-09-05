@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+styleguide:
+  extends: []
+  rules:
+    spec: error
