@@ -262,8 +262,9 @@ function formatFrom(cwd: string, location?: LocationObject) {
   const relativePath = path.relative(cwd, location.source.absoluteRef);
   const loc = getLineColLocation(location);
   const fileWithLoc = `${relativePath}:${loc.start.line}:${loc.start.col}`;
+  const atPointer = location.pointer ? colorize.gray(`at ${location.pointer}`) : '';
 
-  return `referenced from ${colorize.blue(fileWithLoc)}\n\n`;
+  return `referenced from ${colorize.blue(fileWithLoc)} ${atPointer} \n\n`;
 }
 
 function formatDidYouMean(problem: NormalizedProblem) {
