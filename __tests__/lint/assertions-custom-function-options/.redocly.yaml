@@ -8,9 +8,18 @@ styleguide:
     assert/operation-summary-length:
       subject: Operation
       property: summary
-      message: Operation summary should be longer
-      function:
-        name: local/checkLength
-        options: 
-          min: 10
+      message: Operation summary should start with an active verb
+      local/checkWordsStarts: 
+        words: 
+          - Create
+          - Retrieve
+          - Merge
+          - Delete
+          - List
+          - Upsert
+          - Update
+          - Approve
+          - Reject
+      local/checkWordsCount: 
+        min: 3
   extends: []

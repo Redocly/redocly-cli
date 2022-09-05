@@ -1,4 +1,4 @@
-import { AssertResult, CustomFunctionObject } from 'core/src/config/types';
+import { AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
 import { isString as runOnValue } from '../../../utils';
 import {
@@ -48,7 +48,10 @@ export const asserts: Asserts = {
     const regx = regexFromString(condition);
     for (const _val of values) {
       if (!regx?.test(_val)) {
-        return { isValid: false, location: runOnValue(value) ? baseLocation : baseLocation.key() };
+        return {
+          isValid: false,
+          location: runOnValue(value) ? baseLocation : baseLocation.key(),
+        };
       }
     }
     return { isValid: true };
@@ -165,7 +168,10 @@ export const asserts: Asserts = {
     };
   },
   requireAny: (value: string[], condition: string[], baseLocation: Location) => {
-    return { isValid: getIntersectionLength(value, condition) >= 1, location: baseLocation.key() };
+    return {
+      isValid: getIntersectionLength(value, condition) >= 1,
+      location: baseLocation.key(),
+    };
   },
   ref: (_value: any, condition: string | boolean, baseLocation, rawValue: any) => {
     if (typeof rawValue === 'undefined') return { isValid: true }; // property doesn't exist, no need to lint it with this assert
@@ -182,7 +188,10 @@ export const asserts: Asserts = {
       location: hasRef ? baseLocation : baseLocation.key(),
     };
   },
-  function: (value: string[], functionObj: CustomFunctionObject, baseLocation: Location) => {
-    return functionObj.fn.call(null, value, functionObj.options, baseLocation);
-  },
 };
+
+export function buildAssertCustomFunction(fn: CustomFunction) {
+  return (value: string[], options: any, baseLocation: Location) => {
+    return fn.call(null, value, options, baseLocation);
+  };
+}

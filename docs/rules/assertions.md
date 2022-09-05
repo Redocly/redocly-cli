@@ -48,7 +48,7 @@ nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
 ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
-function | [Function object](#function-object) | Custom assert that describes in plugin. Custom function which validate value.|
+`{pluginId}/{functionName}` | `object` | Custom assert that describes in plugin. This function will be called with options which describes in value. See [custom function expample](#custom-function-example).|
 
 ## Context object
 
@@ -198,29 +198,56 @@ assert/no-pdf-in-ok-response:
 
 ### Custom function example
 
-The following example asserts that `Operation` summary can not be shorter than `options.min` characters.
+The following example asserts that `Operation` summary should start with an active verb and have at least three words.
+
+In `.redocly.yaml` describes two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has in options list of `words`. `local/checkWordsCount` has in options `min` which means that summary field should have `min` words. 
+
+In `plugin.js` inside functions we retrieve this options and make checks. Function called with:
+
+Property | Type | Description
+-- | -- | --
+value | `string` \| [`string`] | Value which selected.
+options | `object` | Options that is described in config file.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
 
 `.redocly.yaml`
 ```yaml
 assert/:
   subject: Operation
   property: summary
-  message: Operation summary should be longer
-  function:
-    name: local/checkLength
-    options: 
-      min: 100
+  message: Operation summary should start with an active verb
+    local/checkWordsStarts: 
+      words: 
+        - Create
+        - Retrieve
+        - Merge
+        - Delete
+        - List
+        - Upsert
+        - Update
+        - Approve
+        - Reject
+    local/checkWordsCount: 
+      min: 3
 ```
 `plugin.js`
 ```js
 module.exports = {
   id: 'local',
   assertions: {
-    checkLength: (value, opts, location) => {
-      if (value.length < opts.min) {
-        return { isValid: false, location };
+    checkWordsStarts: (value, opts, location) => {
+      const regexp = new RegExp(`^${opts.words.join("|")}`)
+      if (regexp.test(value)) {
+        return { isValid: true };
       }
-      return { isValid: true };
+      return { isValid: false, location };
+    },
+    checkWordsCount: (value, opts, location) => {
+      const words = value.split(" ");
+      if (words.length >= opts.min) {
+        return { isValid: true };
+      }
+      return { isValid: false, location };
     },
   },
 };

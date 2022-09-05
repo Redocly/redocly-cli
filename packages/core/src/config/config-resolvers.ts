@@ -24,6 +24,7 @@ import { isBrowser } from '../env';
 import { isNotString, isString, notUndefined, parseYaml } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
@@ -411,20 +412,23 @@ function groupStyleguideAssertionRules(
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
-      if (assertion.function && !assertion.function.fn && plugins) {
-        const [pluginId, fn] = assertion.function.name.split('/');
-        const plugin = plugins.find((plugin) => plugin.id === pluginId);
-        if (!plugin) {
-          throw Error(`Plugin ${colorize.red(pluginId)} isn't found.`);
+      if (plugins) {
+        for (const field of Object.keys(assertion)) {
+          const [pluginId, fn] = field.split('/');
+          if (!pluginId || !fn) continue;
+          const plugin = plugins.find((plugin) => plugin.id === pluginId);
+          if (!plugin) {
+            throw Error(`Plugin ${colorize.red(pluginId)} isn't found.`);
+          }
+          if (!plugin.assertions || !plugin.assertions[fn]) {
+            throw Error(
+              `Plugin ${colorize.red(
+                pluginId
+              )} doesn't export assertions function with name ${colorize.red(fn)}.`
+            );
+          }
+          asserts[field] = buildAssertCustomFunction(plugin.assertions[fn]);
         }
-        if (!plugin.assertions || !plugin.assertions[fn]) {
-          throw Error(
-            `Plugin ${colorize.red(
-              pluginId
-            )} doesn't export assertions function with name ${colorize.red(fn)}.`
-          );
-        }
-        assertion.function.fn = plugin.assertions[fn];
       }
       assertions.push({
         ...assertion,

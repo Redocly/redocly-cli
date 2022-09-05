@@ -1,6 +1,6 @@
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
-import { asserts } from '../asserts';
+import { asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
@@ -629,17 +629,15 @@ describe('oas3 assertions', () => {
       it('node must have at least one property from predefined list', () => {
         const customFn = jest.fn((value: string[], options: any, location: Location) => {
           expect(this).toEqual({});
-          if (value[0] === 'foo') {
+          if (value[0] === options.word) {
             return { isValid: false, location: location.key() };
           }
           return { isValid: true };
         });
-        const functionObj = {
-          fn: customFn,
-          name: 'customFn',
-          options: {},
-        };
-        expect(asserts.function(Object.keys(fakeNode), functionObj, baseLocation)).toEqual({
+        asserts['local/customFn'] = buildAssertCustomFunction(customFn);
+        expect(
+          asserts['local/customFn'](Object.keys(fakeNode), { word: 'foo' }, baseLocation)
+        ).toEqual({
           isValid: false,
           location: baseLocation.key(),
         });
