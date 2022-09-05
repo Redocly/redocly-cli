@@ -17,7 +17,7 @@ paths:
   /pet/findByStatus:
     get:
       operationId: example
-      summary: summary
+      summary: List of pets
       tags:
         - foo
         - baz
