@@ -29,6 +29,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/license",
@@ -78,6 +79,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/apis",
@@ -91,6 +93,7 @@ describe('lint', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/features.openapi/layout",
@@ -124,6 +127,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/api",
@@ -139,6 +143,7 @@ describe('lint', () => {
           ],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/syleguide",
@@ -193,6 +198,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/apis/styleguide",
@@ -206,6 +212,7 @@ describe('lint', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/apis/styleguide/plugins",

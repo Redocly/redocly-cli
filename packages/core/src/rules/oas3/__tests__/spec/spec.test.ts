@@ -47,6 +47,7 @@ describe('Oas3 Structural visitor basic', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/contact/url",
@@ -60,6 +61,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/contact/email",
@@ -73,6 +75,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/license",
@@ -103,6 +106,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/servers/0/variables/a/enum/0",
@@ -116,6 +120,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/tags/0",
@@ -129,6 +134,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/tags/1",
@@ -175,6 +181,7 @@ describe('Oas3 Structural visitor basic', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/components1",
@@ -203,6 +210,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/contact/test",
@@ -244,6 +252,7 @@ describe('Oas3 Structural visitor basic', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/",
@@ -270,6 +279,7 @@ describe('Oas3 Structural visitor basic', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info",
