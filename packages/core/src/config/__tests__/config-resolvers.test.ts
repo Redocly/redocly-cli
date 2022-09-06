@@ -156,7 +156,6 @@ describe('resolveStyleguideConfig', () => {
         configPath,
       });
     } catch (e) {
-      // console.log(e.message)
       expect(e.message.toString()).toContain(
         `Plugin ${colorize.red(
           'test-plugin'
