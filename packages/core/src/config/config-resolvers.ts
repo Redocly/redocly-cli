@@ -396,9 +396,10 @@ function getMergedRawStyleguideConfig(
   return resultLint;
 }
 
-function groupStyleguideAssertionRules(
-   { rules, plugins }: ResolvedStyleguideConfig
-): Record<string, RuleConfig> | undefined {
+function groupStyleguideAssertionRules({
+  rules,
+  plugins,
+}: ResolvedStyleguideConfig): Record<string, RuleConfig> | undefined {
   if (!rules) {
     return rules;
   }
