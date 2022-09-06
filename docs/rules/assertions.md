@@ -484,7 +484,7 @@ For technical details on the implementation of types for each OAS version, consu
 
 List of types for OpenAPI 3.0 and 3.1:
 
-- DefinitionRoot
+- Root
 - Tag
 - ExternalDocs
 - Server

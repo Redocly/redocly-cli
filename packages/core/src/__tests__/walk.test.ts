@@ -16,7 +16,7 @@ import { Oas3RuleSet } from '../oas-types';
 describe('walk order', () => {
   it('should run visitors', async () => {
     const visitors = {
-      DefinitionRoot: {
+      Root: {
         enter: jest.fn(),
         leave: jest.fn(),
       },
@@ -1046,7 +1046,7 @@ describe('walk order', () => {
 
     expect(calls).toMatchInlineSnapshot(`
       Array [
-        "enter DefinitionRoot",
+        "enter Root",
         "enter PathMap",
         "enter PathItem",
         "enter ParameterList",
@@ -1075,7 +1075,7 @@ describe('walk order', () => {
         "leave Schema",
         "leave NamedSchemas",
         "leave Components",
-        "leave DefinitionRoot",
+        "leave Root",
       ]
     `);
   });
@@ -1378,10 +1378,10 @@ describe('type extensions', () => {
                   parameters: listOf('Parameter'),
                 },
               },
-              DefinitionRoot: {
-                ...types.DefinitionRoot,
+              Root: {
+                ...types.Root,
                 properties: {
-                  ...types.DefinitionRoot.properties,
+                  ...types.Root.properties,
                   'x-webhooks': 'XWebHooks',
                 },
               },
@@ -1393,7 +1393,7 @@ describe('type extensions', () => {
 
     expect(calls).toMatchInlineSnapshot(`
       Array [
-        "enter DefinitionRoot",
+        "enter Root",
         "enter XWebHooks",
         "enter hook test",
         "enter ParameterList",
@@ -1402,7 +1402,7 @@ describe('type extensions', () => {
         "leave ParameterList",
         "leave hook test",
         "leave XWebHooks",
-        "leave DefinitionRoot",
+        "leave Root",
       ]
     `);
   });

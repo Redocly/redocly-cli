@@ -132,7 +132,7 @@ rootType:
     - openapi
     - paths
     - info
-  name: DefinitionRoot
+  name: Root
 refTypes: {}
 visitorsData:
   registry-dependencies:

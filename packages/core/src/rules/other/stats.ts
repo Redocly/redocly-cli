@@ -24,7 +24,7 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
         statsAccumulator.links.items!.add(link.operationId);
       },
     },
-    DefinitionRoot: {
+    Root: {
       leave() {
         statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
         statsAccumulator.refs.total = statsAccumulator.refs.items!.size;

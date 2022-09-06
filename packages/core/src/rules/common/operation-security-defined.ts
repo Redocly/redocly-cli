@@ -14,7 +14,7 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
   >();
 
   return {
-    DefinitionRoot: {
+    Root: {
       leave(_: object, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;

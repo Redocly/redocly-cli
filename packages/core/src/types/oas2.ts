@@ -2,7 +2,7 @@ import { NodeType, listOf, mapOf } from '.';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     swagger: { type: 'string' },
     info: 'Info',
@@ -369,7 +369,7 @@ const SecurityRequirement: NodeType = {
 };
 
 export const Oas2Types: Record<string, NodeType> = {
-  DefinitionRoot,
+  Root,
   Tag,
   ExternalDocs,
   SecurityRequirement,

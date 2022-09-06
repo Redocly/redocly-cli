@@ -2,7 +2,7 @@ import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
@@ -460,7 +460,7 @@ const SecurityScheme: NodeType = {
 };
 
 export const Oas3Types: Record<string, NodeType> = {
-  DefinitionRoot,
+  Root,
   Tag,
   ExternalDocs,
   Server,
