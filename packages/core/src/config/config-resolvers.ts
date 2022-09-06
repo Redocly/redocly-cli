@@ -418,7 +418,7 @@ function groupStyleguideAssertionRules(
           if (!pluginId || !fn) continue;
           const plugin = plugins.find((plugin) => plugin.id === pluginId);
           if (!plugin) {
-            throw Error(`Plugin ${colorize.red(pluginId)} isn't found.`);
+            throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
           }
           if (!plugin.assertions || !plugin.assertions[fn]) {
             throw Error(
