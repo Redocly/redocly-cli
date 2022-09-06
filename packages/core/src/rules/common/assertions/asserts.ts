@@ -191,7 +191,6 @@ export const asserts: Asserts = {
 };
 
 export function buildAssertCustomFunction(fn: CustomFunction) {
-  return (value: string[], options: any, baseLocation: Location) => {
-    return fn.call(null, value, options, baseLocation);
-  };
+  return (value: string[], options: any, baseLocation: Location) => 
+    fn.call(null, value, options, baseLocation);
 }
