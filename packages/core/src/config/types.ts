@@ -85,7 +85,7 @@ export type CustomRulesConfig = {
 };
 
 export type AssertResult = { isValid: boolean; location?: Location };
-export type CustomFunction = (value: any, options: any, baseLocation: Location) => AssertResult;
+export type CustomFunction = (value: unknown/NodeType?, options: unknown, baseLocation: Location) => AssertResult;
 
 export type AssertionsConfig = Record<string, CustomFunction>;
 
