@@ -397,9 +397,8 @@ function getMergedRawStyleguideConfig(
 }
 
 function groupStyleguideAssertionRules(
-  resolvedStyleguideConfig: ResolvedStyleguideConfig
+   { rules, plugins }: ResolvedStyleguideConfig
 ): Record<string, RuleConfig> | undefined {
-  const { rules, plugins } = resolvedStyleguideConfig;
   if (!rules) {
     return rules;
   }
