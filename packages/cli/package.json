@@ -44,10 +44,13 @@
     "handlebars": "^4.7.6",
     "portfinder": "^1.0.26",
     "simple-websocket": "^9.0.0",
-    "yargs": "17.0.1"
+    "yargs": "17.0.1",
+    "update-notifier": "^5.0.1"
   },
   "devDependencies": {
     "@types/yargs": "16.0.2",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.3",
+    "@types/update-notifier": "^5.0.1",
+    "@types/configstore": "^5.0.1"
   }
 }
