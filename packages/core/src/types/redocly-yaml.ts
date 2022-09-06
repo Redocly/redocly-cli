@@ -272,7 +272,7 @@ const Assert: NodeType = {
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
   },
   additionalProperties: (_value: unknown, key: string) => {
-    if (key.includes('/')) return { type: 'object' };
+    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
     return;
   },
   required: ['subject'],
