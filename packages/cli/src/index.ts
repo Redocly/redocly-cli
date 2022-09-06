@@ -356,5 +356,4 @@ yargs
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
   .strict()
-  .middleware([notifyUpdateCliVersion])
-  .argv;
+  .middleware([notifyUpdateCliVersion]).argv;

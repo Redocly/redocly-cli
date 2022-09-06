@@ -333,7 +333,6 @@ export function notifyUpdateCliVersion() {
     shouldNotifyInNpmScript: true,
   });
   notifier.notify({
-    message:
-      'Run `{updateCommand}` to update.\nChangelog: https://redocly.com/docs/cli/changelog',
+    message: 'Run `{updateCommand}` to update.\nChangelog: https://redocly.com/docs/cli/changelog',
   });
 }
