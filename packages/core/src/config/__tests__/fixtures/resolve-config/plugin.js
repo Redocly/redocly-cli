@@ -51,6 +51,16 @@ const decorators = {
   },
 };
 
+const assertions = {
+  checkWordsCount: (value, opts, location) => {
+    const words = value.split(' ');
+    if (words.length >= opts.min) {
+      return { isValid: true };
+    }
+    return { isValid: false, location };
+  },
+};
+
 const configs = {
   all: {
     rules: {
@@ -66,4 +76,5 @@ module.exports = {
   rules,
   decorators,
   configs,
+  assertions,
 };
