@@ -1,3 +1,5 @@
+import type { AssertResult, RuleSeverity } from '../../../config';
+import { colorize } from '../../../logger';
 import { isRef, Location } from '../../../ref-utils';
 import { Problem, ProblemSeverity, UserContext } from '../../../walk';
 import { asserts } from './asserts';
@@ -72,20 +74,27 @@ export function buildVisitorObject(
   return visitor;
 }
 
-export function buildSubjectVisitor(
-  properties: string | string[],
-  asserts: AssertToApply[],
-  context?: Record<string, any>[]
-) {
+type Assertion = {
+  assertId: string;
+  property: string | string[];
+  context?: Record<string, any>[];
+  severity?: RuleSeverity;
+  suggest?: any[];
+  message?: string;
+  subject: string;
+};
+
+export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply[]) {
   return (
     node: any,
     { report, location, rawLocation, key, type, resolve, rawNode }: UserContext
   ) => {
+    let properties = assertion.property;
     // We need to check context's last node if it has the same type as subject node;
     // if yes - that means we didn't create context's last node visitor,
     // so we need to handle 'matchParentKeys' and 'excludeParentKeys' conditions here;
-    if (context) {
-      const lastContextNode = context[context.length - 1];
+    if (assertion.context) {
+      const lastContextNode = assertion.context[assertion.context.length - 1];
       if (lastContextNode.type === type.name) {
         const matchParentKeys = lastContextNode.matchParentKeys;
         const excludeParentKeys = lastContextNode.excludeParentKeys;
@@ -103,32 +112,74 @@ export function buildSubjectVisitor(
       properties = Array.isArray(properties) ? properties : [properties];
     }
 
+    const results = [];
+    let currentLocation;
     for (const assert of asserts) {
-      const currentLocation = assert.name === 'ref' ? rawLocation : location;
+      currentLocation = assert.name === 'ref' ? rawLocation : location;
       if (properties) {
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          runAssertion({
-            values: value,
-            rawValues: rawNode[property],
-            assert,
-            location: currentLocation.child(property),
-            report,
-          });
+          results.push(
+            runAssertion({
+              values: value,
+              rawValues: rawNode[property],
+              assert,
+              location: currentLocation.child(property),
+            })
+          );
         }
       } else {
         const value = assert.name === 'ref' ? rawNode : Object.keys(node);
-        runAssertion({
-          values: Object.keys(node),
-          rawValues: value,
-          assert,
-          location: currentLocation,
-          report,
-        });
+        results.push(
+          runAssertion({
+            values: Object.keys(node),
+            rawValues: value,
+            assert,
+            location: currentLocation,
+          })
+        );
       }
     }
+
+    const problems = getAllProblems(results);
+    if (problems.length) {
+      const message =
+        assertion.message ||
+        `${colorize.blue(assertion.assertId)} failed because the ${colorize.blue(
+          assertion.subject
+        )} ${colorize.blue(
+          (properties as string[]).join(', ')
+        )} didn't meet the assertions: {{problems}}`;
+
+      report({
+        message: message.replace('{{problems}}', convertProblemsToString(problems)),
+        location: currentLocation,
+        forceSeverity: assertion.severity || 'error',
+        suggest: assertion.suggest || [],
+        ruleId: assertion.assertId,
+      });
+    }
   };
+}
+
+function getAllProblems(results: AssertResult[]) {
+  const problems: string[] = [];
+
+  for (const result of results) {
+    if (result.length === 0) continue;
+
+    for (const r of result) {
+      if (r.isValid) continue;
+      problems.push(r.message ?? '');
+    }
+  }
+  return problems;
+}
+
+function convertProblemsToString(problems: string[]) {
+  if (problems.length === 1) return problems[0];
+  return problems.map((problem) => `\n- ${problem}`).join('');
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
@@ -170,28 +221,10 @@ type RunAssertionParams = {
   rawValues: any;
   assert: AssertToApply;
   location: Location;
-  report: (problem: Problem) => void;
 };
 
-function runAssertion({ values, rawValues, assert, location, report }: RunAssertionParams) {
-  const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
-
-  const defaultMessage =
-    assert.message || `The ${assert.assertId} doesn't meet required conditions`;
-
-  if (lintResult.length > 0) {
-    for (const result of lintResult) {
-      if (!result.isValid) {
-        report({
-          message: result.message || defaultMessage,
-          location: result.location || location,
-          forceSeverity: assert.severity,
-          suggest: assert.suggest,
-          ruleId: assert.assertId,
-        });
-      }
-    }
-  }
+function runAssertion({ values, rawValues, assert, location }: RunAssertionParams) {
+  return asserts[assert.name](values, assert.conditions, location, rawValues);
 }
 
 export function regexFromString(input: string): RegExp | null {
