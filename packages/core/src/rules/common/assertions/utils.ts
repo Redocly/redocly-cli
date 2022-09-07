@@ -175,14 +175,22 @@ type RunAssertionParams = {
 
 function runAssertion({ values, rawValues, assert, location, report }: RunAssertionParams) {
   const lintResult = asserts[assert.name](values, assert.conditions, location, rawValues);
-  if (!lintResult.isValid) {
-    report({
-      message: assert.message || `The ${assert.assertId} doesn't meet required conditions`,
-      location: lintResult.location || location,
-      forceSeverity: assert.severity,
-      suggest: assert.suggest,
-      ruleId: assert.assertId,
-    });
+
+  const defaultMessage =
+    assert.message || `The ${assert.assertId} doesn't meet required conditions`;
+
+  if (lintResult.length > 0) {
+    for (const result of lintResult) {
+      if (!result.isValid) {
+        report({
+          message: result.message || defaultMessage,
+          location: result.location || location,
+          forceSeverity: assert.severity,
+          suggest: assert.suggest,
+          ruleId: assert.assertId,
+        });
+      }
+    }
   }
 }
 

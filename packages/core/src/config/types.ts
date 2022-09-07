@@ -84,7 +84,7 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
-export type AssertResult = { isValid: boolean; location?: Location };
+export type AssertResult = Array<{ isValid?:boolean;message?: string; location?: Location }>;
 export type CustomFunction = (value: any, options: unknown, baseLocation: Location) => AssertResult;
 
 export type AssertionsConfig = Record<string, CustomFunction>;
