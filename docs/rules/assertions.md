@@ -28,10 +28,13 @@ assert/my-assertion-name | [Assertion object](#assertion-object) | An assertion 
 
 Property | Type | Description
 -- | -- | --
-subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `context` for more control.
+subject | `string` \| [`string`] | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `if` for more control.
 property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
-context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example).
-message | `string` | Problem message displayed if the assertion is false. If omitted, the default message "The {assertion name} doesn't meet required conditions" is displayed.
+filterInParentKeys | [`string`] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions.
+filterOutParentKeys | [`string`] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
+matchParentKeys | `string` | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
+if | [`Assertion` object] | The `if` list influences evaluation for assertions by only evaluating assertions when the `if` arguments evaluate to true. The `if` argument must be structured like a valid assertion with the exception of no nested `if` values. When using the `if` list, it evaluates the locator specified with any assertions, and then continues to evaluate based on that subset of the values. The resolution of reference objects is done at the `if` level. The `if` list is evaluated from top to bottom in that order. If no `if` list is provided, it evaluates the assertion for all instances of the given type. See [if example](#if-example). The `if` evaluation does not result in any problems (it is used for filtering where to run assertions); therefore, the `message`, `suggest`, and `severity` properties are ignored.
+message | `string` | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
 enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
@@ -43,21 +46,10 @@ required | [`string`] | Asserts all listed values are defined. See [required exa
 requireAny | [`string`] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
-undefined | `boolean` | Asserts a property is undefined. See [undefined example](#undefined-example).
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
 ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
-
-## Context object
-
-Property | Type | Description
--- | -- | --
-type | `string` | **REQUIRED.** One of the [OpenAPI node types](#openapi-node-types).
-matchParentKeys | [`string`] | The list of parent object key names to evaluate with respect to the subject.
-excludeParentKeys | [`string`] | The list of parent object key names to not evaluate with respect to the subject.
-
-See the [context example](#context-example).
 
 ## Examples
 
@@ -167,23 +159,29 @@ styleguide:
         - description
 ```
 
-### `context` example
+### `if` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
-Without the `context`, the assertion would evaluate every MediaTypeMap including:
+Without the `if`, the assertion would evaluate every MediaTypeMap including:
 - Responses with all codes, including codes other than 200 or 201
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
-To restrict the evaluation, use the `context` feature to limit what will be evaluated.
+To restrict the evaluation, use the `if` feature to limit what will be evaluated.
 
 ```yaml
 assert/no-pdf-in-ok-response:
-  context:
-  - type: Operation
-    matchParentKeys: [put]
-  - type: Response
-    matchParentKeys: ['201', '200']
+  if:
+  - subject: Operation
+    filterByParentKeys: 
+      - put
+    defined: true
+  - subject: Response
+    filterByParentKeys: 
+      - '201'
+      - '200'
+    defined: true
   subject: MediaTypeMap
-  disallowed: ['application/pdf']
+  disallowed:
+    - 'application/pdf'
 ```
 
 ### `enum` example
@@ -299,10 +297,11 @@ styleguide:
   rules:
     assert/put-200-and-201:
       subject: ResponsesMap
-      context:
-        - type: Operation
-          matchParentKeys:
+      if:
+        - subject: Operation
+          filterInParentKeys:
             - put
+          defined: true
       message: Must mutually define 200 and 201 responses for PUT requests.
       severity: error
       mutuallyRequired:
@@ -320,10 +319,11 @@ styleguide:
   rules:
     assert/put-200-and-201:
       subject: ResponsesMap
-      context:
+      if:
         - type: Operation
-          matchParentKeys:
+          filterInParentKeys:
             - put
+          defined: true
       message: Must define 200 and 201 responses for PUT requests.
       severity: error
       required:
@@ -379,8 +379,6 @@ styleguide:
       defined: true
 ```
 
-### `undefined` example
-
 The following example asserts that `x-code-samples` is undefined.
 
 ```yaml
@@ -393,7 +391,7 @@ styleguide:
       suggest:
         - x-codeSamples instead of x-code-samples
       severity: error
-      undefined: true
+      defined: false
 ```
 
 ### `nonEmpty` example
