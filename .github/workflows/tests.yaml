@@ -62,11 +62,10 @@ jobs:
           CI: true
       - name: Pack CORE package
         run: npm pack ./packages/core
-      - name: Get CORE package version
-        id: get_core_version
-        run: echo "::set-output name=PACKAGE_CORE_VERSION::$(cat ./packages/core/package.json | jq '.version' | tr -d '"')"
-      - name: Change CORE package version in CLI package.json
-        run: jq '.dependencies."@redocly/openapi-core" = "file:./redocly-openapi-core-${{ steps.get_core_version.outputs.PACKAGE_CORE_VERSION }}.tgz"' ./packages/cli/package.json > package.json.tmp && mv package.json.tmp ./packages/cli/package.json
+      - name: Use local CORE package in CLI
+        run: |
+          version=$(cat ./packages/core/package.json | jq '.version' | tr -d '"')
+          jq '.dependencies."@redocly/openapi-core" = $packagefile' ./packages/cli/package.json --arg packagefile file:./redocly-openapi-core-$version.tgz > package.json.tmp && mv package.json.tmp ./packages/cli/package.json
       - name: Output package.json
         run: cat ./packages/cli/package.json
 
