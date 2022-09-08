@@ -13,8 +13,7 @@ const version = require('../../package.json').version;
 export const currentCommand =
   typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
 
-const redoclyEnv =
-  typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
+const redoclyEnv = typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
 
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
