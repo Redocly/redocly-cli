@@ -127,6 +127,11 @@ function lintConfigCallback(argv: LintOptions, version: string) {
     return;
   }
 
+  if (argv.format === 'json') {
+    // we can't print config lint results as it will break json output
+    return;
+  }
+
   return async (config: RawConfig) => {
     const { 'max-problems': maxProblems, format } = argv;
     const configPath = findConfig(argv.config) || '';
