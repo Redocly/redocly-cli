@@ -7,16 +7,16 @@ tocMaxDepth: 2
 ## 1.0.0-beta.109 (2022-09-08)
 ### Features
 
-- Added rfc7007 rule.
-- Improved error message by adding `referenced from` information.
-- Added a rule for component names validation.
+- Added rfc7807 problem details rule.
+- Improved error messages by adding `referenced from` information.
+- Added a rule for component map names validation.
 - Added a new `--format` option: `summary`.
 
 
 ### Fixes
 
-- Fixed an issue with multiline strings in literal mode.
-- Fixed an issue with multiline markdown with windows-style new lines.
+- Fixed an issue with multi-line strings in literal mode.
+- Fixed an issue with multi-line Markdown with Windows-style new lines.
 - Fixed a Header object spec to require `content` or `schema`.
 - Fixed a error message for `operation-4xx-response` rule.
 
