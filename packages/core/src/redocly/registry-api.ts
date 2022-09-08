@@ -13,6 +13,9 @@ const version = require('../../package.json').version;
 export const currentCommand =
   typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
 
+const redoclyEnv =
+  typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
+
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
 
@@ -32,7 +35,7 @@ export class RegistryApi {
   private async request(path = '', options: RequestInit = {}, region?: Region) {
     const headers = Object.assign({}, options.headers || {}, {
       'x-redocly-cli-version': version,
-      'user-agent': `redocly-cli / ${version} ${currentCommand}`,
+      'user-agent': `redocly-cli / ${version} ${currentCommand} ${redoclyEnv}`,
     });
 
     if (!headers.hasOwnProperty('authorization')) {
