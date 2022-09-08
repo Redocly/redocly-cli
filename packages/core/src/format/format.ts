@@ -272,9 +272,9 @@ function formatSummary(problems: NormalizedProblem[]): void {
     counts[problem.ruleId] = counts[problem.ruleId] || { count: 0, severity: problem.severity };
     counts[problem.ruleId].count++;
   }
-  const sorted = Object.entries(counts).sort((a, b) => {
-    const severityDiff = severityToNumber(a[1].severity) - severityToNumber(b[1].severity);
-    return severityDiff || b[1].count - a[1].count;
+  const sorted = Object.entries(counts).sort(([, a], [, b]) => {
+    const severityDiff = severityToNumber(a.severity) - severityToNumber(b.severity);
+    return severityDiff || b.count - a.count;
   });
 
   for (const [ruleId, info] of sorted) {
