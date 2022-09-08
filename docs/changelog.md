@@ -4,6 +4,23 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.109 (2022-09-08)
+### Features
+
+- Added rfc7007 rule.
+- Improved error message by adding `referenced from` information.
+- Added a rule for component names validation.
+- Added a new `--format` option: `summary`.
+
+
+### Fixes
+
+- Fixed an issue with multiline strings in literal mode.
+- Fixed an issue with multiline markdown with windows-style new lines.
+- Fixed a Header object spec to require `content` or `schema`.
+- Fixed a error message for `operation-4xx-response` rule.
+
+
 ## 1.0.0-beta.108 (2022-08-22)
 
 ### Changes
