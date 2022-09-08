@@ -44,7 +44,13 @@ function severityToNumber(severity: ProblemSeverity) {
   return severity === 'error' ? 1 : 2;
 }
 
-export type OutputFormat = 'codeframe' | 'stylish' | 'json' | 'checkstyle' | 'codeclimate';
+export type OutputFormat =
+  | 'codeframe'
+  | 'stylish'
+  | 'json'
+  | 'checkstyle'
+  | 'codeclimate'
+  | 'summary';
 
 export function getTotals(problems: (NormalizedProblem & { ignored?: boolean })[]): Totals {
   let errors = 0;
@@ -142,6 +148,9 @@ export function formatProblems(
     }
     case 'codeclimate':
       outputForCodeClimate();
+      break;
+    case 'summary':
+      formatSummary(problems);
       break;
   }
 
@@ -255,6 +264,26 @@ export function formatProblems(
       `<error line="${line}" column="${col}" severity="${severity}" message="${message}" source="${source}" />\n`
     );
   }
+}
+
+function formatSummary(problems: NormalizedProblem[]): void {
+  const counts: Record<string, { count: number; severity: ProblemSeverity }> = {};
+  for (const problem of problems) {
+    counts[problem.ruleId] = counts[problem.ruleId] || { count: 0, severity: problem.severity };
+    counts[problem.ruleId].count++;
+  }
+  const sorted = Object.entries(counts).sort((a, b) => {
+    const severityDiff = severityToNumber(a[1].severity) - severityToNumber(b[1].severity);
+    return severityDiff || b[1].count - a[1].count;
+  });
+
+  for (const [ruleId, info] of sorted) {
+    const color = COLORS[info.severity];
+    const severityName = color(SEVERITY_NAMES[info.severity].toLowerCase().padEnd(7));
+    logger.info(`${severityName} ${ruleId}: ${info.count}\n`);
+  }
+
+  logger.info('\n');
 }
 
 function formatFrom(cwd: string, location?: LocationObject) {

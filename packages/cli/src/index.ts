@@ -152,6 +152,7 @@ yargs
             'json',
             'checkstyle',
             'codeclimate',
+            'summary'
           ] as ReadonlyArray<OutputFormat>,
           default: 'codeframe' as OutputFormat,
         },
