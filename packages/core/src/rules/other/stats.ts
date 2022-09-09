@@ -41,7 +41,7 @@ export const Stats = (statsAccumulator: StatsAccumulator) => {
         },
       },
     },
-    PathMap: {
+    PathsMap: {
       PathItem: {
         leave() {
           statsAccumulator.pathItems.total++;

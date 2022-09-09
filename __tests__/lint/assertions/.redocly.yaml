@@ -33,7 +33,7 @@ styleguide:
     # context example
     assert/media-type-map-not-pdf:
       subject:
-        - MediaTypeMap
+        - MediaTypesMap
       context:
         - type: Operation
           excludeParentKeys:
@@ -44,7 +44,7 @@ styleguide:
       message: Media type should not be pdf
     # enum example
     assert/media-type-map-enum:
-      subject: MediaTypeMap
+      subject: MediaTypesMap
       message: Only application/json and application/pdf can be used
       severity: error
       enum:

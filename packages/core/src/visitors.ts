@@ -136,13 +136,13 @@ type Oas3FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas3Info>;
   Contact?: VisitFunctionOrObject<Oas3Contact>;
   License?: VisitFunctionOrObject<Oas3License>;
-  PathMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  PathsMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
   Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;
-  MediaTypeMap?: VisitFunctionOrObject<Record<string, Oas3MediaType>>;
+  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType>>;
   MediaType?: VisitFunctionOrObject<Oas3MediaType>;
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding>;
@@ -181,7 +181,7 @@ type Oas2FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas2Info>;
   Contact?: VisitFunctionOrObject<Oas2Contact>;
   License?: VisitFunctionOrObject<Oas2License>;
-  PathMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
+  PathsMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas2PathItem>;
   Parameter?: VisitFunctionOrObject<any>;
   Operation?: VisitFunctionOrObject<Oas2Operation>;
@@ -200,7 +200,15 @@ type Oas2FlatVisitor = {
 
 const legacyTypesMap = { 
   Root: 'DefinitionRoot',
-  // TODO: here goes the rest of the legacy types 
+  ServerVariablesMap: 'ServerVariableMap',
+  PathsMap: 'PathMap',
+  CallbacksMap: 'CallbackMap',
+  MediaTypesMap: 'MediaTypeMap',
+  ExamplesMap: 'ExampleMap',
+  EncodingsMap: 'EncodingMap',
+  HeadersMap: 'HeaderMap',
+  LinksMap: 'LinkMap',
+
 };
 
 type Oas3NestedVisitor = {

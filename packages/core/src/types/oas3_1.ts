@@ -9,7 +9,7 @@ const Root: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathMap',
+    paths: 'PathsMap',
     webhooks: 'WebhooksMap',
     components: 'Components',
     jsonSchemaDialect: { type: 'string' },

@@ -170,7 +170,7 @@ styleguide:
 ### `context` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
-Without the `context`, the assertion would evaluate every MediaTypeMap including:
+Without the `context`, the assertion would evaluate every MediaTypesMap including:
 - Responses with all codes, including codes other than 200 or 201
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
 To restrict the evaluation, use the `context` feature to limit what will be evaluated.
@@ -182,19 +182,19 @@ assert/no-pdf-in-ok-response:
     matchParentKeys: [put]
   - type: Response
     matchParentKeys: ['201', '200']
-  subject: MediaTypeMap
+  subject: MediaTypesMap
   disallowed: ['application/pdf']
 ```
 
 ### `enum` example
 
-The following example asserts that only `application/json` can be used as a key of the MediaTypeMap.
+The following example asserts that only `application/json` can be used as a key of the MediaTypesMap.
 
 ```yaml keys
 styleguide:
   rules:
     assert/media-type-map-application-json:
-      subject: MediaTypeMap
+      subject: MediaTypesMap
       message: Only application/json can be used
       severity: error
       enum:
@@ -493,13 +493,13 @@ List of types for OpenAPI 3.0 and 3.1:
 - Info
 - Contact
 - License
-- PathMap
+- PathsMap
 - PathItem
 - Parameter
 - Operation
 - Callback
 - RequestBody
-- MediaTypeMap
+- MediaTypesMap
 - MediaType
 - Example
 - Encoding

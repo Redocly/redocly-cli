@@ -34,7 +34,7 @@ styleguide:
 #context example
     assert/operation-w-context:
       subject:
-        - MediaTypeMap
+        - MediaTypesMap
       context:
         - type: Operation
           excludeParentKeys:
@@ -45,7 +45,7 @@ styleguide:
       message: Media type should not be pdf
 #enum example
     assert/media-type-pdf:
-      subject: MediaTypeMap
+      subject: MediaTypesMap
       message: Only application/pdf can be used
       severity: error
       enum:
@@ -152,7 +152,7 @@ styleguide:
       maxLength: 2
 # Example map subject example
     assert/exampleMap:
-      subject: ExampleMap
+      subject: ExamplesMap
       message: Examples names must use camelCase
       casing: camelCase
       severity: error

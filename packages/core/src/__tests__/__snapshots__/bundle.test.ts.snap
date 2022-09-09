@@ -47,7 +47,7 @@ rootType:
           description:
             type: string
           variables:
-            name: ServerVariableMap
+            name: ServerVariablesMap
             properties: {}
         required:
           - url
@@ -94,7 +94,7 @@ rootType:
       name: ExternalDocs
     paths:
       properties: {}
-      name: PathMap
+      name: PathsMap
     components:
       properties:
         parameters:
