@@ -5,7 +5,7 @@ exports[`E2E lint operation-2xx-response-warning 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:11:7 at #/paths/~1ping/get/responses
 
-Operation must have at least one \`2xx\` response.
+Operation must have at least one \`2XX\` response.
 
  9 | operationId: gitPing
 10 | summary: example text
