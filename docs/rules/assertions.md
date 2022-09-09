@@ -200,7 +200,7 @@ assert/no-pdf-in-ok-response:
 
 The following example asserts that `Operation` summary should start with an active verb and have at least three words.
 
-In `.redocly.yaml` describes two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has in options list of `words`. `local/checkWordsCount` has in options `min` which means that summary field should have `min` words. 
+The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
 
 In `plugin.js` inside functions we retrieve this options and make checks. Function called with:
 
