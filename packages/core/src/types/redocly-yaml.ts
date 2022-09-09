@@ -129,6 +129,12 @@ const ConfigRoot: NodeType = {
         http: 'ConfigHTTP',
       },
     },
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
 };
 
@@ -149,6 +155,12 @@ const ConfigApisProperties: NodeType = {
     styleguide: 'ConfigStyleguide',
     'features.openapi': 'ConfigReferenceDocs',
     'features.mockServer': 'ConfigMockServer',
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
   required: ['root'],
 };

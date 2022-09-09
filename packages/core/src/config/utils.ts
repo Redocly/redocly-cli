@@ -157,6 +157,9 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             ...config['features.mockServer'],
             ...config.apis[apiName]?.['features.mockServer'],
           },
+          files: config.apis[apiName]
+            ? config.files.concat(config.apis[apiName].files ?? [])
+            : config.files,
           // TODO: merge everything else here
         },
         config.configFile
