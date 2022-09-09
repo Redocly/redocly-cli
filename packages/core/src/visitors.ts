@@ -198,7 +198,7 @@ type Oas2FlatVisitor = {
   SecurityScheme?: VisitFunctionOrObject<Oas2SecurityScheme>;
 };
 
-const legacyTypesMap = { 
+const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
   PathsMap: 'PathMap',
@@ -208,7 +208,6 @@ const legacyTypesMap = {
   EncodingsMap: 'EncodingMap',
   HeadersMap: 'HeaderMap',
   LinksMap: 'LinkMap',
-
 };
 
 type Oas3NestedVisitor = {
@@ -394,7 +393,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
     }
 
     for (const typeName of visitorKeys as Array<keyof T>) {
-      const typeVisitor = (visitor[typeName] || visitor[legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T]) as any as NestedVisitObject<any, T>;
+      const typeVisitor = (visitor[typeName] ||
+        visitor[
+          legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T
+        ]) as any as NestedVisitObject<any, T>;
       const normalizedTypeVisitor = normalizedVisitors[typeName];
 
       if (!typeVisitor) continue;
