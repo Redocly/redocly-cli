@@ -32,7 +32,7 @@ const builtInRulesList = [
   'path-params-defined',
   'parameter-description',
   'operation-singular-tag',
-  'operation-security-defined',
+  'security-defined',
   'no-unresolved-refs',
   'paths-kebab-case',
   'boolean-parameter-prefixes',

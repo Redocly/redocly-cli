@@ -147,6 +147,19 @@ describe('Oas3 Structural visitor basic', () => {
           "severity": "error",
           "suggest": Array [],
         },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Every API should have security defined on the root level or for each operation.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": Array [],
+        },
       ]
     `);
   });
@@ -223,6 +236,19 @@ describe('Oas3 Structural visitor basic', () => {
           "severity": "error",
           "suggest": Array [],
         },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Every API should have security defined on the root level or for each operation.",
+          "ruleId": "security-defined",
+          "severity": "error",
+          "suggest": Array [],
+        },
       ]
     `);
   });
@@ -289,6 +315,19 @@ describe('Oas3 Structural visitor basic', () => {
           ],
           "message": "The field \`title\` must be present on this level.",
           "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Every API should have security defined on the root level or for each operation.",
+          "ruleId": "security-defined",
           "severity": "error",
           "suggest": Array [],
         },
