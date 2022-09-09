@@ -630,9 +630,9 @@ describe('oas3 assertions', () => {
         const customFn = jest.fn((value: string[], options: any, location: Location) => {
           expect(this).toEqual({});
           if (value[0] === options.word) {
-            return { isValid: false, location: location.key() };
+            return [{ message: `First value should be ${options.word}`, location: location.key() }];
           }
-          return { isValid: true };
+          return [];
         });
         asserts['local/customFn'] = buildAssertCustomFunction(customFn);
         expect(
