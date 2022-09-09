@@ -1,6 +1,6 @@
 # spec-components-invalid-map-name
 
-Requires that specific objects inside `components` MUST use keys that match the regular expression: `^[a-zA-Z0-9\.\-_]+$`
+Requires that specific objects inside `components` MUST use keys that match the regular expression: `^[a-zA-Z0-9\.\-_]+$`.
 
 |OAS|Compatibility|
 |---|---|
