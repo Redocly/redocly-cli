@@ -13,15 +13,15 @@ flowchart TD
 
 Root ==> Components -->  NamedExamples
 
-Components ==> Responses --> Response
-Components ==> Schemas --> Schema
-Components ==> Parameters --> Parameter
-Components ==> RequestBodies --> RequestBody
-Components ==> Headers --> Header
-Components ==> SecuritySchemes --> SecurityScheme
-Components ==> Links --> Link
-Components ==> Callbacks --> Callback
-Components ==> PathItems --> PathItem
+Components ==> NamedResponses
+Components ==> NamedSchemas
+Components ==> NamedParameters
+Components ==> NamedRequestBodies --> RequestBody
+Components ==> NamedHeaders
+Components ==> NamedSecuritySchemes
+Components ==> NamedLinks
+Components ==> NamedCallbacks
+Components ==> NamedPathItems
 ```
 
 ## API design principles
