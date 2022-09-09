@@ -48,7 +48,7 @@ nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
 ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
-`{pluginId}/{functionName}` | `object` | Custom assert that describes in plugin. This function will be called with options which describes in value. See [custom function expample](#custom-function-example).|
+`{pluginId}/{functionName}` | `object` | Custom assert defined in the plugin. This function will be called with options including the value. See [custom function example](#custom-function-example).|
 
 ## Context object
 
