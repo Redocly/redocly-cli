@@ -60,15 +60,6 @@ excludeParentKeys | [`string`] | The list of parent object key names to not eval
 
 See the [context example](#context-example).
 
-## Function object
-
-Property | Type | Description
--- | -- | --
-name | `string` | Function name in plugin file. Should be in pattern `{pluginId}/{functionName}`.
-options | `options` | Options that  will be as a first parameter in custom function.
-
-See the [custom function example](#custom-function-example).
-
 ## Examples
 
 The following example shows four assertions with multiple asserts in each one (`defined`, `minLength`, `maxLength`, `pattern`).
@@ -202,17 +193,17 @@ The following example asserts that `Operation` summary should start with an acti
 
 The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
 
-In `plugin.js` inside functions we retrieve this options and make checks. Function called with:
+In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems. Each function is called with the following parameters.
 
 Property | Type | Description
 -- | -- | --
-value | `string` \| [`string`] | Value which selected.
+value | `string` \| [`string`] | Calue that appears at the corresponding location.
 options | `object` | Options that is described in config file.
 location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
 
 `.redocly.yaml`
 ```yaml
-assert/:
+assert/operation-summary-check:
   subject: Operation
   property: summary
   message: Operation summary should start with an active verb
@@ -235,19 +226,21 @@ assert/:
 module.exports = {
   id: 'local',
   assertions: {
-    checkWordsStarts: (value, opts, location) => {
-      const regexp = new RegExp(`^${opts.words.join("|")}`)
+    checkWordsStarts: (value, options, location) => {
+      const regexp = new RegExp(`^${options.words.join('|')}`);
       if (regexp.test(value)) {
-        return { isValid: true };
+        return [];
       }
-      return { isValid: false, location };
+      return [{ message: 'Operation summary should start with an active verb', location }];
     },
-    checkWordsCount: (value, opts, location) => {
-      const words = value.split(" ");
-      if (words.length >= opts.min) {
-        return { isValid: true };
+    checkWordsCount: (value, options, location) => {
+      const words = value.split(' ');
+      if (words.length >= options.min) {
+        return [];
       }
-      return { isValid: false, location };
+      return [
+        { message: `Operation summary should contain at least ${options.min} words`, location },
+      ];
     },
   },
 };
