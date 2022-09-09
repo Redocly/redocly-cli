@@ -1,7 +1,7 @@
 import type { AssertResult, RuleSeverity } from '../../../config';
 import { colorize } from '../../../logger';
 import { isRef, Location } from '../../../ref-utils';
-import { Problem, ProblemSeverity, UserContext } from '../../../walk';
+import { ProblemSeverity, UserContext } from '../../../walk';
 import { asserts } from './asserts';
 
 export type OrderDirection = 'asc' | 'desc';
@@ -11,15 +11,26 @@ export type OrderOptions = {
   property: string;
 };
 
+type Assertion = {
+  assertId: string;
+  property: string | string[];
+  context?: Record<string, any>[];
+  severity?: RuleSeverity;
+  suggest?: any[];
+  message?: string;
+  subject: string;
+};
+
 export type AssertToApply = {
   name: string;
-  assertId?: string;
   conditions: any;
-  message?: string;
-  severity?: ProblemSeverity;
-  suggest?: string[];
   runsOnKeys: boolean;
   runsOnValues: boolean;
+};
+
+type Problem = {
+  message: string;
+  location?: Location;
 };
 
 export function buildVisitorObject(
@@ -74,16 +85,6 @@ export function buildVisitorObject(
   return visitor;
 }
 
-type Assertion = {
-  assertId: string;
-  property: string | string[];
-  context?: Record<string, any>[];
-  severity?: RuleSeverity;
-  suggest?: any[];
-  message?: string;
-  subject: string;
-};
-
 export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply[]) {
   return (
     node: any,
@@ -112,15 +113,20 @@ export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply
       properties = Array.isArray(properties) ? properties : [properties];
     }
 
-    const results = [];
-    let currentLocation;
+    const defaultMessage = `${colorize.blue(assertion.assertId)} failed because the ${colorize.blue(
+      assertion.subject
+    )} ${colorize.blue(
+      properties ? (properties as string[]).join(', ') : ''
+    )} didn't meet the assertions: {{problems}}`;
+
+    const assertResults: Array<AssertResult[]> = [];
     for (const assert of asserts) {
-      currentLocation = assert.name === 'ref' ? rawLocation : location;
+      const currentLocation = assert.name === 'ref' ? rawLocation : location;
       if (properties) {
         for (const property of properties) {
           // we can have resolvable scalar so need to resolve value here.
           const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
-          results.push(
+          assertResults.push(
             runAssertion({
               values: value,
               rawValues: rawNode[property],
@@ -131,7 +137,7 @@ export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply
         }
       } else {
         const value = assert.name === 'ref' ? rawNode : Object.keys(node);
-        results.push(
+        assertResults.push(
           runAssertion({
             values: Object.keys(node),
             rawValues: value,
@@ -142,19 +148,13 @@ export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply
       }
     }
 
-    const problems = getAllProblems(results);
+    const problems = getAllProblems(assertResults);
     if (problems.length) {
-      const message =
-        assertion.message ||
-        `${colorize.blue(assertion.assertId)} failed because the ${colorize.blue(
-          assertion.subject
-        )} ${colorize.blue(
-          (properties as string[]).join(', ')
-        )} didn't meet the assertions: {{problems}}`;
+      const message = assertion.message || defaultMessage;
 
       report({
-        message: message.replace('{{problems}}', convertProblemsToString(problems)),
-        location: currentLocation,
+        message: message.replace('{{problems}}', getProblemsMessage(problems)),
+        location: getProblemsLocation(problems) || location,
         forceSeverity: assertion.severity || 'error',
         suggest: assertion.suggest || [],
         ruleId: assertion.assertId,
@@ -163,23 +163,27 @@ export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply
   };
 }
 
-function getAllProblems(results: AssertResult[]) {
-  const problems: string[] = [];
+function getAllProblems(results: Array<AssertResult[]>) {
+  const problems: Problem[] = [];
 
   for (const result of results) {
     if (result.length === 0) continue;
 
     for (const r of result) {
-      if (r.isValid) continue;
-      problems.push(r.message ?? '');
+      problems.push({ message: r.message ?? '', location: r.location });
     }
   }
   return problems;
 }
 
-function convertProblemsToString(problems: string[]) {
-  if (problems.length === 1) return problems[0];
-  return problems.map((problem) => `\n- ${problem}`).join('');
+function getProblemsLocation(problems: Problem[]) {
+  if (problems.length) return problems[0].location;
+  return null;
+}
+
+function getProblemsMessage(problems: Problem[]) {
+  if (problems.length === 1) return problems[0].message;
+  return problems.map((problem) => `\n- ${problem.message}`).join('');
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
