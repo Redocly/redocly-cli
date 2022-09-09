@@ -11,7 +11,7 @@ Requires that specific objects inside `components` MUST use keys that match the 
 ```mermaid
 flowchart TD
 
-root ==> Components -->  Examples --> Example
+Root ==> Components -->  NamedExamples
 
 Components ==> Responses --> Response
 Components ==> Schemas --> Schema
