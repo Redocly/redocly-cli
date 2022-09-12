@@ -4,6 +4,7 @@ servers:
 info:
   description: Example description
   version: '1.0'
+security: []
 paths:
   /pet/findByStatus:
     get:
