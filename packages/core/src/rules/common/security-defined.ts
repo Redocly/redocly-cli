@@ -13,7 +13,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
     }
   >();
 
-  let eachOperationHasSecurity: boolean;
+  let eachOperationHasSecurity: boolean = true;
 
   return {
     DefinitionRoot: {
@@ -52,7 +52,7 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
       }
     },
     Operation(operation: Oas2Operation | Oas3Operation) {
-      if (operation != null && operation.security && operation.security.length === 0) {
+      if (!operation?.security) {
         eachOperationHasSecurity = false;
       }
     },

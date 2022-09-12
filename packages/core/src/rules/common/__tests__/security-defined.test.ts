@@ -37,19 +37,6 @@ describe('Oas3 security-defined', () => {
           "severity": "error",
           "suggest": Array [],
         },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Every API should have security defined on the root level or for each operation.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": Array [],
-        },
       ]
     `);
   });
@@ -76,7 +63,10 @@ describe('Oas3 security-defined', () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
-          paths:`,
+          paths:
+            /pets:
+              get:
+                requestBody:`,
       'foobar.yaml'
     );
 
@@ -180,22 +170,6 @@ describe('Oas3 security-defined', () => {
       config: await makeConfig({ 'security-defined': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Every API should have security defined on the root level or for each operation.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": Array [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 });

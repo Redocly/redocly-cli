@@ -42,19 +42,6 @@ describe('lint', () => {
           "severity": "error",
           "suggest": Array [],
         },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/",
-              "reportOnKey": false,
-              "source": "/test/spec.yaml",
-            },
-          ],
-          "message": "Every API should have security defined on the root level or for each operation.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": Array [],
-        },
       ]
     `);
   });
