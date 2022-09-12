@@ -7,7 +7,7 @@ export const OperationTagDefined: Oas3Rule | Oas2Rule = () => {
   let definedTags: Set<string>;
 
   return {
-    DefinitionRoot(root: Oas2Definition | Oas3Definition) {
+    Root(root: Oas2Definition | Oas3Definition) {
       definedTags = new Set((root.tags ?? []).map((t) => t.name));
     },
     Operation(operation: Oas2Operation | Oas3Operation, { report, location }: UserContext) {

@@ -11,7 +11,7 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 ```mermaid
 flowchart TD
 
-Root ==> PathMap --> PathItem --> Operation --> Parameter --> MediaType
+Root ==> PathsMap --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
 Operation --> ResponsesMap --> MediaType

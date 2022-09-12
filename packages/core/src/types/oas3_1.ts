@@ -1,7 +1,7 @@
 import { NodeType, listOf, mapOf } from '.';
 import { Oas3Types } from './oas3';
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
@@ -9,7 +9,7 @@ const DefinitionRoot: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathMap',
+    paths: 'PathsMap',
     webhooks: 'WebhooksMap',
     components: 'Components',
     jsonSchemaDialect: { type: 'string' },
@@ -241,7 +241,7 @@ const SecurityScheme: NodeType = {
 export const Oas3_1Types: Record<string, NodeType> = {
   ...Oas3Types,
   Info,
-  DefinitionRoot,
+  Root,
   Schema,
   License,
   Components,

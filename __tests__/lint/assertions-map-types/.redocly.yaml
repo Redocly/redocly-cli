@@ -6,22 +6,22 @@ styleguide:
   extends: []
   rules:
     assert/headerMap:
-      subject: HeaderMap
+      subject: HeadersMap
       property: x-next
       defined: false
 
     assert/encodingMap:
-      subject: EncodingMap
+      subject: EncodingsMap
       casing: kebab-case
 
     assert/linkMap:
-      subject: LinkMap
+      subject: LinksMap
       pattern: /^pet/
 
     assert/serverVariableMap:
-      subject: ServerVariableMap
+      subject: ServerVariablesMap
       casing: flatcase
 
     assert/callbackMap:
-      subject: CallbackMap
+      subject: CallbacksMap
       casing: snake_case

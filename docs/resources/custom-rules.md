@@ -110,7 +110,7 @@ Redocly CLI calls `enter` **visitor function** while going down the tree and `le
 function ExampleRule() {
   const seen = {};
   return {
-    DefinitionRoot: {
+    Root: {
       leave() {
         // check something and report
       }

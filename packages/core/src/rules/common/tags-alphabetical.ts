@@ -5,7 +5,7 @@ import { UserContext } from '../../walk';
 
 export const TagsAlphabetical: Oas3Rule | Oas2Rule = () => {
   return {
-    DefinitionRoot(root: Oas2Definition | Oas3Definition, { report, location }: UserContext) {
+    Root(root: Oas2Definition | Oas3Definition, { report, location }: UserContext) {
       if (!root.tags) return;
       for (let i = 0; i < root.tags.length - 1; i++) {
         if (root.tags[i].name > root.tags[i + 1].name) {
