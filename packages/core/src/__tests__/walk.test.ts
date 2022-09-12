@@ -63,6 +63,74 @@ describe('walk order', () => {
     }
   });
 
+  it('should run legacy visitors', async () => {
+    const visitors = {
+      DefinitionRoot: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      PathMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      ServerVariableMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      MediaTypeMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      ExampleMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      HeaderMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+    };
+
+    const testRuleSet: Oas3RuleSet = {
+      test: jest.fn(() => {
+        return visitors;
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        servers: 
+        - url: http://{test}.url
+          variables:
+            test: test
+        paths: 
+          /test-path: 
+            get:
+              responses:
+                200:
+                  headers: {}
+                  content:
+                    application/json:
+                      schema: {}
+                      examples: {}
+      `,
+      ''
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfigForRuleset(testRuleSet),
+    });
+
+    expect(testRuleSet.test).toBeCalledTimes(1);
+    for (const fns of Object.values(visitors)) {
+      expect(fns.enter).toBeCalled();
+      expect(fns.leave).toBeCalled();
+    }
+  });
+
   it('should run nested visitors correctly', async () => {
     const calls: string[] = [];
 
