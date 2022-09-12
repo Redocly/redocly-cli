@@ -6,7 +6,7 @@ styleguide:
   rules:
     assert/media-type-application-json:
       subject:
-      - MediaTypeMap
+      - MediaTypesMap
       message: Only application/json can be used
       enum:
         - application/json

@@ -8,7 +8,7 @@ enum enumError {
 
 export const NoServerVariablesEmptyEnum: Oas3Rule = () => {
   return {
-    DefinitionRoot(root, { report, location }) {
+    Root(root, { report, location }) {
       if (!root.servers || root.servers.length === 0) return;
 
       const invalidVariables: enumError[] = [];

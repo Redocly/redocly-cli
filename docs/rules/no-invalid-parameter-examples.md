@@ -11,7 +11,7 @@ Disallow invalid parameter examples.
 ```mermaid
 flowchart TD
 
-Root ==> PathMap --> PathItem --> Operation --> Parameter --> Example
+Root ==> PathsMap --> PathItem --> Operation --> Parameter --> Example
 PathItem --> Parameter
 Parameter --> Schema
 Root ==> components

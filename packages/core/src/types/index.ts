@@ -73,7 +73,7 @@ export function normalizeTypes(
     normalizedTypes[typeName] = {
       ...types[typeName],
       name: typeName,
-    } as any;
+    } as NormalizedNodeType;
   }
 
   for (const type of Object.values(normalizedTypes)) {
@@ -81,7 +81,7 @@ export function normalizeTypes(
   }
   return normalizedTypes;
 
-  function normalizeType(type: any) {
+  function normalizeType(type: NormalizedNodeType) {
     if (type.additionalProperties) {
       type.additionalProperties = resolveType(type.additionalProperties);
     }
