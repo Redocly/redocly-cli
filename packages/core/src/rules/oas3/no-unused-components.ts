@@ -26,7 +26,7 @@ export const NoUnusedComponents: Oas3Rule = () => {
         });
       }
     },
-    DefinitionRoot: {
+    Root: {
       leave(_, { report }) {
         components.forEach((usageInfo) => {
           if (!usageInfo.used) {

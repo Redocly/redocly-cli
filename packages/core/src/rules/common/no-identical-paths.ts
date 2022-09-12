@@ -5,7 +5,7 @@ import { Oas2Paths } from '../../typings/swagger';
 
 export const NoIdenticalPaths: Oas3Rule | Oas2Rule = () => {
   return {
-    PathMap(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
+    PathsMap(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
       const pathsMap = new Map<string, string>();
       for (const pathName of Object.keys(pathMap)) {
         const id = pathName.replace(/{.+?}/g, '{VARIABLE}');

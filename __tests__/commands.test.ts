@@ -31,7 +31,7 @@ describe('E2E', () => {
   });
 
   describe('lint-config', () => {
-    const lintOptions: { dirName: string; option: string | null }[] = [
+    const lintOptions: { dirName: string; option: string | null; format?: string }[] = [
       { dirName: 'invalid-config--lint-config-off', option: 'off' },
       { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
@@ -39,16 +39,22 @@ describe('E2E', () => {
       { dirName: 'invalid-config--no-option', option: null },
       { dirName: 'invalid-config-assertation-name', option: 'error' },
       { dirName: 'invalid-config-assertation-config-type', option: 'error' },
+      { dirName: 'invalid-config-format-json', option: 'warn', format: 'json' },
     ];
 
     const validOpenapiFile = join(__dirname, 'lint-config/__fixtures__/valid-openapi.yaml');
     const invalidOpenapiFile = join(__dirname, 'lint-config/__fixtures__/invalid-openapi.yaml');
 
     test.each(lintOptions)('test with option: %s', (lintOptions) => {
-      const { dirName, option } = lintOptions;
+      const { dirName, option, format } = lintOptions;
       const folderPath = join(__dirname, `lint-config/${dirName}`);
       const relativeValidOpenapiFile = relative(folderPath, validOpenapiFile);
-      const args = [relativeValidOpenapiFile, ...(option ? [`--lint-config=${option}`] : [])];
+      const args = [
+        relativeValidOpenapiFile,
+        ...([option && `--lint-config=${option}`, format && `--format=${format}`].filter(
+          Boolean
+        ) as string[]),
+      ];
 
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 

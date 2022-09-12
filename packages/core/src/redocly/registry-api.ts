@@ -10,9 +10,6 @@ import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
 const version = require('../../package.json').version;
 
-export const currentCommand =
-  typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
-
 export class RegistryApi {
   constructor(private accessTokens: AccessTokens, private region: Region) {}
 
@@ -30,9 +27,13 @@ export class RegistryApi {
   }
 
   private async request(path = '', options: RequestInit = {}, region?: Region) {
+    const currentCommand =
+      typeof process !== 'undefined' ? process.env?.REDOCLY_CLI_COMMAND || '' : '';
+    const redoclyEnv = typeof process !== 'undefined' ? process.env?.REDOCLY_ENVIRONMENT || '' : '';
+
     const headers = Object.assign({}, options.headers || {}, {
       'x-redocly-cli-version': version,
-      'user-agent': `redocly-cli / ${version} ${currentCommand}`,
+      'user-agent': `redocly-cli / ${version} ${currentCommand} ${redoclyEnv}`,
     });
 
     if (!headers.hasOwnProperty('authorization')) {
