@@ -39,7 +39,6 @@ const rawTestConfig: RawConfig = {
     doNotResolveExamples: true,
   },
   resolve: {
-    doNotResolveExamples: true,
     http: { headers: [{ matches: '*', name: 'all', envVariable: 'all' }] },
   },
   'features.openapi': {
@@ -128,9 +127,17 @@ describe('transformConfig', () => {
     );
   });
   it('should transform flatten config into styleguide', () => {
-    expect(utils.transformConfig(flatTestConfig)).toEqual(rawTestConfig);
+    expect(utils.transformConfig(flatTestConfig)).toEqual({
+      ...rawTestConfig,
+      resolve: { ...rawTestConfig.resolve, doNotResolveExamples: true },
+    });
   });
   it('should transform styleguide config into styleguide identically', () => {
     expect(utils.transformConfig(rawTestConfig)).toEqual(rawTestConfig);
+  });
+  it('should fail when there is a mixed config', () => {
+    expect(() => utils.transformConfig({ ...rawTestConfig, extends: ['recommended'] })).toThrow(
+      `Do not use 'lint', 'styleguide' and flat syntax together. \nSee more about the configuration in the docs: https://redocly.com/docs/cli/configuration/ \n`
+    );
   });
 });

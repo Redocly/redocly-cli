@@ -20,8 +20,8 @@ module.exports = {
     'packages/cli/': {
       statements: 51,
       branches: 40,
-      functions: 48,
-      lines: 53,
+      functions: 47,
+      lines: 52,
     },
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],

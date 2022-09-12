@@ -92,6 +92,16 @@ function extractFlatConfig<
     doNotResolveExamples: (rawConfigRest as FlatRawConfig).resolve?.doNotResolveExamples,
   };
 
+  if (
+    (rawConfigRest.lint && rawConfigRest.styleguide) ||
+    (Object.values(styleguideConfig).some(isDefined) &&
+      (rawConfigRest.lint || rawConfigRest.styleguide))
+  ) {
+    throw new Error(
+      `Do not use 'lint', 'styleguide' and flat syntax together. \nSee more about the configuration in the docs: https://redocly.com/docs/cli/configuration/ \n`
+    );
+  }
+
   return {
     styleguideConfig: Object.values(styleguideConfig).some(isDefined)
       ? styleguideConfig
