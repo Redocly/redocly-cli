@@ -20,6 +20,9 @@ tocMaxDepth: 2
 - Fixed a Header object spec to require `content` or `schema`.
 - Fixed a error message for `operation-4xx-response` rule.
 
+### Changes
+
+- Renamed 'DefinitionRoot', 'ServerVariableMap', 'PathMap', 'CallbackMap', 'MediaTypeMap', 'ExampleMap', 'EncodingMap', 'HeaderMap', and 'LinkMap' definition node types.
 
 ## 1.0.0-beta.108 (2022-08-22)
 
