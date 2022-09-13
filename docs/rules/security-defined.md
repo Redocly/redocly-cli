@@ -2,7 +2,7 @@
 exclude: true
 # TODO - some issues
 ---
-# operation-security-defined
+# security-defined
 
 Verifies every operation or global security is defined.
 
@@ -43,7 +43,7 @@ An example configuration:
 ```yaml
 styleguide:
   rules:
-    operation-security-defined: error
+    security-defined: error
 ```
 
 ## Examples
@@ -53,7 +53,7 @@ Given this configuration:
 ```yaml
 styleguide:
   rules:
-    operation-security-defined: error
+    security-defined: error
 ```
 
 Example of **incorrect** security definition:
@@ -70,6 +70,6 @@ Example of **correct** security definition:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-security-defined.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/security-defined.ts)
 - [Security docs](https://redocly.com/docs/openapi-visual-reference/security/)
 - [Security scheme docs](https://redocly.com/docs/openapi-visual-reference/security-schemes/)

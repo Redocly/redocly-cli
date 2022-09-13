@@ -20,6 +20,7 @@ servers:
         - a
         - b
         default: b
+security: []
 paths:
   /pets/items:
     get:

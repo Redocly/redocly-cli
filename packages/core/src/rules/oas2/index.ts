@@ -25,7 +25,7 @@ import { OperationDescription } from '../common/operation-description';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
 import { ParameterDescription } from '../common/parameter-description';
 import { OperationSingularTag } from '../common/operation-singular-tag';
-import { OperationSecurityDefined } from '../common/operation-security-defined';
+import { SecurityDefined } from '../common/security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { PathHttpVerbsOrder } from '../common/path-http-verbs-order';
 import { NoIdenticalPaths } from '../common/no-identical-paths';
@@ -71,7 +71,7 @@ export const rules = {
   'path-params-defined': PathParamsDefined as Oas2Rule,
   'parameter-description': ParameterDescription as Oas2Rule,
   'operation-singular-tag': OperationSingularTag as Oas2Rule,
-  'operation-security-defined': OperationSecurityDefined as Oas2Rule,
+  'security-defined': SecurityDefined as Oas2Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Oas2Rule,
   'no-identical-paths': NoIdenticalPaths as Oas2Rule,
   'no-ambiguous-paths': NoAmbiguousPaths as Oas2Rule,
