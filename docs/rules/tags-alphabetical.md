@@ -37,9 +37,8 @@ This rule is intended to prevent bikeshedding and diffuse tension between teamma
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 ## Examples
@@ -47,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 Example of **incorrect** tags:

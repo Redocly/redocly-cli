@@ -28,9 +28,8 @@ Simple wins.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-singular-tag: error
+rules:
+  operation-singular-tag: error
 ```
 
 ## Examples
@@ -38,9 +37,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-singular-tag: error
+rules:
+  operation-singular-tag: error
 ```
 
 Example of **incorrect** operation:

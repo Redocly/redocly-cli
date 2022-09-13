@@ -25,9 +25,8 @@ This rule verifies the path parameters are defined.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-parameters-defined: error
+rules:
+  path-parameters-defined: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-parameters-defined: error
+rules:
+  path-parameters-defined: error
 ```
 
 Example of an **incorrect** path:

@@ -173,19 +173,17 @@ If you encounter any issues and suspect they may be related to this change, let 
 - The `lint.extends` section in the Redocly configuration file supports file paths and URLs as values. This means you can define your own lint rulesets in local or remote files, and list those files in the `extends` section. The following example shows how to do it:
 
 ```yaml
-lint:
-  extends:
-    - recommended
-    - ./path/to/local/lint-ruleset.yaml
-    - https://url-to-remote/lint-ruleset.yaml
+extends:
+  - recommended
+  - ./path/to/local/lint-ruleset.yaml
+  - https://url-to-remote/lint-ruleset.yaml
 ```
 
-The contents of those referenced files must correspond to the standard format used in the `lint.rules` section to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
+The contents of those referenced files must correspond to the standard format used in the `rules` object to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
 
 ```yaml
-lint:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 - The `lint` command supports a new output formatting option called `codeclimate` that you can use with the `--format` argument.

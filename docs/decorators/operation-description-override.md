@@ -18,12 +18,11 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    operation-description-override:
-      operationIds:
-        updatePet: ./my-custom-description.md
-        createPet: ./add-a-pet.md
+decorators:
+  operation-description-override:
+    operationIds:
+      updatePet: ./my-custom-description.md
+      createPet: ./add-a-pet.md
 ```
 
 ## Examples

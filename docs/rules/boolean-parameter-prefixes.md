@@ -50,18 +50,16 @@ The nuance of being able to identify the boolean parameters helps developers pro
 
 An example configuration:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes: error
+rules:
+  boolean-parameter-prefixes: error
 ```
 
 The following example configures prefixes:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes:
-      severity: error
-      prefixes: ["can", "is", "has"]
+rules:
+  boolean-parameter-prefixes:
+    severity: error
+    prefixes: ["can", "is", "has"]
 ```
 
 ## Examples

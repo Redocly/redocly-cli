@@ -42,11 +42,10 @@ Solve it before you ship it.
 |allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-parameter-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-parameter-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -54,11 +53,10 @@ styleguide:
 Given the following configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-parameter-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-parameter-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of **incorrect** parameter example:
