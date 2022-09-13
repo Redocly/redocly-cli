@@ -18,7 +18,7 @@ tocMaxDepth: 2
 
 - Fixed an issue with multi-line strings in literal mode.
 - Fixed an issue with multi-line Markdown with Windows-style new lines.
-- Fixed a Header object spec to require `content` or `schema`.
+- Fixed the Header object type to require `content` or `schema`.
 - Fixed a error message for `operation-4xx-response` rule.
 - Fixed an issue with `paths` not being correctly handled by the `join` command.
 - Fixed the `operation-security-defined` rule to check the security on the root and in each operation.
