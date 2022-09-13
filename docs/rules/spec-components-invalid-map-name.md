@@ -50,9 +50,8 @@ All the fixed fields declared below are objects that MUST use keys that match th
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    spec-components-invalid-map-name: error
+rules:
+  spec-components-invalid-map-name: error
 ```
 
 ## Examples
@@ -60,9 +59,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    spec-components-invalid-map-name: error
+rules:
+  spec-components-invalid-map-name: error
 ```
 
 Example of **incorrect** operation response:
