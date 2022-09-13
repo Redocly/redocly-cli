@@ -161,7 +161,7 @@ describe('resolveStyleguideConfig', () => {
     ]);
   });
 
-  it('should resolve extends with url file config witch contains path to nested config', async () => {
+  it.skip('should resolve extends with url file config witch contains path to nested config', async () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
