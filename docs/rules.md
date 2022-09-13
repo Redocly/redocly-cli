@@ -19,7 +19,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [assertions](./rules/assertions.md)
 - [no-unresolved-refs](./rules/no-unresolved-refs.md)
 - [no-unused-components](./rules/no-unused-components.md)
-- [security-defined](./rules/security-defined.md)
+<!-- - [security-defined](./rules/security-defined.md) -->
 - [spec](./rules/spec.md)
 
 ### Info
