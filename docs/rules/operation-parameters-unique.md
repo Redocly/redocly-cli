@@ -25,9 +25,8 @@ Solve it before you ship it.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-parameters-unique: error
+rules:
+  operation-parameters-unique: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-parameters-unique: error
+rules:
+  operation-parameters-unique: error
 ```
 
 Example of an **incorrect** operation:

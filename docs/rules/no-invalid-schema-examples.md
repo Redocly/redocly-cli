@@ -45,11 +45,10 @@ Solve it before you ship it.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-schema-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-schema-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -57,11 +56,10 @@ styleguide:
 Given the following configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-schema-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-schema-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of **incorrect** schema example:

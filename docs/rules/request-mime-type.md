@@ -31,12 +31,11 @@ It doesn't matter to me... keep it consistent across your entire API if possible
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    request-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
+rules:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
 ```
 
 ## Examples
@@ -44,12 +43,11 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    request-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
+rules:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
 ```
 
 Example of an **incorrect** request mime type:

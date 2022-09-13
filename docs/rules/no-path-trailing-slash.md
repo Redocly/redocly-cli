@@ -26,18 +26,16 @@ When it comes to developer experience, consistency rules.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-path-trailing-slash: error
+rules:
+  no-path-trailing-slash: error
 ```
 
 ## Examples
 
 Given this configuration:
 ```yaml
-styleguide:
-  rules:
-    no-path-trailing-slash: error
+rules:
+  no-path-trailing-slash: error
 ```
 
 

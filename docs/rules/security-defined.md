@@ -1,7 +1,3 @@
----
-exclude: true
-# TODO - some issues
----
 # security-defined
 
 Verifies every operation or global security is defined.
@@ -41,9 +37,8 @@ security: []
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    security-defined: error
+rules:
+  security-defined: error
 ```
 
 ## Examples
@@ -51,17 +46,35 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    security-defined: error
+rules:
+  security-defined: error
 ```
 
-Example of **incorrect** security definition:
+Example of **incorrect** security definition due to mismatching security and security schemes:
 
-<!-- TODO -->
+```yaml
+security: 
+  - OAuth: []
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
 
 Example of **correct** security definition:
 
+```yaml
+security: 
+  - JWT: []
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
 
 ## Related rules
 

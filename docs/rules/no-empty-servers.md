@@ -43,9 +43,8 @@ servers:
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-empty-servers: error
+rules:
+  no-empty-servers: error
 ```
 
 ## Examples
@@ -53,9 +52,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-empty-servers: error
+rules:
+  no-empty-servers: error
 ```
 
 Example of **incorrect** empty servers:

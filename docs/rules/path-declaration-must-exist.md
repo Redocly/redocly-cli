@@ -25,9 +25,8 @@ This rule is not opinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-declaration-must-exist: error
+rules:
+  path-declaration-must-exist: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-declaration-must-exist: error
+rules:
+  path-declaration-must-exist: error
 ```
 
 Example of an **incorrect** path:

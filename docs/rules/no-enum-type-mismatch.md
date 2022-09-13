@@ -42,9 +42,8 @@ Lack of compliance is most likely the result of a typo.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-enum-type-mismatch: error
+rules:
+  no-enum-type-mismatch: error
 ```
 
 ## Examples
@@ -52,9 +51,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-enum-type-mismatch: error
+rules:
+  no-enum-type-mismatch: error
 ```
 
 Example of **incorrect** enum values given the enum type:

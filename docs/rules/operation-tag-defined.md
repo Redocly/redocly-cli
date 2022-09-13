@@ -28,9 +28,8 @@ This rule helps prevent typos and tag explosion.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-tag-defined: error
+rules:
+  operation-tag-defined: error
 ```
 
 ## Examples
@@ -39,9 +38,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-tag-defined: error
+rules:
+  operation-tag-defined: error
 ```
 
 Example of **incorrect** operation:

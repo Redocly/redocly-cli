@@ -37,13 +37,12 @@ Remember folks, we use docs-as-code to write the docs, but the docs are the prod
 
 ## Configuration
 
-To configure the rule, add it to the `lint.rules` section of your configuration file.
+To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
 
 ```yaml
-styleguide:
-  rules:
-    info-contact: error
+rules:
+  info-contact: error
 ```
 
 ## Configuration
@@ -56,9 +55,8 @@ styleguide:
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  : error
 ```
 
 ## Examples
@@ -67,9 +65,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  : error
 ```
 
 Example of **incorrect** tags:
@@ -100,4 +97,3 @@ tags:
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/tag-description.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)
-

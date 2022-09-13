@@ -19,7 +19,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [assertions](./rules/assertions.md)
 - [no-unresolved-refs](./rules/no-unresolved-refs.md)
 - [no-unused-components](./rules/no-unused-components.md)
-<!-- - [security-defined](./rules/security-defined.md) -->
+- [security-defined](./rules/security-defined.md)
 - [spec](./rules/spec.md)
 
 ### Info
@@ -101,12 +101,10 @@ You can format each entry in the `lint` and `rules` object in one of the followi
 apis:
   main:
     root: ./openapi/openapi.yaml
-    styleguide:
-      rules:
-        specific-api-rule: warn
-styleguide:
-  rules:
-    example-rule-name: error
+    rules:
+      specific-api-rule: warn
+rules:
+  example-rule-name: error
 ```
 
 - Verbose syntax, where you can configure additional options for rules that support them.
@@ -115,16 +113,14 @@ styleguide:
 apis:
   main:
     root: ./openapi/openapi.yaml
-    styleguide:
-      rules:
-        specific-api-rule:
-          severity: warn
-styleguide:
-  rules:
-    example-rule-name:
-      severity: error
-      rule-option-one: value
-      rule-option-two: value
+    rules:
+      specific-api-rule:
+        severity: warn
+rules:
+  example-rule-name:
+    severity: error
+    rule-option-one: value
+    rule-option-two: value
 ```
 
 ### Severity settings
@@ -146,9 +142,8 @@ There are two built-in configurations:
 The recommended configuration can be enabled by adding
 
 ```yaml
-styleguide:
-  extends:
-    - recommended
+extends:
+  - recommended
 ```
 
 to the Redocly configuration file.

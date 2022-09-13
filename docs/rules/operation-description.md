@@ -30,9 +30,8 @@ Do this, and your API consumers will thank you.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-description: error
+rules:
+  operation-description: error
 ```
 
 ## Examples
@@ -40,9 +39,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-description: error
+rules:
+  operation-description: error
 ```
 
 Example of an **incorrect** operation:

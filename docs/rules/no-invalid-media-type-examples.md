@@ -46,11 +46,10 @@ It's much nicer to get this alert from Redocly before you ship than from your bi
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-media-type-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -58,11 +57,10 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-media-type-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of an **incorrect** media type example:

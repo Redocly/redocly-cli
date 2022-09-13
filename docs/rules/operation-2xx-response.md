@@ -27,9 +27,8 @@ You can greatly improve the developer and user experience of your APIs by making
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-2xx-response: error
+rules:
+  operation-2xx-response: error
 ```
 
 ## Examples
@@ -37,9 +36,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-2xx-response: error
+rules:
+  operation-2xx-response: error
 ```
 
 Example of **incorrect** operation response:

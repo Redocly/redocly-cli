@@ -25,9 +25,8 @@ Its root cause is inexperience with OpenAPI (no holy war here).
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  path-not-included-query: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  path-not-included-query: error
 ```
 
 Example of an **incorrect** path:

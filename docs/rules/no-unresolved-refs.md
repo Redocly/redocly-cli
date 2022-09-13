@@ -25,9 +25,8 @@ This rule prevents that from happening.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unresolved-refs: error
+rules:
+  no-unresolved-refs: error
 ```
 
 ## Examples
@@ -35,9 +34,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unresolved-refs: error
+rules:
+  no-unresolved-refs: error
 ```
 
 Example of an **incorrect** `$ref`:

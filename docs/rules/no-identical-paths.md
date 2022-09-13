@@ -37,9 +37,8 @@ Minimize it in APIs to make them as easy as possible to use.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-identical-paths: error
+rules:
+  no-identical-paths: error
 ```
 
 ## Examples
@@ -47,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-identical-paths: error
+rules:
+  no-identical-paths: error
 ```
 
 

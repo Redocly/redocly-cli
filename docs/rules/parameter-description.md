@@ -25,9 +25,8 @@ Document it!
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    parameter-description: error
+rules:
+  parameter-description: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    parameter-description: error
+rules:
+  parameter-description: error
 ```
 
 Example of an **incorrect** parameter:

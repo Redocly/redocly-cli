@@ -32,21 +32,20 @@ A plugin defines a configuration and set of rules, preprocessors and decorators.
 
 Plugins need to be explicitly defined in the configuration file (except for the Redocly built in plugins).
 
-Plugins then are consumed by designating their configuration in the `extends` section of the configuration.
+Plugins configurations are enabled by adding to the `extends` list of the configuration.
 
 ```yaml
-styleguide:
-  plugins:
-    - 'my-plugin.js'
-  extends:
-    - recommended
-    - my-plugin/all
+plugins:
+  - 'my-plugin.js'
+extends:
+  - recommended
+  - my-plugin/all
 ```
 
 ### Preprocessors
 
-Indicated when you need to transform your API definition prior to validation.
-This is brittle and error prone because validation occurs **after** preprocessing.
+Use when you need to transform your API definition prior to validation.
+Preprocessors are brittle and error prone because validation occurs **after** preprocessing.
 We recommend avoiding preprocessing.
 
 ### Rules

@@ -24,9 +24,8 @@ If it annoys the lazy or minimalists, offer them an alternative: two weeks at Re
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId: error
+rules:
+  operation-operationId: error
 ```
 
 ## Examples
@@ -34,9 +33,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId: error
+rules:
+  operation-operationId: error
 ```
 
 Example of an **incorrect** operation:

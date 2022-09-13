@@ -18,10 +18,9 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    info-description-override:
-      filePath: ./my-custom-description.md
+decorators:
+  info-description-override:
+    filePath: ./my-custom-description.md
 ```
 
 ## Examples

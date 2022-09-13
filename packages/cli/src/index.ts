@@ -12,7 +12,6 @@ import { handlePush, transformPush } from './commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
-import { notifyUpdateCliVersion } from './utils';
 import { handlerBuildCommand } from './commands/build-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 const version = require('../package.json').version;
@@ -396,5 +395,4 @@ yargs
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
-  .strict()
-  .middleware([notifyUpdateCliVersion]).argv;
+  .strict().argv;

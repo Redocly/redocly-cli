@@ -50,9 +50,8 @@ Such paths are considered ambiguous and should be avoided, because API users and
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-ambiguous-paths: error
+rules:
+  no-ambiguous-paths: error
 ```
 
 ## Examples
@@ -60,9 +59,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-ambiguous-paths: error
+rules:
+  no-ambiguous-paths: error
 ```
 
 Example of **incorrect** ambiguous paths:

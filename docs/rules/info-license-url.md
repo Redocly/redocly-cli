@@ -36,18 +36,16 @@ By being upfront with the API license, you can reduce friction towards usage.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    info-license-url: error
+rules:
+  info-license-url: error
 ```
 
 ## Examples
 
 Given the following configuration:
 ```yaml
-styleguide:
-  rules:
-    info-license-url: error
+rules:
+  info-license-url: error
 ```
 
 Example of an **incorrect** license URL:

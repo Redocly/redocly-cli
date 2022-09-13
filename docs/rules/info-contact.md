@@ -31,18 +31,16 @@ If they need help to purchase, integrate, or troubleshoot, your contact info sho
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    info-contact: warn
+rules:
+  info-contact: warn
 ```
 
 ## Examples
 
 Given this configuration:
 ```yaml
-styleguide:
-  rules:
-    info-contact: error
+rules:
+  info-contact: error
 ```
 
 Example of **incorrect** contact:
