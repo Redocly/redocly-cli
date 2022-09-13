@@ -16,7 +16,6 @@ import {
   stringifyYaml,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
-import * as updateNotifier from 'update-notifier';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -323,17 +322,4 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
   return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
-}
-
-export function notifyUpdateCliVersion() {
-  const pkg = require('../package.json');
-  const notifier = updateNotifier({
-    pkg,
-    updateCheckInterval: 0,
-    shouldNotifyInNpmScript: true,
-  });
-  notifier.notify({
-    message:
-      'A new version of Redocly CLI ({latestVersion}) is available.\nUpdate now: `npx @redocly/cli@latest upgrade`.\nChangelog: https://redocly.com/docs/cli/changelog',
-  });
 }
