@@ -2,11 +2,10 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/description-min-length:
-      subject: Info
-      property: description
-      message: Info description should be minimum 20 chars length
-      minLength: 20
-  extends: []
+rules:
+  assert/description-min-length:
+    subject: Info
+    property: description
+    message: Info description should be minimum 20 chars length
+    minLength: 20
+extends: []

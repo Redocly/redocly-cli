@@ -2,9 +2,8 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    no-http-verbs-in-paths:
-      severity: error
-      splitIntoWords: true
-  extends: []
+rules:
+  no-http-verbs-in-paths:
+    severity: error
+    splitIntoWords: true
+extends: []

@@ -1,5 +1,6 @@
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+
 const builtInRulesList = [
   'spec',
   'info-description',
@@ -109,61 +110,6 @@ const nodeTypesList = [
   'WebhooksMap',
 ];
 
-const ConfigRoot: NodeType = {
-  properties: {
-    organization: { type: 'string' },
-    apis: 'ConfigApis',
-    apiDefinitions: {
-      type: 'object',
-      properties: {},
-      additionalProperties: { properties: { type: 'string' } },
-    }, // deprecated
-    styleguide: 'RootConfigStyleguide',
-    lint: 'RootConfigStyleguide', // deprecated
-    'features.openapi': 'ConfigReferenceDocs',
-    referenceDocs: 'ConfigReferenceDocs', // deprecated
-    'features.mockServer': 'ConfigMockServer',
-    region: { enum: ['us', 'eu'] },
-    resolve: {
-      properties: {
-        http: 'ConfigHTTP',
-      },
-    },
-  },
-};
-
-const ConfigApis: NodeType = {
-  properties: {},
-  additionalProperties: 'ConfigApisProperties',
-};
-
-const ConfigApisProperties: NodeType = {
-  properties: {
-    root: { type: 'string' },
-    labels: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    styleguide: 'ConfigStyleguide',
-    'features.openapi': 'ConfigReferenceDocs',
-    'features.mockServer': 'ConfigMockServer',
-  },
-  required: ['root'],
-};
-
-const ConfigHTTP: NodeType = {
-  properties: {
-    headers: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-  },
-};
-
 const ConfigStyleguide: NodeType = {
   properties: {
     extends: {
@@ -172,7 +118,6 @@ const ConfigStyleguide: NodeType = {
         type: 'string',
       },
     },
-    doNotResolveExamples: { type: 'boolean' },
     rules: 'Rules',
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
@@ -195,6 +140,65 @@ const RootConfigStyleguide: NodeType = {
       items: { type: 'string' },
     },
     ...ConfigStyleguide.properties,
+  },
+};
+
+const ConfigRoot: NodeType = {
+  properties: {
+    organization: { type: 'string' },
+    apis: 'ConfigApis',
+    apiDefinitions: {
+      type: 'object',
+      properties: {},
+      additionalProperties: { properties: { type: 'string' } },
+    }, // deprecated
+    ...RootConfigStyleguide.properties,
+    styleguide: 'RootConfigStyleguide', // deprecated
+    lint: 'RootConfigStyleguide', // deprecated
+    'features.openapi': 'ConfigReferenceDocs',
+    referenceDocs: 'ConfigReferenceDocs', // deprecated
+    'features.mockServer': 'ConfigMockServer',
+    region: { enum: ['us', 'eu'] },
+    resolve: {
+      properties: {
+        http: 'ConfigHTTP',
+        doNotResolveExamples: { type: 'boolean' },
+      },
+    },
+  },
+};
+
+const ConfigApis: NodeType = {
+  properties: {},
+  additionalProperties: 'ConfigApisProperties',
+};
+
+const ConfigApisProperties: NodeType = {
+  properties: {
+    root: { type: 'string' },
+    labels: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+    lint: 'ConfigStyleguide', // deprecated
+    styleguide: 'ConfigStyleguide', // deprecated
+    ...ConfigStyleguide.properties,
+    'features.openapi': 'ConfigReferenceDocs',
+    'features.mockServer': 'ConfigMockServer',
+  },
+  required: ['root'],
+};
+
+const ConfigHTTP: NodeType = {
+  properties: {
+    headers: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
 };
 

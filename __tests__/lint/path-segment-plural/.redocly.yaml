@@ -2,12 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    path-segment-plural:
-      severity: error
-      ignoreLastPathSegment: true
-      exceptions:
-        - v1
-        - pet
-  extends: []
+rules:
+  path-segment-plural:
+    severity: error
+    ignoreLastPathSegment: true
+    exceptions:
+      - v1
+      - pet
+extends: []

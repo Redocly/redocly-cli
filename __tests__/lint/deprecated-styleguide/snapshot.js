@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint deprecated-lint 1`] = `
+exports[`E2E lint deprecated-styleguide 1`] = `
 
-The 'lint' field is deprecated. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
+The 'styleguide' field is deprecated. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
 validating /openapi.yaml...
 [1] openapi.yaml:11:7 at #/paths/~1pet~1findByStatus/get/responses
 
