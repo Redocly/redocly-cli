@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    security-defined: warn
-  extends: []
+rules:
+  security-defined: warn
+extends: []
