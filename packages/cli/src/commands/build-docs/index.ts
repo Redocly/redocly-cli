@@ -8,7 +8,6 @@ import * as mkdirp from 'mkdirp';
 import { getObjectOrJSON, handleError, isURL, getPageHTML } from './utils';
 import type { BuildDocsArgv } from './types';
 
-
 export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   const config = {
     ssr: true,
