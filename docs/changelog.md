@@ -4,6 +4,30 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.109 (2022-09-08)
+### Features
+
+- Added rfc7807 problem details rule.
+- Improved error messages by adding `referenced from` information.
+- Added the `spec-components-invalid-map-name` rule for component map names validation.
+- Added a new lint `--format` option: `summary`.
+
+
+### Fixes
+
+- Fixed an issue with multi-line strings in literal mode.
+- Fixed an issue with multi-line Markdown with Windows-style new lines.
+- Fixed the Header object type to require `content` or `schema`.
+- Fixed a error message for `operation-4xx-response` rule.
+- Fixed an issue with `paths` not being correctly handled by the `join` command.
+- Fixed the `operation-security-defined` rule to check the security on the root and in each operation.
+
+### Changes
+
+- Renamed 'DefinitionRoot', 'ServerVariableMap', 'PathMap', 'CallbackMap', 'MediaTypeMap', 'ExampleMap', 'EncodingMap', 'HeaderMap', and 'LinkMap' definition node types.
+- Removed the `styleguide` object from the configuration file.
+- Renamed the `operation-security-defined` rule to `security-defined`.
+
 ## 1.0.0-beta.108 (2022-08-22)
 
 ### Changes
