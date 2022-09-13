@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    no-server-variables-empty-enum: error
-  extends: []
+rules:
+  no-server-variables-empty-enum: error
+extends: []

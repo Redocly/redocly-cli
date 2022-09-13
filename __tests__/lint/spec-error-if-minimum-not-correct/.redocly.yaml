@@ -1,6 +1,6 @@
 apis:
-  main:
+  main: 
     root: ./openapi.yaml
 
-extends:
-  - all
+rules:
+  spec: error

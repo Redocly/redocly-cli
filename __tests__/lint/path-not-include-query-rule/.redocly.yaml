@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    path-not-include-query: error
-  extends: []
+rules:
+  path-not-include-query: error
+extends: []

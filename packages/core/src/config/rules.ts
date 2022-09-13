@@ -1,6 +1,6 @@
 import { RuleSet, OasVersion } from '../oas-types';
 import { StyleguideConfig } from './config';
-import { notUndefined } from '../utils';
+import { isDefined } from '../utils';
 
 export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
@@ -42,5 +42,5 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
       })
     )
     .flatMap((visitor) => visitor)
-    .filter(notUndefined);
+    .filter(isDefined);
 }
