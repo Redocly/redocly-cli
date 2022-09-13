@@ -1,10 +1,10 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
 import { UserContext } from '../../walk';
-import { Oas2SecurityScheme } from '../../typings/swagger';
-import { Oas3SecurityScheme } from '../../typings/openapi';
+import { Oas2Definition, Oas2Operation, Oas2SecurityScheme } from '../../typings/swagger';
+import { Oas3Definition, Oas3Operation, Oas3SecurityScheme } from '../../typings/openapi';
 
-export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
+export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
   const referencedSchemes = new Map<
     string,
     {
@@ -13,9 +13,11 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
     }
   >();
 
+  let eachOperationHasSecurity: boolean = true;
+
   return {
-    Root: {
-      leave(_: object, { report }: UserContext) {
+    DefinitionRoot: {
+      leave(root: Oas2Definition | Oas3Definition, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
@@ -24,6 +26,14 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
               location: reportedFromLocation.key(),
             });
           }
+        }
+
+        if (root.security || eachOperationHasSecurity) {
+          return;
+        } else {
+          report({
+            message: `Every API should have security defined on the root level or for each operation.`,
+          });
         }
       },
     },
@@ -39,6 +49,11 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
         } else {
           authScheme.from.push(requirementLocation);
         }
+      }
+    },
+    Operation(operation: Oas2Operation | Oas3Operation) {
+      if (!operation?.security) {
+        eachOperationHasSecurity = false;
       }
     },
   };

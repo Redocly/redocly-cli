@@ -3,6 +3,7 @@ info:
   title: Petstore API
   version: 1.0.0
   description: description
+security: []
 
 paths:
 
