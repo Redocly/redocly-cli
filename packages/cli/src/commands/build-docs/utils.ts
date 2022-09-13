@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import * as React from 'react';
 import { createStore, Redoc } from 'redoc';
 import { parseYaml, findConfig, Config } from '@redocly/openapi-core';
 import { renderToString } from 'react-dom/server';
@@ -72,7 +72,7 @@ export async function getPageHTML(
     const store = await createStore(spec, specUrl, redocOptions);
     const sheet = new ServerStyleSheet();
 
-    html = renderToString(sheet.collectStyles(createElement(Redoc, { store })));
+    html = renderToString(sheet.collectStyles(React.createElement(Redoc, { store })));
     css = sheet.getStyleTags();
     state = await store.toJS();
 

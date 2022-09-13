@@ -1,9 +1,8 @@
-import { getPageHTML, handleError } from '../../commands/build-docs/utils';
-import { resolve } from 'path';
 import { createStore, loadAndBundleSpec } from 'redoc';
 import { renderToString } from 'react-dom/server';
 import { handlerBuildCommand } from '../../commands/build-docs';
-import { BuildDocsArgv } from 'cli/src/commands/build-docs/types';
+import { BuildDocsArgv } from '../../commands/build-docs/types';
+import { getPageHTML } from '../../commands/build-docs/utils';
 
 jest.mock('redoc');
 jest.mock('fs');
@@ -32,14 +31,14 @@ jest.mock('mkdirp', () => ({
 
 describe('build-docs', () => {
   it('should return correct html and call function for ssr', async () => {
-    const result = await getPageHTML({}, '../fixtures/openapi.yaml', { ...config, ssr: true });
+    const result = await getPageHTML({}, '../some-path/openapi.yaml', { ...config, ssr: true });
     expect(renderToString).toBeCalledTimes(1);
     expect(createStore).toBeCalledTimes(1);
     expect(result).toBe('<html></html>');
   });
 
   it('should return correct html and do not call function for ssr', async () => {
-    const result = await getPageHTML({}, '../fixtures/openapi.yaml', { ...config, ssr: false });
+    const result = await getPageHTML({}, '../some-path/openapi.yaml', { ...config, ssr: false });
     expect(renderToString).toBeCalledTimes(0);
     expect(createStore).toBeCalledTimes(0);
     expect(result).toBe('<html></html>');
@@ -55,7 +54,7 @@ describe('build-docs', () => {
       template: '',
       templateOptions: {},
       options: {},
-      spec: resolve(__dirname, '../fixtures/openapi.yaml'),
+      spec: '../some-path/openapi.yaml',
     } as BuildDocsArgv);
     expect(loadAndBundleSpec).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);

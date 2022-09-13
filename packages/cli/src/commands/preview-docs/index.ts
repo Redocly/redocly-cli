@@ -11,7 +11,7 @@ import {
 } from '@redocly/openapi-core';
 import { getFallbackApisOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
-import type { Skips } from 'cli/src/types';
+import type { Skips } from '../../types';
 
 export async function previewDocs(
   argv: {
