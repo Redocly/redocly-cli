@@ -13,7 +13,7 @@ import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { notifyUpdateCliVersion } from './utils';
-import { handlerBuildCommand } from './commands/build-docs/build-docs';
+import { handlerBuildCommand } from './commands/build-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 const version = require('../package.json').version;
 

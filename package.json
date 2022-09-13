@@ -10,7 +10,7 @@
   "scripts": {
     "test": "npm run typecheck && npm run unit",
     "jest": "jest ./packages",
-    "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
+    "unit": "npm run jest -- --coverage --silent=false --coverageReporters lcov text-summary",
     "coverage:cli": "jest --roots packages/cli/src --coverage",
     "coverage:core": "jest --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
