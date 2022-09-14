@@ -90,7 +90,7 @@ export async function handleStats(argv: { config?: string; api?: string; format:
 
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     externalRefResolver,
   });
 
@@ -107,7 +107,7 @@ export async function handleStats(argv: { config?: string; api?: string; format:
 
   walkDocument({
     document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     normalizedVisitors: statsVisitor,
     resolvedRefMap,
     ctx,

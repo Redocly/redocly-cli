@@ -1,5 +1,6 @@
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+
 const builtInRulesList = [
   'spec',
   'info-description',
@@ -32,7 +33,7 @@ const builtInRulesList = [
   'path-params-defined',
   'parameter-description',
   'operation-singular-tag',
-  'operation-security-defined',
+  'security-defined',
   'no-unresolved-refs',
   'paths-kebab-case',
   'boolean-parameter-prefixes',
@@ -55,35 +56,35 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
 ];
 const nodeTypesList = [
-  'DefinitionRoot',
+  'Root',
   'Tag',
   'ExternalDocs',
   'Server',
   'ServerVariable',
-  'ServerVariableMap',
+  'ServerVariablesMap',
   'SecurityRequirement',
   'Info',
   'Contact',
   'License',
-  'PathMap',
+  'PathsMap',
   'PathItem',
   'Parameter',
   'Operation',
   'Callback',
-  'CallbackMap',
+  'CallbacksMap',
   'RequestBody',
-  'MediaTypeMap',
+  'MediaTypesMap',
   'MediaType',
   'Example',
-  'ExampleMap',
+  'ExamplesMap',
   'Encoding',
-  'EncodingMap',
+  'EncodingsMap',
   'Header',
-  'HeaderMap',
+  'HeadersMap',
   'ResponsesMap',
   'Response',
   'Link',
-  'LinkMap',
+  'LinksMap',
   'Schema',
   'Xml',
   'SchemaProperties',
@@ -109,6 +110,39 @@ const nodeTypesList = [
   'WebhooksMap',
 ];
 
+const ConfigStyleguide: NodeType = {
+  properties: {
+    extends: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+    rules: 'Rules',
+    oas2Rules: 'Rules',
+    oas3_0Rules: 'Rules',
+    oas3_1Rules: 'Rules',
+    preprocessors: { type: 'object' },
+    oas2Preprocessors: { type: 'object' },
+    oas3_0Preprocessors: { type: 'object' },
+    oas3_1Preprocessors: { type: 'object' },
+    decorators: { type: 'object' },
+    oas2Decorators: { type: 'object' },
+    oas3_0Decorators: { type: 'object' },
+    oas3_1Decorators: { type: 'object' },
+  },
+};
+
+const RootConfigStyleguide: NodeType = {
+  properties: {
+    plugins: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    ...ConfigStyleguide.properties,
+  },
+};
+
 const ConfigRoot: NodeType = {
   properties: {
     organization: { type: 'string' },
@@ -118,7 +152,8 @@ const ConfigRoot: NodeType = {
       properties: {},
       additionalProperties: { properties: { type: 'string' } },
     }, // deprecated
-    styleguide: 'RootConfigStyleguide',
+    ...RootConfigStyleguide.properties,
+    styleguide: 'RootConfigStyleguide', // deprecated
     lint: 'RootConfigStyleguide', // deprecated
     'features.openapi': 'ConfigReferenceDocs',
     referenceDocs: 'ConfigReferenceDocs', // deprecated
@@ -127,6 +162,7 @@ const ConfigRoot: NodeType = {
     resolve: {
       properties: {
         http: 'ConfigHTTP',
+        doNotResolveExamples: { type: 'boolean' },
       },
     },
     files: {
@@ -152,7 +188,9 @@ const ConfigApisProperties: NodeType = {
         type: 'string',
       },
     },
-    styleguide: 'ConfigStyleguide',
+    lint: 'ConfigStyleguide', // deprecated
+    styleguide: 'ConfigStyleguide', // deprecated
+    ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs',
     'features.mockServer': 'ConfigMockServer',
     files: {
@@ -173,40 +211,6 @@ const ConfigHTTP: NodeType = {
         type: 'string',
       },
     },
-  },
-};
-
-const ConfigStyleguide: NodeType = {
-  properties: {
-    extends: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    doNotResolveExamples: { type: 'boolean' },
-    rules: 'Rules',
-    oas2Rules: 'Rules',
-    oas3_0Rules: 'Rules',
-    oas3_1Rules: 'Rules',
-    preprocessors: { type: 'object' },
-    oas2Preprocessors: { type: 'object' },
-    oas3_0Preprocessors: { type: 'object' },
-    oas3_1Preprocessors: { type: 'object' },
-    decorators: { type: 'object' },
-    oas2Decorators: { type: 'object' },
-    oas3_0Decorators: { type: 'object' },
-    oas3_1Decorators: { type: 'object' },
-  },
-};
-
-const RootConfigStyleguide: NodeType = {
-  properties: {
-    plugins: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    ...ConfigStyleguide.properties,
   },
 };
 

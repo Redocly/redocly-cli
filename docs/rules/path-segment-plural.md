@@ -34,23 +34,21 @@ Nothing wrong with that.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-segment-plural: error
+rules:
+  path-segment-plural: error
 ```
 
 Another example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-segment-plural:
-      severity: error
-      ignoreLastPathSegment: true
-      exceptions:
-        - v1
-        - v2
-        - people
+rules:
+  path-segment-plural:
+    severity: error
+    ignoreLastPathSegment: true
+    exceptions:
+      - v1
+      - v2
+      - people
 ```
 
 ## Examples
@@ -58,9 +56,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-segment-plural: error
+rules:
+  path-segment-plural: error
 ```
 
 Example of an **incorrect** path segment:
@@ -96,5 +93,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/path-segment-plural.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/path-segment-plural.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

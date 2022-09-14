@@ -7,7 +7,7 @@ import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
-import type { DeprecatedInRawConfig, RawConfig, Region } from './types';
+import type { DeprecatedInRawConfig, FlatRawConfig, RawConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 
 async function addConfigMetadata({
@@ -108,7 +108,8 @@ export function findConfig(dir?: string): string | undefined {
 export async function getConfig(configPath: string | undefined = findConfig()): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    const rawConfig = (await loadYaml<RawConfig & DeprecatedInRawConfig>(configPath)) || {};
+    const rawConfig =
+      (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
     return transformConfig(rawConfig);
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);

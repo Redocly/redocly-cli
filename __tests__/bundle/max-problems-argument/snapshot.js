@@ -11,6 +11,7 @@ info:
     url: https://opensource.org/licenses/MIT
 servers:
   - url: http://petstore.swagger.io/v1
+security: []
 paths:
   /pets:
     get:
@@ -128,6 +129,7 @@ info:
     url: https://opensource.org/licenses/MIT
 servers:
   - url: http://petstore.swagger.io/v1
+security: []
 paths:
   /pets:
     get:
@@ -237,7 +239,7 @@ components:
         $ref: '#/components/schemas/Pet'
 
 foo.yaml:
-  29:11  error    spec  Property \`header\` is not expected here.
+  30:11  error    spec  Property \`header\` is not expected here.
 
 ❌ Validation failed with 1 error.
 run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
@@ -245,7 +247,7 @@ run \`openapi lint --generate-ignore-file\` to add all problems to the ignore fi
 bundling ./foo.yaml...
 📦 Created a bundle for ./foo.yaml at stdout <test>ms.
 bar.yaml:
-  14:7  error    spec  Property \`summay\` is not expected here.
+  15:7  error    spec  Property \`summay\` is not expected here.
 
 < ... 3 more problems hidden > increase with \`--max-problems N\`
 ❌ Validation failed with 3 errors and 1 warning.

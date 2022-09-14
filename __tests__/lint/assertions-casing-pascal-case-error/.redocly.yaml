@@ -2,19 +2,19 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/operation-get:
-      context:
-        - type: Operation
-          matchParentKeys: [get]
-      subject: Operation
-      property: operationId
-      message: Operation id should be PascalCase
-      casing: PascalCase
-    assert/operation-id-pascal-case:
-      subject: Operation
-      property: operationId
-      message: Operation id should be PascalCase
-      casing: PascalCase
-  extends: []
+
+rules:
+  assert/operation-get:
+    context:
+      - type: Operation
+        matchParentKeys: [get]
+    subject: Operation
+    property: operationId
+    message: Operation id should be PascalCase
+    casing: PascalCase
+  assert/operation-id-pascal-case:
+    subject: Operation
+    property: operationId
+    message: Operation id should be PascalCase
+    casing: PascalCase
+extends: []

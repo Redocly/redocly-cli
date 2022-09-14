@@ -18,10 +18,9 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    info-description-override:
-      filePath: ./my-custom-description.md
+decorators:
+  info-description-override:
+    filePath: ./my-custom-description.md
 ```
 
 ## Examples
@@ -38,5 +37,5 @@ See a repository with [info, operation, and tag description overrides](https://g
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/info-description-override.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/info-description-override.ts)
 - [Blog post about Overlays](../../../blog/openapi-overlays.md)

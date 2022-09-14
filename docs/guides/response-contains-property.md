@@ -8,7 +8,7 @@ redirectFrom:
 
 ## Overview
 
-This guide describes how to ensure that the API operation's response [contains a specific property](../resources/built-in-rules.md)
+This guide describes how to ensure that the API operation's response [contains a specific property](../rules/response-contains-property.md)
 with three different cases:
 
 1. Single response containing one property
@@ -19,7 +19,7 @@ Let's get started!
 
 ## Before you begin
 
-- [Use the openapi-starter repository](./openapi-starter.md) to set up a basic project that we will use for this guide.
+- [Use the openapi-starter repository](../openapi-starter.md) to set up a basic project that we will use for this guide.
 - [Download the modified project files](https://gist.github.com/bandantonio/c6047e3ee70c90da013a2f8e6757edb0) and use them to
 replace the corresponding files in the `openapi` folder:
 
@@ -235,6 +235,7 @@ rules:
         - created_at
         - ref_id
 ```
+
 
 ```bash npx redocly lint
 npx redocly lint

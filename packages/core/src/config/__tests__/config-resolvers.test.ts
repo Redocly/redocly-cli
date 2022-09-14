@@ -165,7 +165,7 @@ describe('resolveStyleguideConfig', () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
-        'https://raw.githubusercontent.com/Redocly/redocly-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
+        'https://raw.githubusercontent.com/Redocly/redocly-cli/main/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
       ],
     };
 

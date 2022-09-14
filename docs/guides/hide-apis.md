@@ -97,9 +97,8 @@ apis:
     root: ./sample.yaml
   external@latest:
     root: ./sample.yaml
-    styleguide:
-      decorators:
-        remove-x-internal: on
+    decorators:
+      remove-x-internal: on
 ```
 
 Save the `redocly.yaml` file.

@@ -24,16 +24,15 @@ In some cases, it is important to design an API so that it consistently returns 
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-property:
-      severity: error
-      names:
-        2XX:
-          - created_at
-          - updated_at
-        '400':
-          - code
+rules:
+  response-contains-property:
+    severity: error
+    names:
+      2XX:
+        - created_at
+        - updated_at
+      '400':
+        - code
 ```
 
 ## Examples
@@ -42,16 +41,15 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-property:
-      severity: error
-      names:
-        2XX:
-          - created_at
-          - updated_at
-        '400':
-          - code
+rules:
+  response-contains-property:
+    severity: error
+    names:
+      2XX:
+        - created_at
+        - updated_at
+      '400':
+        - code
 ```
 
 Example of an **incorrect** response:
@@ -104,6 +102,6 @@ paths:
 
 ## Resources
 
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/response-contains-property.ts)
-- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas2/response-contains-property.ts)
+- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/response-contains-property.ts)
+- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/response-contains-property.ts)
 - [Response docs](https://redocly.com/docs/openapi-visual-reference/response/)

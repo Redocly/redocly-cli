@@ -32,26 +32,24 @@ Keep it consistent across your entire API if possible.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-        - image/png
+rules:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+      - image/png
 ```
 ## Examples
 
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-        - image/png
+rules:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+      - image/png
 ```
 
 Example of an **incorrect** response mime type:
@@ -89,6 +87,6 @@ paths:
 
 ## Resources
 
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/response-mime-type.ts)
-- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas2/response-mime-type.ts)
+- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/response-mime-type.ts)
+- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/response-mime-type.ts)
 - [Response docs](https://redocly.com/docs/openapi-visual-reference/response/)

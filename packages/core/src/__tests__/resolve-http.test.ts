@@ -43,7 +43,7 @@ describe('Resolve http-headers', () => {
           ],
         },
       }),
-      rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+      rootType: normalizeTypes(Oas3Types).Root,
     });
 
     expect(fetchMock).toBeCalledTimes(3);

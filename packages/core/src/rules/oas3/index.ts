@@ -25,7 +25,7 @@ import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
 import { ParameterDescription } from '../common/parameter-description';
 import { OperationSingularTag } from '../common/operation-singular-tag';
-import { OperationSecurityDefined } from '../common/operation-security-defined';
+import { SecurityDefined } from '../common/security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from '../common/paths-kebab-case';
@@ -83,7 +83,7 @@ export const rules = {
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
-  'operation-security-defined': OperationSecurityDefined,
+  'security-defined': SecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,

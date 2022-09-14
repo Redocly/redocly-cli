@@ -2,6 +2,7 @@
 
 exports[`E2E bundle bundle-description-long 1`] = `
 openapi: 3.1.0
+security: []
 info:
   version: 1.0.0
   title: Example.com
@@ -33,6 +34,7 @@ bundling ./test.yaml...
 
 exports[`E2E bundle with long description description should not be in folded mode 1`] = `
 openapi: 3.1.0
+security: []
 info:
   version: 1.0.0
   title: Example.com

@@ -70,13 +70,13 @@ describe('Oas3 assertions', () => {
           },
         ];
 
-        const visitors = buildVisitorObject('MediaTypeMap', context, () => {}) as any;
+        const visitors = buildVisitorObject('MediaTypesMap', context, () => {}) as any;
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
             "Operation": Object {
               "ResponsesMap": Object {
-                "MediaTypeMap": [Function],
+                "MediaTypesMap": [Function],
                 "skip": [Function],
               },
               "skip": [Function],

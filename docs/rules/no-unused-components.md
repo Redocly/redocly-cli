@@ -35,9 +35,8 @@ If that describes your use-case, turn this rule off.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unused-components: error
+rules:
+  no-unused-components: error
 ```
 
 ## Examples
@@ -45,9 +44,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unused-components: error
+rules:
+  no-unused-components: error
 ```
 
 Example of **incorrect** components:
@@ -85,5 +83,5 @@ components:
 ## Resources
 
 - The Redocly CLI `bundle` command supports an option called `--remove-unused-components`. Use it to automatically clean up any unused components from your OpenAPI document while bundling it.
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-unused-components.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-unused-components.ts)
 - [Components docs](https://redocly.com/docs/openapi-visual-reference/components/)

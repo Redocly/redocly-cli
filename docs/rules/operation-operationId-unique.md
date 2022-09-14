@@ -25,9 +25,8 @@ This rule is unopinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-unique: error
+rules:
+  operation-operationId-unique: error
 ```
 
 ## Examples
@@ -35,9 +34,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-unique: error
+rules:
+  operation-operationId-unique: error
 ```
 
 Example of **incorrect** operations:
@@ -73,6 +71,6 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-operationId-unique.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId-unique.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
 - Consider using [assertions](./assertions.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.

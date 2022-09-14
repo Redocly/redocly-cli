@@ -5,7 +5,7 @@ import { validateMimeType } from '../../utils';
 
 export const ResponseMimeType: Oas2Rule = ({ allowedValues }) => {
   return {
-    DefinitionRoot(root: Oas2Definition, ctx: UserContext) {
+    Root(root: Oas2Definition, ctx: UserContext) {
       validateMimeType({ type: 'produces', value: root }, ctx, allowedValues);
     },
     Operation: {

@@ -16,13 +16,12 @@ Estimated time: 20 minutes
 
 1. Add this code to your repo with the API (the Redocly configuration file is an example).
     ```yaml redocly.yaml
-    styleguide:
-      extends:
-        - recommended
-      plugins:
-        - './plugins/acme-plugin.js'
-      decorators:
-        acme/change-token-urls: error
+    extends:
+      - recommended
+    plugins:
+      - './plugins/acme-plugin.js'
+    decorators:
+      acme/change-token-urls: error
     ```
 
     ```js acme-plugin.js

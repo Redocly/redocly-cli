@@ -1,3 +1,2 @@
-lint:
-  plugins:
-    - './plugin.js'
+plugins:
+  - './plugin.js'

@@ -122,7 +122,7 @@ export async function bundleDocument(opts: {
 
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     externalRefResolver,
   });
 
@@ -148,7 +148,7 @@ export async function bundleDocument(opts: {
 
   walkDocument({
     document,
-    rootType: types.DefinitionRoot as NormalizedNodeType,
+    rootType: types.Root as NormalizedNodeType,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,
@@ -158,7 +158,7 @@ export async function bundleDocument(opts: {
     bundle: document,
     problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
     fileDependencies: externalRefResolver.getFiles(),
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     refTypes: ctx.refTypes,
     visitorsData: ctx.visitorsData,
   };
@@ -254,7 +254,7 @@ function makeBundleVisitor(
         }
       },
     },
-    DefinitionRoot: {
+    Root: {
       enter(root: any) {
         if (version === OasMajorVersion.Version3) {
           components = root.components = root.components || {};

@@ -17,18 +17,16 @@ This is a mechanism that can be used to maintain them together but generate two 
 Example of a configuration that uses `x-internal` as the flag property:
 
 ```yaml
-styleguide:
-  decorators:
-    remove-x-internal: on
+decorators:
+  remove-x-internal: on
 ```
 
 Example of another configuration that changes the flag property:
 
 ```yaml
-styleguide:
-  decorators:
-    remove-x-internal:
-      internalFlagProperty: 'x-private'
+decorators:
+  remove-x-internal:
+    internalFlagProperty: 'x-private'
 ```
 
 ## Examples
@@ -41,5 +39,5 @@ Read the guide on [hiding internal APIs](../guides/hide-apis.md) to see examples
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/remove-x-internal.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/remove-x-internal.ts)
 - Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.

@@ -9,10 +9,10 @@ function oas3_0(types) {
         parameters: listOf('Parameter'),
       },
     },
-    DefinitionRoot: {
-      ...types.DefinitionRoot,
+    Root: {
+      ...types.Root,
       properties: {
-        ...types.DefinitionRoot.properties,
+        ...types.Root.properties,
         'x-webhooks': 'XWebHooks',
       },
     },

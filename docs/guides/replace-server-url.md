@@ -104,14 +104,13 @@ To use the decorator, you will need to register your plugin in your Redocly conf
 apis:
   main:
     root: openapi/openapi.yaml
-styleguide:
-  extends:
-    - recommended
-  plugins:
-    - './plugins/demo-plugin.js'
-  decorators:
-    # The key below is the combination of the plugin id (demo) and decorator name (replace-servers-url) defined in step 1 with a forward slash separator.
-    demo/replace-servers-url: error
+extends:
+  - recommended
+plugins:
+  - './plugins/demo-plugin.js'
+decorators:
+  # The key below is the combination of the plugin id (demo) and decorator name (replace-servers-url) defined in step 1 with a forward slash separator.
+  demo/replace-servers-url: error
 
 features.openapi:
   htmlTemplate: ./docs/index.html
