@@ -95,5 +95,5 @@ tags:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/tag-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/tag-description.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)

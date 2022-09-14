@@ -89,5 +89,5 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/spec-components-invalid-map-name.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-components-invalid-map-name.ts)
 - [Components docs](https://redocly.com/docs/openapi-visual-reference/components/)

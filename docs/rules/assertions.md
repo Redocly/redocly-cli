@@ -455,9 +455,9 @@ OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 ### List of OpenAPI types
 
 For technical details on the implementation of types for each OAS version, consult the source files in the Redocly CLI repository:
-  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas2.ts#L367
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
 
 List of types for OpenAPI 3.0 and 3.1:
 

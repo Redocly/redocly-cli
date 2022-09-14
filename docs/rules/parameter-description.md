@@ -72,5 +72,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/parameter-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/parameter-description.ts)
 - [Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)

@@ -39,5 +39,5 @@ Read the guide on [hiding internal APIs](../guides/hide-apis.md) to see examples
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/remove-x-internal.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/remove-x-internal.ts)
 - Remove additional remnants from components by also using the `--remove-unused-components` CLI argument.
