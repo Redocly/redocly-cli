@@ -9,7 +9,7 @@ tocMaxDepth: 2
 
 - Added rfc7807 problem details rule.
 - Improved error messages by adding `referenced from` information.
-- Added the `spec-components-invalid-map-name` rule for component map names validation.
+- Added the [`spec-components-invalid-map-name`](./rules/spec-components-invalid-map-name.md) rule for component map names validation.
 - Added a new lint `--format` option: `summary`.
 
 
