@@ -77,5 +77,5 @@ paths:
 - [spec](./spec.md)
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-identical-paths.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-identical-paths.ts)
 - [Paths object docs](https://redocly.com/docs/openapi-visual-reference/paths/)

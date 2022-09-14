@@ -122,6 +122,6 @@ This last example wouldn't trigger an error because the casing won't split "get"
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-http-verbs-in-paths.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-http-verbs-in-paths.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)
 

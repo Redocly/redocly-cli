@@ -65,5 +65,5 @@ post:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-2xx-response.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-2xx-response.ts)
 - [Responses map docs](https://redocly.com/docs/openapi-visual-reference/responses/)

@@ -102,5 +102,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-invalid-parameter-examples.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-invalid-parameter-examples.ts)
 - [OpenAPI Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)

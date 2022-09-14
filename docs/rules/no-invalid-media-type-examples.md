@@ -149,6 +149,6 @@ post:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-invalid-media-type-examples.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-invalid-media-type-examples.ts)
 - [Example docs](https://redocly.com/docs/openapi-visual-reference/example/)
 - [Media type object docs](https://redocly.com/docs/openapi-visual-reference/media-type/)

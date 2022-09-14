@@ -81,5 +81,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/paths-kebab-case.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/paths-kebab-case.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

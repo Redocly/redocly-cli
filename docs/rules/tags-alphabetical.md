@@ -78,5 +78,5 @@ tags:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/tags-alphabetical.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/tags-alphabetical.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)
