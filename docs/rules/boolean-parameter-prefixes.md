@@ -13,7 +13,7 @@ When this rule is enabled, the `name` fields of all `boolean` parameters in your
 ```mermaid
 flowchart TD
 
-root ==> PathMap --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
+root ==> PathsMap --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 
@@ -50,18 +50,16 @@ The nuance of being able to identify the boolean parameters helps developers pro
 
 An example configuration:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes: error
+rules:
+  boolean-parameter-prefixes: error
 ```
 
 The following example configures prefixes:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes:
-      severity: error
-      prefixes: ["can", "is", "has"]
+rules:
+  boolean-parameter-prefixes:
+    severity: error
+    prefixes: ["can", "is", "has"]
 ```
 
 ## Examples

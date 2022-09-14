@@ -24,16 +24,15 @@ In some cases, it is important to design an API so that it consistently returns 
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-property:
-      severity: error
-      names:
-        2XX:
-          - created_at
-          - updated_at
-        '400':
-          - code
+rules:
+  response-contains-property:
+    severity: error
+    names:
+      2XX:
+        - created_at
+        - updated_at
+      '400':
+        - code
 ```
 
 ## Examples
@@ -42,16 +41,15 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-property:
-      severity: error
-      names:
-        2XX:
-          - created_at
-          - updated_at
-        '400':
-          - code
+rules:
+  response-contains-property:
+    severity: error
+    names:
+      2XX:
+        - created_at
+        - updated_at
+      '400':
+        - code
 ```
 
 Example of an **incorrect** response:

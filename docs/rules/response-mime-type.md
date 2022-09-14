@@ -32,26 +32,24 @@ Keep it consistent across your entire API if possible.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-        - image/png
+rules:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+      - image/png
 ```
 ## Examples
 
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
-        - image/png
+rules:
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+      - image/png
 ```
 
 Example of an **incorrect** response mime type:

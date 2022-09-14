@@ -2,19 +2,19 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/response-content-defined:
-      context:
-      - type: Response
-        excludeParentKeys: ['204']
-      subject: Response
-      property: content
-      message: Response content should be defined
-      defined: true
-    assert/operation-security:
-      subject: Operation
-      property: security
-      message: Operation security should be defined
-      defined: true
-  extends: []
+
+rules:
+  assert/response-content-defined:
+    context:
+    - type: Response
+      excludeParentKeys: ['204']
+    subject: Response
+    property: content
+    message: Response content should be defined
+    defined: true
+  assert/operation-security:
+    subject: Operation
+    property: security
+    message: Operation security should be defined
+    defined: true
+extends: []

@@ -39,35 +39,44 @@ jobs:
           CI: true
 
   # FIXME: fix this so the `cli` package includes the corresponding `core`
-  # cli-package-test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Cache dependencies
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.npm
-  #         key: npm-${{ hashFiles('package-lock.json') }}
-  #         restore-keys: |
-  #           npm-${{ hashFiles('package-lock.json') }}
-  #           npm-
-  #     - name: Environments
-  #       run: |
-  #         echo
-  #         echo Using Node $(node -v), NPM $(npm -v)
-  #         echo
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       env:
-  #         CI: true
-  #     - name: Prepare CLI package
-  #       run: npm run pack:prepare
-  #     - name: Install CLI Package
-  #       run: npm install -g redocly-cli.tgz
-  #     - name: Redocly version
-  #       run: redocly --version
-  #     - name: Definition test
-  #       run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
+  cli-package-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ hashFiles('package-lock.json') }}
+            npm-
+      - name: Environments
+        run: |
+          echo
+          echo Using Node $(node -v), NPM $(npm -v)
+          echo
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - name: Pack CORE package
+        run: npm pack ./packages/core
+      - name: Use local CORE package in CLI
+        run: |
+          version=$(cat ./packages/core/package.json | jq '.version' | tr -d '"')
+          jq '.dependencies."@redocly/openapi-core" = $packagefile' ./packages/cli/package.json --arg packagefile file:./redocly-openapi-core-$version.tgz > package.json.tmp && mv package.json.tmp ./packages/cli/package.json
+      - name: Output package.json
+        run: cat ./packages/cli/package.json
+
+      - name: Prepare CLI package
+        run: npm run pack:prepare
+      - name: Install CLI Package
+        run: npm install -g redocly-cli.tgz
+      - name: Redocly version
+        run: redocly --version
+      - name: Definition test
+        run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
 
   coverage-report:
     runs-on: ubuntu-latest

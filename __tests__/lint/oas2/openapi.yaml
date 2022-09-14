@@ -19,6 +19,7 @@ tags:
     url: "http://swagger.io"
 schemes:
 - "http"
+security: []
 paths:
   /pet:
     post:

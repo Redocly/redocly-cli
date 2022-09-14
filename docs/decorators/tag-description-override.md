@@ -18,12 +18,11 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    tag-description-override:
-      tagNames:
-        planet: ./my-planet-description.md
-        star: ./my-star-description.md
+decorators:
+  tag-description-override:
+    tagNames:
+      planet: ./my-planet-description.md
+      star: ./my-star-description.md
 ```
 
 ## Examples

@@ -25,9 +25,8 @@ This rule is unopinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-unique: error
+rules:
+  operation-operationId-unique: error
 ```
 
 ## Examples
@@ -35,9 +34,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-unique: error
+rules:
+  operation-operationId-unique: error
 ```
 
 Example of **incorrect** operations:

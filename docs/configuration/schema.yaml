@@ -14,6 +14,28 @@ properties:
         4. The segment after `app.redocly.com/org/` is the organization ID.
 
       For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`.
+
+  extends:
+    type: array
+    description: >-
+      Inherit configurations.
+      In case of conflict, priority goes to configurations further down the list.
+      Finally, explicit declarations inline takes precedence over configurations inherited through the `extends` feature.
+      Built in configurations include `recommended` and `minimal`.
+    items:
+      type: string
+      example: recommended
+
+  plugins:
+    type: array
+    description: >-
+      Import any local filesystem plugins (e.g. `./local-plugins.js`).
+      Note that community plugins are not yet supported.
+    example: ['./local-plugin.js']
+    items:
+      type: string
+      format: path
+
   apis:
     type: object
     title: APIs object
@@ -42,12 +64,91 @@ properties:
             If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
           items:
             type: string
-        styleguide:
+        preprocessors:
+          type: object
+          title: Preprocessors object
+          description: >-
+            Change the severity level of any preprocessors in your extended configurations.
+            Preprocessors run first during `lint` and `bundle`.
+          additionalProperties:
+            description: >-
+              List each preprocessor by name.
+              For example, `do-this-first`.
+            oneOf:
+              - type: string
+                description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - on
+                  - off
+              - type: object
+                description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - on
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
+        rules:
+          type: object
+          title: Rules object
+          description: >-
+            Change the severity level of any rules in your extended configurations.
+            Some rules may also receive additional configurations.
+            Rules run during the `lint` command after preprocessors.
+            They run during the `bundle` command between preprocessors and decorators if the `--lint` option is used.
+          additionalProperties:
+            description: >-
+              List each rule by name.
+              For example, `no-empty-servers`.
+            oneOf:
+              - type: string
+                description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - error
+                  - warn
+                  - off
+              - type: object
+                title: Rule configuration object
+                description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+                required:
+                  - severity
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - error
+                      - warn
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
+        decorators:
           type: object
           description: >-
-            Configures linting options for the specified API.
-            Supports the same format and options as the global `lint` object.
-            API-level configuration will always override global configuration.
+            Used to enable or disable decorators.
+            Decorators run during the `bundle` command after linting.
+          additionalProperties:
+            description: >-
+              List each decorator by name.
+              For example, `remove-x-internal`.
+            oneOf:
+              - type: string
+                description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+                enum:
+                  - off
+                  - on
+              - type: object
+                title: Decorator configuration object
+                description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+                properties:
+                  severity:
+                    type: string
+                    enum:
+                      - on
+                      - off
+                    description: The severity level if the problem occurs.
+                additionalProperties: true
         features.openapi:
           type: object
           description: >-
@@ -60,120 +161,91 @@ properties:
             Defines mock server behavior for an API definition.
             Supports the same format and options as the global `features.mockServer` object.
             API-level configuration will always override global configuration.
-  styleguide:
+  preprocessors:
     type: object
-    description: Lets you set rules and decorators that control how the `lint` and `bundle` commands behave.
-    properties:
-      doNotResolveExamples:
-        type: boolean
-        description: >-
-          You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
-          This does not affect `$ref` resolution in other parts of the API definition.
-        default: false
-      plugins:
-        type: array
-        description: >-
-          Import any local filesystem plugins (e.g. `./local-plugins.js`).
-          Note that community plugins are not yet supported.
-        example: ['./local-plugin.js']
-        items:
-          type: string
-          format: path
-      extends:
-        type: array
-        description: >-
-          Inherit lint configurations.
-          In case of conflict, priority goes to configurations further down the list.
-          Finally, explicit declaration of any rules inline takes precedence over configurations inherited through the `extends` feature.
-          Built in configurations include `recommended`, `minimal`, `all`.
-        items:
-          type: string
-          example: recommended
-      preprocessors:
-        type: object
-        title: Preprocessors object
-        description: >-
-          Change the severity level of any preprocessors in your extended configurations.
-          Preprocessors run first during `lint` and `bundle`.
-        additionalProperties:
-          description: >-
-            List each preprocessor by name.
-            For example, `do-this-first`.
-          oneOf:
-            - type: string
-              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+    title: Preprocessors object
+    description: >-
+      Change the severity level of any preprocessors in your extended configurations.
+      Preprocessors run first during `lint` and `bundle`.
+    additionalProperties:
+      description: >-
+        List each preprocessor by name.
+        For example, `do-this-first`.
+      oneOf:
+        - type: string
+          description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+          enum:
+            - on
+            - off
+        - type: object
+          description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+          properties:
+            severity:
+              type: string
               enum:
                 - on
                 - off
-            - type: object
-              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
-              properties:
-                severity:
-                  type: string
-                  enum:
-                    - on
-                    - off
-                  description: The severity level if the problem occurs.
-              additionalProperties: true
-      rules:
-        type: object
-        title: Rules object
-        description: >-
-          Change the severity level of any rules in your extended configurations.
-          Some rules may also receive additional configurations.
-          Rules run during the `lint` command after preprocessors.
-          They run during the `bundle` command between preprocessors and decorators if the `--lint` option is used.
-        additionalProperties:
-          description: >-
-            List each rule by name.
-            For example, `no-empty-servers`.
-          oneOf:
-            - type: string
-              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+              description: The severity level if the problem occurs.
+          additionalProperties: true
+  rules:
+    type: object
+    title: Rules object
+    description: >-
+      Change the severity level of any rules in your extended configurations.
+      Some rules may also receive additional configurations.
+      Rules run during the `lint` command after preprocessors.
+      They run during the `bundle` command between preprocessors and decorators if the `--lint` option is used.
+    additionalProperties:
+      description: >-
+        List each rule by name.
+        For example, `no-empty-servers`.
+      oneOf:
+        - type: string
+          description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+          enum:
+            - error
+            - warn
+            - off
+        - type: object
+          title: Rule configuration object
+          description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+          required:
+            - severity
+          properties:
+            severity:
+              type: string
               enum:
                 - error
                 - warn
                 - off
-            - type: object
-              title: Rule configuration object
-              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
-              required:
-                - severity
-              properties:
-                severity:
-                  type: string
-                  enum:
-                    - error
-                    - warn
-                    - off
-                  description: The severity level if the problem occurs.
-              additionalProperties: true
-      decorators:
-        type: object
-        description: >-
-          Used to enable or disable decorators.
-          Decorators run during the `bundle` command after linting.
-        additionalProperties:
-          description: >-
-            List each decorator by name.
-            For example, `remove-x-internal`.
-          oneOf:
-            - type: string
-              description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+              description: The severity level if the problem occurs.
+          additionalProperties: true
+  decorators:
+    type: object
+    description: >-
+      Used to enable or disable decorators.
+      Decorators run during the `bundle` command after linting.
+    additionalProperties:
+      description: >-
+        List each decorator by name.
+        For example, `remove-x-internal`.
+      oneOf:
+        - type: string
+          description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+          enum:
+            - off
+            - on
+        - type: object
+          title: Decorator configuration object
+          description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+          properties:
+            severity:
+              type: string
               enum:
-                - off
                 - on
-            - type: object
-              title: Decorator configuration object
-              description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
-              properties:
-                severity:
-                  type: string
-                  enum:
-                    - on
-                    - off
-                  description: The severity level if the problem occurs.
-              additionalProperties: true
+                - off
+              description: The severity level if the problem occurs.
+          additionalProperties: true
   features.mockServer:
     type: object
     description: Lets you toggle features that control how mock servers behave.
@@ -213,6 +285,12 @@ properties:
       If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
       Use environment variables where possible.
     properties:
+      doNotResolveExamples:
+        type: boolean
+        description: >-
+          You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
+          This does not affect `$ref` resolution in other parts of the API definition.
+        default: false
       http:
         type: object
         description: Description of URL pattern matches and the corresponding headers to use when resolving references.

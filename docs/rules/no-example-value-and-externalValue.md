@@ -11,7 +11,7 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 ```mermaid
 flowchart TD
 
-Root ==> PathMap --> PathItem --> Operation --> Parameter --> MediaType
+Root ==> PathsMap --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
 Operation --> ResponsesMap --> MediaType
@@ -42,18 +42,16 @@ The intended use of the `value` field is to provide in-line example values, whil
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-example-value-and-externalValue: error
+rules:
+  no-example-value-and-externalValue: error
 ```
 
 ## Examples
 
 Given this configuration:
 ```yaml
-styleguide:
-  rules:
-    no-example-value-and-externalValue: error
+rules:
+  no-example-value-and-externalValue: error
 ```
 
 Example of an **incorrect** example object:

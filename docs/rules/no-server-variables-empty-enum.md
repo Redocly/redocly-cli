@@ -38,9 +38,8 @@ In the case of environment-driven variables, you may want to predefine all of th
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-variables-empty-enum: error
+rules:
+  no-server-variables-empty-enum: error
 ```
 
 ## Examples
@@ -48,9 +47,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-variables-empty-enum: error
+rules:
+  no-server-variables-empty-enum: error
 ```
 
 Example of **incorrect** server variables:

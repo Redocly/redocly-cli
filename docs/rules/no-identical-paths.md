@@ -18,8 +18,8 @@ According to the OpenAPI specification:
 ```mermaid
 flowchart TD
 
-Root ==> PathMap
-style PathMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
+Root ==> PathsMap
+style PathsMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 ## API design principles
@@ -37,9 +37,8 @@ Minimize it in APIs to make them as easy as possible to use.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-identical-paths: error
+rules:
+  no-identical-paths: error
 ```
 
 ## Examples
@@ -47,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-identical-paths: error
+rules:
+  no-identical-paths: error
 ```
 
 

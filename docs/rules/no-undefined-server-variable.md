@@ -32,9 +32,8 @@ It is important to fix these errors to help clients consume APIs.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-undefined-server-variable: error
+rules:
+  no-undefined-server-variable: error
 ```
 
 ## Examples
@@ -42,9 +41,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-undefined-server-variable: error
+rules:
+  no-undefined-server-variable: error
 ```
 
 Example of **incorrect** server variables:

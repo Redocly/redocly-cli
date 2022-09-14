@@ -35,9 +35,8 @@ If you can't reveal a production server, consider a [Redocly mock server](/docs/
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-example.com: error
+rules:
+  no-server-example.com: error
 ```
 
 ## Examples
@@ -45,9 +44,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-example.com: error
+rules:
+  no-server-example.com: error
 ```
 
 Example of **incorrect** server:

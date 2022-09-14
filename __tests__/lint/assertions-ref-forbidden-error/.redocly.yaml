@@ -2,17 +2,16 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/ref-forbidden:
-      context:
-        - type: Response
-      subject: MediaType
-      property: schema
-      message: Response MediaType schema should NOT have a ref
-      ref: false
-    assert/ref-forbidden-no-property:
-      subject: PathItem
-      message: PathItems should NOT should have a ref
-      ref: false
-  extends: []
+rules:
+  assert/ref-forbidden:
+    context:
+      - type: Response
+    subject: MediaType
+    property: schema
+    message: Response MediaType schema should NOT have a ref
+    ref: false
+  assert/ref-forbidden-no-property:
+    subject: PathItem
+    message: PathItems should NOT should have a ref
+    ref: false
+extends: []

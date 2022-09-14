@@ -25,9 +25,8 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-4xx-response: error
+rules:
+  operation-4xx-response: error
 ```
 
 ## Examples
@@ -35,9 +34,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-4xx-response: error
+rules:
+  operation-4xx-response: error
 ```
 
 Example of **incorrect** operation response:

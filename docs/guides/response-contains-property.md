@@ -236,6 +236,7 @@ rules:
         - ref_id
 ```
 
+
 ```bash npx redocly lint
 npx redocly lint
 

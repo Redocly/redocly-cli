@@ -1,7 +1,6 @@
 apis:
   main@latest:
     root: ./openapi.yaml
-    styleguide:
-      rules:
-        info-contact: warn
-      extends: []
+    rules:
+      info-contact: warn
+    extends: []

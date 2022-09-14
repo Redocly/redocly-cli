@@ -24,9 +24,8 @@ This rule is unopinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-url-safe: error
+rules:
+  operation-operationId-url-safe: error
 ```
 
 ## Examples
@@ -34,9 +33,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-url-safe: error
+rules:
+  operation-operationId-url-safe: error
 ```
 
 Example of an **incorrect** operation:

@@ -35,9 +35,8 @@ If that describes your use-case, turn this rule off.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unused-components: error
+rules:
+  no-unused-components: error
 ```
 
 ## Examples
@@ -45,9 +44,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unused-components: error
+rules:
+  no-unused-components: error
 ```
 
 Example of **incorrect** components:

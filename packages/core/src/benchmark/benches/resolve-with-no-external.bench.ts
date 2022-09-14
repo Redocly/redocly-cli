@@ -18,6 +18,6 @@ export function measureAsync() {
   return resolveDocument({
     rootDocument: rebillyDocument,
     externalRefResolver,
-    rootType: normalizeTypes(Oas3Types).DefinitionRoot,
+    rootType: normalizeTypes(Oas3Types).Root,
   });
 }

@@ -9,6 +9,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
 - url: http://petstore.swagger.io/v1
+security: []
 components:
   schemas:
     Test:

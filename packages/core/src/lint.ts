@@ -80,13 +80,13 @@ export async function lintDocument(opts: {
   const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules] as any, types);
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     externalRefResolver,
   });
 
   walkDocument({
     document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     normalizedVisitors,
     resolvedRefMap,
     ctx,

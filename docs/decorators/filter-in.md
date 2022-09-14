@@ -18,12 +18,11 @@ Giant monolithic API docs can overwhelm anyone. By filtering what is most releva
 Example of configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    filter-in:
-      property: x-audience
-      value: [Public, Partner]
-      matchStrategy: any
+decorators:
+  filter-in:
+    property: x-audience
+    value: [Public, Partner]
+    matchStrategy: any
 ```
 
 ## Examples

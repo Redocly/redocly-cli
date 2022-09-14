@@ -12,8 +12,8 @@ Disallows HTTP verbs used in paths.
 ```mermaid
 flowchart TD
 
-Root ==> PathMap
-style PathMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
+Root ==> PathsMap
+style PathsMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 List of HTTP verbs:
@@ -48,19 +48,17 @@ With the `splitIntoWords` enabled it will be identified as a resource and not tr
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-http-verbs-in-paths: error
+rules:
+  no-http-verbs-in-paths: error
 ```
 
 An example configuration with `splitIntoWords` enabled:
 
 ```yaml
-styleguide:
-  rules:
-    no-http-verbs-in-paths:
-      severity: error
-      splitIntoWords: true
+rules:
+  no-http-verbs-in-paths:
+    severity: error
+    splitIntoWords: true
 ```
 
 ## Examples
@@ -68,9 +66,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-http-verbs-in-paths: error
+rules:
+  no-http-verbs-in-paths: error
 ```
 
 Example of an **incorrect** path:
@@ -94,11 +91,10 @@ paths:
 Given the following configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-http-verbs-in-paths:
-      severity: error
-      splitIntoWords: true
+rules:
+  no-http-verbs-in-paths:
+    severity: error
+    splitIntoWords: true
 ```
 
 Example of an **incorrect** path:

@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    operation-description: warn
-  extends: []
+rules:
+  operation-description: warn
+extends: []
