@@ -256,15 +256,18 @@ async function collectFilesToUpload(api: string, config: Config) {
   }
 
   if (config.files) {
+    const otherFiles = new Set<string>();
     for (const file of config.files) {
       if (fs.statSync(file).isDirectory()) {
         const fileList = getFilesList(file, []);
-        files.push(...fileList.map((f) => getFileEntry(f)));
+        fileList.forEach((f) => otherFiles.add(f));
       } else {
-        files.push(getFileEntry(file));
+        otherFiles.add(file);
       }
     }
+    files.push(...Array.from(otherFiles).map((f) => getFileEntry(f)));
   }
+
   return {
     files,
     root: path.resolve(apiPath),
