@@ -21,6 +21,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [no-unused-components](./rules/no-unused-components.md)
 - [security-defined](./rules/security-defined.md)
 - [spec](./rules/spec.md)
+- [spec-components-invalid-map-name](./rules/spec-components-invalid-map-name.md)
 
 ### Info
 
