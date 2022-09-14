@@ -7,7 +7,6 @@ import type { BuildDocsArgv } from './types';
 
 export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   const config = {
-    ssr: true,
     output: argv.o,
     cdn: argv.cdn,
     title: argv.title,
@@ -17,12 +16,13 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
     redocOptions: getObjectOrJSON(argv.options),
   };
 
+  const redocCurrentVersion = require('../../../package.json').dependencies.redoc;
   const pathToSpec = argv.spec;
 
   try {
     const start = Date.now();
     const spec = await loadAndBundleSpec(isURL(pathToSpec) ? pathToSpec : resolve(pathToSpec));
-    const pageHTML = await getPageHTML(spec, pathToSpec, { ...config, ssr: true });
+    const pageHTML = await getPageHTML(spec, pathToSpec, { ...config, redocCurrentVersion });
 
     mkdirSync(dirname(config.output), { recursive: true });
     writeFileSync(config.output, pageHTML);

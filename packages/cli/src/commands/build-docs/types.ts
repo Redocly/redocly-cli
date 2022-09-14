@@ -1,5 +1,4 @@
 export type BuildDocsOptions = {
-  ssr?: boolean;
   watch?: boolean;
   cdn?: boolean;
   output?: string;
@@ -9,6 +8,7 @@ export type BuildDocsOptions = {
   templateFileName?: string;
   templateOptions?: any;
   redocOptions?: any;
+  redocCurrentVersion: string;
 };
 
 export type BuildDocsArgv = {

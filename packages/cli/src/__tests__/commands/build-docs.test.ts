@@ -31,22 +31,18 @@ jest.mock('mkdirp', () => ({
 
 describe('build-docs', () => {
   it('should return correct html and call function for ssr', async () => {
-    const result = await getPageHTML({}, '../some-path/openapi.yaml', { ...config, ssr: true });
+    const result = await getPageHTML({}, '../some-path/openapi.yaml', {
+      ...config,
+      redocCurrentVersion: '2.0.0',
+    });
     expect(renderToString).toBeCalledTimes(1);
     expect(createStore).toBeCalledTimes(1);
     expect(result).toBe('<html></html>');
   });
 
-  it('should return correct html and do not call function for ssr', async () => {
-    const result = await getPageHTML({}, '../some-path/openapi.yaml', { ...config, ssr: false });
-    expect(renderToString).toBeCalledTimes(0);
-    expect(createStore).toBeCalledTimes(0);
-    expect(result).toBe('<html></html>');
-  });
-
   it('should correct work handlerBuildCommand', async () => {
     const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
-    const result = await handlerBuildCommand({
+    await handlerBuildCommand({
       o: '',
       cdn: false,
       title: 'test',
