@@ -83,6 +83,6 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/security-defined.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/security-defined.ts)
 - [Security docs](https://redocly.com/docs/openapi-visual-reference/security/)
 - [Security scheme docs](https://redocly.com/docs/openapi-visual-reference/security-schemes/)

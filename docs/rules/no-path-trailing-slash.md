@@ -62,6 +62,6 @@ paths:
 - [path-declaration-must-exist](./path-declaration-must-exist.md)
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-path-trailing-slash.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-path-trailing-slash.ts)
 - [Paths object docs](https://redocly.com/docs/openapi-visual-reference/paths/)
 

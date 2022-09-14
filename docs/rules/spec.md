@@ -64,5 +64,5 @@ paths: {}
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/spec.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/spec.ts)
 - [OpenAPI docs](https://redocly.com/docs/openapi-visual-reference/)

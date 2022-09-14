@@ -96,5 +96,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/response-contains-header.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/response-contains-header.ts)
 - [Response docs](https://redocly.com/docs/openapi-visual-reference/response/)

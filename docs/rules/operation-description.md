@@ -71,6 +71,6 @@ get:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-description.ts)
 - Consider using [assertions](./assertions.md) for more specific rules for operation descriptions such as minimum length and pattern enforcement.
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)

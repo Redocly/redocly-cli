@@ -39,5 +39,5 @@ See a repository with [info, operation, and tag description overrides](https://g
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/operation-description-override.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/operation-description-override.ts)
 - [Blog post about Overlays](../../../blog/openapi-overlays.md)

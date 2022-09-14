@@ -96,5 +96,5 @@ requestBody:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-example-value-and-externalValue.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-example-value-and-externalValue.ts)
 - [Example object docs](https://redocly.com/docs/openapi-visual-reference/example/)

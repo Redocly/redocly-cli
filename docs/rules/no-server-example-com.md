@@ -72,5 +72,5 @@ servers:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-server-example.com.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-server-example.com.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)
