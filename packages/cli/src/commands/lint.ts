@@ -65,11 +65,9 @@ export async function handleLint(argv: LintOptions, version: string) {
 
       if (styleguide.recommendedFallback) {
         process.stderr.write(
-          `No configurations were defined in extends -- using built in ${blue(
+          `No configurations were provided -- using built in ${blue(
             'recommended'
-          )} configuration by default.\n${red(
-            'Warning! This default behavior is going to be deprecated soon.'
-          )}\n\n`
+          )} configuration by default.\n\n`
         );
       }
       process.stderr.write(gray(`validating ${path.replace(process.cwd(), '')}...\n`));

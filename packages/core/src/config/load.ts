@@ -25,8 +25,7 @@ async function addConfigMetadata({
     rawConfig.styleguide = rawConfig.styleguide || {};
     rawConfig.styleguide.extends = customExtends;
   } else if (isEmptyObject(rawConfig)) {
-    // TODO: check if we can add recommended here. add message here?
-    // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
+    rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
   if (tokens?.length) {

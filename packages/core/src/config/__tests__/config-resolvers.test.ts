@@ -342,7 +342,7 @@ describe('resolveApis', () => {
 });
 
 describe('resolveConfig', () => {
-  it('should add recommended to top level by default', async () => {
+  it('should NOT add recommended to top level by default IF there is a config file', async () => {
     const rawConfig: RawConfig = {
       apis: {
         petstore: {
@@ -373,7 +373,6 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
 
     expect(apis['petstore'].styleguide.rules).toEqual({
-      ...(await recommendedStyleguidePreset).rules,
       'operation-2xx-response': 'warn',
       'operation-4xx-response': 'error',
     });

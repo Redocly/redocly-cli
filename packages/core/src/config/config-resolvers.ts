@@ -34,25 +34,15 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string): 
   }
 
   const resolver = new BaseResolver(getResolveConfig(rawConfig.resolve));
-  const configExtends = rawConfig?.styleguide?.extends ?? ['recommended'];
-  const recommendedFallback = !rawConfig?.styleguide?.extends;
-  const styleguideConfig = {
-    ...rawConfig?.styleguide,
-    extends: configExtends,
-    recommendedFallback,
-  };
 
   const apis = await resolveApis({
-    rawConfig: {
-      ...rawConfig,
-      styleguide: styleguideConfig,
-    },
+    rawConfig,
     configPath,
     resolver,
   });
 
   const styleguide = await resolveStyleguideConfig({
-    styleguideConfig,
+    styleguideConfig: rawConfig.styleguide,
     configPath,
     resolver,
   });

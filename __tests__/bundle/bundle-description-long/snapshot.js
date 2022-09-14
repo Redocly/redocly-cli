@@ -18,9 +18,6 @@ info:
     second line exists
 components: {}
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 test.yaml:
   1:1  error    no-empty-servers  Servers must be present.
 

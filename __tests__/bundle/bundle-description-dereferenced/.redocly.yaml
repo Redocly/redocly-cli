@@ -1,3 +1,4 @@
 apis:
   main:
     root: ./test.yaml
+    extends: [recommended]
