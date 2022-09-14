@@ -15,10 +15,10 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   );
 
   for (const [index, assertion] of assertions.entries()) {
-    assertion.assertId =
+    const assertId =
       (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
     if (!assertion.subject) {
-      throw new Error(`${assertion.assertId}: 'subject' is required`);
+      throw new Error(`${assertId}: 'subject' is required`);
     }
 
     const subjects: string[] = Array.isArray(assertion.subject)
@@ -56,10 +56,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
     }
 
     for (const subject of subjects) {
-      const subjectVisitor = buildSubjectVisitor(
-        assertion,
-        assertsToApply,
-      );
+      const subjectVisitor = buildSubjectVisitor(assertId, assertion, assertsToApply);
       const visitorObject = buildVisitorObject(subject, assertion.context, subjectVisitor);
       visitors.push(visitorObject);
     }

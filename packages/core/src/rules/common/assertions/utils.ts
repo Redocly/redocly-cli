@@ -85,7 +85,11 @@ export function buildVisitorObject(
   return visitor;
 }
 
-export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply[]) {
+export function buildSubjectVisitor(
+  assertId: string,
+  assertion: Assertion,
+  asserts: AssertToApply[]
+) {
   return (
     node: any,
     { report, location, rawLocation, key, type, resolve, rawNode }: UserContext
@@ -157,7 +161,7 @@ export function buildSubjectVisitor(assertion: Assertion, asserts: AssertToApply
         location: getProblemsLocation(problems) || location,
         forceSeverity: assertion.severity || 'error',
         suggest: assertion.suggest || [],
-        ruleId: assertion.assertId,
+        ruleId: assertId,
       });
     }
   };

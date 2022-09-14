@@ -1,6 +1,6 @@
 import { AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
-import { isString as runOnValue } from '../../../utils';
+import { isString as runOnValue, notUndefined } from '../../../utils';
 import {
   OrderOptions,
   OrderDirection,
@@ -46,30 +46,29 @@ export const asserts: Asserts = {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
     const regx = regexFromString(condition);
-    const problems: AssertResult[] = [];
-    for (const _val of values) {
-      if (!regx?.test(_val)) {
-        problems.push({
+
+    return values
+      .map((_val) => {
+        if (regx?.test(_val)) return;
+        return {
           message: `${_val} should match a regex ${condition}`,
           location: runOnValue(value) ? baseLocation : baseLocation.key(),
-        });
-      }
-    }
-    return problems;
+        };
+      })
+      .filter(notUndefined);
   },
   enum: (value: string | string[], condition: string[], baseLocation: Location) => {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
-    const problems: AssertResult[] = [];
-    for (const _val of values) {
-      if (!condition.includes(_val)) {
-        problems.push({
+    return values
+      .map((_val) => {
+        if (condition.includes(_val)) return;
+        return {
           message: `${_val} should be one of the predefined values`,
           location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
-        });
-      }
-    }
-    return [];
+        };
+      })
+      .filter(notUndefined);
   },
   defined: (value: string | undefined, condition: boolean = true, baseLocation: Location) => {
     const isDefined = typeof value !== 'undefined';
@@ -84,27 +83,27 @@ export const asserts: Asserts = {
     ];
   },
   required: (value: string[], keys: string[], baseLocation: Location) => {
-    const problems: AssertResult[] = [];
-    for (const requiredKey of keys) {
-      if (!value.includes(requiredKey)) {
-        problems.push({ message: `${requiredKey} is required`, location: baseLocation.key() });
-      }
-    }
-    return problems;
+    return keys
+      .map((requiredKey) => {
+        if (value.includes(requiredKey)) return;
+        return { message: `${requiredKey} is required`, location: baseLocation.key() };
+      })
+      .filter(notUndefined);
   },
   disallowed: (value: string | string[], condition: string[], baseLocation: Location) => {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const problems: AssertResult[] = [];
     const values = runOnValue(value) ? [value] : value;
-    for (const _val of values) {
-      if (condition.includes(_val)) {
-        problems.push({
-          message: `${_val} is disallowed`,
-          location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
-        });
-      }
-    }
-    return problems;
+    return values
+      .map((_val) => {
+        if (condition.includes(_val)) {
+          return {
+            message: `${_val} is disallowed`,
+            location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+          };
+        }
+        return;
+      })
+      .filter(notUndefined);
   },
   undefined: (value: any, condition: boolean = true, baseLocation: Location) => {
     const isUndefined = typeof value === 'undefined';
@@ -142,40 +141,39 @@ export const asserts: Asserts = {
   casing: (value: string | string[], condition: string, baseLocation: Location) => {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const values: string[] = runOnValue(value) ? [value] : value;
-    const problems: AssertResult[] = [];
-    for (const _val of values) {
-      let matchCase = false;
-      switch (condition) {
-        case 'camelCase':
-          matchCase = !!_val.match(/^[a-z][a-zA-Z0-9]+$/g);
-          break;
-        case 'kebab-case':
-          matchCase = !!_val.match(/^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g);
-          break;
-        case 'snake_case':
-          matchCase = !!_val.match(/^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g);
-          break;
-        case 'PascalCase':
-          matchCase = !!_val.match(/^[A-Z][a-zA-Z0-9]+$/g);
-          break;
-        case 'MACRO_CASE':
-          matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g);
-          break;
-        case 'COBOL-CASE':
-          matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g);
-          break;
-        case 'flatcase':
-          matchCase = !!_val.match(/^[a-z][a-z0-9]+$/g);
-          break;
-      }
-      if (!matchCase) {
-        problems.push({
+    return values
+      .map((_val) => {
+        let matchCase = false;
+        switch (condition) {
+          case 'camelCase':
+            matchCase = !!_val.match(/^[a-z][a-zA-Z0-9]+$/g);
+            break;
+          case 'kebab-case':
+            matchCase = !!_val.match(/^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g);
+            break;
+          case 'snake_case':
+            matchCase = !!_val.match(/^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g);
+            break;
+          case 'PascalCase':
+            matchCase = !!_val.match(/^[A-Z][a-zA-Z0-9]+$/g);
+            break;
+          case 'MACRO_CASE':
+            matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g);
+            break;
+          case 'COBOL-CASE':
+            matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g);
+            break;
+          case 'flatcase':
+            matchCase = !!_val.match(/^[a-z][a-z0-9]+$/g);
+            break;
+        }
+        if (matchCase) return;
+        return {
           message: `${_val} should be matched ${condition}`,
           location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
-        });
-      }
-    }
-    return problems;
+        };
+      })
+      .filter(notUndefined);
   },
   sortOrder: (value: any[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {
     if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
