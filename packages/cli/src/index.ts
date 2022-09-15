@@ -386,6 +386,21 @@ yargs
         default: false,
       });
 
+      yargs.options('t', {
+        alias: 'template',
+        describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example ',
+        type: 'string',
+      });
+
+      yargs.options('templateOptions', {
+        describe:
+          'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
+      });
+
+      yargs.options('options', {
+        describe: 'ReDoc options, use dot notation, e.g. options.nativeScrollbars',
+      });
+
       yargs.demandOption('spec');
       return yargs;
     },
