@@ -12,7 +12,6 @@ export type OrderOptions = {
 };
 
 type Assertion = {
-  assertId: string;
   property: string | string[];
   context?: Record<string, any>[];
   severity?: RuleSeverity;
@@ -112,7 +111,7 @@ export function buildSubjectVisitor(
       properties = Array.isArray(properties) ? properties : [properties];
     }
 
-    const defaultMessage = `${colorize.blue(assertion.assertId)} failed because the ${colorize.blue(
+    const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
       assertion.subject
     )} ${colorize.blue(
       properties ? (properties as string[]).join(', ') : ''
