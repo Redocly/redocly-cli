@@ -5,5 +5,5 @@
     "outDir": "lib"
   },
   "references": [{ "path": "../core" }],
-  "exclude": ["lib"]
+  "exclude": ["**/__tests__", "lib"]
 }
