@@ -68,7 +68,7 @@ describe('getMergedConfig', () => {
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
-        "files": Array[],
+        "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
           "apis": Object {
@@ -165,7 +165,7 @@ describe('getMergedConfig', () => {
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
-        "files": Array[],
+        "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
           "apis": Object {
