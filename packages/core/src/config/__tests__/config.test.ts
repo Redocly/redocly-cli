@@ -83,6 +83,7 @@ describe('getMergedConfig', () => {
           },
           "features.mockServer": Object {},
           "features.openapi": Object {},
+          "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
             "extendPaths": Array [],
@@ -180,6 +181,7 @@ describe('getMergedConfig', () => {
           },
           "features.mockServer": Object {},
           "features.openapi": Object {},
+          "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
             "extendPaths": Array [],
