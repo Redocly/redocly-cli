@@ -26,12 +26,91 @@ additionalProperties:
         If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
       items:
         type: string
-    lint:
+    preprocessors:
+      type: object
+      title: Preprocessors object
+      description: >-
+        Change the severity level of any preprocessors in your extended configurations.
+        Preprocessors run first during `lint` and `bundle`.
+      additionalProperties:
+        description: >-
+          List each preprocessor by name.
+          For example, `do-this-first`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - on
+              - off
+          - type: object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            properties:
+              severity:
+                type: string
+                enum:
+                  - on
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
+    rules:
+      type: object
+      title: Rules object
+      description: >-
+        Change the severity level of any rules in your extended configurations.
+        Some rules may also receive additional configurations.
+        Rules run during the `lint` command after preprocessors.
+        They run during the `bundle` command between preprocessors and decorators if the `--lint` option is used.
+      additionalProperties:
+        description: >-
+          List each rule by name.
+          For example, `no-empty-servers`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - error
+              - warn
+              - off
+          - type: object
+            title: Rule configuration object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            required:
+              - severity
+            properties:
+              severity:
+                type: string
+                enum:
+                  - error
+                  - warn
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
+    decorators:
       type: object
       description: >-
-        Configures linting options for the specified API.
-        Supports the same format and options as the [global `lint` object](#lint-object).
-        API-level configuration will always override global configuration.
+        Used to enable or disable decorators.
+        Decorators run during the `bundle` command after linting.
+      additionalProperties:
+        description: >-
+          List each decorator by name.
+          For example, `remove-x-internal`.
+        oneOf:
+          - type: string
+            description: Specifies the severity level as a string shortcut (or more explicitly as an object).
+            enum:
+              - off
+              - on
+          - type: object
+            title: Decorator configuration object
+            description: Specifies the severity level as an object. Useful when you need to supply additional properties for configuration.
+            properties:
+              severity:
+                type: string
+                enum:
+                  - on
+                  - off
+                description: The severity level if the problem occurs.
+            additionalProperties: true
     features.openapi:
       type: object
       description: >-

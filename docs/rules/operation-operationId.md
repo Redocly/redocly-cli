@@ -24,9 +24,8 @@ If it annoys the lazy or minimalists, offer them an alternative: two weeks at Re
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId: error
+rules:
+  operation-operationId: error
 ```
 
 ## Examples
@@ -34,9 +33,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId: error
+rules:
+  operation-operationId: error
 ```
 
 Example of an **incorrect** operation:
@@ -67,6 +65,6 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-operationId.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
 - Consider using [assertions](./assertions.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.

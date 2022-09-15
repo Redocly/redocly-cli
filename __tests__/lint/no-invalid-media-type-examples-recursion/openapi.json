@@ -9,6 +9,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
+  "security": [],
   "servers": [{
     "url": "http://petstore.swagger.io/v1"
   }],

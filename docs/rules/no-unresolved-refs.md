@@ -25,9 +25,8 @@ This rule prevents that from happening.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unresolved-refs: error
+rules:
+  no-unresolved-refs: error
 ```
 
 ## Examples
@@ -35,9 +34,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-unresolved-refs: error
+rules:
+  no-unresolved-refs: error
 ```
 
 Example of an **incorrect** `$ref`:
@@ -90,6 +88,6 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/no-unresolved-refs.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/no-unresolved-refs.ts)
 - Read our guide on [how to use JSON references ($refs)](/docs/resources/ref-guide.md)
 

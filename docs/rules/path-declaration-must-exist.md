@@ -25,9 +25,8 @@ This rule is not opinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-declaration-must-exist: error
+rules:
+  path-declaration-must-exist: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-declaration-must-exist: error
+rules:
+  path-declaration-must-exist: error
 ```
 
 Example of an **incorrect** path:
@@ -70,6 +68,6 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/path-declaration-must-exist.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/path-declaration-must-exist.ts)
 - [Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

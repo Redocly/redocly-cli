@@ -27,7 +27,7 @@ import type {
   Oas3Callback,
 } from './typings/openapi';
 
-import {
+import type {
   Oas2Definition,
   Oas2Tag,
   Oas2ExternalDocs,
@@ -45,10 +45,11 @@ import {
   Oas2SecurityScheme,
 } from './typings/swagger';
 
-import { NormalizedNodeType } from './types';
-import { Stack } from './utils';
-import { UserContext, ResolveResult, ProblemSeverity } from './walk';
-import { Location } from './ref-utils';
+import type { NormalizedNodeType } from './types';
+import type { Stack } from './utils';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
+import type { Location } from './ref-utils';
+
 export type VisitFunction<T> = (
   node: T,
   ctx: UserContext & { ignoreNextVisitorsOnNode: () => void },
@@ -126,7 +127,7 @@ export type BaseVisitor = {
 };
 
 type Oas3FlatVisitor = {
-  DefinitionRoot?: VisitFunctionOrObject<Oas3Definition>;
+  Root?: VisitFunctionOrObject<Oas3Definition>;
   Tag?: VisitFunctionOrObject<Oas3Tag>;
   ExternalDocs?: VisitFunctionOrObject<Oas3ExternalDocs>;
   Server?: VisitFunctionOrObject<Oas3Server>;
@@ -135,13 +136,13 @@ type Oas3FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas3Info>;
   Contact?: VisitFunctionOrObject<Oas3Contact>;
   License?: VisitFunctionOrObject<Oas3License>;
-  PathMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  PathsMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
   Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;
-  MediaTypeMap?: VisitFunctionOrObject<Record<string, Oas3MediaType>>;
+  MediaTypesMap?: VisitFunctionOrObject<Record<string, Oas3MediaType>>;
   MediaType?: VisitFunctionOrObject<Oas3MediaType>;
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding>;
@@ -173,14 +174,14 @@ type Oas3FlatVisitor = {
 };
 
 type Oas2FlatVisitor = {
-  DefinitionRoot?: VisitFunctionOrObject<Oas2Definition>;
+  Root?: VisitFunctionOrObject<Oas2Definition>;
   Tag?: VisitFunctionOrObject<Oas2Tag>;
   ExternalDocs?: VisitFunctionOrObject<Oas2ExternalDocs>;
   SecurityRequirement?: VisitFunctionOrObject<Oas2SecurityRequirement>;
   Info?: VisitFunctionOrObject<Oas2Info>;
   Contact?: VisitFunctionOrObject<Oas2Contact>;
   License?: VisitFunctionOrObject<Oas2License>;
-  PathMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
+  PathsMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas2PathItem>;
   Parameter?: VisitFunctionOrObject<any>;
   Operation?: VisitFunctionOrObject<Oas2Operation>;
@@ -195,6 +196,18 @@ type Oas2FlatVisitor = {
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas2Parameter>>;
   SecurityScheme?: VisitFunctionOrObject<Oas2SecurityScheme>;
+};
+
+const legacyTypesMap = {
+  Root: 'DefinitionRoot',
+  ServerVariablesMap: 'ServerVariableMap',
+  PathsMap: 'PathMap',
+  CallbacksMap: 'CallbackMap',
+  MediaTypesMap: 'MediaTypeMap',
+  ExamplesMap: 'ExampleMap',
+  EncodingsMap: 'EncodingMap',
+  HeadersMap: 'HeaderMap',
+  LinksMap: 'LinkMap',
 };
 
 type Oas3NestedVisitor = {
@@ -225,7 +238,7 @@ export type Oas2TransformVisitor = BaseVisitor &
   Oas2FlatVisitor &
   Record<string, VisitFunction<any> | VisitObject<any>>;
 
-export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'DefinitionRoot'>;
+export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
 
 export type NormalizedOasVisitors<T extends BaseVisitor> = {
   [V in keyof T]-?: {
@@ -380,8 +393,11 @@ export function normalizeVisitors<T extends BaseVisitor>(
     }
 
     for (const typeName of visitorKeys as Array<keyof T>) {
-      const typeVisitor = visitor[typeName] as any as NestedVisitObject<any, T>;
-      const normalizedTypeVisitor = normalizedVisitors[typeName]!;
+      const typeVisitor = (visitor[typeName] ||
+        visitor[
+          legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T
+        ]) as any as NestedVisitObject<any, T>;
+      const normalizedTypeVisitor = normalizedVisitors[typeName];
 
       if (!typeVisitor) continue;
 

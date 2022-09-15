@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.108",
+  "version": "1.0.0-beta.109",
   "description": "",
   "private": true,
   "engines": {
@@ -50,9 +50,7 @@
     "oas"
   ],
   "contributors": [
-    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
-    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "license": "MIT",
   "devDependencies": {

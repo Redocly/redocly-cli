@@ -21,7 +21,7 @@ import type {
   DeprecatedInRawConfig,
 } from './types';
 import { isBrowser } from '../env';
-import { isNotString, isString, notUndefined, parseYaml } from '../utils';
+import { isNotString, isString, isDefined, parseYaml } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
 import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
@@ -182,7 +182,7 @@ export function resolvePlugins(
 
       return plugin;
     })
-    .filter(notUndefined);
+    .filter(isDefined);
 }
 
 export async function resolveApis({

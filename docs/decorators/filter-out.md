@@ -18,12 +18,11 @@ Giant monolithic API docs can overwhelm anyone. By filtering what is most releva
 Example of configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    filter-out:
-      property: x-audience
-      value: Internal
-      matchStrategy: any
+decorators:
+  filter-out:
+    property: x-audience
+    value: Internal
+    matchStrategy: any
 ```
 
 ## Examples
@@ -36,4 +35,4 @@ Would you like examples? We would! They are coming soon.
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/filters/filter-out.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/filters/filter-out.ts)

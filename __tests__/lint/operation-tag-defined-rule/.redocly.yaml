@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    operation-tag-defined: warn
-  extends: []
+rules:
+  operation-tag-defined: warn
+extends: []

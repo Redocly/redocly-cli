@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "1.0.0-beta.108",
+  "version": "1.0.0-beta.109",
   "description": "",
   "main": "lib/index.js",
   "engines": {
@@ -29,9 +29,7 @@
     "oas"
   ],
   "contributors": [
-    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
-    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
     "@redocly/ajv": "^8.6.5",

@@ -121,6 +121,7 @@ export type ResolveHeader =
 
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
+  doNotResolveExamples?: boolean;
 };
 
 export type HttpResolveConfig = {
@@ -139,6 +140,7 @@ export type AccessTokens = { [region in Region]?: string };
 export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: StyleguideRawConfig;
+  styleguide?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
   apis?: Record<string, Api & DeprecatedInApi>;
 };
@@ -163,6 +165,15 @@ export type RawConfig = {
   region?: Region;
   organization?: string;
 } & FeaturesConfig;
+
+export type FlatApi = Omit<Api, 'styleguide'> &
+  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
+
+export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
+  Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
+    resolve?: RawResolveConfig;
+    apis?: Record<string, FlatApi>;
+  };
 
 export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
   apis: Record<string, ResolvedApi>;

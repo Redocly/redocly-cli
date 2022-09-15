@@ -2,7 +2,7 @@ import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
@@ -10,7 +10,7 @@ const DefinitionRoot: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathMap',
+    paths: 'PathsMap',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
   },
@@ -38,7 +38,7 @@ const Server: NodeType = {
   properties: {
     url: { type: 'string' },
     description: { type: 'string' },
-    variables: 'ServerVariableMap',
+    variables: 'ServerVariablesMap',
   },
   required: ['url'],
 };
@@ -88,7 +88,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathMap: NodeType = {
+const PathsMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -132,8 +132,8 @@ const Parameter: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
-    content: 'MediaTypeMap',
+    examples: 'ExamplesMap',
+    content: 'MediaTypesMap',
   },
   required: ['name', 'in'],
   requiredOneOf: ['schema', 'content'],
@@ -155,7 +155,7 @@ const Operation: NodeType = {
     requestBody: 'RequestBody',
     responses: 'ResponsesMap',
     deprecated: { type: 'boolean' },
-    callbacks: 'CallbackMap',
+    callbacks: 'CallbacksMap',
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
@@ -175,12 +175,12 @@ const RequestBody: NodeType = {
   properties: {
     description: { type: 'string' },
     required: { type: 'boolean' },
-    content: 'MediaTypeMap',
+    content: 'MediaTypesMap',
   },
   required: ['content'],
 };
 
-const MediaTypeMap: NodeType = {
+const MediaTypesMap: NodeType = {
   properties: {},
   additionalProperties: 'MediaType',
 };
@@ -189,8 +189,8 @@ const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
-    encoding: 'EncodingMap',
+    examples: 'ExamplesMap',
+    encoding: 'EncodingsMap',
   },
 };
 
@@ -206,7 +206,7 @@ const Example: NodeType = {
 const Encoding: NodeType = {
   properties: {
     contentType: { type: 'string' },
-    headers: 'HeaderMap',
+    headers: 'HeadersMap',
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
@@ -228,8 +228,8 @@ const Header: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
-    content: 'MediaTypeMap',
+    examples: 'ExamplesMap',
+    content: 'MediaTypesMap',
   },
   requiredOneOf: ['schema', 'content'],
 };
@@ -243,9 +243,9 @@ const ResponsesMap: NodeType = {
 const Response: NodeType = {
   properties: {
     description: { type: 'string' },
-    headers: 'HeaderMap',
-    content: 'MediaTypeMap',
-    links: 'LinkMap',
+    headers: 'HeadersMap',
+    content: 'MediaTypesMap',
+    links: 'LinksMap',
   },
   required: ['description'],
 };
@@ -460,31 +460,31 @@ const SecurityScheme: NodeType = {
 };
 
 export const Oas3Types: Record<string, NodeType> = {
-  DefinitionRoot,
+  Root,
   Tag,
   ExternalDocs,
   Server,
   ServerVariable,
-  ServerVariableMap: mapOf('ServerVariable'),
+  ServerVariablesMap: mapOf('ServerVariable'),
   SecurityRequirement,
   Info,
   Contact,
   License,
-  PathMap,
+  PathsMap,
   PathItem,
   Parameter,
   Operation,
   Callback: mapOf('PathItem'),
-  CallbackMap: mapOf('Callback'),
+  CallbacksMap: mapOf('Callback'),
   RequestBody,
-  MediaTypeMap,
+  MediaTypesMap,
   MediaType,
   Example,
-  ExampleMap: mapOf('Example'),
+  ExamplesMap: mapOf('Example'),
   Encoding,
-  EncodingMap: mapOf('Encoding'),
+  EncodingsMap: mapOf('Encoding'),
   Header,
-  HeaderMap: mapOf('Header'),
+  HeadersMap: mapOf('Header'),
   ResponsesMap,
   Response,
   Link,
@@ -494,7 +494,7 @@ export const Oas3Types: Record<string, NodeType> = {
   DiscriminatorMapping,
   Discriminator,
   Components,
-  LinkMap: mapOf('Link'),
+  LinksMap: mapOf('Link'),
   NamedSchemas: mapOf('Schema'),
   NamedResponses: mapOf('Response'),
   NamedParameters: mapOf('Parameter'),
