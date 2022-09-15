@@ -1,7 +1,7 @@
 import type { AssertResult, RuleSeverity } from '../../../config';
 import { colorize } from '../../../logger';
 import { isRef, Location } from '../../../ref-utils';
-import { ProblemSeverity, UserContext } from '../../../walk';
+import { UserContext } from '../../../walk';
 import { asserts } from './asserts';
 
 export type OrderDirection = 'asc' | 'desc';
@@ -26,11 +26,6 @@ export type AssertToApply = {
   conditions: any;
   runsOnKeys: boolean;
   runsOnValues: boolean;
-};
-
-type Problem = {
-  message: string;
-  location?: Location;
 };
 
 export function buildVisitorObject(
@@ -152,7 +147,7 @@ export function buildSubjectVisitor(
       }
     }
 
-    const problems = getAllProblems(assertResults);
+    const problems = assertResults.flat();
     if (problems.length) {
       const message = assertion.message || defaultMessage;
 
@@ -167,27 +162,14 @@ export function buildSubjectVisitor(
   };
 }
 
-function getAllProblems(results: Array<AssertResult[]>) {
-  const problems: Problem[] = [];
-
-  for (const result of results) {
-    if (result.length === 0) continue;
-
-    for (const r of result) {
-      problems.push({ message: r.message ?? '', location: r.location });
-    }
-  }
-  return problems;
+function getProblemsLocation(problems: AssertResult[]) {
+  return problems.length ? problems[0].location : undefined;
 }
 
-function getProblemsLocation(problems: Problem[]) {
-  if (problems.length) return problems[0].location;
-  return null;
-}
-
-function getProblemsMessage(problems: Problem[]) {
-  if (problems.length === 1) return problems[0].message;
-  return problems.map((problem) => `\n- ${problem.message}`).join('');
+function getProblemsMessage(problems: AssertResult[]) {
+  return problems.length === 1
+    ? problems[0].message ?? ''
+    : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
@@ -231,7 +213,7 @@ type RunAssertionParams = {
   location: Location;
 };
 
-function runAssertion({ values, rawValues, assert, location }: RunAssertionParams) {
+function runAssertion({ values, rawValues, assert, location }: RunAssertionParams): AssertResult[] {
   return asserts[assert.name](values, assert.conditions, location, rawValues);
 }
 
