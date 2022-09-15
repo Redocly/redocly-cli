@@ -40,7 +40,7 @@ describe('build-docs', () => {
     expect(result).toBe('<html></html>');
   });
 
-  it('should correct work handlerBuildCommand', async () => {
+  it('should work correctly when calling handlerBuildCommand', async () => {
     const processExitMock = jest.spyOn(process, 'exit').mockImplementation();
     await handlerBuildCommand({
       o: '',

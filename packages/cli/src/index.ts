@@ -405,6 +405,7 @@ yargs
       return yargs;
     },
     async (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'build-docs';
       handlerBuildCommand(argv as unknown as BuildDocsArgv);
     }
   )

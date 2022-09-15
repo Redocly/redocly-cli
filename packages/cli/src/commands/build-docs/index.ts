@@ -1,11 +1,14 @@
 import { loadAndBundleSpec } from 'redoc';
 import { dirname, resolve } from 'path';
 import { writeFileSync, mkdirSync } from 'fs';
+import { performance } from 'perf_hooks';
 
-import { getObjectOrJSON, handleError, isURL, getPageHTML } from './utils';
+import { getObjectOrJSON, isURL, getPageHTML } from './utils';
 import type { BuildDocsArgv } from './types';
+import { exitWithError, getExecutionTime } from '../../utils';
 
 export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
+  const startedAt = performance.now();
   const config = {
     output: argv.o,
     cdn: argv.cdn,
@@ -20,18 +23,17 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   const pathToSpec = argv.spec;
 
   try {
-    const start = Date.now();
+    const elapsed = getExecutionTime(startedAt);
     const spec = await loadAndBundleSpec(isURL(pathToSpec) ? pathToSpec : resolve(pathToSpec));
     const pageHTML = await getPageHTML(spec, pathToSpec, { ...config, redocCurrentVersion });
 
     mkdirSync(dirname(config.output), { recursive: true });
     writeFileSync(config.output, pageHTML);
     const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-    const time = Date.now() - start;
-    console.log(
-      `\n🎉 bundled successfully in: ${config.output} (${sizeInKiB} KiB) [⏱ ${time / 1000}s]`
+    process.stderr.write(
+      `\n🎉 bundled successfully in: ${config.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {
-    handleError(e);
+    exitWithError(e);
   }
 };
