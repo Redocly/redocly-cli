@@ -30,9 +30,7 @@
     "oas"
   ],
   "contributors": [
-    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
-    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
     "@redocly/openapi-core": "1.0.0-beta.109",
