@@ -2,16 +2,16 @@
 
 ## Introduction
 
-The `build-docs` build spec and Redoc into a zero-dependency HTML file.
+The `build-docs` build api and Redoc into a zero-dependency HTML file.
 
 ## Usage
 
 ```bash
-redocly build-docs <spec>
-redocly build-docs <spec> --output=custom.html
-redocly build-docs <spec> --options.theme.colors.primary.main=orange
-redocly build-docs <spec> -t custom.hbs
-redocly build-doc <spec> -t custom.hbs --templateOptions.metaDescription "Page meta description"
+redocly build-docs <api>
+redocly build-docs <api> --output=custom.html
+redocly build-docs <api> --options.theme.colors.primary.main=orange
+redocly build-docs <api> -t custom.hbs
+redocly build-doc <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
 
@@ -19,7 +19,7 @@ redocly build-doc <spec> -t custom.hbs --templateOptions.metaDescription "Page m
 
 Option | Type | Description
 -- | -- | --
-spec | string | **REQUIRED.** path or URL to your to the API definition file.
+api | string | **REQUIRED.** path or URL to your to the API definition file.
 --output | string | Output file. Default value is `redoc-static.html`.
 --title | string | Page Title.
 --disableGoogleFont | boolean | Disable Google Font. Default value is `false`.
