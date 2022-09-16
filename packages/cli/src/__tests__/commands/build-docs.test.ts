@@ -50,7 +50,7 @@ describe('build-docs', () => {
       template: '',
       templateOptions: {},
       options: {},
-      spec: '../some-path/openapi.yaml',
+      api: '../some-path/openapi.yaml',
     } as BuildDocsArgv);
     expect(loadAndBundleSpec).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);

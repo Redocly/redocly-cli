@@ -19,13 +19,13 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
     redocOptions: getObjectOrJSON(argv.options),
   };
 
-  const redocCurrentVersion = require('../../../package.json').dependencies.redoc;
-  const pathToSpec = argv.spec;
+  const redocCurrentVersion = require('../../../package.json').dependencies.redoc.substring(1); // remove ~
+  const pathToApi = argv.api;
 
   try {
     const elapsed = getExecutionTime(startedAt);
-    const spec = await loadAndBundleSpec(isURL(pathToSpec) ? pathToSpec : resolve(pathToSpec));
-    const pageHTML = await getPageHTML(spec, pathToSpec, { ...config, redocCurrentVersion });
+    const api = await loadAndBundleSpec(isURL(pathToApi) ? pathToApi : resolve(pathToApi));
+    const pageHTML = await getPageHTML(api, pathToApi, { ...config, redocCurrentVersion });
 
     mkdirSync(dirname(config.output), { recursive: true });
     writeFileSync(config.output, pageHTML);

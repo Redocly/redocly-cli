@@ -52,8 +52,8 @@ export function getObjectOrJSON(
 }
 
 export async function getPageHTML(
-  spec: any,
-  pathToSpec: string,
+  api: any,
+  pathToApi: string,
   {
     cdn,
     title,
@@ -66,8 +66,8 @@ export async function getPageHTML(
 ) {
   process.stderr.write('Prerendering docs');
 
-  const specUrl = redocOptions.specUrl || (isURL(pathToSpec) ? pathToSpec : undefined);
-  const store = await createStore(spec, specUrl, redocOptions);
+  const apiUrl = redocOptions.specUrl || (isURL(pathToApi) ? pathToApi : undefined);
+  const store = await createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
 
   const html = renderToString(sheet.collectStyles(React.createElement(Redoc, { store })));
@@ -89,9 +89,9 @@ export async function getPageHTML(
     redocHead:
       (cdn
         ? '<script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>'
-        : `<script src="https://cdn.redoc.ly/redoc/${redocCurrentVersion}/bundles/redoc.standalone.js"></script>`) +
+        : `<script src="https://cdn.redoc.ly/redoc/v${redocCurrentVersion}/bundles/redoc.standalone.js"></script>`) +
       css,
-    title: title || spec.info.title || 'ReDoc documentation',
+    title: title || api.info.title || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
   });

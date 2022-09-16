@@ -360,11 +360,11 @@ yargs
     }
   )
   .command(
-    'build-docs <spec>',
+    'build-docs [api]',
     'build definition into zero-dependency HTML-file',
     (yargs) => {
-      yargs.positional('spec', {
-        describe: 'path or URL to your spec',
+      yargs.positional('api', {
+        describe: 'path or URL to your api',
       });
 
       yargs.option('o', {
@@ -406,7 +406,7 @@ yargs
         describe: 'ReDoc options, use dot notation, e.g. options.nativeScrollbars',
       });
 
-      yargs.demandOption('spec');
+      yargs.demandOption('api');
       return yargs;
     },
     async (argv) => {

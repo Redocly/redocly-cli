@@ -12,7 +12,7 @@ export type BuildDocsOptions = {
 };
 
 export type BuildDocsArgv = {
-  spec: string;
+  api: string;
   o: string;
   cdn: boolean;
   title?: string;
