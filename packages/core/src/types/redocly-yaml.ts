@@ -165,6 +165,12 @@ const ConfigRoot: NodeType = {
         doNotResolveExamples: { type: 'boolean' },
       },
     },
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
 };
 
@@ -187,6 +193,12 @@ const ConfigApisProperties: NodeType = {
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs',
     'features.mockServer': 'ConfigMockServer',
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
   required: ['root'],
 };

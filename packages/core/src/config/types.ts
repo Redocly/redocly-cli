@@ -145,6 +145,7 @@ export type DeprecatedInApi = {
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
+  files?: string[];
 };
 
 export type RawConfig = {
@@ -153,6 +154,7 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   organization?: string;
+  files?: string[];
 } & FeaturesConfig;
 
 export type FlatApi = Omit<Api, 'styleguide'> &

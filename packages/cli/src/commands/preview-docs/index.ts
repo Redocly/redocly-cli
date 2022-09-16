@@ -129,7 +129,7 @@ export async function previewDocs(
   });
 
   async function reloadConfig() {
-    const config = await loadConfig(argv.config);
+    const config = await loadConfig({ configPath: argv.config });
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.api);

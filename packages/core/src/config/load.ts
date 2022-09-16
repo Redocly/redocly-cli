@@ -62,11 +62,17 @@ async function addConfigMetadata({
 }
 
 export async function loadConfig(
-  configPath: string | undefined = findConfig(),
-  customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    files?: string[];
+    region?: Region;
+  } = {}
 ): Promise<Config> {
-  const rawConfig = await getConfig(configPath);
+  const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
+  const config = await getConfig(configPath);
+  const rawConfig = { ...config, files: files ?? config.files, region: region ?? config.region };
   if (typeof processRawConfig === 'function') {
     await processRawConfig(rawConfig);
   }
