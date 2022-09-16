@@ -133,6 +133,11 @@ yargs
             description: 'Make API registry available to the public',
             type: 'boolean',
           },
+          files: {
+            description: 'List of other folders and files to upload',
+            array: true,
+            type: 'string',
+          },
         })
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'batch-id'),
