@@ -11,3 +11,4 @@ output/
 *.tar.gz
 *.tsbuildinfo
 *.tgz
+redoc-static.html

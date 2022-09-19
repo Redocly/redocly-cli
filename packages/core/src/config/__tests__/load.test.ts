@@ -49,7 +49,7 @@ describe('loadConfig', () => {
 
   it('should call callback if such passed', async () => {
     const mockFn = jest.fn();
-    await loadConfig(undefined, undefined, mockFn);
+    await loadConfig({ processRawConfig: mockFn });
     expect(mockFn).toHaveBeenCalled();
   });
 });
