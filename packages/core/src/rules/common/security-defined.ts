@@ -13,11 +13,12 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
     }
   >();
 
+  const operationsWithoutSecurity: Location[] = [];
   let eachOperationHasSecurity: boolean = true;
 
   return {
-    DefinitionRoot: {
-      leave(root: Oas2Definition | Oas3Definition, { report }: UserContext) {
+    Root: {
+      leave(root: Oas2Definition | Oas3Definition, { report, location }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
@@ -33,7 +34,14 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
         } else {
           report({
             message: `Every API should have security defined on the root level or for each operation.`,
+            location: location.child(['openapi']).key() || location.child(['swagger']).key(),
           });
+          for (const operationLocation of operationsWithoutSecurity) {
+            report({
+              message: `The Operation doesn't have security defined.`,
+              location: operationLocation.key(),
+            });
+          }
         }
       },
     },
@@ -51,9 +59,10 @@ export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
         }
       }
     },
-    Operation(operation: Oas2Operation | Oas3Operation) {
+    Operation(operation: Oas2Operation | Oas3Operation, { location }: UserContext) {
       if (!operation?.security) {
         eachOperationHasSecurity = false;
+        operationsWithoutSecurity.push(location);
       }
     },
   };
