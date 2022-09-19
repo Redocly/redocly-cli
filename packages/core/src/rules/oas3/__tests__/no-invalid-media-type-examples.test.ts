@@ -128,7 +128,7 @@ describe('no-invalid-media-type-examples', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example value must conform to the schema: must NOT have additional properties \`c\`.",
+          "message": "Example value must conform to the schema: must NOT have unevaluated properties \`c\`.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
           "suggest": Array [],
@@ -137,7 +137,7 @@ describe('no-invalid-media-type-examples', () => {
     `);
   });
 
-  it('should not on invalid example with allowAdditionalProperties', async () => {
+  it('should not report on valid example with allowAdditionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.0.0
@@ -153,6 +153,55 @@ describe('no-invalid-media-type-examples', () => {
                         b: 13
                       schema:
                         type: object
+                        properties:
+                          a:
+                            type: string
+                          b:
+                            type: number
+
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'no-invalid-media-type-examples': {
+          severity: 'error',
+          allowAdditionalProperties: false,
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should not report on valid example with allowAdditionalProperties and allOf and $ref', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            C:
+              properties:
+                c:
+                  type: string
+        paths:
+          /pet:
+            get:
+              responses:
+                200:
+                  content:
+                    application/json:
+                      example:
+                        a: "string"
+                        b: 13
+                        c: "string"
+                      schema:
+                        type: object
+                        allOf:
+                          - $ref: '#/components/schemas/C'
                         properties:
                           a:
                             type: string
