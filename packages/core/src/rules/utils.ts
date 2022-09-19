@@ -109,7 +109,8 @@ export function validateExample(
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
             ...new Location(dataLoc.source, error.instancePath),
-            reportOnKey: error.keyword === 'additionalProperties',
+            reportOnKey:
+              error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
           },
           from: location,
           suggest: error.suggest,
