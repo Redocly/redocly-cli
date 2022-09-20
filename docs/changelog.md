@@ -4,6 +4,18 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.110 (2022-09-20)
+
+### Features
+
+- Added new command `build-docs`. It build api and Redoc into a zero-dependency HTML file.
+- Added ability to upload other files and folders with the `push` command.
+- Added possibility to custom assertions as plugins.
+
+### Fixes
+
+- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with `allOf` keyword 
+
 ## 1.0.0-beta.109 (2022-09-08)
 ### Features
 
