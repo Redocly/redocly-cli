@@ -145,39 +145,23 @@ export const asserts: Asserts = {
   casing: (value: string | string[], condition: string, baseLocation: Location) => {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const values: string[] = runOnValue(value) ? [value] : value;
+    const casingRegexes: Record<string, RegExp> = {
+      camelCase: /^[a-z][a-zA-Z0-9]+$/g,
+      'kebab-case': /^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g,
+      snake_case: /^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g,
+      PascalCase: /^[A-Z][a-zA-Z0-9]+$/g,
+      MACRO_CASE: /^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g,
+      'COBOL-CASE': /^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g,
+      flatcase: /^[a-z][a-z0-9]+$/g,
+    };
     return values
-      .map((_val) => {
-        let matchCase = false;
-        switch (condition) {
-          case 'camelCase':
-            matchCase = !!_val.match(/^[a-z][a-zA-Z0-9]+$/g);
-            break;
-          case 'kebab-case':
-            matchCase = !!_val.match(/^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g);
-            break;
-          case 'snake_case':
-            matchCase = !!_val.match(/^([a-z][a-z0-9]*)(_[a-z0-9]+)*$/g);
-            break;
-          case 'PascalCase':
-            matchCase = !!_val.match(/^[A-Z][a-zA-Z0-9]+$/g);
-            break;
-          case 'MACRO_CASE':
-            matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g);
-            break;
-          case 'COBOL-CASE':
-            matchCase = !!_val.match(/^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g);
-            break;
-          case 'flatcase':
-            matchCase = !!_val.match(/^[a-z][a-z0-9]+$/g);
-            break;
-        }
-        return (
-          !matchCase && {
+      .map(
+        (_val) =>
+          !_val.match(casingRegexes[condition]) && {
             message: `${_val} should use ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
-        );
-      })
+      )
       .filter(isTruthy);
   },
   sortOrder: (value: any[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {

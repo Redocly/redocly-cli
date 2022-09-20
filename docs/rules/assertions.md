@@ -202,7 +202,7 @@ problems | [`Problem`] | List of problems. Empty list indicates that all checks 
 `Problem`
 Property | Type | Description
 -- | -- | --
-message | `string` \| [`string`] | Problem message that will displayed in result
+message | `string` \| [`string`] | Problem message that will be displayed in result
 location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
 
 `.redocly.yaml`
