@@ -600,10 +600,17 @@ describe('oas3 assertions', () => {
         expect(asserts.mutuallyExclusive(Object.keys(fakeNode), [], baseLocation)).toEqual([]);
         expect(
           asserts.mutuallyExclusive(Object.keys(fakeNode), ['foo', 'bar'], baseLocation)
-        ).toEqual([{ message: 'Should be exclusive', location: baseLocation.key() }]);
+        ).toEqual([
+          { message: 'foo, bar keys should be mutually exclusive', location: baseLocation.key() },
+        ]);
         expect(
           asserts.mutuallyExclusive(Object.keys(fakeNode), ['foo', 'bar', 'test'], baseLocation)
-        ).toEqual([{ message: 'Should be exclusive', location: baseLocation.key() }]);
+        ).toEqual([
+          {
+            message: 'foo, bar, test keys should be mutually exclusive',
+            location: baseLocation.key(),
+          },
+        ]);
       });
     });
 
@@ -670,10 +677,12 @@ describe('oas3 assertions', () => {
         asserts['local/customFn'] = buildAssertCustomFunction(customFn);
         expect(
           asserts['local/customFn'](Object.keys(fakeNode), { word: 'foo' }, baseLocation)
-        ).toEqual([{
-          message: "First value should be foo",
-          location: baseLocation.key(),
-        }]);
+        ).toEqual([
+          {
+            message: 'First value should be foo',
+            location: baseLocation.key(),
+          },
+        ]);
         expect(customFn.mock.calls.length).toBe(1);
         expect(customFn.mock.calls[0][0]).toEqual(Object.keys(fakeNode));
       });

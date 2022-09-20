@@ -10,9 +10,6 @@ exports[`webpack-bundle test lint-workflows 1`] = `
   "version": "<version>",
   "problems": []
 }
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 validating ./openapi.yaml...
 ./openapi.yaml: validated in <test>ms
 
