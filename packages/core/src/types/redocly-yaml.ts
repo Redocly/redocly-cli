@@ -287,6 +287,10 @@ const Assert: NodeType = {
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
   },
+  additionalProperties: (_value: unknown, key: string) => {
+    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
+    return;
+  },
   required: ['subject'],
 };
 

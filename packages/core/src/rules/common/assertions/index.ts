@@ -17,7 +17,6 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
   for (const [index, assertion] of assertions.entries()) {
     const assertId =
       (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
-
     if (!assertion.subject) {
       throw new Error(`${assertId}: 'subject' is required`);
     }
@@ -30,12 +29,8 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
       .filter((assertName: string) => assertion[assertName] !== undefined)
       .map((assertName: string) => {
         return {
-          assertId,
           name: assertName,
           conditions: assertion[assertName],
-          message: assertion.message,
-          severity: assertion.severity || 'error',
-          suggest: assertion.suggest || [],
           runsOnKeys: runOnKeysSet.has(assertName),
           runsOnValues: runOnValuesSet.has(assertName),
         };
@@ -61,11 +56,7 @@ export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
     }
 
     for (const subject of subjects) {
-      const subjectVisitor = buildSubjectVisitor(
-        assertion.property,
-        assertsToApply,
-        assertion.context
-      );
+      const subjectVisitor = buildSubjectVisitor(assertId, assertion, assertsToApply);
       const visitorObject = buildVisitorObject(subject, assertion.context, subjectVisitor);
       visitors.push(visitorObject);
     }

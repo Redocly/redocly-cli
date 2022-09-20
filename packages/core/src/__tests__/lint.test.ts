@@ -60,6 +60,22 @@ describe('lint', () => {
           no-invalid-media-type-examples: error
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
+          assert/operation-summary-length:
+            subject: Operation
+            property: summary
+            message: Operation summary should start with an active verb
+            local/checkWordsCount: 
+              min: 3
+      features.openapi:
+        showConsole: true
+        layout:
+          scope: section
+        routingStrategy: browser
+        theme:
+          rightPanel:
+            backgroundColor: '#263238'
+          links:
+            color: '#6CC496'
         features.openapi:
           showConsole: true
           layout:
@@ -77,6 +93,78 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/atures.openapi",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`atures.openapi\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [
+            "features.openapi",
+          ],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/showConsole",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`showConsole\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/layout",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`layout\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/routingStrategy",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`routingStrategy\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/theme",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`theme\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
         Object {
           "from": undefined,
           "location": Array [

@@ -10,6 +10,7 @@ import type {
   OasVersion,
 } from '../oas-types';
 import type { NodeType } from '../types';
+import { Location } from '../ref-utils';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -83,6 +84,15 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
+export type AssertResult = { message?: string; location?: Location };
+export type CustomFunction = (
+  value: any,
+  options: unknown,
+  baseLocation: Location
+) => AssertResult[];
+
+export type AssertionsConfig = Record<string, CustomFunction>;
+
 export type Plugin = {
   id: string;
   configs?: Record<string, PluginStyleguideConfig>;
@@ -90,6 +100,7 @@ export type Plugin = {
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
+  assertions?: AssertionsConfig;
 };
 
 export type PluginStyleguideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;

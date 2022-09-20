@@ -1,3 +1,5 @@
+import { colorize } from '../../logger';
+import { asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
 const path = require('path');
 
@@ -128,6 +130,40 @@ describe('resolveStyleguideConfig', () => {
     delete styleguide.extendPaths;
     delete styleguide.pluginPaths;
     expect(styleguide).toMatchSnapshot();
+  });
+
+  it('should resolve custom assertion from plugin', async () => {
+    const styleguideConfig = {
+      extends: ['local-config-with-custom-function.yaml'],
+    };
+    const { plugins } = await resolveStyleguideConfig({
+      styleguideConfig,
+      configPath,
+    });
+
+    expect(plugins).toBeDefined();
+    expect(plugins?.length).toBe(2);
+    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
+  });
+
+  it('should throw error when custom assertion load not exist plugin', async () => {
+    const styleguideConfig = {
+      extends: ['local-config-with-wrong-custom-function.yaml'],
+    };
+    try {
+      await resolveStyleguideConfig({
+        styleguideConfig,
+        configPath,
+      });
+    } catch (e) {
+      expect(e.message.toString()).toContain(
+        `Plugin ${colorize.red(
+          'test-plugin'
+        )} doesn't export assertions function with name ${colorize.red('checkWordsCount2')}.`
+      );
+    }
+
+    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
   });
 
   it('should correctly merge assertions from nested config', async () => {
