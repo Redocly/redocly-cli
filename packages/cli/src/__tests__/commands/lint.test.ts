@@ -63,7 +63,11 @@ describe('handleLint', () => {
 
     it('should call loadConfig and getFallbackApisOrExit', async () => {
       await handleLint(argvMock, versionMock);
-      expect(loadConfig).toHaveBeenCalledWith(undefined, undefined, undefined);
+      expect(loadConfig).toHaveBeenCalledWith({
+        configPath: undefined,
+        customExtends: undefined,
+        processRawConfig: undefined,
+      });
       expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
 
@@ -72,7 +76,11 @@ describe('handleLint', () => {
         { ...argvMock, config: 'redocly.yaml', extends: ['some/path'] },
         versionMock
       );
-      expect(loadConfig).toHaveBeenCalledWith('redocly.yaml', ['some/path'], undefined);
+      expect(loadConfig).toHaveBeenCalledWith({
+        configPath: 'redocly.yaml',
+        customExtends: ['some/path'],
+        processRawConfig: undefined,
+      });
     });
 
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {

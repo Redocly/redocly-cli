@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv';
+import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020';
 import { Location, escapePointer } from '../ref-utils';
 import { ResolveFn } from '../walk';
 
@@ -20,7 +20,7 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       discriminator: true,
       allowUnionTypes: true,
       validateFormats: false, // TODO: fix it
-      defaultAdditionalProperties: allowAdditionalProperties,
+      defaultUnevaluatedProperties: allowAdditionalProperties,
       loadSchemaSync(base: string, $ref: string) {
         const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return false;
@@ -87,8 +87,8 @@ export function validateJsonSchema(
     if (propName) {
       message = `\`${propName}\` property ${message}`;
     }
-    if (error.keyword === 'additionalProperties') {
-      const property = error.params.additionalProperty;
+    if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
+      const property = error.params.additionalProperty || error.params.unevaluatedProperty;
       message = `${message} \`${property}\``;
       error.instancePath += '/' + escapePointer(property);
     }
