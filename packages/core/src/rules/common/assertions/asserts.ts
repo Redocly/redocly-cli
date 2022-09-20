@@ -51,7 +51,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !regx?.test(_val) && {
-            message: `${_val} should match a regex ${condition}`,
+            message: `"${_val}" should match a regex ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.key(),
           }
       )
@@ -64,7 +64,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !condition.includes(_val) && {
-            message: `${_val} should be one of the predefined values`,
+            message: `"${_val}" should be one of the predefined values`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -100,7 +100,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           condition.includes(_val) && {
-            message: `${_val} is disallowed`,
+            message: `"${_val}" is disallowed`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -158,7 +158,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !_val.match(casingRegexes[condition]) && {
-            message: `${_val} should use ${condition}`,
+            message: `"${_val}" should use ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )

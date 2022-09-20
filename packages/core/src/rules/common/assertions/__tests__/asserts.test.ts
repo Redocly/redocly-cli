@@ -16,12 +16,12 @@ describe('oas3 assertions', () => {
       it('value should match regex pattern', () => {
         expect(asserts.pattern('test string', '/test/', baseLocation)).toEqual([]);
         expect(asserts.pattern('test string', '/test me/', baseLocation)).toEqual([
-          { location: baseLocation, message: 'test string should match a regex /test me/' },
+          { location: baseLocation, message: '"test string" should match a regex /test me/' },
         ]);
         expect(asserts.pattern(['test string', 'test me'], '/test/', baseLocation)).toEqual([]);
         expect(asserts.pattern(['test string', 'test me'], '/test me/', baseLocation)).toEqual([
           {
-            message: 'test string should match a regex /test me/',
+            message: '"test string" should match a regex /test me/',
             location: baseLocation.key(),
           },
         ]);
@@ -36,7 +36,7 @@ describe('oas3 assertions', () => {
           asserts.pattern('./other.yaml', '/^(./)?components/.*.yaml$/', baseLocation)
         ).toEqual([
           {
-            message: './other.yaml should match a regex /^(./)?components/.*.yaml$/',
+            message: '"./other.yaml" should match a regex /^(./)?components/.*.yaml$/',
             location: baseLocation,
           },
         ]);
@@ -103,20 +103,20 @@ describe('oas3 assertions', () => {
         expect(asserts.enum(['test', 'example', 'foo'], ['test', 'example'], baseLocation)).toEqual(
           [
             {
-              message: 'foo should be one of the predefined values',
+              message: '"foo" should be one of the predefined values',
               location: baseLocation.child('foo').key(),
             },
           ]
         );
         expect(asserts.enum('test', ['foo', 'example'], baseLocation)).toEqual([
           {
-            message: 'test should be one of the predefined values',
+            message: '"test" should be one of the predefined values',
             location: baseLocation,
           },
         ]);
         expect(asserts.enum(['test', 'foo'], ['test', 'example'], baseLocation)).toEqual([
           {
-            message: 'foo should be one of the predefined values',
+            message: '"foo" should be one of the predefined values',
             location: baseLocation.child('foo').key(),
           },
         ]);
@@ -271,26 +271,26 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['testExample', 'fooBar'], 'camelCase', baseLocation)).toEqual([]);
         expect(asserts.casing(['testExample', 'FooBar'], 'camelCase', baseLocation)).toEqual([
           {
-            message: 'FooBar should use camelCase',
+            message: '"FooBar" should use camelCase',
             location: baseLocation.child('FooBar').key(),
           },
         ]);
         expect(asserts.casing('testExample', 'camelCase', baseLocation)).toEqual([]);
         expect(asserts.casing('TestExample', 'camelCase', baseLocation)).toEqual([
           {
-            message: 'TestExample should use camelCase',
+            message: '"TestExample" should use camelCase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'camelCase', baseLocation)).toEqual([
           {
-            message: 'test-example should use camelCase',
+            message: '"test-example" should use camelCase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test_example', 'camelCase', baseLocation)).toEqual([
           {
-            message: 'test_example should use camelCase',
+            message: '"test_example" should use camelCase',
             location: baseLocation,
           },
         ]);
@@ -300,25 +300,25 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['TestExample', 'FooBar'], 'PascalCase', baseLocation)).toEqual([]);
         expect(asserts.casing(['TestExample', 'fooBar'], 'PascalCase', baseLocation)).toEqual([
           {
-            message: 'fooBar should use PascalCase',
+            message: '"fooBar" should use PascalCase',
             location: baseLocation.child('fooBar').key(),
           },
         ]);
         expect(asserts.casing('testExample', 'PascalCase', baseLocation)).toEqual([
           {
-            message: 'testExample should use PascalCase',
+            message: '"testExample" should use PascalCase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'PascalCase', baseLocation)).toEqual([
           {
-            message: 'test-example should use PascalCase',
+            message: '"test-example" should use PascalCase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test_example', 'PascalCase', baseLocation)).toEqual([
           {
-            message: 'test_example should use PascalCase',
+            message: '"test_example" should use PascalCase',
             location: baseLocation,
           },
         ]);
@@ -328,25 +328,25 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['test-example', 'foo-bar'], 'kebab-case', baseLocation)).toEqual([]);
         expect(asserts.casing(['test-example', 'foo_bar'], 'kebab-case', baseLocation)).toEqual([
           {
-            message: 'foo_bar should use kebab-case',
+            message: '"foo_bar" should use kebab-case',
             location: baseLocation.child('foo_bar').key(),
           },
         ]);
         expect(asserts.casing('testExample', 'kebab-case', baseLocation)).toEqual([
           {
-            message: 'testExample should use kebab-case',
+            message: '"testExample" should use kebab-case',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TestExample', 'kebab-case', baseLocation)).toEqual([
           {
-            message: 'TestExample should use kebab-case',
+            message: '"TestExample" should use kebab-case',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test_example', 'kebab-case', baseLocation)).toEqual([
           {
-            message: 'test_example should use kebab-case',
+            message: '"test_example" should use kebab-case',
             location: baseLocation,
           },
         ]);
@@ -356,25 +356,25 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['test_example', 'foo_bar'], 'snake_case', baseLocation)).toEqual([]);
         expect(asserts.casing(['test_example', 'foo-bar'], 'snake_case', baseLocation)).toEqual([
           {
-            message: 'foo-bar should use snake_case',
+            message: '"foo-bar" should use snake_case',
             location: baseLocation.child('foo-bar').key(),
           },
         ]);
         expect(asserts.casing('testExample', 'snake_case', baseLocation)).toEqual([
           {
-            message: 'testExample should use snake_case',
+            message: '"testExample" should use snake_case',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TestExample', 'snake_case', baseLocation)).toEqual([
           {
-            message: 'TestExample should use snake_case',
+            message: '"TestExample" should use snake_case',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'snake_case', baseLocation)).toEqual([
           {
-            message: 'test-example should use snake_case',
+            message: '"test-example" should use snake_case',
             location: baseLocation,
           },
         ]);
@@ -384,49 +384,49 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['TEST_EXAMPLE', 'FOO_BAR'], 'MACRO_CASE', baseLocation)).toEqual([]);
         expect(asserts.casing(['TEST_EXAMPLE', 'FOO-BAR'], 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'FOO-BAR should use MACRO_CASE',
+            message: '"FOO-BAR" should use MACRO_CASE',
             location: baseLocation.child('FOO-BAR').key(),
           },
         ]);
         expect(asserts.casing('TEST_EXAMPLE_', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'TEST_EXAMPLE_ should use MACRO_CASE',
+            message: '"TEST_EXAMPLE_" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('_TEST_EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: '_TEST_EXAMPLE should use MACRO_CASE',
+            message: '"_TEST_EXAMPLE" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TEST__EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'TEST__EXAMPLE should use MACRO_CASE',
+            message: '"TEST__EXAMPLE" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TEST-EXAMPLE', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'TEST-EXAMPLE should use MACRO_CASE',
+            message: '"TEST-EXAMPLE" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('testExample', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'testExample should use MACRO_CASE',
+            message: '"testExample" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TestExample', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'TestExample should use MACRO_CASE',
+            message: '"TestExample" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'MACRO_CASE', baseLocation)).toEqual([
           {
-            message: 'test-example should use MACRO_CASE',
+            message: '"test-example" should use MACRO_CASE',
             location: baseLocation,
           },
         ]);
@@ -436,55 +436,55 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['TEST-EXAMPLE', 'FOO-BAR'], 'COBOL-CASE', baseLocation)).toEqual([]);
         expect(asserts.casing(['TEST-EXAMPLE', 'FOO_BAR'], 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'FOO_BAR should use COBOL-CASE',
+            message: '"FOO_BAR" should use COBOL-CASE',
             location: baseLocation.child('FOO_BAR').key(),
           },
         ]);
         expect(asserts.casing('TEST-EXAMPLE-', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'TEST-EXAMPLE- should use COBOL-CASE',
+            message: '"TEST-EXAMPLE-" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('0TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: '0TEST-EXAMPLE should use COBOL-CASE',
+            message: '"0TEST-EXAMPLE" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('-TEST-EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: '-TEST-EXAMPLE should use COBOL-CASE',
+            message: '"-TEST-EXAMPLE" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TEST--EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'TEST--EXAMPLE should use COBOL-CASE',
+            message: '"TEST--EXAMPLE" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TEST_EXAMPLE', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'TEST_EXAMPLE should use COBOL-CASE',
+            message: '"TEST_EXAMPLE" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('testExample', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'testExample should use COBOL-CASE',
+            message: '"testExample" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TestExample', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'TestExample should use COBOL-CASE',
+            message: '"TestExample" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'COBOL-CASE', baseLocation)).toEqual([
           {
-            message: 'test-example should use COBOL-CASE',
+            message: '"test-example" should use COBOL-CASE',
             location: baseLocation,
           },
         ]);
@@ -494,37 +494,37 @@ describe('oas3 assertions', () => {
         expect(asserts.casing(['testexample', 'foobar'], 'flatcase', baseLocation)).toEqual([]);
         expect(asserts.casing(['testexample', 'foo_bar'], 'flatcase', baseLocation)).toEqual([
           {
-            message: 'foo_bar should use flatcase',
+            message: '"foo_bar" should use flatcase',
             location: baseLocation.child('foo_bar').key(),
           },
         ]);
         expect(asserts.casing('testexample_', 'flatcase', baseLocation)).toEqual([
           {
-            message: 'testexample_ should use flatcase',
+            message: '"testexample_" should use flatcase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('0testexample', 'flatcase', baseLocation)).toEqual([
           {
-            message: '0testexample should use flatcase',
+            message: '"0testexample" should use flatcase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('testExample', 'flatcase', baseLocation)).toEqual([
           {
-            message: 'testExample should use flatcase',
+            message: '"testExample" should use flatcase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('TestExample', 'flatcase', baseLocation)).toEqual([
           {
-            message: 'TestExample should use flatcase',
+            message: '"TestExample" should use flatcase',
             location: baseLocation,
           },
         ]);
         expect(asserts.casing('test-example', 'flatcase', baseLocation)).toEqual([
           {
-            message: 'test-example should use flatcase',
+            message: '"test-example" should use flatcase',
             location: baseLocation,
           },
         ]);
