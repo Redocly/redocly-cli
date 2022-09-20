@@ -77,7 +77,7 @@ export const asserts: Asserts = {
       ? []
       : [
           {
-            message: condition ? `Should be one defined` : 'Should not be one defined',
+            message: condition ? `Should be defined` : 'Should be not defined',
             location: baseLocation,
           },
         ];
@@ -129,7 +129,7 @@ export const asserts: Asserts = {
       ? []
       : [
           {
-            message: condition ? `Should not be emply` : 'Should be empty',
+            message: condition ? `Should not be empty` : 'Should be empty',
             location: baseLocation,
           },
         ];
@@ -173,7 +173,7 @@ export const asserts: Asserts = {
         }
         return (
           !matchCase && {
-            message: `${_val} should be matched ${condition}`,
+            message: `${_val} should use ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
         );
@@ -182,7 +182,16 @@ export const asserts: Asserts = {
   },
   sortOrder: (value: any[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {
     if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
-    return [{ message: `Should be ordered`, location: baseLocation }];
+    const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
+    const property = (condition as OrderOptions).property;
+    return [
+      {
+        message: `Should be sorted in ${
+          direction === 'asc' ? 'an ascending' : 'a descending'
+        } order${property ? ` by property ${property}` : ''}`,
+        location: baseLocation,
+      },
+    ];
   },
   mutuallyExclusive: (value: string[], condition: string[], baseLocation: Location) => {
     if (getIntersectionLength(value, condition) < 2) return [];
@@ -197,7 +206,7 @@ export const asserts: Asserts = {
       ? []
       : [
           {
-            message: `Should have required keys ${condition.join(', ')}`,
+            message: `Properties ${condition.join(', ')} are mutually required`,
             location: baseLocation.key(),
           },
         ];
@@ -207,7 +216,7 @@ export const asserts: Asserts = {
       ? []
       : [
           {
-            message: `Should have one of ${condition.join(', ')}`,
+            message: `Should have any of ${condition.join(', ')}`,
             location: baseLocation.key(),
           },
         ];
@@ -221,7 +230,7 @@ export const asserts: Asserts = {
         ? []
         : [
             {
-              message: condition ? `ref should be defined` : 'ref should not be defined',
+              message: condition ? `should use $ref` : 'should not use $ref',
               location: hasRef ? baseLocation : baseLocation.key(),
             },
           ];
@@ -232,7 +241,7 @@ export const asserts: Asserts = {
       ? []
       : [
           {
-            message: `ref should be matched ${condition}`,
+            message: `$ref value should match ${condition}`,
             location: hasRef ? baseLocation : baseLocation.key(),
           },
         ];

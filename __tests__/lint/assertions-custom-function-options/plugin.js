@@ -4,16 +4,16 @@ module.exports = {
     checkWordsStarts: (value, opts, location) => {
       const regexp = new RegExp(`^${opts.words.join('|')}`);
       if (regexp.test(value)) {
-        return { isValid: true };
+        return [];
       }
-      return { isValid: false, location };
+      return [{ message: `${value} should start with one of ${opts.words.join(', ')}`, location }];
     },
     checkWordsCount: (value, opts, location) => {
       const words = value.split(' ');
       if (words.length >= opts.min) {
-        return { isValid: true };
+        return [];
       }
-      return { isValid: false, location };
+      return [{ message: `${value} should have at least ${opts.min} words`, location }];
     },
   },
 };
