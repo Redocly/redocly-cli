@@ -113,8 +113,8 @@ export function buildSubjectVisitor(
 
     const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
       assertion.subject
-    )} ${colorize.blue(
-      properties ? (properties as string[]).join(', ') : ''
+    )}${colorize.blue(
+      properties ? ` ${(properties as string[]).join(', ')}` : ''
     )} didn't meet the assertions: {{problems}}`;
 
     const assertResults: Array<AssertResult[]> = [];

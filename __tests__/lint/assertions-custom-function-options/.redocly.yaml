@@ -7,7 +7,7 @@ rules:
   assert/operation-summary-length-custom:
     subject: Operation
     property: summary
-    message: Custom message{{problems}}
+    message: Custom message {{problems}}
     minLength: 16
     local/checkWordsStarts: 
       words: 

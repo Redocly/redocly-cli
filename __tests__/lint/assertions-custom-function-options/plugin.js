@@ -6,14 +6,14 @@ module.exports = {
       if (regexp.test(value)) {
         return [];
       }
-      return [{ message: `${value} should start with one of ${opts.words.join(', ')}`, location }];
+      return [{ message: `Should start with one of ${opts.words.join(', ')}`, location }];
     },
     checkWordsCount: (value, opts, location) => {
       const words = value.split(' ');
       if (words.length >= opts.min) {
         return [];
       }
-      return [{ message: `${value} should have at least ${opts.min} words`, location }];
+      return [{ message: `Should have at least ${opts.min} words`, location }];
     },
   },
 };
