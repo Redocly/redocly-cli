@@ -187,12 +187,22 @@ The following example asserts that `Operation` summary should start with an acti
 
 The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
 
-In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems. Each function is called with the following parameters.
+In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems.
+
+Each function is called with the following parameters:
 
 Property | Type | Description
 -- | -- | --
-value | `string` \| [`string`] | Calue that appears at the corresponding location.
+value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in config file.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+**Return**
+problems | [`Problem`] | List of problems. Empty list indicates that all checks are valid.
+
+`Problem`
+Property | Type | Description
+-- | -- | --
+message | `string` \| [`string`] | Problem message that will displayed in result
 location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
 
 `.redocly.yaml`

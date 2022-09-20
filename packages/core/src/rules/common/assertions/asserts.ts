@@ -195,7 +195,12 @@ export const asserts: Asserts = {
   },
   mutuallyExclusive: (value: string[], condition: string[], baseLocation: Location) => {
     if (getIntersectionLength(value, condition) < 2) return [];
-    return [{ message: `${condition.join(', ')} keys should be mutually exclusive`, location: baseLocation.key() }];
+    return [
+      {
+        message: `${condition.join(', ')} keys should be mutually exclusive`,
+        location: baseLocation.key(),
+      },
+    ];
   },
   mutuallyRequired: (value: string[], condition: string[], baseLocation: Location) => {
     const isValid =
