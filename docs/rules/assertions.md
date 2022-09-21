@@ -373,20 +373,19 @@ The following example asserts that `PUT` requests have both `200` and `201` resp
 The difference between `mutuallyRequired` is that neither `200` and `201` need to be defined for it to meet `mutuallyRequired` evaluations.
 
 ```yaml Response example
-styleguide:
-  rules:
-    assert/put-200-and-201:
-      subject: ResponsesMap
-      if:
-        - type: Operation
-          filterInParentKeys:
-            - put
-          defined: true
-      message: Must define 200 and 201 responses for PUT requests.
-      severity: error
-      required:
-        - '200'
-        - '201'
+rules:
+  assert/put-200-and-201:
+    subject: ResponsesMap
+    if:
+      - type: Operation
+        filterInParentKeys:
+          - put
+        defined: true
+    message: Must define 200 and 201 responses for PUT requests.
+    severity: error
+    required:
+      - '200'
+      - '201'
 ```
 
 ### `requireAny` example
