@@ -21,7 +21,7 @@ Option | Type | Description
 -- | -- | --
 api | string | **REQUIRED.** path or URL to your to the API definition file.
 --output | string | Output file. Default value is `redoc-static.html`.
---title | string | Page Title.
+--title | string | Page title.
 --disableGoogleFont | boolean | Disable Google Font. Default value is `false`.
 --cdn | boolean | Use latest ReDoc version. Default value is `false`.
 --template | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
