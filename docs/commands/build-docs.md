@@ -37,7 +37,7 @@ api | string | **REQUIRED.** path or URL to your to the API definition file.
 Build docs with the main color changed to `orange`:
 
 ```bash
-redocly build-doc openapi.yaml --options.theme.colors.primary.main=orange
+redocly build-docs openapi.yaml --options.theme.colors.primary.main=orange
 ```
 
 Build docs using a custom Handlebars template and add custom `templateOptions`:
