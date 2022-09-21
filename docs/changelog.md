@@ -8,9 +8,9 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added new command `build-docs`. It build api and Redoc into a zero-dependency HTML file.
-- Added ability to upload other files and folders with the `push` command.
-- Added possibility to custom assertions as plugins.
+- Added the new `build-docs` command. It builds an API definition and Redoc into a zero-dependency HTML file.
+- Added the ability to upload other files and folders with the `push` command.
+- Added the possibility to write custom assertions as plugins.
 
 ### Fixes
 
