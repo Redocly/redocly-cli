@@ -11,7 +11,7 @@ redocly build-docs <api>
 redocly build-docs <api> --output=custom.html
 redocly build-docs <api> --options.theme.colors.primary.main=orange
 redocly build-docs <api> -t custom.hbs
-redocly build-doc <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
+redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
 
