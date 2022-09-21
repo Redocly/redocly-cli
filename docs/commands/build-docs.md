@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `build-docs` build api and Redoc into a zero-dependency HTML file.
+The `build-docs` command builds Redoc into a zero-dependency HTML file.
 
 ## Usage
 
