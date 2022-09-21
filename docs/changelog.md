@@ -8,13 +8,13 @@ tocMaxDepth: 2
 
 ### Features
 
-- Added the new `build-docs` command. It builds an API definition and Redoc into a zero-dependency HTML file.
+- Added the `build-docs` command which builds Redoc API docs into a zero-dependency HTML file.
 - Added the ability to upload other files and folders with the `push` command.
-- Added the possibility to write custom assertions as plugins.
+- Added support for custom assertions as plugins.
 
 ### Fixes
 
-- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with `allOf` keyword.
+- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with the `allOf` keyword.
 
 ## 1.0.0-beta.109 (2022-09-08)
 ### Features
