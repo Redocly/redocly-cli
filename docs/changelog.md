@@ -14,7 +14,7 @@ tocMaxDepth: 2
 
 ### Fixes
 
-- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with `allOf` keyword 
+- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with `allOf` keyword.
 
 ## 1.0.0-beta.109 (2022-09-08)
 ### Features
