@@ -2,6 +2,7 @@
 
 exports[`E2E bundle bundle-description-dereferenced 1`] = `
 openapi: 3.1.0
+security: []
 paths:
   /users:
     post:
@@ -52,6 +53,7 @@ bundling ./test.yaml...
 
 exports[`E2E bundle with option: dereferenced description should not be from $ref 1`] = `
 openapi: 3.1.0
+security: []
 paths:
   /users:
     post:

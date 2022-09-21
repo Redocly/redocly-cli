@@ -43,9 +43,8 @@ servers:
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-empty-servers: error
+rules:
+  no-empty-servers: error
 ```
 
 ## Examples
@@ -53,9 +52,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-empty-servers: error
+rules:
+  no-empty-servers: error
 ```
 
 Example of **incorrect** empty servers:
@@ -78,5 +76,5 @@ servers:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-empty-servers.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-empty-servers.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)

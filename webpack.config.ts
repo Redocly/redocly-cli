@@ -12,9 +12,6 @@ module.exports = {
           {
             loader: 'ts-loader',
           },
-          {
-            loader: 'shebang-loader',
-          },
         ],
         exclude: /node_modules/,
       },

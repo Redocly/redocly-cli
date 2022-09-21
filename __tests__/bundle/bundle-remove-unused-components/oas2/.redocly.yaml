@@ -2,6 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  decorators:
-    remove-x-internal: on
+decorators:
+  remove-x-internal: on

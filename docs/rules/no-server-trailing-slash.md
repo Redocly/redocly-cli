@@ -37,9 +37,8 @@ Hands-down a good rule for every API designer.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-trailing-slash: error
+rules:
+  no-server-trailing-slash: error
 ```
 
 ## Examples
@@ -47,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-trailing-slash: error
+rules:
+  no-server-trailing-slash: error
 ```
 
 Example of **incorrect** server:
@@ -75,5 +73,5 @@ servers:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-server-trailing-slash.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-server-trailing-slash.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)

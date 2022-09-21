@@ -26,18 +26,16 @@ When it comes to developer experience, consistency rules.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-path-trailing-slash: error
+rules:
+  no-path-trailing-slash: error
 ```
 
 ## Examples
 
 Given this configuration:
 ```yaml
-styleguide:
-  rules:
-    no-path-trailing-slash: error
+rules:
+  no-path-trailing-slash: error
 ```
 
 
@@ -64,6 +62,6 @@ paths:
 - [path-declaration-must-exist](./path-declaration-must-exist.md)
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-path-trailing-slash.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-path-trailing-slash.ts)
 - [Paths object docs](https://redocly.com/docs/openapi-visual-reference/paths/)
 

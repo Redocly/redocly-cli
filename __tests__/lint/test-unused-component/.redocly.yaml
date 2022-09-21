@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    info-description: off
-  extends: []
+rules:
+  info-description: off
+extends: []
