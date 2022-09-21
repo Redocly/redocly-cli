@@ -6,6 +6,7 @@ tocMaxDepth: 2
 
 Redocly CLI currently supports the following commands:
 
+* [build-docs](build-docs.md)
 * [bundle](bundle.md)
 * [join](join.md)
 * [lint](lint.md)
@@ -15,7 +16,6 @@ Redocly CLI currently supports the following commands:
 * [push](push.md)
 * [split](split.md)
 * [stats](stats.md)
-* [build-docs](build-docs.md)
 
 Redocly CLI comes with one primary configuration file (`redocly.yaml`), also known as the Redocly configuration file.
 This file defines all of the config options available to you, including the location of your files (for unbundling and bundling), and linting rules (for validation against the OpenAPI Specification).
