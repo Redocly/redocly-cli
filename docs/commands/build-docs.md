@@ -43,7 +43,7 @@ redocly build-docs openapi.yaml --options.theme.colors.primary.main=orange
 Build docs using a custom Handlebars template and add custom `templateOptions`:
 
 ```bash
-redocly build-doc http://petstore.swagger.io/v2/swagger.json -t custom.hbs --templateOptions.metaDescription "Page meta description"
+redocly build-docs http://petstore.swagger.io/v2/swagger.json -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
 Sample Handlebars template:
