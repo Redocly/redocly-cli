@@ -38,7 +38,6 @@ jobs:
         env:
           CI: true
 
-  # FIXME: fix this so the `cli` package includes the corresponding `core`
   cli-package-test:
     runs-on: ubuntu-latest
     steps:
@@ -78,6 +77,34 @@ jobs:
       - name: Definition test
         run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
 
+  
+  docker-container-test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:12
+    steps:
+      - name: Environments
+        run: |
+          echo
+          echo Using Node $(node -v), NPM $(npm -v)
+          echo
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - name: Pack CORE package
+        run: npm pack ./packages/core
+      - name: Use local CORE package in CLI
+        run: |
+          version=$(cat ./packages/core/package.json | jq '.version' | tr -d '"')
+          jq '.dependencies."@redocly/openapi-core" = $packagefile' ./packages/cli/package.json --arg packagefile file:./redocly-openapi-core-$version.tgz > package.json.tmp && mv package.json.tmp ./packages/cli/package.json
+      - name: Output package.json
+        run: cat ./packages/cli/package.json
+      - name: Prepare CLI package
+        run: npm run pack:prepare
+      - name: Run cli from NPX
+        run: npx redocly-cli.tgz --version
+      
   coverage-report:
     runs-on: ubuntu-latest
     steps:
