@@ -108,7 +108,7 @@ jobs:
       - name: Pack CLI
         run: cd packages/cli && npm pack
       - name: Run cli from NPX
-        run: npx redocly-cli-1.0.0-beta.110.tgz --version
+        run: npx ./packages/cli/redocly-cli-1.0.0-beta.110.tgz --version
       
   # coverage-report:
   #   runs-on: ubuntu-latest
