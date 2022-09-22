@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install JQ
-        run: apt-get update && apt-get install jq
+        run: apt-get update && apt-get -y install jq
       - name: Environments
         run: |
           echo
