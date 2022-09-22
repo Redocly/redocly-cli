@@ -96,7 +96,7 @@ jobs:
         env:
           CI: true
       - name: Install JQ
-      - run: npm i node-jq -g
+        run: npm i node-jq -g
       - name: Pack CORE package
         run: npm pack ./packages/core
       - name: Use local CORE package in CLI
