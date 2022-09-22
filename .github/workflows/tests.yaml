@@ -85,7 +85,6 @@ jobs:
       env:
         CI: true
     steps:
-      steps:
       - uses: actions/checkout@v3
       - name: Environments
         run: |
