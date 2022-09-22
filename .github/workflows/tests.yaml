@@ -94,9 +94,7 @@ jobs:
           echo Using Node $(node -v), NPM $(npm -v)
           echo
       - name: Install dependencies
-        run: npm ci
-        env:
-          CI: true
+        run: npm i
       - name: Compile step
         run: npm run compile
       - name: Pack CORE package
