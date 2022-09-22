@@ -85,8 +85,6 @@ jobs:
       env:
         CI: true
     steps:
-      - name: Install JQ
-      - run: npm i node-jq -g
       - uses: actions/checkout@v3
       - name: Environments
         run: |
@@ -97,6 +95,8 @@ jobs:
         run: npm ci
         env:
           CI: true
+      - name: Install JQ
+      - run: npm i node-jq -g
       - name: Pack CORE package
         run: npm pack ./packages/core
       - name: Use local CORE package in CLI
