@@ -25,7 +25,7 @@ import {
   exitWithError,
 } from '../utils';
 import type { CommonOptions, Skips, Totals } from '../types';
-import { blue, gray, red } from 'colorette';
+import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
 export type LintOptions = CommonOptions &

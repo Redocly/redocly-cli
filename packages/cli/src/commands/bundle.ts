@@ -18,7 +18,7 @@ import {
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
-import { blue, gray, green, red, yellow } from 'colorette';
+import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
 export type BundleOptions = CommonOptions &
