@@ -82,7 +82,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:12
+      env:
+        CI: true
     steps:
+      steps:
+      - uses: actions/checkout@v3
       - name: Environments
         run: |
           echo
