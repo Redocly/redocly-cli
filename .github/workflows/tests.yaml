@@ -92,19 +92,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: cli-package-test
     container:
-      image: node:14
+      image: node:12
     steps:
-      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with: 
           name: RedoclyCLI
       # - name: Install JQ
       #   run: apt-get update && apt-get -y install jq
-      # - name: Environments
-      #   run: |
-      #     echo
-      #     echo Using Node $(node -v), NPM $(npm -v)
-      #     echo
+      - name: Environments
+        run: |
+          echo
+          echo Using Node $(node -v), NPM $(npm -v)
+          echo
       # - name: Install dependencies
       #   run: npm i
       # - name: Compile step
