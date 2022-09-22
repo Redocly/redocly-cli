@@ -85,6 +85,8 @@ jobs:
       env:
         CI: true
     steps:
+      - name: Install JQ
+      - run: npm i node-jq -g
       - uses: actions/checkout@v3
       - name: Environments
         run: |
