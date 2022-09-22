@@ -97,7 +97,8 @@ jobs:
         run: npm ci
         env:
           CI: true
-     
+      - name: Compile step
+        run: npm run compile
       - name: Pack CORE package
         run: npm pack ./packages/core
       - name: Use local CORE package in CLI
