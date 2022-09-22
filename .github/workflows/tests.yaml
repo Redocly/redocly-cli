@@ -79,7 +79,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: RedoclyCLI
-          path: ./redocly-cli.tgz
+          path: |
+             ./redocly-cli.tgz
+             ./redocly-openapi-core-*.tgz
             
             
             
