@@ -106,9 +106,9 @@ jobs:
           echo Using Node $(node -v), NPM $(npm -v)
           echo
       - name: Pack CLI
-        run: cd packages/cli && (mv \$(npm pack | tail -n 1)\ ../../redocly-cli.tgz)
+        run: cd packages/cli && npm pack
       - name: Run cli from NPX
-        run: npx redocly-cli.tgz --version
+        run: npx redocly-cli-1.0.0-beta.110.tgz --version
       
   # coverage-report:
   #   runs-on: ubuntu-latest
