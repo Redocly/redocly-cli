@@ -81,25 +81,12 @@ describe('Oas3 security-defined', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/openapi",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Every API should have security defined on the root level or for each operation.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
               "pointer": "#/paths/~1pets/get",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "The Operation doesn't have security defined.",
+          "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": Array [],
@@ -146,25 +133,12 @@ describe('Oas3 security-defined', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/openapi",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Every API should have security defined on the root level or for each operation.",
-          "ruleId": "security-defined",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
               "pointer": "#/paths/~1cats/get",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "The Operation doesn't have security defined.",
+          "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": Array [],
