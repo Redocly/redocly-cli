@@ -334,4 +334,56 @@ describe('Oas3 response-contains-header', () => {
     });
     expect(results).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should report even if the response is null', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test/':
+              put:
+                responses: 
+                  '200': null
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'response-contains-header': {
+          severity: 'error',
+          names: { '2XX': ['X-Test-Header'] },
+        },
+      }),
+    });
+
+    expect(results).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1test~1/put/responses/200/headers",
+              "reportOnKey": true,
+              "source": Source {
+                "absoluteRef": "foobar.yaml",
+                "body": "openapi: 3.0.0
+      paths:
+        '/test/':
+          put:
+            responses: 
+              '200': null",
+                "mimeType": undefined,
+              },
+            },
+          ],
+          "message": "Response object must contain a \\"X-Test-Header\\" header.",
+          "ruleId": "response-contains-header",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });
