@@ -19,7 +19,7 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
             if (
               !response?.headers ||
               !Object.keys(response?.headers).some(
-                (key) => key.toLowerCase() === expectedHeader.toLowerCase()
+                (header) => header.toLowerCase() === expectedHeader.toLowerCase()
               )
             ) {
               report({
