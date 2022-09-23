@@ -127,4 +127,41 @@ describe('Oas3 operation-4xx-response', () => {
       ]
     `);
   });
+
+  it('should report even if the responses are null', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test/':
+              put:
+                responses: null
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-2xx-response': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1test~1/put/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`2XX\` response.",
+          "ruleId": "operation-2xx-response",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });

@@ -17,7 +17,7 @@ export const ResponseContainsHeader: Oas3Rule | Oas2Rule = (options) => {
             [];
           for (const expectedHeader of expectedHeaders) {
             if (
-              !response.headers ||
+              !response?.headers ||
               !Object.keys(response?.headers).some(
                 (key) => key.toLowerCase() === expectedHeader.toLowerCase()
               )
