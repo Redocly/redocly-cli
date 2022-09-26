@@ -14,6 +14,9 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   const configFromFile = await loadConfig({ configPath: argv.config });
   const config = getMergedConfig(configFromFile, argv.api);
 
+  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const { path: pathToApi } = apis[0];
+
   const options = {
     output: argv.o,
     cdn: argv.cdn,
@@ -25,9 +28,6 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   };
 
   const redocCurrentVersion = require('../../../package.json').dependencies.redoc.substring(1); // remove ~
-
-  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
-  const { path: pathToApi } = apis[0];
 
   try {
     const elapsed = getExecutionTime(startedAt);
