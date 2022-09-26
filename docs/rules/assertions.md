@@ -30,7 +30,7 @@ Property | Type | Description
 subject | `string` \| [`string`] | **REQUIRED.** The [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `context` for more control.
 property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
 context | [Context object](#context-object) | The context influences evaluation for assertions. When `matchParentKeys` or `excludeParentKeys` is used in the `context` object, it evaluates the specified subset of the subject type. The resolution of reference objects is done at the context level. If no context is provided, it evaluates the assertion for all instances of the given type. See [context example](#context-example).
-message | `string` | Problem message displayed if the assertion is false. If omitted, the default message "The {assertion name} doesn't meet required conditions" is displayed.
+message | `string` | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
 enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
@@ -46,7 +46,8 @@ undefined | `boolean` | Asserts a property is undefined. See [undefined example]
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+`{pluginId}/{functionName}` | `object` | Custom assert defined in the plugin. This function will be called with options including the value. See [custom function example](#custom-function-example).|
 
 ## Context object
 
@@ -178,6 +179,75 @@ assert/no-pdf-in-ok-response:
     matchParentKeys: ['201', '200']
   subject: MediaTypesMap
   disallowed: ['application/pdf']
+```
+
+### Custom function example
+
+The following example asserts that `Operation` summary should start with an active verb and have at least three words.
+
+The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
+
+In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems.
+
+Each function is called with the following parameters:
+
+Property | Type | Description
+-- | -- | --
+value | `string` \| [`string`] | Value that appears at the corresponding location.
+options | `object` | Options that is described in config file.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+**Return**
+problems | [`Problem`] | List of problems. Empty list indicates that all checks are valid.
+
+`Problem`
+Property | Type | Description
+-- | -- | --
+message | `string` \| [`string`] | Problem message that will be displayed in result
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+
+`.redocly.yaml`
+```yaml
+assert/operation-summary-check:
+  subject: Operation
+  property: summary
+  message: Operation summary should start with an active verb
+    local/checkWordsStarts: 
+      words: 
+        - Create
+        - Retrieve
+        - Merge
+        - Delete
+        - List
+        - Upsert
+        - Update
+        - Approve
+        - Reject
+    local/checkWordsCount: 
+      min: 3
+```
+`plugin.js`
+```js
+module.exports = {
+  id: 'local',
+  assertions: {
+    checkWordsStarts: (value, options, location) => {
+      const regexp = new RegExp(`^${options.words.join('|')}`);
+      if (regexp.test(value)) {
+        return [];
+      }
+      return [{ message: 'Operation summary should start with an active verb', location }];
+    },
+    checkWordsCount: (value, options, location) => {
+      const words = value.split(' ');
+      if (words.length >= options.min) {
+        return [];
+      }
+      return [
+        { message: `Operation summary should contain at least ${options.min} words`, location },
+      ];
+    },
+  },
+};
 ```
 
 ### `enum` example
