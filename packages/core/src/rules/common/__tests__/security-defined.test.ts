@@ -81,12 +81,12 @@ describe('Oas3 security-defined', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/",
-              "reportOnKey": false,
+              "pointer": "#/paths/~1pets/get",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Every API should have security defined on the root level or for each operation.",
+          "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": Array [],
@@ -133,12 +133,12 @@ describe('Oas3 security-defined', () => {
         Object {
           "location": Array [
             Object {
-              "pointer": "#/",
-              "reportOnKey": false,
+              "pointer": "#/paths/~1cats/get",
+              "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Every API should have security defined on the root level or for each operation.",
+          "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
           "suggest": Array [],
