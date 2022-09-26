@@ -386,14 +386,14 @@ yargs
       });
 
       yargs.option('cdn', {
-        describe: 'Do not include ReDoc source code into html page, use link to CDN instead',
+        describe: 'Do not include Redoc source code into html page, use link to CDN instead',
         type: 'boolean',
         default: false,
       });
 
       yargs.options('t', {
         alias: 'template',
-        describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example ',
+        describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example',
         type: 'string',
       });
 
@@ -402,8 +402,20 @@ yargs
           'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
       });
 
-      yargs.options('options', {
-        describe: 'ReDoc options, use dot notation, e.g. options.nativeScrollbars',
+      yargs
+        .options('features', {
+          describe:
+            'Redoc features.openapi, use dot notation, e.g. features.openapi.nativeScrollbars',
+        })
+        .check((argv: any) => {
+          if (argv.features && !argv.features?.openapi)
+            throw Error('Invalid option: features.openapi not set');
+          return true;
+        });
+
+      yargs.options('config', {
+        describe: 'Specify path to the config file.',
+        type: 'string',
       });
 
       yargs.demandOption('api');

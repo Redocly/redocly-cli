@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createStore, Redoc } from 'redoc';
-import { parseYaml, findConfig, Config } from '@redocly/openapi-core';
+
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { compile } from 'handlebars';
@@ -8,42 +8,38 @@ import { join } from 'path';
 import { existsSync, lstatSync, readFileSync } from 'fs';
 
 import type { BuildDocsOptions } from './types';
-import { red, yellow } from 'colorette';
+import type { Config } from '@redocly/openapi-core';
+import { red } from 'colorette';
 import { exitWithError } from '../../utils';
 
 export function getObjectOrJSON(
-  options: string | Record<string, unknown>
+  openapiOptions: string | Record<string, unknown>,
+  config: Config
 ): JSON | Record<string, unknown> | Config {
-  switch (typeof options) {
+  switch (typeof openapiOptions) {
     case 'object':
-      return options;
+      return openapiOptions;
     case 'string':
       try {
-        if (existsSync(options) && lstatSync(options).isFile()) {
-          return JSON.parse(readFileSync(options, 'utf-8'));
+        if (existsSync(openapiOptions) && lstatSync(openapiOptions).isFile()) {
+          return JSON.parse(readFileSync(openapiOptions, 'utf-8'));
         } else {
-          return JSON.parse(options);
+          return JSON.parse(openapiOptions);
         }
       } catch (e) {
         process.stderr.write(
           red(
-            `Encountered error:\n\n${options}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
+            `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
           )
         );
         exitWithError(e);
       }
       break;
     default: {
-      const configFile = findConfig();
-      if (configFile) {
-        process.stderr.write(`Found ${configFile} and using features.openapi options`);
-        try {
-          const config = parseYaml(readFileSync(configFile, 'utf-8')) as Config;
+      if (config) {
+        process.stderr.write(`Found ${config.configFile} and using features.openapi options`);
 
-          return config['features.openapi'];
-        } catch (e) {
-          process.stderr.write(yellow(`Found ${configFile} but failed to parse: ${e.message}`));
-        }
+        return config['features.openapi'];
       }
       return {};
     }
