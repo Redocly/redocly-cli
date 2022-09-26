@@ -9,6 +9,7 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
   let pathTemplateParams: Set<string>;
   let definedPathParams: Set<string>;
   let currentPath: string;
+  let definedOperationParams: Set<string>;
 
   return {
     PathItem: {
@@ -31,19 +32,24 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         }
       },
       Operation: {
+        enter() {
+          definedOperationParams = new Set();
+        },
         leave(_op: object, { report, location }: UserContext) {
           for (const templateParam of Array.from(pathTemplateParams.keys())) {
-            if (!definedPathParams.has(templateParam)) {
-              report({
-                message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
-                location: location.child(['parameters']).key(), // report on operation
-              });
+            if (!definedOperationParams.has(templateParam)) {
+              if (!definedPathParams.has(templateParam)) {
+                report({
+                  message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
+                  location: location.child(['parameters']).key(), // report on operation
+                });
+              }
             }
           }
         },
         Parameter(parameter: Oas2Parameter | Oas3Parameter, { report, location }: UserContext) {
           if (parameter.in === 'path' && parameter.name) {
-            definedPathParams.add(parameter.name);
+            definedOperationParams.add(parameter.name);
             if (!pathTemplateParams.has(parameter.name)) {
               report({
                 message: `Path parameter \`${parameter.name}\` is not used in the path \`${currentPath}\`.`,
