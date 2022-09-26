@@ -37,13 +37,14 @@ export const PathParamsDefined: Oas3Rule | Oas2Rule = () => {
         },
         leave(_op: object, { report, location }: UserContext) {
           for (const templateParam of Array.from(pathTemplateParams.keys())) {
-            if (!definedOperationParams.has(templateParam)) {
-              if (!definedPathParams.has(templateParam)) {
-                report({
-                  message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
-                  location: location.child(['parameters']).key(), // report on operation
-                });
-              }
+            if (
+              !definedOperationParams.has(templateParam) &&
+              !definedPathParams.has(templateParam)
+            ) {
+              report({
+                message: `The operation does not define the path parameter \`{${templateParam}}\` expected by path \`${currentPath}\`.`,
+                location: location.child(['parameters']).key(), // report on operation
+              });
             }
           }
         },
