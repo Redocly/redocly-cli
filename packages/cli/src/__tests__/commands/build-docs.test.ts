@@ -3,9 +3,11 @@ import { renderToString } from 'react-dom/server';
 import { handlerBuildCommand } from '../../commands/build-docs';
 import { BuildDocsArgv } from '../../commands/build-docs/types';
 import { getPageHTML } from '../../commands/build-docs/utils';
+import { getFallbackApisOrExit } from '../../utils';
 
 jest.mock('redoc');
 jest.mock('fs');
+jest.mock('../../utils');
 
 const config = {
   output: '',
@@ -49,10 +51,11 @@ describe('build-docs', () => {
       disableGoogleFont: false,
       template: '',
       templateOptions: {},
-      options: {},
+      features: { openapi: {} },
       api: '../some-path/openapi.yaml',
     } as BuildDocsArgv);
     expect(loadAndBundleSpec).toBeCalledTimes(1);
+    expect(getFallbackApisOrExit).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);
   });
 });
