@@ -12,6 +12,7 @@ import {
   StyleguideConfig,
   ResolveError,
   YamlParseError,
+  ResolvedApi,
   parseYaml,
   stringifyYaml,
 } from '@redocly/openapi-core';
@@ -25,13 +26,12 @@ export async function getFallbackApisOrExit(
   const shouldFallbackToAllDefinitions =
     !isNotEmptyArray(argsApis) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
-    ? Object.entries(apis).map(([alias, { root }]) => ({
-        path: resolve(getConfigDirectory(config), root),
-        alias,
-      }))
-    : await expandGlobsInEntrypoints(argsApis!, config);
+    ? fallbackToAllDefinitions(apis, config)
+    : (await expandGlobsInEntrypoints(argsApis!, config)).filter(({ path }) =>
+        isApiPathValid(path)
+      );
   if (!isNotEmptyArray(res)) {
-    process.stderr.write('error: missing required argument `apis`.\n');
+    process.stderr.write(red('Error: missing required argument `apis`.\n'));
     process.exit(1);
   }
   return res;
@@ -43,6 +43,34 @@ function getConfigDirectory(config: Config) {
 
 function isNotEmptyArray<T>(args?: T[]): boolean {
   return Array.isArray(args) && !!args.length;
+}
+
+function isApiPathValid(apiPath: string): string | void {
+  if (!apiPath.trim()) {
+    process.stderr.write(`\n Path can not be empty.\n\n`);
+    return;
+  }
+  if (fs.existsSync(apiPath) || isURL(apiPath)) {
+    return apiPath;
+  } else {
+    process.stderr.write(
+      yellow(`\n ${apiPath} ${red(`doe's not exist or invalid.Please provide valid path.\n\n`)}`)
+    );
+    return;
+  }
+}
+
+function fallbackToAllDefinitions(apis: Record<string, ResolvedApi>, config: Config): Entrypoint[] {
+  const entrypointToReturn: Entrypoint[] = [];
+  for (const [alias, { root }] of Object.entries(apis)) {
+    if (isApiPathValid(root)) {
+      entrypointToReturn.push({
+        path: isURL(root) ? root : resolve(getConfigDirectory(config), root),
+        alias,
+      });
+    }
+  }
+  return entrypointToReturn;
 }
 
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
@@ -62,7 +90,7 @@ async function expandGlobsInEntrypoints(args: string[], config: Config) {
   return (
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
-        return glob.hasMagic(aliasOrPath)
+        return glob.hasMagic(aliasOrPath) && !isURL(aliasOrPath)
           ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
@@ -329,4 +357,8 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relative = path.relative(parent, dir);
   return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+}
+
+export function isURL(str: string): boolean {
+  return /^(https?:)\/\//m.test(str);
 }

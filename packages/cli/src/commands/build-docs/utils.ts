@@ -10,7 +10,7 @@ import { existsSync, lstatSync, readFileSync } from 'fs';
 import type { BuildDocsOptions } from './types';
 import type { Config } from '@redocly/openapi-core';
 import { red } from 'colorette';
-import { exitWithError } from '../../utils';
+import { exitWithError, isURL } from '../../utils';
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,
@@ -91,10 +91,6 @@ export async function getPageHTML(
     disableGoogleFont,
     templateOptions,
   });
-}
-
-export function isURL(str: string): boolean {
-  return /^(https?:)\/\//m.test(str);
 }
 
 export function sanitizeJSONString(str: string): string {

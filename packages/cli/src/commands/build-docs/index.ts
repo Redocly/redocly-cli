@@ -3,10 +3,10 @@ import { dirname, resolve } from 'path';
 import { writeFileSync, mkdirSync } from 'fs';
 import { performance } from 'perf_hooks';
 
-import { getObjectOrJSON, isURL, getPageHTML } from './utils';
+import { getObjectOrJSON, getPageHTML } from './utils';
 import type { BuildDocsArgv } from './types';
-import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils';
 import { getMergedConfig, loadConfig } from '@redocly/openapi-core';
+import { exitWithError, getExecutionTime, isURL, getFallbackApisOrExit } from '../../utils';
 
 export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
   const startedAt = performance.now();

@@ -36,6 +36,7 @@ export {
   CONFIG_FILE_NAMES,
   RuleSeverity,
   createConfig,
+  ResolvedApi
 } from './config';
 
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
