@@ -270,4 +270,120 @@ describe('Oas3 response-contains-header', () => {
     });
     expect(results).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should not report response object containing header name upper cased', async () => {
+    const document = parseYamlToDocument(outdent`
+      openapi: 3.0.3
+      info:
+        version: 3.0.0
+      paths:
+        /store/subscribe:
+          post:
+            responses:
+              '200':
+                description: successful operation
+                headers:
+                  X-Test-Header:
+                    description: calls per hour allowed by the user
+                    schema:
+                      type: integer
+                      format: int32
+		`);
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'response-contains-header': {
+          severity: 'error',
+          names: { '2XX': ['x-test-header'] },
+        },
+      }),
+    });
+    expect(results).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should not report response object containing header name in the rule upper cased', async () => {
+    const document = parseYamlToDocument(outdent`
+      openapi: 3.0.3
+      info:
+        version: 3.0.0
+      paths:
+        /store/subscribe:
+          post:
+            responses:
+              '200':
+                description: successful operation
+                headers:
+                  x-test-header:
+                    description: calls per hour allowed by the user
+                    schema:
+                      type: integer
+                      format: int32
+		`);
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'response-contains-header': {
+          severity: 'error',
+          names: { '2XX': ['X-Test-Header'] },
+        },
+      }),
+    });
+    expect(results).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should report even if the response is null', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test/':
+              put:
+                responses: 
+                  '200': null
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'response-contains-header': {
+          severity: 'error',
+          names: { '2XX': ['X-Test-Header'] },
+        },
+      }),
+    });
+
+    expect(results).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1test~1/put/responses/200/headers",
+              "reportOnKey": true,
+              "source": Source {
+                "absoluteRef": "foobar.yaml",
+                "body": "openapi: 3.0.0
+      paths:
+        '/test/':
+          put:
+            responses: 
+              '200': null",
+                "mimeType": undefined,
+              },
+            },
+          ],
+          "message": "Response object must contain a \\"X-Test-Header\\" header.",
+          "ruleId": "response-contains-header",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });
