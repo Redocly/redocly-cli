@@ -9,7 +9,7 @@ The `build-docs` command builds Redoc into a zero-dependency HTML file.
 ```bash
 redocly build-docs <api>
 redocly build-docs <api> --output=custom.html
-redocly build-docs <api> --options.theme.colors.primary.main=orange
+redocly build-docs <api> --features.openapi.theme.colors.primary.main=orange
 redocly build-docs <api> -t custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
@@ -37,7 +37,7 @@ api | string | Path to the API definition filename or alias that you want to gen
 Build docs with the main color changed to `orange`:
 
 ```bash
-redocly build-docs openapi.yaml --options.theme.colors.primary.main=orange
+redocly build-docs openapi.yaml --features.openapi.theme.colors.primary.main=orange
 ```
 
 Build docs using a custom Handlebars template and add custom `templateOptions`:
