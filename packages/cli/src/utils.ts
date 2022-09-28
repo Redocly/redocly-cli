@@ -1,9 +1,8 @@
-import { basename, dirname, extname, join, resolve } from 'path';
+import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob-promise';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import {
@@ -27,11 +26,19 @@ export async function getFallbackApisOrExit(
     !isNotEmptyArray(argsApis) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
     ? fallbackToAllDefinitions(apis, config)
-    : (await expandGlobsInEntrypoints(argsApis!, config)).filter(({ path }) =>
-        isApiPathValid(path)
+    : await expandGlobsInEntrypoints(argsApis!, config);
+
+  const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
+  if (isNotEmptyArray(filteredInvalidEntrypoints)) {
+    for (const { path } of filteredInvalidEntrypoints) {
+      process.stderr.write(
+        yellow(
+          `\n ${relative(process.cwd(), path)} ${red(
+            `doe's not exist or invalid. Please provide valid path. \n\n`
+          )}`
+        )
       );
-  if (!isNotEmptyArray(res)) {
-    process.stderr.write(red('Error: missing required argument `apis`.\n'));
+    }
     process.exit(1);
   }
   return res;
@@ -50,27 +57,14 @@ function isApiPathValid(apiPath: string): string | void {
     exitWithError('Path can not be empty.');
     return;
   }
-  if (fs.existsSync(apiPath) || isURL(apiPath)) {
-    return apiPath;
-  } else {
-    exitWithError(
-      yellow(`\n ${apiPath} ${red(`doe's not exist or invalid. Please provide valid path.`)}`)
-    );
-    return;
-  }
+  return fs.existsSync(apiPath) || isURL(apiPath) ? apiPath : undefined;
 }
 
 function fallbackToAllDefinitions(apis: Record<string, ResolvedApi>, config: Config): Entrypoint[] {
-  const entrypointToReturn: Entrypoint[] = [];
-  for (const [alias, { root }] of Object.entries(apis)) {
-    if (isApiPathValid(root)) {
-      entrypointToReturn.push({
-        path: isURL(root) ? root : resolve(getConfigDirectory(config), root),
-        alias,
-      });
-    }
-  }
-  return entrypointToReturn;
+  return Object.entries(apis).map(([alias, { root }]) => ({
+    path: isURL(root) ? root : resolve(getConfigDirectory(config), root),
+    alias,
+  }));
 }
 
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
@@ -148,7 +142,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
 }
 
 export function saveBundle(filename: string, output: string) {
-  fs.mkdirSync(path.dirname(filename), { recursive: true });
+  fs.mkdirSync(dirname(filename), { recursive: true });
   fs.writeFileSync(filename, output);
 }
 
@@ -355,8 +349,8 @@ export function exitWithError(message: string) {
  * Checks if dir is subdir of parent
  */
 export function isSubdir(parent: string, dir: string): boolean {
-  const relative = path.relative(parent, dir);
-  return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+  const relativePath = relative(parent, dir);
+  return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
 }
 
 export function isURL(str: string): boolean {
