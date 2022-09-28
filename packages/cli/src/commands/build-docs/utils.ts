@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createStore, Redoc } from 'redoc';
-import  { Config, isAbsoluteUrl } from '@redocly/openapi-core';
+import { Config, isAbsoluteUrl } from '@redocly/openapi-core';
 
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
@@ -10,7 +10,7 @@ import { existsSync, lstatSync, readFileSync } from 'fs';
 
 import type { BuildDocsOptions } from './types';
 import { red } from 'colorette';
-import { exitWithError,  } from '../../utils';
+import { exitWithError } from '../../utils';
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,

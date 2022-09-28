@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 
 import { getObjectOrJSON, getPageHTML } from './utils';
 import type { BuildDocsArgv } from './types';
-import { getMergedConfig, loadConfig, isAbsoluteUrl} from '@redocly/openapi-core';
+import { getMergedConfig, loadConfig, isAbsoluteUrl } from '@redocly/openapi-core';
 import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils';
 
 export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
@@ -33,7 +33,9 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
     const elapsed = getExecutionTime(startedAt);
 
     const api = await loadAndBundleSpec(
-      isAbsoluteUrl(pathToApi) ? pathToApi : resolve(argv.config ? dirname(argv.config) : '', pathToApi)
+      isAbsoluteUrl(pathToApi)
+        ? pathToApi
+        : resolve(argv.config ? dirname(argv.config) : '', pathToApi)
     );
     const pageHTML = await getPageHTML(api, pathToApi, { ...options, redocCurrentVersion });
 

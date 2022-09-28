@@ -14,7 +14,7 @@ import {
   ResolvedApi,
   parseYaml,
   stringifyYaml,
-  isAbsoluteUrl
+  isAbsoluteUrl,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
 
