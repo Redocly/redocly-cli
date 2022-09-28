@@ -20,11 +20,11 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 Option | Type | Description
 -- | -- | --
 api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.
---output | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
+--output, -o | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
 --title | string | Sets the page title.
 --disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.
 --cdn | boolean | Uses the CDN pointing to the latest version of Redoc. If not enabled, the Redoc version is selected from Redocly CLI's associated dependency (and to update Redoc requires updating the CLI and building the docs again). The default value is `false`.
---template | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
+--template, -t | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
 --templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
 --features.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming).
 --config | string | Specifies path to the [configuration file](#custom-configuration-file).
