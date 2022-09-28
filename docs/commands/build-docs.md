@@ -19,45 +19,48 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 Option | Type | Description
 -- | -- | --
-api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to [the api section](#api) for more options.
---output | string | Output file. Default value is `redoc-static.html`.
---title | string | Page title.
---disableGoogleFont | boolean | Disable Google font. Default value is `false`.
---cdn | boolean | Use latest Redoc version. Default value is `false`.
+api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.
+--output | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
+--title | string | Sets the page title.
+--disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.
+--cdn | boolean | Uses the CDN pointing to the latest version of Redoc. If not enabled, the Redoc version is selected from Redocly CLI's associated dependency (and to update Redoc requires updating the CLI and building the docs again). The default value is `false`.
 --template | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
 --templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
 --features.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming).
---config | string | Specify path to the [configuration file](#custom-configuration-file).
---help | boolean | Show help.
---version | boolean | Show version number.
+--config | string | Specifies path to the [configuration file](#custom-configuration-file).
+--help | boolean | Shows help.
+--version | boolean | Shows version number.
 
 ## Examples
 
-### Api
+### API examples
 
-The command behaves differently depending on how you pass the api to it, and whether the [configuration file](#custom-configuration-file) exists.
+The command accepts an API positional argument as either a file (no configuration file is required) or an alias (requires a [configuration file](#custom-configuration-file)).
 
-#### Pass api directly
+#### API path to file example
 
 ```bash
 redocly build-docs openapi.yaml
 ```
 
-In this case, `build-docs` will build the definition that was passed to the command. The configuration file is ignored.
+In this case, the `build-docs` command builds the API at the path provided.
+The configuration file is ignored.
 
-#### Pass api alias
+#### API alias example
 
-Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
+Instead of a full path, you can use an API name from the `apis` object of your Redocly configuration file.
 
 ```bash Command
-redocly build-docs main
+redocly build-docs games@v1
 ```
 
 ```yaml Configuration file
 apis:
-  main:
+  games@v1:
     root: ./openapi/definition.json
 ```
+
+The `build-docs` command uses any additional configurations provided in the file.
 
 ### Custom configuration file
 
@@ -67,7 +70,7 @@ By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/co
 redocly build-docs --config=./another/directory/config.yaml
 ```
 
-### Build docs
+### `features.openapi` example
 
 Build docs with the main color changed to `orange`:
 
@@ -75,10 +78,12 @@ Build docs with the main color changed to `orange`:
 redocly build-docs openapi.yaml --features.openapi.theme.colors.primary.main=orange
 ```
 
+### `templateOptions` example
+
 Build docs using a custom Handlebars template and add custom `templateOptions`:
 
 ```bash
-redocly build-docs http://petstore.swagger.io/v2/swagger.json -t custom.hbs --templateOptions.metaDescription "Page meta description"
+redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
 Sample Handlebars template:
