@@ -10,7 +10,7 @@ The `build-docs` command builds Redoc into a zero-dependency HTML file.
 redocly build-docs <api>
 redocly build-docs <api> --output=custom.html
 redocly build-docs <api> --features.openapi.theme.colors.primary.main=orange
-redocly build-docs <api> -t custom.hbs
+redocly build-docs <api> --template custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
