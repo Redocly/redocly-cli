@@ -7,7 +7,6 @@ import * as readline from 'readline';
 import { Writable } from 'stream';
 import {
   BundleOutputFormat,
-  Config,
   StyleguideConfig,
   ResolveError,
   YamlParseError,
@@ -16,11 +15,11 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions, Entrypoint } from './types';
+import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
-  config: Config
+  config: ConfigApis
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
@@ -45,7 +44,7 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+function getConfigDirectory(config: ConfigApis) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
@@ -61,14 +60,17 @@ function isApiPathValid(apiPath: string): string | void {
   return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
 
-function fallbackToAllDefinitions(apis: Record<string, ResolvedApi>, config: Config): Entrypoint[] {
+function fallbackToAllDefinitions(
+  apis: Record<string, ResolvedApi>,
+  config: ConfigApis
+): Entrypoint[] {
   return Object.entries(apis).map(([alias, { root }]) => ({
     path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
   }));
 }
 
-function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
+function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
   return config.apis[aliasOrPath]
     ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
     : {
@@ -81,7 +83,7 @@ function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
       };
 }
 
-async function expandGlobsInEntrypoints(args: string[], config: Config) {
+async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
   return (
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {

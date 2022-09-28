@@ -1,9 +1,12 @@
-import { Totals } from '@redocly/openapi-core';
 import { getFallbackApisOrExit, isSubdir, pathToFilename, printConfigLintTotals } from '../utils';
+import { ResolvedApi, Totals, isAbsoluteUrl } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
+import { existsSync } from 'fs';
+import * as path from 'path';
 
 jest.mock('os');
 jest.mock('colorette');
+jest.mock('fs');
 
 describe('isSubdir', () => {
   it('can correctly determine if subdir', () => {
@@ -106,5 +109,129 @@ describe('printConfigLintTotals', () => {
     expect(process.stderr.write).toHaveBeenCalledTimes(0);
     expect(yellowColoretteMocks).toHaveBeenCalledTimes(0);
     expect(redColoretteMocks).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe('getFallbackApisOrExit', () => {
+  const redColoretteMocks = red as jest.Mock<any, any>;
+  const yellowColoretteMocks = yellow as jest.Mock<any, any>;
+
+  const apis: Record<string, ResolvedApi> = {
+    main: {
+      root: 'someFile.yaml',
+      styleguide: {},
+    },
+  };
+
+  const config = { apis };
+
+  beforeEach(() => {
+    yellowColoretteMocks.mockImplementation((text: string) => text);
+    redColoretteMocks.mockImplementation((text: string) => text);
+    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    jest.spyOn(process, 'exit').mockImplementation();
+  });
+
+  it('should exit with error because no path provided', async () => {
+    const apisConfig = {
+      apis: {},
+    };
+    await getFallbackApisOrExit([''], apisConfig);
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should error if file from config do not exist', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    await getFallbackApisOrExit(undefined, config);
+
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\n someFile.yaml does not exist or is invalid. Please provide a valid path. \n\n'
+    );
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should return valid array with results if such file exist', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
+    jest.spyOn(path, 'resolve').mockImplementationOnce((_, path) => path);
+
+    const result = await getFallbackApisOrExit(undefined, config);
+    expect(process.stderr.write).toHaveBeenCalledTimes(0);
+    expect(process.exit).toHaveBeenCalledTimes(0);
+    expect(result).toStrictEqual([
+      {
+        alias: 'main',
+        path: 'someFile.yaml',
+      },
+    ]);
+  });
+
+  it('should exit with error in case if invalid path provided as args', async () => {
+    const apisConfig = {
+      apis: {},
+    };
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    await getFallbackApisOrExit(['someFile.yaml'], apisConfig);
+
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      '\n someFile.yaml does not exist or is invalid. Please provide a valid path. \n\n'
+    );
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should exit with error in case if invalid 2 path provided as args', async () => {
+    const apisConfig = {
+      apis: {},
+    };
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
+
+    expect(process.stderr.write).lastCalledWith(
+      '\n someFile2.yaml does not exist or is invalid. Please provide a valid path. \n\n'
+    );
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should exit with error if only one file exist ', async () => {
+    const apisStub = {
+      ...apis,
+      notExist: {
+        root: 'notExist.yaml',
+        styleguide: {},
+      },
+    };
+    const configStub = { apis: apisStub };
+
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce((path) => path === 'someFile.yaml');
+
+    await getFallbackApisOrExit(undefined, configStub);
+
+    expect(process.stderr.write).toBeCalledWith(
+      '\n notExist.yaml does not exist or is invalid. Please provide a valid path. \n\n'
+    );
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should work ok if it is url passed', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
+    (isAbsoluteUrl as jest.Mock<any, any>).mockImplementation(() => true);
+    const apisConfig = {
+      apis: {
+        main: {
+          root: 'https://someLinkt/petstore.yaml?main',
+          styleguide: {},
+        },
+      },
+    };
+
+    const result = await getFallbackApisOrExit(undefined, apisConfig);
+
+    expect(process.stderr.write).toHaveBeenCalledTimes(0);
+    expect(process.exit).toHaveBeenCalledTimes(0);
+    expect(result).toStrictEqual([
+      {
+        alias: 'main',
+        path: 'https://someLinkt/petstore.yaml?main',
+      },
+    ]);
   });
 });
