@@ -14,6 +14,7 @@ import {
   ResolvedApi,
   parseYaml,
   stringifyYaml,
+  isAbsoluteUrl
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
 
@@ -34,7 +35,7 @@ export async function getFallbackApisOrExit(
       process.stderr.write(
         yellow(
           `\n ${relative(process.cwd(), path)} ${red(
-            `doe's not exist or invalid. Please provide valid path. \n\n`
+            `does not exist or is invalid. Please provide a valid path. \n\n`
           )}`
         )
       );
@@ -54,15 +55,15 @@ function isNotEmptyArray<T>(args?: T[]): boolean {
 
 function isApiPathValid(apiPath: string): string | void {
   if (!apiPath.trim()) {
-    exitWithError('Path can not be empty.');
+    exitWithError('Path cannot be empty.');
     return;
   }
-  return fs.existsSync(apiPath) || isURL(apiPath) ? apiPath : undefined;
+  return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
 
 function fallbackToAllDefinitions(apis: Record<string, ResolvedApi>, config: Config): Entrypoint[] {
   return Object.entries(apis).map(([alias, { root }]) => ({
-    path: isURL(root) ? root : resolve(getConfigDirectory(config), root),
+    path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
     alias,
   }));
 }
@@ -84,7 +85,7 @@ async function expandGlobsInEntrypoints(args: string[], config: Config) {
   return (
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
-        return glob.hasMagic(aliasOrPath) && !isURL(aliasOrPath)
+        return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
           ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
@@ -351,8 +352,4 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relativePath = relative(parent, dir);
   return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
-}
-
-export function isURL(str: string): boolean {
-  return /^(https?:)\/\//m.test(str);
 }

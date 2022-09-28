@@ -12,4 +12,3 @@ export const getOutputFileName = jest.fn(() => ({ outputFile: 'test.yaml', ext: 
 export const handleError = jest.fn();
 export const exitWithError = jest.fn();
 export const writeYaml = jest.fn();
-export const isURL = jest.fn(() => false);

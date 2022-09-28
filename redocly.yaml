@@ -1,5 +1,0 @@
-apis: 
-  main:
-    root: ./../../../do-not-exist.yaml
-  another:
-    root: "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.yaml"
