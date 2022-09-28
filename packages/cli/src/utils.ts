@@ -47,14 +47,14 @@ function isNotEmptyArray<T>(args?: T[]): boolean {
 
 function isApiPathValid(apiPath: string): string | void {
   if (!apiPath.trim()) {
-    process.stderr.write(`\n Path can not be empty.\n\n`);
+    exitWithError('Path can not be empty.');
     return;
   }
   if (fs.existsSync(apiPath) || isURL(apiPath)) {
     return apiPath;
   } else {
-    process.stderr.write(
-      yellow(`\n ${apiPath} ${red(`doe's not exist or invalid.Please provide valid path.\n\n`)}`)
+    exitWithError(
+      yellow(`\n ${apiPath} ${red(`doe's not exist or invalid. Please provide valid path.`)}`)
     );
     return;
   }
