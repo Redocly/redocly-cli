@@ -19,20 +19,55 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 
 Option | Type | Description
 -- | -- | --
-api | string | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.
+api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to [the api section](#api) for more options.
 --output | string | Output file. Default value is `redoc-static.html`.
 --title | string | Page title.
---disableGoogleFont | boolean | Disable Google Font. Default value is `false`.
+--disableGoogleFont | boolean | Disable Google font. Default value is `false`.
 --cdn | boolean | Use latest Redoc version. Default value is `false`.
 --template | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
 --templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
 --features.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming).
+--config | string | Specify path to the [configuration file](#custom-configuration-file).
 --help | boolean | Show help.
 --version | boolean | Show version number.
 
-### Examples
+## Examples
 
-#### Build docs
+### Api
+
+The command behaves differently depending on how you pass the api to it, and whether the [configuration file](#custom-configuration-file) exists.
+
+#### Pass api directly
+
+```bash
+redocly build-docs openapi.yaml
+```
+
+In this case, `build-docs` will build the definition that was passed to the command. The configuration file is ignored.
+
+#### Pass api alias
+
+Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
+
+```bash Command
+redocly build-docs main
+```
+
+```yaml Configuration file
+apis:
+  main:
+    root: ./openapi/definition.json
+```
+
+### Custom configuration file
+
+By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+
+```bash
+redocly build-docs --config=./another/directory/config.yaml
+```
+
+### Build docs
 
 Build docs with the main color changed to `orange`:
 
