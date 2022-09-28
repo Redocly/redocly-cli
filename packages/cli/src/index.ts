@@ -362,53 +362,53 @@ yargs
   .command(
     'build-docs [api]',
     'build definition into zero-dependency HTML-file',
-    (yargs) => {
-      yargs.positional('api', {
-        describe: 'path or URL to your api',
-      });
-
-      yargs.option('o', {
-        describe: 'Output file',
-        alias: 'output',
-        type: 'string',
-        default: 'redoc-static.html',
-      });
-
-      yargs.options('title', {
-        describe: 'Page Title',
-        type: 'string',
-      });
-
-      yargs.options('disableGoogleFont', {
-        describe: 'Disable Google Font',
-        type: 'boolean',
-        default: false,
-      });
-
-      yargs.option('cdn', {
-        describe: 'Do not include ReDoc source code into html page, use link to CDN instead',
-        type: 'boolean',
-        default: false,
-      });
-
-      yargs.options('t', {
-        alias: 'template',
-        describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example ',
-        type: 'string',
-      });
-
-      yargs.options('templateOptions', {
-        describe:
-          'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
-      });
-
-      yargs.options('options', {
-        describe: 'ReDoc options, use dot notation, e.g. options.nativeScrollbars',
-      });
-
-      yargs.demandOption('api');
-      return yargs;
-    },
+    (yargs) =>
+      yargs
+        .positional('api', { type: 'string' })
+        .options({
+          o: {
+            describe: 'Output file',
+            alias: 'output',
+            type: 'string',
+            default: 'redoc-static.html',
+          },
+          title: {
+            describe: 'Page Title',
+            type: 'string',
+          },
+          disableGoogleFont: {
+            describe: 'Disable Google Font',
+            type: 'boolean',
+            default: false,
+          },
+          cdn: {
+            describe: 'Do not include Redoc source code into html page, use link to CDN instead',
+            type: 'boolean',
+            default: false,
+          },
+          t: {
+            alias: 'template',
+            describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example',
+            type: 'string',
+          },
+          templateOptions: {
+            describe:
+              'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
+          },
+          features: {
+            describe:
+              'Redoc features.openapi, use dot notation, e.g. features.openapi.nativeScrollbars',
+          },
+          config: {
+            describe: 'Specify path to the config file.',
+            type: 'string',
+          },
+        })
+        .check((argv: any) => {
+          if (argv.features && !argv.features?.openapi)
+            throw Error('Invalid option: features.openapi not set');
+          return true;
+        }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
       handlerBuildCommand(argv as unknown as BuildDocsArgv);
