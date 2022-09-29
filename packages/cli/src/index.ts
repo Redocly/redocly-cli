@@ -280,7 +280,7 @@ yargs
           description: 'Keep absolute url references.',
           type: 'boolean',
           alias: 'k',
-        }
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
