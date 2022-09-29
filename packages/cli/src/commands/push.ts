@@ -55,18 +55,17 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const batchId = argv['batch-id'];
   const batchSize = argv['batch-size'];
 
-  if (
-    destination &&
-    !(validateDestination(destination) || validateDestinationWithoutOrganization(destination))
-  ) {
+  const isValidDestination = destination && Object.values(validateDestination(destination) || {}).every(Boolean);
+
+  if (!isValidDestination) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<@organization-id/api-name@api-version>'
       )}`
-    );
+    );  
   }
 
-  const [organizationId, name, version] = getDestinationProps(destination, config.organization);
+  const {organizationId, name, version}  = getDestinationProps(destination, config.organization);
 
   if (!organizationId) {
     return exitWithError(
@@ -302,24 +301,26 @@ function hashFiles(filePaths: { filePath: string }[]) {
 }
 
 function validateDestination(destination: string) {
-  const regexp = /^@+([a-zA-Z0-9-_.& ]+)\/+([^@\/]+)@([^@\/]+)$/;
-  return regexp.test(destination);
-}
+  const regexp = /^(@(?<organizationId>\w+)\/)?(?<name>.*)@(?<version>[\w\.\-\_]+)$/;
 
-function validateDestinationWithoutOrganization(destination: string) {
-  const regexp = /^()([^@\/]+)@([^@\/]+)$/;
-  return regexp.test(destination);
+  return destination?.match(regexp)?.groups;
 }
 
 export function getDestinationProps(
   destination: string | undefined,
   organization: string | undefined
 ) {
-  return destination && validateDestination(destination)
-    ? destination.substring(1).split(/[@\/]/)
-    : destination && validateDestinationWithoutOrganization(destination)
-    ? [organization, ...destination.split('@')]
-    : [organization];
+  const groups = destination && validateDestination(destination);
+  if (groups) {
+    groups.name && (groups.name = encodeURIComponent(groups.name));
+    return {
+      organizationId: groups.organizationId || organization,
+      name: groups.name,
+      version: groups.version,
+    };
+  } else {
+    return { organizationId: organization, name: undefined, version: undefined };
+  }
 }
 
 type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {

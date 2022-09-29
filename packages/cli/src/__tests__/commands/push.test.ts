@@ -177,24 +177,30 @@ describe('transformPush', () => {
 
 describe('getDestinationProps', () => {
   it('should get valid destination props for the full destination syntax', () => {
-    expect(getDestinationProps('@testing_org/main@v1', 'org-from-config')).toEqual([
-      'testing_org',
-      'main',
-      'v1',
-    ]);
+    expect(getDestinationProps('@testing_org/main@v1', 'org-from-config')).toEqual({
+      organizationId: 'testing_org',
+      name: 'main',
+      version: 'v1',
+    });
   });
   it('should fallback the organizationId from a config for the short destination syntax', () => {
-    expect(getDestinationProps('main@v1', 'org-from-config')).toEqual([
-      'org-from-config',
-      'main',
-      'v1',
-    ]);
+    expect(getDestinationProps('main@v1', 'org-from-config')).toEqual({
+      organizationId: 'org-from-config',
+      name: 'main',
+      version: 'v1',
+    });
   });
   it('should fallback the organizationId from a config if no destination provided', () => {
-    expect(getDestinationProps(undefined, 'org-from-config')).toEqual(['org-from-config']);
+    expect(getDestinationProps(undefined, 'org-from-config')).toEqual({
+      organizationId: 'org-from-config',
+    });
   });
   it('should return empty organizationId if there is no one found', () => {
-    expect(getDestinationProps('main@v1', undefined)).toEqual([, 'main', 'v1']);
+    expect(getDestinationProps('main@v1', undefined)).toEqual({
+      organizationId: undefined,
+      name: 'main',
+      version: 'v1',
+    });
   });
 });
 
