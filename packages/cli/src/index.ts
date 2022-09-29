@@ -276,6 +276,11 @@ yargs
           type: 'boolean',
           default: false,
         },
+        'keep-url-references': {
+          description: 'Keep absolute url references.',
+          type: 'boolean',
+          alias: 'k',
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
