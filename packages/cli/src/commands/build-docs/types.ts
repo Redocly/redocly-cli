@@ -19,8 +19,6 @@ export type BuildDocsArgv = {
   disableGoogleFont?: boolean;
   template?: string;
   templateOptions: Record<string, any>;
-  features: {
-    openapi: string | Record<string, unknown>;
-  };
+  openapiFeatures: string | Record<string, unknown>;
   config?: string;
 };
