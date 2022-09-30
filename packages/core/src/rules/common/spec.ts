@@ -114,6 +114,24 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           propValue = resolve(propValue).node;
         }
 
+        if (propSchema.items && propSchema.items?.enum) {
+          if (Array.isArray(propValue)) {
+            propValue.forEach((item) => {
+              if (!propSchema.items?.enum?.includes(item !== null ? item : JSON.stringify(item))) {
+                report({
+                  message: 'type can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".',
+                  from: refLocation,
+                });
+              }
+            });
+          } else if (!propSchema.items.enum.includes(propValue !== null ? propValue : JSON.stringify(propValue))) {
+            report({
+              message: 'type can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".',
+              from: refLocation,
+            });
+          }
+        }
+
         if (propSchema.enum) {
           if (!propSchema.enum.includes(propValue)) {
             report({
