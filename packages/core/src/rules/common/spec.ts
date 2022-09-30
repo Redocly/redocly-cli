@@ -119,21 +119,22 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             propValue.forEach((item) => {
               if (!propSchema.items?.enum?.includes(item !== null ? item : JSON.stringify(item))) {
                 report({
-                  message: 'type can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".',
+                  location: propLocation,
+                  message: `\`${propName}\` can be one of the following only: ${propSchema.items
+                    ?.enum!.map((i) => `"${i}"`)
+                    .join(', ')}.`,
                   from: refLocation,
+                  suggest: getSuggest(item, propSchema.items?.enum as string[]),
                 });
               }
-            });
-          } else if (!propSchema.items.enum.includes(propValue !== null ? propValue : JSON.stringify(propValue))) {
-            report({
-              message: 'type can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".',
-              from: refLocation,
             });
           }
         }
 
         if (propSchema.enum) {
-          if (!propSchema.enum.includes(propValue)) {
+          if (
+            !propSchema.enum.includes(propValue !== null ? propValue : JSON.stringify(propValue))
+          ) {
             report({
               location: propLocation,
               message: `\`${propName}\` can be one of the following only: ${propSchema.enum
