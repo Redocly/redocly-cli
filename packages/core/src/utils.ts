@@ -231,3 +231,8 @@ export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {
 export function identity<T>(value: T): T {
   return value;
 }
+
+export function keysOf<T>(obj: T) {
+  if (!obj) return [];
+  return Object.keys(obj) as (keyof T)[];
+}

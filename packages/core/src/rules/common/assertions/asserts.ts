@@ -9,12 +9,32 @@ import {
   regexFromString,
 } from './utils';
 
-type Asserts = Record<
-  string,
-  (value: any, condition: any, baseLocation: Location, rawValue?: any) => AssertResult[]
->;
+export type AssertionFn = (
+  value: any,
+  condition: any,
+  baseLocation: Location,
+  rawValue?: any
+) => AssertResult[];
 
-export const runOnKeysSet = new Set([
+export type Asserts = {
+  pattern: AssertionFn;
+  enum: AssertionFn;
+  defined: AssertionFn;
+  required: AssertionFn;
+  disallowed: AssertionFn;
+  undefined: AssertionFn;
+  nonEmpty: AssertionFn;
+  minLength: AssertionFn;
+  maxLength: AssertionFn;
+  casing: AssertionFn;
+  sortOrder: AssertionFn;
+  mutuallyExclusive: AssertionFn;
+  mutuallyRequired: AssertionFn;
+  requireAny: AssertionFn;
+  ref: AssertionFn;
+}
+
+export const runOnKeysSet = new Set<keyof Asserts>([
   'mutuallyExclusive',
   'mutuallyRequired',
   'enum',
@@ -28,7 +48,7 @@ export const runOnKeysSet = new Set([
   'requireAny',
   'ref',
 ]);
-export const runOnValuesSet = new Set([
+export const runOnValuesSet = new Set<keyof Asserts>([
   'pattern',
   'enum',
   'defined',
@@ -210,7 +230,7 @@ export const asserts: Asserts = {
           },
         ];
   },
-  ref: (_value: any, condition: string | boolean, baseLocation, rawValue: any) => {
+  ref: (_value: any, condition: string | boolean, baseLocation: Location, rawValue: any) => {
     if (typeof rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
@@ -237,7 +257,7 @@ export const asserts: Asserts = {
   },
 };
 
-export function buildAssertCustomFunction(fn: CustomFunction) {
+export function buildAssertCustomFunction(fn: CustomFunction): AssertionFn {
   return (value: string[], options: any, baseLocation: Location) =>
     fn.call(null, value, options, baseLocation);
 }

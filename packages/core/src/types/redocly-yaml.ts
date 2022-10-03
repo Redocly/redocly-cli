@@ -239,29 +239,21 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
-const Assert: NodeType = {
-  properties: {
-    subject: (value: unknown) => {
-      if (Array.isArray(value)) {
-        return { type: 'array', items: { enum: nodeTypesList } };
-      } else {
-        return { enum: nodeTypesList };
-      }
-    },
-    property: (value: unknown) => {
-      if (Array.isArray(value)) {
-        return { type: 'array', items: { type: 'string' } };
-      } else if (value === null) {
-        return null;
-      } else {
-        return { type: 'string' };
-      }
-    },
-    context: listOf('Context'),
-    message: { type: 'string' },
-    suggest: { type: 'array', items: { type: 'string' } },
-    severity: { enum: ['error', 'warn', 'off'] },
-    enum: { type: 'array', items: { type: 'string' } },
+const AssertDefinition: NodeType['properties'] = {
+  subject: { enum: nodeTypesList },
+  property: (value: unknown) => {
+    if (Array.isArray(value)) {
+      return { type: 'array', items: { type: 'string' } };
+    } else if (value === null) {
+      return null;
+    } else {
+      return { type: 'string' };
+    }
+  },
+  filterInParentKeys: { type: 'array', items: { type: 'string' } },
+  filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+  matchParentKeys: { type: 'string' },
+  enum: { type: 'array', items: { type: 'string' } },
     pattern: { type: 'string' },
     casing: {
       enum: [
@@ -286,6 +278,15 @@ const Assert: NodeType = {
     maxLength: { type: 'integer' },
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+}
+
+const Assert: NodeType = {
+  properties: {
+    ...AssertDefinition,
+    where: listOf('Context'),
+    message: { type: 'string' },
+    suggest: { type: 'array', items: { type: 'string' } },
+    severity: { enum: ['error', 'warn', 'off'] },
   },
   additionalProperties: (_value: unknown, key: string) => {
     if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
@@ -295,12 +296,8 @@ const Assert: NodeType = {
 };
 
 const Context: NodeType = {
-  properties: {
-    type: { enum: nodeTypesList },
-    matchParentKeys: { type: 'array', items: { type: 'string' } },
-    excludeParentKeys: { type: 'array', items: { type: 'string' } },
-  },
-  required: ['type'],
+  properties: AssertDefinition,
+  required: ['subject'],
 };
 
 const ConfigLanguage: NodeType = {
