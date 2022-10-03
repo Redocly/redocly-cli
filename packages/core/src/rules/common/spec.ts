@@ -1,8 +1,9 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
-import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
+import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils';
 import { isRef } from '../../ref-utils';
 import { isPlainObject } from '../../utils';
+import { UserContext } from '../../walk';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
@@ -115,33 +116,19 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
 
         if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
-            for (const item of propValue) {
-              if (!propSchema.items?.enum?.includes(item === null ? 'null' : item)) {
-                report({
-                  location: propLocation,
-                  message: `\`${propName}\` can be one of the following only: ${propSchema.items
-                    ?.enum!.map((i) => `"${i}"`)
-                    .join(', ')}.`,
-                  from: refLocation,
-                  suggest: getSuggest(item, propSchema.items?.enum as string[]),
-                });
-              }
-            }
+          for (const item of propValue) {
+            validateSchemaEnumType(propSchema.items?.enum, item, propName, refLocation, {
+              report,
+              location,
+            } as UserContext);
+          }
         }
 
         if (propSchema.enum) {
-          if (
-            !propSchema.enum.includes(propValue === null ? 'null' : propValue)
-          ) {
-            report({
-              location: propLocation,
-              message: `\`${propName}\` can be one of the following only: ${propSchema.enum
-                .map((i) => `"${i}"`)
-                .join(', ')}.`,
-              from: refLocation,
-              suggest: getSuggest(propValue, propSchema.enum),
-            });
-          }
+          validateSchemaEnumType(propSchema.enum, propValue, propName, refLocation, {
+            report,
+            location,
+          } as UserContext);
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({
             message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,
