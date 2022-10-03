@@ -131,7 +131,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
 
         if (propSchema.enum) {
           if (
-            !propSchema.enum.includes(propValue !== null ? propValue : JSON.stringify(propValue))
+            !propSchema.enum.includes(propValue === null ? 'null' : propValue)
           ) {
             report({
               location: propLocation,
