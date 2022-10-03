@@ -114,10 +114,9 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           propValue = resolve(propValue).node;
         }
 
-        if (propSchema.items && propSchema.items?.enum) {
-          if (Array.isArray(propValue)) {
-            propValue.forEach((item) => {
-              if (!propSchema.items?.enum?.includes(item !== null ? item : JSON.stringify(item))) {
+        if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
+            for (const item of propValue) {
+              if (!propSchema.items?.enum?.includes(item === null ? 'null' : item)) {
                 report({
                   location: propLocation,
                   message: `\`${propName}\` can be one of the following only: ${propSchema.items
@@ -127,8 +126,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
                   suggest: getSuggest(item, propSchema.items?.enum as string[]),
                 });
               }
-            });
-          }
+            }
         }
 
         if (propSchema.enum) {
