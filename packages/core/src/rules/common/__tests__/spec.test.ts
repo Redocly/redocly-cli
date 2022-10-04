@@ -221,7 +221,7 @@ describe('Oas3.1 spec', () => {
           "from": undefined,
           "location": Array [
             Object {
-              "pointer": "#/components/schemas/TestSchema/type",
+              "pointer": "#/components/schemas/TestSchema/type/1",
               "reportOnKey": false,
               "source": "",
             },

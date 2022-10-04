@@ -116,10 +116,10 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
 
         if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
-          for (const item of propValue) {
-            validateSchemaEnumType(propSchema.items?.enum, item, propName, refLocation, {
+          for (let i = 0; i < propValue.length; i++) {
+            validateSchemaEnumType(propSchema.items?.enum, propValue[i], propName, refLocation, {
               report,
-              location,
+              location: location.child([propName, i]),
             } as UserContext);
           }
         }
@@ -127,7 +127,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         if (propSchema.enum) {
           validateSchemaEnumType(propSchema.enum, propValue, propName, refLocation, {
             report,
-            location,
+            location: location.child([propName]),
           } as UserContext);
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({

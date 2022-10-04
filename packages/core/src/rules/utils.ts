@@ -151,7 +151,7 @@ export function validateSchemaEnumType(
   }
   if (!schemaEnum.includes(propertyValue === null ? 'null' : propertyValue)) {
     report({
-      location: location.child([propName]),
+      location: location,
       message: `\`${propName}\` can be one of the following only: ${schemaEnum
         .map((type) => `"${type}"`)
         .join(', ')}.`,
