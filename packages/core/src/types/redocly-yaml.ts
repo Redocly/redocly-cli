@@ -890,6 +890,16 @@ const ConfigReferenceDocs: NodeType = {
     unstable_externalDescription: { type: 'boolean' }, // deprecated
     unstable_ignoreMimeParameters: { type: 'boolean' },
     untrustedDefinition: { type: 'boolean' },
+    mockServer: {
+      properties: {
+        url: { type: 'string' },
+        position: { enum: ['first', 'last', 'replace', 'off'] },
+        description: { type: 'string' },
+      },
+    },
+    showAccessMode: { type: 'boolean' },
+    preserveOriginalExtensionsName: { type: 'boolean' },
+    markdownHeadingsAnchorLevel: { type: 'number' },
   },
   additionalProperties: { type: 'string' },
 };
