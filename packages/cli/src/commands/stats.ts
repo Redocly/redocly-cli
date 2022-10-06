@@ -66,7 +66,7 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
 }
 
 export async function handleStats(argv: { config?: string; api?: string; format: string }) {
-  const config: Config = await loadConfig(argv.config);
+  const config: Config = await loadConfig({ configPath: argv.config });
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
@@ -90,7 +90,7 @@ export async function handleStats(argv: { config?: string; api?: string; format:
 
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     externalRefResolver,
   });
 
@@ -107,7 +107,7 @@ export async function handleStats(argv: { config?: string; api?: string; format:
 
   walkDocument({
     document,
-    rootType: types.DefinitionRoot,
+    rootType: types.Root,
     normalizedVisitors: statsVisitor,
     resolvedRefMap,
     ctx,

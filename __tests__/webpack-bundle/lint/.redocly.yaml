@@ -2,6 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  extends:
-    - recommended
+extends:
+  - recommended

@@ -25,7 +25,7 @@ import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
 import { ParameterDescription } from '../common/parameter-description';
 import { OperationSingularTag } from '../common/operation-singular-tag';
-import { OperationSecurityDefined } from '../common/operation-security-defined';
+import { SecurityDefined } from '../common/security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from '../common/paths-kebab-case';
@@ -48,6 +48,7 @@ import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examp
 import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
+import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name';
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 
 export const rules = {
@@ -82,7 +83,7 @@ export const rules = {
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
-  'operation-security-defined': OperationSecurityDefined,
+  'security-defined': SecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,
@@ -102,6 +103,7 @@ export const rules = {
   'response-contains-header': ResponseContainsHeader,
   'response-contains-property': ResponseContainsProperty,
   'scalar-property-missing-example': ScalarPropertyMissingExample,
+  'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

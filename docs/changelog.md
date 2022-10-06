@@ -4,6 +4,42 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.110 (2022-09-21)
+
+### Features
+
+- Added the `build-docs` command which builds Redoc API docs into a zero-dependency HTML file.
+- Added the ability to upload other files and folders with the `push` command.
+- Added support for custom assertions as plugins.
+
+### Fixes
+
+- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with the `allOf` keyword.
+
+## 1.0.0-beta.109 (2022-09-08)
+### Features
+
+- Added rfc7807 problem details rule.
+- Improved error messages by adding `referenced from` information.
+- Added the [`spec-components-invalid-map-name`](./rules/spec-components-invalid-map-name.md) rule for component map names validation.
+- Added a new lint `--format` option: `summary`.
+
+
+### Fixes
+
+- Fixed an issue with multi-line strings in literal mode.
+- Fixed an issue with multi-line Markdown with Windows-style new lines.
+- Fixed the Header object type to require `content` or `schema`.
+- Fixed a error message for `operation-4xx-response` rule.
+- Fixed an issue with `paths` not being correctly handled by the `join` command.
+- Fixed the `operation-security-defined` rule to check the security on the root and in each operation.
+
+### Changes
+
+- Renamed 'DefinitionRoot', 'ServerVariableMap', 'PathMap', 'CallbackMap', 'MediaTypeMap', 'ExampleMap', 'EncodingMap', 'HeaderMap', and 'LinkMap' definition node types.
+- Removed the `styleguide` object from the configuration file.
+- Renamed the `operation-security-defined` rule to `security-defined`.
+
 ## 1.0.0-beta.108 (2022-08-22)
 
 ### Changes
@@ -149,19 +185,17 @@ If you encounter any issues and suspect they may be related to this change, let 
 - The `lint.extends` section in the Redocly configuration file supports file paths and URLs as values. This means you can define your own lint rulesets in local or remote files, and list those files in the `extends` section. The following example shows how to do it:
 
 ```yaml
-lint:
-  extends:
-    - recommended
-    - ./path/to/local/lint-ruleset.yaml
-    - https://url-to-remote/lint-ruleset.yaml
+extends:
+  - recommended
+  - ./path/to/local/lint-ruleset.yaml
+  - https://url-to-remote/lint-ruleset.yaml
 ```
 
-The contents of those referenced files must correspond to the standard format used in the `lint.rules` section to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
+The contents of those referenced files must correspond to the standard format used in the `rules` object to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
 
 ```yaml
-lint:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 - The `lint` command supports a new output formatting option called `codeclimate` that you can use with the `--format` argument.
@@ -624,7 +658,7 @@ lint:
 
 ### Features
 
-- Our [official OpenAPI CLI documentation](https://redocly.com/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/openapi-cli/tree/master/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redocly.com/code-of-conduct/) in all your contributions.
+- Our [official OpenAPI CLI documentation](https://redocly.com/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/redocly-cli/tree/main/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redocly.com/code-of-conduct/) in all your contributions.
 
 - Implemented support for OpenAPI 3.1 in `typeExtension` plugins.
 

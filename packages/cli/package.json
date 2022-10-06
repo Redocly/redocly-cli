@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.108",
+  "version": "1.0.0-beta.110",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -13,7 +13,7 @@
   "engineStrict": true,
   "scripts": {
     "compile": "tsc",
-    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js && cp src/commands/preview-docs/preview-server/oauth2-redirect.html lib/commands/preview-docs/preview-server/oauth2-redirect.html",
+    "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js && cp src/commands/preview-docs/preview-server/oauth2-redirect.html lib/commands/preview-docs/preview-server/oauth2-redirect.html && cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs",
     "prepublishOnly": "npm run copy-assets"
   },
   "repository": {
@@ -30,23 +30,30 @@
     "oas"
   ],
   "contributors": [
-    "Sergey Dubovyk <serhii@redoc.ly> (https://redoc.ly/)",
-    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)",
-    "Andriy Leliv <andriy@redoc.ly> (https://redoc.ly/)"
+    "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "1.0.0-beta.108",
+    "@redocly/openapi-core": "1.0.0-beta.110",
     "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
+    "mobx": "^6.3.2",
     "portfinder": "^1.0.26",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "redoc": "~2.0.0",
     "simple-websocket": "^9.0.0",
+    "styled-components": "5.3.3",
     "yargs": "17.0.1"
   },
   "devDependencies": {
+    "@types/configstore": "^5.0.1",
+    "@types/react": "^17.0.8",
+    "@types/react-dom": "^17.0.5",
+    "@types/styled-components": "^5.1.1",
     "@types/yargs": "16.0.2",
     "typescript": "^4.0.3"
   }

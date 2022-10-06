@@ -20,3 +20,4 @@ servers:
         - a
         - b
         default: b
+security: []

@@ -28,9 +28,8 @@ This rule helps prevent typos and tag explosion.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-tag-defined: error
+rules:
+  operation-tag-defined: error
 ```
 
 ## Examples
@@ -39,9 +38,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-tag-defined: error
+rules:
+  operation-tag-defined: error
 ```
 
 Example of **incorrect** operation:
@@ -80,6 +78,6 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-tag-defined.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-tag-defined.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)

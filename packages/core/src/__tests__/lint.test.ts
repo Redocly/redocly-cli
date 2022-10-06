@@ -12,16 +12,16 @@ describe('lint', () => {
     const results = await lintFromString({
       absoluteRef: '/test/spec.yaml',
       source: outdent`
-      openapi: 3.0.0
-      info:
-        title: Test API
-        version: "1.0"
-        description: Test
-        license: Fail
+        openapi: 3.0.0
+        info:
+          title: Test API
+          version: "1.0"
+          description: Test
+          license: Fail
 
-      servers:
-        - url: http://example.com
-      paths: {}
+        servers:
+          - url: http://example.com
+        paths: {}
     `,
       config: await loadConfig(),
     });
@@ -29,6 +29,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/info/license",
@@ -48,8 +49,7 @@ describe('lint', () => {
   it('lintConfig should work', async () => {
     const document = parseYamlToDocument(
       outdent`
-      apis: error string
-      styleguide:
+        apis: error string
         plugins:
           - './local-plugin.js'
         extends:
@@ -60,6 +60,12 @@ describe('lint', () => {
           no-invalid-media-type-examples: error
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
+          assert/operation-summary-length:
+            subject: Operation
+            property: summary
+            message: Operation summary should start with an active verb
+            local/checkWordsCount: 
+              min: 3
       features.openapi:
         showConsole: true
         layout:
@@ -70,6 +76,16 @@ describe('lint', () => {
             backgroundColor: '#263238'
           links:
             color: '#6CC496'
+        features.openapi:
+          showConsole: true
+          layout:
+            scope: section
+          routingStrategy: browser
+          theme:
+            rightPanel:
+              backgroundColor: '#263238'
+            links:
+              color: '#6CC496'
       `,
       ''
     );
@@ -78,6 +94,79 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/atures.openapi",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`atures.openapi\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [
+            "features.openapi",
+          ],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/showConsole",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`showConsole\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/layout",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`layout\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/routingStrategy",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`routingStrategy\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/theme",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`theme\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/apis",
@@ -91,6 +180,7 @@ describe('lint', () => {
           "suggest": Array [],
         },
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/features.openapi/layout",
@@ -110,10 +200,9 @@ describe('lint', () => {
   it('lintConfig should detect wrong fields and suggest correct ones', async () => {
     const document = parseYamlToDocument(
       outdent`
-      api: 
-        name@version:
-          root: ./file.yaml
-      syleguide:
+        api:
+          name@version:
+            root: ./file.yaml
         rules:
           operation-2xx-response: warn
       `,
@@ -124,6 +213,7 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
               "pointer": "#/api",
@@ -138,21 +228,6 @@ describe('lint', () => {
             "apis",
           ],
         },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/syleguide",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`syleguide\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [
-            "styleguide",
-          ],
-        },
       ]
     `);
   });
@@ -160,13 +235,13 @@ describe('lint', () => {
   it('lintConfig should work with legacy fields', async () => {
     const document = parseYamlToDocument(
       outdent`
-      apiDefinitions: 
-        entry: ./file.yaml
-      lint:
+        apis: 
+          entry: 
+            root: ./file.yaml
         rules:
           operation-2xx-response: warn
-      referenceDocs:
-        showConsole: true
+        referenceDocs:
+          showConsole: true
       `,
       ''
     );
@@ -175,16 +250,16 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
 
-  it("'plugins' shouldn't be allowed in 'apis' -> 'styleguide' field", async () => {
+  it("'plugins' shouldn't be allowed in 'apis'", async () => {
     const document = parseYamlToDocument(
       outdent`
-      apis: 
-        styleguide: 
-          plugins: 
+        apis:
+          main:
+            root: ./main.yaml
+            plugins:
             - './local-plugin.js'
-      styleguide:
         plugins:
-          - './local-plugin.js'
+        - './local-plugin.js'
       `,
       ''
     );
@@ -193,22 +268,10 @@ describe('lint', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
         Object {
+          "from": undefined,
           "location": Array [
             Object {
-              "pointer": "#/apis/styleguide",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "The field \`root\` must be present on this level.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/apis/styleguide/plugins",
+              "pointer": "#/apis/main/plugins",
               "reportOnKey": true,
               "source": "",
             },
@@ -225,31 +288,31 @@ describe('lint', () => {
   it("'const' can have any type", async () => {
     const document = parseYamlToDocument(
       outdent`
-      openapi: "3.1.0"
-      info:
-        version: 1.0.0
-        title: Swagger Petstore
-        description: Information about Petstore
-        license:
-          name: MIT
-          url: https://opensource.org/licenses/MIT
-      servers:
-        - url: http://petstore.swagger.io/v1
-      paths:
-        /pets:
-          get:
-            summary: List all pets
-            operationId: listPets
-            tags:
-              - pets
-            responses:
-              200:
-                description: An paged array of pets
-                content:
-                  application/json:
-                    schema:
-                      type: string
-                      const: ABC
+        openapi: "3.1.0"
+        info:
+          version: 1.0.0
+          title: Swagger Petstore
+          description: Information about Petstore
+          license:
+            name: MIT
+            url: https://opensource.org/licenses/MIT
+        servers:
+          - url: http://petstore.swagger.io/v1
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              tags:
+                - pets
+              responses:
+                200:
+                  description: An paged array of pets
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                        const: ABC
         `,
       'foobar.yaml'
     );
@@ -266,8 +329,8 @@ describe('lint', () => {
   it('detect OpenAPI should throw an error when version is not string', () => {
     const testDocument = parseYamlToDocument(
       outdent`
-      openapi: 3.0
-    `,
+        openapi: 3.0
+      `,
       ''
     );
     expect(() => detectOpenAPI(testDocument.parsed)).toThrow(
@@ -278,28 +341,28 @@ describe('lint', () => {
   it("spec rule shouldn't throw an error for named callback", async () => {
     const document = parseYamlToDocument(
       outdent`
-      openapi: 3.1.0
-      info:
-        title: Callback test
-        version: 'alpha'
-      components:
-        callbacks:
-          resultCallback:
-            '{$url}':
-              post:
-                requestBody:
-                  description: Callback payload
-                  content:
-                    'application/json':
-                      schema:
-                        type: object
-                        properties:
-                          test:
-                            type: string
-                responses:
-                  '200':
-                    description: callback successfully processed
-    `,
+        openapi: 3.1.0
+        info:
+          title: Callback test
+          version: 'alpha'
+        components:
+          callbacks:
+            resultCallback:
+              '{$url}':
+                post:
+                  requestBody:
+                    description: Callback payload
+                    content:
+                      'application/json':
+                        schema:
+                          type: object
+                          properties:
+                            test:
+                              type: string
+                  responses:
+                    '200':
+                      description: callback successfully processed
+      `,
       'foobar.yaml'
     );
 
@@ -316,23 +379,23 @@ describe('lint', () => {
     const absoluteRef = path.join(__dirname, 'fixtures/openapi.yaml');
     const document = parseYamlToDocument(
       outdent`
-      openapi: 3.0.0
-      info:
-        version: 1.0.0
-        title: Example OpenAPI 3 definition.
-        description: Information about API
-        license:
-          name: MIT
-          url: 'https://opensource.org/licenses/MIT'
-      servers:
-        - url: 'https://redocly.com/v1'
-      paths:
-        '/pets/{petId}':
-          post:
-            responses:
-              '201':
-                summary: Exist 
-                description: example description
+        openapi: 3.0.0
+        info:
+          version: 1.0.0
+          title: Example OpenAPI 3 definition.
+          description: Information about API
+          license:
+            name: MIT
+            url: 'https://opensource.org/licenses/MIT'
+        servers:
+          - url: 'https://redocly.com/v1'
+        paths:
+          '/pets/{petId}':
+            post:
+              responses:
+                '201':
+                  summary: Exist
+                  description: example description
       `,
       absoluteRef
     );

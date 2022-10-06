@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    path-declaration-must-exist: error
-  extends: []
+rules:
+  path-declaration-must-exist: error
+extends: []

@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    operation-parameters-unique: error
-  extends: []
+rules:
+  operation-parameters-unique: error
+extends: []

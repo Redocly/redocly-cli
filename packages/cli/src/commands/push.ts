@@ -37,12 +37,12 @@ type PushArgs = {
   region?: Region;
   'skip-decorator'?: string[];
   public?: boolean;
+  files?: string[];
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfig();
-  const region = argv.region || config.region;
-  const client = new RedoclyClient(region);
+  const config = await loadConfig({ region: argv.region, files: argv.files });
+  const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
     const clientToken = await promptClientToken(client.domain);
@@ -254,6 +254,20 @@ async function collectFilesToUpload(api: string, config: Config) {
     }
     files.push(...filterPluginFilesByExt(Array.from(pluginFiles)).map((f) => getFileEntry(f)));
   }
+
+  if (config.files) {
+    const otherFiles = new Set<string>();
+    for (const file of config.files) {
+      if (fs.statSync(file).isDirectory()) {
+        const fileList = getFilesList(file, []);
+        fileList.forEach((f) => otherFiles.add(f));
+      } else {
+        otherFiles.add(file);
+      }
+    }
+    files.push(...Array.from(otherFiles).map((f) => getFileEntry(f)));
+  }
+
   return {
     files,
     root: path.resolve(apiPath),

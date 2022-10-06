@@ -24,9 +24,8 @@ Redocly uses the summary as the header for the operation, as well as the sidebar
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-summary: error
+rules:
+  operation-summary: error
 ```
 
 ## Examples
@@ -34,9 +33,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-summary: error
+rules:
+  operation-summary: error
 ```
 
 Example of **incorrect** operation:
@@ -66,5 +64,5 @@ post:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-summary.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-summary.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)

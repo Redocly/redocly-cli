@@ -130,4 +130,73 @@ describe('Oas3 path-params-defined', () => {
       ]
     `);
   });
+
+  it('should fail cause POST has no parameters', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            /pets/{a}:
+              get:
+                parameters:
+                 - name: a
+                   in: path
+              post:
+                description: without parameters
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'path-params-defined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets~1{a}/post/parameters",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The operation does not define the path parameter \`{a}\` expected by path \`/pets/{a}\`.",
+          "ruleId": "path-params-defined",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should apply parameters for POST operation from path parameters', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            /pets/{a}:
+              parameters:
+                - name: a
+                  in: path
+              get:
+                parameters:
+                 - name: a
+                   in: path
+              post:
+                description: without parameters
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'path-params-defined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

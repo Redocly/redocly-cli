@@ -6,6 +6,7 @@ info:
 servers:
   - url:
     description: Dev Environment.
+security: []
 paths:
   /pet/findByStatus:
     get:

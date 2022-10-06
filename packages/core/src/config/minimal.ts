@@ -24,7 +24,7 @@ export default {
     'operation-operationId-unique': 'warn',
     'operation-parameters-unique': 'warn',
     'operation-tag-defined': 'off',
-    'operation-security-defined': 'warn',
+    'security-defined': 'warn',
     'operation-operationId-url-safe': 'warn',
     'operation-singular-tag': 'off',
     'no-unresolved-refs': 'error',
@@ -45,6 +45,7 @@ export default {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'warn',
     'no-server-variables-empty-enum': 'error',
+    'spec-components-invalid-map-name': 'warn',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'warn',
@@ -55,5 +56,6 @@ export default {
     'no-unused-components': 'warn',
     'no-undefined-server-variable': 'warn',
     'no-server-variables-empty-enum': 'error',
+    'spec-components-invalid-map-name': 'warn',
   },
 } as PluginStyleguideConfig;

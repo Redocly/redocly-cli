@@ -38,7 +38,7 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
         }
       },
     },
-    DefinitionRoot: {
+    Root: {
       leave(root, ctx) {
         const data = ctx.getVisitorData() as { removedCount: number };
         data.removedCount = 0;

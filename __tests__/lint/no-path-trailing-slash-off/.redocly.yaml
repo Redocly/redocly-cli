@@ -2,8 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    no-path-trailing-slash: off
-    paths-kebab-case: error
-  extends: []
+rules:
+  no-path-trailing-slash: off
+  paths-kebab-case: error
+extends: []

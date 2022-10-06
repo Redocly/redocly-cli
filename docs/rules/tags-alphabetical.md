@@ -37,9 +37,8 @@ This rule is intended to prevent bikeshedding and diffuse tension between teamma
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 ## Examples
@@ -47,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 Example of **incorrect** tags:
@@ -80,5 +78,5 @@ tags:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/tags-alphabetical.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/tags-alphabetical.ts)
 - [Tags docs](https://redocly.com/docs/openapi-visual-reference/tags/)

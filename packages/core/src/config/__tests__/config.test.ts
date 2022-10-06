@@ -48,6 +48,7 @@ const testConfig: Config = {
   'features.mockServer': {},
   resolve: { http: { headers: [] } },
   organization: 'redocly-test',
+  files: [],
 };
 
 describe('getMergedConfig', () => {
@@ -67,6 +68,7 @@ describe('getMergedConfig', () => {
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
+        "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
           "apis": Object {
@@ -81,6 +83,7 @@ describe('getMergedConfig', () => {
           },
           "features.mockServer": Object {},
           "features.openapi": Object {},
+          "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
             "extendPaths": Array [],
@@ -163,6 +166,7 @@ describe('getMergedConfig', () => {
         "configFile": "redocly.yaml",
         "features.mockServer": Object {},
         "features.openapi": Object {},
+        "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
           "apis": Object {
@@ -177,6 +181,7 @@ describe('getMergedConfig', () => {
           },
           "features.mockServer": Object {},
           "features.openapi": Object {},
+          "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
             "extendPaths": Array [],

@@ -1,10 +1,10 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { Location } from '../../ref-utils';
 import { UserContext } from '../../walk';
-import { Oas2SecurityScheme } from '../../typings/swagger';
-import { Oas3SecurityScheme } from '../../typings/openapi';
+import { Oas2Definition, Oas2Operation, Oas2SecurityScheme } from '../../typings/swagger';
+import { Oas3Definition, Oas3Operation, Oas3SecurityScheme } from '../../typings/openapi';
 
-export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
+export const SecurityDefined: Oas3Rule | Oas2Rule = () => {
   const referencedSchemes = new Map<
     string,
     {
@@ -13,15 +13,29 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
     }
   >();
 
+  const operationsWithoutSecurity: Location[] = [];
+  let eachOperationHasSecurity: boolean = true;
+
   return {
-    DefinitionRoot: {
-      leave(_: object, { report }: UserContext) {
+    Root: {
+      leave(root: Oas2Definition | Oas3Definition, { report }: UserContext) {
         for (const [name, scheme] of referencedSchemes.entries()) {
           if (scheme.defined) continue;
           for (const reportedFromLocation of scheme.from) {
             report({
               message: `There is no \`${name}\` security scheme defined.`,
               location: reportedFromLocation.key(),
+            });
+          }
+        }
+
+        if (root.security || eachOperationHasSecurity) {
+          return;
+        } else {
+          for (const operationLocation of operationsWithoutSecurity) {
+            report({
+              message: `Every operation should have security defined on it or on the root level.`,
+              location: operationLocation.key(),
             });
           }
         }
@@ -39,6 +53,12 @@ export const OperationSecurityDefined: Oas3Rule | Oas2Rule = () => {
         } else {
           authScheme.from.push(requirementLocation);
         }
+      }
+    },
+    Operation(operation: Oas2Operation | Oas3Operation, { location }: UserContext) {
+      if (!operation?.security) {
+        eachOperationHasSecurity = false;
+        operationsWithoutSecurity.push(location);
       }
     },
   };

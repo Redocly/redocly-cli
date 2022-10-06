@@ -26,9 +26,8 @@ It's important to conform to the specification so that tools work with your API 
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    spec: error
+rules:
+  spec: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    spec: error
+rules:
+  spec: error
 ```
 
 Example of an **incorrect** spec:
@@ -66,5 +64,5 @@ paths: {}
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/spec.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/spec.ts)
 - [OpenAPI docs](https://redocly.com/docs/openapi-visual-reference/)

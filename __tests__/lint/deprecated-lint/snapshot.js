@@ -2,11 +2,11 @@
 
 exports[`E2E lint deprecated-lint 1`] = `
 
-The lint field is deprecated. Use styleguide instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
+The 'lint' field is deprecated. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
 validating /openapi.yaml...
 [1] openapi.yaml:11:7 at #/paths/~1pet~1findByStatus/get/responses
 
-Operation must have at least one \`4xx\` response.
+Operation must have at least one \`4XX\` response.
 
  9 | operationId: example
 10 | summary: summary example

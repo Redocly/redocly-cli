@@ -33,7 +33,7 @@ export async function loadYaml<T>(filename: string): Promise<T> {
   return parseYaml(contents) as T;
 }
 
-export function notUndefined<T>(x: T | undefined): x is T {
+export function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
@@ -211,16 +211,20 @@ export function doesYamlFileExist(filePath: string): boolean {
   );
 }
 
-export function showWarningForDeprecatedField(deprecatedField: string, updatedField: string) {
+export function showWarningForDeprecatedField(deprecatedField: string, updatedField?: string) {
   logger.warn(
-    `The ${colorize.red(deprecatedField)} field is deprecated. Use ${colorize.green(
-      updatedField
-    )} instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
+    `The '${colorize.red(deprecatedField)}' field is deprecated. ${
+      updatedField ? `Use ${colorize.green(updatedField)} instead. ` : ''
+    }Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );
 }
 
-export function showErrorForDeprecatedField(deprecatedField: string, updatedField: string) {
-  throw new Error(`Do not use '${deprecatedField}' field. Use '${updatedField}' instead.\n`);
+export function showErrorForDeprecatedField(deprecatedField: string, updatedField?: string) {
+  throw new Error(
+    `Do not use '${deprecatedField}' field. ${
+      updatedField ? `Use '${updatedField}' instead. ` : ''
+    }\n`
+  );
 }
 
 export type Falsy = undefined | null | false | '' | 0;

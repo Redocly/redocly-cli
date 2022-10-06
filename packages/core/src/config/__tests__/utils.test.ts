@@ -1,4 +1,4 @@
-import { DeprecatedInRawConfig, RawConfig } from '../types';
+import { DeprecatedInRawConfig, RawConfig, FlatRawConfig } from '../types';
 import * as utils from '../utils';
 
 const makeTestRawConfig = (
@@ -22,8 +22,54 @@ const makeTestRawConfig = (
   },
 });
 
+const rawTestConfig: RawConfig = {
+  apis: {
+    'test@v1': {
+      root: 'root.yaml',
+      styleguide: {
+        extends: ['recommended'],
+        rules: { 'operation-2xx-response': 'error' },
+      },
+    },
+  },
+  styleguide: {
+    plugins: ['test-plugin'],
+    extends: ['minimal'],
+    rules: { 'operation-4xx-response': 'warn' },
+    doNotResolveExamples: true,
+  },
+  resolve: {
+    http: { headers: [{ matches: '*', name: 'all', envVariable: 'all' }] },
+  },
+  'features.openapi': {
+    disableSidebar: true,
+  },
+};
+
+const flatTestConfig: FlatRawConfig = {
+  apis: {
+    'test@v1': {
+      root: 'root.yaml',
+      extends: ['recommended'],
+      rules: { 'operation-2xx-response': 'error' },
+    },
+  },
+  plugins: ['test-plugin'],
+  extends: ['minimal'],
+  rules: {
+    'operation-4xx-response': 'warn',
+  },
+  resolve: {
+    http: { headers: [{ matches: '*', name: 'all', envVariable: 'all' }] },
+    doNotResolveExamples: true,
+  },
+  'features.openapi': {
+    disableSidebar: true,
+  },
+};
+
 describe('transformConfig', () => {
-  it('should work for new syntax', () => {
+  it('should work for the `styleguide` syntax', () => {
     const transformedRawConfig: RawConfig = utils.transformConfig(
       makeTestRawConfig('styleguide', 'styleguide')
     );
@@ -73,11 +119,25 @@ describe('transformConfig', () => {
       }
     `);
   });
-  it('should throw an error if both new and old syntax used together', () => {
+  it('should throw an error if both `styleguide` and `lint` syntaxes used together', () => {
     const testRawConfig = makeTestRawConfig('styleguide', 'lint');
     testRawConfig.apiDefinitions = { legacyApiDefinition: 'file.yaml' };
     expect(() => utils.transformConfig(testRawConfig)).toThrowError(
-      `Do not use 'apiDefinitions' field. Use 'apis' instead.`
+      `Do not use 'apiDefinitions' field. Use 'apis' instead. `
+    );
+  });
+  it('should transform flatten config into styleguide', () => {
+    expect(utils.transformConfig(flatTestConfig)).toEqual({
+      ...rawTestConfig,
+      resolve: { ...rawTestConfig.resolve, doNotResolveExamples: true },
+    });
+  });
+  it('should transform styleguide config into styleguide identically', () => {
+    expect(utils.transformConfig(rawTestConfig)).toEqual(rawTestConfig);
+  });
+  it('should fail when there is a mixed config', () => {
+    expect(() => utils.transformConfig({ ...rawTestConfig, extends: ['recommended'] })).toThrow(
+      `Do not use 'lint', 'styleguide' and flat syntax together. \nSee more about the configuration in the docs: https://redocly.com/docs/cli/configuration/ \n`
     );
   });
 });
