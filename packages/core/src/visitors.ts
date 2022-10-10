@@ -138,7 +138,8 @@ type Oas3FlatVisitor = {
   License?: VisitFunctionOrObject<Oas3License>;
   Paths?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
-  Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  Callback?: VisitFunctionOrObject<Oas3Callback>;
+  CallbacksMap?: VisitFunctionOrObject<Record<string, Oas3Callback>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;
@@ -201,7 +202,7 @@ type Oas2FlatVisitor = {
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
-  Paths: 'PathMap',
+  Paths: ['PathMap', 'PathsMap'],
   CallbacksMap: 'CallbackMap',
   MediaTypesMap: 'MediaTypeMap',
   ExamplesMap: 'ExampleMap',
@@ -373,6 +374,18 @@ export function normalizeVisitors<T extends BaseVisitor>(
     }
   }
 
+  function findLegacyVisitorNode<T>(
+    visitor: NestedVisitObject<any, T>,
+    typeName: keyof T | Array<keyof T>
+  ) {
+    if (Array.isArray(typeName)) {
+      const name = typeName.find((name) => visitor[name]) || undefined;
+      return name && visitor[name];
+    }
+
+    return visitor[typeName];
+  }
+
   function normalizeVisitorLevel(
     ruleConf: RuleInstanceConfig,
     visitor: NestedVisitObject<any, T>,
@@ -395,9 +408,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
     for (const typeName of visitorKeys as Array<keyof T>) {
       const typeVisitor = (visitor[typeName] ||
-        visitor[
+        findLegacyVisitorNode(
+          visitor,
           legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T
-        ]) as any as NestedVisitObject<any, T>;
+        )) as any as NestedVisitObject<any, T>;
       const normalizedTypeVisitor = normalizedVisitors[typeName];
 
       if (!typeVisitor) continue;
