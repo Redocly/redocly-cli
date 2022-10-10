@@ -3,7 +3,6 @@ import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 
 const builtInRulesList = [
   'spec',
-  'info-description',
   'info-contact',
   'info-license',
   'info-license-url',
