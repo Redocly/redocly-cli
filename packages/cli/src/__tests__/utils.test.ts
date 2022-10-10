@@ -1,5 +1,5 @@
 import { Totals } from '@redocly/openapi-core';
-import { isSubdir, pathToFilename, printConfigLintTotals } from '../utils';
+import { getFallbackApisOrExit, isSubdir, pathToFilename, printConfigLintTotals } from '../utils';
 import { red, yellow } from 'colorette';
 
 jest.mock('os');
@@ -48,6 +48,19 @@ describe('pathToFilename', () => {
   it('should use correct path separator', () => {
     const processedPath = pathToFilename('/user/createWithList', '_');
     expect(processedPath).toEqual('user_createWithList');
+  });
+});
+
+describe('getFallbackApisOrExit', () => {
+  it('should find alias by filename', async () => {
+    const entry = await getFallbackApisOrExit(['./test.yaml'], {
+      apis: {
+        main: {
+          root: 'test.yaml',
+        },
+      },
+    } as any);
+    expect(entry).toEqual([{ path: './test.yaml', alias: 'main' }]);
   });
 });
 
