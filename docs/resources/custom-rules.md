@@ -313,7 +313,10 @@ module.exports = {
 }
 ```
 
-See an example of a custom decorator implementation in our [how-to hide APIs guide](../guides/hide-apis.md).
+See an examples of decorators:
+- Read our [how-to hide APIs guide](../guides/hide-apis.md) with our [remove-x-internal decorator](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/remove-x-internal.ts) implementation
+- Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
+- Change your [OAuth2 token URL](../guides/change-token-url.md).
 
 ## Configs in plugins
 
