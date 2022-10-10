@@ -47,7 +47,7 @@ Estimated time: 20 minutes
     /** @type {import('@redocly/cli').OasDecorator} */
     function ChangeTokenUrl() {
       return {
-        SecuritySchemeFlows: {
+        OAuth2Flows: {
           leave(flows, ctx) {
             if ('TOKEN_URL' in process.env && flows?.clientCredentials) {
               flows.clientCredentials.tokenUrl = process.env.TOKEN_URL;

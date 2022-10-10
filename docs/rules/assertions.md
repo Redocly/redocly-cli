@@ -355,7 +355,7 @@ The following example asserts that when `PUT` requests have either `200` or `201
 ```yaml Response example
 rules:
   assert/put-200-and-201:
-    subject: ResponsesMap
+    subject: Responses
     context:
       - type: Operation
         matchParentKeys:
@@ -375,7 +375,7 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 ```yaml Response example
 rules:
   assert/put-200-and-201:
-    subject: ResponsesMap
+    subject: Responses
     context:
       - type: Operation
         matchParentKeys:
@@ -540,7 +540,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - Info
 - Contact
 - License
-- PathsMap
+- Paths
 - PathItem
 - Parameter
 - Operation
@@ -551,7 +551,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - Example
 - Encoding
 - Header
-- ResponsesMap
+- Responses
 - Response
 - Link
 - Schema
@@ -573,7 +573,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - PasswordFlow
 - ClientCredentials
 - AuthorizationCode
-- SecuritySchemeFlows
+- OAuth2Flows
 - SecurityScheme
 - XCodeSample
 - WebhooksMap

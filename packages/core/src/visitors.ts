@@ -136,9 +136,10 @@ type Oas3FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas3Info>;
   Contact?: VisitFunctionOrObject<Oas3Contact>;
   License?: VisitFunctionOrObject<Oas3License>;
-  PathsMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  Paths?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
-  Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  Callback?: VisitFunctionOrObject<Oas3Callback>;
+  CallbacksMap?: VisitFunctionOrObject<Record<string, Oas3Callback>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
   Operation?: VisitFunctionOrObject<Oas3Operation>;
   RequestBody?: VisitFunctionOrObject<Oas3RequestBody>;
@@ -147,7 +148,7 @@ type Oas3FlatVisitor = {
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding>;
   Header?: VisitFunctionOrObject<Oas3Header>;
-  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas3Response>>;
+  Responses?: VisitFunctionOrObject<Record<string, Oas3Response>>;
   Response?: VisitFunctionOrObject<Oas3Response>;
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema>;
@@ -169,7 +170,7 @@ type Oas3FlatVisitor = {
   PasswordFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['password']>;
   ClientCredentials?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['clientCredentials']>;
   AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
-  SecuritySchemeFlows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
+  OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
 };
 
@@ -181,13 +182,13 @@ type Oas2FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas2Info>;
   Contact?: VisitFunctionOrObject<Oas2Contact>;
   License?: VisitFunctionOrObject<Oas2License>;
-  PathsMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
+  Paths?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas2PathItem>;
   Parameter?: VisitFunctionOrObject<any>;
   Operation?: VisitFunctionOrObject<Oas2Operation>;
   Examples?: VisitFunctionOrObject<Record<string, any>>;
   Header?: VisitFunctionOrObject<Oas2Header>;
-  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas2Response>>;
+  Responses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
   Response?: VisitFunctionOrObject<Oas2Response>;
   Schema?: VisitFunctionOrObject<Oas2Schema>;
   Xml?: VisitFunctionOrObject<Oas2Xml>;
@@ -201,13 +202,14 @@ type Oas2FlatVisitor = {
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
-  PathsMap: 'PathMap',
+  Paths: ['PathMap', 'PathsMap'],
   CallbacksMap: 'CallbackMap',
   MediaTypesMap: 'MediaTypeMap',
   ExamplesMap: 'ExampleMap',
-  EncodingsMap: 'EncodingMap',
+  EncodingMap: 'EncodingsMap',
   HeadersMap: 'HeaderMap',
   LinksMap: 'LinkMap',
+  OAuth2Flows: 'SecuritySchemeFlows',
 };
 
 type Oas3NestedVisitor = {
@@ -372,6 +374,18 @@ export function normalizeVisitors<T extends BaseVisitor>(
     }
   }
 
+  function findLegacyVisitorNode<T>(
+    visitor: NestedVisitObject<any, T>,
+    typeName: keyof T | Array<keyof T>
+  ) {
+    if (Array.isArray(typeName)) {
+      const name = typeName.find((name) => visitor[name]) || undefined;
+      return name && visitor[name];
+    }
+
+    return visitor[typeName];
+  }
+
   function normalizeVisitorLevel(
     ruleConf: RuleInstanceConfig,
     visitor: NestedVisitObject<any, T>,
@@ -394,9 +408,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
     for (const typeName of visitorKeys as Array<keyof T>) {
       const typeVisitor = (visitor[typeName] ||
-        visitor[
+        findLegacyVisitorNode(
+          visitor,
           legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T
-        ]) as any as NestedVisitObject<any, T>;
+        )) as any as NestedVisitObject<any, T>;
       const normalizedTypeVisitor = normalizedVisitors[typeName];
 
       if (!typeVisitor) continue;

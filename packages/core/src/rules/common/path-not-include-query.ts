@@ -3,7 +3,7 @@ import { UserContext } from '../../walk';
 
 export const PathNotIncludeQuery: Oas3Rule | Oas2Rule = () => {
   return {
-    PathsMap: {
+    Paths: {
       PathItem(_operation: object, { report, key }: UserContext) {
         if (key.toString().includes('?')) {
           report({

@@ -10,7 +10,7 @@ const Root: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathsMap',
+    paths: 'Paths',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
   },
@@ -88,7 +88,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathsMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -153,7 +153,7 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
     requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     deprecated: { type: 'boolean' },
     callbacks: 'CallbacksMap',
     'x-codeSamples': listOf('XCodeSample'),
@@ -190,7 +190,7 @@ const MediaType: NodeType = {
     schema: 'Schema',
     example: { isExample: true },
     examples: 'ExamplesMap',
-    encoding: 'EncodingsMap',
+    encoding: 'EncodingMap',
   },
 };
 
@@ -234,7 +234,7 @@ const Header: NodeType = {
   requiredOneOf: ['schema', 'content'],
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: { default: 'Response' },
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
@@ -408,7 +408,7 @@ const AuthorizationCode: NodeType = {
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
 
-const SecuritySchemeFlows: NodeType = {
+const OAuth2Flows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',
@@ -425,7 +425,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flows: 'SecuritySchemeFlows',
+    flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
@@ -470,7 +470,7 @@ export const Oas3Types: Record<string, NodeType> = {
   Info,
   Contact,
   License,
-  PathsMap,
+  Paths,
   PathItem,
   Parameter,
   Operation,
@@ -482,10 +482,10 @@ export const Oas3Types: Record<string, NodeType> = {
   Example,
   ExamplesMap: mapOf('Example'),
   Encoding,
-  EncodingsMap: mapOf('Encoding'),
+  EncodingMap: mapOf('Encoding'),
   Header,
   HeadersMap: mapOf('Header'),
-  ResponsesMap,
+  Responses,
   Response,
   Link,
   Schema,
@@ -508,7 +508,7 @@ export const Oas3Types: Record<string, NodeType> = {
   PasswordFlow,
   ClientCredentials,
   AuthorizationCode,
-  SecuritySchemeFlows,
+  OAuth2Flows,
   SecurityScheme,
   XCodeSample,
   WebhooksMap,

@@ -12,11 +12,11 @@ Requires that the contents of every `enum` value in your API definition conform 
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap --> PathItem --> Operation --> Parameter --> Schema
+Root ==> Paths --> PathItem --> Operation --> Parameter --> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 Operation --> RequestBody --> MediaType --> Schema
-Operation --> ResponsesMap --> MediaType
+Operation --> Responses --> MediaType
 NamedSchema --> Schema
 Root ==> components
 

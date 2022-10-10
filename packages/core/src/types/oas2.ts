@@ -11,7 +11,7 @@ const Root: NodeType = {
     schemes: { type: 'array', items: { type: 'string' } },
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
-    paths: 'PathsMap',
+    paths: 'Paths',
     definitions: 'NamedSchemas',
     parameters: 'NamedParameters',
     responses: 'NamedResponses',
@@ -51,7 +51,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathsMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -82,7 +82,7 @@ const Operation: NodeType = {
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
     parameters: listOf('Parameter'),
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     schemes: { type: 'array', items: { type: 'string' } },
     deprecated: { type: 'boolean' },
     security: listOf('SecurityRequirement'),
@@ -180,7 +180,7 @@ const ParameterItems: NodeType = {
   },
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: {
     default: 'Response',
   },
@@ -376,14 +376,14 @@ export const Oas2Types: Record<string, NodeType> = {
   Info,
   Contact,
   License,
-  PathsMap,
+  Paths,
   PathItem,
   Parameter,
   ParameterItems,
   Operation,
   Examples,
   Header,
-  ResponsesMap,
+  Responses,
   Response,
   Schema,
   Xml,
