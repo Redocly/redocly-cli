@@ -4,6 +4,7 @@ import {
   slash,
   getMatchingStatusCodeRange,
   doesYamlFileExist,
+  pickDefined,
 } from '../utils';
 import { isBrowser } from '../env';
 import * as fs from 'fs';
@@ -78,6 +79,16 @@ describe('utils', () => {
     it('does not modify extended length paths', () => {
       const extended = '\\\\?\\some\\path';
       expect(slash(extended)).toBe(extended);
+    });
+  });
+
+  describe('pickDefined', () => {
+    it('returns undefined for undefined', () => {
+      expect(pickDefined(undefined)).toBeUndefined();
+    });
+
+    it('picks only defined values', () => {
+      expect(pickDefined({ a: 1, b: undefined, c: 3 })).toStrictEqual({ a: 1, c: 3 });
     });
   });
 

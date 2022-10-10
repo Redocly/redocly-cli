@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { isAbsoluteUrl } from '../ref-utils';
+import { pickDefined } from '../utils';
 import { BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
 import {
@@ -355,7 +356,7 @@ function getMergedRawStyleguideConfig(
 ) {
   const resultLint = {
     ...rootStyleguideConfig,
-    ...apiStyleguideConfig,
+    ...pickDefined(apiStyleguideConfig),
     rules: { ...rootStyleguideConfig?.rules, ...apiStyleguideConfig?.rules },
     oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
     oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },

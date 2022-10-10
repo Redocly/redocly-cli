@@ -464,4 +464,29 @@ describe('resolveConfig', () => {
     delete apis['petstore'].styleguide.pluginPaths;
     expect(apis['petstore'].styleguide).toMatchSnapshot();
   });
+
+  it('should default to the extends from the main config if no extends defined', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          styleguide: {
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      styleguide: {
+        extends: ['minimal'],
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const { apis } = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].styleguide.rules).toBeDefined();
+    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
+  });
 });
