@@ -232,7 +232,9 @@ export function identity<T>(value: T): T {
   return value;
 }
 
-export function pickDefined<T extends Record<string, unknown>>(obj?: T): Record<string, unknown> | undefined {
+export function pickDefined<T extends Record<string, unknown>>(
+  obj?: T
+): Record<string, unknown> | undefined {
   if (!obj) return undefined;
   const res: Record<string, unknown> = {};
   for (const key in obj) {
