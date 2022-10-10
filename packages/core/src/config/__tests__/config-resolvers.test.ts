@@ -487,6 +487,6 @@ describe('resolveConfig', () => {
 
     const { apis } = await resolveConfig(rawConfig, configPath);
     expect(apis['petstore'].styleguide.rules).toBeDefined();
-    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // form minimal ruleset
+    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });
