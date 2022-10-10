@@ -5,18 +5,18 @@ import { Oas2Paths } from '../../typings/swagger';
 
 export const NoIdenticalPaths: Oas3Rule | Oas2Rule = () => {
   return {
-    PathsMap(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
-      const pathsMap = new Map<string, string>();
+    Paths(pathMap: Oas3Paths | Oas2Paths, { report, location }: UserContext) {
+      const Paths = new Map<string, string>();
       for (const pathName of Object.keys(pathMap)) {
         const id = pathName.replace(/{.+?}/g, '{VARIABLE}');
-        const existingSamePath = pathsMap.get(id);
+        const existingSamePath = Paths.get(id);
         if (existingSamePath) {
           report({
             message: `The path already exists which differs only by path parameter name(s): \`${existingSamePath}\` and \`${pathName}\`.`,
             location: location.child([pathName]).key(),
           });
         } else {
-          pathsMap.set(id, pathName);
+          Paths.set(id, pathName);
         }
       }
     },

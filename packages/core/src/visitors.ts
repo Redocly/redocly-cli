@@ -136,7 +136,7 @@ type Oas3FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas3Info>;
   Contact?: VisitFunctionOrObject<Oas3Contact>;
   License?: VisitFunctionOrObject<Oas3License>;
-  PathsMap?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
+  Paths?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas3PathItem>;
   Callback?: VisitFunctionOrObject<Record<string, Oas3PathItem>>;
   Parameter?: VisitFunctionOrObject<Oas3Parameter>;
@@ -147,7 +147,7 @@ type Oas3FlatVisitor = {
   Example?: VisitFunctionOrObject<Oas3Example>;
   Encoding?: VisitFunctionOrObject<Oas3Encoding>;
   Header?: VisitFunctionOrObject<Oas3Header>;
-  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas3Response>>;
+  Responses?: VisitFunctionOrObject<Record<string, Oas3Response>>;
   Response?: VisitFunctionOrObject<Oas3Response>;
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema>;
@@ -169,7 +169,7 @@ type Oas3FlatVisitor = {
   PasswordFlow?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['password']>;
   ClientCredentials?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['clientCredentials']>;
   AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
-  SecuritySchemeFlows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
+  OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
 };
 
@@ -181,13 +181,13 @@ type Oas2FlatVisitor = {
   Info?: VisitFunctionOrObject<Oas2Info>;
   Contact?: VisitFunctionOrObject<Oas2Contact>;
   License?: VisitFunctionOrObject<Oas2License>;
-  PathsMap?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
+  Paths?: VisitFunctionOrObject<Record<string, Oas2PathItem>>;
   PathItem?: VisitFunctionOrObject<Oas2PathItem>;
   Parameter?: VisitFunctionOrObject<any>;
   Operation?: VisitFunctionOrObject<Oas2Operation>;
   Examples?: VisitFunctionOrObject<Record<string, any>>;
   Header?: VisitFunctionOrObject<Oas2Header>;
-  ResponsesMap?: VisitFunctionOrObject<Record<string, Oas2Response>>;
+  Responses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
   Response?: VisitFunctionOrObject<Oas2Response>;
   Schema?: VisitFunctionOrObject<Oas2Schema>;
   Xml?: VisitFunctionOrObject<Oas2Xml>;
@@ -201,13 +201,14 @@ type Oas2FlatVisitor = {
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
-  PathsMap: 'PathMap',
+  Paths: 'PathMap',
   CallbacksMap: 'CallbackMap',
   MediaTypesMap: 'MediaTypeMap',
   ExamplesMap: 'ExampleMap',
-  EncodingsMap: 'EncodingMap',
+  EncodingMap: 'EncodingsMap',
   HeadersMap: 'HeaderMap',
   LinksMap: 'LinkMap',
+  OAuth2Flows: 'SecuritySchemeFlows',
 };
 
 type Oas3NestedVisitor = {

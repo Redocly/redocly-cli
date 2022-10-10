@@ -65,7 +65,7 @@ describe('Oas3 assertions', () => {
             matchParentKeys: ['put'],
           },
           {
-            type: 'ResponsesMap',
+            type: 'Responses',
             matchParentKeys: [201, 200],
           },
         ];
@@ -75,7 +75,7 @@ describe('Oas3 assertions', () => {
         expect(visitors).toMatchInlineSnapshot(`
           Object {
             "Operation": Object {
-              "ResponsesMap": Object {
+              "Responses": Object {
                 "MediaTypesMap": [Function],
                 "skip": [Function],
               },

@@ -11,7 +11,7 @@ Disallow invalid schema examples.
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap --> PathItem --> Operation --> Parameter --> Example
+Root ==> Paths --> PathItem --> Operation --> Parameter --> Example
 PathItem --> Parameter
 Parameter --> Schema
 Operation --> MediaType --> Schema

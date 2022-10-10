@@ -94,7 +94,7 @@ rules:
       - updated_at
   # mutuallyRequired example with context
   assert/operation-mutually-required-w-context:
-    subject: ResponsesMap
+    subject: Responses
     context:
         - type: Operation
           matchParentKeys:

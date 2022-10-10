@@ -11,10 +11,10 @@ Ensures that `examples` object properties `externalValue` and `value` are mutual
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap --> PathItem --> Operation --> Parameter --> MediaType
+Root ==> Paths --> PathItem --> Operation --> Parameter --> MediaType
 PathItem --> Parameter
 Operation --> RequestBody --> MediaType --> Example
-Operation --> ResponsesMap --> MediaType
+Operation --> Responses --> MediaType
 NamedExample --> Example
 Root ==> components
 
