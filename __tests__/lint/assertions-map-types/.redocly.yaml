@@ -10,7 +10,7 @@ rules:
     defined: false
 
   assert/encodingMap:
-    subject: EncodingsMap
+    subject: EncodingMap
     casing: kebab-case
 
   assert/linkMap:

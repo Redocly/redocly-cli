@@ -12,8 +12,8 @@ Disallows HTTP verbs used in paths.
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap
-style PathsMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
+Root ==> Paths
+style Paths fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 List of HTTP verbs:

@@ -5,7 +5,7 @@ import { validateMimeTypeOAS3 } from '../../utils';
 
 export const ResponseMimeType: Oas3Rule = ({ allowedValues }) => {
   return {
-    PathsMap: {
+    Paths: {
       Response: {
         leave(response: Oas3Response, ctx: UserContext) {
           validateMimeTypeOAS3({ type: 'produces', value: response }, ctx, allowedValues);
