@@ -71,7 +71,7 @@ rules:
   assert/operation-id-camel-case:
     subject: Operation
     property: operationId
-    message: NamedExamples key must be in PascalCase
+    message: NamedExamples key must be in camelCase
     severity: error
     casing: camelCase
   # mutuallyExclusive example
