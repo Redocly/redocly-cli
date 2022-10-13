@@ -104,12 +104,12 @@ Woohoo! Your OpenAPI definition is valid. 🎉
 To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is rooted in the current working directory, the command to use is:
 
 ```shell Example with lint command
-docker run --rm -v $PWD:/spec redocly/cli lint petstore.yaml
+docker run --rm -v $PWD:/spec redocly/openapi-cli lint petstore.yaml
 ```
 
 ```shell Output (lint succeeded)
-Unable to find image 'redocly/cli:latest' locally
-latest: Pulling from redocly/cli
+Unable to find image 'redocly/openapi-cli:latest' locally
+latest: Pulling from redocly/openapi-cli
 540db60ca938: Pull complete
 fe289da0f830: Pull complete
 c5a1e48e74e5: Pull complete
@@ -117,7 +117,7 @@ c5a1e48e74e5: Pull complete
 4b42ba54a874: Pull complete
 3f76218e8e91: Pull complete
 Digest: sha256:fa95c9a8b9e282b21779e8ffa86ed28b87f9d97517e46d96af7a6676d47b0430
-Status: Downloaded newer image for redocly/cli:latest
+Status: Downloaded newer image for redocly/openapi-cli:latest
 No configurations were defined in extends -- using built in recommended configuration by default.
 
 validating petstore.yaml...
