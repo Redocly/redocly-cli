@@ -28,12 +28,12 @@ This tutorial is most effective when you follow along and complete the steps.
       - url: 'https://example.com/api/v1'
     paths:
       /status:
-        get: 
+        get:
           summary: Get status
           operationId: getStatus
           security: []
-          responses: 
-            '204': 
+          responses:
+            '204':
               description: Status OK
             '400':
               description: Status not OK
@@ -80,7 +80,7 @@ In this step, you will add a decorator and define the environment variable assoc
 1. Create a directory `decorators` inside of the `plugins` directory.
 1. Create a `replace-servers-url.js` file with this information and save it inside of the `decorators` directory.
 
-``` JavaScript
+```JavaScript
 module.exports = ReplaceServersURL;
 
 /** @type {import('@redocly/cli').OasDecorator} */
@@ -90,8 +90,8 @@ function ReplaceServersURL({serverUrl}) {
     Server: {
       leave(Server) {
 
-        if ( 'SERVERS_URL' in process.env) {
-          Server.url = process.env.SERVERS_URL;
+        if (serverUrl) {
+          Server.url = serverUrl;
         }
 
       }
@@ -112,14 +112,14 @@ To use the decorator, you will need to register your plugin in your Redocly conf
 
 ```yaml
 apis:
-  sample@v1-backend: 
+  sample@v1-backend:
     root: original.yaml
-    decorators: 
+    decorators:
       plugin/replace-servers-url:
         serverUrl: "https://backend.example.com/v1"
-  sample@v1-proxy: 
+  sample@v1-proxy:
     root: original.yaml
-    decorators: 
+    decorators:
       plugin/replace-servers-url:
         serverUrl: "https://proxy.example.com/v1"
 plugins:
