@@ -187,5 +187,5 @@ Here is the equivalent of the `recommended` configuration values:
 
 ## Rule ideas
 
-Redocly CLI supports [custom rules](./rules/custom-rules.md) and [custom rules](./resources/custom-plugins.md).
+Redocly CLI supports [custom rules](./rules/custom-rules.md) and [custom plugins](./resources/custom-plugins.md).
 However, if you have an idea for a built-in rule you believe will benefit the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new) in the Redocly CLI repository.
