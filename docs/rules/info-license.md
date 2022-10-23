@@ -36,18 +36,16 @@ By being upfront with the API license, you can reduce friction towards usage.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    info-license: error
+rules:
+  info-license: error
 ```
 
 ## Examples
 
 Given the following configuration:
 ```yaml
-styleguide:
-  rules:
-    info-license: error
+rules:
+  info-license: error
 ```
 
 Example of an **incorrect** license:
@@ -72,5 +70,5 @@ info:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/info-license.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/info-license.ts)
 - [License object docs](https://redocly.com/docs/openapi-visual-reference/license/)

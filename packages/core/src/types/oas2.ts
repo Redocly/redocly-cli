@@ -2,7 +2,7 @@ import { NodeType, listOf, mapOf } from '.';
 
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     swagger: { type: 'string' },
     info: 'Info',
@@ -11,7 +11,7 @@ const DefinitionRoot: NodeType = {
     schemes: { type: 'array', items: { type: 'string' } },
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
-    paths: 'PathMap',
+    paths: 'Paths',
     definitions: 'NamedSchemas',
     parameters: 'NamedParameters',
     responses: 'NamedResponses',
@@ -51,7 +51,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -82,7 +82,7 @@ const Operation: NodeType = {
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
     parameters: listOf('Parameter'),
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     schemes: { type: 'array', items: { type: 'string' } },
     deprecated: { type: 'boolean' },
     security: listOf('SecurityRequirement'),
@@ -180,7 +180,7 @@ const ParameterItems: NodeType = {
   },
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: {
     default: 'Response',
   },
@@ -369,21 +369,21 @@ const SecurityRequirement: NodeType = {
 };
 
 export const Oas2Types: Record<string, NodeType> = {
-  DefinitionRoot,
+  Root,
   Tag,
   ExternalDocs,
   SecurityRequirement,
   Info,
   Contact,
   License,
-  PathMap,
+  Paths,
   PathItem,
   Parameter,
   ParameterItems,
   Operation,
   Examples,
   Header,
-  ResponsesMap,
+  Responses,
   Response,
   Schema,
   Xml,

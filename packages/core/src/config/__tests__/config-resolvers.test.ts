@@ -1,3 +1,5 @@
+import { colorize } from '../../logger';
+import { asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
 const path = require('path');
 
@@ -130,6 +132,40 @@ describe('resolveStyleguideConfig', () => {
     expect(styleguide).toMatchSnapshot();
   });
 
+  it('should resolve custom assertion from plugin', async () => {
+    const styleguideConfig = {
+      extends: ['local-config-with-custom-function.yaml'],
+    };
+    const { plugins } = await resolveStyleguideConfig({
+      styleguideConfig,
+      configPath,
+    });
+
+    expect(plugins).toBeDefined();
+    expect(plugins?.length).toBe(2);
+    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
+  });
+
+  it('should throw error when custom assertion load not exist plugin', async () => {
+    const styleguideConfig = {
+      extends: ['local-config-with-wrong-custom-function.yaml'],
+    };
+    try {
+      await resolveStyleguideConfig({
+        styleguideConfig,
+        configPath,
+      });
+    } catch (e) {
+      expect(e.message.toString()).toContain(
+        `Plugin ${colorize.red(
+          'test-plugin'
+        )} doesn't export assertions function with name ${colorize.red('checkWordsCount2')}.`
+      );
+    }
+
+    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
+  });
+
   it('should correctly merge assertions from nested config', async () => {
     const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
@@ -165,7 +201,7 @@ describe('resolveStyleguideConfig', () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
-        'https://raw.githubusercontent.com/Redocly/redocly-cli/master/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
+        'https://raw.githubusercontent.com/Redocly/redocly-cli/main/packages/core/src/config/__tests__/fixtures/resolve-remote-configs/remote-config.yaml',
       ],
     };
 
@@ -427,5 +463,30 @@ describe('resolveConfig', () => {
     delete apis['petstore'].styleguide.extendPaths;
     delete apis['petstore'].styleguide.pluginPaths;
     expect(apis['petstore'].styleguide).toMatchSnapshot();
+  });
+
+  it('should default to the extends from the main config if no extends defined', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          styleguide: {
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      styleguide: {
+        extends: ['minimal'],
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const { apis } = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].styleguide.rules).toBeDefined();
+    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });

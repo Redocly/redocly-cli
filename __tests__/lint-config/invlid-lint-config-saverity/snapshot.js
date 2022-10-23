@@ -13,8 +13,8 @@ Options:
   --version               Show version number.                         [boolean]
   --help                  Show help.                                   [boolean]
   --format                Use a specific output format.
-          [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate"]
-                                                          [default: "codeframe"]
+          [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate",
+                                               "summary"] [default: "codeframe"]
   --max-problems          Reduce output to max N problems.
                                                          [number] [default: 100]
   --generate-ignore-file  Generate ignore file.                        [boolean]

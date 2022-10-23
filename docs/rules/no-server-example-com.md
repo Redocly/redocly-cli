@@ -35,9 +35,8 @@ If you can't reveal a production server, consider a [Redocly mock server](/docs/
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-example.com: error
+rules:
+  no-server-example.com: error
 ```
 
 ## Examples
@@ -45,9 +44,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-example.com: error
+rules:
+  no-server-example.com: error
 ```
 
 Example of **incorrect** server:
@@ -74,5 +72,5 @@ servers:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-server-example.com.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-server-example.com.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)

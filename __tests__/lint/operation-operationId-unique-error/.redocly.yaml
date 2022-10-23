@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    operation-operationId-unique: error
-  extends: []
+rules:
+  operation-operationId-unique: error
+extends: []

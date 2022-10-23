@@ -65,18 +65,18 @@ describe('Oas3 assertions', () => {
             matchParentKeys: ['put'],
           },
           {
-            type: 'ResponsesMap',
+            type: 'Responses',
             matchParentKeys: [201, 200],
           },
         ];
 
-        const visitors = buildVisitorObject('MediaTypeMap', context, () => {}) as any;
+        const visitors = buildVisitorObject('MediaTypesMap', context, () => {}) as any;
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
             "Operation": Object {
-              "ResponsesMap": Object {
-                "MediaTypeMap": [Function],
+              "Responses": Object {
+                "MediaTypesMap": [Function],
                 "skip": [Function],
               },
               "skip": [Function],

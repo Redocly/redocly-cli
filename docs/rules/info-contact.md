@@ -31,18 +31,16 @@ If they need help to purchase, integrate, or troubleshoot, your contact info sho
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    info-contact: warn
+rules:
+  info-contact: warn
 ```
 
 ## Examples
 
 Given this configuration:
 ```yaml
-styleguide:
-  rules:
-    info-contact: error
+rules:
+  info-contact: error
 ```
 
 Example of **incorrect** contact:
@@ -74,5 +72,5 @@ info:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/info-contact.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/info-contact.ts)
 - [Contact object docs](https://redocly.com/docs/openapi-visual-reference/contact/)

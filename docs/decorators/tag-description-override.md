@@ -18,12 +18,11 @@ This decorator provides a way to "overlay" a new description over the source so 
 Example of a configuration:
 
 ```yaml
-styleguide:
-  decorators:
-    tag-description-override:
-      tagNames:
-        planet: ./my-planet-description.md
-        star: ./my-star-description.md
+decorators:
+  tag-description-override:
+    tagNames:
+      planet: ./my-planet-description.md
+      star: ./my-star-description.md
 ```
 
 ## Examples
@@ -40,5 +39,5 @@ See a repository with [info, operation, and tag description overrides](https://g
 
 ## Resources
 
-- [Decorator source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/decorators/common/tag-description-override.ts)
+- [Decorator source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/tag-description-override.ts)
 - [Blog post about Overlays](../../../blog/openapi-overlays.md)

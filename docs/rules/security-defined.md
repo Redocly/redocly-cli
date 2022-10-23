@@ -1,8 +1,4 @@
----
-exclude: true
-# TODO - some issues
----
-# operation-security-defined
+# security-defined
 
 Verifies every operation or global security is defined.
 
@@ -41,9 +37,8 @@ security: []
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-security-defined: error
+rules:
+  security-defined: error
 ```
 
 ## Examples
@@ -51,17 +46,35 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-security-defined: error
+rules:
+  security-defined: error
 ```
 
-Example of **incorrect** security definition:
+Example of **incorrect** security definition due to mismatching security and security schemes:
 
-<!-- TODO -->
+```yaml
+security: 
+  - OAuth: []
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
 
 Example of **correct** security definition:
 
+```yaml
+security: 
+  - JWT: []
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
 
 ## Related rules
 
@@ -70,6 +83,6 @@ Example of **correct** security definition:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-security-defined.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/security-defined.ts)
 - [Security docs](https://redocly.com/docs/openapi-visual-reference/security/)
 - [Security scheme docs](https://redocly.com/docs/openapi-visual-reference/security-schemes/)

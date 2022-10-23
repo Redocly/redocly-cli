@@ -11,7 +11,7 @@ Disallow invalid media type examples by ensuring they comply with the correspond
 ```mermaid
 flowchart TD
 
-root ==> PathMap --> PathItem --> Operation --> MediaType --> Example
+root ==> Paths --> PathItem --> Operation --> MediaType --> Example
 MediaType --> Examples --> Example
 
 root ==> components
@@ -46,11 +46,10 @@ It's much nicer to get this alert from Redocly before you ship than from your bi
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-media-type-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -58,11 +57,10 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-media-type-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of an **incorrect** media type example:
@@ -151,6 +149,6 @@ post:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-invalid-media-type-examples.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-invalid-media-type-examples.ts)
 - [Example docs](https://redocly.com/docs/openapi-visual-reference/example/)
 - [Media type object docs](https://redocly.com/docs/openapi-visual-reference/media-type/)

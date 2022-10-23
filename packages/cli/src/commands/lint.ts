@@ -39,11 +39,11 @@ export async function handleLint(argv: LintOptions, version: string) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
 
-  const config: Config = await loadConfig(
-    argv.config,
-    argv.extends,
-    lintConfigCallback(argv, version)
-  );
+  const config: Config = await loadConfig({
+    configPath: argv.config,
+    customExtends: argv.extends,
+    processRawConfig: lintConfigCallback(argv, version),
+  });
 
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
@@ -124,6 +124,11 @@ export async function handleLint(argv: LintOptions, version: string) {
 
 function lintConfigCallback(argv: LintOptions, version: string) {
   if (argv['lint-config'] === 'off') {
+    return;
+  }
+
+  if (argv.format === 'json') {
+    // we can't print config lint results as it will break json output
     return;
   }
 

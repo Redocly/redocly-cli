@@ -2,8 +2,8 @@
 
 exports[`E2E lint deprecated-apiDefinitions 1`] = `
 
-The apiDefinitions field is deprecated. Use apis instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
-The lint field is deprecated. Use styleguide instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
+The 'apiDefinitions' field is deprecated. Use apis instead. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
+The 'lint' field is deprecated. Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties
 validating /openapi.yaml...
 [1] openapi.yaml:2:1 at #/info/contact
 

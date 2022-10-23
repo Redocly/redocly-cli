@@ -38,9 +38,8 @@ In the case of environment-driven variables, you may want to predefine all of th
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-variables-empty-enum: error
+rules:
+  no-server-variables-empty-enum: error
 ```
 
 ## Examples
@@ -48,9 +47,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-server-variables-empty-enum: error
+rules:
+  no-server-variables-empty-enum: error
 ```
 
 Example of **incorrect** server variables:
@@ -89,5 +87,5 @@ servers:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/no-server-variables-empty-enum.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-server-variables-empty-enum.ts)
 - [Servers list docs](https://redocly.com/docs/openapi-visual-reference/servers/)

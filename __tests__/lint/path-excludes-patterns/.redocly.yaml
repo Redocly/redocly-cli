@@ -2,10 +2,9 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    path-excludes-patterns:
-      severity: error
-      patterns:
-        - ^\/[a-z]
-  extends: []
+rules:
+  path-excludes-patterns:
+    severity: error
+    patterns:
+      - ^\/[a-z]
+extends: []

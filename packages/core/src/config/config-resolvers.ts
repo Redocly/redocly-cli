@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { isAbsoluteUrl } from '../ref-utils';
+import { pickDefined } from '../utils';
 import { BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
 import {
@@ -21,9 +22,10 @@ import type {
   DeprecatedInRawConfig,
 } from './types';
 import { isBrowser } from '../env';
-import { isNotString, isString, notUndefined, parseYaml } from '../utils';
+import { isNotString, isString, isDefined, parseYaml } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
@@ -175,9 +177,13 @@ export function resolvePlugins(
         }
       }
 
+      if (pluginModule.assertions) {
+        plugin.assertions = pluginModule.assertions;
+      }
+
       return plugin;
     })
-    .filter(notUndefined);
+    .filter(isDefined);
 }
 
 export async function resolveApis({
@@ -299,8 +305,7 @@ export async function resolveStyleguideConfig(
   return {
     ...resolvedStyleguideConfig,
     rules:
-      resolvedStyleguideConfig.rules &&
-      groupStyleguideAssertionRules(resolvedStyleguideConfig.rules),
+      resolvedStyleguideConfig.rules && groupStyleguideAssertionRules(resolvedStyleguideConfig),
   };
 }
 
@@ -351,7 +356,7 @@ function getMergedRawStyleguideConfig(
 ) {
   const resultLint = {
     ...rootStyleguideConfig,
-    ...apiStyleguideConfig,
+    ...pickDefined(apiStyleguideConfig),
     rules: { ...rootStyleguideConfig?.rules, ...apiStyleguideConfig?.rules },
     oas2Rules: { ...rootStyleguideConfig?.oas2Rules, ...apiStyleguideConfig?.oas2Rules },
     oas3_0Rules: { ...rootStyleguideConfig?.oas3_0Rules, ...apiStyleguideConfig?.oas3_0Rules },
@@ -392,9 +397,10 @@ function getMergedRawStyleguideConfig(
   return resultLint;
 }
 
-function groupStyleguideAssertionRules(
-  rules: Record<string, RuleConfig> | undefined
-): Record<string, RuleConfig> | undefined {
+function groupStyleguideAssertionRules({
+  rules,
+  plugins,
+}: ResolvedStyleguideConfig): Record<string, RuleConfig> | undefined {
   if (!rules) {
     return rules;
   }
@@ -407,6 +413,24 @@ function groupStyleguideAssertionRules(
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
       const assertion = rule;
+      if (plugins) {
+        for (const field of Object.keys(assertion)) {
+          const [pluginId, fn] = field.split('/');
+          if (!pluginId || !fn) continue;
+          const plugin = plugins.find((plugin) => plugin.id === pluginId);
+          if (!plugin) {
+            throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
+          }
+          if (!plugin.assertions || !plugin.assertions[fn]) {
+            throw Error(
+              `Plugin ${colorize.red(
+                pluginId
+              )} doesn't export assertions function with name ${colorize.red(fn)}.`
+            );
+          }
+          asserts[field] = buildAssertCustomFunction(plugin.assertions[fn]);
+        }
+      }
       assertions.push({
         ...assertion,
         assertionId: ruleKey.replace('assert/', ''),

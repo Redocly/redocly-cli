@@ -1,7 +1,7 @@
 import { NodeType, listOf, mapOf } from '.';
 import { Oas3Types } from './oas3';
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
@@ -9,7 +9,7 @@ const DefinitionRoot: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathMap',
+    paths: 'Paths',
     webhooks: 'WebhooksMap',
     components: 'Components',
     jsonSchemaDialect: { type: 'string' },
@@ -69,7 +69,7 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
     requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     deprecated: { type: 'boolean' },
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
@@ -176,7 +176,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flows: 'SecuritySchemeFlows',
+    flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
@@ -241,7 +241,7 @@ const SecurityScheme: NodeType = {
 export const Oas3_1Types: Record<string, NodeType> = {
   ...Oas3Types,
   Info,
-  DefinitionRoot,
+  Root,
   Schema,
   License,
   Components,

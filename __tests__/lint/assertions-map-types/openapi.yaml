@@ -8,7 +8,7 @@ info:
     url: https://opensource.org/licenses/MIT
 servers:
   - url: http://petstore.swagger.io:{Port}/v1
-    variables: # ServerVariableMap
+    variables: # ServerVariablesMap
       Port:
         enum:
           - '8443'
@@ -24,7 +24,7 @@ paths:
       responses:
         '200':
           description: An paged array of pets
-          headers: # HeaderMap
+          headers: # HeadersMap
             x-next:
               description: A link to the next page of responses
               schema:
@@ -34,12 +34,12 @@ paths:
               encoding: # EncodingMap
                 historyMetadata:
                   contentType: application/json; charset=utf-8
-          links: # LinkMap
+          links: # LinksMap
             address:
               operationId: getUserAddress
               parameters:
                 userId: $request.path.id
-      callbacks: # CallbackMap
+      callbacks: # CallbacksMap
         myCallback:
           '{$request.query.queryUrl}':
             post:

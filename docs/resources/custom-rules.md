@@ -32,21 +32,20 @@ A plugin defines a configuration and set of rules, preprocessors and decorators.
 
 Plugins need to be explicitly defined in the configuration file (except for the Redocly built in plugins).
 
-Plugins then are consumed by designating their configuration in the `extends` section of the configuration.
+Plugins configurations are enabled by adding to the `extends` list of the configuration.
 
 ```yaml
-styleguide:
-  plugins:
-    - 'my-plugin.js'
-  extends:
-    - recommended
-    - my-plugin/all
+plugins:
+  - 'my-plugin.js'
+extends:
+  - recommended
+  - my-plugin/all
 ```
 
 ### Preprocessors
 
-Indicated when you need to transform your API definition prior to validation.
-This is brittle and error prone because validation occurs **after** preprocessing.
+Use when you need to transform your API definition prior to validation.
+Preprocessors are brittle and error prone because validation occurs **after** preprocessing.
 We recommend avoiding preprocessing.
 
 ### Rules
@@ -91,9 +90,9 @@ See an example of a custom rule implementation in our ["Response contains proper
 Keys of the object can be any of the following:
 
 - node type - visitor will be called on specific node type. List of available node types for each specific OAS version:
-  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas2.ts#L367
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
 - `any` - visitor will be called on every node
 - `ref` - visitor will be called on $ref nodes
 
@@ -110,7 +109,7 @@ Redocly CLI calls `enter` **visitor function** while going down the tree and `le
 function ExampleRule() {
   const seen = {};
   return {
-    DefinitionRoot: {
+    Root: {
       leave() {
         // check something and report
       }
@@ -314,7 +313,10 @@ module.exports = {
 }
 ```
 
-See an example of a custom decorator implementation in our [how-to hide APIs guide](../guides/hide-apis.md).
+See an examples of decorators:
+- Read our [how-to hide APIs guide](../guides/hide-apis.md) with our [remove-x-internal decorator](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/remove-x-internal.ts) implementation
+- Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
+- Change your [OAuth2 token URL](../guides/change-token-url.md).
 
 ## Configs in plugins
 

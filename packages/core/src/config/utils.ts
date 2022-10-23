@@ -1,21 +1,24 @@
 import {
   assignExisting,
+  isDefined,
   isTruthy,
   showErrorForDeprecatedField,
   showWarningForDeprecatedField,
 } from '../utils';
 import { Config } from './config';
-
 import type {
   Api,
   DeprecatedInApi,
   DeprecatedInRawConfig,
+  FlatApi,
+  FlatRawConfig,
   Plugin,
   RawConfig,
   RawResolveConfig,
   ResolveConfig,
   ResolvedStyleguideConfig,
   RulesFields,
+  StyleguideRawConfig,
 } from './types';
 import { logger, colorize } from '../logger';
 
@@ -39,13 +42,86 @@ export function transformApiDefinitionsToApis(
   return apis;
 }
 
+function extractFlatConfig<
+  T extends Partial<
+    (Api & DeprecatedInApi & FlatApi) & (DeprecatedInRawConfig & RawConfig & FlatRawConfig)
+  >
+>({
+  plugins,
+  extends: _extends,
+
+  rules,
+  oas2Rules,
+  oas3_0Rules,
+  oas3_1Rules,
+
+  preprocessors,
+  oas2Preprocessors,
+  oas3_0Preprocessors,
+  oas3_1Preprocessors,
+
+  decorators,
+  oas2Decorators,
+  oas3_0Decorators,
+  oas3_1Decorators,
+
+  ...rawConfigRest
+}: T): {
+  styleguideConfig?: StyleguideRawConfig;
+  rawConfigRest: Omit<T, 'plugins' | 'extends' | RulesFields>;
+} {
+  const styleguideConfig = {
+    plugins,
+    extends: _extends,
+
+    rules,
+    oas2Rules,
+    oas3_0Rules,
+    oas3_1Rules,
+
+    preprocessors,
+    oas2Preprocessors,
+    oas3_0Preprocessors,
+    oas3_1Preprocessors,
+
+    decorators,
+    oas2Decorators,
+    oas3_0Decorators,
+    oas3_1Decorators,
+
+    doNotResolveExamples: (rawConfigRest as FlatRawConfig).resolve?.doNotResolveExamples,
+  };
+
+  if (
+    (rawConfigRest.lint && rawConfigRest.styleguide) ||
+    (Object.values(styleguideConfig).some(isDefined) &&
+      (rawConfigRest.lint || rawConfigRest.styleguide))
+  ) {
+    throw new Error(
+      `Do not use 'lint', 'styleguide' and flat syntax together. \nSee more about the configuration in the docs: https://redocly.com/docs/cli/configuration/ \n`
+    );
+  }
+
+  return {
+    styleguideConfig: Object.values(styleguideConfig).some(isDefined)
+      ? styleguideConfig
+      : undefined,
+
+    rawConfigRest,
+  };
+}
+
 function transformApis(
-  legacyApis?: Record<string, Api & DeprecatedInApi>
+  legacyApis?: Record<string, Api & DeprecatedInApi & FlatApi>
 ): Record<string, Api> | undefined {
   if (!legacyApis) return undefined;
   const apis: Record<string, Api> = {};
   for (const [apiName, { lint, ...apiContent }] of Object.entries(legacyApis)) {
-    apis[apiName] = { styleguide: lint, ...apiContent };
+    const { styleguideConfig, rawConfigRest } = extractFlatConfig(apiContent);
+    apis[apiName] = {
+      styleguide: styleguideConfig || lint,
+      ...rawConfigRest,
+    };
   }
   return apis;
 }
@@ -157,6 +233,7 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             ...config['features.mockServer'],
             ...config.apis[apiName]?.['features.mockServer'],
           },
+          files: [...config.files, ...(config.apis?.[apiName]?.files ?? [])],
           // TODO: merge everything else here
         },
         config.configFile
@@ -165,17 +242,22 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
 }
 
 function checkForDeprecatedFields(
-  deprecatedField: keyof DeprecatedInRawConfig,
-  updatedField: keyof RawConfig,
-  rawConfig: DeprecatedInRawConfig & RawConfig
+  deprecatedField: keyof (DeprecatedInRawConfig & RawConfig),
+  updatedField: keyof FlatRawConfig | undefined,
+  rawConfig: DeprecatedInRawConfig & RawConfig & FlatRawConfig
 ): void {
   const isDeprecatedFieldInApis =
     rawConfig.apis &&
     Object.values(rawConfig.apis).some(
-      (api: Api & DeprecatedInApi & DeprecatedInRawConfig) => api[deprecatedField]
+      (api: Api & FlatApi & DeprecatedInApi & DeprecatedInRawConfig & RawConfig & FlatRawConfig) =>
+        api[deprecatedField]
     );
 
-  if (rawConfig[deprecatedField] && rawConfig[updatedField]) {
+  if (rawConfig[deprecatedField] && updatedField === null) {
+    showWarningForDeprecatedField(deprecatedField);
+  }
+
+  if (rawConfig[deprecatedField] && updatedField && rawConfig[updatedField]) {
     showErrorForDeprecatedField(deprecatedField, updatedField);
   }
 
@@ -184,11 +266,17 @@ function checkForDeprecatedFields(
   }
 }
 
-export function transformConfig(rawConfig: DeprecatedInRawConfig & RawConfig): RawConfig {
-  const migratedFields: [keyof DeprecatedInRawConfig, keyof RawConfig][] = [
+export function transformConfig(
+  rawConfig: DeprecatedInRawConfig & RawConfig & FlatRawConfig
+): RawConfig {
+  const migratedFields: [
+    keyof (DeprecatedInRawConfig & RawConfig),
+    keyof FlatRawConfig | undefined
+  ][] = [
     ['apiDefinitions', 'apis'],
     ['referenceDocs', 'features.openapi'],
-    ['lint', 'styleguide'], // TODO: update docs
+    ['lint', undefined],
+    ['styleguide', undefined],
   ];
 
   for (const [deprecatedField, updatedField] of migratedFields) {
@@ -197,11 +285,13 @@ export function transformConfig(rawConfig: DeprecatedInRawConfig & RawConfig): R
 
   const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
 
+  const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
+
   return {
     'features.openapi': referenceDocs,
     apis: transformApis(apis) || transformApiDefinitionsToApis(apiDefinitions),
-    styleguide: lint,
-    ...rest,
+    styleguide: styleguideConfig || lint,
+    ...rawConfigRest,
   };
 }
 

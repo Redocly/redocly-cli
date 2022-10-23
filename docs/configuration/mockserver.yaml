@@ -1,4 +1,5 @@
 type: object
+title: Mock server object
 description: Lets you toggle features that control how mock servers behave.
 properties:
   errorIfForcedExampleNotFound:

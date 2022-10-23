@@ -11,7 +11,7 @@ Disallow invalid schema examples.
 ```mermaid
 flowchart TD
 
-Root ==> PathMap --> PathItem --> Operation --> Parameter --> Example
+Root ==> Paths --> PathItem --> Operation --> Parameter --> Example
 PathItem --> Parameter
 Parameter --> Schema
 Operation --> MediaType --> Schema
@@ -45,11 +45,10 @@ Solve it before you ship it.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-schema-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-schema-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -57,11 +56,10 @@ styleguide:
 Given the following configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-schema-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-schema-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of **incorrect** schema example:
@@ -97,5 +95,5 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-invalid-schema-examples.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-invalid-schema-examples.ts)
 - [Schema docs](https://redocly.com/docs/openapi-visual-reference/schemas/)

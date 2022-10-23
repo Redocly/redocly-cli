@@ -139,3 +139,128 @@ describe('Oas3 spec', () => {
     `);
   });
 });
+
+describe('Oas3.1 spec', () => {
+  it('should report with "type can be one of the following only"', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        version: 1.0.0
+        title: Example.com
+        description: info,
+        license:
+          name: Apache 2.0
+          url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+      components:
+        schemas:
+          TestSchema:
+            title: TestSchema
+            description: Property name's description
+            type: test
+        `
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/schemas/TestSchema/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report with unknown type in type`s list', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        version: 1.0.0
+        title: Example.com
+        description: info,
+        license:
+          name: Apache 2.0
+          url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+      components:
+        schemas:
+          TestSchema:
+            title: TestSchema
+            description: Property name's description
+            type:
+              - string
+              - foo
+        `
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/schemas/TestSchema/type/1",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report about unknown type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        version: 1.0.0
+        title: Example.com
+        description: info,
+        license:
+          name: Apache 2.0
+          url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+      components:
+        schemas:
+          TestSchema:
+            title: TestSchema
+            description: Property name's description
+            type: null
+        `
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+});

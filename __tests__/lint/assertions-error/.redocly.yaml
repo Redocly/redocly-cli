@@ -2,157 +2,156 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  extends:
-    - recommended
-  rules:
-    assert/tag-description-pattern:
-      subject: Tag
-      property: description
-      message: Tag description must be at least 13 characters and end with a full stop.
-      severity: error
-      minLength: 13
-      pattern: /\.$/
-#property example
-    assert/path-item-get-defined:
-      subject: PathItem
-      property: get
-      message: Every path item must have a GET operation.
-      defined: true
-    assert/path-item-get-required:
-      subject: PathItem
-      message: Every path item must have a GET(required) operation.
-      required:
-        - get
-    assert/tag-name-and-desc:
-      subject: Tag
-      property:
-        - name
-        - description
-      message: Every tag must have a name and description.
-      defined: true
-#context example
-    assert/operation-w-context:
-      subject:
-        - MediaTypeMap
-      context:
+extends:
+  - recommended
+rules:
+  assert/tag-description-pattern:
+    subject: Tag
+    property: description
+    message: Tag description must be at least 13 characters and end with a full stop.
+    severity: error
+    minLength: 13
+    pattern: /\.$/
+  # property example
+  assert/path-item-get-defined:
+    subject: PathItem
+    property: get
+    message: Every path item must have a GET operation.
+    defined: true
+  assert/path-item-get-required:
+    subject: PathItem
+    message: Every path item must have a GET(required) operation.
+    required:
+      - get
+  assert/tag-name-and-desc:
+    subject: Tag
+    property:
+      - name
+      - description
+    message: Every tag must have a name and description.
+    defined: true
+  # context example
+  assert/operation-w-context:
+    subject:
+      - MediaTypesMap
+    context:
+      - type: Operation
+        excludeParentKeys:
+          - put
+      - type: Response
+        matchParentKeys: ['201', '200']
+    disallowed: [ 'application/pdf' ]
+    message: Media type should not be pdf
+  # enum example
+  assert/media-type-pdf:
+    subject: MediaTypesMap
+    message: Only application/pdf can be used
+    severity: error
+    enum:
+      - application/pdf
+  assert/operation-summary-suggest:
+    subject: Operation
+    property: summary
+    message: Summary must be one of the predefined values
+    suggest:
+      - change to 'My resource'
+      - change to 'My collection'
+    severity: error
+    enum:
+      - My resource
+      - My collection
+  # pattern example
+  assert/operation-summary-pattern:
+    subject: Operation
+    property: summary
+    message: Summary should match a regex
+    severity: error
+    pattern: /resource/
+  # casing
+  assert/operation-id-camel-case:
+    subject: Operation
+    property: operationId
+    message: NamedExamples key must be in camelCase
+    severity: error
+    casing: camelCase
+  # mutuallyExclusive example
+  assert/operation-mutually-exclusive:
+    subject: Operation
+    message: "Operation must not define both properties together: description and externalDocs"
+    severity: error
+    mutuallyExclusive:
+      - description
+      - externalDocs
+  # mutuallyRequired example
+  assert/operation-mutually-required:
+    subject: SchemaProperties
+    context:
+      - type: Response
+    message: The created_at and updated_at properties are mutually required
+    severity: error
+    mutuallyRequired:
+      - created_at
+      - updated_at
+  # mutuallyRequired example with context
+  assert/operation-mutually-required-w-context:
+    subject: Responses
+    context:
         - type: Operation
-          excludeParentKeys:
+          matchParentKeys:
             - put
-        - type: Response
-          matchParentKeys: ['201', '200']
-      disallowed: [ 'application/pdf' ]
-      message: Media type should not be pdf
-#enum example
-    assert/media-type-pdf:
-      subject: MediaTypeMap
-      message: Only application/pdf can be used
-      severity: error
-      enum:
-        - application/pdf
-    assert/operation-summary-suggest:
-      subject: Operation
-      property: summary
-      message: Summary must be one of the predefined values
-      suggest:
-        - change to 'My resource'
-        - change to 'My collection'
-      severity: error
-      enum:
-        - My resource
-        - My collection
-#pattern example
-    assert/operation-summary-pattern:
-      subject: Operation
-      property: summary
-      message: Summary should match a regex
-      severity: error
-      pattern: /resource/
-#casing
-    assert/operation-id-camel-case:
-      subject: Operation
-      property: operationId
-      message: NamedExamples key must be in PascalCase
-      severity: error
-      casing: camelCase
-#mutuallyExclusive example
-    assert/operation-mutually-exclusive:
-      subject: Operation
-      message: "Operation must not define both properties together: description and externalDocs"
-      severity: error
-      mutuallyExclusive:
-        - description
-        - externalDocs
-#mutuallyRequired example
-    assert/operation-mutually-required:
-      subject: SchemaProperties
-      context:
-        - type: Response
-      message: The created_at and updated_at properties are mutually required
-      severity: error
-      mutuallyRequired:
-        - created_at
-        - updated_at
-#mutuallyRequired example with context
-    assert/operation-mutually-required-w-context:
-      subject: ResponsesMap
-      context:
-          - type: Operation
-            matchParentKeys:
-              - put
-      message: Must mutually define 200 and 201 responses for PUT requests.
-      severity: error
-      mutuallyRequired:
-        - '200'
-        - '201'
-#disallowed example
-    assert/operation-disallowed:
-      subject: Operation
-      message: x-code-samples and x-internal must not be defined
-      severity: error
-      disallowed:
-        - x-code-samples
-        - x-internal
-#defined example
-    assert/operation-x-code-samples-defined:
-      subject: Operation
-      property: x-codeSamples
-      message: x-codeSamples must be defined
-      severity: error
-      defined: true
-# undefined example
-    assert/operation-x-code-samples-undefined:
-      subject: Operation
-      property: x-code-samples
-      message: x-code-samples is deprecated
-      suggest:
-        - x-codeSamples instead of x-code-samples
-      severity: error
-      undefined: true
-#nonEmpty example
-    assert/operation-summary-non-empty:
-      subject: Operation
-      property: summary
-      message: Operation summary should not be empty
-      severity: error
-      nonEmpty: true
-#minLength example
-    assert/operation-summary-min-length:
-      subject: Operation
-      property: summary
-      message: Operation summary must have minimum of 2 chars length
-      severity: error
-      minLength: 2
-#maxLength example
-    assert/operation-summary-max-length:
-      subject: Operation
-      property: summary
-      message: Operation summary must have a maximum of 2 characters
-      severity: error
-      maxLength: 2
-# Example map subject example
-    assert/exampleMap:
-      subject: ExampleMap
-      message: Examples names must use camelCase
-      casing: camelCase
-      severity: error
+    message: Must mutually define 200 and 201 responses for PUT requests.
+    severity: error
+    mutuallyRequired:
+      - '200'
+      - '201'
+  # disallowed example
+  assert/operation-disallowed:
+    subject: Operation
+    message: x-code-samples and x-internal must not be defined
+    severity: error
+    disallowed:
+      - x-code-samples
+      - x-internal
+  # defined example
+  assert/operation-x-code-samples-defined:
+    subject: Operation
+    property: x-codeSamples
+    message: x-codeSamples must be defined
+    severity: error
+    defined: true
+  # undefined example
+  assert/operation-x-code-samples-undefined:
+    subject: Operation
+    property: x-code-samples
+    message: x-code-samples is deprecated
+    suggest:
+      - x-codeSamples instead of x-code-samples
+    severity: error
+    undefined: true
+  # nonEmpty example
+  assert/operation-summary-non-empty:
+    subject: Operation
+    property: summary
+    message: Operation summary should not be empty
+    severity: error
+    nonEmpty: true
+  # minLength example
+  assert/operation-summary-min-length:
+    subject: Operation
+    property: summary
+    message: Operation summary must have minimum of 2 chars length
+    severity: error
+    minLength: 2
+  # maxLength example
+  assert/operation-summary-max-length:
+    subject: Operation
+    property: summary
+    message: Operation summary must have a maximum of 2 characters
+    severity: error
+    maxLength: 2
+  # Example map subject example
+  assert/exampleMap:
+    subject: ExamplesMap
+    message: Examples names must use camelCase
+    casing: camelCase
+    severity: error

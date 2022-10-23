@@ -7,7 +7,7 @@ export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
   const registryDependencies = new Set<string>();
 
   return {
-    DefinitionRoot: {
+    Root: {
       leave(_: any, ctx: UserContext) {
         const data = ctx.getVisitorData();
         data.links = Array.from(registryDependencies);

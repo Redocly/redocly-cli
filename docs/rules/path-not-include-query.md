@@ -25,9 +25,8 @@ Its root cause is inexperience with OpenAPI (no holy war here).
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  path-not-included-query: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    : error
+rules:
+  path-not-included-query: error
 ```
 
 Example of an **incorrect** path:
@@ -73,6 +71,6 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/parameter-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/parameter-description.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)
 - [Operation docs](https://redocly.com/docs/openapi-visual-reference/operation/)

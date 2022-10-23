@@ -6,15 +6,14 @@ redirectFrom:
 
 Configure assertions to enforce your API design standards without coding custom rules in JavaScript.
 
-Define assertions in the `rules` map of the `lint` object in the Redocly configuration file.
+Define assertions in the `rules` map in the Redocly configuration file.
 
 ```yaml
-styleguide:
-  rules:
-    assert/assertion-name:
-      ...
-    assert/one-more-assertion-name:
-      ...
+rules:
+  assert/assertion-name:
+    ...
+  assert/one-more-assertion-name:
+    ...
 ```
 
 An assertion describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
@@ -49,7 +48,8 @@ defined | `boolean` | Asserts a property is defined. See [defined example](#defi
 nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-ref | `boolean | string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
+`{pluginId}/{functionName}` | `object` | Custom assert defined in the plugin. This function will be called with options including the value. See [custom function example](#custom-function-example).|
 
 ## Examples
 
@@ -68,41 +68,40 @@ In addition, the `Operation` summary property must:
 The following example shows how to configure those assertions:
 
 ```yaml
-styleguide:
-  rules:
-    assert/tag-description:
-      subject: Tag
-      property: description
-      message: Tag description must be at least 30 characters and end with a full stop.
-      severity: error
-      defined: true
-      minLength: 30
-      pattern: /\.$/
-    assert/operation-description:
-      subject: Operation
-      property: description
-      message: Operation description must be at least 30 characters and end with a full stop.
-      severity: error
-      defined: true
-      minLength: 30
-      pattern: /\.$/
-    assert/info-description:
-      subject: Info
-      property: description
-      message: Info description must be at least 30 characters and end with a full stop.
-      severity: error
-      defined: true
-      minLength: 30
-      pattern: /\.$/
-    assert/operation-summary:
-      subject: Operation
-      property: summary
-      message: Operation summary must be between 20 and 60 characters and not end with a full stop.
-      severity: error
-      defined: true
-      minLength: 20
-      maxLength: 60
-      pattern: /[^\.]$/
+rules:
+  assert/tag-description:
+    subject: Tag
+    property: description
+    message: Tag description must be at least 30 characters and end with a full stop.
+    severity: error
+    defined: true
+    minLength: 30
+    pattern: /\.$/
+  assert/operation-description:
+    subject: Operation
+    property: description
+    message: Operation description must be at least 30 characters and end with a full stop.
+    severity: error
+    defined: true
+    minLength: 30
+    pattern: /\.$/
+  assert/info-description:
+    subject: Info
+    property: description
+    message: Info description must be at least 30 characters and end with a full stop.
+    severity: error
+    defined: true
+    minLength: 30
+    pattern: /\.$/
+  assert/operation-summary:
+    subject: Operation
+    property: summary
+    message: Operation summary must be between 20 and 60 characters and not end with a full stop.
+    severity: error
+    defined: true
+    minLength: 20
+    maxLength: 60
+    pattern: /[^\.]$/
 ```
 
 ### `property` example
@@ -110,59 +109,55 @@ styleguide:
 The following example asserts that every path item has a GET operation defined.
 
 ```yaml
-styleguide:
-  rules:
-    assert/path-item-get-operation-defined:
-      subject: PathItem
-      property: get
-      message: Every path item must have a GET operation.
-      defined: true
+rules:
+  assert/path-item-get-operation-defined:
+    subject: PathItem
+    property: get
+    message: Every path item must have a GET operation.
+    defined: true
 ```
 
 A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
 Notice we don't need to include `property` in this approach.
 
 ```yaml
-styleguide:
-  rules:
-    assert/path-item-operation-required:
-      subject: PathItem
-      message: Every path item must have a GET operation.
-      required:
-        - get
+rules:
+  assert/path-item-operation-required:
+    subject: PathItem
+    message: Every path item must have a GET operation.
+    required:
+      - get
 ```
 
 The following example asserts that Tags have both name and description defined.
 
 ```yaml
-styleguide:
-  rules:
-    assert/tag-name-and-desc-defined:
-      subject: Tag
-      property:
-        - name
-        - description
-      message: Every tag must have a name and description.
-      defined: true
+rules:
+  assert/tag-name-and-desc-defined:
+    subject: Tag
+    property:
+      - name
+      - description
+    message: Every tag must have a name and description.
+    defined: true
 ```
 
 Another way to compose that rule is to require the subject keys:
 
 ```yaml
-styleguide:
-  rules:
-    assert/tag-name-and-desc-required:
-      subject: Tag
-      message: Every tag must have a name and description.
-      required:
-        - name
-        - description
+rules:
+  assert/tag-name-and-desc-required:
+    subject: Tag
+    message: Every tag must have a name and description.
+    required:
+      - name
+      - description
 ```
 
 ### `if` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
-Without the `if`, the assertion would evaluate every MediaTypeMap including:
+Without the `if`, the assertion would evaluate every `MediaTypesMap` property including:
 - Responses with all codes, including codes other than 200 or 201
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
 To restrict the evaluation, use the `if` feature to limit what will be evaluated.
@@ -179,42 +174,109 @@ assert/no-pdf-in-ok-response:
       - '201'
       - '200'
     defined: true
-  subject: MediaTypeMap
+  subject: MediaTypesMap
   disallowed:
     - 'application/pdf'
 ```
 
+### Custom function example
+
+The following example asserts that `Operation` summary should start with an active verb and have at least three words.
+
+The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
+
+In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems.
+
+Each function is called with the following parameters:
+
+Property | Type | Description
+-- | -- | --
+value | `string` \| [`string`] | Value that appears at the corresponding location.
+options | `object` | Options that is described in config file.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+**Return**
+problems | [`Problem`] | List of problems. Empty list indicates that all checks are valid.
+
+`Problem`
+Property | Type | Description
+-- | -- | --
+message | `string` \| [`string`] | Problem message that will be displayed in result
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+
+`.redocly.yaml`
+```yaml
+assert/operation-summary-check:
+  subject: Operation
+  property: summary
+  message: Operation summary should start with an active verb
+    local/checkWordsStarts: 
+      words: 
+        - Create
+        - Retrieve
+        - Merge
+        - Delete
+        - List
+        - Upsert
+        - Update
+        - Approve
+        - Reject
+    local/checkWordsCount: 
+      min: 3
+```
+`plugin.js`
+```js
+module.exports = {
+  id: 'local',
+  assertions: {
+    checkWordsStarts: (value, options, location) => {
+      const regexp = new RegExp(`^${options.words.join('|')}`);
+      if (regexp.test(value)) {
+        return [];
+      }
+      return [{ message: 'Operation summary should start with an active verb', location }];
+    },
+    checkWordsCount: (value, options, location) => {
+      const words = value.split(' ');
+      if (words.length >= options.min) {
+        return [];
+      }
+      return [
+        { message: `Operation summary should contain at least ${options.min} words`, location },
+      ];
+    },
+  },
+};
+```
+
 ### `enum` example
 
-The following example asserts that only `application/json` can be used as a key of the MediaTypeMap.
+The following example asserts that only `application/json` can be used as a key of the MediaTypesMap.
 
 ```yaml keys
-styleguide:
-  rules:
-    assert/media-type-map-application-json:
-      subject: MediaTypeMap
-      message: Only application/json can be used
-      severity: error
-      enum:
-        - application/json
+rules:
+  assert/media-type-map-application-json:
+    subject: MediaTypesMap
+    message: Only application/json can be used
+    severity: error
+    enum:
+      - application/json
 ```
 
 The following example asserts that the operation summary must match one of the listed enums.
 
 ```yaml values
-styleguide:
-  rules:
-    assert/operation-summary-match:
-      subject: Operation
-      property: summary
-      message: Summary must be one of the predefined values
-      suggest:
-        - change to 'My resource'
-        - change to 'My collection'
-      severity: error
-      enum:
-        - My resource
-        - My collection
+rules:
+  assert/operation-summary-match:
+    subject: Operation
+    property: summary
+    message: Summary must be one of the predefined values
+    suggest:
+      - change to 'My resource'
+      - change to 'My collection'
+    severity: error
+    enum:
+      - My resource
+      - My collection
 ```
 
 ### `pattern` example
@@ -222,14 +284,13 @@ styleguide:
 The following example asserts that the operation summary contains "test".
 
 ```yaml
-styleguide:
-  rules:
-    assert/operation-summary-contains-test:
-      subject: Operation
-      property: summary
-      message: Summary should match a regex
-      severity: error
-      pattern: /test/
+rules:
+  assert/operation-summary-contains-test:
+    subject: Operation
+    property: summary
+    message: Summary should match a regex
+    severity: error
+    pattern: /test/
 ```
 
 ### `casing` example
@@ -237,13 +298,12 @@ styleguide:
 The following example asserts the casing style is `PascalCase` for NamedExamples map keys.
 
 ```yaml
-styleguide:
-  rules:
-    assert/named-examples-pascal-case:
-      subject: NamedExamples
-      message: NamedExamples key must be in PascalCase
-      severity: error
-      casing: PascalCase
+rules:
+  assert/named-examples-pascal-case:
+    subject: NamedExamples
+    message: NamedExamples key must be in PascalCase
+    severity: error
+    casing: PascalCase
 ```
 
 Casing supports the following styles:
@@ -262,15 +322,14 @@ The following example asserts the operation `description` and `externalDocs` mus
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml
-styleguide:
-  rules:
-    assert/operation-no-both-description-and-external-docs:
-      subject: Operation
-      message: "Operation must not define both properties together: description and externalDocs"
-      severity: error
-      mutuallyExclusive:
-        - description
-        - externalDocs
+rules:
+  assert/operation-no-both-description-and-external-docs:
+    subject: Operation
+    message: "Operation must not define both properties together: description and externalDocs"
+    severity: error
+    mutuallyExclusive:
+      - description
+      - externalDocs
 ```
 
 ### `mutuallyRequired` example
@@ -279,34 +338,32 @@ The following example asserts that a response body schema must have both `amount
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Schema example
-styleguide:
-  rules:
-    assert/schema-properties-both-created-at-and-updated-at:
-      subject: SchemaProperties
-      message: The created_at and updated_at properties are mutually required
-      severity: error
-      mutuallyRequired:
-        - created_at
-        - updated_at
+rules:
+  assert/schema-properties-both-created-at-and-updated-at:
+    subject: SchemaProperties
+    message: The created_at and updated_at properties are mutually required
+    severity: error
+    mutuallyRequired:
+      - created_at
+      - updated_at
 ```
 
 The following example asserts that when `PUT` requests have either `200` or `201` defined, both `200` and `201` responses must be defined.
 
 ```yaml Response example
-styleguide:
-  rules:
-    assert/put-200-and-201:
-      subject: ResponsesMap
-      if:
-        - subject: Operation
-          filterInParentKeys:
-            - put
-          defined: true
-      message: Must mutually define 200 and 201 responses for PUT requests.
-      severity: error
-      mutuallyRequired:
-        - '200'
-        - '201'
+rules:
+  assert/put-200-and-201:
+    subject: Responses
+    if:
+      - subject: Operation
+        filterInParentKeys:
+          - put
+        defined: true
+    message: Must mutually define 200 and 201 responses for PUT requests.
+    severity: error
+    mutuallyRequired:
+      - '200'
+      - '201'
 ```
 
 ### `required` example
@@ -315,20 +372,19 @@ The following example asserts that `PUT` requests have both `200` and `201` resp
 The difference between `mutuallyRequired` is that neither `200` and `201` need to be defined for it to meet `mutuallyRequired` evaluations.
 
 ```yaml Response example
-styleguide:
-  rules:
-    assert/put-200-and-201:
-      subject: ResponsesMap
-      if:
-        - type: Operation
-          filterInParentKeys:
-            - put
-          defined: true
-      message: Must define 200 and 201 responses for PUT requests.
-      severity: error
-      required:
-        - '200'
-        - '201'
+rules:
+  assert/put-200-and-201:
+    subject: Responses
+    if:
+      - type: Operation
+        filterInParentKeys:
+          - put
+        defined: true
+    message: Must define 200 and 201 responses for PUT requests.
+    severity: error
+    required:
+      - '200'
+      - '201'
 ```
 
 ### `requireAny` example
@@ -337,15 +393,14 @@ The following example asserts that an operation must have either `description` o
 This assertion evaluates only property keys for the node, but not property values.
 
 ```yaml Response example
-styleguide:
-  rules:
-    assert/operation-no-both-description-and-external-docs:
-      subject: Operation
-      message: "Operation must have one of the properties: description or externalDocs"
-      severity: error
-      requireAny:
-        - description
-        - externalDocs
+rules:
+  assert/operation-no-both-description-and-external-docs:
+    subject: Operation
+    message: "Operation must have one of the properties: description or externalDocs"
+    severity: error
+    requireAny:
+      - description
+      - externalDocs
 ```
 
 ### `disallowed` example
@@ -353,15 +408,14 @@ styleguide:
 The following example asserts that `x-code-samples` and `x-internal` are not defined.
 
 ```yaml
-styleguide:
-  rules:
-    assert/no-x-code-samples-and-x-internal:
-      subject: Operation
-      message: x-code-samples and x-internal must not be defined
-      severity: error
-      disallowed:
-        - x-code-samples
-        - x-internal
+rules:
+  assert/no-x-code-samples-and-x-internal:
+    subject: Operation
+    message: x-code-samples and x-internal must not be defined
+    severity: error
+    disallowed:
+      - x-code-samples
+      - x-internal
 ```
 
 ### `defined` example
@@ -369,29 +423,27 @@ styleguide:
 The following example asserts that `x-codeSamples` is defined.
 
 ```yaml
-styleguide:
-  rules:
-    assert/x-code-samples-defined:
-      subject: Operation
-      property: x-codeSamples
-      message: x-codeSamples must be defined
-      severity: error
-      defined: true
+rules:
+  assert/x-code-samples-defined:
+    subject: Operation
+    property: x-codeSamples
+    message: x-codeSamples must be defined
+    severity: error
+    defined: true
 ```
 
 The following example asserts that `x-code-samples` is undefined.
 
 ```yaml
-styleguide:
-  rules:
-    assert/x-code-samples-undefined:
-      subject: Operation
-      property: x-code-samples
-      message: x-code-samples is deprecated
-      suggest:
-        - x-codeSamples instead of x-code-samples
-      severity: error
-      defined: false
+rules:
+  assert/x-code-samples-undefined:
+    subject: Operation
+    property: x-code-samples
+    message: x-code-samples is deprecated
+    suggest:
+      - x-codeSamples instead of x-code-samples
+    severity: error
+    undefined: true
 ```
 
 ### `nonEmpty` example
@@ -399,14 +451,13 @@ styleguide:
 The following example asserts that the operation summary is not empty.
 
 ```yaml
-styleguide:
-  rules:
-    assert/operation-summary-non-empty:
-      subject: Operation
-      property: summary
-      message: Operation summary should not be empty
-      severity: error
-      nonEmpty: true
+rules:
+  assert/operation-summary-non-empty:
+    subject: Operation
+    property: summary
+    message: Operation summary should not be empty
+    severity: error
+    nonEmpty: true
 ```
 
 ### `minLength` example
@@ -414,14 +465,13 @@ styleguide:
 The following example asserts that the minimum length of each operation summary is 20 characters.
 
 ```yaml
-styleguide:
-  rules:
-    assert/operation-summary-min-length:
-      subject: Operation
-      property: summary
-      message: Operation summary must have minimum of 20 chars length
-      severity: error
-      minLength: 20
+rules:
+  assert/operation-summary-min-length:
+    subject: Operation
+    property: summary
+    message: Operation summary must have minimum of 20 chars length
+    severity: error
+    minLength: 20
 ```
 
 ### `maxLength` example
@@ -429,14 +479,13 @@ styleguide:
 The following example asserts that the maximum length of each operation summary is 20 characters.
 
 ```yaml
-styleguide:
-  rules:
-    assert/operation-summary-max-length:
-      subject: Operation
-      property: summary
-      message: Operation summary must have a maximum of 20 characters
-      severity: error
-      maxLength: 20
+rules:
+  assert/operation-summary-max-length:
+    subject: Operation
+    property: summary
+    message: Operation summary must have a maximum of 20 characters
+    severity: error
+    maxLength: 20
 ```
 
 ### `ref` example
@@ -444,25 +493,23 @@ styleguide:
 The following example asserts that schema in MediaType contains a Reference object ($ref).
 
 ```yaml
-styleguide:
-  rules:
-    assert/mediatype-schema-has-ref:
-      subject: MediaType
-      property: schema
-      message: Ref is required.
-      ref: true
+rules:
+  assert/mediatype-schema-has-ref:
+    subject: MediaType
+    property: schema
+    message: Ref is required.
+    ref: true
 ```
 
 Also, you can specify a Regular Expression to check if the reference object conforms to it:
 
 ```yaml
-styleguide:
-  rules:
-    assert/mediatype-schema-ref-pattern:
-      subject: MediaType
-      property: schema
-      message: Ref needs to point to components directory.
-      ref: /^(\.\/)?components\/.*\.yaml$/
+rules:
+  assert/mediatype-schema-ref-pattern:
+    subject: MediaType
+    property: schema
+    message: Ref needs to point to components directory.
+    ref: /^(\.\/)?components\/.*\.yaml$/
 ```
 
 Redocly CLI
@@ -476,13 +523,13 @@ OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 ### List of OpenAPI types
 
 For technical details on the implementation of types for each OAS version, consult the source files in the Redocly CLI repository:
-  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/types/oas2.ts#L367
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
 
 List of types for OpenAPI 3.0 and 3.1:
 
-- DefinitionRoot
+- Root
 - Tag
 - ExternalDocs
 - Server
@@ -491,18 +538,18 @@ List of types for OpenAPI 3.0 and 3.1:
 - Info
 - Contact
 - License
-- PathMap
+- Paths
 - PathItem
 - Parameter
 - Operation
 - Callback
 - RequestBody
-- MediaTypeMap
+- MediaTypesMap
 - MediaType
 - Example
 - Encoding
 - Header
-- ResponsesMap
+- Responses
 - Response
 - Link
 - Schema
@@ -524,9 +571,7 @@ List of types for OpenAPI 3.0 and 3.1:
 - PasswordFlow
 - ClientCredentials
 - AuthorizationCode
-- SecuritySchemeFlows
+- OAuth2Flows
 - SecurityScheme
 - XCodeSample
 - WebhooksMap
-
-

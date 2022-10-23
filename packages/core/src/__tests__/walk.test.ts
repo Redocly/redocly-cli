@@ -16,7 +16,7 @@ import { Oas3RuleSet } from '../oas-types';
 describe('walk order', () => {
   it('should run visitors', async () => {
     const visitors = {
-      DefinitionRoot: {
+      Root: {
         enter: jest.fn(),
         leave: jest.fn(),
       },
@@ -46,6 +46,74 @@ describe('walk order', () => {
         info:
           contact: {}
           license: {}
+      `,
+      ''
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: makeConfigForRuleset(testRuleSet),
+    });
+
+    expect(testRuleSet.test).toBeCalledTimes(1);
+    for (const fns of Object.values(visitors)) {
+      expect(fns.enter).toBeCalled();
+      expect(fns.leave).toBeCalled();
+    }
+  });
+
+  it('should run legacy visitors', async () => {
+    const visitors = {
+      DefinitionRoot: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      PathMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      ServerVariableMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      MediaTypeMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      ExampleMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+      HeaderMap: {
+        enter: jest.fn(),
+        leave: jest.fn(),
+      },
+    };
+
+    const testRuleSet: Oas3RuleSet = {
+      test: jest.fn(() => {
+        return visitors;
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        servers: 
+        - url: http://{test}.url
+          variables:
+            test: test
+        paths: 
+          /test-path: 
+            get:
+              responses:
+                200:
+                  headers: {}
+                  content:
+                    application/json:
+                      schema: {}
+                      examples: {}
       `,
       ''
     );
@@ -1046,8 +1114,8 @@ describe('walk order', () => {
 
     expect(calls).toMatchInlineSnapshot(`
       Array [
-        "enter DefinitionRoot",
-        "enter PathMap",
+        "enter Root",
+        "enter Paths",
         "enter PathItem",
         "enter ParameterList",
         "enter Parameter",
@@ -1066,7 +1134,7 @@ describe('walk order', () => {
         "leave ParameterList",
         "leave Operation",
         "leave PathItem",
-        "leave PathMap",
+        "leave Paths",
         "enter Components",
         "enter NamedParameters",
         "leave NamedParameters",
@@ -1075,7 +1143,7 @@ describe('walk order', () => {
         "leave Schema",
         "leave NamedSchemas",
         "leave Components",
-        "leave DefinitionRoot",
+        "leave Root",
       ]
     `);
   });
@@ -1378,10 +1446,10 @@ describe('type extensions', () => {
                   parameters: listOf('Parameter'),
                 },
               },
-              DefinitionRoot: {
-                ...types.DefinitionRoot,
+              Root: {
+                ...types.Root,
                 properties: {
-                  ...types.DefinitionRoot.properties,
+                  ...types.Root.properties,
                   'x-webhooks': 'XWebHooks',
                 },
               },
@@ -1393,7 +1461,7 @@ describe('type extensions', () => {
 
     expect(calls).toMatchInlineSnapshot(`
       Array [
-        "enter DefinitionRoot",
+        "enter Root",
         "enter XWebHooks",
         "enter hook test",
         "enter ParameterList",
@@ -1402,7 +1470,7 @@ describe('type extensions', () => {
         "leave ParameterList",
         "leave hook test",
         "leave XWebHooks",
-        "leave DefinitionRoot",
+        "leave Root",
       ]
     `);
   });

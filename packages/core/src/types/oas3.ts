@@ -2,7 +2,7 @@ import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
 const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
@@ -10,7 +10,7 @@ const DefinitionRoot: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathMap',
+    paths: 'Paths',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
   },
@@ -38,7 +38,7 @@ const Server: NodeType = {
   properties: {
     url: { type: 'string' },
     description: { type: 'string' },
-    variables: 'ServerVariableMap',
+    variables: 'ServerVariablesMap',
   },
   required: ['url'],
 };
@@ -88,7 +88,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -132,8 +132,8 @@ const Parameter: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
-    content: 'MediaTypeMap',
+    examples: 'ExamplesMap',
+    content: 'MediaTypesMap',
   },
   required: ['name', 'in'],
   requiredOneOf: ['schema', 'content'],
@@ -153,9 +153,9 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
     requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     deprecated: { type: 'boolean' },
-    callbacks: 'CallbackMap',
+    callbacks: 'CallbacksMap',
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
@@ -175,12 +175,12 @@ const RequestBody: NodeType = {
   properties: {
     description: { type: 'string' },
     required: { type: 'boolean' },
-    content: 'MediaTypeMap',
+    content: 'MediaTypesMap',
   },
   required: ['content'],
 };
 
-const MediaTypeMap: NodeType = {
+const MediaTypesMap: NodeType = {
   properties: {},
   additionalProperties: 'MediaType',
 };
@@ -189,7 +189,7 @@ const MediaType: NodeType = {
   properties: {
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
+    examples: 'ExamplesMap',
     encoding: 'EncodingMap',
   },
 };
@@ -206,7 +206,7 @@ const Example: NodeType = {
 const Encoding: NodeType = {
   properties: {
     contentType: { type: 'string' },
-    headers: 'HeaderMap',
+    headers: 'HeadersMap',
     style: {
       enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
     },
@@ -228,13 +228,13 @@ const Header: NodeType = {
     allowReserved: { type: 'boolean' },
     schema: 'Schema',
     example: { isExample: true },
-    examples: 'ExampleMap',
-    content: 'MediaTypeMap',
+    examples: 'ExamplesMap',
+    content: 'MediaTypesMap',
   },
   requiredOneOf: ['schema', 'content'],
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: { default: 'Response' },
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
@@ -243,9 +243,9 @@ const ResponsesMap: NodeType = {
 const Response: NodeType = {
   properties: {
     description: { type: 'string' },
-    headers: 'HeaderMap',
-    content: 'MediaTypeMap',
-    links: 'LinkMap',
+    headers: 'HeadersMap',
+    content: 'MediaTypesMap',
+    links: 'LinksMap',
   },
   required: ['description'],
 };
@@ -408,7 +408,7 @@ const AuthorizationCode: NodeType = {
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
 
-const SecuritySchemeFlows: NodeType = {
+const OAuth2Flows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',
@@ -425,7 +425,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flows: 'SecuritySchemeFlows',
+    flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
@@ -460,32 +460,32 @@ const SecurityScheme: NodeType = {
 };
 
 export const Oas3Types: Record<string, NodeType> = {
-  DefinitionRoot,
+  Root,
   Tag,
   ExternalDocs,
   Server,
   ServerVariable,
-  ServerVariableMap: mapOf('ServerVariable'),
+  ServerVariablesMap: mapOf('ServerVariable'),
   SecurityRequirement,
   Info,
   Contact,
   License,
-  PathMap,
+  Paths,
   PathItem,
   Parameter,
   Operation,
   Callback: mapOf('PathItem'),
-  CallbackMap: mapOf('Callback'),
+  CallbacksMap: mapOf('Callback'),
   RequestBody,
-  MediaTypeMap,
+  MediaTypesMap,
   MediaType,
   Example,
-  ExampleMap: mapOf('Example'),
+  ExamplesMap: mapOf('Example'),
   Encoding,
   EncodingMap: mapOf('Encoding'),
   Header,
-  HeaderMap: mapOf('Header'),
-  ResponsesMap,
+  HeadersMap: mapOf('Header'),
+  Responses,
   Response,
   Link,
   Schema,
@@ -494,7 +494,7 @@ export const Oas3Types: Record<string, NodeType> = {
   DiscriminatorMapping,
   Discriminator,
   Components,
-  LinkMap: mapOf('Link'),
+  LinksMap: mapOf('Link'),
   NamedSchemas: mapOf('Schema'),
   NamedResponses: mapOf('Response'),
   NamedParameters: mapOf('Parameter'),
@@ -508,7 +508,7 @@ export const Oas3Types: Record<string, NodeType> = {
   PasswordFlow,
   ClientCredentials,
   AuthorizationCode,
-  SecuritySchemeFlows,
+  OAuth2Flows,
   SecurityScheme,
   XCodeSample,
   WebhooksMap,
