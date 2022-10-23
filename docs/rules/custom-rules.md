@@ -1,6 +1,7 @@
 ---
 redirectFrom:
   - /docs/cli/resources/rules/assertions/
+  - /docs/cli/rules/assertions/
 ---
 # Custom rules and assertions
 

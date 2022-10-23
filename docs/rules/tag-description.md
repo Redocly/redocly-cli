@@ -91,7 +91,7 @@ tags:
 
 - [tags-alphabetical](./tags-alphabetical.md)
 - [operation-description](./operation-description.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

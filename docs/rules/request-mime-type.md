@@ -77,7 +77,7 @@ paths:
 ## Related rules
 
 - [response-mime-type](./response-mime-type.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

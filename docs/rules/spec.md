@@ -60,7 +60,7 @@ paths: {}
 
 ## Related rules
 
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

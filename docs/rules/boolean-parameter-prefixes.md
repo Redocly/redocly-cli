@@ -89,7 +89,7 @@ schema:
 ```
 
 ## Related rules
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [parameter-description](./parameter-description.md)
 - [operation-parameters-unique](./operation-parameters-unique.md)

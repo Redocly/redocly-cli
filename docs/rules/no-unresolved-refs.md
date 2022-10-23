@@ -83,7 +83,7 @@ components:
 ## Related rules
 
 - [spec](./spec.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources

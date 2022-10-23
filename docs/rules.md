@@ -16,7 +16,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 
 ### Special rules
 
-- [assertions](./rules/assertions.md)
+- [custom rules](./rules/custom-rules.md)
 - [no-unresolved-refs](./rules/no-unresolved-refs.md)
 - [no-unused-components](./rules/no-unused-components.md)
 - [security-defined](./rules/security-defined.md)
@@ -187,5 +187,5 @@ Here is the equivalent of the `recommended` configuration values:
 
 ## Rule ideas
 
-Redocly CLI supports [assertions](./rules/assertions.md) and [custom rules](./resources/custom-plugins.md).
+Redocly CLI supports [custom rules](./rules/custom-rules.md) and [custom rules](./resources/custom-plugins.md).
 However, if you have an idea for a built-in rule you believe will benefit the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new) in the Redocly CLI repository.
