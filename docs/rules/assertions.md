@@ -2,11 +2,16 @@
 redirectFrom:
   - /docs/cli/resources/rules/assertions/
 ---
-# `assertions`
+# Custom rules and assertions
 
-Configure assertions to enforce your API design standards without coding custom rules in JavaScript.
+Configure custom rules and assertions to enforce your API design standards.
 
-Define assertions in the `rules` map in the Redocly configuration file.
+There are three types of custom rules (from easiest to most difficult):
+- Use included assertions (no JavaScript required).
+- Use custom assertion functions (middle - requires some JavaScript).
+- Craft custom rules entirely from JavaScript code.
+
+Define custom rules in the `rules` map in the Redocly configuration file.
 
 ```yaml
 rules:
@@ -16,41 +21,63 @@ rules:
     ...
 ```
 
-An assertion describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+A custom rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Property | Type | Description
 -- | -- | --
-assert/my-assertion-name | [Assertion object](#assertion-object) | An assertion definition to enforce your custom API design standards. Add or edit your assertions in the configuration file. The assertion is a rule that starts with a `assert/` prefix followed by a unique assertion rule name. Assertion name is displayed in the lint log if the assertion fails. More than one assertion may be defined, and any assertion may have multiple asserts.
+my-custom-rule-name | [Custom rule object](#custom-rule-object) | Custom rules definitions enforce your custom API design standards. Add or edit your custom rules in the configuration file. A custom rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Assertion names display in the lint log if the assertion fails. More than one assertion may be defined, and any custom rule may have multiple asserts.
 
-## Assertion object
+## Custom rule object
 
 Property | Type | Description
 -- | -- | --
-subject | `string` \| [`string`] | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) that the lint evaluates. Use with `if` for more control.
-property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions will evaluate against each property in the sequence. If not provided (or null), assertions will evaluate against the key names for the subject node type. See [property example](#property-example).
-filterInParentKeys | [`string`] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions.
-filterOutParentKeys | [`string`] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
-matchParentKeys | `string` | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
-if | [`Assertion` object] | The `if` list influences evaluation for assertions by only evaluating assertions when the `if` arguments evaluate to true. The `if` argument must be structured like a valid assertion with the exception of no nested `if` values. When using the `if` list, it evaluates the locator specified with any assertions, and then continues to evaluate based on that subset of the values. The resolution of reference objects is done at the `if` level. The `if` list is evaluated from top to bottom in that order. If no `if` list is provided, it evaluates the assertion for all instances of the given type. See [if example](#if-example). The `if` evaluation does not result in any problems (it is used for filtering where to run assertions); therefore, the `message`, `suggest`, and `severity` properties are ignored.
+subject | [Subject object](#subject-object) | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to filter further.
+assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.
+where | [Where object](#where-object) | Influences evaluation for assertions by only evaluating assertions when the `where` arguments evaluate to true. The `where` argument must be structured as a list of valid [where objects](#where-object). The `where` list is evaluated from top to bottom. When using the `where` list, it evaluates the filter subject specified with any filter assertions, and then continues to evaluate based on that subset of the values. The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems (it is used for filtering where to run assertions).
 message | `string` | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
-enum | [`string`] | Asserts a value is within a predefined list of values. See [enum example](#enum-example).
-pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
+
+## Subject object
+
+Property | Type | Description
+-- | -- | --
+type | string |  **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) that the [lint command](../commands/lint.md) evaluates.
+property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example).
+filterInParentKeys | [`string`] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions.
+filterOutParentKeys | [`string`] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
+matchParentKeys | `string` | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
+
+## Assertion object
+
+A minimum of one assertion property is required to be defined.
+
+Property | Type | Description
+-- | -- | --
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
+defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
+disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
+enum | [`string`] | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).
+maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
+minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
+nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
+pattern | `string` | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
 mutuallyExclusive | [`string`] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [`string`] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
+ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
 required | [`string`] | Asserts all listed values are defined. See [required example](#required-example).
 requireAny | [`string`] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
-disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
-defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
-nonEmpty | `boolean` | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
-minLength | `integer` | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
-maxLength | `integer` | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-ref | `boolean \| string` | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/.*\.yaml$/'`). See [ref example](#ref-example).|
-`{pluginId}/{functionName}` | `object` | Custom assert defined in the plugin. This function will be called with options including the value. See [custom function example](#custom-function-example).|
+`{pluginId}/{functionName}` | `object` | Custom assert defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).
 
+## Where object
+
+The `where` object is part of a `where` list which must be defined in order from the root node.
+
+Property | Type | Description
+-- | -- | --
+whereSubject | Subject object | **REQUIRED.** Filters the subject further based on the definition.
+whereAssertions | Assertion object | **REQUIRED.** Applies filter assertions to determine if the subject should continue towards evaluating the main assertions.
 ## Examples
 
 The following example shows four assertions with multiple asserts in each one (`defined`, `minLength`, `maxLength`, `pattern`).
@@ -70,38 +97,43 @@ The following example shows how to configure those assertions:
 ```yaml
 rules:
   assert/tag-description:
-    subject: Tag
-    property: description
+    subject: 
+      type: Tag
+      property: description
+    assertions:
+      defined: true
+      minLength: 30
+      pattern: /\.$/
     message: Tag description must be at least 30 characters and end with a full stop.
-    severity: error
-    defined: true
-    minLength: 30
-    pattern: /\.$/
   assert/operation-description:
-    subject: Operation
-    property: description
+    subject: 
+      type: Operation
+      property: description
+    assertions:
+      defined: true
+      minLength: 30
+      pattern: /\.$/
     message: Operation description must be at least 30 characters and end with a full stop.
-    severity: error
-    defined: true
-    minLength: 30
-    pattern: /\.$/
+    severity: warn
   assert/info-description:
-    subject: Info
-    property: description
+    subject: 
+      type: Info
+      property: description
+    assertions:
+      defined: true
+      minLength: 30
+      pattern: /\.$/
     message: Info description must be at least 30 characters and end with a full stop.
-    severity: error
-    defined: true
-    minLength: 30
-    pattern: /\.$/
   assert/operation-summary:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
+    assertions:
+      defined: true
+      minLength: 20
+      maxLength: 60
+      pattern: /[^\.]$/
     message: Operation summary must be between 20 and 60 characters and not end with a full stop.
-    severity: error
-    defined: true
-    minLength: 20
-    maxLength: 60
-    pattern: /[^\.]$/
 ```
 
 ### `property` example
@@ -111,10 +143,11 @@ The following example asserts that every path item has a GET operation defined.
 ```yaml
 rules:
   assert/path-item-get-operation-defined:
-    subject: PathItem
-    property: get
-    message: Every path item must have a GET operation.
-    defined: true
+    subject: 
+      type: PathItem
+      property: get
+    assertions:
+      defined: true
 ```
 
 A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
@@ -123,10 +156,12 @@ Notice we don't need to include `property` in this approach.
 ```yaml
 rules:
   assert/path-item-operation-required:
-    subject: PathItem
+    subject:
+      type: PathItem
+    assertions:
+      required:
+        - get
     message: Every path item must have a GET operation.
-    required:
-      - get
 ```
 
 The following example asserts that Tags have both name and description defined.
@@ -134,12 +169,14 @@ The following example asserts that Tags have both name and description defined.
 ```yaml
 rules:
   assert/tag-name-and-desc-defined:
-    subject: Tag
-    property:
-      - name
-      - description
+    subject:
+      type: Tag
+      property:
+        - name
+        - description
+    assertions:
+      defined: true
     message: Every tag must have a name and description.
-    defined: true
 ```
 
 Another way to compose that rule is to require the subject keys:
@@ -147,43 +184,71 @@ Another way to compose that rule is to require the subject keys:
 ```yaml
 rules:
   assert/tag-name-and-desc-required:
-    subject: Tag
-    message: Every tag must have a name and description.
-    required:
-      - name
-      - description
+    subject:
+      type: Tag
+    assertions:
+      required:
+        - name
+        - description
 ```
 
-### `if` example
+### `where` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
-Without the `if`, the assertion would evaluate every `MediaTypesMap` property including:
-- Responses with all codes, including codes other than 200 or 201
+Without the `where`, the assertion would evaluate every `MediaTypesMap` property including:
+- Responses with all codes, including codes other than 200 or 201.
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
-To restrict the evaluation, use the `if` feature to limit what will be evaluated.
+To restrict the evaluation, use the `where` feature to limit what is evaluated.
 
 ```yaml
 assert/no-pdf-in-ok-response:
-  if:
-  - subject: Operation
-    filterByParentKeys: 
-      - put
-    defined: true
-  - subject: Response
-    filterByParentKeys: 
-      - '201'
-      - '200'
-    defined: true
-  subject: MediaTypesMap
-  disallowed:
-    - 'application/pdf'
+  where:
+  - whereSubject:
+      type: Operation
+      filterByParentKeys: 
+        - put
+    whereAssertions:
+      defined: true
+  - whereSubject:
+      type: Response
+      filterByParentKeys: 
+        - '201'
+        - '200'
+    whereAssertions:
+      defined: true
+  subject:
+    type: MediaTypesMap
+  assertions:
+    disallowed:
+      - 'application/pdf'
+```
+
+Where enables complex assertions based on sibling values.
+The following example asserts that the `limit` parameter must have a schema with `type: integer`.
+
+```yaml
+assert/limit-is-integer:
+  subject:
+    type: Schema
+    property: type
+  assertions:
+    enum:
+      - integer
+  where:
+    - whereSubject:
+        type: Parameter
+        property: name
+      whereAssertions:
+        enum:
+          - limit
 ```
 
 ### Custom function example
 
 The following example asserts that `Operation` summary should start with an active verb and have at least three words.
 
-The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options. `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
+The configuration file uses two custom functions `local/checkWordsStarts` and `local/checkWordsCount`. `local/checkWordsStarts` has a list of `words` in the options.
+Custom function `local/checkWordsCount` has options with `min` which means that summary field should have a minimum number of words.
 
 In `plugin.js` each functions retrieves its options, checks for problems, and returns a list of problems.
 
@@ -192,23 +257,25 @@ Each function is called with the following parameters:
 Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
-options | `object` | Options that is described in config file.
-location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+options | `object` | Options that is described in the configuration file.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-plugins.md#location-object)
 **Return**
-problems | [`Problem`] | List of problems. Empty list indicates that all checks are valid.
+problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
 `Problem`
 Property | Type | Description
 -- | -- | --
-message | `string` \| [`string`] | Problem message that will be displayed in result
-location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-rules.md#location-object)
+message | `string` \| [`string`] | Problem message that is displayed in the [lint command](../commands/lint.md) output.
+location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-plugins.md#location-object)
 
 `.redocly.yaml`
 ```yaml
 assert/operation-summary-check:
-  subject: Operation
-  property: summary
+  subject: 
+    type: Operation
+    property: summary
   message: Operation summary should start with an active verb
+  assertions:
     local/checkWordsStarts: 
       words: 
         - Create
@@ -250,16 +317,17 @@ module.exports = {
 
 ### `enum` example
 
-The following example asserts that only `application/json` can be used as a key of the MediaTypesMap.
+The following example asserts that only `application/json` can be used as a key of the `MediaTypesMap`.
 
 ```yaml keys
 rules:
   assert/media-type-map-application-json:
-    subject: MediaTypesMap
+    subject:
+      type: MediaTypesMap
+    assertions:
+      enum:
+        - application/json
     message: Only application/json can be used
-    severity: error
-    enum:
-      - application/json
 ```
 
 The following example asserts that the operation summary must match one of the listed enums.
@@ -267,16 +335,17 @@ The following example asserts that the operation summary must match one of the l
 ```yaml values
 rules:
   assert/operation-summary-match:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
+    assertions:
+      enum:
+        - My resource
+        - My collection
     message: Summary must be one of the predefined values
     suggest:
       - change to 'My resource'
       - change to 'My collection'
-    severity: error
-    enum:
-      - My resource
-      - My collection
 ```
 
 ### `pattern` example
@@ -286,24 +355,24 @@ The following example asserts that the operation summary contains "test".
 ```yaml
 rules:
   assert/operation-summary-contains-test:
-    subject: Operation
-    property: summary
-    message: Summary should match a regex
-    severity: error
-    pattern: /test/
+    subject: 
+      type: Operation
+      property: summary
+    assertions:
+      pattern: /test/
 ```
 
 ### `casing` example
 
-The following example asserts the casing style is `PascalCase` for NamedExamples map keys.
+The following example asserts the casing style is `PascalCase` for `NamedExamples` map keys.
 
 ```yaml
 rules:
   assert/named-examples-pascal-case:
-    subject: NamedExamples
-    message: NamedExamples key must be in PascalCase
-    severity: error
-    casing: PascalCase
+    subject: 
+      type: NamedExamples
+    assertions:
+      casing: PascalCase
 ```
 
 Casing supports the following styles:
@@ -324,12 +393,12 @@ This assertion evaluates only property keys for the node, but not property value
 ```yaml
 rules:
   assert/operation-no-both-description-and-external-docs:
-    subject: Operation
-    message: "Operation must not define both properties together: description and externalDocs"
-    severity: error
-    mutuallyExclusive:
-      - description
-      - externalDocs
+    subject: 
+      type: Operation
+    assertions:
+      mutuallyExclusive:
+        - description
+        - externalDocs
 ```
 
 ### `mutuallyRequired` example
@@ -340,12 +409,12 @@ This assertion evaluates only property keys for the node, but not property value
 ```yaml Schema example
 rules:
   assert/schema-properties-both-created-at-and-updated-at:
-    subject: SchemaProperties
-    message: The created_at and updated_at properties are mutually required
-    severity: error
-    mutuallyRequired:
-      - created_at
-      - updated_at
+    subject:
+      type: SchemaProperties
+    assertions:
+      mutuallyRequired:
+        - created_at
+        - updated_at
 ```
 
 The following example asserts that when `PUT` requests have either `200` or `201` defined, both `200` and `201` responses must be defined.
@@ -353,17 +422,20 @@ The following example asserts that when `PUT` requests have either `200` or `201
 ```yaml Response example
 rules:
   assert/put-200-and-201:
-    subject: Responses
-    if:
-      - subject: Operation
-        filterInParentKeys:
-          - put
-        defined: true
+    subject: 
+      type: Responses
+    where:
+      - whereSubject:
+          type: Operation
+          filterInParentKeys:
+            - put
+        whereAssertions:
+          defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.
-    severity: error
-    mutuallyRequired:
-      - '200'
-      - '201'
+    assertions:
+      mutuallyRequired:
+        - '200'
+        - '201'
 ```
 
 ### `required` example
@@ -374,17 +446,20 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 ```yaml Response example
 rules:
   assert/put-200-and-201:
-    subject: Responses
-    if:
-      - type: Operation
-        filterInParentKeys:
-          - put
-        defined: true
+    subject:
+      type: Responses
+    where:
+      - whereSubject:
+          type: Operation
+          filterInParentKeys:
+            - put
+        whereAssertions:
+          defined: true
     message: Must define 200 and 201 responses for PUT requests.
-    severity: error
-    required:
-      - '200'
-      - '201'
+    assertions:
+      required:
+        - '200'
+        - '201'
 ```
 
 ### `requireAny` example
@@ -395,12 +470,12 @@ This assertion evaluates only property keys for the node, but not property value
 ```yaml Response example
 rules:
   assert/operation-no-both-description-and-external-docs:
-    subject: Operation
-    message: "Operation must have one of the properties: description or externalDocs"
-    severity: error
-    requireAny:
-      - description
-      - externalDocs
+    subject:
+      type: Operation
+    assertions:
+      requireAny:
+        - description
+        - externalDocs
 ```
 
 ### `disallowed` example
@@ -410,12 +485,12 @@ The following example asserts that `x-code-samples` and `x-internal` are not def
 ```yaml
 rules:
   assert/no-x-code-samples-and-x-internal:
-    subject: Operation
-    message: x-code-samples and x-internal must not be defined
-    severity: error
-    disallowed:
-      - x-code-samples
-      - x-internal
+    subject: 
+      type: Operation
+    assertions:
+      disallowed:
+        - x-code-samples
+        - x-internal
 ```
 
 ### `defined` example
@@ -425,11 +500,11 @@ The following example asserts that `x-codeSamples` is defined.
 ```yaml
 rules:
   assert/x-code-samples-defined:
-    subject: Operation
-    property: x-codeSamples
-    message: x-codeSamples must be defined
-    severity: error
-    defined: true
+    subject: 
+      type: Operation
+      property: x-codeSamples
+    assertions:
+      defined: true
 ```
 
 The following example asserts that `x-code-samples` is undefined.
@@ -437,13 +512,13 @@ The following example asserts that `x-code-samples` is undefined.
 ```yaml
 rules:
   assert/x-code-samples-undefined:
-    subject: Operation
-    property: x-code-samples
-    message: x-code-samples is deprecated
+    subject: 
+      type: Operation
+      property: x-code-samples
     suggest:
       - x-codeSamples instead of x-code-samples
-    severity: error
-    undefined: true
+    assertions:
+      defined: false
 ```
 
 ### `nonEmpty` example
@@ -453,11 +528,11 @@ The following example asserts that the operation summary is not empty.
 ```yaml
 rules:
   assert/operation-summary-non-empty:
-    subject: Operation
-    property: summary
-    message: Operation summary should not be empty
-    severity: error
-    nonEmpty: true
+    subject: 
+      type: Operation
+      property: summary
+    assertions:
+      nonEmpty: true
 ```
 
 ### `minLength` example
@@ -467,11 +542,12 @@ The following example asserts that the minimum length of each operation summary 
 ```yaml
 rules:
   assert/operation-summary-min-length:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
     message: Operation summary must have minimum of 20 chars length
-    severity: error
-    minLength: 20
+    assertions:
+      minLength: 20
 ```
 
 ### `maxLength` example
@@ -481,11 +557,12 @@ The following example asserts that the maximum length of each operation summary 
 ```yaml
 rules:
   assert/operation-summary-max-length:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
     message: Operation summary must have a maximum of 20 characters
-    severity: error
-    maxLength: 20
+    assertions:
+      maxLength: 20
 ```
 
 ### `ref` example
@@ -495,10 +572,11 @@ The following example asserts that schema in MediaType contains a Reference obje
 ```yaml
 rules:
   assert/mediatype-schema-has-ref:
-    subject: MediaType
-    property: schema
-    message: Ref is required.
-    ref: true
+    subject: 
+      type: MediaType
+      property: schema
+    assertions:
+      ref: true
 ```
 
 Also, you can specify a Regular Expression to check if the reference object conforms to it:
@@ -506,13 +584,13 @@ Also, you can specify a Regular Expression to check if the reference object conf
 ```yaml
 rules:
   assert/mediatype-schema-ref-pattern:
-    subject: MediaType
-    property: schema
+    subject: 
+      type: MediaType
+      property: schema
     message: Ref needs to point to components directory.
-    ref: /^(\.\/)?components\/.*\.yaml$/
+    assertions:
+      ref: /^(\.\/)?components\/.*\.yaml$/
 ```
-
-Redocly CLI
 
 ## OpenAPI node types
 
@@ -523,9 +601,9 @@ OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 ### List of OpenAPI types
 
 For technical details on the implementation of types for each OAS version, consult the source files in the Redocly CLI repository:
-  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
-  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
-  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
+  - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts
+  - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts
+  - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts
 
 List of types for OpenAPI 3.0 and 3.1:
 
@@ -575,3 +653,61 @@ List of types for OpenAPI 3.0 and 3.1:
 - SecurityScheme
 - XCodeSample
 - WebhooksMap
+
+
+```mermaid
+flowchart TD
+
+  root[Root]
+  root ==> Info
+  root ==>                          ServerList --> Server --> ServerVariablesMap --> ServerVariable
+  root ==> Paths --> PathItem --> ServerList              
+                       PathItem -->               ParameterList --> Parameter{Parameter}
+                       PathItem --> Operation --> ParameterList
+                                 
+          
+    Parameter -.->|simple| Schema
+    Parameter -.->|complex| MediaTypesMap 
+                            MediaTypesMap --> MediaType --> Schema
+                                            MediaType ---> any[Example]
+                                            MediaType --> ExamplesMap --> Example
+                                            MediaType --> EncodingMap --> Encoding
+
+                            Operation --> RequestBody --> MediaTypesMap
+                            Operation --> ServerList
+                            Operation --> Responses --> Response --> MediaTypesMap
+                                                          Response --> HeadersMap --> Header --> Schema
+                                                          Response --> LinksMap --> Link
+                            Operation --> SecurityRequirementList
+                            Operation --> CallbacksMap --> Callback
+
+
+  root ==> TagList --> Tag
+
+  root ==> Components
+
+          Components -.-> NamedSchemas --> Schema
+          Components -.-> NamedResponses --> Response
+          Components -.-> NamedParameters --> Parameter
+          Components -.-> NamedRequestBodies --> RequestBody
+          Components -.-> NamedHeaders --> Header
+          Components -.-> NamedPathItems --> PathItem
+          Components -.-> NamedCallbacks --> Callback
+          Components -.-> NamedSecuritySchemes --> SecurityScheme --> OAuth2Flows --> ImplicitFlow
+          OAuth2Flows --> PasswordFlow
+          OAuth2Flows --> ClientCredentials
+          OAuth2Flows --> AuthorizationCode
+
+
+          subgraph components 
+            NamedSchemas
+            NamedResponses
+            NamedParameters
+            NamedRequestBodies
+            NamedHeaders
+            NamedPathItems
+            NamedCallbacks
+          end
+
+  root ==> SecurityRequirementList --> SecurityRequirement
+```
