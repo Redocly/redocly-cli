@@ -27,15 +27,15 @@ A custom rule describes the contents that the linter expects to find in your API
 
 Property | Type | Description
 -- | -- | --
-my-custom-rule-name | [Custom rule object](#custom-rule-object) | Custom rules definitions enforce your custom API design standards. Add or edit your custom rules in the configuration file. A custom rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Assertion names display in the lint log if the assertion fails. More than one assertion may be defined, and any custom rule may have multiple asserts.
+assert/{string} | [Custom rule object](#custom-rule-object) | Custom rules definitions enforce your custom API design standards. Add or edit your custom rules in the configuration file. A custom rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Assertion names display in the lint log if the assertion fails. More than one assertion may be defined, and any custom rule may have multiple asserts.
 
 ## Custom rule object
 
 Property | Type | Description
 -- | -- | --
-subject | [Subject object](#subject-object) | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to filter further.
+subject | [Subject object](#subject-object) | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
 assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.
-where | [Where object](#where-object) | Influences evaluation for assertions by only evaluating assertions when the `where` arguments evaluate to true. The `where` argument must be structured as a list of valid [where objects](#where-object). The `where` list is evaluated from top to bottom. When using the `where` list, it evaluates the filter subject specified with any filter assertions, and then continues to evaluate based on that subset of the values. The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems (it is used for filtering where to run assertions).
+where | [Where object](#where-object) | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.
 message | `string` | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
 suggest | [`string`] | List of suggestions to display if the problem occurs.
 severity | `string` | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
@@ -46,7 +46,7 @@ Property | Type | Description
 -- | -- | --
 type | string |  **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) that the [lint command](../commands/lint.md) evaluates.
 property | `string` \| [`string`] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example).
-filterInParentKeys | [`string`] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions.
+filterInParentKeys | [`string`] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).
 filterOutParentKeys | [`string`] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
 matchParentKeys | `string` | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
 
@@ -57,6 +57,7 @@ A minimum of one assertion property is required to be defined.
 Property | Type | Description
 -- | -- | --
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
+const | `string` | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example].
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 enum | [`string`] | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).
@@ -74,11 +75,15 @@ requireAny | [`string`] | Asserts that at least one of the listed properties (ke
 ## Where object
 
 The `where` object is part of a `where` list which must be defined in order from the root node.
+Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.
 
 Property | Type | Description
 -- | -- | --
-whereSubject | Subject object | **REQUIRED.** Filters the subject further based on the definition.
-whereAssertions | Assertion object | **REQUIRED.** Applies filter assertions to determine if the subject should continue towards evaluating the main assertions.
+subject | [Subject object](#subject-object) | **REQUIRED.** Narrows the subject further.
+assertions | [Assertion object](#assertion-object) | **REQUIRED.** Applies assertions to determine if the subject should continue towards evaluating the main assertions. If an assertion fails, it narrows that from downstream subject evaluation and does not report a problem.
+
+See [where examples](#where-example).
+
 ## Examples
 
 The following example shows four assertions with multiple asserts in each one (`defined`, `minLength`, `maxLength`, `pattern`).
@@ -204,18 +209,18 @@ To restrict the evaluation, use the `where` feature to limit what is evaluated.
 ```yaml
 assert/no-pdf-in-ok-response:
   where:
-  - whereSubject:
+  - subject:
       type: Operation
       filterByParentKeys: 
         - put
-    whereAssertions:
+    assertions:
       defined: true
-  - whereSubject:
+  - subject:
       type: Response
       filterByParentKeys: 
         - '201'
         - '200'
-    whereAssertions:
+    assertions:
       defined: true
   subject:
     type: MediaTypesMap
@@ -233,15 +238,13 @@ assert/limit-is-integer:
     type: Schema
     property: type
   assertions:
-    enum:
-      - integer
+    const: integer
   where:
-    - whereSubject:
+    - subject:
         type: Parameter
         property: name
-      whereAssertions:
-        enum:
-          - limit
+      assertions:
+        const: limit
 ```
 
 ### Custom function example
@@ -316,9 +319,24 @@ module.exports = {
 };
 ```
 
+### `const` example
+
+The following example asserts that only `application/json` can be used as a key of the `MediaTypesMap`.
+
+```yaml keys
+rules:
+  assert/media-type-map-application-json:
+    subject:
+      type: MediaTypesMap
+    assertions:
+      const: application/json
+    message: Only application/json can be used
+```
+
 ### `enum` example
 
 The following example asserts that only `application/json` can be used as a key of the `MediaTypesMap`.
+It has the same effect as the `const` assertion.
 
 ```yaml keys
 rules:
@@ -426,11 +444,11 @@ rules:
     subject: 
       type: Responses
     where:
-      - whereSubject:
+      - subject:
           type: Operation
           filterInParentKeys:
             - put
-        whereAssertions:
+        assertions:
           defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.
     assertions:
@@ -450,11 +468,11 @@ rules:
     subject:
       type: Responses
     where:
-      - whereSubject:
+      - subject:
           type: Operation
           filterInParentKeys:
             - put
-        whereAssertions:
+        assertions:
           defined: true
     message: Must define 200 and 201 responses for PUT requests.
     assertions:
