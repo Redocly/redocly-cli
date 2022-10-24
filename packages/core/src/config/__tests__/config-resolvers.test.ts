@@ -100,7 +100,7 @@ describe('resolveStyleguideConfig', () => {
     }).toThrow('Circular dependency in config file');
   });
 
-  it('should resolve extends with local file config witch contains path to nested config', async () => {
+  it('should resolve extends with local file config which contains path to nested config', async () => {
     const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
@@ -197,7 +197,7 @@ describe('resolveStyleguideConfig', () => {
     ]);
   });
 
-  it('should resolve extends with url file config witch contains path to nested config', async () => {
+  it('should resolve extends with url file config which contains path to nested config', async () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
