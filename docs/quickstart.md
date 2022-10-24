@@ -7,7 +7,7 @@
 
 ## Step 1 - Clone the openapi-starter project
 
-[openapi-starter](https://github.com/Redocly/openapi-starter) creates a local folder structure that you can use to manage your API definition either as a single file, or in multi-file format. It also places a basic API definition file called `openapi.yaml` in the `openapi` root folder for those of you who don't have a definition file but need one to start exploring Redocly CLI. You're welcome!
+[openapi-starter](https://github.com/Redocly/openapi-starter) demo creates a local folder structure that you can use to manage your API definition either as a single file, or in multi-file format. It also places a basic API definition file called `openapi.yaml` in the `openapi` root folder for those of you who don't have a definition file but need one to start exploring Redocly CLI. You're welcome!
 
 If you have your own definition file, go right ahead and use it.
 
