@@ -50,7 +50,10 @@ import type { Stack } from './utils';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import type { Location } from './ref-utils';
 
-export type SkipFunctionContext = Pick<UserContext, 'location' | 'rawNode' | 'resolve' | 'rawLocation'>;
+export type SkipFunctionContext = Pick<
+  UserContext,
+  'location' | 'rawNode' | 'resolve' | 'rawLocation'
+>;
 
 export type VisitFunction<T> = (
   node: T,
@@ -61,11 +64,7 @@ export type VisitFunction<T> = (
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
-type SkipFunction<T> = (
-  node: T,
-  key: string | number,
-  ctx: SkipFunctionContext
-) => boolean;
+type SkipFunction<T> = (node: T, key: string | number, ctx: SkipFunctionContext) => boolean;
 
 type VisitObject<T> = {
   enter?: VisitFunction<T>;

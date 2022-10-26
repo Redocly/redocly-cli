@@ -184,18 +184,6 @@ rules:
     assertions: 
       defined: true
 
-  # undefined example
-  assert/operation-undefined:
-    subject:
-      type: Operation
-      property: x-code-samples
-    message: x-code-samples is deprecated
-    suggest:
-      - x-codeSamples instead of x-code-samples
-    severity: error
-    assertions:
-      undefined: true
-
   # nonEmpty example
   assert/operation-non-empty:
     subject: 

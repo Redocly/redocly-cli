@@ -239,74 +239,77 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
-const AssertionDefinitionSubject: NodeType['properties'] = {
-  type: { enum: nodeTypesList },
-  property: (value: unknown) => {
-    if (Array.isArray(value)) {
-      return { type: 'array', items: { type: 'string' } };
-    } else if (value === null) {
-      return null;
-    } else {
-      return { type: 'string' };
-    }
-  },
-  filterInParentKeys: { type: 'array', items: { type: 'string' } },
-  filterOutParentKeys: { type: 'array', items: { type: 'string' } },
-  matchParentKeys: { type: 'string' },
-}
-
-const AssertionDefinitionAssertions: NodeType['properties'] = {
-  enum: { type: 'array', items: { type: 'string' } },
-  pattern: { type: 'string' },
-  casing: {
-    enum: [
-      'camelCase',
-      'kebab-case',
-      'snake_case',
-      'PascalCase',
-      'MACRO_CASE',
-      'COBOL-CASE',
-      'flatcase',
-    ],
-  },
-  mutuallyExclusive: { type: 'array', items: { type: 'string' } },
-  mutuallyRequired: { type: 'array', items: { type: 'string' } },
-  required: { type: 'array', items: { type: 'string' } },
-  requireAny: { type: 'array', items: { type: 'string' } },
-  disallowed: { type: 'array', items: { type: 'string' } },
-  defined: { type: 'boolean' },
-  undefined: { type: 'boolean' },
-  nonEmpty: { type: 'boolean' },
-  minLength: { type: 'integer' },
-  maxLength: { type: 'integer' },
-  ref: (value: string | boolean) =>
-    typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
-  const: { type: 'string' }
-}
-
-
-const AssertDefinition: NodeType['properties'] = {
-  subject: {type: 'object', properties: AssertionDefinitionSubject, required: ['type']},
-  assertions: {type: 'object', properties: AssertionDefinitionAssertions },
-}
-
-const Assert: NodeType = {
+const AssertionDefinitionSubject: NodeType = {
   properties: {
-    ...AssertDefinition,
-    where: listOf('AssertionContext'),
-    message: { type: 'string' },
-    suggest: { type: 'array', items: { type: 'string' } },
-    severity: { enum: ['error', 'warn', 'off'] },
+    type: { enum: nodeTypesList },
+    property: (value: unknown) => {
+      if (Array.isArray(value)) {
+        return { type: 'array', items: { type: 'string' } };
+      } else if (value === null) {
+        return null;
+      } else {
+        return { type: 'string' };
+      }
+    },
+    filterInParentKeys: { type: 'array', items: { type: 'string' } },
+    filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+    matchParentKeys: { type: 'string' },
+  },
+  required: ['type'],
+};
+
+const AssertionDefinitionAssertions: NodeType = {
+  properties: {
+    enum: { type: 'array', items: { type: 'string' } },
+    pattern: { type: 'string' },
+    casing: {
+      enum: [
+        'camelCase',
+        'kebab-case',
+        'snake_case',
+        'PascalCase',
+        'MACRO_CASE',
+        'COBOL-CASE',
+        'flatcase',
+      ],
+    },
+    mutuallyExclusive: { type: 'array', items: { type: 'string' } },
+    mutuallyRequired: { type: 'array', items: { type: 'string' } },
+    required: { type: 'array', items: { type: 'string' } },
+    requireAny: { type: 'array', items: { type: 'string' } },
+    disallowed: { type: 'array', items: { type: 'string' } },
+    defined: { type: 'boolean' },
+    // undefined: { type: 'boolean' },
+    nonEmpty: { type: 'boolean' },
+    minLength: { type: 'integer' },
+    maxLength: { type: 'integer' },
+    ref: (value: string | boolean) =>
+      typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+    const: { type: 'string' },
   },
   additionalProperties: (_value: unknown, key: string) => {
     if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
     return;
   },
+};
+
+const AssertDefinition: NodeType = {
+  properties: {
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
+  },
   required: ['subject', 'assertions'],
 };
 
-const AssertionContext: NodeType = {
-  properties: AssertDefinition,
+const Assert: NodeType = {
+  properties: {
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
+    where: listOf('AssertDefinition'),
+    message: { type: 'string' },
+    suggest: { type: 'array', items: { type: 'string' } },
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
   required: ['subject', 'assertions'],
 };
 
@@ -923,7 +926,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  AssertionContext,
+  AssertDefinition,
   ThemeColors,
   CommonThemeColors,
   BorderThemeColors,
@@ -970,4 +973,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   Sidebar,
   Heading,
   Typography,
+  AssertionDefinitionAssertions,
+  AssertionDefinitionSubject,
 };

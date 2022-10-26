@@ -8,9 +8,9 @@ rules:
       - subject:
           type: Operation
           filterInParentKeys: [get]
+          property: responses
         assertions:
-          responses:
-            defined: true
+          defined: true
     subject: 
       type: Operation
       property: operationId

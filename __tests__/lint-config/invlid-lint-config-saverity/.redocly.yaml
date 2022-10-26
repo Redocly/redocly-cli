@@ -4,8 +4,9 @@ apis:
 
 rules:
   assert/path-item-mutually-required:
-    context:
-      - type: PathItem
-    subject: Operation
+    subject: 
+      type: Operation
+    assertions:
+      defined: true
     message: Operation should have summary and security fields simultaneously
 extends: []

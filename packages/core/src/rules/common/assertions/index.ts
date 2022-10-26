@@ -10,12 +10,12 @@ export type AssertionLocators = {
   matchParentKeys?: string;
 };
 
-export type AssertionDefinition =  {
+export type AssertionDefinition = {
   subject: {
     type: string;
     property?: string | string[];
   } & AssertionLocators;
-  assertions: { [name in keyof typeof asserts]?: AssertionFn }
+  assertions: { [name in keyof typeof asserts]?: AssertionFn };
 };
 
 export type RawAssertion = AssertionDefinition & {

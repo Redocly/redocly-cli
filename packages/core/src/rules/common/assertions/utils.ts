@@ -87,7 +87,7 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
   return assertsToApply;
 }
 
-function getAssertionProperties({subject}: AssertionDefinition): string[] {
+function getAssertionProperties({ subject }: AssertionDefinition): string[] {
   return (Array.isArray(subject.property) ? subject.property : [subject?.property]).filter(
     Boolean
   ) as string[];
@@ -175,8 +175,13 @@ export function buildVisitorObject(
       { location, rawLocation, resolve, rawNode }: SkipFunctionContext
     ): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
-      !!applyAssertions(assertionDefinitionNode, assertsToApply, { location, node, rawLocation, rawNode, resolve })
-        .length;
+      !!applyAssertions(assertionDefinitionNode, assertsToApply, {
+        location,
+        node,
+        rawLocation,
+        rawNode,
+        resolve,
+      }).length;
 
     const nodeVisitor = {
       ...((locatorPredicates.length || assertsToApply.length) && { skip: skipFunction }),
@@ -188,7 +193,7 @@ export function buildVisitorObject(
       // which is the same as subject;
       targetVisitor[assertion.subject.type] = {
         enter: subjectVisitor,
-        ...(nodeVisitor.skip && {skip: nodeVisitor.skip} ||
+        ...((nodeVisitor.skip && { skip: nodeVisitor.skip }) ||
           (targetVisitorSkipFunction && {
             skip: (
               node,
@@ -198,7 +203,8 @@ export function buildVisitorObject(
           })),
       };
     } else {
-      currentVisitorLevel = currentVisitorLevel[assertionDefinitionNode.subject?.type] = nodeVisitor;
+      currentVisitorLevel = currentVisitorLevel[assertionDefinitionNode.subject?.type] =
+        nodeVisitor;
     }
   }
 
