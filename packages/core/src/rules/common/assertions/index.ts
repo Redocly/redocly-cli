@@ -44,7 +44,7 @@ export const Assertions = (opts: Record<string, Assertion>) => {
       (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
 
     if (!isString(assertion.subject.type)) {
-      throw new Error(`${assertId}: 'subject' (String) is required`);
+      throw new Error(`${assertId}: 'type' (String) is required`);
     }
 
     const subjectVisitor = buildSubjectVisitor(assertId, assertion);

@@ -4,20 +4,34 @@ apis:
 
 rules:
   assert/operation-get:
-    context:
-      - type: Operation
-        matchParentKeys: [get]
-    subject: Operation
-    property: operationId
+    where:
+      - subject: 
+          type: Operation
+          filterInParentKeys: [get]
+          property: responses
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
+      property: operationId
+    assertions:
+      casing: camelCase
     message: Operation id for get operation should be camelCase
-    casing: camelCase
+
+   
   assert/operation-id-camel-case:
-    subject: Operation
-    property: operationId
+    subject:
+      type: Operation
+      property: operationId
     message: Operation id should be camelCase
-    casing: camelCase
+    assertions: 
+      casing: camelCase
+
   assert/camel-case-on-value:
-    subject: NamedParameters
-    casing: camelCase
+    subject: 
+      type: NamedParameters
+    assertions:
+      casing: camelCase
     message: Named Parameters should be camelCase
+
 extends: []

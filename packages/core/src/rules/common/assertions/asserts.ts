@@ -32,6 +32,7 @@ export type Asserts = {
   mutuallyRequired: AssertionFn;
   requireAny: AssertionFn;
   ref: AssertionFn;
+  const: AssertionFn;
 }
 
 export const runOnKeysSet = new Set<keyof Asserts>([
@@ -47,6 +48,7 @@ export const runOnKeysSet = new Set<keyof Asserts>([
   'required',
   'requireAny',
   'ref',
+  'const'
 ]);
 export const runOnValuesSet = new Set<keyof Asserts>([
   'pattern',
@@ -59,6 +61,7 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'casing',
   'sortOrder',
   'ref',
+  'const'
 ]);
 
 export const asserts: Asserts = {
@@ -125,6 +128,15 @@ export const asserts: Asserts = {
           }
       )
       .filter(isTruthy);
+  },
+  const: (value: string, condition: string, baseLocation: Location ) => {
+    if (typeof value === 'undefined') return [];
+    return value !== condition ? [
+          {
+            message: `${value} should be equal ${condition}`,
+            location: baseLocation,
+          },
+        ] : []
   },
   undefined: (value: any, condition: boolean = true, baseLocation: Location) => {
     const isUndefined = typeof value === 'undefined';

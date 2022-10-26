@@ -5,16 +5,27 @@ apis:
 
 rules:
   assert/operation-get:
-    context:
-      - type: Operation
-        matchParentKeys: [get]
-    subject: Operation
-    property: operationId
+    where:
+      - subject:
+          type: Operation
+          filterInParentKeys: [get]
+          property: responses
+        assertions:
+          defined: true 
+    subject: 
+      type: Operation
+      property: operationId
+   
+    assertions:
+      casing: PascalCase
     message: Operation id should be PascalCase
-    casing: PascalCase
+    
+
   assert/operation-id-pascal-case:
-    subject: Operation
-    property: operationId
+    subject: 
+      type: Operation
+      property: operationId
     message: Operation id should be PascalCase
-    casing: PascalCase
+    assertions:
+      casing: PascalCase
 extends: []

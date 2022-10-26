@@ -88,7 +88,7 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
 }
 
 function getAssertionProperties({subject}: AssertionDefinition): string[] {
-  return (Array.isArray(subject.property) ? subject.property : [subject.property]).filter(
+  return (Array.isArray(subject.property) ? subject.property : [subject?.property]).filter(
     Boolean
   ) as string[];
 }
@@ -160,12 +160,11 @@ export function buildVisitorObject(
   for (let index = 0; index < context.length; index++) {
     const assertionDefinitionNode = context[index];
 
-    if (!isString(assertionDefinitionNode.subject.type)) {
+    if (!isString(assertionDefinitionNode.subject?.type)) {
       throw new Error(
-        `${assertion.assertionId} -> where -> [${index}]: 'subject' (String) is required`
+        `${assertion.assertionId} -> where -> [${index}]: 'type' (String) is required`
       );
     }
-
 
     const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
     const assertsToApply = getAssertsToApply(assertionDefinitionNode);
@@ -199,7 +198,7 @@ export function buildVisitorObject(
           })),
       };
     } else {
-      currentVisitorLevel = currentVisitorLevel[assertionDefinitionNode.subject.type] = nodeVisitor;
+      currentVisitorLevel = currentVisitorLevel[assertionDefinitionNode.subject?.type] = nodeVisitor;
     }
   }
 
