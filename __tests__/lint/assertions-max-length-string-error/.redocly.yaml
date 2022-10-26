@@ -4,8 +4,11 @@ apis:
 
 rules:
   assert/description-max-length:
-    subject: Info
-    property: description
+    subject: 
+      type: Info
+      property: description
     message: Info description should be maximum 10 chars length
-    maxLength: 10
+    assertions:
+      maxLength: 10
+
 extends: []

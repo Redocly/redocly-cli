@@ -213,9 +213,9 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
 
     const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
       assertion.subject.type
-    )}${colorize.blue(properties.join(', '))} didn't meet the assertions: ${
+    )} ${colorize.blue(properties.join(', '))} didn't meet the assertions: ${
       assertionMessageTemplates.problems
-    }`;
+    }`.replace(/ +/g, ' ');
 
     const problems = applyAssertions(assertion, getAssertsToApply(assertion), {
       rawLocation,

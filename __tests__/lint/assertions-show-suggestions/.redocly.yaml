@@ -4,13 +4,20 @@ apis:
 
 rules:
   assert/path-item-suggest:
-    context:
-      - type: PathItem
-    subject: Operation
-    property: summary
+    where:
+      - subject:
+          type: PathItem
+          property: get
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
+      property: summary
     message: Operation summary should have at least 10 chars length
     suggest:
       - Suggestion 1
       - Suggestion 2
-    minLength: 20
+    assertions:
+      minLength: 20
+
 extends: []

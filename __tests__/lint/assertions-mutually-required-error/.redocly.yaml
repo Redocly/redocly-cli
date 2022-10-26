@@ -4,11 +4,18 @@ apis:
 
 rules:
   assert/path-item-mutually-required:
-    context:
-      - type: PathItem
-    subject: Operation
+    where:
+      - subject:
+          type: PathItem
+          property: get
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
     message: Operation should have summary and security fields simultaneously
-    mutuallyRequired:
+    assertions:
+      mutuallyRequired:
       - summary
       - security
+
 extends: []

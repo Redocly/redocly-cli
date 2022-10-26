@@ -444,7 +444,7 @@ function groupStyleguideAssertionRules({
 }
 
 function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinition) {
-  for (const field of keysOf(assertion)) {
+  for (const field of keysOf(assertion.assertions)) {
     const [pluginId, fn] = field.split('/');
 
     if (!pluginId || !fn) continue;

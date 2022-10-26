@@ -5,16 +5,25 @@ apis:
 
 rules:
   assert/response-content-defined:
-    context:
-    - type: Response
-      excludeParentKeys: ['204']
-    subject: Response
-    property: content
+    where:
+    - subject:
+        type: Response
+        filterOutParentKeys: ['204']
+        property: description
+      assertions:
+        defined: true
+    subject: 
+      type: Response
+      property: content
     message: Response content should be defined
-    defined: true
+    assertions:
+      defined: true
   assert/operation-security:
-    subject: Operation
-    property: security
+    subject: 
+      type: Operation
+      property: security
     message: Operation security should be defined
-    defined: true
+    assertions: 
+      defined: true
+
 extends: []

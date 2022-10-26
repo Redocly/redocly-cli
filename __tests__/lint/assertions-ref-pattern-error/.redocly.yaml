@@ -4,14 +4,23 @@ apis:
 
 rules:
   assert/ref-pattern:
-    context:
-      - type: Response
-    subject: MediaType
-    property: schema
+    where:
+      - subject:
+          type: Response
+          property: description
+        assertions:
+          defined: true
+    subject: 
+      type: MediaType
+      property: schema
     message: Response MediaType schema should contain ref to components/schemas folder
-    ref: ^(\.\/)?components\/schemas\/.*\.yaml$
+    assertions:
+      ref: ^(\.\/)?components\/schemas\/.*\.yaml$
   assert/ref-pattern-no-properties:
-    subject: PathItem
+    subject: 
+      type: PathItem
     message: PathItem should contain ref to components/paths folder
-    ref: ^(\.\/)?components\/paths\/.*\.yaml$
+    assertions:
+      ref: ^(\.\/)?components\/paths\/.*\.yaml$
+
 extends: []

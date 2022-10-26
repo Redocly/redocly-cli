@@ -4,10 +4,13 @@ apis:
 
 rules:
   assert/operation-require-any-description-or-external:
-    subject: Operation
+    subject: 
+      type: Operation
     message: 'Operation must have one of properties defined: description or externalDocs'
     severity: error
-    requireAny:
+    assertions:
+      requireAny:
       - description
       - externalDocs
+
 extends: []
