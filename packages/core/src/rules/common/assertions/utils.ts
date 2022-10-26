@@ -55,11 +55,11 @@ function getPredicatesFromLocators(
 
 export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply[] {
   const assertsToApply = keysOf(asserts)
-    .filter((assertName) => assertion[assertName] !== undefined)
+    .filter((assertName) => assertion.assertions[assertName] !== undefined)
     .map((assertName) => {
       return {
         name: assertName,
-        conditions: assertion[assertName],
+        conditions: assertion.assertions[assertName],
         runsOnKeys: runOnKeysSet.has(assertName),
         runsOnValues: runOnValuesSet.has(assertName),
       };
@@ -72,13 +72,13 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
     (assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys
   );
 
-  if (shouldRunOnValues && !assertion.property) {
+  if (shouldRunOnValues && !assertion.subject.property) {
     throw new Error(
       `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`
     );
   }
 
-  if (shouldRunOnKeys && assertion.property) {
+  if (shouldRunOnKeys && assertion.subject.property) {
     throw new Error(
       `${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`
     );
@@ -87,18 +87,18 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
   return assertsToApply;
 }
 
-function getAssertionProperties(assertion: AssertionDefinition): string[] {
-  return (Array.isArray(assertion.property) ? assertion.property : [assertion.property]).filter(
+function getAssertionProperties({subject}: AssertionDefinition): string[] {
+  return (Array.isArray(subject.property) ? subject.property : [subject.property]).filter(
     Boolean
   ) as string[];
 }
 
 function applyAssertions(
-  assertionDefiniton: AssertionDefinition,
+  assertionDefinition: AssertionDefinition,
   asserts: AssertToApply[],
   { rawLocation, rawNode, resolve, location, node }: AssertionContext
 ): AssertResult[] {
-  const properties = getAssertionProperties(assertionDefiniton);
+  const properties = getAssertionProperties(assertionDefinition);
   const assertResults: Array<AssertResult[]> = [];
 
   for (const assert of asserts) {
@@ -137,13 +137,13 @@ export function buildVisitorObject(
   assertion: Assertion,
   subjectVisitor: VisitFunction<any>
 ): Oas2Visitor | Oas3Visitor {
-  const targetVisitorLocatorPredicates = getPredicatesFromLocators(assertion);
+  const targetVisitorLocatorPredicates = getPredicatesFromLocators(assertion.subject);
   const targetVisitorSkipFunction = targetVisitorLocatorPredicates.length
     ? (node: any, key: string | number) =>
         !targetVisitorLocatorPredicates.every((predicate) => predicate(key))
     : undefined;
   const targetVisitor: Oas2Visitor | Oas3Visitor = {
-    [assertion.subject]: {
+    [assertion.subject.type]: {
       enter: subjectVisitor,
       ...(targetVisitorSkipFunction && { skip: targetVisitorSkipFunction }),
     },
@@ -158,37 +158,38 @@ export function buildVisitorObject(
   const context = assertion.where;
 
   for (let index = 0; index < context.length; index++) {
-    const node = context[index];
+    const assertionDefinitionNode = context[index];
 
-    if (!isString(node.subject)) {
+    if (!isString(assertionDefinitionNode.subject.type)) {
       throw new Error(
         `${assertion.assertionId} -> where -> [${index}]: 'subject' (String) is required`
       );
     }
 
-    const locatorPredicates = getPredicatesFromLocators(node);
-    const assertsToApply = getAssertsToApply(node);
+
+    const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
+    const assertsToApply = getAssertsToApply(assertionDefinitionNode);
 
     const skipFunction = (
-      node: any,
+      node: unknown,
       key: string | number,
       { location, rawLocation, resolve, rawNode }: SkipFunctionContext
     ): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
-      !!applyAssertions(node, assertsToApply, { location, node, rawLocation, rawNode, resolve })
+      !!applyAssertions(assertionDefinitionNode, assertsToApply, { location, node, rawLocation, rawNode, resolve })
         .length;
 
     const nodeVisitor = {
       ...((locatorPredicates.length || assertsToApply.length) && { skip: skipFunction }),
     };
 
-    if (node.subject === assertion.subject) {
+    if (assertionDefinitionNode.subject.type === assertion.subject.type) {
       // Visitors don't work properly for the same type nested nodes, so
       // as a workaround for that we don't create separate visitor for the last element
       // which is the same as subject;
-      targetVisitor[assertion.subject] = {
+      targetVisitor[assertion.subject.type] = {
         enter: subjectVisitor,
-        ...(nodeVisitor.skip ||
+        ...(nodeVisitor.skip && {skip: nodeVisitor.skip} ||
           (targetVisitorSkipFunction && {
             skip: (
               node,
@@ -198,11 +199,11 @@ export function buildVisitorObject(
           })),
       };
     } else {
-      currentVisitorLevel = currentVisitorLevel[node.subject] = nodeVisitor;
+      currentVisitorLevel = currentVisitorLevel[assertionDefinitionNode.subject.type] = nodeVisitor;
     }
   }
 
-  currentVisitorLevel[assertion.subject] = targetVisitor[assertion.subject];
+  currentVisitorLevel[assertion.subject.type] = targetVisitor[assertion.subject.type];
 
   return visitor;
 }
@@ -212,7 +213,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
     const properties = getAssertionProperties(assertion);
 
     const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
-      assertion.subject
+      assertion.subject.type
     )}${colorize.blue(properties.join(', '))} didn't meet the assertions: ${
       assertionMessageTemplates.problems
     }`;

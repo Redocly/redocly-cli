@@ -239,8 +239,8 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
-const AssertDefinition: NodeType['properties'] = {
-  subject: { enum: nodeTypesList },
+const AssertionDefinitionSubject: NodeType['properties'] = {
+  type: { enum: nodeTypesList },
   property: (value: unknown) => {
     if (Array.isArray(value)) {
       return { type: 'array', items: { type: 'string' } };
@@ -253,31 +253,78 @@ const AssertDefinition: NodeType['properties'] = {
   filterInParentKeys: { type: 'array', items: { type: 'string' } },
   filterOutParentKeys: { type: 'array', items: { type: 'string' } },
   matchParentKeys: { type: 'string' },
+}
+
+const AssertionDefinitionAssertions: NodeType['properties'] = {
   enum: { type: 'array', items: { type: 'string' } },
-    pattern: { type: 'string' },
-    casing: {
-      enum: [
-        'camelCase',
-        'kebab-case',
-        'snake_case',
-        'PascalCase',
-        'MACRO_CASE',
-        'COBOL-CASE',
-        'flatcase',
-      ],
-    },
-    mutuallyExclusive: { type: 'array', items: { type: 'string' } },
-    mutuallyRequired: { type: 'array', items: { type: 'string' } },
-    required: { type: 'array', items: { type: 'string' } },
-    requireAny: { type: 'array', items: { type: 'string' } },
-    disallowed: { type: 'array', items: { type: 'string' } },
-    defined: { type: 'boolean' },
-    undefined: { type: 'boolean' },
-    nonEmpty: { type: 'boolean' },
-    minLength: { type: 'integer' },
-    maxLength: { type: 'integer' },
-    ref: (value: string | boolean) =>
-      typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+  pattern: { type: 'string' },
+  casing: {
+    enum: [
+      'camelCase',
+      'kebab-case',
+      'snake_case',
+      'PascalCase',
+      'MACRO_CASE',
+      'COBOL-CASE',
+      'flatcase',
+    ],
+  },
+  mutuallyExclusive: { type: 'array', items: { type: 'string' } },
+  mutuallyRequired: { type: 'array', items: { type: 'string' } },
+  required: { type: 'array', items: { type: 'string' } },
+  requireAny: { type: 'array', items: { type: 'string' } },
+  disallowed: { type: 'array', items: { type: 'string' } },
+  defined: { type: 'boolean' },
+  undefined: { type: 'boolean' },
+  nonEmpty: { type: 'boolean' },
+  minLength: { type: 'integer' },
+  maxLength: { type: 'integer' },
+  ref: (value: string | boolean) =>
+    typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+}
+
+
+const AssertDefinition: NodeType['properties'] = {
+  // subject: { enum: nodeTypesList },
+  // property: (value: unknown) => {
+  //   if (Array.isArray(value)) {
+  //     return { type: 'array', items: { type: 'string' } };
+  //   } else if (value === null) {
+  //     return null;
+  //   } else {
+  //     return { type: 'string' };
+  //   }
+  // },
+  // filterInParentKeys: { type: 'array', items: { type: 'string' } },
+  // filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+  // matchParentKeys: { type: 'string' },
+  // enum: { type: 'array', items: { type: 'string' } },
+  // pattern: { type: 'string' },
+  // casing: {
+  //   enum: [
+  //     'camelCase',
+  //     'kebab-case',
+  //     'snake_case',
+  //     'PascalCase',
+  //     'MACRO_CASE',
+  //     'COBOL-CASE',
+  //     'flatcase',
+  //   ],
+  // },
+  // mutuallyExclusive: { type: 'array', items: { type: 'string' } },
+  // mutuallyRequired: { type: 'array', items: { type: 'string' } },
+  // required: { type: 'array', items: { type: 'string' } },
+  // requireAny: { type: 'array', items: { type: 'string' } },
+  // disallowed: { type: 'array', items: { type: 'string' } },
+  // defined: { type: 'boolean' },
+  // undefined: { type: 'boolean' },
+  // nonEmpty: { type: 'boolean' },
+  // minLength: { type: 'integer' },
+  // maxLength: { type: 'integer' },
+  // ref: (value: string | boolean) =>
+  //   typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+  subject: {type: 'object', properties: AssertionDefinitionSubject },
+  assertions: {type: 'object', properties: AssertionDefinitionAssertions },
 }
 
 const Assert: NodeType = {

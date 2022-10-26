@@ -10,10 +10,13 @@ export type AssertionLocators = {
   matchParentKeys?: string;
 };
 
-export type AssertionDefinition = AssertionLocators & {
-  subject: string;
-  property?: string | string[];
-} & { [name in keyof typeof asserts]?: AssertionFn };
+export type AssertionDefinition =  {
+  subject: {
+    type: string;
+    property?: string | string[];
+  } & AssertionLocators;
+  assertions: { [name in keyof typeof asserts]?: AssertionFn }
+};
 
 export type RawAssertion = AssertionDefinition & {
   where?: AssertionDefinition[];
@@ -40,7 +43,7 @@ export const Assertions = (opts: Record<string, Assertion>) => {
     const assertId =
       (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
 
-    if (!isString(assertion.subject)) {
+    if (!isString(assertion.subject.type)) {
       throw new Error(`${assertId}: 'subject' (String) is required`);
     }
 
