@@ -99,7 +99,7 @@ rules:
     subject: 
       type: Operation
       property: operationId
-    message: NamedExamples key must be in PascalCase
+    message: NamedExamples key must be in camelCase
     severity: error
     assertions:
       casing: camelCase
@@ -136,7 +136,7 @@ rules:
   # mutuallyRequired example with context
   assert/response-map-required-with-context:
     subject: 
-      type: ResponsesMap
+      type: Responses
     assertions: 
       mutuallyRequired:
         - '200'

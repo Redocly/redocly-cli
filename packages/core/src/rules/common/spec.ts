@@ -1,8 +1,9 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
 import { isNamedType } from '../../types';
-import { oasTypeOf, matchesJsonSchemaType, getSuggest } from '../utils';
+import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils';
 import { isRef } from '../../ref-utils';
 import { isPlainObject } from '../../utils';
+import { UserContext } from '../../walk';
 
 export const OasSpec: Oas3Rule | Oas2Rule = () => {
   return {
@@ -114,17 +115,20 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
           propValue = resolve(propValue).node;
         }
 
-        if (propSchema.enum) {
-          if (!propSchema.enum.includes(propValue)) {
-            report({
-              location: propLocation,
-              message: `\`${propName}\` can be one of the following only: ${propSchema.enum
-                .map((i) => `"${i}"`)
-                .join(', ')}.`,
-              from: refLocation,
-              suggest: getSuggest(propValue, propSchema.enum),
-            });
+        if (propSchema.items && propSchema.items?.enum && Array.isArray(propValue)) {
+          for (let i = 0; i < propValue.length; i++) {
+            validateSchemaEnumType(propSchema.items?.enum, propValue[i], propName, refLocation, {
+              report,
+              location: location.child([propName, i]),
+            } as UserContext);
           }
+        }
+
+        if (propSchema.enum) {
+          validateSchemaEnumType(propSchema.enum, propValue, propName, refLocation, {
+            report,
+            location: location.child([propName]),
+          } as UserContext);
         } else if (propSchema.type && !matchesJsonSchemaType(propValue, propSchema.type, false)) {
           report({
             message: `Expected type \`${propSchema.type}\` but got \`${propValueType}\`.`,

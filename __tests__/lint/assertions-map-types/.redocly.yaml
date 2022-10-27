@@ -13,7 +13,7 @@ rules:
 
   assert/encodingMap:
     subject: 
-      type: EncodingsMap
+      type: EncodingMap
     assertions:
       casing: kebab-case
 

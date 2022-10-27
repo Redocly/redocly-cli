@@ -138,3 +138,25 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
   showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
   return !opts.disallowAdditionalProperties;
 }
+
+export function validateSchemaEnumType(
+  schemaEnum: string[],
+  propertyValue: string,
+  propName: string,
+  refLocation: Location | undefined,
+  { report, location }: UserContext
+) {
+  if (!schemaEnum) {
+    return;
+  }
+  if (!schemaEnum.includes(propertyValue === null ? 'null' : propertyValue)) {
+    report({
+      location,
+      message: `\`${propName}\` can be one of the following only: ${schemaEnum
+        .map((type) => `"${type}"`)
+        .join(', ')}.`,
+      from: refLocation,
+      suggest: getSuggest(propertyValue, schemaEnum),
+    });
+  }
+}

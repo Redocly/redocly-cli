@@ -3,7 +3,6 @@ import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 
 const builtInRulesList = [
   'spec',
-  'info-description',
   'info-contact',
   'info-license',
   'info-license-url',
@@ -66,7 +65,7 @@ const nodeTypesList = [
   'Info',
   'Contact',
   'License',
-  'PathsMap',
+  'Paths',
   'PathItem',
   'Parameter',
   'Operation',
@@ -78,10 +77,10 @@ const nodeTypesList = [
   'Example',
   'ExamplesMap',
   'Encoding',
-  'EncodingsMap',
+  'EncodingMap',
   'Header',
   'HeadersMap',
-  'ResponsesMap',
+  'Responses',
   'Response',
   'Link',
   'LinksMap',
@@ -104,7 +103,7 @@ const nodeTypesList = [
   'PasswordFlow',
   'ClientCredentials',
   'AuthorizationCode',
-  'SecuritySchemeFlows',
+  'OAuth2Flows',
   'SecurityScheme',
   'XCodeSample',
   'WebhooksMap',
@@ -900,6 +899,16 @@ const ConfigReferenceDocs: NodeType = {
     unstable_externalDescription: { type: 'boolean' }, // deprecated
     unstable_ignoreMimeParameters: { type: 'boolean' },
     untrustedDefinition: { type: 'boolean' },
+    mockServer: {
+      properties: {
+        url: { type: 'string' },
+        position: { enum: ['first', 'last', 'replace', 'off'] },
+        description: { type: 'string' },
+      },
+    },
+    showAccessMode: { type: 'boolean' },
+    preserveOriginalExtensionsName: { type: 'boolean' },
+    markdownHeadingsAnchorLevel: { type: 'number' },
   },
   additionalProperties: { type: 'string' },
 };

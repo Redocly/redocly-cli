@@ -1115,7 +1115,7 @@ describe('walk order', () => {
     expect(calls).toMatchInlineSnapshot(`
       Array [
         "enter Root",
-        "enter PathsMap",
+        "enter Paths",
         "enter PathItem",
         "enter ParameterList",
         "enter Parameter",
@@ -1134,7 +1134,7 @@ describe('walk order', () => {
         "leave ParameterList",
         "leave Operation",
         "leave PathItem",
-        "leave PathsMap",
+        "leave Paths",
         "enter Components",
         "enter NamedParameters",
         "leave NamedParameters",

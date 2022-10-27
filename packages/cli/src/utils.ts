@@ -48,7 +48,14 @@ function isNotEmptyArray<T>(args?: T[]): boolean {
 function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
   return config.apis[aliasOrPath]
     ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
-    : { path: aliasOrPath };
+    : {
+        path: aliasOrPath,
+        // find alias by path, take the first match
+        alias:
+          Object.entries(config.apis).find(([_alias, api]) => {
+            return path.resolve(api.root) === path.resolve(aliasOrPath);
+          })?.[0] ?? undefined,
+      };
 }
 
 async function expandGlobsInEntrypoints(args: string[], config: Config) {

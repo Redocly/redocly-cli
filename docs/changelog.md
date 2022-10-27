@@ -4,6 +4,29 @@ tocMaxDepth: 2
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.111 (2022-10-10)
+
+### Changes
+
+- Renamed four type names for alignment with the OpenAPI specification.
+    - `PathsMap` to `Paths`
+    - `ResponsesMap` to `Responses`
+    - `EncodingsMap` to `EncodingMap`
+    - `SecuritySchemeFlows` to `OAuth2Flows`
+
+### Features
+
+- Added a new option `--keep-url-references` to the `bundle` command that disables bundling of absolute URL `$ref`-s.
+
+### Fixes
+
+- Improved location of problems produced by `security-defined` rule.
+- Fixed an issue with `response-contains-header` being case-sensitive.
+- Fixed an issue with `path-params-defined` rule that was not accounting for params defined on the operation level.
+- Fixed an issue with `type` not being validated if it is an array.
+- Fixed an issue with `apis` overrides not picking up some base values from the root config.
+- Fixed an issue with api not being detected from the `apis` list if used as a file name.
+
 ## 1.0.0-beta.110 (2022-09-21)
 
 ### Features

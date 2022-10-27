@@ -100,7 +100,7 @@ describe('resolveStyleguideConfig', () => {
     }).toThrow('Circular dependency in config file');
   });
 
-  it('should resolve extends with local file config witch contains path to nested config', async () => {
+  it('should resolve extends with local file config which contains path to nested config', async () => {
     const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
@@ -197,7 +197,7 @@ describe('resolveStyleguideConfig', () => {
     ]);
   });
 
-  it('should resolve extends with url file config witch contains path to nested config', async () => {
+  it('should resolve extends with url file config which contains path to nested config', async () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [
@@ -463,5 +463,30 @@ describe('resolveConfig', () => {
     delete apis['petstore'].styleguide.extendPaths;
     delete apis['petstore'].styleguide.pluginPaths;
     expect(apis['petstore'].styleguide).toMatchSnapshot();
+  });
+
+  it('should default to the extends from the main config if no extends defined', async () => {
+    const rawConfig: RawConfig = {
+      apis: {
+        petstore: {
+          root: 'some/path',
+          styleguide: {
+            rules: {
+              'operation-4xx-response': 'error',
+            },
+          },
+        },
+      },
+      styleguide: {
+        extends: ['minimal'],
+        rules: {
+          'operation-2xx-response': 'warn',
+        },
+      },
+    };
+
+    const { apis } = await resolveConfig(rawConfig, configPath);
+    expect(apis['petstore'].styleguide.rules).toBeDefined();
+    expect(apis['petstore'].styleguide.rules?.['operation-2xx-response']).toEqual('warn'); // from minimal ruleset
   });
 });

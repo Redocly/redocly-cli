@@ -31,7 +31,7 @@ paths:
                 type: string
           content:
             application/json:
-              encoding: # EncodingsMap
+              encoding: # EncodingMap
                 historyMetadata:
                   contentType: application/json; charset=utf-8
           links: # LinksMap

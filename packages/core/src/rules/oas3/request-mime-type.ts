@@ -5,7 +5,7 @@ import { validateMimeTypeOAS3 } from '../../utils';
 
 export const RequestMimeType: Oas3Rule = ({ allowedValues }) => {
   return {
-    PathsMap: {
+    Paths: {
       RequestBody: {
         leave(requestBody: Oas3RequestBody, ctx: UserContext) {
           validateMimeTypeOAS3({ type: 'consumes', value: requestBody }, ctx, allowedValues);

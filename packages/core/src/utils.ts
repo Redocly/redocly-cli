@@ -236,3 +236,16 @@ export function keysOf<T>(obj: T) {
   if (!obj) return [];
   return Object.keys(obj) as (keyof T)[];
 }
+
+export function pickDefined<T extends Record<string, unknown>>(
+  obj?: T
+): Record<string, unknown> | undefined {
+  if (!obj) return undefined;
+  const res: Record<string, unknown> = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      res[key] = obj[key];
+    }
+  }
+  return res;
+}

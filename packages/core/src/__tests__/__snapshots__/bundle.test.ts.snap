@@ -94,7 +94,7 @@ rootType:
       name: ExternalDocs
     paths:
       properties: {}
-      name: PathsMap
+      name: Paths
     components:
       properties:
         parameters:
