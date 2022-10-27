@@ -2,8 +2,8 @@ apis:
   main:
     root: ./openapi.yaml
 
-extends:
-  - recommended
+extends: []
+
 rules:
   assert/tag-description-pattern:
     subject: 
