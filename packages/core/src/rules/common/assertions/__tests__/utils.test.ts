@@ -1,4 +1,4 @@
-import { Assertion } from '..';
+import { Assertion, AssertionDefinition } from '..';
 import { isOrdered, buildVisitorObject, getIntersectionLength } from '../utils';
 
 describe('Oas3 assertions', () => {
@@ -26,30 +26,33 @@ describe('Oas3 assertions', () => {
 
     describe('buildVisitorObject', () => {
       it('should return a consistent visitor structure', () => {
-        const context: Assertion[] = [
+        const where: AssertionDefinition[] = [
           {
             subject: {
               type: 'Foo',
               filterInParentKeys: ['test'],
             },
+            assertions: {},
           },
           {
             subject: {
               type: 'Bar',
               filterInParentKeys: ['test'],
             },
+            assertions: {},
           },
           {
             subject: {
               type: 'Roof',
               filterInParentKeys: ['test'],
             },
+            assertions: {},
           },
-        ] as Assertion[];
+        ] as AssertionDefinition[];
 
         const visitors = buildVisitorObject(
-          { subject: { type: 'Bar' } } as Assertion,
-          context as any
+          { subject: { type: 'Bar' }, where, assertions: {} } as Assertion,
+          () => {}
         );
 
         expect(visitors).toMatchInlineSnapshot(`
@@ -69,24 +72,26 @@ describe('Oas3 assertions', () => {
       });
 
       it('should return the right visitor structure', () => {
-        const context = [
+        const where = [
           {
             subject: {
               type: 'Operation',
               filterInParentKeys: ['put'],
             },
+            assertions: {},
           },
           {
             subject: {
               type: 'Responses',
               filterInParentKeys: [201, 200],
             },
+            assertions: {},
           },
         ];
 
         const visitors = buildVisitorObject(
-          { subject: { type: 'MediaTypesMap' } } as Assertion,
-          context as any
+          { subject: { type: 'MediaTypesMap' }, where, assertions: {} } as Assertion,
+          () => {}
         );
 
         expect(visitors).toMatchInlineSnapshot(`
