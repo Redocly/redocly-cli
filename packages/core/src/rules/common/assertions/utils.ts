@@ -38,7 +38,7 @@ function getPredicatesFromLocators(
 ): ((key: string | number) => boolean)[] {
   const { filterInParentKeys, filterOutParentKeys, matchParentKeys } = locators;
 
-  const keyMatcher = matchParentKeys && new RegExp(matchParentKeys);
+  const keyMatcher = matchParentKeys && regexFromString(matchParentKeys);
   const matchKeysPredicate =
     keyMatcher && ((key: string | number) => keyMatcher.test(key.toString()));
 

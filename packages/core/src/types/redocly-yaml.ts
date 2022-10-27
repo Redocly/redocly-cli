@@ -284,7 +284,19 @@ const AssertionDefinitionAssertions: NodeType = {
     maxLength: { type: 'integer' },
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
-    const: { type: 'string' },
+    const: (value: string | boolean | number) => {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      }
+      if (typeof value === 'number') {
+        return { type: 'number' };
+      }
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return;
+      }
+    },
   },
   additionalProperties: (_value: unknown, key: string) => {
     if (/^\w+\/\w+$/.test(key)) return { type: 'object' };

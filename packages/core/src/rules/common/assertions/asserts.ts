@@ -129,7 +129,11 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  const: (value: string, condition: string, baseLocation: Location) => {
+  const: (
+    value: string | number | boolean,
+    condition: string | number | boolean,
+    baseLocation: Location
+  ) => {
     if (typeof value === 'undefined') return [];
     return value !== condition
       ? [

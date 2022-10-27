@@ -35,7 +35,10 @@ const opts = {
   },
   '3': {
     subject: { type: 'Foo', property: 'test' },
-    where: [{ subject: { type: 'Bar' }, assertions: {} }, { subject: { type: 'Baz' }, assertions: {} }],
+    where: [
+      { subject: { type: 'Bar' }, assertions: {} },
+      { subject: { type: 'Baz' }, assertions: {} },
+    ],
     description: 'example warn text',
     severity: 'warn',
     assertions: { sortOrder: 'desc' },
