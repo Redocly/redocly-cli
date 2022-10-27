@@ -61,11 +61,13 @@ describe('lint', () => {
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
           assert/operation-summary-length:
-            subject: Operation
-            property: summary
+            subject: 
+              type: Operation
+              property: summary
             message: Operation summary should start with an active verb
-            local/checkWordsCount: 
-              min: 3
+            assertions:
+              local/checkWordsCount: 
+                min: 3
       features.openapi:
         showConsole: true
         layout:
