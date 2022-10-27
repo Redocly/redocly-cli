@@ -278,7 +278,7 @@ const AssertionDefinitionAssertions: NodeType = {
     requireAny: { type: 'array', items: { type: 'string' } },
     disallowed: { type: 'array', items: { type: 'string' } },
     defined: { type: 'boolean' },
-    // undefined: { type: 'boolean' },
+    // undefined: { type: 'boolean' }, // TODO: Remove `undefined` assertion from codebase overall
     nonEmpty: { type: 'boolean' },
     minLength: { type: 'integer' },
     maxLength: { type: 'integer' },

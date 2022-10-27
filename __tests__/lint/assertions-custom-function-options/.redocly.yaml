@@ -25,6 +25,7 @@ rules:
       local/checkWordsCount: 
         min: 3
 
+
   assert/operation-summary-length:
     subject: 
       type: Operation
@@ -45,4 +46,19 @@ rules:
       local/checkWordsCount: 
         min: 3
 
+  assert/operation-summary-length-with-where:
+    where:
+      - subject: 
+          type: Operation
+          property: summary
+        assertions:
+          local/checkWordsCount: 
+            min: 3
+    subject: 
+      type: Schema
+      property: type
+    assertions:
+      defined: true
+      const: integer
+    
 extends: []
