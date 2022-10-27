@@ -51,23 +51,32 @@ describe('Oas3 assertions', () => {
     expect(visitors).toMatchInlineSnapshot(`
       Array [
         Object {
-          "Operation": [Function],
+          "Operation": Object {
+            "enter": [Function],
+          },
         },
         Object {
           "Operation": Object {
-            "PathItem": [Function],
+            "PathItem": Object {
+              "enter": [Function],
+            },
             "skip": [Function],
           },
         },
         Object {
           "Operation": Object {
-            "PathItem": [Function],
+            "PathItem": Object {
+              "enter": [Function],
+            },
+            "skip": [Function],
           },
         },
         Object {
           "Bar": Object {
             "Baz": Object {
-              "Foo": [Function],
+              "Foo": Object {
+                "enter": [Function],
+              },
             },
           },
         },

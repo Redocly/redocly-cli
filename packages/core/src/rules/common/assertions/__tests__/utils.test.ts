@@ -60,7 +60,9 @@ describe('Oas3 assertions', () => {
             "Foo": Object {
               "Bar": Object {
                 "Roof": Object {
-                  "Bar": [Function],
+                  "Bar": Object {
+                    "enter": [Function],
+                  },
                   "skip": [Function],
                 },
                 "skip": [Function],
@@ -98,7 +100,9 @@ describe('Oas3 assertions', () => {
           Object {
             "Operation": Object {
               "Responses": Object {
-                "MediaTypesMap": [Function],
+                "MediaTypesMap": Object {
+                  "enter": [Function],
+                },
                 "skip": [Function],
               },
               "skip": [Function],
