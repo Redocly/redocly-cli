@@ -187,7 +187,10 @@ export function buildVisitorObject(
       ...((locatorPredicates.length || assertsToApply.length) && { skip: skipFunction }),
     };
 
-    if (assertionDefinitionNode.subject.type === assertion.subject.type && index === context.length - 1) {
+    if (
+      assertionDefinitionNode.subject.type === assertion.subject.type &&
+      index === context.length - 1
+    ) {
       // Visitors don't work properly for the same type nested nodes, so
       // as a workaround for that we don't create separate visitor for the last element
       // which is the same as subject;
