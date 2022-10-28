@@ -215,6 +215,7 @@ const legacyTypesMap = {
   HeadersMap: 'HeaderMap',
   LinksMap: 'LinkMap',
   OAuth2Flows: 'SecuritySchemeFlows',
+  Responses: 'ResponsesMap',
 };
 
 type Oas3NestedVisitor = {
