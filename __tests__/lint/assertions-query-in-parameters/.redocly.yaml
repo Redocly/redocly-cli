@@ -13,5 +13,5 @@ rules:
       type: Parameter
       property: in
     assertions: 
-      const: query
+      const: path
 extends: []

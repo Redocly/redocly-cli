@@ -16,5 +16,5 @@ rules:
       property: type
     assertions:
       enum:
-        - integer
+        - string
 extends: []
