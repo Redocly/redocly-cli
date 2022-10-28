@@ -236,26 +236,18 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
 
     if (problems.length) {
       const message = assertion.message || defaultMessage;
-
-      report({
-        message: message.replace(assertionMessageTemplates.problems, getProblemsMessage(problems)),
-        location: getProblemsLocation(problems) || location,
-        forceSeverity: assertion.severity || 'error',
-        suggest: assertion.suggest || [],
-        ruleId: assertId,
-      });
+      for (const problem of problems) {
+        const problemMessage = problem.message ? problem.message : defaultMessage;
+        report({
+          message: message.replace(assertionMessageTemplates.problems, problemMessage),
+          location: problem.location || location,
+          forceSeverity: assertion.severity || 'error',
+          suggest: assertion.suggest || [],
+          ruleId: assertId,
+        });
+      }
     }
   };
-}
-
-function getProblemsLocation(problems: AssertResult[]) {
-  return problems.length ? problems[0].location : undefined;
-}
-
-function getProblemsMessage(problems: AssertResult[]) {
-  return problems.length === 1
-    ? problems[0].message ?? ''
-    : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
