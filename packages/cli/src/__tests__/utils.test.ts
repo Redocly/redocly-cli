@@ -56,6 +56,7 @@ describe('pathToFilename', () => {
 
 describe('getFallbackApisOrExit', () => {
   it('should find alias by filename', async () => {
+    (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => true);
     const entry = await getFallbackApisOrExit(['./test.yaml'], {
       apis: {
         main: {

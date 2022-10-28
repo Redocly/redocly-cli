@@ -78,7 +78,7 @@ function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
         // find alias by path, take the first match
         alias:
           Object.entries(config.apis).find(([_alias, api]) => {
-            return path.resolve(api.root) === path.resolve(aliasOrPath);
+            return resolve(api.root) === resolve(aliasOrPath);
           })?.[0] ?? undefined,
       };
 }
