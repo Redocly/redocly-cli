@@ -211,12 +211,14 @@ assert/no-pdf-in-ok-response:
   where:
   - subject:
       type: Operation
+      property: responses
       filterByParentKeys: 
         - put
     assertions:
       defined: true
   - subject:
       type: Response
+      property: description
       filterByParentKeys: 
         - '201'
         - '200'
