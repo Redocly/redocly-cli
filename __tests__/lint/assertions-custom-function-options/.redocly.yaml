@@ -39,4 +39,3 @@ rules:
         - Reject
     local/checkWordsCount: 
       min: 3
-  extends: []

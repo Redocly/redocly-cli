@@ -15,11 +15,15 @@ async function addConfigMetadata({
   customExtends,
   configPath,
   tokens,
+  files,
+  region,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
   tokens?: RegionalTokenWithValidity[];
+  files?: string[];
+  region?: Region;
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
@@ -57,7 +61,10 @@ async function addConfigMetadata({
     }
   }
 
-  return resolveConfig(rawConfig, configPath);
+  return resolveConfig(
+    { ...rawConfig, files: files ?? rawConfig.files, region: region ?? rawConfig.region },
+    configPath
+  );
 }
 
 export async function loadConfig(
@@ -71,19 +78,20 @@ export async function loadConfig(
 ): Promise<Config> {
   const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
   const config = await getConfig(configPath);
-  const rawConfig = { ...config, files: files ?? config.files, region: region ?? config.region };
   if (typeof processRawConfig === 'function') {
-    await processRawConfig(rawConfig);
+    await processRawConfig(config);
   }
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
 
   return addConfigMetadata({
-    rawConfig,
+    rawConfig: config,
     customExtends,
     configPath,
     tokens,
+    files,
+    region,
   });
 }
 
