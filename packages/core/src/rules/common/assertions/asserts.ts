@@ -49,6 +49,7 @@ export const runOnKeysSet = new Set<keyof Asserts>([
   'requireAny',
   'ref',
   'const',
+  'defined', // In case if `property` for assertions is not added
 ]);
 export const runOnValuesSet = new Set<keyof Asserts>([
   'pattern',
