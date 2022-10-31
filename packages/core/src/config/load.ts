@@ -77,16 +77,16 @@ export async function loadConfig(
   } = {}
 ): Promise<Config> {
   const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
-  const config = await getConfig(configPath);
+  const rawConfig = await getConfig(configPath);
   if (typeof processRawConfig === 'function') {
-    await processRawConfig(config);
+    await processRawConfig(rawConfig);
   }
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
 
   return addConfigMetadata({
-    rawConfig: config,
+    rawConfig,
     customExtends,
     configPath,
     tokens,
