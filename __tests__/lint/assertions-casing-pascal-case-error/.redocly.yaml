@@ -9,13 +9,11 @@ rules:
       - subject:
           type: Operation
           filterInParentKeys: [get]
-          property: responses
         assertions:
           defined: true 
     subject: 
       type: Operation
       property: operationId
-   
     assertions:
       casing: PascalCase
     message: Operation id should be PascalCase

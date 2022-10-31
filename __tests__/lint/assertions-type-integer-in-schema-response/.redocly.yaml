@@ -7,12 +7,10 @@ rules:
       - subject:
           type: Operation
           filterInParentKeys: [get]
-          property: responses
         assertions:
           defined: true
       - subject: 
           type: Response
-          property: description
           filterInParentKeys: ['201', '200']
         assertions: 
           defined: true

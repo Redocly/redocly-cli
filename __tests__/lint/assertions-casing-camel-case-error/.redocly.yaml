@@ -4,17 +4,12 @@ apis:
 
 rules:
   assert/operation-get:
-    where:
-      - subject: 
-          type: Operation
-          filterInParentKeys: [get]
-          property: responses
-        assertions:
-          defined: true
     subject: 
       type: Operation
+      filterInParentKeys: [get]
       property: operationId
     assertions:
+      defined: true
       casing: camelCase
     message: Operation id for get operation should be camelCase
 

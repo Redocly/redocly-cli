@@ -72,9 +72,9 @@ export function getAssertsToApply(assertion: AssertionDefinition): AssertToApply
     (assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys
   );
 
-  if (shouldRunOnValues && !assertion.subject.property) {
+  if (shouldRunOnValues && !assertion.subject.property && shouldRunOnValues.name !== 'defined') {
     throw new Error(
-      `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`
+      `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property`
     );
   }
 

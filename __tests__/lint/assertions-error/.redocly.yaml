@@ -47,13 +47,11 @@ rules:
           type: Operation
           filterOutParentKeys:
           - put
-          property: responses
         assertions:
           defined: true
       - subject:
           type: Response
           filterInParentKeys: ['201', '200']
-          property: description
         assertions:
           defined: true
     assertions:
@@ -117,7 +115,6 @@ rules:
     where:
       - subject:
           type: Response
-          property: description
         assertions:
           defined: true
     message: The created_at and updated_at properties are mutually required
@@ -135,7 +132,6 @@ rules:
             type: Operation
             filterInParentKeys:
             - put
-            property: responses
           assertions:
             defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.

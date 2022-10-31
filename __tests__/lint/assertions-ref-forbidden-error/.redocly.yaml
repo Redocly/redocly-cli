@@ -7,7 +7,6 @@ rules:
     where:
       - subject:
           type: Response
-          property: description
         assertions: 
           defined: true
     subject:

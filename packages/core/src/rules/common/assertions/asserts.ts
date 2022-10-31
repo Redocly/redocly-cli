@@ -130,19 +130,32 @@ export const asserts: Asserts = {
       .filter(isTruthy);
   },
   const: (
-    value: string | number | boolean,
+    value: string | number | boolean | string[] | number[],
     condition: string | number | boolean,
     baseLocation: Location
   ) => {
     if (typeof value === 'undefined') return [];
-    return value !== condition
-      ? [
-          {
-            message: `${value} should be equal ${condition}`,
-            location: baseLocation,
-          },
-        ]
-      : [];
+
+    if (Array.isArray(value)) {
+      return value
+        .map(
+          (_val) =>
+            condition !== _val && {
+              message: `"${_val}" should be equal ${condition} `,
+              location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+            }
+        )
+        .filter(isTruthy);
+    } else {
+      return value !== condition
+        ? [
+            {
+              message: `${value} should be equal ${condition}`,
+              location: baseLocation,
+            },
+          ]
+        : [];
+    }
   },
   undefined: (value: any, condition: boolean = true, baseLocation: Location) => {
     const isUndefined = typeof value === 'undefined';

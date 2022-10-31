@@ -6,12 +6,11 @@ apis:
 rules:
   assert/response-content-defined:
     where:
-    - subject:
-        type: Response
-        filterOutParentKeys: ['204']
-        property: description
-      assertions:
-        defined: true
+      - subject:
+          type: Response
+          filterOutParentKeys: ['204']
+        assertions:
+          defined: true
     subject: 
       type: Response
       property: content

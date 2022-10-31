@@ -8,7 +8,6 @@ rules:
       - subject:
           type: Operation
           filterInParentKeys: [get]
-          property: responses
         assertions:
           defined: true
     subject: 

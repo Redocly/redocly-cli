@@ -50,7 +50,6 @@ rules:
           type: Operation
           filterOutParentKeys:
             - put
-          property: responses
         assertions: 
           defined: true
       - subject:
@@ -127,12 +126,9 @@ rules:
     where:
       - subject: 
           type: Response
-          property: description
         assertions:
           defined: true
-    ## TODO wtf?
- 
-   
+    
   # mutuallyRequired example with context
   assert/response-map-required-with-context:
     subject: 
@@ -146,7 +142,6 @@ rules:
           type: Operation
           filterInParentKeys:
             - put
-          property: responses
         assertions: 
           defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.
