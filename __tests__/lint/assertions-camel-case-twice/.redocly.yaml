@@ -1,12 +1,14 @@
 apis:
   main:
     root: ./openapi.yaml
-rules: 
+
+rules:
   assert/named-parameters-camelCase:
-    subject: 
+    subject:
       type: NamedParameters
     message: Parameters must use camelCase
     severity: warn
     assertions:
       casing: camelCase
+
 extends: []
