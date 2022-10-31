@@ -191,9 +191,7 @@ export function buildVisitorObject(
       assertionDefinitionNode.subject.type === assertion.subject.type &&
       index === context.length - 1
     ) {
-      // Visitors don't work properly for the same type nested nodes, so
-      // as a workaround for that we don't create separate visitor for the last element
-      // which is the same as subject;
+      // We have to merge the visitors if the last node inside the `where` is the same as the subject.
       targetVisitor[assertion.subject.type] = {
         enter: subjectVisitor,
         ...((nodeVisitor.skip && { skip: nodeVisitor.skip }) ||

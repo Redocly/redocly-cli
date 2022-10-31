@@ -8,5 +8,5 @@ rules:
       type: Operation
     assertions:
       defined: true
-    message: Operation should have summary and security fields simultaneously
+
 extends: []

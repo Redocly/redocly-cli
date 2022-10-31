@@ -4,15 +4,10 @@ apis:
 
 rules:
   assert/operation-id-pascal-case:
-    where:
-      - subject:
-          type: Operation
-          filterInParentKeys: [get]
-        assertions:
-          defined: true
     subject: 
       type: Operation
       property: operationId
+      filterInParentKeys: [get]
     message: Operation id for get requests should be PascalCase
     assertions:
       casing: PascalCase
