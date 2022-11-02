@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  description: Description
+  license:
+    name: MIT
+    url: example.com
+tags:
+- name: sometag
+  description: sometag
+servers:
+- url: https://example.com
+security: []
+paths:
+  /someGet:
+    get:
+      operationId: operationIdGet
+      parameters: 
+      - $ref: "#/components/parameters/header_Accept"
+      responses:
+        '200':
+          description: ''
+        '400':
+          description: ''
+components:
+  parameters:
+    header_roleCode:
+      description: Some role description
+      name: roleCode
+      in: header
+      required: true
+      schema:
+        type: string
+    header_Accept:
+      name: Accept
+      in: header
+      description: Some header description
+      required: false
+      schema:
+        type: string

@@ -4,14 +4,22 @@ apis:
 
 rules:
   assert/ref-forbidden:
-    context:
-      - type: Response
-    subject: MediaType
-    property: schema
+    where:
+      - subject:
+          type: Response
+        assertions: 
+          defined: true
+    subject:
+      type: MediaType
+      property: schema
     message: Response MediaType schema should NOT have a ref
-    ref: false
+    assertions: 
+      ref: false
   assert/ref-forbidden-no-property:
-    subject: PathItem
+    subject: 
+      type: PathItem
     message: PathItems should NOT should have a ref
-    ref: false
+    assertions: 
+      ref: false
+
 extends: []
