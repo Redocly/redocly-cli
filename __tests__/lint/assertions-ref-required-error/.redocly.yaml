@@ -4,14 +4,22 @@ apis:
 
 rules:
   assert/ref-required:
-    context:
-      - type: Response
-    subject: MediaType
-    property: schema
+    where:
+      - subject:
+          type: Response
+        assertions:
+          defined: true
+    subject: 
+      type: MediaType
+      property: schema
     message: Response MediaType schema should have a ref
-    ref: true
+    assertions:
+      ref: true
   assert/ref-required-no-property:
-    subject: PathItem
+    subject: 
+      type: PathItem
     message: PathItems should have refs
-    ref: true
+    assertions:
+      ref: true
+
 extends: []

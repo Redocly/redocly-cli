@@ -1,0 +1,22 @@
+apis:
+  main:
+    root: ./openapi.yaml
+rules:
+  assert/match-parent-keys-with-defined:
+    subject:
+      type: Operation
+      matchParentKeys: /^p/
+      property: x-test
+    assertions:
+      defined: true
+      const: true
+
+  assert/match-parent-keys-example-without-defined:
+    subject:
+      type: Operation
+      matchParentKeys: /^p/
+      property: x-test
+    assertions:
+      const: true
+
+extends: []

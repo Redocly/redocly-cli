@@ -1,0 +1,47 @@
+openapi: 3.1.0
+servers:
+  - url: http://example.xyz
+info:
+  license:
+    name: test licence
+    url: http://example.xyz
+  title: Example OpenAPI 3 definition.
+  description: Example description
+  version: '1.0'
+  contact:
+    name: qa
+    url: https://swagger.io/specification/#definitions
+    email: email@redoc.ly
+
+paths:
+  /pet/findByStatus:
+    get:
+      operationId: getExample
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description
+    post:
+      operationId: postExample
+      x-test: false
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description
+    put:
+      operationId: putExample
+      x-test: true
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description
+    patch:
+      operationId: putExample
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description

@@ -1,6 +1,6 @@
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
-import { asserts, buildAssertCustomFunction } from '../asserts';
+import { Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
@@ -674,9 +674,13 @@ describe('oas3 assertions', () => {
           }
           return [];
         });
-        asserts['local/customFn'] = buildAssertCustomFunction(customFn);
+        asserts['local/customFn' as keyof Asserts] = buildAssertCustomFunction(customFn);
         expect(
-          asserts['local/customFn'](Object.keys(fakeNode), { word: 'foo' }, baseLocation)
+          asserts['local/customFn' as keyof Asserts](
+            Object.keys(fakeNode),
+            { word: 'foo' },
+            baseLocation
+          )
         ).toEqual([
           {
             message: 'First value should be foo',

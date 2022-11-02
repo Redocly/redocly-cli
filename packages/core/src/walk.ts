@@ -226,7 +226,14 @@ export function walkDocument<T>(opts: {
               nextLevelTypeActivated: null,
               withParentNode: context.parent?.activatedOn?.value.node,
               skipped:
-                (context.parent?.activatedOn?.value.skipped || skip?.(resolvedNode, key)) ?? false,
+                (context.parent?.activatedOn?.value.skipped ||
+                  skip?.(resolvedNode, key, {
+                    location,
+                    rawLocation,
+                    resolve,
+                    rawNode: node,
+                  })) ??
+                false,
             };
 
             context.activatedOn = pushStack<any>(context.activatedOn, activatedOn);
