@@ -7,7 +7,7 @@ Redocly CLI can identify and report on problems found in OpenAPI definitions. Th
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
 :::success Tip
-To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
+To learn more about preprocessors and rules, refer to the [custom plugins](../resources/custom-plugins.md) page.
 :::
 
 ## Usage
@@ -237,7 +237,7 @@ redocly lint --skip-rule=no-sibling-refs,no-parent-tags
 ```
 
 :::success Tip
-To learn more about preprocessors and rules, refer to the [custom rules](../resources/custom-rules.md) page.
+To learn more about preprocessors and rules, refer to the [custom plugins](../resources/custom-plugins.md) page.
 :::
 
 ### Lint config file

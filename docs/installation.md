@@ -177,4 +177,4 @@ The approach is similar for other shells. After the installation, restart your t
 
 - Check the full list of [Redocly CLI commands](./commands/index.md) available to you
 - Learn how to fine-tune your Redocly CLI tool using a [configuration file](./configuration/index.mdx)
-- Learn more about [custom plugins and rules](./resources/custom-rules.md)
+- Learn more about [custom plugins and rules](./resources/custom-plugins.md)

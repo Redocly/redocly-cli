@@ -67,4 +67,4 @@ paths:
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
-- Consider using [assertions](./assertions.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.
+- Consider using [custom rules](./custom-rules.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.

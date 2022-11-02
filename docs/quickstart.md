@@ -261,4 +261,4 @@ Back in `http://127.0.0.1:8080` the update will be visible.
 
 * Take a look at [all of the available Redocly CLI commands](./commands/index.md).
 * Fine-tune Redocly CLI through the awesome magic that is the [config file](./configuration/index.mdx).
-* Get creative and head straight to [custom plugins and rules](./resources/custom-rules.md).
+* Get creative and head straight to [custom plugins and rules](./resources/custom-plugins.md).

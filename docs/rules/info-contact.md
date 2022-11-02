@@ -68,7 +68,7 @@ info:
 - [info-license](./info-license.md)
 - [info-license-url](./info-license-url.md)
 - [spec](./spec.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

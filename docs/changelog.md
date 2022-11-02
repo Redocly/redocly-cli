@@ -1,5 +1,6 @@
 ---
-tocMaxDepth: 2
+toc:
+  maxDepth: 2
 ---
 
 # Redocly CLI changelog
@@ -8,7 +9,7 @@ tocMaxDepth: 2
 
 ### Changes
 
-- Changed assertions syntax.
+- Changed assertions syntax and renamed to [custom rules](./rules/custom-rules.md).
 - Removed `info-description` rule.
 - Removed deprecated fields suggestions in Redocly config file.
 
@@ -262,7 +263,7 @@ rules:
 
 ### Features
 
-- Introduced [assertions](./rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
+- Introduced [custom rules](./rules/custom-rules.md) - a new, powerful lint feature, which helps you enforce API design standards without coding (named `assertions` at the time of the release).
 - The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes

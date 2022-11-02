@@ -78,7 +78,7 @@ components:
 
 ## Related rules
 
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources
