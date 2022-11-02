@@ -49,7 +49,10 @@ describe('loadConfig', () => {
 
   it('should call callback if such passed', async () => {
     const mockFn = jest.fn();
-    await loadConfig({ processRawConfig: mockFn });
+    await loadConfig({
+      configPath: path.join(__dirname, './fixtures/load-redocly.yaml'),
+      processRawConfig: mockFn,
+    });
     expect(mockFn).toHaveBeenCalled();
   });
 });

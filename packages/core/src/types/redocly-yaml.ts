@@ -146,16 +146,8 @@ const ConfigRoot: NodeType = {
   properties: {
     organization: { type: 'string' },
     apis: 'ConfigApis',
-    apiDefinitions: {
-      type: 'object',
-      properties: {},
-      additionalProperties: { properties: { type: 'string' } },
-    }, // deprecated
     ...RootConfigStyleguide.properties,
-    styleguide: 'RootConfigStyleguide', // deprecated
-    lint: 'RootConfigStyleguide', // deprecated
     'features.openapi': 'ConfigReferenceDocs',
-    referenceDocs: 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer',
     region: { enum: ['us', 'eu'] },
     resolve: {
