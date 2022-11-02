@@ -4,8 +4,11 @@ apis:
 
 rules:
   assert/tags-min-length:
-    subject: Operation
-    property: tags
+    subject: 
+      type: Operation
+      property: tags
     message: Operation tags should have minimum 4 items
-    minLength: 4
+    assertions: 
+      minLength: 4
+
 extends: []

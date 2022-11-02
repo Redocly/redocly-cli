@@ -4,8 +4,10 @@ apis:
 
 rules:
   assert/summary-undefined:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
     message: Operation summary should be undefined
-    undefined: true
+    assertions:
+      defined: false
 extends: []

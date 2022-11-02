@@ -1,5 +1,5 @@
 import { colorize } from '../../logger';
-import { asserts } from '../../rules/common/assertions/asserts';
+import { Asserts, asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
 const path = require('path');
 
@@ -100,7 +100,7 @@ describe('resolveStyleguideConfig', () => {
     }).toThrow('Circular dependency in config file');
   });
 
-  it('should resolve extends with local file config witch contains path to nested config', async () => {
+  it('should resolve extends with local file config which contains path to nested config', async () => {
     const styleguideConfig = {
       extends: ['local-config-with-file.yaml'],
     };
@@ -143,7 +143,7 @@ describe('resolveStyleguideConfig', () => {
 
     expect(plugins).toBeDefined();
     expect(plugins?.length).toBe(2);
-    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
+    expect(asserts['test-plugin/checkWordsCount' as keyof Asserts]).toBeDefined();
   });
 
   it('should throw error when custom assertion load not exist plugin', async () => {
@@ -163,7 +163,7 @@ describe('resolveStyleguideConfig', () => {
       );
     }
 
-    expect(asserts['test-plugin/checkWordsCount']).toBeDefined();
+    expect(asserts['test-plugin/checkWordsCount' as keyof Asserts]).toBeDefined();
   });
 
   it('should correctly merge assertions from nested config', async () => {
@@ -197,7 +197,7 @@ describe('resolveStyleguideConfig', () => {
     ]);
   });
 
-  it('should resolve extends with url file config witch contains path to nested config', async () => {
+  it('should resolve extends with url file config which contains path to nested config', async () => {
     const styleguideConfig = {
       // This points to ./fixtures/resolve-remote-configs/remote-config.yaml
       extends: [

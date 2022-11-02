@@ -5,8 +5,10 @@ apis:
 rules:
   assert/media-type-application-json:
     subject:
-    - MediaTypesMap
+      type: MediaTypesMap
     message: Only application/json can be used
-    enum:
+    assertions: 
+      enum:
       - application/json
+
 extends: []

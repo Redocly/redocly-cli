@@ -232,6 +232,11 @@ export function identity<T>(value: T): T {
   return value;
 }
 
+export function keysOf<T>(obj: T) {
+  if (!obj) return [];
+  return Object.keys(obj) as (keyof T)[];
+}
+
 export function pickDefined<T extends Record<string, unknown>>(
   obj?: T
 ): Record<string, unknown> | undefined {

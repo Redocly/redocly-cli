@@ -154,7 +154,6 @@ You may then override the severity for any specific rule in the `rules` object.
 Here is the equivalent of the `recommended` configuration values:
 
 ```yaml
-    info-description: warn
     info-license: warn
     info-license-url: warn
     tag-description: warn

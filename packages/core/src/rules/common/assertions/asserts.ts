@@ -9,12 +9,33 @@ import {
   regexFromString,
 } from './utils';
 
-type Asserts = Record<
-  string,
-  (value: any, condition: any, baseLocation: Location, rawValue?: any) => AssertResult[]
->;
+export type AssertionFn = (
+  value: any,
+  condition: any,
+  baseLocation: Location,
+  rawValue?: any
+) => AssertResult[];
 
-export const runOnKeysSet = new Set([
+export type Asserts = {
+  pattern: AssertionFn;
+  enum: AssertionFn;
+  defined: AssertionFn;
+  required: AssertionFn;
+  disallowed: AssertionFn;
+  undefined: AssertionFn;
+  nonEmpty: AssertionFn;
+  minLength: AssertionFn;
+  maxLength: AssertionFn;
+  casing: AssertionFn;
+  sortOrder: AssertionFn;
+  mutuallyExclusive: AssertionFn;
+  mutuallyRequired: AssertionFn;
+  requireAny: AssertionFn;
+  ref: AssertionFn;
+  const: AssertionFn;
+};
+
+export const runOnKeysSet = new Set<keyof Asserts>([
   'mutuallyExclusive',
   'mutuallyRequired',
   'enum',
@@ -27,8 +48,10 @@ export const runOnKeysSet = new Set([
   'required',
   'requireAny',
   'ref',
+  'const',
+  'defined', // In case if `property` for assertions is not added
 ]);
-export const runOnValuesSet = new Set([
+export const runOnValuesSet = new Set<keyof Asserts>([
   'pattern',
   'enum',
   'defined',
@@ -39,6 +62,7 @@ export const runOnValuesSet = new Set([
   'casing',
   'sortOrder',
   'ref',
+  'const',
 ]);
 
 export const asserts: Asserts = {
@@ -105,6 +129,34 @@ export const asserts: Asserts = {
           }
       )
       .filter(isTruthy);
+  },
+  const: (
+    value: string | number | boolean | string[] | number[],
+    condition: string | number | boolean,
+    baseLocation: Location
+  ) => {
+    if (typeof value === 'undefined') return [];
+
+    if (Array.isArray(value)) {
+      return value
+        .map(
+          (_val) =>
+            condition !== _val && {
+              message: `"${_val}" should be equal ${condition} `,
+              location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+            }
+        )
+        .filter(isTruthy);
+    } else {
+      return value !== condition
+        ? [
+            {
+              message: `${value} should be equal ${condition}`,
+              location: baseLocation,
+            },
+          ]
+        : [];
+    }
   },
   undefined: (value: any, condition: boolean = true, baseLocation: Location) => {
     const isUndefined = typeof value === 'undefined';
@@ -210,7 +262,7 @@ export const asserts: Asserts = {
           },
         ];
   },
-  ref: (_value: any, condition: string | boolean, baseLocation, rawValue: any) => {
+  ref: (_value: any, condition: string | boolean, baseLocation: Location, rawValue: any) => {
     if (typeof rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
@@ -237,7 +289,7 @@ export const asserts: Asserts = {
   },
 };
 
-export function buildAssertCustomFunction(fn: CustomFunction) {
+export function buildAssertCustomFunction(fn: CustomFunction): AssertionFn {
   return (value: string[], options: any, baseLocation: Location) =>
     fn.call(null, value, options, baseLocation);
 }
