@@ -1,5 +1,6 @@
 ---
-tocMaxDepth: 2
+toc:
+  maxDepth: 2
 ---
 
 # Redocly CLI changelog
@@ -8,7 +9,7 @@ tocMaxDepth: 2
 
 ### Changes
 
-- Changed assertions syntax.
+- Changed assertions syntax and renamed to [custom rules](./rules/custom-rules.md).
 - Removed `info-description` rule.
 - Removed deprecated fields suggestions in Redocly config file.
 

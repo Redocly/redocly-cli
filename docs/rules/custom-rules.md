@@ -57,7 +57,7 @@ A minimum of one assertion property is required to be defined.
 Property | Type | Description
 -- | -- | --
 casing | `string` | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
-const | `string` | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example].
+const | `string` | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example](#const-example).
 defined | `boolean` | Asserts a property is defined. See [defined example](#defined-example).
 disallowed | [`string`] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
 enum | [`string`] | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).
@@ -209,21 +209,19 @@ To restrict the evaluation, use the `where` feature to limit what is evaluated.
 ```yaml
 assert/no-pdf-in-ok-response:
   where:
-  - subject:
-      type: Operation
-      property: responses
-      filterByParentKeys: 
-        - put
-    assertions:
-      defined: true
-  - subject:
-      type: Response
-      property: description
-      filterByParentKeys: 
-        - '201'
-        - '200'
-    assertions:
-      defined: true
+    - subject:
+        type: Operation
+        filterByParentKeys: 
+          - put
+      assertions:
+        defined: true
+    - subject:
+        type: Response
+        filterByParentKeys: 
+          - '201'
+          - '200'
+      assertions:
+        defined: true
   subject:
     type: MediaTypesMap
   assertions:
