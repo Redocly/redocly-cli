@@ -50,7 +50,9 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
       ? path.join(path.dirname(configFile), IGNORE_FILE)
       : path.join(configFile, IGNORE_FILE);
   } else {
-    return typeof process === 'undefined' ? undefined : path.join(process.cwd(), IGNORE_FILE);
+    return (typeof process === 'undefined' || typeof process.cwd === 'undefined')
+      ? undefined
+      : path.join(process.cwd(), IGNORE_FILE);
   }
 }
 
