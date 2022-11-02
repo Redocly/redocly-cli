@@ -10,6 +10,7 @@ tocMaxDepth: 2
 
 - Changed assertions syntax.
 - Removed `info-description` rule.
+- Removed deprecated fields suggestions in Redocly config file.
 
 ## 1.0.0-beta.111 (2022-10-10)
 
