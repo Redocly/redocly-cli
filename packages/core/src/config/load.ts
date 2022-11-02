@@ -71,11 +71,8 @@ export async function loadConfig(
   } = {}
 ): Promise<Config> {
   const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
-  const config = await getConfig(configPath);
+  const config = await getConfig(configPath, processRawConfig);
   const rawConfig = { ...config, files: files ?? config.files, region: region ?? config.region };
-  if (typeof processRawConfig === 'function') {
-    await processRawConfig(rawConfig);
-  }
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
@@ -105,11 +102,17 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(configPath: string | undefined = findConfig()): Promise<RawConfig> {
+export async function getConfig(
+  configPath: string | undefined = findConfig(),
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     const rawConfig =
       (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
+    if (typeof processRawConfig === 'function') {
+      await processRawConfig(rawConfig);
+    }
     return transformConfig(rawConfig);
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);

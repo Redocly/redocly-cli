@@ -249,7 +249,24 @@ describe('lint', () => {
     );
     const results = await lintConfig({ document });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/referenceDocs",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`referenceDocs\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
   });
 
   it("'plugins' shouldn't be allowed in 'apis'", async () => {
