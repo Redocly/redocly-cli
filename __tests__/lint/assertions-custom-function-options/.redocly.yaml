@@ -60,5 +60,3 @@ rules:
     assertions:
       defined: true
       const: integer
-    
-extends: []

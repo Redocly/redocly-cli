@@ -36,9 +36,6 @@ components:
           $ref: '#/components/schemas/Name'
           description: Other name (specific).
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 test.yaml:
   1:1  error    spec  The field \`info\` must be present on this level.
 

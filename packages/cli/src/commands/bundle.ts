@@ -18,7 +18,7 @@ import {
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
-import { blue, gray, green, red, yellow } from 'colorette';
+import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
 export type BundleOptions = CommonOptions &
@@ -55,11 +55,9 @@ export async function handleBundle(argv: BundleOptions, version: string) {
       if (argv.lint) {
         if (config.styleguide.recommendedFallback) {
           process.stderr.write(
-            `No configurations were defined in extends -- using built in ${blue(
+            `No configurations were provided -- using built in ${blue(
               'recommended'
-            )} configuration by default.\n${red(
-              'Warning! This default behavior is going to be deprecated soon.'
-            )}\n\n`
+            )} configuration by default.\n\n`
           );
         }
         const results = await lint({
