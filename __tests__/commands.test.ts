@@ -28,9 +28,22 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+  });
+
+  describe('zero-config', () => {
+    const folderPath = join(__dirname, 'zero-config');
 
     it('default-recommended-fallback', () => {
       const testPath = join(folderPath, 'default-recommended-fallback');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        join(testPath, './openapi.yaml'),
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    it('no-default-recommended-fallback', () => {
+      const testPath = join(folderPath, 'no-default-recommended-fallback');
       const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
         join(testPath, './openapi.yaml'),
       ]);

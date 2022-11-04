@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint default-recommended-fallback 1`] = `
+exports[`E2E zero-config default-recommended-fallback 1`] = `
 
 No configurations were provided -- using built in recommended configuration by default.
 
