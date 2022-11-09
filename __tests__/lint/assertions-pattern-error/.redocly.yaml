@@ -10,5 +10,3 @@ rules:
     message: Operation summary should have 'test' word
     assertions: 
       pattern: '/test/'
-
-extends: []

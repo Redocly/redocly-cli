@@ -18,5 +18,3 @@ rules:
       property: x-test
     assertions:
       const: true
-
-extends: []

@@ -11,5 +11,3 @@ rules:
     assertions: 
       nonEmpty: true
     severity: off
-
-extends: []

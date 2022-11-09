@@ -1,0 +1,4 @@
+rules:
+  info-contact: error
+  path-parameters-defined: error
+  operation-4xx-response: error

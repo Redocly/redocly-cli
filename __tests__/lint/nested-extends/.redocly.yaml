@@ -1,8 +1,8 @@
 apis:
   main:
     root: ./openapi.yaml
+    extends: 
+    - ./nested-config.yaml
     rules:
       info-contact: warn
-
-rules:
-  info-contact: error
+      operation-4xx-response: off

@@ -4,4 +4,3 @@ apis:
 
 rules:
   info-contact: warn
-extends: []
