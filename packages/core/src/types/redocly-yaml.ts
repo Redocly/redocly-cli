@@ -110,6 +110,7 @@ const nodeTypesList = [
   'OAuth2Flows',
   'SecurityScheme',
   'XCodeSample',
+  'XCodeSampleList',
   'WebhooksMap',
 ];
 

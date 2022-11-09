@@ -156,8 +156,8 @@ const Operation: NodeType = {
     responses: 'Responses',
     deprecated: { type: 'boolean' },
     callbacks: 'CallbacksMap',
-    'x-codeSamples': listOf('XCodeSample'),
-    'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-codeSamples': 'XCodeSampleList',
+    'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
@@ -515,5 +515,6 @@ export const Oas3Types: Record<string, NodeType> = {
   OAuth2Flows,
   SecurityScheme,
   XCodeSample,
+  XCodeSampleList: listOf('XCodeSample'),
   WebhooksMap,
 };
