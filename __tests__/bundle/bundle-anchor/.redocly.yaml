@@ -1,7 +1,6 @@
 apis:
   main:
     root: ./test.yaml
-    extends: []
     rules:
       no-invalid-media-type-examples:
         severity: error
