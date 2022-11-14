@@ -79,3 +79,7 @@ export function isMappingRef(mapping: string) {
     mapping.indexOf('/') > -1
   );
 }
+
+export function isAnchor(ref: string) {
+  return /^#[A-Za-z][A-Za-z0-9\-_:.]*$/.test(ref);
+}

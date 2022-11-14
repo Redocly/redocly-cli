@@ -81,6 +81,7 @@ const Operation: NodeType = {
 const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
+    $anchor: { type: 'string' },
     id: { type: 'string' },
     $schema: { type: 'string' },
     definitions: 'NamedSchemas',

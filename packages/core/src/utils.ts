@@ -249,3 +249,9 @@ export function pickDefined<T extends Record<string, unknown>>(
   }
   return res;
 }
+
+export function nextTick() {
+  new Promise((resolve) => {
+    setTimeout(resolve);
+  });
+}
