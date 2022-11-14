@@ -4,7 +4,7 @@ import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
-import { env } from '../env';
+import { isBrowser, env } from '../env';
 
 import type { NodeType } from '../types';
 import type {
@@ -51,7 +51,7 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
       ? path.join(path.dirname(configFile), IGNORE_FILE)
       : path.join(configFile, IGNORE_FILE);
   } else {
-    return typeof process === 'undefined' ? undefined : path.join(process.cwd(), IGNORE_FILE);
+    return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
 
