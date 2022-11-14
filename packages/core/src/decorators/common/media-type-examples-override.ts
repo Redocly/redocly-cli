@@ -2,8 +2,6 @@ import { Oas3Decorator } from '../../visitors';
 import { Oas3Operation, Oas3RequestBody } from '../../typings/openapi';
 import { readAndParseFileSync } from '../../utils';
 
-// TODO can be ref inside example file?
-
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   let operationId: string | undefined;
   return {
@@ -12,29 +10,27 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
         operationId = operation.operationId;
         const properties = operationIds[operationId!];
 
-        if (!operation.responses) {
+        if (properties.responses && operation.responses) {
+          for (const responseCode of Object.keys(properties.responses)) {
+            if (!operation.responses[responseCode] || !operation.responses[responseCode]?.content) {
+              continue;
+            }
+
+            Object.values(operation.responses[responseCode].content!).forEach((mimeType) => {
+              if (mimeType.examples) {
+                mimeType.examples = readAndParseFileSync(properties.responses[responseCode]);
+              } else {
+                mimeType.example = readAndParseFileSync(properties.responses[responseCode]);
+              }
+            });
+          }
+        }
+
+        if (!properties.request || !operation.requestBody) {
           return;
         }
 
-        for (const responseCode of Object.keys(properties.responses)) {
-          if (!operation.responses[responseCode]) {
-            continue;
-          }
-
-          Object.values(operation.responses[responseCode].content!).forEach((mimeType) => {
-            if (mimeType.examples) {
-              mimeType.examples = readAndParseFileSync(properties.responses[responseCode]);
-            } else {
-              mimeType.example = readAndParseFileSync(properties.responses[responseCode]);
-            }
-          });
-        }
-
         for (const mimeType of Object.keys(properties.request)) {
-          if (!operation.requestBody) {
-            return;
-          }
-
           (operation.requestBody as Oas3RequestBody).content[mimeType] = readAndParseFileSync(
             properties.request[mimeType]
           );
