@@ -1,7 +1,6 @@
 import { Oas3Decorator } from '../../visitors';
 import { Oas3Operation, Oas3RequestBody } from '../../typings/openapi';
 import { readAndParseFileSync } from '../../utils';
-import { mimeTypes } from '@redocly/cli/lib/commands/preview-docs/preview-server/server';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   return {
