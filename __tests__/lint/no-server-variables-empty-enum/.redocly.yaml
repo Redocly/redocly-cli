@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-server-variables-empty-enum: error
-extends: []

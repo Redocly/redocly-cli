@@ -17,4 +17,3 @@ rules:
     assertions:
       enum:
         - string
-extends: []

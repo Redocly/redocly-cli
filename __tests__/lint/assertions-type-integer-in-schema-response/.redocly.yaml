@@ -26,5 +26,3 @@ rules:
       property: type
     assertions: 
       const: string
-
-extends: []

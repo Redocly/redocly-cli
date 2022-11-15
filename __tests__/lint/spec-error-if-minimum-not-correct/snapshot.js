@@ -2,9 +2,6 @@
 
 exports[`E2E lint spec-error-if-minimum-not-correct 1`] = `
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 validating /openapi.yaml...
 [1] openapi.yaml:29:23 at #/paths/~1pet~1findByStatus/get/parameters/0/schema/minItems
 

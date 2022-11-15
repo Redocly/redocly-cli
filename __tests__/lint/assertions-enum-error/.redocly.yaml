@@ -15,5 +15,3 @@ rules:
       enum:
       - test summary
       - test example
-
-extends: []

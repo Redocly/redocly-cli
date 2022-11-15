@@ -10,5 +10,3 @@ rules:
     message: Operation summary should not be empty
     assertions: 
       nonEmpty: true
-
-extends: []
