@@ -30,9 +30,8 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
 
         if (properties.request && operation.requestBody) {
           Object.keys(properties.request).forEach((mimeType) => {
-            (operation.requestBody as Oas3RequestBody).content[mimeType].example = readAndParseFileSync(
-                properties.request[mimeType]
-            );
+            (operation.requestBody as Oas3RequestBody).content[mimeType].example =
+              readAndParseFileSync(properties.request[mimeType]);
           });
         }
       },
