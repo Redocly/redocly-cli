@@ -8,4 +8,3 @@ apis:
 styleguide:
   rules:
     info-contact: warn
-  extends: []

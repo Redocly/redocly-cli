@@ -4,4 +4,3 @@ apis:
 
 rules:
   tags-alphabetical: warn
-extends: []

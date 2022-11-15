@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-enum-type-mismatch: error
-extends: []

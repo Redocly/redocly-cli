@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-server-example.com: warn
-extends: []

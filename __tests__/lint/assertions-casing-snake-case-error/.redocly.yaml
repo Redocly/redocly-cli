@@ -19,5 +19,3 @@ rules:
     message: Operation id should be snake_case
     assertions: 
       casing: snake_case
-
-extends: []

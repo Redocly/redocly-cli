@@ -4,4 +4,3 @@ apis:
 
 rules:
   security-defined: warn
-extends: []

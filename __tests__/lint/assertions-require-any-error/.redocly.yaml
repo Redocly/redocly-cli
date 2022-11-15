@@ -12,5 +12,3 @@ rules:
       requireAny:
       - description
       - externalDocs
-
-extends: []

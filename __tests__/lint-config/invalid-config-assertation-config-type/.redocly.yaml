@@ -15,5 +15,3 @@ rules:
       property: property
     assertions:
       defined: true
-
-extends: []

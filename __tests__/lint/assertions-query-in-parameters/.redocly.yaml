@@ -14,4 +14,3 @@ rules:
       property: in
     assertions: 
       const: path
-extends: []

@@ -4,4 +4,3 @@ apis:
 
 rules:
   path-not-include-query: error
-extends: []

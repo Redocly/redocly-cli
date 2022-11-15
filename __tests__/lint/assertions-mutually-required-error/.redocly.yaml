@@ -17,5 +17,3 @@ rules:
       mutuallyRequired:
       - summary
       - security
-
-extends: []
