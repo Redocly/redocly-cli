@@ -35,7 +35,7 @@ describe('E2E', () => {
       { dirName: 'invalid-config--lint-config-off', option: 'off' },
       { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
-      { dirName: 'invlid-lint-config-saverity', option: 'something' },
+      { dirName: 'invalid-lint-config-severity', option: 'something' },
       { dirName: 'invalid-config--no-option', option: null },
       { dirName: 'invalid-config-assertation-name', option: 'error' },
       { dirName: 'invalid-config-assertation-config-type', option: 'error' },

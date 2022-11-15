@@ -1,65 +1,55 @@
-import { asserts, runOnKeysSet, runOnValuesSet } from './asserts';
-import { AssertToApply, buildSubjectVisitor, buildVisitorObject } from './utils';
-import { Oas2Rule, Oas3Rule } from '../../../visitors';
+import { asserts, AssertionFn } from './asserts';
+import { buildSubjectVisitor, buildVisitorObject } from './utils';
+import { Oas2Visitor, Oas3Visitor } from '../../../visitors';
+import { RuleSeverity } from '../../../config';
+import { isString } from '../../../utils';
 
-export const Assertions: Oas3Rule | Oas2Rule = (opts: object) => {
-  const visitors: any[] = [];
+export type AssertionLocators = {
+  filterInParentKeys?: (string | number)[];
+  filterOutParentKeys?: (string | number)[];
+  matchParentKeys?: string;
+};
+
+export type AssertionDefinition = {
+  subject: {
+    type: string;
+    property?: string | string[];
+  } & AssertionLocators;
+  assertions: { [name in keyof typeof asserts]?: AssertionFn };
+};
+
+export type RawAssertion = AssertionDefinition & {
+  where?: AssertionDefinition[];
+  message?: string;
+  suggest?: string[];
+  severity?: RuleSeverity;
+};
+
+export type Assertion = RawAssertion & { assertionId: string };
+
+export const Assertions = (opts: Record<string, Assertion>) => {
+  const visitors: (Oas2Visitor | Oas3Visitor)[] = [];
 
   // As 'Assertions' has an array of asserts,
   // that array spreads into an 'opts' object on init rules phase here
   // https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/config/config.ts#L311
   // that is why we need to iterate through 'opts' values;
   // before - filter only object 'opts' values
-  const assertions: any[] = Object.values(opts).filter(
+  const assertions: Assertion[] = Object.values(opts).filter(
     (opt: unknown) => typeof opt === 'object' && opt !== null
   );
 
   for (const [index, assertion] of assertions.entries()) {
     const assertId =
       (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
-    if (!assertion.subject) {
-      throw new Error(`${assertId}: 'subject' is required`);
+
+    if (!isString(assertion.subject.type)) {
+      throw new Error(`${assertId}: 'type' (String) is required`);
     }
 
-    const subjects: string[] = Array.isArray(assertion.subject)
-      ? assertion.subject
-      : [assertion.subject];
-
-    const assertsToApply: AssertToApply[] = Object.keys(asserts)
-      .filter((assertName: string) => assertion[assertName] !== undefined)
-      .map((assertName: string) => {
-        return {
-          name: assertName,
-          conditions: assertion[assertName],
-          runsOnKeys: runOnKeysSet.has(assertName),
-          runsOnValues: runOnValuesSet.has(assertName),
-        };
-      });
-
-    const shouldRunOnKeys: AssertToApply | undefined = assertsToApply.find(
-      (assert: AssertToApply) => assert.runsOnKeys && !assert.runsOnValues
-    );
-    const shouldRunOnValues: AssertToApply | undefined = assertsToApply.find(
-      (assert: AssertToApply) => assert.runsOnValues && !assert.runsOnKeys
-    );
-
-    if (shouldRunOnValues && !assertion.property) {
-      throw new Error(
-        `${shouldRunOnValues.name} can't be used on all keys. Please provide a single property.`
-      );
-    }
-
-    if (shouldRunOnKeys && assertion.property) {
-      throw new Error(
-        `${shouldRunOnKeys.name} can't be used on a single property. Please use 'property'.`
-      );
-    }
-
-    for (const subject of subjects) {
-      const subjectVisitor = buildSubjectVisitor(assertId, assertion, assertsToApply);
-      const visitorObject = buildVisitorObject(subject, assertion.context, subjectVisitor);
-      visitors.push(visitorObject);
-    }
+    const subjectVisitor = buildSubjectVisitor(assertId, assertion);
+    const visitorObject = buildVisitorObject(assertion, subjectVisitor);
+    visitors.push(visitorObject);
   }
 
   return visitors;

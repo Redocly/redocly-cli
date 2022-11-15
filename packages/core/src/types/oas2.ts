@@ -11,13 +11,13 @@ const Root: NodeType = {
     schemes: { type: 'array', items: { type: 'string' } },
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
-    paths: 'PathsMap',
+    paths: 'Paths',
     definitions: 'NamedSchemas',
     parameters: 'NamedParameters',
     responses: 'NamedResponses',
     securityDefinitions: 'NamedSecuritySchemes',
-    security: listOf('SecurityRequirement'),
-    tags: listOf('Tag'),
+    security: 'SecurityRequirementList',
+    tags: 'TagList',
     externalDocs: 'ExternalDocs',
   },
   required: ['swagger', 'paths', 'info'],
@@ -51,7 +51,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathsMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -60,7 +60,7 @@ const PathsMap: NodeType = {
 const PathItem: NodeType = {
   properties: {
     $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
-    parameters: listOf('Parameter'),
+    parameters: 'ParameterList',
 
     get: 'Operation',
     put: 'Operation',
@@ -81,13 +81,13 @@ const Operation: NodeType = {
     operationId: { type: 'string' },
     consumes: { type: 'array', items: { type: 'string' } },
     produces: { type: 'array', items: { type: 'string' } },
-    parameters: listOf('Parameter'),
-    responses: 'ResponsesMap',
+    parameters: 'ParameterList',
+    responses: 'Responses',
     schemes: { type: 'array', items: { type: 'string' } },
     deprecated: { type: 'boolean' },
-    security: listOf('SecurityRequirement'),
-    'x-codeSamples': listOf('XCodeSample'),
-    'x-code-samples': listOf('XCodeSample'), // deprecated
+    security: 'SecurityRequirementList',
+    'x-codeSamples': 'XCodeSampleList',
+    'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
@@ -180,7 +180,7 @@ const ParameterItems: NodeType = {
   },
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: {
     default: 'Response',
   },
@@ -371,19 +371,22 @@ const SecurityRequirement: NodeType = {
 export const Oas2Types: Record<string, NodeType> = {
   Root,
   Tag,
+  TagList: listOf('Tag'),
   ExternalDocs,
   SecurityRequirement,
+  SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
-  PathsMap,
+  Paths,
   PathItem,
   Parameter,
   ParameterItems,
+  ParameterList: listOf('Parameter'),
   Operation,
   Examples,
   Header,
-  ResponsesMap,
+  Responses,
   Response,
   Schema,
   Xml,
@@ -394,4 +397,5 @@ export const Oas2Types: Record<string, NodeType> = {
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   SecurityScheme,
   XCodeSample,
+  XCodeSampleList: listOf('XCodeSample'),
 };

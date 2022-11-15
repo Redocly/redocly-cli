@@ -6,11 +6,11 @@ const Root: NodeType = {
   properties: {
     openapi: null,
     info: 'Info',
-    servers: listOf('Server'),
-    security: listOf('SecurityRequirement'),
-    tags: listOf('Tag'),
+    servers: 'ServerList',
+    security: 'SecurityRequirementList',
+    tags: 'TagList',
     externalDocs: 'ExternalDocs',
-    paths: 'PathsMap',
+    paths: 'Paths',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
   },
@@ -88,7 +88,7 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathsMap: NodeType = {
+const Paths: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -102,8 +102,8 @@ const WebhooksMap: NodeType = {
 const PathItem: NodeType = {
   properties: {
     $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
-    servers: listOf('Server'),
-    parameters: listOf('Parameter'),
+    servers: 'ServerList',
+    parameters: 'ParameterList',
     summary: { type: 'string' },
     description: { type: 'string' },
     get: 'Operation',
@@ -149,15 +149,15 @@ const Operation: NodeType = {
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
-    parameters: listOf('Parameter'),
-    security: listOf('SecurityRequirement'),
-    servers: listOf('Server'),
+    parameters: 'ParameterList',
+    security: 'SecurityRequirementList',
+    servers: 'ServerList',
     requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     deprecated: { type: 'boolean' },
     callbacks: 'CallbacksMap',
-    'x-codeSamples': listOf('XCodeSample'),
-    'x-code-samples': listOf('XCodeSample'), // deprecated
+    'x-codeSamples': 'XCodeSampleList',
+    'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
@@ -190,7 +190,7 @@ const MediaType: NodeType = {
     schema: 'Schema',
     example: { isExample: true },
     examples: 'ExamplesMap',
-    encoding: 'EncodingsMap',
+    encoding: 'EncodingMap',
   },
 };
 
@@ -234,7 +234,7 @@ const Header: NodeType = {
   requiredOneOf: ['schema', 'content'],
 };
 
-const ResponsesMap: NodeType = {
+const Responses: NodeType = {
   properties: { default: 'Response' },
   additionalProperties: (_v: any, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
@@ -408,7 +408,7 @@ const AuthorizationCode: NodeType = {
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
 
-const SecuritySchemeFlows: NodeType = {
+const OAuth2Flows: NodeType = {
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',
@@ -425,7 +425,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flows: 'SecuritySchemeFlows',
+    flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {
@@ -462,17 +462,21 @@ const SecurityScheme: NodeType = {
 export const Oas3Types: Record<string, NodeType> = {
   Root,
   Tag,
+  TagList: listOf('Tag'),
   ExternalDocs,
   Server,
+  ServerList: listOf('Server'),
   ServerVariable,
   ServerVariablesMap: mapOf('ServerVariable'),
   SecurityRequirement,
+  SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
-  PathsMap,
+  Paths,
   PathItem,
   Parameter,
+  ParameterList: listOf('Parameter'),
   Operation,
   Callback: mapOf('PathItem'),
   CallbacksMap: mapOf('Callback'),
@@ -482,10 +486,10 @@ export const Oas3Types: Record<string, NodeType> = {
   Example,
   ExamplesMap: mapOf('Example'),
   Encoding,
-  EncodingsMap: mapOf('Encoding'),
+  EncodingMap: mapOf('Encoding'),
   Header,
   HeadersMap: mapOf('Header'),
-  ResponsesMap,
+  Responses,
   Response,
   Link,
   Schema,
@@ -508,8 +512,9 @@ export const Oas3Types: Record<string, NodeType> = {
   PasswordFlow,
   ClientCredentials,
   AuthorizationCode,
-  SecuritySchemeFlows,
+  OAuth2Flows,
   SecurityScheme,
   XCodeSample,
+  XCodeSampleList: listOf('XCodeSample'),
   WebhooksMap,
 };

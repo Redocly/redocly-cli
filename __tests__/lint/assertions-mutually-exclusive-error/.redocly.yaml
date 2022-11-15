@@ -4,11 +4,18 @@ apis:
 
 rules:
   assert/path-item-mutually-exclusive:
-    context:
-      - type: PathItem
-    subject: Operation
+    where:
+      - subject:
+          type: PathItem
+          property: get
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
     message: Operation should not have summary and tags fields simultaneously
-    mutuallyExclusive:
+    assertions:
+      mutuallyExclusive:
       - summary
       - tags
+
 extends: []

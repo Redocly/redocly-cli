@@ -3,5 +3,5 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  info-description: off
+  info-contact: off
 extends: []

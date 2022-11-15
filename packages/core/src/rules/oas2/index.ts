@@ -2,7 +2,6 @@ import { Oas2Rule } from '../../visitors';
 import { OasSpec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
-import { InfoDescription } from '../common/info-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
 import { InfoLicenseUrl } from '../common/info-license-url';
@@ -45,7 +44,6 @@ export const rules = {
   spec: OasSpec as Oas2Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
-  'info-description': InfoDescription as Oas2Rule,
   'info-contact': InfoContact as Oas2Rule,
   'info-license': InfoLicense as Oas2Rule,
   'info-license-url': InfoLicenseUrl as Oas2Rule,

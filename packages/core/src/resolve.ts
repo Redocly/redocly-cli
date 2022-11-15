@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { OasRef } from './typings/openapi';
-import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl } from './ref-utils';
+import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
 import { NormalizedNodeType, isNamedType } from './types';
-import { readFileFromUrl, parseYaml } from './utils';
+import { readFileFromUrl, parseYaml, nextTick } from './utils';
 import { ResolveConfig } from './config/types';
 
 export type CollectedRefs = Map<string /* absoluteFilePath */, Document>;
@@ -237,6 +237,7 @@ export async function resolveDocument(opts: {
     type: any
   ) {
     const rootNodeDocAbsoluteRef = rootNodeDocument.source.absoluteRef;
+    const anchorRefsMap: Map<string, any> = new Map();
 
     walk(rootNode, type, rootNodeDocAbsoluteRef + rootNodePointer);
 
@@ -251,6 +252,11 @@ export async function resolveDocument(opts: {
       }
 
       seedNodes.add(nodeId);
+
+      const [_, anchor] = Object.entries(node).find(([key]) => key === '$anchor') || [];
+      if (anchor) {
+        anchorRefsMap.set(`#${anchor}`, node);
+      }
 
       if (Array.isArray(node)) {
         const itemsType = type.items;
@@ -313,6 +319,22 @@ export async function resolveDocument(opts: {
       if (hasRef(refStack.prev, ref)) {
         throw new Error('Self-referencing circular pointer');
       }
+
+      if (isAnchor(ref.$ref)) {
+        // Wait for all anchors in the document to be collected firstly.
+        await nextTick();
+        const resolvedRef: ResolvedRef = {
+          resolved: true,
+          isRemote: false,
+          node: anchorRefsMap.get(ref.$ref),
+          document,
+          nodePointer: ref.$ref,
+        };
+        const refId = makeRefId(document.source.absoluteRef, ref.$ref);
+        resolvedRefMap.set(refId, resolvedRef);
+        return resolvedRef;
+      }
+
       const { uri, pointer } = parseRef(ref.$ref);
       const isRemote = uri !== null;
       let targetDoc: Document;
@@ -336,7 +358,7 @@ export async function resolveDocument(opts: {
       }
 
       let resolvedRef: ResolvedRef = {
-        resolved: true as const,
+        resolved: true,
         document: targetDoc,
         isRemote,
         node: document.parsed,

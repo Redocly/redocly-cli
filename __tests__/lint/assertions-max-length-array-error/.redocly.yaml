@@ -4,8 +4,11 @@ apis:
 
 rules:
   assert/tags-max-length:
-    subject: Operation
-    property: tags
+    subject: 
+      type: Operation
+      property: tags
     message: Operation tags should have maximum 2 items
-    maxLength: 2
+    assertions:
+      maxLength: 2
+
 extends: []

@@ -64,7 +64,7 @@ paths:
 
 - [path-parameters-defined](./path-parameters-defined.md)
 - [path-excludes-patterns](./path-excludes-patterns.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

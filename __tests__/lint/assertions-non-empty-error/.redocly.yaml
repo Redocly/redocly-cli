@@ -4,8 +4,11 @@ apis:
 
 rules:
   assert/summary-non-empty:
-    subject: Operation
-    property: summary
+    subject: 
+      type: Operation
+      property: summary
     message: Operation summary should not be empty
-    nonEmpty: true
+    assertions: 
+      nonEmpty: true
+
 extends: []

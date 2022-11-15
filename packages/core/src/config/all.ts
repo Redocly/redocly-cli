@@ -2,7 +2,6 @@ import type { PluginStyleguideConfig } from './types';
 
 export default {
   rules: {
-    'info-description': 'error',
     'info-contact': 'error',
     'info-license': 'error',
     'info-license-url': 'error',
