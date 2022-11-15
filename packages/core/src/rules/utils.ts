@@ -118,14 +118,15 @@ export function validateExample(
       }
     }
   } catch (e) {
-    const discriminatorError = 'discriminator: requires oneOf or anyOf composite keyword';
-    if (e.message !== discriminatorError) {
-      report({
-        message: `Example validation errored: ${e.message}.`,
-        location: location.child('schema'),
-        from: location,
-      });
+    if (e.message === 'discriminator: requires oneOf or anyOf composite keyword') {
+      return;
     }
+
+    report({
+      message: `Example validation errored: ${e.message}.`,
+      location: location.child('schema'),
+      from: location,
+    });
   }
 }
 
