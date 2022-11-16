@@ -161,7 +161,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
 
         if (propName === 'nullable' && !node.type) {
           report({
-            message: '`Type` keyword should be explicitly defined when `nullable` keyword is used.',
+            message: '`type` keyword should be explicitly defined when `nullable` keyword is used.',
             location: location.child([propName]),
           });
         }
