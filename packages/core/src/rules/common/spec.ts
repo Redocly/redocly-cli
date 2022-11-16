@@ -158,6 +158,13 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             });
           }
         }
+
+        if (propName === 'nullable' && !node.type) {
+          report({
+            message: 'The `type` field must be defined when the `nullable` field is used.',
+            location: location.child([propName]),
+          });
+        }
       }
     },
   };
