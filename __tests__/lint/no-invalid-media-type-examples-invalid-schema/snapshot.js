@@ -5,7 +5,7 @@ exports[`E2E lint no-invalid-media-type-examples-invalid-schema 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:16:17 at #/components/schemas/Test/nullable
 
-\`type\` keyword should be explicitly defined when \`nullable\` keyword is used.
+The \`type\` field must be defined when the \`nullable\` field is used.
 
 14 |   schemas:
 15 |     Test:

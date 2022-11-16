@@ -10601,10 +10601,11 @@ components:
             - $ref: '#/components/schemas/ContactObject'
         riskMetadata:
           nullable: true
+          type: object
           example: null
-          description: >-
-            Risk metadata. If null, the value would coalesce to the risk
-            metadata captured when creating the payment token.
+          description: |-
+            Risk metadata.
+            If null, the value would coalesce to the risk metadata captured when creating the payment token.
           allOf:
             - $ref: '#/components/schemas/RiskMetadata'
         activationTime:
