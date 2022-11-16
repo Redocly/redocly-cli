@@ -17,6 +17,7 @@ toc:
 
 - Fixed an issue with undefined `process.cwd` in browser environment.
 - Fixed an issue with `$anchors` in OpenAPI documents are not properly parsed.
+- Fixed an issue with the `spec` rule not reporting on `nullable` in Schema object that don't have a `type` sibling.
 
 ## 1.0.0-beta.112 (2022-11-01)
 
