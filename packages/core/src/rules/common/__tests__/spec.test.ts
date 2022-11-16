@@ -138,6 +138,176 @@ describe('Oas3 spec', () => {
       ]
     `);
   });
+
+  it('should report on nullable without type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      components:
+        requestBodies:
+          TestRequestBody:
+            content:
+              application/json:
+                schema:
+                  nullable: true
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`paths\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`info\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report on nullable with type defined in allOf', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      components:
+        requestBodies:
+          TestRequestBody:
+            content:
+              application/json:
+                schema:
+                  nullable: true
+                  allOf:
+                    - $ref: "#/components/requestBodies/TestSchema"
+          schemas:
+            TestSchema:
+              title: TestSchema
+              type: object
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`paths\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`info\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/requestBodies/schemas",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`content\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/requestBodies/schemas/TestSchema",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Property \`TestSchema\` is not expected here.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });
 
 describe('Oas3.1 spec', () => {
