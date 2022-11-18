@@ -5,6 +5,12 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.114 (2022-11-18)
+
+### Features
+
+- Added a new assertion [`notPattern`](./rules/custom-rules.md#notpattern-example) to the custom rules.
+
 ## 1.0.0-beta.113 (2022-11-15)
 
 ### Changes
