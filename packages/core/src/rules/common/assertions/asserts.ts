@@ -18,6 +18,7 @@ export type AssertionFn = (
 
 export type Asserts = {
   pattern: AssertionFn;
+  notPattern: AssertionFn;
   enum: AssertionFn;
   defined: AssertionFn;
   required: AssertionFn;
@@ -40,6 +41,7 @@ export const runOnKeysSet = new Set<keyof Asserts>([
   'mutuallyRequired',
   'enum',
   'pattern',
+  'notPattern',
   'minLength',
   'maxLength',
   'casing',
@@ -53,6 +55,7 @@ export const runOnKeysSet = new Set<keyof Asserts>([
 ]);
 export const runOnValuesSet = new Set<keyof Asserts>([
   'pattern',
+  'notPattern',
   'enum',
   'defined',
   'undefined',
@@ -69,13 +72,28 @@ export const asserts: Asserts = {
   pattern: (value: string | string[], condition: string, baseLocation: Location) => {
     if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const values = runOnValue(value) ? [value] : value;
-    const regx = regexFromString(condition);
+    const regex = regexFromString(condition);
 
     return values
       .map(
         (_val) =>
-          !regx?.test(_val) && {
+          !regex?.test(_val) && {
             message: `"${_val}" should match a regex ${condition}`,
+            location: runOnValue(value) ? baseLocation : baseLocation.key(),
+          }
+      )
+      .filter(isTruthy);
+  },
+  notPattern: (value: string | string[], condition: string, baseLocation: Location) => {
+    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
+    const values = runOnValue(value) ? [value] : value;
+    const regex = regexFromString(condition);
+
+    return values
+      .map(
+        (_val) =>
+          regex?.test(_val) && {
+            message: `"${_val}" should not match a regex ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.key(),
           }
       )

@@ -5,20 +5,26 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.114 (2022-11-18)
+
+### Features
+
+- Added a new assertion [`notPattern`](./rules/custom-rules.md#notpattern-example) to the custom rules.
+
 ## 1.0.0-beta.113 (2022-11-15)
 
 ### Changes
 
-- Added missing OAS2 and OAS3 list types.
-- Removed the feature where we add the `recommended` ruleset fallback when there is a config defined.
-- Now we don't show an error when discriminator is used with `allOf` keyword.
+- Removed automatically adding the `recommended` configuration when there is a config defined without an `extends` list.
 
 ### Fixes
 
 - Fixed an issue with undefined `process.cwd` in browser environment.
 - Fixed an issue with `$anchors` in OpenAPI documents are not properly parsed.
 - Fixed an issue with the `spec` rule not reporting on `nullable` in Schema object that don't have a `type` sibling.
-
+- Added missing OAS2 and OAS3 list types.
+- Don't show false media type example errors when a discriminator is used with the `allOf` keyword.
+ 
 ## 1.0.0-beta.112 (2022-11-01)
 
 ### Changes
