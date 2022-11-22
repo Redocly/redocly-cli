@@ -231,10 +231,23 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       location,
       node,
     });
+    
+    const uniqueProblems = problems.reduce((acc, problem) => {
+      const problemPointer = problem?.location?.pointer;
+      const existingProblem = acc.find((problem) => problem?.location?.pointer === problemPointer);
 
+      if (existingProblem) {
+        existingProblem.message = problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
+      } else {
+        acc.push(problem);
+      }
+
+      return acc;
+    }, [] as AssertResult[]);
+  
     if (problems.length) {
       const message = assertion.message || defaultMessage;
-      for (const problem of problems) {
+      for (const problem of uniqueProblems) {
         const problemMessage = problem.message ? problem.message : defaultMessage;
         report({
           message: message.replace(assertionMessageTemplates.problems, problemMessage),
