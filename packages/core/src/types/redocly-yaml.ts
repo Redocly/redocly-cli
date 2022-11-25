@@ -55,6 +55,7 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
 ];
 const nodeTypesList = [
+  'any',
   'Root',
   'Tag',
   'TagList',

@@ -203,3 +203,11 @@ rules:
     assertions:
       casing: camelCase
     severity: error
+  # any subject type example
+  assert/anyType:
+    subject: 
+      type: any
+      property: description
+    assertions:
+      minLength: 50
+    severity: error
