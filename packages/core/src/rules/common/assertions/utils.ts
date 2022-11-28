@@ -231,27 +231,14 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       location,
       node,
     });
-    
-    const uniqueProblems = problems.reduce((acc, problem) => {
-      const problemPointer = problem?.location?.pointer;
-      const existingProblem = acc.find((problem) => problem?.location?.pointer === problemPointer);
 
-      if (existingProblem) {
-        existingProblem.message = problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
-      } else {
-        acc.push(problem);
-      }
-
-      return acc;
-    }, [] as AssertResult[]);
-  
     if (problems.length) {
-      const message = assertion.message || defaultMessage;
-      for (const problem of uniqueProblems) {
-        const problemMessage = problem.message ? problem.message : defaultMessage;
+      for (const problemGroup of groupProblemsByPointer(problems)) {
+        const message = assertion.message || defaultMessage;
+        const problemMessage = getProblemsMessage(problemGroup);
         report({
           message: message.replace(assertionMessageTemplates.problems, problemMessage),
-          location: problem.location || location,
+          location: getProblemsLocation(problemGroup) || location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
           ruleId: assertId,
@@ -259,6 +246,27 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       }
     }
   };
+}
+
+function groupProblemsByPointer(problems: AssertResult[]): AssertResult[][] {
+  const groups: Record<string, AssertResult[]> = {};
+  for (const problem of problems) {
+    if (!problem.location) continue;
+    const pointer = problem.location.pointer;
+    groups[pointer] = groups[pointer] || [];
+    groups[pointer].push(problem);
+  }
+  return Object.values(groups);
+}
+
+function getProblemsLocation(problems: AssertResult[]) {
+  return problems.length ? problems[0].location : undefined;
+}
+
+function getProblemsMessage(problems: AssertResult[]) {
+  return problems.length === 1
+    ? problems[0].message ?? ''
+    : problems.map((problem) => `\n- ${problem.message ?? ''}`).join('');
 }
 
 export function getIntersectionLength(keys: string[], properties: string[]): number {
