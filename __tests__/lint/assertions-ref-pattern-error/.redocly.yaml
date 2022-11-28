@@ -21,5 +21,3 @@ rules:
     message: PathItem should contain ref to components/paths folder
     assertions:
       ref: ^(\.\/)?components\/paths\/.*\.yaml$
-
-extends: []

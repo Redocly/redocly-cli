@@ -2,7 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-extends: []
 rules:
   assert/headerMap:
     subject: 

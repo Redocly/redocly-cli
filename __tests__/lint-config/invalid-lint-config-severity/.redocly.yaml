@@ -8,5 +8,3 @@ rules:
       type: Operation
     assertions:
       defined: true
-
-extends: []

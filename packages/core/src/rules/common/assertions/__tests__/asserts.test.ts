@@ -43,6 +43,24 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('notPattern', () => {
+      it('value should not match regex pattern', () => {
+        expect(asserts.notPattern('test string', '/test me/', baseLocation)).toEqual([]);
+        expect(asserts.notPattern('test string', '/test/', baseLocation)).toEqual([
+          { location: baseLocation, message: '"test string" should not match a regex /test/' },
+        ]);
+        expect(
+          asserts.notPattern(['test string', 'test me'], '/test other/', baseLocation)
+        ).toEqual([]);
+        expect(asserts.notPattern(['test string', 'test me'], '/test me/', baseLocation)).toEqual([
+          {
+            message: '"test me" should not match a regex /test me/',
+            location: baseLocation.key(),
+          },
+        ]);
+      });
+    });
+
     describe('ref', () => {
       it('value should have ref', () => {
         expect(asserts.ref({ $ref: 'text' }, true, baseLocation, { $ref: 'text' })).toEqual([]);

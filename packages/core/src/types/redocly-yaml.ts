@@ -258,6 +258,7 @@ const AssertionDefinitionAssertions: NodeType = {
   properties: {
     enum: { type: 'array', items: { type: 'string' } },
     pattern: { type: 'string' },
+    notPattern: { type: 'string' },
     casing: {
       enum: [
         'camelCase',

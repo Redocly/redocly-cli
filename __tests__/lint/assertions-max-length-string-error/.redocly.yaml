@@ -10,5 +10,3 @@ rules:
     message: Info description should be maximum 10 chars length
     assertions:
       maxLength: 10
-
-extends: []

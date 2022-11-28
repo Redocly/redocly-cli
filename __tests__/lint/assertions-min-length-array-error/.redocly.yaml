@@ -10,5 +10,3 @@ rules:
     message: Operation tags should have minimum 4 items
     assertions: 
       minLength: 4
-
-extends: []

@@ -4,4 +4,3 @@ apis:
 
 rules:
   info-license: warn
-extends: []

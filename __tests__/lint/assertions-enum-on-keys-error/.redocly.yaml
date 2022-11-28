@@ -10,5 +10,3 @@ rules:
     assertions: 
       enum:
       - application/json
-
-extends: []

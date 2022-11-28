@@ -4,4 +4,3 @@ apis:
 
 rules:
   operation-2xx-response: warn
-extends: []

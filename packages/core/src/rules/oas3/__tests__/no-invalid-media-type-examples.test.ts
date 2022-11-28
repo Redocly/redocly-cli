@@ -438,4 +438,36 @@ describe('no-invalid-media-type-examples', () => {
       ]
     `);
   });
+
+  it('should not report if allOf used with discriminator', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /pet:
+            get:
+              responses:
+                '200':
+                  content:
+                    application/json:
+                      schema:
+                        discriminator:
+                          propertyName: powerSource
+                          mapping: {}
+                        allOf: []
+                      examples:
+                        first:
+                          value: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });

@@ -17,5 +17,3 @@ rules:
       mutuallyExclusive:
       - summary
       - tags
-
-extends: []

@@ -4238,10 +4238,11 @@ components:
               type: integer
               readOnly: true
             dueReminderTime:
-              description: Time past due reminder event will be triggered
+              description: Date and time at which a past due reminder event is triggered.
               nullable: true
-              allOf:
-                - $ref: '#/components/schemas/ServerTimestamp'
+              type: string
+              format: date-time
+              readOnly: true
             dueReminderNumber:
               description: Number of past due reminder events triggered
               type: integer
@@ -9524,10 +9525,11 @@ components:
           allOf:
             - $ref: '#/components/schemas/ServerTimestamp'
         expirationReminderTime:
-          description: Time expiration reminder event will be triggered
+          description: Date and time at which an expiration reminder event is triggered.
           nullable: true
-          allOf:
-            - $ref: '#/components/schemas/ServerTimestamp'
+          type: string
+          format: date-time
+          readOnly: true
         expirationReminderNumber:
           description: Number of expiration reminder events triggered
           type: integer
@@ -10226,9 +10228,10 @@ components:
               readOnly: true
             reviewTime:
               description: Date and time of manual review.
+              type: string
               nullable: true
-              allOf:
-                - $ref: '#/components/schemas/ServerTimestamp'
+              format: date-time
+              readOnly: true
             documentMatches:
               $ref: '#/components/schemas/KycDocumentMatches'
             _links:
@@ -10587,19 +10590,22 @@ components:
         deliveryAddress:
           description: Delivery address
           nullable: true
+          type: object
           allOf:
             - $ref: '#/components/schemas/ContactObject'
         billingAddress:
           description: Billing address
           nullable: true
+          type: object
           allOf:
             - $ref: '#/components/schemas/ContactObject'
         riskMetadata:
           nullable: true
+          type: object
           example: null
-          description: >-
-            Risk metadata. If null, the value would coalesce to the risk
-            metadata captured when creating the payment token.
+          description: |-
+            Risk metadata.
+            If null, the value would coalesce to the risk metadata captured when creating the payment token.
           allOf:
             - $ref: '#/components/schemas/RiskMetadata'
         activationTime:
@@ -10842,18 +10848,16 @@ components:
                   type: string
                   format: date-time
             invoiceTimeShift:
-              description: >
-                You can shift issue time and due time of invoices for this
-                subscription.
+              description: |-
+                You can shift issue time and due time of invoices for this subscription.
 
-                This setting overrides plan settings. To use plan settings, set
-                `null`.
+                This setting overrides plan settings.
+                To use plan settings, set `null`.
 
-                To use multiple plans in one subscription they all must have the
-                same billing period,
-
+                To use multiple plans in one subscription they all must have the same billing period,
                 this property allows to subscribe to different plans.
               nullable: true
+              type: object
               example: null
               allOf:
                 - $ref: '#/components/schemas/InvoiceTimeShift'
@@ -10898,19 +10902,21 @@ components:
               type: integer
               readOnly: true
             renewalReminderTime:
-              description: Time renewal reminder event will be triggered
+              description: Time renewal reminder event will be triggered.
               nullable: true
-              allOf:
-                - $ref: '#/components/schemas/ServerTimestamp'
+              type: string
+              format: date-time
+              readOnly: true
             renewalReminderNumber:
               description: Number of renewal reminder events triggered
               type: integer
               readOnly: true
             trialReminderTime:
-              description: Time renewal reminder event will be triggered
+              description: Time renewal reminder event will be triggered.
               nullable: true
-              allOf:
-                - $ref: '#/components/schemas/ServerTimestamp'
+              type: string
+              format: date-time
+              readOnly: true
             trialReminderNumber:
               description: Number of renewal reminder events triggered
               type: integer
@@ -11807,10 +11813,12 @@ components:
         paymentInstrument:
           $ref: '#/components/schemas/PaymentInstrument'
         billingAddress:
-          description: >-
-            Billing Address. If not supplied, we use the billing address
-            associated with the payment instrument, and then customer.
+          description: |-
+            Billing address.
+            If not supplied, the billing address associated
+            with the payment instrument is used, and then customer.
           nullable: true
+          type: object
           allOf:
             - $ref: '#/components/schemas/ContactObject'
         requestId:

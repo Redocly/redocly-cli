@@ -65,6 +65,7 @@ maxLength | integer | Asserts a maximum length (exclusive) of a string or list (
 minLength | integer | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 nonEmpty | boolean | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 pattern | string | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
+notPattern | string | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).
 mutuallyExclusive | [string] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [string] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
 ref | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
@@ -379,6 +380,20 @@ rules:
       property: summary
     assertions:
       pattern: /test/
+```
+
+### `notPattern` example
+
+The following example asserts that the operation summary doesn't start with "The".
+
+```yaml
+rules:
+  assert/operation-summary-contains-test:
+    subject:
+      type: Operation
+      property: The summary
+    assertions:
+      notPattern: /^The/
 ```
 
 ### `casing` example

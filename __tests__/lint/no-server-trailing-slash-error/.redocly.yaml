@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-server-trailing-slash: error
-extends: []

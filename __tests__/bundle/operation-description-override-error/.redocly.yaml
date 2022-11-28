@@ -6,4 +6,3 @@ decorators:
   operation-description-override:
     operationIds:
       updatePet: ./update-pet-operation-description.md
-extends: []

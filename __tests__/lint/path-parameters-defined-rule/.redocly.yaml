@@ -4,4 +4,3 @@ apis:
 
 rules:
   path-parameters-defined: error
-extends: []

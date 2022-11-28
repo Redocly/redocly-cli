@@ -28,5 +28,3 @@ rules:
     assertions:
       casing: camelCase
     message: Named Parameters should be camelCase
-
-extends: []
