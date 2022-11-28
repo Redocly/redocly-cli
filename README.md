@@ -64,7 +64,7 @@ To build and run with a local image, run the following from the project root:
 
 ```
 docker build -t redocly-cli .
-docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
+docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
 
 ## [Read the docs](https://redocly.com/docs/cli/)
