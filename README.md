@@ -57,14 +57,14 @@ mount the containing directory as a volume. Assuming the OAS definition is roote
 in the current working directory, you need the following command:
 
 ```
-docker run --rm -v $PWD:/spec redocly/openapi-cli lint path-to-root-file.yaml
+docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
 
 To build and run with a local image, run the following from the project root:
 
 ```
-docker build -t redocly-cli .
-docker run --rm -v $PWD:/spec redocly-cli lint path-to-root-file.yaml
+docker build -t redocly/cli .
+docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
 
 ## [Read the docs](https://redocly.com/docs/cli/)
