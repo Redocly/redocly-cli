@@ -108,7 +108,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: redocly/openapi-cli
+          images: redocly/cli
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
