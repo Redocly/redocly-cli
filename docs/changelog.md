@@ -10,7 +10,7 @@ toc:
 
 ### Features
 
-- Added support for [`any`]() type in assertions.
+- Added support for [`any`](./rules/custom-rules.md#any-example) type in assertions.
 
 ### Changes
 
