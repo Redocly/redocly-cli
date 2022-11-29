@@ -5,6 +5,17 @@ toc:
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.115 (2022-11-29)
+
+### Features
+
+- Added support for [`any`]() type in assertions.
+
+### Changes
+
+- Renamed the Docker image on [Docker Hub](https://hub.docker.com/repository/docker/redocly/cli).
+
 ## 1.0.0-beta.114 (2022-11-18)
 
 ### Features
