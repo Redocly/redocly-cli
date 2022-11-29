@@ -15,6 +15,8 @@ toc:
 ### Changes
 
 - Renamed the Docker image on [Docker Hub](https://hub.docker.com/repository/docker/redocly/cli).
+- Changed assertions errors grouping.
+- Removed orphaned git submodule `public_api_docs`.
 
 ## 1.0.0-beta.114 (2022-11-18)
 
