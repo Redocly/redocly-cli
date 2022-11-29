@@ -43,6 +43,15 @@ const opts = {
     severity: 'warn',
     assertions: { sortOrder: 'desc' },
   },
+  '4': {
+    subject: {
+      type: 'any',
+      property: 'description',
+    },
+    description: 'example warn text',
+    severity: 'warn',
+    assertions: { notPattern: '/example/' },
+  },
 };
 
 describe('Oas3 assertions', () => {
@@ -78,6 +87,11 @@ describe('Oas3 assertions', () => {
                 "enter": [Function],
               },
             },
+          },
+        },
+        Object {
+          "any": Object {
+            "enter": [Function],
           },
         },
       ]
