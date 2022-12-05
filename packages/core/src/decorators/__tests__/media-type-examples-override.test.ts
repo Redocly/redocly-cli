@@ -18,7 +18,7 @@ describe('oas3 media-type-examples-override', () => {
                       description: json
                       content:
                         application/json:
-                          example:
+                          examples:
                             def:
                               value:
                                 a: test
@@ -55,7 +55,7 @@ describe('oas3 media-type-examples-override', () => {
                 description: json
                 content:
                   application/json:
-                    example:
+                    examples:
                       def:
                         value:
                           b: from external file
@@ -64,7 +64,7 @@ describe('oas3 media-type-examples-override', () => {
     `);
   });
 
-  it('should override requestBody example', async () => {
+  it('should override requestBody examples', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
             openapi: 3.0.0
@@ -75,7 +75,7 @@ describe('oas3 media-type-examples-override', () => {
                   requestBody: 
                     content:
                       application/json:
-                        example:
+                        examples:
                           def:
                             value:
                               a: test123
@@ -111,7 +111,7 @@ describe('oas3 media-type-examples-override', () => {
             requestBody:
               content:
                 application/json:
-                  example:
+                  examples:
                     def:
                       value:
                         name: test response name
@@ -120,7 +120,7 @@ describe('oas3 media-type-examples-override', () => {
     `);
   });
 
-  it('should override requestBody example and 200 response', async () => {
+  it('should override requestBody examples and 200 response', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
             openapi: 3.0.0
@@ -140,7 +140,7 @@ describe('oas3 media-type-examples-override', () => {
                   requestBody: 
                     content:
                       application/json:
-                        example:
+                        examples:
                           def:
                             value:
                               a: test123
@@ -189,7 +189,7 @@ describe('oas3 media-type-examples-override', () => {
             requestBody:
               content:
                 application/json:
-                  example:
+                  examples:
                     def:
                       value:
                         b: from external file
@@ -216,7 +216,7 @@ describe('oas3 media-type-examples-override', () => {
                 testRequest:
                   content:
                     application/json:
-                      example:
+                      examples:
                         def:
                           value:
                             a: test123
@@ -225,7 +225,7 @@ describe('oas3 media-type-examples-override', () => {
                   description: json
                   content:
                     application/json:
-                      example:
+                      examples:
                         def:
                           value:
                             a: t
@@ -267,14 +267,14 @@ describe('oas3 media-type-examples-override', () => {
                 description: json
                 content:
                   application/json:
-                    example:
+                    examples:
                       def:
                         value:
                           name: test response name
             requestBody:
               content:
                 application/json:
-                  example:
+                  examples:
                     def:
                       value:
                         b: from external file
@@ -283,7 +283,7 @@ describe('oas3 media-type-examples-override', () => {
           testRequest:
             content:
               application/json:
-                example:
+                examples:
                   def:
                     value:
                       a: test123
@@ -292,7 +292,7 @@ describe('oas3 media-type-examples-override', () => {
             description: json
             content:
               application/json:
-                example:
+                examples:
                   def:
                     value:
                       a: t
@@ -301,7 +301,7 @@ describe('oas3 media-type-examples-override', () => {
     `);
   });
 
-  it('should override example with ref', async () => {
+  it('should override examples with ref', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
             openapi: 3.0.0
@@ -314,12 +314,12 @@ describe('oas3 media-type-examples-override', () => {
                       description: bad request
                       content:
                         application/json:
-                          example:
+                          examples:
                             $ref: '#/components/examples/testExample'
                   requestBody: 
                     content:
                       application/json:
-                        example:
+                        examples:
                           obj:
                             $ref: '#/components/examples/testExample'
             components:
@@ -364,14 +364,14 @@ describe('oas3 media-type-examples-override', () => {
                 description: bad request
                 content:
                   application/json:
-                    example:
+                    examples:
                       def:
                         value:
                           name: test response name
             requestBody:
               content:
                 application/json:
-                  example:
+                  examples:
                     def:
                       value:
                         b: from external file
@@ -384,7 +384,7 @@ describe('oas3 media-type-examples-override', () => {
     `);
   });
 
-  it('should not override the example', async () => {
+  it('should not override the examples', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
             openapi: 3.0.0
@@ -425,6 +425,129 @@ describe('oas3 media-type-examples-override', () => {
             responses:
               '200':
                 description: json
+      components: {}
+
+    `);
+  });
+
+  it('should add examples to response', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+            openapi: 3.0.0
+            paths:
+              /pet:
+                get:
+                  operationId: getUserById
+                  responses:
+                    '200':
+                      description: json
+                      content:
+                        application/json:
+                          schema: 
+                            $ref: "#/components/schemas/Pet"
+    ,               
+    `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig(
+        {},
+        {
+          'media-type-examples-override': {
+            operationIds: {
+              getUserById: {
+                responses: {
+                  '200': 'packages/core/src/decorators/__tests__/resources/response.yaml',
+                },
+              },
+            },
+          },
+        }
+      ),
+    });
+
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          get:
+            operationId: getUserById
+            responses:
+              '200':
+                description: json
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Pet'
+                    examples:
+                      def:
+                        value:
+                          name: test response name
+      components: {}
+
+    `);
+  });
+
+  it('should add examples to requestBody', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+            openapi: 3.0.0
+            paths:
+              /pet:
+                get:
+                  operationId: getUserById
+                  requestBody: 
+                    content:
+                      application/json:
+                        schema: 
+                          $ref: "#/components/schemas/Pet"
+                        
+    ,               
+    `
+    );
+    const { bundle: res } = await bundleDocument({
+      document: testDocument,
+      externalRefResolver: new BaseResolver(),
+      config: await makeConfig(
+        {},
+        {
+          'media-type-examples-override': {
+            operationIds: {
+              getUserById: {
+                request: {
+                  'application/json':
+                    'packages/core/src/decorators/__tests__/resources/response.yaml',
+                  'application/xml':
+                    'packages/core/src/decorators/__tests__/resources/response.yaml',
+                },
+              },
+            },
+          },
+        }
+      ),
+    });
+
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      paths:
+        /pet:
+          get:
+            operationId: getUserById
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Pet'
+                  examples:
+                    def:
+                      value:
+                        name: test response name
+                application/xml:
+                  examples:
+                    def:
+                      value:
+                        name: test response name
       components: {}
 
     `);

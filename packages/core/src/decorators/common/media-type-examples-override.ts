@@ -41,8 +41,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
             }
 
             Object.values(resolvedResponse.content!).forEach((mimeType) => {
-              const exampleField = mimeType.examples ? 'examples' : 'example';
-              mimeType[exampleField] = readAndParseFileSync(properties.responses[responseCode]);
+              mimeType.examples = readAndParseFileSync(properties.responses[responseCode]);
             });
 
             operation.responses[responseCode] = resolvedResponse;
@@ -60,9 +59,10 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
           }
 
           Object.keys(properties.request).forEach((mimeType) => {
-            resolvedRequest.content[mimeType].example = readAndParseFileSync(
-              properties.request[mimeType]
-            );
+            resolvedRequest.content[mimeType] = {
+              ...resolvedRequest.content[mimeType],
+              examples: readAndParseFileSync(properties.request[mimeType]),
+            };
           });
           operation.requestBody = resolvedRequest;
         }
