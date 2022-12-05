@@ -18,5 +18,3 @@ rules:
     message: Operation security should be defined
     assertions:
       defined: true
-
-extends: []

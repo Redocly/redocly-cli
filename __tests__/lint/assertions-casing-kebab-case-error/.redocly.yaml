@@ -19,5 +19,3 @@ rules:
     message: Operation id should be kebab-case
     assertions:
       casing: kebab-case
-
-extends: []

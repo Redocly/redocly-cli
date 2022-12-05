@@ -1,4 +1,3 @@
-lint:
   rules:
     no-invalid-media-type-examples: warn
     operation-4xx-response: off

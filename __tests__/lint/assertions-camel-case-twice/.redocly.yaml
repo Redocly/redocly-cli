@@ -10,5 +10,3 @@ rules:
     severity: warn
     assertions:
       casing: camelCase
-
-extends: []

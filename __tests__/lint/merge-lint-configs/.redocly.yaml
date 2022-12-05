@@ -6,4 +6,3 @@ apis:
 
 rules:
   info-contact: error
-extends: []

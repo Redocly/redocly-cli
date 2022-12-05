@@ -19,5 +19,3 @@ rules:
     message: Operation id should be PascalCase
     assertions:
       casing: PascalCase
-
-extends: []

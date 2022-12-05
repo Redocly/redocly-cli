@@ -21,5 +21,3 @@ rules:
     message: PathItems should have refs
     assertions:
       ref: true
-
-extends: []

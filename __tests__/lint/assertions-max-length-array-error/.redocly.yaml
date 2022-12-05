@@ -10,5 +10,3 @@ rules:
     message: Operation tags should have maximum 2 items
     assertions:
       maxLength: 2
-
-extends: []

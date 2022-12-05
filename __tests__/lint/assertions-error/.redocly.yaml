@@ -2,8 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-extends: []
-
 rules:
   assert/tag-description-pattern:
     subject: 
@@ -204,4 +202,12 @@ rules:
     message: Examples names must use camelCase
     assertions:
       casing: camelCase
+    severity: error
+  # any subject type example
+  assert/anyType:
+    subject: 
+      type: any
+      property: description
+    assertions:
+      minLength: 50
     severity: error

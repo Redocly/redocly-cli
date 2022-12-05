@@ -7,4 +7,3 @@ decorators:
     operationIds:
       updatePet: ./update-pet-operation-description.md
       createUser: ./create-user-operation-description.md
-extends: []

@@ -10,5 +10,3 @@ rules:
     message: Info description should be minimum 20 chars length
     assertions: 
       minLength: 20
-
-extends: []

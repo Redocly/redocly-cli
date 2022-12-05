@@ -19,5 +19,3 @@ rules:
       - Suggestion 2
     assertions:
       minLength: 20
-
-extends: []

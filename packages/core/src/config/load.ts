@@ -15,18 +15,21 @@ async function addConfigMetadata({
   customExtends,
   configPath,
   tokens,
+  files,
+  region,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
   tokens?: RegionalTokenWithValidity[];
+  files?: string[];
+  region?: Region;
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
     rawConfig.styleguide.extends = customExtends;
   } else if (isEmptyObject(rawConfig)) {
-    // TODO: check if we can add recommended here. add message here?
-    // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
+    rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
   if (tokens?.length) {
@@ -58,7 +61,10 @@ async function addConfigMetadata({
     }
   }
 
-  return resolveConfig(rawConfig, configPath);
+  return resolveConfig(
+    { ...rawConfig, files: files ?? rawConfig.files, region: region ?? rawConfig.region },
+    configPath
+  );
 }
 
 export async function loadConfig(
@@ -71,8 +77,7 @@ export async function loadConfig(
   } = {}
 ): Promise<Config> {
   const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
-  const config = await getConfig(configPath, processRawConfig);
-  const rawConfig = { ...config, files: files ?? config.files, region: region ?? config.region };
+  const rawConfig = await getConfig(configPath, processRawConfig);
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
@@ -82,6 +87,8 @@ export async function loadConfig(
     customExtends,
     configPath,
     tokens,
+    files,
+    region,
   });
 }
 

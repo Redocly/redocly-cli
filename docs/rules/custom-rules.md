@@ -33,7 +33,7 @@ assert/{string} | [Custom rule object](#custom-rule-object) | Custom rules defin
 
 Property | Type | Description
 -- | -- | --
-subject | [Subject object](#subject-object) | **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
+subject | [Subject object](#subject-object) | **REQUIRED.** Locates the specific [OpenAPI node type](#openapi-node-types) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
 assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.
 where | [Where object](#where-object) | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.
 message | string | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
@@ -65,6 +65,7 @@ maxLength | integer | Asserts a maximum length (exclusive) of a string or list (
 minLength | integer | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
 nonEmpty | boolean | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
 pattern | string | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
+notPattern | string | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).
 mutuallyExclusive | [string] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [string] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
 ref | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
@@ -381,6 +382,20 @@ rules:
       pattern: /test/
 ```
 
+### `notPattern` example
+
+The following example asserts that the operation summary doesn't start with "The".
+
+```yaml
+rules:
+  assert/operation-summary-contains-test:
+    subject:
+      type: Operation
+      property: The summary
+    assertions:
+      notPattern: /^The/
+```
+
 ### `casing` example
 
 The following example asserts the casing style is `PascalCase` for `NamedExamples` map keys.
@@ -618,3 +633,18 @@ OpenAPI 2.0 has one type tree.
 OpenAPI 3.0 and OpenAPI 3.1 share a type tree.
 
 Learn more about the [OpenAPI node types](../../openapi-visual-reference/openapi-node-types.md).
+
+### `any` example
+
+The following example asserts that the maximum length of each description is 20 characters.
+
+```yaml
+rules:
+  assert/description-max-length:
+    subject:
+      type: any
+      property: description
+    message: Each description must have a maximum of 20 characters
+    assertions:
+      maxLength: 20
+```

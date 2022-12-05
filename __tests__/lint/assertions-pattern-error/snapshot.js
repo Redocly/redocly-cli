@@ -5,7 +5,9 @@ exports[`E2E lint assertions-pattern-error 1`] = `
 validating /openapi.yaml...
 [1] openapi.yaml:20:16 at #/paths/~1pet~1findByStatus/get/summary
 
-Operation summary should have 'test' word
+summary-pattern assertion failed because the Operation summary didn't meet the assertions: 
+- "summary example" should match a regex /test/
+- "summary example" should not match a regex /summary/
 
 18 | get:
 19 |   operationId: example
