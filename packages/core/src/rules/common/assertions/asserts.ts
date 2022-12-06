@@ -234,7 +234,11 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  sortOrder: (value: unknown[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {
+  sortOrder: (
+    value: unknown[],
+    condition: OrderOptions | OrderDirection,
+    baseLocation: Location
+  ) => {
     if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
