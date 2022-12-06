@@ -1,6 +1,6 @@
 import { AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
-import { isString as runOnValue, isTruthy } from '../../../utils';
+import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils';
 import {
   OrderOptions,
   OrderDirection,
@@ -70,8 +70,8 @@ export const runOnValuesSet = new Set<keyof Asserts>([
 
 export const asserts: Asserts = {
   pattern: (value: string | string[], condition: string, baseLocation: Location) => {
-    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const values = runOnValue(value) ? [value] : value;
+    if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
+    const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
 
     return values
@@ -85,8 +85,8 @@ export const asserts: Asserts = {
       .filter(isTruthy);
   },
   notPattern: (value: string | string[], condition: string, baseLocation: Location) => {
-    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const values = runOnValue(value) ? [value] : value;
+    if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
+    const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
 
     return values
@@ -100,8 +100,8 @@ export const asserts: Asserts = {
       .filter(isTruthy);
   },
   enum: (value: string | string[], condition: string[], baseLocation: Location) => {
-    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const values = runOnValue(value) ? [value] : value;
+    if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
+    const values = Array.isArray(value) ? value : [value];
     return values
       .map(
         (_val) =>
@@ -136,8 +136,8 @@ export const asserts: Asserts = {
       .filter(isTruthy);
   },
   disallowed: (value: string | string[], condition: string[], baseLocation: Location) => {
-    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const values = runOnValue(value) ? [value] : value;
+    if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
+    const values = Array.isArray(value) ? value : [value];
     return values
       .map(
         (_val) =>
@@ -176,7 +176,7 @@ export const asserts: Asserts = {
         : [];
     }
   },
-  undefined: (value: any, condition: boolean = true, baseLocation: Location) => {
+  undefined: (value: unknown, condition: boolean = true, baseLocation: Location) => {
     const isUndefined = typeof value === 'undefined';
     const isValid = condition ? isUndefined : !isUndefined;
     return isValid
@@ -213,8 +213,8 @@ export const asserts: Asserts = {
     return [{ message: `Should have at most ${condition} characters`, location: baseLocation }];
   },
   casing: (value: string | string[], condition: string, baseLocation: Location) => {
-    if (typeof value === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const values: string[] = runOnValue(value) ? [value] : value;
+    if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
+    const values = Array.isArray(value) ? value : [value];
     const casingRegexes: Record<string, RegExp> = {
       camelCase: /^[a-z][a-zA-Z0-9]+$/g,
       'kebab-case': /^([a-z][a-z0-9]*)(-[a-z0-9]+)*$/g,
@@ -234,7 +234,7 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  sortOrder: (value: any[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {
+  sortOrder: (value: unknown[], condition: OrderOptions | OrderDirection, baseLocation: Location) => {
     if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
@@ -280,7 +280,7 @@ export const asserts: Asserts = {
           },
         ];
   },
-  ref: (_value: any, condition: string | boolean, baseLocation: Location, rawValue: any) => {
+  ref: (_value: unknown, condition: string | boolean, baseLocation: Location, rawValue: any) => {
     if (typeof rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
