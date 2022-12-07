@@ -46,7 +46,7 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
-};  
+};
 
 const Contact: NodeType = {
   properties: {
@@ -428,8 +428,8 @@ const XMeta: NodeType = {
     description: { type: 'string' },
     keywords: { type: 'string' },
     image: { type: 'string' },
-  }
-}; 
+  },
+};
 
 export const Oas2Types: Record<string, NodeType> = {
   Root,

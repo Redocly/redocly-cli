@@ -91,7 +91,7 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
-};  
+};
 
 const Contact: NodeType = {
   properties: {
@@ -503,14 +503,14 @@ const XMeta: NodeType = {
     description: { type: 'string' },
     keywords: { type: 'string' },
     image: { type: 'string' },
-  }
+  },
 };
 
 const XUsePkce: NodeType = {
   properties: {
     disableManualConfiguration: { type: 'boolean' },
     hideClientSecretInput: { type: 'boolean' },
-  }
+  },
 };
 
 export const Oas3Types: Record<string, NodeType> = {
