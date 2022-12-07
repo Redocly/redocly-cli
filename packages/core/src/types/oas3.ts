@@ -13,6 +13,8 @@ const Root: NodeType = {
     paths: 'Paths',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
+    'x-tagGroups': 'TagGroups',
+    'x-ignoredHeaderParameters': { type: 'array', items: { type: 'string' } },
   },
   required: ['openapi', 'paths', 'info'],
 };
@@ -22,8 +24,17 @@ const Tag: NodeType = {
     name: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
+    'x-traitTag': { type: 'boolean' },
+    'x-displayName': { type: 'string' },
   },
   required: ['name'],
+};
+
+const TagGroup: NodeType = {
+  properties: {
+    name: { type: 'string' },
+    tags: { type: 'array', items: { type: 'string' } },
+  },
 };
 
 const ExternalDocs: NodeType = {
@@ -68,9 +79,19 @@ const Info: NodeType = {
     termsOfService: { type: 'string' },
     contact: 'Contact',
     license: 'License',
+    'x-logo': 'Logo',
   },
   required: ['title', 'version'],
 };
+
+const Logo: NodeType = {
+  properties: {
+    url: { type: 'string' },
+    altText: { type: 'string' },
+    backgroundColor: { type: 'string' },
+    href: { type: 'string' },
+  },
+};  
 
 const Contact: NodeType = {
   properties: {
@@ -159,6 +180,7 @@ const Operation: NodeType = {
     'x-codeSamples': 'XCodeSampleList',
     'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
+    'x-meta': 'XMetaList',
   },
   required: ['responses'],
 };
@@ -215,6 +237,11 @@ const Encoding: NodeType = {
   },
 };
 
+const EnumDescriptions: NodeType = {
+  properties: {},
+  additionalProperties: { type: 'string' },
+};
+
 const Header: NodeType = {
   properties: {
     description: { type: 'string' },
@@ -246,6 +273,7 @@ const Response: NodeType = {
     headers: 'HeadersMap',
     content: 'MediaTypesMap',
     links: 'LinksMap',
+    'x-summary': { type: 'string' },
   },
   required: ['description'],
 };
@@ -320,6 +348,8 @@ const Schema: NodeType = {
     example: { isExample: true },
     deprecated: { type: 'boolean' },
     'x-tags': { type: 'array', items: { type: 'string' } },
+    'x-additionalPropertiesName': { type: 'string' },
+    'x-explicitMappingOnly': { type: 'boolean' },
   },
 };
 
@@ -404,6 +434,13 @@ const AuthorizationCode: NodeType = {
     authorizationUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
+    'x-usePkce': (value: any) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return 'XUsePkce';
+      }
+    },
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
 };
@@ -427,6 +464,7 @@ const SecurityScheme: NodeType = {
     bearerFormat: { type: 'string' },
     flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
+    'x-defaultClientId': { type: 'string' },
   },
   required(value) {
     switch (value?.type) {
@@ -459,10 +497,28 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+const XMeta: NodeType = {
+  properties: {
+    title: { type: 'string' },
+    description: { type: 'string' },
+    keywords: { type: 'string' },
+    image: { type: 'string' },
+  }
+};
+
+const XUsePkce: NodeType = {
+  properties: {
+    disableManualConfiguration: { type: 'boolean' },
+    hideClientSecretInput: { type: 'boolean' },
+  }
+};
+
 export const Oas3Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
+  TagGroups: listOf('TagGroup'),
+  TagGroup,
   ExternalDocs,
   Server,
   ServerList: listOf('Server'),
@@ -487,11 +543,13 @@ export const Oas3Types: Record<string, NodeType> = {
   ExamplesMap: mapOf('Example'),
   Encoding,
   EncodingMap: mapOf('Encoding'),
+  EnumDescriptions,
   Header,
   HeadersMap: mapOf('Header'),
   Responses,
   Response,
   Link,
+  Logo,
   Schema,
   Xml,
   SchemaProperties,
@@ -516,5 +574,8 @@ export const Oas3Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
+  XMeta,
+  XMetaList: listOf('XMeta'),
+  XUsePkce,
   WebhooksMap,
 };
