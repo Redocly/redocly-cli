@@ -9,7 +9,11 @@ toc:
 
 ### Fixes
 
-- Do not fail scalar assertion when object is of invalid type
+- Fixed an issue with scalar assertion failing when an object is of invalid type.
+  
+### Features
+
+- Added Redoc vendor extensions to supported types.
 
 ## 1.0.0-beta.115 (2022-11-29)
 
