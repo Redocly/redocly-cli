@@ -5,6 +5,11 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.116 (2022-12-7)
+
+### Fixes
+
+- Do not fail scalar assertion when object is of invalid type
 
 ## 1.0.0-beta.115 (2022-11-29)
 
