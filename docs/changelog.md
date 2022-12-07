@@ -5,6 +5,15 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.116 (2022-12-7)
+
+### Fixes
+
+- Fixed an issue with scalar assertion failing when an object is of invalid type.
+  
+### Features
+
+- Added Redoc vendor extensions to supported types.
 
 ## 1.0.0-beta.115 (2022-11-29)
 
