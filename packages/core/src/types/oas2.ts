@@ -102,7 +102,6 @@ const Operation: NodeType = {
     'x-codeSamples': 'XCodeSampleList',
     'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
-    'x-meta': 'XMetaList',
   },
   required: ['responses'],
 };
@@ -422,15 +421,6 @@ const Example: NodeType = {
   },
 };
 
-const XMeta: NodeType = {
-  properties: {
-    title: { type: 'string' },
-    description: { type: 'string' },
-    keywords: { type: 'string' },
-    image: { type: 'string' },
-  },
-};
-
 export const Oas2Types: Record<string, NodeType> = {
   Root,
   Tag,
@@ -467,8 +457,6 @@ export const Oas2Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
-  XMeta,
-  XMetaList: listOf('XMeta'),
   XServerList: listOf('XServer'),
   XServer,
 };

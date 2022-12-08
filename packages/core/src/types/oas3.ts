@@ -180,7 +180,6 @@ const Operation: NodeType = {
     'x-codeSamples': 'XCodeSampleList',
     'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
-    'x-meta': 'XMetaList',
   },
   required: ['responses'],
 };
@@ -497,15 +496,6 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-const XMeta: NodeType = {
-  properties: {
-    title: { type: 'string' },
-    description: { type: 'string' },
-    keywords: { type: 'string' },
-    image: { type: 'string' },
-  },
-};
-
 const XUsePkce: NodeType = {
   properties: {
     disableManualConfiguration: { type: 'boolean' },
@@ -574,8 +564,6 @@ export const Oas3Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
-  XMeta,
-  XMetaList: listOf('XMeta'),
   XUsePkce,
   WebhooksMap,
 };
