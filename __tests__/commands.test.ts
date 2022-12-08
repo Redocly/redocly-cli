@@ -184,7 +184,11 @@ describe('E2E', () => {
   });
 
   describe('bundle', () => {
-    const excludeFolders = ['bundle-remove-unused-components', 'bundle-lint-format'];
+    const excludeFolders = [
+      'bundle-remove-unused-components',
+      'bundle-remove-unused-components-from-config',
+      'bundle-lint-format',
+    ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
 
