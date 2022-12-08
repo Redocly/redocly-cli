@@ -19,9 +19,6 @@ const Root: NodeType = {
     security: 'SecurityRequirementList',
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
-    'x-servers': 'XServerList',
-    'x-tagGroups': 'TagGroups',
-    'x-ignoredHeaderParameters': { type: 'array', items: { type: 'string' } },
   },
   required: ['swagger', 'paths', 'info'],
 };
@@ -34,18 +31,8 @@ const Info: NodeType = {
     contact: 'Contact',
     license: 'License',
     version: { type: 'string' },
-    'x-logo': 'Logo',
   },
   required: ['title', 'version'],
-};
-
-const Logo: NodeType = {
-  properties: {
-    url: { type: 'string' },
-    altText: { type: 'string' },
-    backgroundColor: { type: 'string' },
-    href: { type: 'string' },
-  },
 };
 
 const Contact: NodeType = {
@@ -102,7 +89,6 @@ const Operation: NodeType = {
     'x-codeSamples': 'XCodeSampleList',
     'x-code-samples': 'XCodeSampleList', // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
-    'x-meta': 'XMetaList',
   },
   required: ['responses'],
 };
@@ -113,14 +99,6 @@ const XCodeSample: NodeType = {
     label: { type: 'string' },
     source: { type: 'string' },
   },
-};
-
-const XServer: NodeType = {
-  properties: {
-    url: { type: 'string' },
-    description: { type: 'string' },
-  },
-  required: ['url'],
 };
 
 const ExternalDocs: NodeType = {
@@ -156,8 +134,6 @@ const Parameter: NodeType = {
     uniqueItems: { type: 'boolean' },
     enum: { type: 'array' },
     multipleOf: { type: 'number' },
-    'x-example': 'Example',
-    'x-examples': 'ExamplesMap',
   },
   required(value) {
     if (!value || !value.in) {
@@ -218,7 +194,6 @@ const Response: NodeType = {
     schema: 'Schema',
     headers: mapOf('Header'),
     examples: 'Examples',
-    'x-summary': { type: 'string' },
   },
   required: ['description'],
 };
@@ -263,17 +238,8 @@ const Tag: NodeType = {
     name: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
-    'x-traitTag': { type: 'boolean' },
-    'x-displayName': { type: 'string' },
   },
   required: ['name'],
-};
-
-const TagGroup: NodeType = {
-  properties: {
-    name: { type: 'string' },
-    tags: { type: 'array', items: { type: 'string' } },
-  },
 };
 
 const Schema: NodeType = {
@@ -323,17 +289,7 @@ const Schema: NodeType = {
     externalDocs: 'ExternalDocs',
     example: { isExample: true },
     'x-tags': { type: 'array', items: { type: 'string' } },
-    'x-nullable': { type: 'boolean' },
-    'x-extendedDiscriminator': { type: 'string' },
-    'x-additionalPropertiesName': { type: 'string' },
-    'x-explicitMappingOnly': { type: 'boolean' },
-    'x-enumDescriptions': 'EnumDescriptions',
   },
-};
-
-const EnumDescriptions: NodeType = {
-  properties: {},
-  additionalProperties: { type: 'string' },
 };
 
 const SchemaProperties: NodeType = {
@@ -361,7 +317,6 @@ const SecurityScheme: NodeType = {
     authorizationUrl: { type: 'string' },
     tokenUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } },
-    'x-defaultClientId': { type: 'string' },
   },
   required(value) {
     switch (value?.type) {
@@ -413,40 +368,16 @@ const SecurityRequirement: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
-const Example: NodeType = {
-  properties: {
-    value: { isExample: true },
-    summary: { type: 'string' },
-    description: { type: 'string' },
-    externalValue: { type: 'string' },
-  },
-};
-
-const XMeta: NodeType = {
-  properties: {
-    title: { type: 'string' },
-    description: { type: 'string' },
-    keywords: { type: 'string' },
-    image: { type: 'string' },
-  },
-};
-
 export const Oas2Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
-  TagGroups: listOf('TagGroup'),
-  TagGroup,
   ExternalDocs,
-  Example,
-  ExamplesMap: mapOf('Example'),
-  EnumDescriptions,
   SecurityRequirement,
   SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
-  Logo,
   Paths,
   PathItem,
   Parameter,
@@ -467,8 +398,4 @@ export const Oas2Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
-  XMeta,
-  XMetaList: listOf('XMeta'),
-  XServerList: listOf('XServer'),
-  XServer,
 };

@@ -33,17 +33,6 @@ rootType:
           required:
             - name
           name: License
-        x-logo:
-          properties:
-            url:
-              type: string
-            altText:
-              type: string
-            backgroundColor:
-              type: string
-            href:
-              type: string
-          name: Logo
       required:
         - title
         - version
@@ -91,10 +80,6 @@ rootType:
             required:
               - url
             name: ExternalDocs
-          x-traitTag:
-            type: boolean
-          x-displayName:
-            type: string
         required:
           - name
         name: Tag
@@ -143,22 +128,6 @@ rootType:
     x-webhooks:
       properties: {}
       name: WebhooksMap
-    x-tagGroups:
-      name: TagGroups
-      properties: {}
-      items:
-        properties:
-          name:
-            type: string
-          tags:
-            type: array
-            items:
-              type: string
-        name: TagGroup
-    x-ignoredHeaderParameters:
-      type: array
-      items:
-        type: string
   required:
     - openapi
     - paths
