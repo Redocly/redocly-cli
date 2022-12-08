@@ -1,0 +1,7 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+decorators:
+  remove-x-internal: on
+  remove-unused-components: on

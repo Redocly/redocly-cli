@@ -1,0 +1,50 @@
+swagger: '2.0'
+host: api.instagram.com
+paths:
+  '/locations/{location-id}':
+    get:
+      description: Get information about a location.
+      x-internal: true
+      security:
+        - api_key: []
+      parameters:
+        - $ref: '#/parameters/AccountId'
+    post:
+      responses:
+        '400':
+          x-internal: true
+          schema:
+            $ref: '#/responses/Data'
+        '200':
+          description: Location information post.
+          x-internal: true
+          schema:
+            $ref: '#/definitions/MediaListResponse'
+        '401':
+          schema:
+            $ref: 'ref.yaml'
+parameters:
+  AccountId:
+    description: The account ID
+    in: path
+    name: accountId
+    required: true
+    type: string
+responses:
+  Data:
+    properties:
+      created_time:
+        description: Caption creation UNIX timestamp
+        type: string
+    type: object
+definitions:
+  MediaListResponse:
+    properties:
+      data:
+        description: List of media entries
+    type: object
+securityDefinitions:
+  api_key:
+    in: query
+    name: access_token
+    type: apiKey
