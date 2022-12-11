@@ -45,7 +45,7 @@ import type {
   Oas2SecurityScheme,
 } from './typings/swagger';
 
-import type { NormalizedNodeType } from './types';
+import { NormalizedNodeType, VendorExtension } from './types';
 import type { Stack } from './utils';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import type { Location } from './ref-utils';
@@ -177,6 +177,7 @@ type Oas3FlatVisitor = {
   AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
   OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
+  VendorExtension?: VisitFunctionOrObject<unknown>;
 };
 
 type Oas2FlatVisitor = {
@@ -202,6 +203,7 @@ type Oas2FlatVisitor = {
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas2Parameter>>;
   SecurityScheme?: VisitFunctionOrObject<Oas2SecurityScheme>;
+  VendorExtension?: VisitFunctionOrObject<unknown>;
 };
 
 const legacyTypesMap = {
@@ -352,6 +354,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
       } else if (from.items.name !== undefined) {
         possibleChildren.add(from.items);
       }
+    }
+
+    if (from.extensionsPrefix) {
+      possibleChildren.add(VendorExtension);
     }
 
     for (const fromType of Array.from(possibleChildren.values())) {

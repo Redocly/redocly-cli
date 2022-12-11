@@ -13,7 +13,7 @@ expect.extend({
 callSerializer();
 
 describe('E2E', () => {
-  describe('lint', () => {
+  describe.only('lint', () => {
     const folderPath = join(__dirname, 'lint');
     const contents = readdirSync(folderPath);
     for (const file of contents) {

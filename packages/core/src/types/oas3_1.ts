@@ -16,6 +16,7 @@ const Root: NodeType = {
   },
   required: ['openapi', 'info'],
   requiredOneOf: ['paths', 'components', 'webhooks'],
+  extensionsPrefix: 'x-',
 };
 
 const License: NodeType = {
@@ -25,6 +26,7 @@ const License: NodeType = {
     identifier: { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const Info: NodeType = {
@@ -38,6 +40,7 @@ const Info: NodeType = {
     license: 'License',
   },
   required: ['title', 'version'],
+  extensionsPrefix: 'x-',
 };
 
 const Components: NodeType = {
@@ -53,6 +56,7 @@ const Components: NodeType = {
     callbacks: 'NamedCallbacks',
     pathItems: 'NamedPathItems',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -76,6 +80,7 @@ const Operation: NodeType = {
     'x-code-samples': listOf('XCodeSample'), // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const Schema: NodeType = {
@@ -167,6 +172,7 @@ const Schema: NodeType = {
     $comment: { type: 'string' },
     'x-tags': { type: 'array', items: { type: 'string' } },
   },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityScheme: NodeType = {

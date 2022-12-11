@@ -17,7 +17,7 @@ import {
 } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
-import { NormalizedNodeType, isNamedType } from './types';
+import { NormalizedNodeType, isNamedType, VendorExtension } from './types';
 import type { RuleSeverity } from './config';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
@@ -280,6 +280,12 @@ export function walkDocument<T>(opts: {
           const props = Object.keys(type.properties);
           if (type.additionalProperties) {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
+          } else if (type.extensionsPrefix) {
+            props.push(
+              ...Object.keys(resolvedNode).filter((k) =>
+                k.startsWith(type.extensionsPrefix as string)
+              )
+            );
           }
 
           if (isRef(node)) {
@@ -299,6 +305,14 @@ export function walkDocument<T>(opts: {
             let propType = type.properties[propName];
             if (propType === undefined) propType = type.additionalProperties;
             if (typeof propType === 'function') propType = propType(value, propName);
+
+            if (
+              propType === undefined &&
+              type.extensionsPrefix &&
+              propName.startsWith(type.extensionsPrefix)
+            ) {
+              propType = VendorExtension;
+            }
 
             if (!isNamedType(propType) && propType?.directResolveAs) {
               propType = propType.directResolveAs;

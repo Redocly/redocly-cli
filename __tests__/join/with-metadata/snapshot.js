@@ -2,6 +2,7 @@
 
 exports[` 1`] = `
 
+Debugger attached.
 warning: different summary values in /GETUser/{userId}
 warning: different description values in /GETUser/{userId}
 openapi: 3.0.0
