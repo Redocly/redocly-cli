@@ -276,6 +276,22 @@ describe('E2E', () => {
         join(folderPath, 'remove-unused-components-snapshot.js')
       );
     });
+
+    test.each(['oas2-without-option', 'oas3-without-option'])(
+      "%s: shouldn't remove unused components",
+      (type) => {
+        const folderPath = join(
+          __dirname,
+          `bundle/bundle-remove-unused-components-from-config/${type}`
+        );
+        const entryPoints = getEntrypoints(folderPath);
+        const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
+        const result = getCommandOutput(args, folderPath);
+        (<any>expect(result)).toMatchSpecificSnapshot(
+          join(folderPath, 'without-remove-unused-components-snapshot.js')
+        );
+      }
+    );
   });
 
   describe('bundle with option: dereferenced', () => {
