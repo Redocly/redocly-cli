@@ -24,7 +24,8 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
         return;
       } else if (nodeType !== 'object') {
-        if (type !== SpecExtension) { // do not validate unknown extensions structure
+        if (type !== SpecExtension) {
+          // do not validate unknown extensions structure
           report({
             message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
             from: refLocation,
