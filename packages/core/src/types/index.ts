@@ -63,8 +63,8 @@ export function mapOf(typeName: string) {
   };
 }
 
-export const VendorExtension: NormalizedNodeType = {
-  name: 'VendorExtension',
+export const SpecExtension: NormalizedNodeType = {
+  name: 'SpecExtension',
   properties: {},
 };
 
@@ -85,8 +85,8 @@ export function normalizeTypes(
     normalizeType(type);
   }
 
-  // all type trees have a VendorExtension type by default
-  normalizedTypes['VendorExtension'] = VendorExtension;
+  // all type trees have a SpecExtension type by default
+  normalizedTypes['SpecExtension'] = SpecExtension;
 
   return normalizedTypes;
 

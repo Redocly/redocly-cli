@@ -5,7 +5,7 @@ apis:
 rules:
   assert/vendor-extension:
     subject:
-      type: VendorExtension
+      type: SpecExtension
       property: prop
       filterInParentKeys: ['x-my-extension']
     severity: error
@@ -13,7 +13,7 @@ rules:
       enum: [foo, bar]
   assert/vendor-extension-in-info-section:
     subject:
-      type: VendorExtension
+      type: SpecExtension
       property: prop2
       filterInParentKeys: ['x-my-extension']
     where:
@@ -25,10 +25,10 @@ rules:
     assertions:
       enum: [foo, bar]
 
-  # built-in vendor extension should be processed as generic VendorExtension too
+  # built-in vendor extension should be processed as generic SpecExtension too
   # assert/vendor-extension-built-in:
   #   subject:
-  #     type: VendorExtension
+  #     type: SpecExtension
   #     filterInParentKeys: ['x-logo']
   #     property: url
   #   severity: error

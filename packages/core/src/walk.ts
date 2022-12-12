@@ -17,7 +17,7 @@ import {
 } from './resolve';
 import { pushStack, popStack } from './utils';
 import { OasVersion } from './oas-types';
-import { NormalizedNodeType, isNamedType, VendorExtension } from './types';
+import { NormalizedNodeType, isNamedType, SpecExtension } from './types';
 import type { RuleSeverity } from './config';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
@@ -311,7 +311,7 @@ export function walkDocument<T>(opts: {
               type.extensionsPrefix &&
               propName.startsWith(type.extensionsPrefix)
             ) {
-              propType = VendorExtension;
+              propType = SpecExtension;
             }
 
             if (!isNamedType(propType) && propType?.directResolveAs) {

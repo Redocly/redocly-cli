@@ -3,7 +3,7 @@ import * as path from 'path';
 import { OasRef } from './typings/openapi';
 import { isRef, joinPointer, escapePointer, parseRef, isAbsoluteUrl, isAnchor } from './ref-utils';
 import type { YAMLNode, LoadOptions } from 'yaml-ast-parser';
-import { NormalizedNodeType, isNamedType, VendorExtension } from './types';
+import { NormalizedNodeType, isNamedType, SpecExtension } from './types';
 import { readFileFromUrl, parseYaml, nextTick } from './utils';
 import { ResolveConfig } from './config/types';
 
@@ -277,7 +277,7 @@ export async function resolveDocument(opts: {
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
         if (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) {
-          propType = VendorExtension;
+          propType = SpecExtension;
         }
 
         if (!isNamedType(propType) && propType?.directResolveAs) {
