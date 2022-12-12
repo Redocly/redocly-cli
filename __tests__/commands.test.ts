@@ -184,7 +184,11 @@ describe('E2E', () => {
   });
 
   describe('bundle', () => {
-    const excludeFolders = ['bundle-remove-unused-components', 'bundle-lint-format'];
+    const excludeFolders = [
+      'bundle-remove-unused-components',
+      'bundle-remove-unused-components-from-config',
+      'bundle-lint-format',
+    ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
 
@@ -257,6 +261,37 @@ describe('E2E', () => {
         join(folderPath, 'remove-unused-components-snapshot.js')
       );
     });
+  });
+
+  describe('bundle with option in config: remove-unused-components', () => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', (type) => {
+      const folderPath = join(
+        __dirname,
+        `bundle/bundle-remove-unused-components-from-config/${type}`
+      );
+      const entryPoints = getEntrypoints(folderPath);
+      const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(
+        join(folderPath, 'remove-unused-components-snapshot.js')
+      );
+    });
+
+    test.each(['oas2-without-option', 'oas3-without-option'])(
+      "%s: shouldn't remove unused components",
+      (type) => {
+        const folderPath = join(
+          __dirname,
+          `bundle/bundle-remove-unused-components-from-config/${type}`
+        );
+        const entryPoints = getEntrypoints(folderPath);
+        const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
+        const result = getCommandOutput(args, folderPath);
+        (<any>expect(result)).toMatchSpecificSnapshot(
+          join(folderPath, 'without-remove-unused-components-snapshot.js')
+        );
+      }
+    );
   });
 
   describe('bundle with option: dereferenced', () => {
