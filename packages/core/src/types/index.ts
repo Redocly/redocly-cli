@@ -65,8 +65,8 @@ export function mapOf(typeName: string) {
 
 export const VendorExtension: NormalizedNodeType = {
   name: 'VendorExtension',
-  properties: {}
-}
+  properties: {},
+};
 
 export function normalizeTypes(
   types: Record<string, NodeType>,
