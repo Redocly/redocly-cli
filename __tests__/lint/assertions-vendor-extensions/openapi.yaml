@@ -1,0 +1,12 @@
+openapi: 3.1.0
+x-my-extension:
+  prop: invalid-value-should-report
+  prop2: invalid-value-should-not-report
+info:
+  x-my-extension:
+    prop: invalid-value-should-report
+    prop2: invalid-value-should-report
+  x-other-extension:
+    prop: invalid-value-should-not-report
+  x-logo:
+    url: https://example.com/logo.png

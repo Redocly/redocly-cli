@@ -63,6 +63,11 @@ export function mapOf(typeName: string) {
   };
 }
 
+export const SpecExtension: NormalizedNodeType = {
+  name: 'SpecExtension',
+  properties: {},
+};
+
 export function normalizeTypes(
   types: Record<string, NodeType>,
   options: { doNotResolveExamples?: boolean } = {}
@@ -79,6 +84,10 @@ export function normalizeTypes(
   for (const type of Object.values(normalizedTypes)) {
     normalizeType(type);
   }
+
+  // all type trees have a SpecExtension type by default
+  normalizedTypes['SpecExtension'] = SpecExtension;
+
   return normalizedTypes;
 
   function normalizeType(type: NormalizedNodeType) {
