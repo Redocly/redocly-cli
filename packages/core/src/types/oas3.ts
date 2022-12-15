@@ -13,8 +13,11 @@ const Root: NodeType = {
     paths: 'Paths',
     components: 'Components',
     'x-webhooks': 'WebhooksMap',
+    'x-tagGroups': 'TagGroups',
+    'x-ignoredHeaderParameters': { type: 'array', items: { type: 'string' } },
   },
   required: ['openapi', 'paths', 'info'],
+  extensionsPrefix: 'x-',
 };
 
 const Tag: NodeType = {
@@ -22,8 +25,19 @@ const Tag: NodeType = {
     name: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
+    'x-traitTag': { type: 'boolean' },
+    'x-displayName': { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
+};
+
+const TagGroup: NodeType = {
+  properties: {
+    name: { type: 'string' },
+    tags: { type: 'array', items: { type: 'string' } },
+  },
+  extensionsPrefix: 'x-',
 };
 
 const ExternalDocs: NodeType = {
@@ -32,6 +46,7 @@ const ExternalDocs: NodeType = {
     url: { type: 'string' },
   },
   required: ['url'],
+  extensionsPrefix: 'x-',
 };
 
 const Server: NodeType = {
@@ -41,6 +56,7 @@ const Server: NodeType = {
     variables: 'ServerVariablesMap',
   },
   required: ['url'],
+  extensionsPrefix: 'x-',
 };
 
 const ServerVariable: NodeType = {
@@ -53,6 +69,7 @@ const ServerVariable: NodeType = {
     description: null,
   },
   required: ['default'],
+  extensionsPrefix: 'x-',
 };
 
 const SecurityRequirement: NodeType = {
@@ -68,8 +85,19 @@ const Info: NodeType = {
     termsOfService: { type: 'string' },
     contact: 'Contact',
     license: 'License',
+    'x-logo': 'Logo',
   },
   required: ['title', 'version'],
+  extensionsPrefix: 'x-',
+};
+
+const Logo: NodeType = {
+  properties: {
+    url: { type: 'string' },
+    altText: { type: 'string' },
+    backgroundColor: { type: 'string' },
+    href: { type: 'string' },
+  },
 };
 
 const Contact: NodeType = {
@@ -78,6 +106,7 @@ const Contact: NodeType = {
     url: { type: 'string' },
     email: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const License: NodeType = {
@@ -86,6 +115,7 @@ const License: NodeType = {
     url: { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const Paths: NodeType = {
@@ -115,6 +145,7 @@ const PathItem: NodeType = {
     patch: 'Operation',
     trace: 'Operation',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Parameter: NodeType = {
@@ -137,6 +168,7 @@ const Parameter: NodeType = {
   },
   required: ['name', 'in'],
   requiredOneOf: ['schema', 'content'],
+  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -161,6 +193,7 @@ const Operation: NodeType = {
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
+  extensionsPrefix: 'x-',
 };
 
 const XCodeSample: NodeType = {
@@ -178,6 +211,7 @@ const RequestBody: NodeType = {
     content: 'MediaTypesMap',
   },
   required: ['content'],
+  extensionsPrefix: 'x-',
 };
 
 const MediaTypesMap: NodeType = {
@@ -192,6 +226,7 @@ const MediaType: NodeType = {
     examples: 'ExamplesMap',
     encoding: 'EncodingMap',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Example: NodeType = {
@@ -201,6 +236,7 @@ const Example: NodeType = {
     description: { type: 'string' },
     externalValue: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const Encoding: NodeType = {
@@ -213,6 +249,12 @@ const Encoding: NodeType = {
     explode: { type: 'boolean' },
     allowReserved: { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
+};
+
+const EnumDescriptions: NodeType = {
+  properties: {},
+  additionalProperties: { type: 'string' },
 };
 
 const Header: NodeType = {
@@ -232,6 +274,7 @@ const Header: NodeType = {
     content: 'MediaTypesMap',
   },
   requiredOneOf: ['schema', 'content'],
+  extensionsPrefix: 'x-',
 };
 
 const Responses: NodeType = {
@@ -246,8 +289,10 @@ const Response: NodeType = {
     headers: 'HeadersMap',
     content: 'MediaTypesMap',
     links: 'LinksMap',
+    'x-summary': { type: 'string' },
   },
   required: ['description'],
+  extensionsPrefix: 'x-',
 };
 
 const Link: NodeType = {
@@ -259,6 +304,7 @@ const Link: NodeType = {
     description: { type: 'string' },
     server: 'Server',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Schema: NodeType = {
@@ -320,7 +366,10 @@ const Schema: NodeType = {
     example: { isExample: true },
     deprecated: { type: 'boolean' },
     'x-tags': { type: 'array', items: { type: 'string' } },
+    'x-additionalPropertiesName': { type: 'string' },
+    'x-explicitMappingOnly': { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const Xml: NodeType = {
@@ -331,6 +380,7 @@ const Xml: NodeType = {
     attribute: { type: 'boolean' },
     wrapped: { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const SchemaProperties: NodeType = {
@@ -355,6 +405,7 @@ const Discriminator: NodeType = {
     mapping: 'DiscriminatorMapping',
   },
   required: ['propertyName'],
+  extensionsPrefix: 'x-',
 };
 
 const Components: NodeType = {
@@ -369,6 +420,7 @@ const Components: NodeType = {
     links: 'NamedLinks',
     callbacks: 'NamedCallbacks',
   },
+  extensionsPrefix: 'x-',
 };
 
 const ImplicitFlow: NodeType = {
@@ -378,6 +430,7 @@ const ImplicitFlow: NodeType = {
     authorizationUrl: { type: 'string' },
   },
   required: ['authorizationUrl', 'scopes'],
+  extensionsPrefix: 'x-',
 };
 
 const PasswordFlow: NodeType = {
@@ -387,6 +440,7 @@ const PasswordFlow: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
+  extensionsPrefix: 'x-',
 };
 
 const ClientCredentials: NodeType = {
@@ -396,6 +450,7 @@ const ClientCredentials: NodeType = {
     tokenUrl: { type: 'string' },
   },
   required: ['tokenUrl', 'scopes'],
+  extensionsPrefix: 'x-',
 };
 
 const AuthorizationCode: NodeType = {
@@ -404,8 +459,16 @@ const AuthorizationCode: NodeType = {
     authorizationUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
     tokenUrl: { type: 'string' },
+    'x-usePkce': (value: any) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return 'XUsePkce';
+      }
+    },
   },
   required: ['authorizationUrl', 'tokenUrl', 'scopes'],
+  extensionsPrefix: 'x-',
 };
 
 const OAuth2Flows: NodeType = {
@@ -415,6 +478,7 @@ const OAuth2Flows: NodeType = {
     clientCredentials: 'ClientCredentials',
     authorizationCode: 'AuthorizationCode',
   },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityScheme: NodeType = {
@@ -427,6 +491,7 @@ const SecurityScheme: NodeType = {
     bearerFormat: { type: 'string' },
     flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
+    'x-defaultClientId': { type: 'string' },
   },
   required(value) {
     switch (value?.type) {
@@ -459,10 +524,19 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+const XUsePkce: NodeType = {
+  properties: {
+    disableManualConfiguration: { type: 'boolean' },
+    hideClientSecretInput: { type: 'boolean' },
+  },
+};
+
 export const Oas3Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
+  TagGroups: listOf('TagGroup'),
+  TagGroup,
   ExternalDocs,
   Server,
   ServerList: listOf('Server'),
@@ -487,11 +561,13 @@ export const Oas3Types: Record<string, NodeType> = {
   ExamplesMap: mapOf('Example'),
   Encoding,
   EncodingMap: mapOf('Encoding'),
+  EnumDescriptions,
   Header,
   HeadersMap: mapOf('Header'),
   Responses,
   Response,
   Link,
+  Logo,
   Schema,
   Xml,
   SchemaProperties,
@@ -516,5 +592,6 @@ export const Oas3Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
+  XUsePkce,
   WebhooksMap,
 };

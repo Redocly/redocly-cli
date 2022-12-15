@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+rules:
+  assert/no-description-future-past:
+    subject:
+      type: any
+      property: description
+    assertions:
+      pattern: /(\.)$/
+      notPattern: /(was|will|were)/i

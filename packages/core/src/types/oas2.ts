@@ -19,8 +19,12 @@ const Root: NodeType = {
     security: 'SecurityRequirementList',
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
+    'x-servers': 'XServerList',
+    'x-tagGroups': 'TagGroups',
+    'x-ignoredHeaderParameters': { type: 'array', items: { type: 'string' } },
   },
   required: ['swagger', 'paths', 'info'],
+  extensionsPrefix: 'x-',
 };
 
 const Info: NodeType = {
@@ -31,8 +35,20 @@ const Info: NodeType = {
     contact: 'Contact',
     license: 'License',
     version: { type: 'string' },
+    'x-logo': 'Logo',
   },
   required: ['title', 'version'],
+  extensionsPrefix: 'x-',
+};
+
+const Logo: NodeType = {
+  properties: {
+    url: { type: 'string' },
+    altText: { type: 'string' },
+    backgroundColor: { type: 'string' },
+    href: { type: 'string' },
+  },
+  extensionsPrefix: 'x-',
 };
 
 const Contact: NodeType = {
@@ -41,6 +57,7 @@ const Contact: NodeType = {
     url: { type: 'string' },
     email: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const License: NodeType = {
@@ -49,6 +66,7 @@ const License: NodeType = {
     url: { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const Paths: NodeType = {
@@ -70,6 +88,7 @@ const PathItem: NodeType = {
     head: 'Operation',
     patch: 'Operation',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -91,6 +110,7 @@ const Operation: NodeType = {
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
+  extensionsPrefix: 'x-',
 };
 
 const XCodeSample: NodeType = {
@@ -101,12 +121,21 @@ const XCodeSample: NodeType = {
   },
 };
 
+const XServer: NodeType = {
+  properties: {
+    url: { type: 'string' },
+    description: { type: 'string' },
+  },
+  required: ['url'],
+};
+
 const ExternalDocs: NodeType = {
   properties: {
     description: { type: 'string' },
     url: { type: 'string' },
   },
   required: ['url'],
+  extensionsPrefix: 'x-',
 };
 
 const Parameter: NodeType = {
@@ -134,6 +163,8 @@ const Parameter: NodeType = {
     uniqueItems: { type: 'boolean' },
     enum: { type: 'array' },
     multipleOf: { type: 'number' },
+    'x-example': 'Example',
+    'x-examples': 'ExamplesMap',
   },
   required(value) {
     if (!value || !value.in) {
@@ -149,6 +180,7 @@ const Parameter: NodeType = {
       }
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const ParameterItems: NodeType = {
@@ -178,6 +210,7 @@ const ParameterItems: NodeType = {
       return ['type'];
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const Responses: NodeType = {
@@ -194,8 +227,10 @@ const Response: NodeType = {
     schema: 'Schema',
     headers: mapOf('Header'),
     examples: 'Examples',
+    'x-summary': { type: 'string' },
   },
   required: ['description'],
+  extensionsPrefix: 'x-',
 };
 
 const Examples: NodeType = {
@@ -231,6 +266,7 @@ const Header: NodeType = {
       return ['type'];
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const Tag: NodeType = {
@@ -238,8 +274,18 @@ const Tag: NodeType = {
     name: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
+    'x-traitTag': { type: 'boolean' },
+    'x-displayName': { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
+};
+
+const TagGroup: NodeType = {
+  properties: {
+    name: { type: 'string' },
+    tags: { type: 'array', items: { type: 'string' } },
+  },
 };
 
 const Schema: NodeType = {
@@ -289,7 +335,18 @@ const Schema: NodeType = {
     externalDocs: 'ExternalDocs',
     example: { isExample: true },
     'x-tags': { type: 'array', items: { type: 'string' } },
+    'x-nullable': { type: 'boolean' },
+    'x-extendedDiscriminator': { type: 'string' },
+    'x-additionalPropertiesName': { type: 'string' },
+    'x-explicitMappingOnly': { type: 'boolean' },
+    'x-enumDescriptions': 'EnumDescriptions',
   },
+  extensionsPrefix: 'x-',
+};
+
+const EnumDescriptions: NodeType = {
+  properties: {},
+  additionalProperties: { type: 'string' },
 };
 
 const SchemaProperties: NodeType = {
@@ -305,6 +362,7 @@ const Xml: NodeType = {
     attribute: { type: 'boolean' },
     wrapped: { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityScheme: NodeType = {
@@ -317,6 +375,7 @@ const SecurityScheme: NodeType = {
     authorizationUrl: { type: 'string' },
     tokenUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } },
+    'x-defaultClientId': { type: 'string' },
   },
   required(value) {
     switch (value?.type) {
@@ -368,16 +427,32 @@ const SecurityRequirement: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
+const Example: NodeType = {
+  properties: {
+    value: { isExample: true },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    externalValue: { type: 'string' },
+  },
+  extensionsPrefix: 'x-',
+};
+
 export const Oas2Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
+  TagGroups: listOf('TagGroup'),
+  TagGroup,
   ExternalDocs,
+  Example,
+  ExamplesMap: mapOf('Example'),
+  EnumDescriptions,
   SecurityRequirement,
   SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
+  Logo,
   Paths,
   PathItem,
   Parameter,
@@ -398,4 +473,6 @@ export const Oas2Types: Record<string, NodeType> = {
   SecurityScheme,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
+  XServerList: listOf('XServer'),
+  XServer,
 };
