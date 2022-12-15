@@ -36,12 +36,17 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
               ctx.resolve
             );
 
-            if (!resolvedResponse || !resolvedResponse?.content) {
+            if (!resolvedResponse) {
               continue;
             }
 
-            Object.values(resolvedResponse.content!).forEach((mimeType) => {
-              mimeType.examples = readAndParseFileSync(properties.responses[responseCode]);
+            resolvedResponse.content = resolvedResponse.content ? resolvedResponse.content : {};
+
+            Object.keys(properties.responses[responseCode]).forEach((mimeType) => {
+              resolvedResponse.content![mimeType] = {
+                ...resolvedResponse.content![mimeType],
+                examples: readAndParseFileSync(properties.responses[responseCode][mimeType]),
+              };
             });
 
             operation.responses[responseCode] = resolvedResponse;
@@ -54,9 +59,11 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
             ctx.resolve
           );
 
-          if (!resolvedRequest || !resolvedRequest?.content) {
+          if (!resolvedRequest) {
             return;
           }
+
+          resolvedRequest.content = resolvedRequest.content ? resolvedRequest.content : {};
 
           Object.keys(properties.request).forEach((mimeType) => {
             resolvedRequest.content[mimeType] = {
