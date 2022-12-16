@@ -2,7 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    tags-alphabetical: warn
-  extends: []
+rules:
+  tags-alphabetical: warn

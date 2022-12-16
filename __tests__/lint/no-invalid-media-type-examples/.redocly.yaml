@@ -2,7 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  extends: []
-  rules:
-    no-invalid-media-type-examples: error
+rules:
+  no-invalid-media-type-examples: error

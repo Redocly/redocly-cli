@@ -2,17 +2,22 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/ref-required:
-      context:
-        - type: Response
-      subject: MediaType
+rules:
+  assert/ref-required:
+    where:
+      - subject:
+          type: Response
+        assertions:
+          defined: true
+    subject: 
+      type: MediaType
       property: schema
-      message: Response MediaType schema should have a ref
+    message: Response MediaType schema should have a ref
+    assertions:
       ref: true
-    assert/ref-required-no-property:
-      subject: PathItem
-      message: PathItems should have refs
+  assert/ref-required-no-property:
+    subject: 
+      type: PathItem
+    message: PathItems should have refs
+    assertions:
       ref: true
-  extends: []

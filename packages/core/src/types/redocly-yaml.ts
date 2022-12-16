@@ -1,8 +1,8 @@
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+
 const builtInRulesList = [
   'spec',
-  'info-description',
   'info-contact',
   'info-license',
   'info-license-url',
@@ -32,7 +32,7 @@ const builtInRulesList = [
   'path-params-defined',
   'parameter-description',
   'operation-singular-tag',
-  'operation-security-defined',
+  'security-defined',
   'no-unresolved-refs',
   'paths-kebab-case',
   'boolean-parameter-prefixes',
@@ -55,19 +55,24 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
 ];
 const nodeTypesList = [
+  'any',
   'Root',
   'Tag',
+  'TagList',
   'ExternalDocs',
   'Server',
+  'ServerList',
   'ServerVariable',
   'ServerVariablesMap',
   'SecurityRequirement',
+  'SecurityRequirementList',
   'Info',
   'Contact',
   'License',
-  'PathsMap',
+  'Paths',
   'PathItem',
   'Parameter',
+  'ParameterList',
   'Operation',
   'Callback',
   'CallbacksMap',
@@ -77,10 +82,10 @@ const nodeTypesList = [
   'Example',
   'ExamplesMap',
   'Encoding',
-  'EncodingsMap',
+  'EncodingMap',
   'Header',
   'HeadersMap',
-  'ResponsesMap',
+  'Responses',
   'Response',
   'Link',
   'LinksMap',
@@ -103,66 +108,13 @@ const nodeTypesList = [
   'PasswordFlow',
   'ClientCredentials',
   'AuthorizationCode',
-  'SecuritySchemeFlows',
+  'OAuth2Flows',
   'SecurityScheme',
   'XCodeSample',
+  'XCodeSampleList',
   'WebhooksMap',
+  'SpecExtension',
 ];
-
-const ConfigRoot: NodeType = {
-  properties: {
-    organization: { type: 'string' },
-    apis: 'ConfigApis',
-    apiDefinitions: {
-      type: 'object',
-      properties: {},
-      additionalProperties: { properties: { type: 'string' } },
-    }, // deprecated
-    styleguide: 'RootConfigStyleguide',
-    lint: 'RootConfigStyleguide', // deprecated
-    'features.openapi': 'ConfigReferenceDocs',
-    referenceDocs: 'ConfigReferenceDocs', // deprecated
-    'features.mockServer': 'ConfigMockServer',
-    region: { enum: ['us', 'eu'] },
-    resolve: {
-      properties: {
-        http: 'ConfigHTTP',
-      },
-    },
-  },
-};
-
-const ConfigApis: NodeType = {
-  properties: {},
-  additionalProperties: 'ConfigApisProperties',
-};
-
-const ConfigApisProperties: NodeType = {
-  properties: {
-    root: { type: 'string' },
-    labels: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-    styleguide: 'ConfigStyleguide',
-    'features.openapi': 'ConfigReferenceDocs',
-    'features.mockServer': 'ConfigMockServer',
-  },
-  required: ['root'],
-};
-
-const ConfigHTTP: NodeType = {
-  properties: {
-    headers: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-  },
-};
 
 const ConfigStyleguide: NodeType = {
   properties: {
@@ -172,7 +124,6 @@ const ConfigStyleguide: NodeType = {
         type: 'string',
       },
     },
-    doNotResolveExamples: { type: 'boolean' },
     rules: 'Rules',
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
@@ -195,6 +146,69 @@ const RootConfigStyleguide: NodeType = {
       items: { type: 'string' },
     },
     ...ConfigStyleguide.properties,
+  },
+};
+
+const ConfigRoot: NodeType = {
+  properties: {
+    organization: { type: 'string' },
+    apis: 'ConfigApis',
+    ...RootConfigStyleguide.properties,
+    'features.openapi': 'ConfigReferenceDocs',
+    'features.mockServer': 'ConfigMockServer',
+    region: { enum: ['us', 'eu'] },
+    resolve: {
+      properties: {
+        http: 'ConfigHTTP',
+        doNotResolveExamples: { type: 'boolean' },
+      },
+    },
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+  },
+};
+
+const ConfigApis: NodeType = {
+  properties: {},
+  additionalProperties: 'ConfigApisProperties',
+};
+
+const ConfigApisProperties: NodeType = {
+  properties: {
+    root: { type: 'string' },
+    labels: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+    lint: 'ConfigStyleguide', // deprecated
+    styleguide: 'ConfigStyleguide', // deprecated
+    ...ConfigStyleguide.properties,
+    'features.openapi': 'ConfigReferenceDocs',
+    'features.mockServer': 'ConfigMockServer',
+    files: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+  },
+  required: ['root'],
+};
+
+const ConfigHTTP: NodeType = {
+  properties: {
+    headers: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
 };
 
@@ -223,15 +237,9 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
-const Assert: NodeType = {
+const AssertionDefinitionSubject: NodeType = {
   properties: {
-    subject: (value: unknown) => {
-      if (Array.isArray(value)) {
-        return { type: 'array', items: { enum: nodeTypesList } };
-      } else {
-        return { enum: nodeTypesList };
-      }
-    },
+    type: { enum: nodeTypesList },
     property: (value: unknown) => {
       if (Array.isArray(value)) {
         return { type: 'array', items: { type: 'string' } };
@@ -241,12 +249,18 @@ const Assert: NodeType = {
         return { type: 'string' };
       }
     },
-    context: listOf('Context'),
-    message: { type: 'string' },
-    suggest: { type: 'array', items: { type: 'string' } },
-    severity: { enum: ['error', 'warn', 'off'] },
+    filterInParentKeys: { type: 'array', items: { type: 'string' } },
+    filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+    matchParentKeys: { type: 'string' },
+  },
+  required: ['type'],
+};
+
+const AssertionDefinitionAssertions: NodeType = {
+  properties: {
     enum: { type: 'array', items: { type: 'string' } },
     pattern: { type: 'string' },
+    notPattern: { type: 'string' },
     casing: {
       enum: [
         'camelCase',
@@ -264,23 +278,50 @@ const Assert: NodeType = {
     requireAny: { type: 'array', items: { type: 'string' } },
     disallowed: { type: 'array', items: { type: 'string' } },
     defined: { type: 'boolean' },
-    undefined: { type: 'boolean' },
+    // undefined: { type: 'boolean' }, // TODO: Remove `undefined` assertion from codebase overall
     nonEmpty: { type: 'boolean' },
     minLength: { type: 'integer' },
     maxLength: { type: 'integer' },
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+    const: (value: string | boolean | number) => {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      }
+      if (typeof value === 'number') {
+        return { type: 'number' };
+      }
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return;
+      }
+    },
   },
-  required: ['subject'],
+  additionalProperties: (_value: unknown, key: string) => {
+    if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
+    return;
+  },
 };
 
-const Context: NodeType = {
+const AssertDefinition: NodeType = {
   properties: {
-    type: { enum: nodeTypesList },
-    matchParentKeys: { type: 'array', items: { type: 'string' } },
-    excludeParentKeys: { type: 'array', items: { type: 'string' } },
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
   },
-  required: ['type'],
+  required: ['subject', 'assertions'],
+};
+
+const Assert: NodeType = {
+  properties: {
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
+    where: listOf('AssertDefinition'),
+    message: { type: 'string' },
+    suggest: { type: 'array', items: { type: 'string' } },
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
+  required: ['subject', 'assertions'],
 };
 
 const ConfigLanguage: NodeType = {
@@ -870,6 +911,16 @@ const ConfigReferenceDocs: NodeType = {
     unstable_externalDescription: { type: 'boolean' }, // deprecated
     unstable_ignoreMimeParameters: { type: 'boolean' },
     untrustedDefinition: { type: 'boolean' },
+    mockServer: {
+      properties: {
+        url: { type: 'string' },
+        position: { enum: ['first', 'last', 'replace', 'off'] },
+        description: { type: 'string' },
+      },
+    },
+    showAccessMode: { type: 'boolean' },
+    preserveOriginalExtensionsName: { type: 'boolean' },
+    markdownHeadingsAnchorLevel: { type: 'number' },
   },
   additionalProperties: { type: 'string' },
 };
@@ -896,7 +947,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  Context,
+  AssertDefinition,
   ThemeColors,
   CommonThemeColors,
   BorderThemeColors,
@@ -943,4 +994,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   Sidebar,
   Heading,
   Typography,
+  AssertionDefinitionAssertions,
+  AssertionDefinitionSubject,
 };

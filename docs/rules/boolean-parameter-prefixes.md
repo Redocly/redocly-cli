@@ -13,7 +13,7 @@ When this rule is enabled, the `name` fields of all `boolean` parameters in your
 ```mermaid
 flowchart TD
 
-root ==> PathsMap --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
+root ==> Paths --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 
@@ -50,18 +50,16 @@ The nuance of being able to identify the boolean parameters helps developers pro
 
 An example configuration:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes: error
+rules:
+  boolean-parameter-prefixes: error
 ```
 
 The following example configures prefixes:
 ```yaml
-styleguide:
-  rules:
-    boolean-parameter-prefixes:
-      severity: error
-      prefixes: ["can", "is", "has"]
+rules:
+  boolean-parameter-prefixes:
+    severity: error
+    prefixes: ["can", "is", "has"]
 ```
 
 ## Examples
@@ -91,14 +89,13 @@ schema:
 ```
 
 ## Related rules
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [parameter-description](./parameter-description.md)
 - [operation-parameters-unique](./operation-parameters-unique.md)
 
 ## Resources
 
-- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas2/boolean-parameter-prefixes.ts)
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/boolean-parameter-prefixes.ts)
+- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/boolean-parameter-prefixes.ts)
+- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/boolean-parameter-prefixes.ts)
 - [OpenAPI Parameter](https://redocly.com/docs/openapi-visual-reference/parameter/) docs
-

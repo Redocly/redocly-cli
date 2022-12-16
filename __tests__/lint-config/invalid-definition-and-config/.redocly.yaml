@@ -2,6 +2,8 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    context:
+rules:
+  context:
+
+extends: 
+  - recommended

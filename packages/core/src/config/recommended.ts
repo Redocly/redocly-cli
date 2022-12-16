@@ -2,7 +2,6 @@ import type { PluginStyleguideConfig } from './types';
 
 export default {
   rules: {
-    'info-description': 'warn',
     'info-contact': 'off',
     'info-license': 'warn',
     'info-license-url': 'warn',
@@ -25,7 +24,7 @@ export default {
     'operation-operationId-url-safe': 'error',
     'operation-parameters-unique': 'error',
     'operation-tag-defined': 'off',
-    'operation-security-defined': 'error',
+    'security-defined': 'error',
     'operation-singular-tag': 'off',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',

@@ -34,9 +34,8 @@ We don't want to say we told ya so!
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    paths-kebab-case: error
+rules:
+  paths-kebab-case: error
 ```
 
 ## Examples
@@ -45,9 +44,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    paths-kebab-case: error
+rules:
+  paths-kebab-case: error
 ```
 
 Example of an **incorrect** path:
@@ -79,9 +77,9 @@ paths:
 
 - [path-excludes-patterns](./path-excludes-patterns.md)
 - [paths-segment-plural](./path-segment-plural.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/paths-kebab-case.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/paths-kebab-case.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

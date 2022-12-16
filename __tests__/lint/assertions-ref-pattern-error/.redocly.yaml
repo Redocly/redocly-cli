@@ -2,17 +2,22 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/ref-pattern:
-      context:
-        - type: Response
-      subject: MediaType
+rules:
+  assert/ref-pattern:
+    where:
+      - subject:
+          type: Response
+        assertions:
+          defined: true
+    subject: 
+      type: MediaType
       property: schema
-      message: Response MediaType schema should contain ref to components/schemas folder
+    message: Response MediaType schema should contain ref to components/schemas folder
+    assertions:
       ref: ^(\.\/)?components\/schemas\/.*\.yaml$
-    assert/ref-pattern-no-properties:
-      subject: PathItem
-      message: PathItem should contain ref to components/paths folder
+  assert/ref-pattern-no-properties:
+    subject: 
+      type: PathItem
+    message: PathItem should contain ref to components/paths folder
+    assertions:
       ref: ^(\.\/)?components\/paths\/.*\.yaml$
-  extends: []

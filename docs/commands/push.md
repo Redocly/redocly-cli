@@ -89,6 +89,7 @@ destination      | string    | Conditional. The location in the API registry whe
 --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
+--files|string[]|List of other folders and files to upload. See [the Files section](#files) for more information. |
 
 ## Examples
 
@@ -275,6 +276,28 @@ For more information on how to configure access to your APIs, check the [registr
 ```bash
 redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --public
 ```
+
+### Files
+
+The `--files` option allows you to upload other folders and files.
+
+```bash
+redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1 --files ./path/to/folder
+```
+
+You can also add files and folders providing them in `.redocly.yaml`:
+
+```yaml
+apis:
+  main: 
+     root: ./openapi.yam;
+files:
+  - ./path/to/folder
+  - ./path/to/another-folder/file.md
+  - ./file.md
+```
+
+**`--files` has bigger priority than `.redocly.yaml`**
 
 ### Set up CI from Redocly Workflows
 

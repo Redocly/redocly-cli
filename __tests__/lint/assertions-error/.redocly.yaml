@@ -2,157 +2,212 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  extends:
-    - recommended
-  rules:
-    assert/tag-description-pattern:
-      subject: Tag
+rules:
+  assert/tag-description-pattern:
+    subject: 
+      type: Tag
       property: description
-      message: Tag description must be at least 13 characters and end with a full stop.
-      severity: error
+    message: Tag description must be at least 13 characters and end with a full stop.
+    severity: error
+    assertions:
       minLength: 13
       pattern: /\.$/
-#property example
-    assert/path-item-get-defined:
-      subject: PathItem
+  # property example
+  assert/path-item-get-defined:
+    subject: 
+      type: PathItem
       property: get
-      message: Every path item must have a GET operation.
+    message: Every path item must have a GET operation.
+    assertions: 
       defined: true
-    assert/path-item-get-required:
-      subject: PathItem
-      message: Every path item must have a GET(required) operation.
+  assert/path-item-get-required:
+    subject: 
+      type: PathItem
+    message: Every path item must have a GET(required) operation.
+    assertions:
       required:
-        - get
-    assert/tag-name-and-desc:
-      subject: Tag
+      - get
+  assert/tag-name-and-desc:
+    subject: 
+      type: Tag
       property:
         - name
         - description
-      message: Every tag must have a name and description.
+    message: Every tag must have a name and description.
+    assertions:
       defined: true
-#context example
-    assert/operation-w-context:
-      subject:
-        - MediaTypesMap
-      context:
-        - type: Operation
-          excludeParentKeys:
-            - put
-        - type: Response
-          matchParentKeys: ['201', '200']
+  # context example
+  assert/operation-w-context:
+    subject:
+      type: MediaTypesMap
+    where:
+      - subject:
+          type: Operation
+          filterOutParentKeys:
+          - put
+        assertions:
+          defined: true
+      - subject:
+          type: Response
+          filterInParentKeys: ['201', '200']
+        assertions:
+          defined: true
+    assertions:
       disallowed: [ 'application/pdf' ]
-      message: Media type should not be pdf
-#enum example
-    assert/media-type-pdf:
-      subject: MediaTypesMap
-      message: Only application/pdf can be used
-      severity: error
+    message: Media type should not be pdf
+
+  # enum example
+  assert/media-type-pdf:
+    subject: 
+      type: MediaTypesMap
+    message: Only application/pdf can be used
+    severity: error
+    assertions:
       enum:
-        - application/pdf
-    assert/operation-summary-suggest:
-      subject: Operation
+      - application/pdf
+  assert/operation-summary-suggest:
+    subject: 
+      type: Operation
       property: summary
-      message: Summary must be one of the predefined values
-      suggest:
-        - change to 'My resource'
-        - change to 'My collection'
-      severity: error
+    message: Summary must be one of the predefined values
+    suggest:
+      - change to 'My resource'
+      - change to 'My collection'
+    severity: error
+    assertions: 
       enum:
-        - My resource
-        - My collection
-#pattern example
-    assert/operation-summary-pattern:
-      subject: Operation
+      - My resource
+      - My collection
+  # pattern example
+  assert/operation-summary-pattern:
+    subject: 
+      type: Operation
       property: summary
-      message: Summary should match a regex
-      severity: error
+    message: Summary should match a regex
+    severity: error
+    assertions:
       pattern: /resource/
-#casing
-    assert/operation-id-camel-case:
-      subject: Operation
+  # casing
+  assert/operation-id-camel-case:
+    subject: 
+      type: Operation
       property: operationId
-      message: NamedExamples key must be in PascalCase
-      severity: error
+    message: NamedExamples key must be in camelCase
+    severity: error
+    assertions:
       casing: camelCase
-#mutuallyExclusive example
-    assert/operation-mutually-exclusive:
-      subject: Operation
-      message: "Operation must not define both properties together: description and externalDocs"
-      severity: error
+  # mutuallyExclusive example
+  assert/operation-mutually-exclusive:
+    subject: 
+      type: Operation
+    message: "Operation must not define both properties together: description and externalDocs"
+    severity: error
+    assertions:
       mutuallyExclusive:
-        - description
-        - externalDocs
-#mutuallyRequired example
-    assert/operation-mutually-required:
-      subject: SchemaProperties
-      context:
-        - type: Response
-      message: The created_at and updated_at properties are mutually required
-      severity: error
+      - description
+      - externalDocs
+  # mutuallyRequired example
+  assert/operation-mutually-required:
+    subject:
+      type: SchemaProperties
+    where:
+      - subject:
+          type: Response
+        assertions:
+          defined: true
+    message: The created_at and updated_at properties are mutually required
+    severity: error
+    assertions: 
       mutuallyRequired:
-        - created_at
-        - updated_at
-#mutuallyRequired example with context
-    assert/operation-mutually-required-w-context:
-      subject: ResponsesMap
-      context:
-          - type: Operation
-            matchParentKeys:
-              - put
-      message: Must mutually define 200 and 201 responses for PUT requests.
-      severity: error
+      - created_at
+      - updated_at
+  # mutuallyRequired example with context
+  assert/operation-mutually-required-w-context:
+    subject: 
+      type: Responses
+    where:
+        - subject:
+            type: Operation
+            filterInParentKeys:
+            - put
+          assertions:
+            defined: true
+    message: Must mutually define 200 and 201 responses for PUT requests.
+    severity: error
+    assertions: 
       mutuallyRequired:
-        - '200'
-        - '201'
-#disallowed example
-    assert/operation-disallowed:
-      subject: Operation
-      message: x-code-samples and x-internal must not be defined
-      severity: error
+      - '200'
+      - '201'
+  # disallowed example
+  assert/operation-disallowed:
+    subject: 
+      type: Operation
+    message: x-code-samples and x-internal must not be defined
+    severity: error
+    assertions: 
       disallowed:
-        - x-code-samples
-        - x-internal
-#defined example
-    assert/operation-x-code-samples-defined:
-      subject: Operation
+      - x-code-samples
+      - x-internal
+  # defined example
+  assert/operation-x-code-samples-defined:
+    subject: 
+      type: Operation
       property: x-codeSamples
-      message: x-codeSamples must be defined
-      severity: error
+    message: x-codeSamples must be defined
+    severity: error
+    assertions: 
       defined: true
-# undefined example
-    assert/operation-x-code-samples-undefined:
-      subject: Operation
+  # undefined example
+  assert/operation-x-code-samples-undefined:
+    subject: 
+      type: Operation
       property: x-code-samples
-      message: x-code-samples is deprecated
-      suggest:
-        - x-codeSamples instead of x-code-samples
-      severity: error
-      undefined: true
-#nonEmpty example
-    assert/operation-summary-non-empty:
-      subject: Operation
+    message: x-code-samples is deprecated
+    suggest:
+      - x-codeSamples instead of x-code-samples
+    severity: error
+    assertions: 
+      defined: false
+  # nonEmpty example
+  assert/operation-summary-non-empty:
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary should not be empty
-      severity: error
+    message: Operation summary should not be empty
+    severity: error
+    assertions: 
       nonEmpty: true
-#minLength example
-    assert/operation-summary-min-length:
-      subject: Operation
+  # minLength example
+  assert/operation-summary-min-length:
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary must have minimum of 2 chars length
-      severity: error
+    message: Operation summary must have minimum of 2 chars length
+    severity: error
+    assertions: 
       minLength: 2
-#maxLength example
-    assert/operation-summary-max-length:
-      subject: Operation
+  # maxLength example
+  assert/operation-summary-max-length:
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary must have a maximum of 2 characters
-      severity: error
+    message: Operation summary must have a maximum of 2 characters
+    severity: error
+    assertions:
       maxLength: 2
-# Example map subject example
-    assert/exampleMap:
-      subject: ExamplesMap
-      message: Examples names must use camelCase
+  # Example map subject example
+  assert/exampleMap:
+    subject: 
+      type: ExamplesMap
+    message: Examples names must use camelCase
+    assertions:
       casing: camelCase
-      severity: error
+    severity: error
+  # any subject type example
+  assert/anyType:
+    subject: 
+      type: any
+      property: description
+    assertions:
+      minLength: 50
+    severity: error

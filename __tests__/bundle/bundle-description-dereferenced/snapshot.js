@@ -2,6 +2,7 @@
 
 exports[`E2E bundle bundle-description-dereferenced 1`] = `
 openapi: 3.1.0
+security: []
 paths:
   /users:
     post:
@@ -35,9 +36,6 @@ components:
           $ref: '#/components/schemas/Name'
           description: Other name (specific).
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 test.yaml:
   1:1  error    spec  The field \`info\` must be present on this level.
 
@@ -52,6 +50,7 @@ bundling ./test.yaml...
 
 exports[`E2E bundle with option: dereferenced description should not be from $ref 1`] = `
 openapi: 3.1.0
+security: []
 paths:
   /users:
     post:

@@ -3,6 +3,8 @@ title: Redocly CLI configuration
 description: Learn how to configure Redocly CLI
 redirectFrom:
   - /docs/cli/configuration/configuration-file/
+  - /docs/cli/guides/lint/
+  - /docs/cli/configuration/lint/
 toc:
   maxDepth: 3
 ---
@@ -10,7 +12,6 @@ toc:
 import { JsonSchema } from '@redocly/developer-portal/ui';
 import Schema from './schema.yaml';
 import ApiSchema from './api.yaml';
-import LintSchema from './lint.yaml';
 import MockServerSchema from './mockserver.yaml';
 import ResolveSchema from './resolve.yaml';
 import { StyledContent } from '../../components/styled.elements';
@@ -53,22 +54,21 @@ If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, 
 ### Example
 ```yaml
 organization: testing_redocly
+
+extends:
+  - recommended
+
 apis:
   core@v2:
     root: ./openapi/openapi.yaml
-    styleguide:
-      rules:
-        no-ambiguous-paths: error
+    rules:
+      no-ambiguous-paths: error
   external@v1:
     root: ./openapi/external.yaml
     labels:
       - external
     features.openapi:
       hideLogo: true
-
-styleguide:
-  extends:
-    - recommended
 
 features.openapi:
   schemaExpansionLevel: 2
@@ -78,7 +78,147 @@ features.openapi:
       - lang: Python
 ```
 
-### apis object
+### `extends` list
+
+Use `extends` to list built-in configurations and other configuration files as the base settings.
+If you don't [override this base configuration](#priority-and-overrides), it is used for all APIs specified in your configuration file.
+
+If you don't have a Redocly configuration file, Redocly CLI automatically uses the `recommended` configuration.
+To override the default settings, you can either configure different settings for specific rules in the `rules` object, or create your own configuration files and reference them in the `extends` list.
+
+
+:::warning Important
+
+The previous behavior (automatically defaulting to the `recommended` configuration) was deprecated since `v1.0.0-beta.113`.
+
+The `extends` field has to be explicitly defined in the main configuration file for any extended configuration to apply.
+
+:::
+
+
+The `extends` list is structured as an array of strings.
+It supports the following types of values:
+
+- Built-in configuration name (`minimal` or `recommended`)
+- A plugin's registered configuration name
+- Path or URL to another Redocly configuration file
+
+When providing values as URLs, they must be publicly accessible.
+
+```yaml
+extends:
+  - built-in-configuration-name
+  - local-plugin-name/configuration-name
+  - ./path/to/another/redocly-configuration.yaml
+  - https://url-to-remote/redocly.yaml
+```
+
+
+#### Nested configuration
+
+Other configuration files linked in the `extends` list of your main Redocly configuration file may contain their own `extends` list.
+
+Custom plugins can't contain the `extends` list because recursive extension is not supported in that case.
+
+The following examples illustrate configuration nesting with multiple configuration files.
+
+```yaml Main redocly.yaml
+extends:
+  - custom.yaml
+```
+
+```yaml custom.yaml
+extends:
+  - nested.yaml
+rules:
+  tags-alphabetical: error
+  paths-kebab-case: warn
+```
+
+```yaml nested.yaml
+rules:
+  path-parameters-defined: error
+  tag-description: warn
+```
+
+
+#### Priority and overrides
+
+In case of conflict, individual API settings specified in the `apis` object always override settings globally specified.
+
+Redocly CLI applies the `extends` configuration in the order in which items are listed, from top to bottom.
+The further down an item appears, the higher its priority.
+
+In case of conflicting settings, content in the `rules` and `decorators` objects always overrides any content in the `extends` list.
+
+In the following example, the `rules` object and another configuration file in the `extends` list configure the same rule (`tags-alphabetical`).
+Due to the conflict, priority goes to the inline `rules` over the `extends` list, and the `tags-alphabetical` has a resulting severity level of `error`.
+
+
+```yaml redocly.yaml
+extends:
+  - custom.yaml
+rules:
+  tags-alphabetical: error
+  paths-kebab-case: warn
+```
+
+```yaml custom.yaml
+rules:
+  tags-alphabetical: warn
+  path-parameters-defined: warn
+```
+
+
+The same approach applies within the `extends` list.
+If you have multiple configurations that try to configure the same rule, only the setting from the last configuration in the list will apply.
+
+In the following example, Redocly CLI will use the setting for the conflicting `tags-alphabetical` rule from the `testing.yaml` file, because that file is further down in the `extends` list.
+
+This means you can control the priority of configurations by reordering them in the `extends` list, and override all lint configurations (custom and built-in) by specifying individual rule settings in the `rules` object.
+
+```yaml redocly.yaml
+extends:
+  - custom.yaml
+  - testing.yaml
+```
+
+```yaml custom.yaml
+rules:
+  tags-alphabetical: warn
+  paths-kebab-case: warn
+```
+
+```yaml testing.yaml
+rules:
+  tags-alphabetical: error
+  path-parameters-defined: warn
+```
+
+### `plugins` list
+
+Use this list to import local plugins.
+If you don't have any custom plugins, omit this list.
+
+To prevent malicious code execution, custom plugins can't be imported from URLs, only from local files.
+Find more information on the [Configs in plugins](../resources/custom-plugins.md#configs-in-plugins) page.
+
+- **type**: `array of strings`
+
+#### Examples
+
+```yaml Import a single plugin
+plugins:
+  - './local-plugin.js'
+```
+
+```yaml Import multiple plugins
+plugins:
+  - './local-plugin.js'
+  - './another-local-plugin.js'
+```
+
+### `apis` object
 
 The `apis` object is used to configure one or more APIs.
 Every API in the object is identified by its name and version in the format `name@version`.
@@ -86,6 +226,11 @@ The version is optional, and when not provided, Redocly apps interpret it as `la
 Every `name@version` combination listed in the object must be unique.
 
 For every API listed in the object, you must provide the path to the OpenAPI definition using the `root` property.
+
+If `rules`, `decorators`, or `preprocessors` aren't defined for an API, global settings are used.
+If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the global configuration.
+If per-API and global settings modify the same properties, per-API settings will override global settings.
+
 
 #### Patterned properties
 
@@ -105,27 +250,14 @@ apis:
     root: ./openapi/openapi.yaml
     labels:
       - production
-    styleguide: {}
     features.openapi: {}
 ```
 
 :::warning Important
 
-Not all `lint` options are supported in per-API configuration.
-Consult the table below to understand how each configuration object applies to your APIs.
+Per-API configurations take priority over global settings.
 
 :::
-
-
-Configuration object | Per-API support | Behavior
--- | -- | --
-lint.extends | ❗ | API settings override global settings.
-lint.rules | ✅ | API and global settings merge. In case of conflict, API takes priority.
-lint.decorators | ✅ | API and global settings merge. In case of conflict, API takes priority.
-lint.preprocessors | ✅ | API and global settings merge. In case of conflict, API takes priority.
-lint.plugins | ❌ | Available in global configuration only.
-features.openapi | ✅ | API and global settings merge. In case of conflict, API takes priority.
-features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
 
 
 Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API definitions.
@@ -135,47 +267,17 @@ You can tell the `lint` command to validate specific API definitions by using th
 redocly lint core@v2
 ```
 
-On the other hand, if you run the command without specifying any aliases, it will apply to all API definitions listed in the `apis` object:
+On the other hand, if you run the command without specifying any aliases, it applies to all API definitions listed in the `apis` object:
 
 ```shell
 redocly lint
 ```
 
-### lint object
-
-The `lint` object's primary purpose is to define options for the `lint` and `bundle` commands.
-You may also import plugins and extends their configurations.
-
-#### Fixed properties
-
-<StyledContent>
-  <JsonSchema
-    schema={LintSchema}
-    options={{
-      schemaExpansionLevel:1,
-    }}
-  />
-</StyledContent>
-
-#### Example
-
-```yaml
-styleguide:
-  extends:
-    - recommended
-  rules:
-    no-ambiguous-paths: error
-  decorators:
-    remove-x-internal: on
-```
 
 ### features.mockServer object
 
 You can apply `features.mockServer` to individual APIs as well as at the global level.
-
-Option | Per-API support | Behavior
--- | -- | --
-features.mockServer | ✅ | API and global settings merge. In case of conflict, API takes priority.
+In case of conflict, API takes priority.
 
 The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
 When the mock server is enabled for an API, you can send test requests to it from any API client.
@@ -198,7 +300,7 @@ This object is optional.
 
 The `features.openapi` object configures features and theming for API documentation generated from OpenAPI definitions.
 
-If you need to apply different theming and functionality to individual APIs, add the `features.openapi` property to the `apis` section, and use the same options as the global `features.openapi`.
+If you need to apply different theming and functionality to individual APIs, add the `features.openapi` property to the appropriate API in the `apis` object, and use the same options as the global `features.openapi`.
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/functionality.mdx).
 

@@ -2,8 +2,6 @@ apis:
   main:
     root: ./main.yaml
 
-styleguide:
-  decorators:
-    info-description-override:
-      filePath: ./test.md
-  extends: []
+decorators:
+  info-description-override:
+    filePath: ./test.md

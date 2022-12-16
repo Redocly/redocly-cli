@@ -2,13 +2,13 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/operation-require-any-description-or-external:
-      subject: Operation
-      message: 'Operation must have one of properties defined: description or externalDocs'
-      severity: error
+rules:
+  assert/operation-require-any-description-or-external:
+    subject: 
+      type: Operation
+    message: 'Operation must have one of properties defined: description or externalDocs'
+    severity: error
+    assertions:
       requireAny:
-        - description
-        - externalDocs
-  extends: []
+      - description
+      - externalDocs

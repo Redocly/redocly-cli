@@ -1,6 +1,8 @@
-import { Config, getMergedConfig } from '@redocly/openapi-core';
+import * as fs from 'fs';
+import { Config, getMergedConfig, loadConfig } from '@redocly/openapi-core';
 import { exitWithError } from '../../utils';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
+import { ConfigFixture } from '../fixtures/config';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({
@@ -74,6 +76,36 @@ describe('push', () => {
     });
 
     expect(exitWithError).toBeCalledTimes(1);
+  });
+
+  it('push with --files', async () => {
+    (loadConfig as jest.Mock).mockImplementation(({ files }) => {
+      return { ...ConfigFixture, files };
+    });
+
+    //@ts-ignore
+    fs.statSync.mockImplementation(() => {
+      return { isDirectory: () => false, size: 10 };
+    });
+
+    await handlePush({
+      upsert: true,
+      api: 'spec.json',
+      destination: '@org/my-api@1.0.0',
+      public: true,
+      files: ['./resouces/1.md', './resouces/2.md'],
+    });
+
+    expect(redoclyClient.registryApi.pushApi).toHaveBeenLastCalledWith({
+      filePaths: ['filePath', 'filePath', 'filePath'],
+      isUpsert: true,
+      isPublic: true,
+      name: 'my-api',
+      organizationId: 'org',
+      rootFilePath: 'filePath',
+      version: '1.0.0',
+    });
+    expect(redoclyClient.registryApi.prepareFileUpload).toBeCalledTimes(3);
   });
 });
 

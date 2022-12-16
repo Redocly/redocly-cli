@@ -31,12 +31,11 @@ It doesn't matter to me... keep it consistent across your entire API if possible
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    request-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
+rules:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
 ```
 
 ## Examples
@@ -44,12 +43,11 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    request-mime-type:
-      severity: error
-      allowedValues:
-        - application/json
+rules:
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
 ```
 
 Example of an **incorrect** request mime type:
@@ -79,10 +77,10 @@ paths:
 ## Related rules
 
 - [response-mime-type](./response-mime-type.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas3/request-mime-type.ts)
-- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/oas2/request-mime-type.ts)
+- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/request-mime-type.ts)
+- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/request-mime-type.ts)
 - [Request body docs](https://redocly.com/docs/openapi-visual-reference/request-body/)

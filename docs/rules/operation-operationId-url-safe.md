@@ -24,9 +24,8 @@ This rule is unopinionated.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-url-safe: error
+rules:
+  operation-operationId-url-safe: error
 ```
 
 ## Examples
@@ -34,9 +33,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    operation-operationId-url-safe: error
+rules:
+  operation-operationId-url-safe: error
 ```
 
 Example of an **incorrect** operation:
@@ -62,10 +60,10 @@ paths:
 - [operation-summary](./operation-summary.md)
 - [operation-operationId-unique](./operation-operationId-unique.md)
 - [operation-operationId](./operation-operationId.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/operation-operationId-url-safe.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId-url-safe.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
-- Consider using [assertions](./assertions.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.
+- Consider using [custom rules](./custom-rules.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.

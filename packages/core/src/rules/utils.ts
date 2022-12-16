@@ -109,7 +109,8 @@ export function validateExample(
           message: `Example value must conform to the schema: ${error.message}.`,
           location: {
             ...new Location(dataLoc.source, error.instancePath),
-            reportOnKey: error.keyword === 'additionalProperties',
+            reportOnKey:
+              error.keyword === 'unevaluatedProperties' || error.keyword === 'additionalProperties',
           },
           from: location,
           suggest: error.suggest,
@@ -117,6 +118,10 @@ export function validateExample(
       }
     }
   } catch (e) {
+    if (e.message === 'discriminator: requires oneOf or anyOf composite keyword') {
+      return;
+    }
+
     report({
       message: `Example validation errored: ${e.message}.`,
       location: location.child('schema'),
@@ -136,4 +141,26 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
 
   showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
   return !opts.disallowAdditionalProperties;
+}
+
+export function validateSchemaEnumType(
+  schemaEnum: string[],
+  propertyValue: string,
+  propName: string,
+  refLocation: Location | undefined,
+  { report, location }: UserContext
+) {
+  if (!schemaEnum) {
+    return;
+  }
+  if (!schemaEnum.includes(propertyValue === null ? 'null' : propertyValue)) {
+    report({
+      location,
+      message: `\`${propName}\` can be one of the following only: ${schemaEnum
+        .map((type) => `"${type}"`)
+        .join(', ')}.`,
+      from: refLocation,
+      suggest: getSuggest(propertyValue, schemaEnum),
+    });
+  }
 }

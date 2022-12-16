@@ -1,13 +1,20 @@
 import { RuleSet, OasVersion } from '../oas-types';
 import { StyleguideConfig } from './config';
-import { notUndefined } from '../utils';
+import { isDefined } from '../utils';
+import type { ProblemSeverity } from '../walk';
+
+type InitializedRule = {
+  severity: ProblemSeverity;
+  ruleId: string;
+  visitor: any;
+};
 
 export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
   config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
   oasVersion: OasVersion
-) {
+): InitializedRule[] {
   return rules
     .flatMap((ruleset) =>
       Object.keys(ruleset).map((ruleId) => {
@@ -23,24 +30,25 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
         if (ruleSettings.severity === 'off') {
           return undefined;
         }
+        const severity: ProblemSeverity = ruleSettings.severity;
 
         const visitors = rule(ruleSettings);
 
         if (Array.isArray(visitors)) {
           return visitors.map((visitor: any) => ({
-            severity: ruleSettings.severity,
+            severity,
             ruleId,
             visitor: visitor,
           }));
         }
 
         return {
-          severity: ruleSettings.severity,
+          severity,
           ruleId,
           visitor: visitors, // note: actually it is only one visitor object
         };
       })
     )
     .flatMap((visitor) => visitor)
-    .filter(notUndefined);
+    .filter(isDefined);
 }

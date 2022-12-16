@@ -36,19 +36,17 @@ The following example shows how to configure a decorator in the [Redocly configu
 apis:
   main:
     root: ./openapi/openapi.yaml
-    styleguide:
-      decorators:
-        decorator-name:
-          decorator-option: example-value
-styleguide:
-  decorators:
-    decorator-name:
-      decorator-option: example-value
+    decorators:
+      decorator-name:
+        decorator-option: example-value
+decorators:
+  decorator-name:
+    decorator-option: example-value
 ```
 
 Optionally, you may specify `severity` as one of decorator options in the configuration. Severity can be set to `error`, `warn` or `off`, similar to how it works with [rules](./rules.md). When it's specified, any problem reported from the decorator is treated according to the configured severity. Setting `severity: off` disables the decorator altogether. Generally, it's not necessary to specify `severity` for decorator configuration except for troubleshooting purposes.
 
 ## Custom decorators
 
-You can create your own decorators using [custom plugins](./resources/custom-rules.md).
-Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-server-url.md).
+You can create your own decorators using [custom plugins](./resources/custom-plugins.md).
+Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-servers-url.md).

@@ -2,10 +2,8 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  decorators:
-    operation-description-override:
-      operationIds:
-        updatePet: ./update-pet-operation-description.md
-        createUser: ./create-user-operation-description.md
-  extends: []
+decorators:
+  operation-description-override:
+    operationIds:
+      updatePet: ./update-pet-operation-description.md
+      createUser: ./create-user-operation-description.md

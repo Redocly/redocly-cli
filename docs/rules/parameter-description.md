@@ -25,9 +25,8 @@ Document it!
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    parameter-description: error
+rules:
+  parameter-description: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    parameter-description: error
+rules:
+  parameter-description: error
 ```
 
 Example of an **incorrect** parameter:
@@ -70,9 +68,9 @@ paths:
 
 - [tag-description](./tag-description.md)
 - [operation-description](./operation-description.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/parameter-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/parameter-description.ts)
 - [Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)

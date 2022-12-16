@@ -2,9 +2,7 @@ apis:
   main:
     root: ./main.yaml
 
-styleguide:
-  decorators:
-    tag-description-override:
-      tagNames:
-        pet: ./pet-tag-description.md
-  extends: []
+decorators:
+  tag-description-override:
+    tagNames:
+      pet: ./pet-tag-description.md

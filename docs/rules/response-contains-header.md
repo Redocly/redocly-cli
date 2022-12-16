@@ -23,17 +23,16 @@ In some cases, it is important to design an API so that it consistently returns 
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-header:
-      severity: error
-      names:
-        2XX:
-          - x-request-id
-          - x-correlation-id
-        '400':
-          - Content-Length
-          - x-correlation-id
+rules:
+  response-contains-header:
+    severity: error
+    names:
+      2XX:
+        - x-request-id
+        - x-correlation-id
+      '400':
+        - Content-Length
+        - x-correlation-id
 ```
 
 ## Examples
@@ -41,17 +40,16 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    response-contains-header:
-      severity: error
-      names:
-        2XX:
-          - x-request-id
-          - x-correlation-id
-        '400':
-          - Content-Length
-          - x-correlation-id
+rules:
+  response-contains-header:
+    severity: error
+    names:
+      2XX:
+        - x-request-id
+        - x-correlation-id
+      '400':
+        - Content-Length
+        - x-correlation-id
 ```
 
 Example of an **incorrect** response:
@@ -94,9 +92,9 @@ paths:
 
 - [response-contains-property](./response-contains-property.md)
 - [response-mime-type](./response-mime-type.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/response-contains-header.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/response-contains-header.ts)
 - [Response docs](https://redocly.com/docs/openapi-visual-reference/response/)

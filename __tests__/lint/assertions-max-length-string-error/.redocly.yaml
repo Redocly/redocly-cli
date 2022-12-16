@@ -2,11 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/description-max-length:
-      subject: Info
+rules:
+  assert/description-max-length:
+    subject: 
+      type: Info
       property: description
-      message: Info description should be maximum 10 chars length
+    message: Info description should be maximum 10 chars length
+    assertions:
       maxLength: 10
-  extends: []

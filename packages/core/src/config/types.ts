@@ -10,8 +10,11 @@ import type {
   OasVersion,
 } from '../oas-types';
 import type { NodeType } from '../types';
+import { Location } from '../ref-utils';
 
 export type RuleSeverity = ProblemSeverity | 'off';
+
+export type RuleSettings = { severity: RuleSeverity };
 
 export type PreprocessorSeverity = RuleSeverity | 'on';
 
@@ -83,6 +86,15 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
+export type AssertResult = { message?: string; location?: Location };
+export type CustomFunction = (
+  value: any,
+  options: unknown,
+  baseLocation: Location
+) => AssertResult[];
+
+export type AssertionsConfig = Record<string, CustomFunction>;
+
 export type Plugin = {
   id: string;
   configs?: Record<string, PluginStyleguideConfig>;
@@ -90,6 +102,7 @@ export type Plugin = {
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   typeExtension?: TypeExtensionsConfig;
+  assertions?: AssertionsConfig;
 };
 
 export type PluginStyleguideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;
@@ -110,6 +123,7 @@ export type ResolveHeader =
 
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
+  doNotResolveExamples?: boolean;
 };
 
 export type HttpResolveConfig = {
@@ -128,6 +142,7 @@ export type AccessTokens = { [region in Region]?: string };
 export type DeprecatedInRawConfig = {
   apiDefinitions?: Record<string, string>;
   lint?: StyleguideRawConfig;
+  styleguide?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
   apis?: Record<string, Api & DeprecatedInApi>;
 };
@@ -143,6 +158,7 @@ export type DeprecatedInApi = {
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
+  files?: string[];
 };
 
 export type RawConfig = {
@@ -151,7 +167,17 @@ export type RawConfig = {
   resolve?: RawResolveConfig;
   region?: Region;
   organization?: string;
+  files?: string[];
 } & FeaturesConfig;
+
+export type FlatApi = Omit<Api, 'styleguide'> &
+  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
+
+export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
+  Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
+    resolve?: RawResolveConfig;
+    apis?: Record<string, FlatApi>;
+  };
 
 export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
   apis: Record<string, ResolvedApi>;

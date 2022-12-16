@@ -4,6 +4,7 @@ exports[`E2E bundle primitive-types 1`] = `
 openapi: 3.1.0
 servers:
   - url: https://api.example.com/v1
+security: []
 info:
   title: Title
   license:
@@ -38,9 +39,6 @@ paths:
                     key1: 1
                     key2: 2
 components: {}
-
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
 
 Woohoo! Your OpenAPI definitions are valid. 🎉
 

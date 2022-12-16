@@ -17,14 +17,13 @@ Providing examples for properties in your API definition not only improves the d
 
 ## Configuration
 
-To configure the rule, add it to the `lint.rules` section of your configuration file.
+To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
 
 ```yaml
-styleguide:
-  rules:
-    scalar-property-missing-example:
-      severity: error
+rules:
+  scalar-property-missing-example:
+    severity: error
 ```
 
 ## Configuration
@@ -37,9 +36,8 @@ styleguide:
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    scalar-property-missing-example: error
+rules:
+  scalar-property-missing-example: error
 ```
 
 ## Examples
@@ -48,9 +46,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    scalar-property-missing-example: error
+rules:
+  scalar-property-missing-example: error
 ```
 
 Example of an **incorrect** schema:
@@ -86,9 +83,9 @@ schemas:
 - [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/scalar-property-missing-example.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/scalar-property-missing-example.ts)
 - [Schema docs](https://redocly.com/docs/openapi-visual-reference/schemas/)

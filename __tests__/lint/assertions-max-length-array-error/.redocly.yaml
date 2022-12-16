@@ -2,11 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/tags-max-length:
-      subject: Operation
+rules:
+  assert/tags-max-length:
+    subject: 
+      type: Operation
       property: tags
-      message: Operation tags should have maximum 2 items
+    message: Operation tags should have maximum 2 items
+    assertions:
       maxLength: 2
-  extends: []

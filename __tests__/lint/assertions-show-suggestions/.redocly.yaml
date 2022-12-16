@@ -2,16 +2,20 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/path-item-suggest:
-      context:
-      - type: PathItem
-      subject: Operation
+rules:
+  assert/path-item-suggest:
+    where:
+      - subject:
+          type: PathItem
+          property: get
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary should have at least 10 chars length
-      suggest:
-        - Suggestion 1
-        - Suggestion 2
+    message: Operation summary should have at least 10 chars length
+    suggest:
+      - Suggestion 1
+      - Suggestion 2
+    assertions:
       minLength: 20
-  extends: []

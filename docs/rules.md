@@ -16,10 +16,12 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 
 ### Special rules
 
-- [assertions](./rules/assertions.md)
+- [custom rules](./rules/custom-rules.md)
 - [no-unresolved-refs](./rules/no-unresolved-refs.md)
 - [no-unused-components](./rules/no-unused-components.md)
+- [security-defined](./rules/security-defined.md)
 - [spec](./rules/spec.md)
+- [spec-components-invalid-map-name](./rules/spec-components-invalid-map-name.md)
 
 ### Info
 
@@ -36,7 +38,6 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [operation-operationId](./rules/operation-operationId.md)
 - [operation-operationId-unique](./rules/operation-operationId-unique.md)
 - [operation-operationId-url-safe](./rules/operation-operationId-url-safe.md)
-<!-- - [operation-security-defined](./rules/operation-security-defined.md) -->
 - [operation-summary](./rules/operation-summary.md)
 
 ### Parameters
@@ -101,12 +102,10 @@ You can format each entry in the `lint` and `rules` object in one of the followi
 apis:
   main:
     root: ./openapi/openapi.yaml
-    styleguide:
-      rules:
-        specific-api-rule: warn
-styleguide:
-  rules:
-    example-rule-name: error
+    rules:
+      specific-api-rule: warn
+rules:
+  example-rule-name: error
 ```
 
 - Verbose syntax, where you can configure additional options for rules that support them.
@@ -115,16 +114,14 @@ styleguide:
 apis:
   main:
     root: ./openapi/openapi.yaml
-    styleguide:
-      rules:
-        specific-api-rule:
-          severity: warn
-styleguide:
-  rules:
-    example-rule-name:
-      severity: error
-      rule-option-one: value
-      rule-option-two: value
+    rules:
+      specific-api-rule:
+        severity: warn
+rules:
+  example-rule-name:
+    severity: error
+    rule-option-one: value
+    rule-option-two: value
 ```
 
 ### Severity settings
@@ -146,9 +143,8 @@ There are two built-in configurations:
 The recommended configuration can be enabled by adding
 
 ```yaml
-styleguide:
-  extends:
-    - recommended
+extends:
+  - recommended
 ```
 
 to the Redocly configuration file.
@@ -158,7 +154,6 @@ You may then override the severity for any specific rule in the `rules` object.
 Here is the equivalent of the `recommended` configuration values:
 
 ```yaml
-    info-description: warn
     info-license: warn
     info-license-url: warn
     tag-description: warn
@@ -174,7 +169,7 @@ Here is the equivalent of the `recommended` configuration values:
     operation-operationId-unique: error
     operation-operationId-url-safe: error
     operation-parameters-unique: error
-    operation-security-defined: error
+    security-defined: error
     no-unresolved-refs: error
     no-enum-type-mismatch: error
     spec: error
@@ -191,5 +186,5 @@ Here is the equivalent of the `recommended` configuration values:
 
 ## Rule ideas
 
-Redocly CLI supports [assertions](./rules/assertions.md) and [custom rules](./resources/custom-rules.md).
+Redocly CLI supports [custom rules](./rules/custom-rules.md) and [custom plugins](./resources/custom-plugins.md).
 However, if you have an idea for a built-in rule you believe will benefit the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new) in the Redocly CLI repository.

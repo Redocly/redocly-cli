@@ -18,7 +18,7 @@ import {
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
-import { blue, gray, green, red, yellow } from 'colorette';
+import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
 export type BundleOptions = CommonOptions &
@@ -34,10 +34,10 @@ export type BundleOptions = CommonOptions &
   };
 
 export async function handleBundle(argv: BundleOptions, version: string) {
-  const config = await loadConfig(argv.config, argv.extends);
+  const config = await loadConfig({ configPath: argv.config, customExtends: argv.extends });
   const removeUnusedComponents =
-    argv['remove-unused-components'] &&
-    !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
+    argv['remove-unused-components'] ||
+    config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
@@ -55,11 +55,9 @@ export async function handleBundle(argv: BundleOptions, version: string) {
       if (argv.lint) {
         if (config.styleguide.recommendedFallback) {
           process.stderr.write(
-            `No configurations were defined in extends -- using built in ${blue(
+            `No configurations were provided -- using built in ${blue(
               'recommended'
-            )} configuration by default.\n${red(
-              'Warning! This default behavior is going to be deprecated soon.'
-            )}\n\n`
+            )} configuration by default.\n\n`
           );
         }
         const results = await lint({

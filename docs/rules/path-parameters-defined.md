@@ -25,9 +25,8 @@ This rule verifies the path parameters are defined.
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-parameters-defined: error
+rules:
+  path-parameters-defined: error
 ```
 
 ## Examples
@@ -36,9 +35,8 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-parameters-defined: error
+rules:
+  path-parameters-defined: error
 ```
 
 Example of an **incorrect** path:
@@ -69,9 +67,9 @@ paths:
 
 - [path-declaration-must-exist](./path-declaration-must-exist.md)
 - [path-excludes-patterns](./path-excludes-patterns.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/path-params-defined.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/path-params-defined.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

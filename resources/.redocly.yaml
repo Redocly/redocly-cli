@@ -1,29 +1,7 @@
-apiDefinitions:
-  main: ./petstore-with-errors.yaml
-lint:
-  plugins:
-    - './local-plugin.js'
-
-  extends:
-    - recommended
-    - local/all
-  rules:
-    operation-2xx-response: warn
-    no-invalid-media-type-examples: error
-    # operation-description: error
-    path-http-verbs-order: error
-    boolean-parameter-prefixes: off
-  preprocessors:
-    # local/duplicate-description: on
-  decorators:
-    # local/inject-x-stats: on
-referenceDocs:
-  showConsole: true
-  layout:
-    scope: section
-  routingStrategy: browser
-  theme:
-    rightPanel:
-      backgroundColor: '#263238'
-    links:
-      color: '#6CC496'
+apis:
+  repro@bug:
+    root: ./pets.yaml
+    decorators: {}
+    extends: []
+extends:
+  - recommended

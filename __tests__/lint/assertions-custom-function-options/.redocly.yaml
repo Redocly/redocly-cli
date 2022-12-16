@@ -1,0 +1,62 @@
+apis:
+  main:
+    root: ./openapi.yaml
+plugins:
+  - ./plugin.js
+rules:
+  assert/operation-summary-length-custom:
+    subject: 
+      type: Operation
+      property: summary
+    message: Custom message {{problems}}
+    assertions:
+      minLength: 16
+      local/checkWordsStarts: 
+        words: 
+          - Create
+          - Retrieve
+          - Merge
+          - Delete
+          - List
+          - Upsert
+          - Update
+          - Approve
+          - Reject
+      local/checkWordsCount: 
+        min: 3
+
+
+  assert/operation-summary-length:
+    subject: 
+      type: Operation
+      property: summary
+    assertions: 
+      minLength: 16
+      local/checkWordsStarts: 
+        words: 
+          - Create
+          - Retrieve
+          - Merge
+          - Delete
+          - List
+          - Upsert
+          - Update
+          - Approve
+          - Reject
+      local/checkWordsCount: 
+        min: 3
+
+  assert/operation-summary-length-with-where:
+    where:
+      - subject: 
+          type: Operation
+          property: summary
+        assertions:
+          local/checkWordsCount: 
+            min: 3
+    subject: 
+      type: Schema
+      property: type
+    assertions:
+      defined: true
+      const: integer

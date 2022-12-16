@@ -15,7 +15,6 @@ import { OperationIdUrlSafe } from '../common/operation-operationId-url-safe';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
 import { NoServerExample } from './no-server-example.com';
 import { NoServerTrailingSlash } from './no-server-trailing-slash';
-import { InfoDescription } from '../common/info-description';
 import { TagDescription } from '../common/tag-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
@@ -25,7 +24,7 @@ import { NoUnusedComponents } from './no-unused-components';
 import { PathNotIncludeQuery } from '../common/path-not-include-query';
 import { ParameterDescription } from '../common/parameter-description';
 import { OperationSingularTag } from '../common/operation-singular-tag';
-import { OperationSecurityDefined } from '../common/operation-security-defined';
+import { SecurityDefined } from '../common/security-defined';
 import { NoUnresolvedRefs } from '../no-unresolved-refs';
 import { BooleanParameterPrefixes } from './boolean-parameter-prefixes';
 import { PathsKebabCase } from '../common/paths-kebab-case';
@@ -53,7 +52,6 @@ import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-detai
 
 export const rules = {
   spec: OasSpec,
-  'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,
@@ -83,7 +81,7 @@ export const rules = {
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
-  'operation-security-defined': OperationSecurityDefined,
+  'security-defined': SecurityDefined,
   'no-unresolved-refs': NoUnresolvedRefs,
   'paths-kebab-case': PathsKebabCase,
   'boolean-parameter-prefixes': BooleanParameterPrefixes,

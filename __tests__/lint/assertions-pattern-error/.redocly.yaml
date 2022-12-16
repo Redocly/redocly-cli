@@ -2,11 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/summary-pattern:
-      subject: Operation
+rules:
+  assert/summary-pattern:
+    subject:
+      type: Operation
       property: summary
-      message: Operation summary should have 'test' word
+    assertions:
       pattern: '/test/'
-  extends: []
+      notPattern: /summary/

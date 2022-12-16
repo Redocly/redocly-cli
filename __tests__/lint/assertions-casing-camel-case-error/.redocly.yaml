@@ -2,23 +2,29 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/operation-get:
-      context:
-        - type: Operation
-          matchParentKeys: [get]
-      subject: Operation
+rules:
+  assert/operation-get:
+    subject: 
+      type: Operation
+      filterInParentKeys: [get]
       property: operationId
-      message: Operation id for get operation should be camelCase
+    assertions:
+      defined: true
       casing: camelCase
-    assert/operation-id-camel-case:
-      subject: Operation
+    message: Operation id for get operation should be camelCase
+
+   
+  assert/operation-id-camel-case:
+    subject:
+      type: Operation
       property: operationId
-      message: Operation id should be camelCase
+    message: Operation id should be camelCase
+    assertions: 
       casing: camelCase
-    assert/camel-case-on-value:
-      subject: NamedParameters
+
+  assert/camel-case-on-value:
+    subject: 
+      type: NamedParameters
+    assertions:
       casing: camelCase
-      message: Named Parameters should be camelCase
-  extends: []
+    message: Named Parameters should be camelCase

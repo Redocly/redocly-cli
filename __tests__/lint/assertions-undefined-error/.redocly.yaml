@@ -2,11 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/summary-undefined:
-      subject: Operation
+rules:
+  assert/summary-undefined:
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary should be undefined
-      undefined: true
-  extends: []
+    message: Operation summary should be undefined
+    assertions:
+      defined: false

@@ -2,11 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/tags-min-length:
-      subject: Operation
+rules:
+  assert/tags-min-length:
+    subject: 
+      type: Operation
       property: tags
-      message: Operation tags should have minimum 4 items
+    message: Operation tags should have minimum 4 items
+    assertions: 
       minLength: 4
-  extends: []

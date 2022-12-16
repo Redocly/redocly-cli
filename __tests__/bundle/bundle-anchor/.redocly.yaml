@@ -1,0 +1,7 @@
+apis:
+  main:
+    root: ./test.yaml
+    rules:
+      no-invalid-media-type-examples:
+        severity: error
+        allowAdditionalProperties: false

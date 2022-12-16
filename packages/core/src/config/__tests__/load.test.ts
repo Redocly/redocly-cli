@@ -1,6 +1,6 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
-import { RuleConfig, RawConfig } from './../types';
+import { RuleConfig, FlatRawConfig } from './../types';
 import { Config } from '../config';
 
 const fs = require('fs');
@@ -49,7 +49,10 @@ describe('loadConfig', () => {
 
   it('should call callback if such passed', async () => {
     const mockFn = jest.fn();
-    await loadConfig(undefined, undefined, mockFn);
+    await loadConfig({
+      configPath: path.join(__dirname, './fixtures/load-redocly.yaml'),
+      processRawConfig: mockFn,
+    });
     expect(mockFn).toHaveBeenCalled();
   });
 });
@@ -93,11 +96,10 @@ describe('getConfig', () => {
 describe('createConfig', () => {
   it('should create config from string', async () => {
     const config = await createConfig(`
-      styleguide:
-        extends:
-          - recommended
-        rules:
-          info-license: off
+      extends:
+      - recommended
+      rules:
+        info-license: off
     `);
 
     verifyExtendedConfig(config, {
@@ -107,21 +109,19 @@ describe('createConfig', () => {
   });
 
   it('should create config from object', async () => {
-    const rawConfig: RawConfig = {
-      styleguide: {
-        extends: ['minimal'],
-        rules: {
-          'info-license': 'off',
-          'tag-description': 'off',
-          'operation-2xx-response': 'off',
-        },
+    const rawConfig: FlatRawConfig = {
+      extends: ['minimal'],
+      rules: {
+        'info-license': 'off',
+        'tag-description': 'off',
+        'operation-2xx-response': 'off',
       },
     };
     const config = await createConfig(rawConfig);
 
     verifyExtendedConfig(config, {
       extendsRuleSet: 'minimal',
-      overridesRules: rawConfig.styleguide!.rules as Record<string, RuleConfig>,
+      overridesRules: rawConfig.rules as Record<string, RuleConfig>,
     });
   });
 });

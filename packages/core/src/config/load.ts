@@ -7,7 +7,7 @@ import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
-import type { DeprecatedInRawConfig, RawConfig, Region } from './types';
+import type { DeprecatedInRawConfig, FlatRawConfig, RawConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 
 async function addConfigMetadata({
@@ -15,18 +15,21 @@ async function addConfigMetadata({
   customExtends,
   configPath,
   tokens,
+  files,
+  region,
 }: {
   rawConfig: RawConfig;
   customExtends?: string[];
   configPath?: string;
   tokens?: RegionalTokenWithValidity[];
+  files?: string[];
+  region?: Region;
 }): Promise<Config> {
   if (customExtends !== undefined) {
     rawConfig.styleguide = rawConfig.styleguide || {};
     rawConfig.styleguide.extends = customExtends;
   } else if (isEmptyObject(rawConfig)) {
-    // TODO: check if we can add recommended here. add message here?
-    // rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
+    rawConfig.styleguide = { extends: ['recommended'], recommendedFallback: true };
   }
 
   if (tokens?.length) {
@@ -58,18 +61,23 @@ async function addConfigMetadata({
     }
   }
 
-  return resolveConfig(rawConfig, configPath);
+  return resolveConfig(
+    { ...rawConfig, files: files ?? rawConfig.files, region: region ?? rawConfig.region },
+    configPath
+  );
 }
 
 export async function loadConfig(
-  configPath: string | undefined = findConfig(),
-  customExtends?: string[],
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    files?: string[];
+    region?: Region;
+  } = {}
 ): Promise<Config> {
-  const rawConfig = await getConfig(configPath);
-  if (typeof processRawConfig === 'function') {
-    await processRawConfig(rawConfig);
-  }
+  const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
+  const rawConfig = await getConfig(configPath, processRawConfig);
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
@@ -79,6 +87,8 @@ export async function loadConfig(
     customExtends,
     configPath,
     tokens,
+    files,
+    region,
   });
 }
 
@@ -99,10 +109,17 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(configPath: string | undefined = findConfig()): Promise<RawConfig> {
+export async function getConfig(
+  configPath: string | undefined = findConfig(),
+  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    const rawConfig = (await loadYaml<RawConfig & DeprecatedInRawConfig>(configPath)) || {};
+    const rawConfig =
+      (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
+    if (typeof processRawConfig === 'function') {
+      await processRawConfig(rawConfig);
+    }
     return transformConfig(rawConfig);
   } catch (e) {
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);

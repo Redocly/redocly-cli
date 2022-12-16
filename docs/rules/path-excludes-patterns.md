@@ -32,12 +32,11 @@ Other ideas are around casing (other than kebab-case, which is a common approach
 An example configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-excludes-patterns:
-      severity: error
-      patterns:
-        - ^\/[0-9]
+rules:
+  path-excludes-patterns:
+    severity: error
+    patterns:
+      - ^\/[0-9]
 ```
 
 ## Examples
@@ -45,12 +44,11 @@ styleguide:
 Given this configuration:
 
 ```yaml
-styleguide:
-  rules:
-    path-excludes-patterns:
-      severity: error
-      patterns:
-        - ^\/[0-9]
+rules:
+  path-excludes-patterns:
+    severity: error
+    patterns:
+      - ^\/[0-9]
 ```
 
 Example of an **incorrect** path:
@@ -81,9 +79,9 @@ paths:
 
 - [tag-description](./tag-description.md)
 - [operation-description](./operation-description.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/parameter-description.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/parameter-description.ts)
 - [Paths docs](https://redocly.com/docs/openapi-visual-reference/paths/)

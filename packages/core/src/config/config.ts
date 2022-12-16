@@ -4,7 +4,7 @@ import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
 import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
-import { env } from '../env';
+import { isBrowser, env } from '../env';
 
 import type { NodeType } from '../types';
 import type {
@@ -17,6 +17,7 @@ import type {
   ResolvedConfig,
   ResolvedStyleguideConfig,
   RuleConfig,
+  RuleSettings,
 } from './types';
 import { getResolveConfig } from './utils';
 
@@ -50,7 +51,7 @@ function getIgnoreFilePath(configFile?: string): string | undefined {
       ? path.join(path.dirname(configFile), IGNORE_FILE)
       : path.join(configFile, IGNORE_FILE);
   } else {
-    return typeof process === 'undefined' ? undefined : path.join(process.cwd(), IGNORE_FILE);
+    return isBrowser ? undefined : path.join(process.cwd(), IGNORE_FILE);
   }
 }
 
@@ -183,7 +184,7 @@ export class StyleguideConfig {
     return extendedTypes;
   }
 
-  getRuleSettings(ruleId: string, oasVersion: OasVersion) {
+  getRuleSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.rules[oasVersion][ruleId] || 'off';
@@ -196,7 +197,7 @@ export class StyleguideConfig {
     }
   }
 
-  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion) {
+  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
 
@@ -210,7 +211,7 @@ export class StyleguideConfig {
     }
   }
 
-  getDecoratorSettings(ruleId: string, oasVersion: OasVersion) {
+  getDecoratorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.decorators[oasVersion][ruleId] || 'off';
@@ -306,6 +307,7 @@ export class Config {
   'features.openapi': Record<string, any>;
   'features.mockServer'?: Record<string, any>;
   organization?: string;
+  files: string[];
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
@@ -314,5 +316,6 @@ export class Config {
     this.resolve = getResolveConfig(rawConfig?.resolve);
     this.region = rawConfig.region;
     this.organization = rawConfig.organization;
+    this.files = rawConfig.files || [];
   }
 }

@@ -2,14 +2,18 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/path-item-mutually-required:
-      context:
-      - type: PathItem
-      subject: Operation
-      message: Operation should have summary and security fields simultaneously
+rules:
+  assert/path-item-mutually-required:
+    where:
+      - subject:
+          type: PathItem
+          property: get
+        assertions:
+          defined: true
+    subject: 
+      type: Operation
+    message: Operation should have summary and security fields simultaneously
+    assertions:
       mutuallyRequired:
-        - summary
-        - security
-  extends: []
+      - summary
+      - security

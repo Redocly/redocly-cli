@@ -2,7 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    no-invalid-schema-examples: error
-  extends: []
+rules:
+  no-invalid-schema-examples: error

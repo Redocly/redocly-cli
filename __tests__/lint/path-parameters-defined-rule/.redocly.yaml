@@ -2,7 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    path-parameters-defined: error
-  extends: []
+rules:
+  path-parameters-defined: error

@@ -14,9 +14,6 @@ exports[`E2E lint-config test with option: {
   "version": "<version>",
   "problems": []
 }
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 validating ../__fixtures__/valid-openapi.yaml...
 ../__fixtures__/valid-openapi.yaml: validated in <test>ms
 

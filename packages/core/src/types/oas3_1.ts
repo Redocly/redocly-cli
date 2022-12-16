@@ -9,13 +9,14 @@ const Root: NodeType = {
     security: listOf('SecurityRequirement'),
     tags: listOf('Tag'),
     externalDocs: 'ExternalDocs',
-    paths: 'PathsMap',
+    paths: 'Paths',
     webhooks: 'WebhooksMap',
     components: 'Components',
     jsonSchemaDialect: { type: 'string' },
   },
   required: ['openapi', 'info'],
   requiredOneOf: ['paths', 'components', 'webhooks'],
+  extensionsPrefix: 'x-',
 };
 
 const License: NodeType = {
@@ -25,6 +26,7 @@ const License: NodeType = {
     identifier: { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const Info: NodeType = {
@@ -38,6 +40,7 @@ const Info: NodeType = {
     license: 'License',
   },
   required: ['title', 'version'],
+  extensionsPrefix: 'x-',
 };
 
 const Components: NodeType = {
@@ -53,6 +56,7 @@ const Components: NodeType = {
     callbacks: 'NamedCallbacks',
     pathItems: 'NamedPathItems',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -69,18 +73,20 @@ const Operation: NodeType = {
     security: listOf('SecurityRequirement'),
     servers: listOf('Server'),
     requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
+    responses: 'Responses',
     deprecated: { type: 'boolean' },
     callbacks: mapOf('Callback'),
     'x-codeSamples': listOf('XCodeSample'),
     'x-code-samples': listOf('XCodeSample'), // deprecated
     'x-hideTryItPanel': { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const Schema: NodeType = {
   properties: {
     $id: { type: 'string' },
+    $anchor: { type: 'string' },
     id: { type: 'string' },
     $schema: { type: 'string' },
     definitions: 'NamedSchemas',
@@ -166,6 +172,7 @@ const Schema: NodeType = {
     $comment: { type: 'string' },
     'x-tags': { type: 'array', items: { type: 'string' } },
   },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityScheme: NodeType = {
@@ -176,7 +183,7 @@ const SecurityScheme: NodeType = {
     in: { type: 'string', enum: ['query', 'header', 'cookie'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
-    flows: 'SecuritySchemeFlows',
+    flows: 'OAuth2Flows',
     openIdConnectUrl: { type: 'string' },
   },
   required(value) {

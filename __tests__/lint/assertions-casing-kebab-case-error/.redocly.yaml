@@ -2,19 +2,20 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/operation-get:
-      context:
-        - type: Operation
-          matchParentKeys: [get]
-      subject: Operation
+rules:
+  assert/operation-get:
+    subject:
+      type: Operation
       property: operationId
-      message: Operation id should be kebab-case
+      filterInParentKeys: [get]
+    assertions:
       casing: kebab-case
-    assert/operation-id-kebab-case:
-      subject: Operation
+    message: Operation id should be kebab-case
+
+  assert/operation-id-kebab-case:
+    subject:
+      type: Operation
       property: operationId
-      message: Operation id should be kebab-case
+    message: Operation id should be kebab-case
+    assertions:
       casing: kebab-case
-  extends: []

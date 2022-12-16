@@ -2,12 +2,11 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/media-type-application-json:
-      subject:
-      - MediaTypesMap
-      message: Only application/json can be used
+rules:
+  assert/media-type-application-json:
+    subject:
+      type: MediaTypesMap
+    message: Only application/json can be used
+    assertions: 
       enum:
-        - application/json
-  extends: []
+      - application/json

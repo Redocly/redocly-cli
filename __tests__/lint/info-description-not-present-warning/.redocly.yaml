@@ -1,8 +1,0 @@
-apis:
-  main:
-    root: ./openapi.yaml
-
-styleguide:
-  rules:
-    info-description: warn
-  extends: []

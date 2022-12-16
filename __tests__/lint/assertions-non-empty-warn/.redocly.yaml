@@ -2,12 +2,12 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    assert/summary-non-empty:
-      subject: Operation
+rules:
+  assert/summary-non-empty:
+    subject: 
+      type: Operation
       property: summary
-      message: Operation summary should not be empty
+    message: Operation summary should not be empty
+    assertions: 
       nonEmpty: true
-      severity: warn
-  extends: []
+    severity: warn

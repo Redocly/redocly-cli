@@ -2,6 +2,7 @@
 
 exports[`E2E bundle bundle-description-long 1`] = `
 openapi: 3.1.0
+security: []
 info:
   version: 1.0.0
   title: Example.com
@@ -17,9 +18,6 @@ info:
     second line exists
 components: {}
 
-No configurations were defined in extends -- using built in recommended configuration by default.
-Warning! This default behavior is going to be deprecated soon.
-
 test.yaml:
   1:1  error    no-empty-servers  Servers must be present.
 
@@ -33,6 +31,7 @@ bundling ./test.yaml...
 
 exports[`E2E bundle with long description description should not be in folded mode 1`] = `
 openapi: 3.1.0
+security: []
 info:
   version: 1.0.0
   title: Example.com

@@ -1,8 +1,118 @@
 ---
-tocMaxDepth: 2
+toc:
+  maxDepth: 2
 ---
 
 # Redocly CLI changelog
+
+## 1.0.0-beta.116 (2022-12-7)
+
+### Fixes
+
+- Fixed an issue with scalar assertion failing when an object is of invalid type.
+  
+### Features
+
+- Added Redoc vendor extensions to supported types.
+
+## 1.0.0-beta.115 (2022-11-29)
+
+### Features
+
+- Added support for [`any`](./rules/custom-rules.md#any-example) type in assertions.
+
+### Changes
+
+- Renamed the Docker image on [Docker Hub](https://hub.docker.com/repository/docker/redocly/cli).
+- Changed assertions errors grouping.
+- Removed orphaned git submodule `public_api_docs`.
+
+## 1.0.0-beta.114 (2022-11-18)
+
+### Features
+
+- Added a new assertion [`notPattern`](./rules/custom-rules.md#notpattern-example) to the custom rules.
+
+## 1.0.0-beta.113 (2022-11-15)
+
+### Changes
+
+- Removed automatically adding the `recommended` configuration when there is a config defined without an `extends` list.
+
+### Fixes
+
+- Fixed an issue with undefined `process.cwd` in browser environment.
+- Fixed an issue with `$anchors` in OpenAPI documents are not properly parsed.
+- Fixed an issue with the `spec` rule not reporting on `nullable` in Schema object that don't have a `type` sibling.
+- Added missing OAS2 and OAS3 list types.
+- Don't show false media type example errors when a discriminator is used with the `allOf` keyword.
+ 
+## 1.0.0-beta.112 (2022-11-01)
+
+### Changes
+
+- Changed assertions syntax and renamed to [custom rules](./rules/custom-rules.md).
+- Removed `info-description` rule.
+- Removed deprecated fields suggestions in Redocly config file.
+
+## 1.0.0-beta.111 (2022-10-10)
+
+### Changes
+
+- Renamed four type names for alignment with the OpenAPI specification.
+    - `PathsMap` to `Paths`
+    - `ResponsesMap` to `Responses`
+    - `EncodingsMap` to `EncodingMap`
+    - `SecuritySchemeFlows` to `OAuth2Flows`
+
+### Features
+
+- Added a new option `--keep-url-references` to the `bundle` command that disables bundling of absolute URL `$ref`-s.
+
+### Fixes
+
+- Improved location of problems produced by `security-defined` rule.
+- Fixed an issue with `response-contains-header` being case-sensitive.
+- Fixed an issue with `path-params-defined` rule that was not accounting for params defined on the operation level.
+- Fixed an issue with `type` not being validated if it is an array.
+- Fixed an issue with `apis` overrides not picking up some base values from the root config.
+- Fixed an issue with api not being detected from the `apis` list if used as a file name.
+
+## 1.0.0-beta.110 (2022-09-21)
+
+### Features
+
+- Added the `build-docs` command which builds Redoc API docs into a zero-dependency HTML file.
+- Added the ability to upload other files and folders with the `push` command.
+- Added support for custom assertions as plugins.
+
+### Fixes
+
+- Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with the `allOf` keyword.
+
+## 1.0.0-beta.109 (2022-09-08)
+### Features
+
+- Added rfc7807 problem details rule.
+- Improved error messages by adding `referenced from` information.
+- Added the [`spec-components-invalid-map-name`](./rules/spec-components-invalid-map-name.md) rule for component map names validation.
+- Added a new lint `--format` option: `summary`.
+
+
+### Fixes
+
+- Fixed an issue with multi-line strings in literal mode.
+- Fixed an issue with multi-line Markdown with Windows-style new lines.
+- Fixed the Header object type to require `content` or `schema`.
+- Fixed a error message for `operation-4xx-response` rule.
+- Fixed an issue with `paths` not being correctly handled by the `join` command.
+- Fixed the `operation-security-defined` rule to check the security on the root and in each operation.
+
+### Changes
+
+- Renamed 'DefinitionRoot', 'ServerVariableMap', 'PathMap', 'CallbackMap', 'MediaTypeMap', 'ExampleMap', 'EncodingMap', 'HeaderMap', and 'LinkMap' definition node types.
+- Removed the `styleguide` object from the configuration file.
+- Renamed the `operation-security-defined` rule to `security-defined`.
 
 ## 1.0.0-beta.108 (2022-08-22)
 
@@ -149,19 +259,17 @@ If you encounter any issues and suspect they may be related to this change, let 
 - The `lint.extends` section in the Redocly configuration file supports file paths and URLs as values. This means you can define your own lint rulesets in local or remote files, and list those files in the `extends` section. The following example shows how to do it:
 
 ```yaml
-lint:
-  extends:
-    - recommended
-    - ./path/to/local/lint-ruleset.yaml
-    - https://url-to-remote/lint-ruleset.yaml
+extends:
+  - recommended
+  - ./path/to/local/lint-ruleset.yaml
+  - https://url-to-remote/lint-ruleset.yaml
 ```
 
-The contents of those referenced files must correspond to the standard format used in the `lint.rules` section to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
+The contents of those referenced files must correspond to the standard format used in the `rules` object to configure the rules. Here is an example `lint-ruleset.yaml` file referenced above:
 
 ```yaml
-lint:
-  rules:
-    tags-alphabetical: error
+rules:
+  tags-alphabetical: error
 ```
 
 - The `lint` command supports a new output formatting option called `codeclimate` that you can use with the `--format` argument.
@@ -197,7 +305,7 @@ lint:
 
 ### Features
 
-- Introduced [assertions](./rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
+- Introduced [custom rules](./rules/custom-rules.md) - a new, powerful lint feature, which helps you enforce API design standards without coding (named `assertions` at the time of the release).
 - The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes
@@ -624,7 +732,7 @@ lint:
 
 ### Features
 
-- Our [official OpenAPI CLI documentation](https://redocly.com/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/openapi-cli/tree/master/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redocly.com/code-of-conduct/) in all your contributions.
+- Our [official OpenAPI CLI documentation](https://redocly.com/docs/cli/) is now open-source! 🥳 You can find the source of all pages published on our website in the `docs` folder of the [openapi-cli repository](https://github.com/Redocly/redocly-cli/tree/main/docs). We invite you to help us improve the documentation and make it more usable for everyone. Please make sure to always follow our [Code of conduct](https://redocly.com/code-of-conduct/) in all your contributions.
 
 - Implemented support for OpenAPI 3.1 in `typeExtension` plugins.
 

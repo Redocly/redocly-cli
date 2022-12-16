@@ -11,7 +11,7 @@ Disallow invalid parameter examples.
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap --> PathItem --> Operation --> Parameter --> Example
+Root ==> Paths --> PathItem --> Operation --> Parameter --> Example
 PathItem --> Parameter
 Parameter --> Schema
 Root ==> components
@@ -42,11 +42,10 @@ Solve it before you ship it.
 |allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-parameter-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-parameter-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 ## Examples
@@ -54,11 +53,10 @@ styleguide:
 Given the following configuration:
 
 ```yaml
-styleguide:
-  rules:
-    no-invalid-parameter-examples:
-      severity: error
-      allowAdditionalProperties: false
+rules:
+  no-invalid-parameter-examples:
+    severity: error
+    allowAdditionalProperties: false
 ```
 
 Example of **incorrect** parameter example:
@@ -104,5 +102,5 @@ paths:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/master/packages/core/src/rules/common/no-invalid-parameter-examples.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-invalid-parameter-examples.ts)
 - [OpenAPI Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)

@@ -2,7 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-styleguide:
-  rules:
-    info-license-url: warn
-  extends: []
+rules:
+  info-license-url: warn
