@@ -16,7 +16,7 @@ import {
   stringifyYaml,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint } from './types';
-import * as updateNotifier from 'update-notifier';
+import * as updateNotifier from 'update-notifier-webpack';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
