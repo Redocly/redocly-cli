@@ -33,6 +33,7 @@ Option | Type | Description
 --region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx).
 --verbose | boolean | Include additional output.
 --version | boolean | Show version number.
+--token | string | Provide a token to be used in logging in.
 
 ## Examples
 

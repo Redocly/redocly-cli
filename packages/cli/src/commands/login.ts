@@ -11,10 +11,14 @@ export function promptClientToken(domain: string) {
   );
 }
 
-export async function handleLogin(argv: { verbose?: boolean; region?: Region }) {
+export async function handleLogin(argv: { verbose?: boolean; region?: Region; token?: string }) {
   const region = argv.region || (await loadConfig()).region;
   const client = new RedoclyClient(region);
-  const clientToken = await promptClientToken(client.domain);
+
+  let clientToken = argv.token;
+  if (!clientToken) {
+    clientToken = await promptClientToken(client.domain);
+  }
   process.stdout.write(gray('\n  Logging in...\n'));
   await client.login(clientToken, argv.verbose);
   process.stdout.write(green('  Authorization confirmed. ✅\n\n'));

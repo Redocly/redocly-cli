@@ -301,6 +301,11 @@ yargs
           alias: 'r',
           choices: regionChoices,
         },
+        token: {
+          description: 'Specify an access token.',
+          alias: 't',
+          type: 'string',
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'login';
