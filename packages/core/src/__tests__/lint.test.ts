@@ -61,11 +61,13 @@ describe('lint', () => {
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
           assert/operation-summary-length:
-            subject: Operation
-            property: summary
+            subject: 
+              type: Operation
+              property: summary
             message: Operation summary should start with an active verb
-            local/checkWordsCount: 
-              min: 3
+            assertions:
+              local/checkWordsCount: 
+                min: 3
       features.openapi:
         showConsole: true
         layout:
@@ -247,7 +249,24 @@ describe('lint', () => {
     );
     const results = await lintConfig({ document });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/referenceDocs",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`referenceDocs\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
   });
 
   it("'plugins' shouldn't be allowed in 'apis'", async () => {

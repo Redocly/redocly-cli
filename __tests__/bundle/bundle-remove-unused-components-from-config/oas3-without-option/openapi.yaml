@@ -1,0 +1,74 @@
+openapi: 3.1.0
+paths:
+  /pet:
+    x-internal: true
+    get:
+      parameters:
+        - $ref: '#/components/parameters/x'
+      requestBody:
+        $ref: '#/components/requestBodies/UserArray'
+  /store/subscribe:
+    post:
+      x-internal: true
+      description: Add subscription for a store events
+      parameters:
+        - $ref: '#/components/schemas/ApiResponse'
+      requestBody:
+        $ref: '#/components/responses/Unauthorized'
+  /store/order:
+    post:
+      operationId: storeOrder
+      responses:
+        '200':
+          description: successful operation
+          x-internal: true
+          headers:
+            Rate-Limit-Limit:
+              $ref: '#/components/headers/Rate-Limit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: 'ref.yaml'
+components:
+  parameters:
+    x:
+      name: x
+  examples:
+    Order:
+      value:
+        quantity: 1
+        shipDate: '2018-10-19T16:46:45Z'
+        status: placed
+        complete: false
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+  requestBodies:
+    UserArray:
+      content:
+        application/json:
+          schema:
+            type: array
+      description: List of user object
+      required: true
+  responses:
+    Unauthorized:
+      description: 'Unauthorized access, invalid credentials was used'
+      headers:
+        Location:
+          schema:
+            type: string
+  headers:
+    Rate-Limit-Limit:
+      description: The number of allowed requests in the current period
+      schema:
+        type: integer

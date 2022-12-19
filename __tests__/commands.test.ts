@@ -30,12 +30,34 @@ describe('E2E', () => {
     }
   });
 
+  describe('zero-config', () => {
+    const folderPath = join(__dirname, 'zero-config');
+
+    it('default-recommended-fallback', () => {
+      const testPath = join(folderPath, 'default-recommended-fallback');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        join(testPath, './openapi.yaml'),
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    it('no-default-recommended-fallback', () => {
+      const testPath = join(folderPath, 'no-default-recommended-fallback');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        join(testPath, './openapi.yaml'),
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+  });
+
   describe('lint-config', () => {
     const lintOptions: { dirName: string; option: string | null; format?: string }[] = [
       { dirName: 'invalid-config--lint-config-off', option: 'off' },
       { dirName: 'invalid-config--lint-config-warn', option: 'warn' },
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
-      { dirName: 'invlid-lint-config-saverity', option: 'something' },
+      { dirName: 'invalid-lint-config-severity', option: 'something' },
       { dirName: 'invalid-config--no-option', option: null },
       { dirName: 'invalid-config-assertation-name', option: 'error' },
       { dirName: 'invalid-config-assertation-config-type', option: 'error' },
@@ -162,7 +184,11 @@ describe('E2E', () => {
   });
 
   describe('bundle', () => {
-    const excludeFolders = ['bundle-remove-unused-components', 'bundle-lint-format'];
+    const excludeFolders = [
+      'bundle-remove-unused-components',
+      'bundle-remove-unused-components-from-config',
+      'bundle-lint-format',
+    ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
 
@@ -235,6 +261,37 @@ describe('E2E', () => {
         join(folderPath, 'remove-unused-components-snapshot.js')
       );
     });
+  });
+
+  describe('bundle with option in config: remove-unused-components', () => {
+    test.each(['oas2', 'oas3'])('%s: should remove unused components', (type) => {
+      const folderPath = join(
+        __dirname,
+        `bundle/bundle-remove-unused-components-from-config/${type}`
+      );
+      const entryPoints = getEntrypoints(folderPath);
+      const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(
+        join(folderPath, 'remove-unused-components-snapshot.js')
+      );
+    });
+
+    test.each(['oas2-without-option', 'oas3-without-option'])(
+      "%s: shouldn't remove unused components",
+      (type) => {
+        const folderPath = join(
+          __dirname,
+          `bundle/bundle-remove-unused-components-from-config/${type}`
+        );
+        const entryPoints = getEntrypoints(folderPath);
+        const args = ['../../../../packages/cli/src/index.ts', 'bundle', ...entryPoints];
+        const result = getCommandOutput(args, folderPath);
+        (<any>expect(result)).toMatchSpecificSnapshot(
+          join(folderPath, 'without-remove-unused-components-snapshot.js')
+        );
+      }
+    );
   });
 
   describe('bundle with option: dereferenced', () => {

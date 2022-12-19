@@ -55,19 +55,24 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
 ];
 const nodeTypesList = [
+  'any',
   'Root',
   'Tag',
+  'TagList',
   'ExternalDocs',
   'Server',
+  'ServerList',
   'ServerVariable',
   'ServerVariablesMap',
   'SecurityRequirement',
+  'SecurityRequirementList',
   'Info',
   'Contact',
   'License',
   'Paths',
   'PathItem',
   'Parameter',
+  'ParameterList',
   'Operation',
   'Callback',
   'CallbacksMap',
@@ -106,7 +111,9 @@ const nodeTypesList = [
   'OAuth2Flows',
   'SecurityScheme',
   'XCodeSample',
+  'XCodeSampleList',
   'WebhooksMap',
+  'SpecExtension',
 ];
 
 const ConfigStyleguide: NodeType = {
@@ -146,16 +153,8 @@ const ConfigRoot: NodeType = {
   properties: {
     organization: { type: 'string' },
     apis: 'ConfigApis',
-    apiDefinitions: {
-      type: 'object',
-      properties: {},
-      additionalProperties: { properties: { type: 'string' } },
-    }, // deprecated
     ...RootConfigStyleguide.properties,
-    styleguide: 'RootConfigStyleguide', // deprecated
-    lint: 'RootConfigStyleguide', // deprecated
     'features.openapi': 'ConfigReferenceDocs',
-    referenceDocs: 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer',
     region: { enum: ['us', 'eu'] },
     resolve: {
@@ -238,15 +237,9 @@ const ObjectRule: NodeType = {
   required: ['severity'],
 };
 
-const Assert: NodeType = {
+const AssertionDefinitionSubject: NodeType = {
   properties: {
-    subject: (value: unknown) => {
-      if (Array.isArray(value)) {
-        return { type: 'array', items: { enum: nodeTypesList } };
-      } else {
-        return { enum: nodeTypesList };
-      }
-    },
+    type: { enum: nodeTypesList },
     property: (value: unknown) => {
       if (Array.isArray(value)) {
         return { type: 'array', items: { type: 'string' } };
@@ -256,12 +249,18 @@ const Assert: NodeType = {
         return { type: 'string' };
       }
     },
-    context: listOf('Context'),
-    message: { type: 'string' },
-    suggest: { type: 'array', items: { type: 'string' } },
-    severity: { enum: ['error', 'warn', 'off'] },
+    filterInParentKeys: { type: 'array', items: { type: 'string' } },
+    filterOutParentKeys: { type: 'array', items: { type: 'string' } },
+    matchParentKeys: { type: 'string' },
+  },
+  required: ['type'],
+};
+
+const AssertionDefinitionAssertions: NodeType = {
+  properties: {
     enum: { type: 'array', items: { type: 'string' } },
     pattern: { type: 'string' },
+    notPattern: { type: 'string' },
     casing: {
       enum: [
         'camelCase',
@@ -279,27 +278,50 @@ const Assert: NodeType = {
     requireAny: { type: 'array', items: { type: 'string' } },
     disallowed: { type: 'array', items: { type: 'string' } },
     defined: { type: 'boolean' },
-    undefined: { type: 'boolean' },
+    // undefined: { type: 'boolean' }, // TODO: Remove `undefined` assertion from codebase overall
     nonEmpty: { type: 'boolean' },
     minLength: { type: 'integer' },
     maxLength: { type: 'integer' },
     ref: (value: string | boolean) =>
       typeof value === 'string' ? { type: 'string' } : { type: 'boolean' },
+    const: (value: string | boolean | number) => {
+      if (typeof value === 'string') {
+        return { type: 'string' };
+      }
+      if (typeof value === 'number') {
+        return { type: 'number' };
+      }
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return;
+      }
+    },
   },
   additionalProperties: (_value: unknown, key: string) => {
     if (/^\w+\/\w+$/.test(key)) return { type: 'object' };
     return;
   },
-  required: ['subject'],
 };
 
-const Context: NodeType = {
+const AssertDefinition: NodeType = {
   properties: {
-    type: { enum: nodeTypesList },
-    matchParentKeys: { type: 'array', items: { type: 'string' } },
-    excludeParentKeys: { type: 'array', items: { type: 'string' } },
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
   },
-  required: ['type'],
+  required: ['subject', 'assertions'],
+};
+
+const Assert: NodeType = {
+  properties: {
+    subject: 'AssertionDefinitionSubject',
+    assertions: 'AssertionDefinitionAssertions',
+    where: listOf('AssertDefinition'),
+    message: { type: 'string' },
+    suggest: { type: 'array', items: { type: 'string' } },
+    severity: { enum: ['error', 'warn', 'off'] },
+  },
+  required: ['subject', 'assertions'],
 };
 
 const ConfigLanguage: NodeType = {
@@ -925,7 +947,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  Context,
+  AssertDefinition,
   ThemeColors,
   CommonThemeColors,
   BorderThemeColors,
@@ -972,4 +994,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   Sidebar,
   Heading,
   Typography,
+  AssertionDefinitionAssertions,
+  AssertionDefinitionSubject,
 };

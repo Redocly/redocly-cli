@@ -7,4 +7,3 @@ rules:
     severity: error
     patterns:
       - ^\/[a-z]
-extends: []

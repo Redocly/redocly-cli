@@ -1,0 +1,23 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+extends: []
+rules:
+  assert/TagList:
+    subject: 
+      type: TagList 
+    assertions:
+      defined: false
+
+  assert/ServerList:
+    subject: 
+      type: ServerList
+    assertions:
+      maxLength: 0
+
+  assert/SecurityRequirementList:
+    subject: 
+      type: SecurityRequirementList
+    assertions: 
+      minLength: 1

@@ -89,7 +89,7 @@ paths:
 
 - [path-excludes-patterns](./path-excludes-patterns.md)
 - [paths-kebab-case](./paths-kebab-case.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

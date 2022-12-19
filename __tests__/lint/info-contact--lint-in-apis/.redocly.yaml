@@ -3,4 +3,3 @@ apis:
     root: ./openapi.yaml
     rules:
       info-contact: warn
-    extends: []

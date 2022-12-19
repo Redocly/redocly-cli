@@ -22,10 +22,16 @@ import type {
   DeprecatedInRawConfig,
 } from './types';
 import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, parseYaml } from '../utils';
+import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
 import { Config } from './config';
 import { colorize, logger } from '../logger';
-import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
+import {
+  Asserts,
+  AssertionFn,
+  asserts,
+  buildAssertCustomFunction,
+} from '../rules/common/assertions/asserts';
+import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {
@@ -35,25 +41,15 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string): 
   }
 
   const resolver = new BaseResolver(getResolveConfig(rawConfig.resolve));
-  const configExtends = rawConfig?.styleguide?.extends ?? ['recommended'];
-  const recommendedFallback = !rawConfig?.styleguide?.extends;
-  const styleguideConfig = {
-    ...rawConfig?.styleguide,
-    extends: configExtends,
-    recommendedFallback,
-  };
 
   const apis = await resolveApis({
-    rawConfig: {
-      ...rawConfig,
-      styleguide: styleguideConfig,
-    },
+    rawConfig,
     configPath,
     resolver,
   });
 
   const styleguide = await resolveStyleguideConfig({
-    styleguideConfig,
+    styleguideConfig: rawConfig.styleguide,
     configPath,
     resolver,
   });
@@ -409,26 +405,17 @@ function groupStyleguideAssertionRules({
   const transformedRules: Record<string, RuleConfig> = {};
 
   // Collect assertion rules
-  const assertions = [];
+  const assertions: Assertion[] = [];
   for (const [ruleKey, rule] of Object.entries(rules)) {
     if (ruleKey.startsWith('assert/') && typeof rule === 'object' && rule !== null) {
-      const assertion = rule;
+      const assertion = rule as RawAssertion;
+
       if (plugins) {
-        for (const field of Object.keys(assertion)) {
-          const [pluginId, fn] = field.split('/');
-          if (!pluginId || !fn) continue;
-          const plugin = plugins.find((plugin) => plugin.id === pluginId);
-          if (!plugin) {
-            throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
-          }
-          if (!plugin.assertions || !plugin.assertions[fn]) {
-            throw Error(
-              `Plugin ${colorize.red(
-                pluginId
-              )} doesn't export assertions function with name ${colorize.red(fn)}.`
-            );
-          }
-          asserts[field] = buildAssertCustomFunction(plugin.assertions[fn]);
+        registerCustomAssertions(plugins, assertion);
+
+        // We may have custom assertion inside where block
+        for (const context of assertion.where || []) {
+          registerCustomAssertions(plugins, context);
         }
       }
       assertions.push({
@@ -445,4 +432,30 @@ function groupStyleguideAssertionRules({
   }
 
   return transformedRules;
+}
+
+function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinition) {
+  for (const field of keysOf(assertion.assertions)) {
+    const [pluginId, fn] = field.split('/');
+
+    if (!pluginId || !fn) continue;
+
+    const plugin = plugins.find((plugin) => plugin.id === pluginId);
+
+    if (!plugin) {
+      throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
+    }
+
+    if (!plugin.assertions || !plugin.assertions[fn]) {
+      throw Error(
+        `Plugin ${colorize.red(
+          pluginId
+        )} doesn't export assertions function with name ${colorize.red(fn)}.`
+      );
+    }
+
+    (asserts as Asserts & { [name: string]: AssertionFn })[field] = buildAssertCustomFunction(
+      plugin.assertions[fn]
+    );
+  }
 }

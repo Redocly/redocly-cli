@@ -48,5 +48,5 @@ Optionally, you may specify `severity` as one of decorator options in the config
 
 ## Custom decorators
 
-You can create your own decorators using [custom plugins](./resources/custom-rules.md).
+You can create your own decorators using [custom plugins](./resources/custom-plugins.md).
 Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-servers-url.md).

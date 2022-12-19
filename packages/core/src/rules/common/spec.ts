@@ -1,5 +1,5 @@
 import type { Oas3Rule, Oas2Rule } from '../../visitors';
-import { isNamedType } from '../../types';
+import { isNamedType, SpecExtension } from '../../types';
 import { oasTypeOf, matchesJsonSchemaType, getSuggest, validateSchemaEnumType } from '../utils';
 import { isRef } from '../../ref-utils';
 import { isPlainObject } from '../../utils';
@@ -24,10 +24,13 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
         }
         return;
       } else if (nodeType !== 'object') {
-        report({
-          message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
-          from: refLocation,
-        });
+        if (type !== SpecExtension) {
+          // do not validate unknown extensions structure
+          report({
+            message: `Expected type \`${type.name}\` (object) but got \`${nodeType}\``,
+            from: refLocation,
+          });
+        }
         ignoreNextVisitorsOnNode();
         return;
       }
@@ -157,6 +160,13 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
               location: location.child([propName]),
             });
           }
+        }
+
+        if (propName === 'nullable' && !node.type) {
+          report({
+            message: 'The `type` field must be defined when the `nullable` field is used.',
+            location: location.child([propName]),
+          });
         }
       }
     },

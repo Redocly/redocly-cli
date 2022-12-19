@@ -5,4 +5,3 @@ apis:
 rules: 
   operation-operationId: warn
   operation-summary: error
-extends: []

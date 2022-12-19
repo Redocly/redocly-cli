@@ -74,7 +74,7 @@ tags:
 
 - [tag-description](./tag-description.md)
 - [operation-description](./operation-description.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

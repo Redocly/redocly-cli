@@ -1,5 +1,6 @@
-apiDefinitions:
-  main: ./openapi.yaml
+apis:
+  main: 
+    root: ./openapi.yaml
 
 extends:
   - recommended # This is the default (and built in) configuration.

@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-empty-servers: warn
-extends: []

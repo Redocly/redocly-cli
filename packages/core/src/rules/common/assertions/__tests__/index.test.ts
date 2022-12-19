@@ -1,62 +1,97 @@
-import { Assertions } from '../.';
+import { Assertion, Assertions } from '../.';
 
 const opts = {
   '0': {
-    subject: 'Operation',
-    property: 'summary',
+    subject: {
+      type: 'Operation',
+      property: 'summary',
+    },
     description: 'example warn text',
     severity: 'warn',
-    pattern: '/example/',
+    assertions: { pattern: '/example/' },
   },
   '1': {
-    subject: 'PathItem',
-    context: [{ type: 'Operation', matchParentKeys: ['post'] }],
+    subject: {
+      type: 'PathItem',
+    },
+    where: [
+      {
+        subject: { type: 'Operation', filterInParentKeys: ['post'], property: 'responses' },
+        assertions: { defined: true },
+      },
+    ],
     description: 'example warn text',
     severity: 'warn',
-    mutuallyExclusive: ['summary', 'security'],
+    assertions: { mutuallyExclusive: ['summary', 'security'] },
   },
   '2': {
-    subject: ['PathItem'],
-    context: [{ type: 'Operation' }],
-    property: 'tags',
+    subject: { type: 'PathItem', property: 'tags' },
+    where: [
+      { subject: { type: 'Operation', property: 'responses' }, assertions: { defined: true } },
+    ],
     description: 'example warn text',
     severity: 'warn',
-    sortOrder: 'desc',
+    assertions: { sortOrder: 'desc' },
   },
   '3': {
-    subject: ['Foo'],
-    context: [{ type: 'Bar' }, { type: 'Baz' }],
-    property: 'test',
+    subject: { type: 'Foo', property: 'test' },
+    where: [
+      { subject: { type: 'Bar' }, assertions: {} },
+      { subject: { type: 'Baz' }, assertions: {} },
+    ],
     description: 'example warn text',
     severity: 'warn',
-    sortOrder: 'desc',
+    assertions: { sortOrder: 'desc' },
+  },
+  '4': {
+    subject: {
+      type: 'any',
+      property: 'description',
+    },
+    description: 'example warn text',
+    severity: 'warn',
+    assertions: { notPattern: '/example/' },
   },
 };
 
 describe('Oas3 assertions', () => {
   it('should return the right visitor structure', () => {
-    const visitors = Assertions(opts) as any;
+    const visitors = Assertions(opts as any);
     expect(visitors).toMatchInlineSnapshot(`
       Array [
         Object {
-          "Operation": [Function],
+          "Operation": Object {
+            "enter": [Function],
+          },
         },
         Object {
           "Operation": Object {
-            "PathItem": [Function],
+            "PathItem": Object {
+              "enter": [Function],
+            },
             "skip": [Function],
           },
         },
         Object {
           "Operation": Object {
-            "PathItem": [Function],
+            "PathItem": Object {
+              "enter": [Function],
+            },
+            "skip": [Function],
           },
         },
         Object {
           "Bar": Object {
             "Baz": Object {
-              "Foo": [Function],
+              "Foo": Object {
+                "enter": [Function],
+              },
             },
+          },
+        },
+        Object {
+          "any": Object {
+            "enter": [Function],
           },
         },
       ]

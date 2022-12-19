@@ -4,8 +4,9 @@ apis:
 
 rules:
   assert/description-min-length:
-    subject: Info
-    property: description
+    subject: 
+      type: Info
+      property: description
     message: Info description should be minimum 20 chars length
-    minLength: 20
-extends: []
+    assertions: 
+      minLength: 20

@@ -4,4 +4,3 @@ apis:
 
 rules:
   path-declaration-must-exist: error
-extends: []

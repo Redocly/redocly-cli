@@ -187,4 +187,50 @@ describe('bundle', () => {
     expect(problems).toHaveLength(0);
     expect(parsedMeta).toMatchSnapshot();
   });
+
+  it('should bundle refs using $anchors', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            User:
+              type: object
+              properties:
+                profile:
+                  $ref: '#user-profile'
+            UserProfile:
+              $anchor: user-profile
+              type: string
+      `,
+      ''
+    );
+
+    const config = await makeConfig({});
+
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      components:
+        schemas:
+          User:
+            type: object
+            properties:
+              profile:
+                $ref: '#user-profile'
+          UserProfile:
+            $anchor: user-profile
+            type: string
+
+    `);
+  });
 });

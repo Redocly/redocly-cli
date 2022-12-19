@@ -1,6 +1,6 @@
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
-import { asserts, buildAssertCustomFunction } from '../asserts';
+import { Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
@@ -38,6 +38,24 @@ describe('oas3 assertions', () => {
           {
             message: '"./other.yaml" should match a regex /^(./)?components/.*.yaml$/',
             location: baseLocation,
+          },
+        ]);
+      });
+    });
+
+    describe('notPattern', () => {
+      it('value should not match regex pattern', () => {
+        expect(asserts.notPattern('test string', '/test me/', baseLocation)).toEqual([]);
+        expect(asserts.notPattern('test string', '/test/', baseLocation)).toEqual([
+          { location: baseLocation, message: '"test string" should not match a regex /test/' },
+        ]);
+        expect(
+          asserts.notPattern(['test string', 'test me'], '/test other/', baseLocation)
+        ).toEqual([]);
+        expect(asserts.notPattern(['test string', 'test me'], '/test me/', baseLocation)).toEqual([
+          {
+            message: '"test me" should not match a regex /test me/',
+            location: baseLocation.key(),
           },
         ]);
       });
@@ -674,9 +692,13 @@ describe('oas3 assertions', () => {
           }
           return [];
         });
-        asserts['local/customFn'] = buildAssertCustomFunction(customFn);
+        asserts['local/customFn' as keyof Asserts] = buildAssertCustomFunction(customFn);
         expect(
-          asserts['local/customFn'](Object.keys(fakeNode), { word: 'foo' }, baseLocation)
+          asserts['local/customFn' as keyof Asserts](
+            Object.keys(fakeNode),
+            { word: 'foo' },
+            baseLocation
+          )
         ).toEqual([
           {
             message: 'First value should be foo',

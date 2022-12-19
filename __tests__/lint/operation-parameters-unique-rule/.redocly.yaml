@@ -4,4 +4,3 @@ apis:
 
 rules:
   operation-parameters-unique: error
-extends: []

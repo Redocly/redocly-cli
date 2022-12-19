@@ -45,10 +45,15 @@ import type {
   Oas2SecurityScheme,
 } from './typings/swagger';
 
-import type { NormalizedNodeType } from './types';
+import { NormalizedNodeType, SpecExtension } from './types';
 import type { Stack } from './utils';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import type { Location } from './ref-utils';
+
+export type SkipFunctionContext = Pick<
+  UserContext,
+  'location' | 'rawNode' | 'resolve' | 'rawLocation'
+>;
 
 export type VisitFunction<T> = (
   node: T,
@@ -59,7 +64,7 @@ export type VisitFunction<T> = (
 
 type VisitRefFunction = (node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) => void;
 
-type SkipFunction<T> = (node: T, key: string | number) => boolean;
+type SkipFunction<T> = (node: T, key: string | number, ctx: SkipFunctionContext) => boolean;
 
 type VisitObject<T> = {
   enter?: VisitFunction<T>;
@@ -172,6 +177,7 @@ type Oas3FlatVisitor = {
   AuthorizationCode?: VisitFunctionOrObject<Oas3SecurityScheme['flows']['authorizationCode']>;
   OAuth2Flows?: VisitFunctionOrObject<Oas3SecurityScheme['flows']>;
   SecurityScheme?: VisitFunctionOrObject<Oas3SecurityScheme>;
+  SpecExtension?: VisitFunctionOrObject<unknown>;
 };
 
 type Oas2FlatVisitor = {
@@ -197,6 +203,7 @@ type Oas2FlatVisitor = {
   NamedResponses?: VisitFunctionOrObject<Record<string, Oas2Response>>;
   NamedParameters?: VisitFunctionOrObject<Record<string, Oas2Parameter>>;
   SecurityScheme?: VisitFunctionOrObject<Oas2SecurityScheme>;
+  SpecExtension?: VisitFunctionOrObject<unknown>;
 };
 
 const legacyTypesMap = {
@@ -210,6 +217,7 @@ const legacyTypesMap = {
   HeadersMap: 'HeaderMap',
   LinksMap: 'LinkMap',
   OAuth2Flows: 'SecuritySchemeFlows',
+  Responses: 'ResponsesMap',
 };
 
 type Oas3NestedVisitor = {
@@ -346,6 +354,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
       } else if (from.items.name !== undefined) {
         possibleChildren.add(from.items);
       }
+    }
+
+    if (from.extensionsPrefix) {
+      possibleChildren.add(SpecExtension);
     }
 
     for (const fromType of Array.from(possibleChildren.values())) {

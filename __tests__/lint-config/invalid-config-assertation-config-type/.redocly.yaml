@@ -4,8 +4,14 @@ apis:
 
 rules:
   assert/path-item-mutually-required:
-    context:
-      - type: Invalid-type
-    subject: Operation
-    message: Operation should have summary and security fields simultaneously
-extends: []
+    where:
+      - subject:
+          type: Invalid-type
+          property: property
+        assertions:
+          defined: true
+    subject:
+      type: Operation
+      property: property
+    assertions:
+      defined: true

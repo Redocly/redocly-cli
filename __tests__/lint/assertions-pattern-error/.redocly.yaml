@@ -4,8 +4,9 @@ apis:
 
 rules:
   assert/summary-pattern:
-    subject: Operation
-    property: summary
-    message: Operation summary should have 'test' word
-    pattern: '/test/'
-extends: []
+    subject:
+      type: Operation
+      property: summary
+    assertions:
+      pattern: '/test/'
+      notPattern: /summary/
