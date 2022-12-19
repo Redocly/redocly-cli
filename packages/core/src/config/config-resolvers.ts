@@ -79,14 +79,18 @@ export function resolvePlugins(
     }
 
     if (isString(plugin)) {
-      const absoltePluginPath = path.resolve(path.dirname(configPath), plugin);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return typeof __webpack_require__ === 'function'
-        ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          __non_webpack_require__(absoltePluginPath)
-        : require(absoltePluginPath);
+      try {
+        const absoltePluginPath = path.resolve(path.dirname(configPath), plugin);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return typeof __webpack_require__ === 'function'
+          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            __non_webpack_require__(absoltePluginPath)
+          : require(absoltePluginPath);
+      } catch (e) {
+        throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
+      }
     }
 
     return plugin;
@@ -342,7 +346,7 @@ async function loadExtendStyleguideConfig(
 
     return rawConfig.styleguide;
   } catch (error) {
-    throw new Error(`Failed to load "${filePath}": ${error.message}`);
+    throw new Error(`Failed to load "${filePath}": Please provide a valid path`);
   }
 }
 

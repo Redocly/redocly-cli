@@ -14,6 +14,10 @@ import {
   parseYaml,
   stringifyYaml,
   isAbsoluteUrl,
+  loadConfig,
+  RawConfig,
+  Region,
+  Config,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
@@ -354,4 +358,22 @@ export function exitWithError(message: string) {
 export function isSubdir(parent: string, dir: string): boolean {
   const relativePath = relative(parent, dir);
   return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
+}
+
+export async function loadConfigAndHandleErrors(
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    files?: string[];
+    region?: Region;
+  } = {}
+): Promise<Config> {
+  let config = new Config({ apis: {}, styleguide: {} });
+  try {
+    config = await loadConfig(options);
+  } catch (e) {
+    exitWithError(e.message);
+  }
+  return config;
 }
