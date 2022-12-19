@@ -153,7 +153,7 @@ export function readFileAsStringSync(filePath: string) {
   return fs.readFileSync(filePath, 'utf-8');
 }
 
-export function readAndParseFileSync<T>(filePath: string) {
+export function yamlAndJsonSyncReader<T>(filePath: string): T {
   const content = fs.readFileSync(filePath, 'utf-8');
   return parseYaml(content) as T;
 }

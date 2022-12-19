@@ -1,19 +1,10 @@
 import { Oas3Decorator } from '../../visitors';
 import { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi';
-import { readAndParseFileSync } from '../../utils';
+import { yamlAndJsonSyncReader } from '../../utils';
 import { isRef } from '../../ref-utils';
 import { ResolveFn, UserContext } from '../../walk';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
-  function checkAndResolveRef<T>(node: any, resolver: ResolveFn): T | undefined {
-    if (!isRef(node)) {
-      return node;
-    }
-
-    const resolved = resolver<T>(node);
-    return resolved.error ? undefined : JSON.parse(JSON.stringify(resolved.node));
-  }
-
   return {
     Operation: {
       enter(operation: Oas3Operation, ctx: UserContext) {
@@ -45,7 +36,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
             Object.keys(properties.responses[responseCode]).forEach((mimeType) => {
               resolvedResponse.content![mimeType] = {
                 ...resolvedResponse.content![mimeType],
-                examples: readAndParseFileSync(properties.responses[responseCode][mimeType]),
+                examples: yamlAndJsonSyncReader(properties.responses[responseCode][mimeType]),
               };
             });
 
@@ -68,7 +59,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
           Object.keys(properties.request).forEach((mimeType) => {
             resolvedRequest.content[mimeType] = {
               ...resolvedRequest.content[mimeType],
-              examples: readAndParseFileSync(properties.request[mimeType]),
+              examples: yamlAndJsonSyncReader(properties.request[mimeType]),
             };
           });
           operation.requestBody = resolvedRequest;
@@ -77,3 +68,12 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
     },
   };
 };
+
+function checkAndResolveRef<T>(node: any, resolver: ResolveFn): T | undefined {
+  if (!isRef(node)) {
+    return node;
+  }
+
+  const resolved = resolver<T>(node);
+  return resolved.error ? undefined : JSON.parse(JSON.stringify(resolved.node));
+}
