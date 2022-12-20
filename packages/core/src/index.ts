@@ -36,6 +36,7 @@ export {
   CONFIG_FILE_NAMES,
   RuleSeverity,
   createConfig,
+  ResolvedApi,
 } from './config';
 
 export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
@@ -50,7 +51,7 @@ export {
   makeDocumentFromString,
 } from './resolve';
 export { parseYaml, stringifyYaml } from './js-yaml';
-export { unescapePointer, isRef } from './ref-utils';
+export { unescapePointer, isRef, isAbsoluteUrl } from './ref-utils';
 export { detectOpenAPI, OasMajorVersion, openAPIMajor, OasVersion } from './oas-types';
 export { normalizeVisitors } from './visitors';
 
