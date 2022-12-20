@@ -369,11 +369,10 @@ export async function loadConfigAndHandleErrors(
     region?: Region;
   } = {}
 ): Promise<Config> {
-  let config = new Config({ apis: {}, styleguide: {} });
   try {
-    config = await loadConfig(options);
+    return await loadConfig(options);
   } catch (e) {
     exitWithError(e.message);
+    return new Config({ apis: {}, styleguide: {} });
   }
-  return config;
 }

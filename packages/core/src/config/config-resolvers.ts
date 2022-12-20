@@ -346,7 +346,7 @@ async function loadExtendStyleguideConfig(
 
     return rawConfig.styleguide;
   } catch (error) {
-    throw new Error(`Failed to load "${filePath}": Please provide a valid path`);
+    throw new Error(`Failed to load "${filePath}": ${error.message}`);
   }
 }
 
