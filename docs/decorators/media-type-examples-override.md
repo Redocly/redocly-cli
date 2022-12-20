@@ -10,9 +10,9 @@ This decorator provides a way to "overlay" a new examples over the source so tha
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|operationIds|object|**REQUIRED.** List of key values pairs with operationIds as the key and paths to Markdown files as the value.|
+|Option|Type| Description                                                                                                                                                  |
+|---|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|operationIds|object| **REQUIRED.** Object consisting of operationIds as keys, and object as a value that containing the request and responses keys and example`s paths as values. |
 
 Example of a configuration:
 
@@ -24,11 +24,44 @@ decorators:
         request:
           application/json: ./pet-examples.yaml
         responses:
-          '200': ./pet-examples.yaml
-          '400': ./pet-errors-examples.yaml
+          '200':
+            application/json: ./pet-examples.yaml
+          '400':
+            application/json: ./pet-errors-examples.yaml
 ```
 
 ## Examples 
+
+Given this definition with example:
+
+```yaml
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+paths:
+  '/GETUser/{userId}':
+    summary: getPet
+    get:
+      operationId: getUserByName
+      responses:
+        200:
+          description: okay
+          content:
+            application/json:
+              examples:
+                pet:
+                  value:
+                    name: test name
+```
+
+Given the file `./pet-examples.yaml` with content:
+
+```yaml
+Cat:
+  value:
+    name: example
+```
 
 Given this configuration:
 
@@ -39,6 +72,29 @@ decorators:
       PostPets:
         responses:
           '200': ./pet-examples.yaml
+```
+
+The result of the bundle command
+
+```yaml
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+paths:
+  '/GETUser/{userId}':
+    summary: getPet
+    get:
+      operationId: getUserByName
+      responses:
+        200:
+          description: okay
+          content:
+            application/json:
+              examples:
+                Cat:
+                  value:
+                    name: example
 ```
 ## Related decorators
 
