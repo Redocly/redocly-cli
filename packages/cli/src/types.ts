@@ -1,4 +1,4 @@
-import type { BundleOutputFormat, OutputFormat, Region } from '@redocly/openapi-core';
+import type { BundleOutputFormat, OutputFormat, Region, Config } from '@redocly/openapi-core';
 
 export type Totals = {
   errors: number;
@@ -24,3 +24,5 @@ export type Skips = {
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
 };
+
+export type ConfigApis = Pick<Config, 'apis' | 'configFile'>;

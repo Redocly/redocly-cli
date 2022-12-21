@@ -1,0 +1,36 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  assert/vendor-extension:
+    subject:
+      type: SpecExtension
+      property: prop
+      filterInParentKeys: ['x-my-extension']
+    severity: error
+    assertions:
+      enum: [foo, bar]
+  assert/vendor-extension-in-info-section:
+    subject:
+      type: SpecExtension
+      property: prop2
+      filterInParentKeys: ['x-my-extension']
+    where:
+      - subject:
+          type: Info
+        assertions:
+          defined: true
+    severity: error
+    assertions:
+      enum: [foo, bar]
+
+  # built-in vendor extension should be processed as generic SpecExtension too
+  # assert/vendor-extension-built-in:
+  #   subject:
+  #     type: SpecExtension
+  #     filterInParentKeys: ['x-logo']
+  #     property: url
+  #   severity: error
+  #   assertions:
+  #     defined: true

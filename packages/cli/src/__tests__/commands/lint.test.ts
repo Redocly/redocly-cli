@@ -1,6 +1,5 @@
 import { handleLint, LintOptions } from '../../commands/lint';
 import {
-  loadConfig,
   getMergedConfig,
   lint,
   getTotals,
@@ -13,6 +12,7 @@ import {
   printUnusedWarnings,
   handleError,
   exitWithError,
+  loadConfigAndHandleErrors,
 } from '../../utils';
 import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
@@ -58,12 +58,12 @@ describe('handleLint', () => {
       expect(exitWithError).toHaveBeenCalledWith(
         'Please, provide valid path to the configuration file'
       );
-      expect(loadConfig).toHaveBeenCalledTimes(0);
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledTimes(0);
     });
 
-    it('should call loadConfig and getFallbackApisOrExit', async () => {
+    it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
       await handleLint(argvMock, versionMock);
-      expect(loadConfig).toHaveBeenCalledWith({
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
         configPath: undefined,
         customExtends: undefined,
         processRawConfig: undefined,
@@ -76,7 +76,7 @@ describe('handleLint', () => {
         { ...argvMock, config: 'redocly.yaml', extends: ['some/path'] },
         versionMock
       );
-      expect(loadConfig).toHaveBeenCalledWith({
+      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
         configPath: 'redocly.yaml',
         customExtends: ['some/path'],
         processRawConfig: undefined,

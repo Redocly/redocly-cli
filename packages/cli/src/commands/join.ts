@@ -10,7 +10,6 @@ import {
   Document,
   StyleguideConfig,
   Oas3Tag,
-  loadConfig,
   formatProblems,
   getTotals,
   lintDocument,
@@ -25,6 +24,7 @@ import {
   printLintTotals,
   writeYaml,
   exitWithError,
+  loadConfigAndHandleErrors,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
@@ -78,7 +78,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     );
   }
 
-  const config: Config = await loadConfig();
+  const config: Config = await loadConfigAndHandleErrors();
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(

@@ -24,6 +24,7 @@ const Root: NodeType = {
     'x-ignoredHeaderParameters': { type: 'array', items: { type: 'string' } },
   },
   required: ['swagger', 'paths', 'info'],
+  extensionsPrefix: 'x-',
 };
 
 const Info: NodeType = {
@@ -37,6 +38,7 @@ const Info: NodeType = {
     'x-logo': 'Logo',
   },
   required: ['title', 'version'],
+  extensionsPrefix: 'x-',
 };
 
 const Logo: NodeType = {
@@ -46,6 +48,7 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const Contact: NodeType = {
@@ -54,6 +57,7 @@ const Contact: NodeType = {
     url: { type: 'string' },
     email: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const License: NodeType = {
@@ -62,6 +66,7 @@ const License: NodeType = {
     url: { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const Paths: NodeType = {
@@ -83,6 +88,7 @@ const PathItem: NodeType = {
     head: 'Operation',
     patch: 'Operation',
   },
+  extensionsPrefix: 'x-',
 };
 
 const Operation: NodeType = {
@@ -104,6 +110,7 @@ const Operation: NodeType = {
     'x-hideTryItPanel': { type: 'boolean' },
   },
   required: ['responses'],
+  extensionsPrefix: 'x-',
 };
 
 const XCodeSample: NodeType = {
@@ -128,6 +135,7 @@ const ExternalDocs: NodeType = {
     url: { type: 'string' },
   },
   required: ['url'],
+  extensionsPrefix: 'x-',
 };
 
 const Parameter: NodeType = {
@@ -172,6 +180,7 @@ const Parameter: NodeType = {
       }
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const ParameterItems: NodeType = {
@@ -201,6 +210,7 @@ const ParameterItems: NodeType = {
       return ['type'];
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const Responses: NodeType = {
@@ -220,6 +230,7 @@ const Response: NodeType = {
     'x-summary': { type: 'string' },
   },
   required: ['description'],
+  extensionsPrefix: 'x-',
 };
 
 const Examples: NodeType = {
@@ -255,6 +266,7 @@ const Header: NodeType = {
       return ['type'];
     }
   },
+  extensionsPrefix: 'x-',
 };
 
 const Tag: NodeType = {
@@ -266,6 +278,7 @@ const Tag: NodeType = {
     'x-displayName': { type: 'string' },
   },
   required: ['name'],
+  extensionsPrefix: 'x-',
 };
 
 const TagGroup: NodeType = {
@@ -328,6 +341,7 @@ const Schema: NodeType = {
     'x-explicitMappingOnly': { type: 'boolean' },
     'x-enumDescriptions': 'EnumDescriptions',
   },
+  extensionsPrefix: 'x-',
 };
 
 const EnumDescriptions: NodeType = {
@@ -348,6 +362,7 @@ const Xml: NodeType = {
     attribute: { type: 'boolean' },
     wrapped: { type: 'boolean' },
   },
+  extensionsPrefix: 'x-',
 };
 
 const SecurityScheme: NodeType = {
@@ -419,6 +434,7 @@ const Example: NodeType = {
     description: { type: 'string' },
     externalValue: { type: 'string' },
   },
+  extensionsPrefix: 'x-',
 };
 
 export const Oas2Types: Record<string, NodeType> = {

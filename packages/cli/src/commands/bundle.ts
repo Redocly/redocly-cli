@@ -1,11 +1,4 @@
-import {
-  formatProblems,
-  getTotals,
-  loadConfig,
-  getMergedConfig,
-  lint,
-  bundle,
-} from '@redocly/openapi-core';
+import { formatProblems, getTotals, getMergedConfig, lint, bundle } from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -15,6 +8,7 @@ import {
   printUnusedWarnings,
   saveBundle,
   printLintTotals,
+  loadConfigAndHandleErrors,
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
@@ -34,10 +28,13 @@ export type BundleOptions = CommonOptions &
   };
 
 export async function handleBundle(argv: BundleOptions, version: string) {
-  const config = await loadConfig({ configPath: argv.config, customExtends: argv.extends });
+  const config = await loadConfigAndHandleErrors({
+    configPath: argv.config,
+    customExtends: argv.extends,
+  });
   const removeUnusedComponents =
-    argv['remove-unused-components'] &&
-    !config.rawConfig.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
+    argv['remove-unused-components'] ||
+    config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];

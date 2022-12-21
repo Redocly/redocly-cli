@@ -23,6 +23,7 @@ rootType:
               type: string
             email:
               type: string
+          extensionsPrefix: x-
           name: Contact
         license:
           properties:
@@ -32,6 +33,7 @@ rootType:
               type: string
           required:
             - name
+          extensionsPrefix: x-
           name: License
         x-logo:
           properties:
@@ -47,6 +49,7 @@ rootType:
       required:
         - title
         - version
+      extensionsPrefix: x-
       name: Info
     servers:
       name: ServerList
@@ -62,6 +65,7 @@ rootType:
             properties: {}
         required:
           - url
+        extensionsPrefix: x-
         name: Server
     security:
       name: SecurityRequirementList
@@ -90,6 +94,7 @@ rootType:
                 type: string
             required:
               - url
+            extensionsPrefix: x-
             name: ExternalDocs
           x-traitTag:
             type: boolean
@@ -97,6 +102,7 @@ rootType:
             type: string
         required:
           - name
+        extensionsPrefix: x-
         name: Tag
     externalDocs:
       properties:
@@ -106,6 +112,7 @@ rootType:
           type: string
       required:
         - url
+      extensionsPrefix: x-
       name: ExternalDocs
     paths:
       properties: {}
@@ -139,6 +146,7 @@ rootType:
         callbacks:
           name: NamedCallbacks
           properties: {}
+      extensionsPrefix: x-
       name: Components
     x-webhooks:
       properties: {}
@@ -154,6 +162,7 @@ rootType:
             type: array
             items:
               type: string
+        extensionsPrefix: x-
         name: TagGroup
     x-ignoredHeaderParameters:
       type: array
@@ -163,6 +172,7 @@ rootType:
     - openapi
     - paths
     - info
+  extensionsPrefix: x-
   name: Root
 refTypes: {}
 visitorsData:
