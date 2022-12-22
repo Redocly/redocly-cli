@@ -68,7 +68,7 @@ export const SpecComponentsInvalidMapName: Oas3Rule = () => {
     ExampleMap: {
       Example(_node, { key, report, location }: UserContext) {
         validateKey(key, report, location, 'examples');
-      }
+      },
     },
   };
 };
