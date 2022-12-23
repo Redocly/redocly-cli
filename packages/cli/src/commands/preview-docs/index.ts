@@ -2,14 +2,13 @@ import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
 import {
   bundle,
-  loadConfig,
   ResolveError,
   YamlParseError,
   RedoclyClient,
   getTotals,
   getMergedConfig,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit } from '../../utils';
+import { getFallbackApisOrExit, loadConfigAndHandleErrors } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from '../../types';
 
@@ -129,7 +128,7 @@ export async function previewDocs(
   });
 
   async function reloadConfig() {
-    const config = await loadConfig({ configPath: argv.config });
+    const config = await loadConfigAndHandleErrors({ configPath: argv.config });
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.api);

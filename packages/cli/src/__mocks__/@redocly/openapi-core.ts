@@ -29,6 +29,7 @@ export const findConfig = jest.fn();
 export const doesYamlFileExist = jest.fn();
 export const bundleDocument = jest.fn(() => Promise.resolve({ problems: {} }));
 export const detectOpenAPI = jest.fn();
+export const isAbsoluteUrl = jest.fn();
 
 export class BaseResolver {
   cache = new Map<string, Promise<Document | ResolveError>>();

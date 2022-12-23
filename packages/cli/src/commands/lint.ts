@@ -7,7 +7,6 @@ import {
   findConfig,
   getMergedConfig,
   makeDocumentFromString,
-  loadConfig,
   stringifyYaml,
   RawConfig,
   RuleSeverity,
@@ -23,6 +22,7 @@ import {
   printConfigLintTotals,
   printUnusedWarnings,
   exitWithError,
+  loadConfigAndHandleErrors,
 } from '../utils';
 import type { CommonOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
@@ -39,7 +39,7 @@ export async function handleLint(argv: LintOptions, version: string) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
 
-  const config: Config = await loadConfig({
+  const config: Config = await loadConfigAndHandleErrors({
     configPath: argv.config,
     customExtends: argv.extends,
     processRawConfig: lintConfigCallback(argv, version),

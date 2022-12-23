@@ -7,7 +7,6 @@ import { createHash } from 'crypto';
 import {
   bundle,
   Config,
-  loadConfig,
   RedoclyClient,
   IGNORE_FILE,
   BundleOutputFormat,
@@ -22,6 +21,7 @@ import {
   getFallbackApisOrExit,
   pluralize,
   dumpBundle,
+  loadConfigAndHandleErrors,
 } from '../utils';
 import { promptClientToken } from './login';
 
@@ -41,7 +41,7 @@ type PushArgs = {
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfig({ region: argv.region, files: argv.files });
+  const config = await loadConfigAndHandleErrors({ region: argv.region, files: argv.files });
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {

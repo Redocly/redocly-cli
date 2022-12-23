@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createStore, Redoc } from 'redoc';
+import { Config, isAbsoluteUrl } from '@redocly/openapi-core';
 
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
@@ -8,7 +9,6 @@ import { join } from 'path';
 import { existsSync, lstatSync, readFileSync } from 'fs';
 
 import type { BuildDocsOptions } from './types';
-import type { Config } from '@redocly/openapi-core';
 import { red } from 'colorette';
 import { exitWithError } from '../../utils';
 
@@ -62,7 +62,7 @@ export async function getPageHTML(
 ) {
   process.stderr.write('Prerendering docs');
 
-  const apiUrl = redocOptions.specUrl || (isURL(pathToApi) ? pathToApi : undefined);
+  const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
   const store = await createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
 
@@ -91,10 +91,6 @@ export async function getPageHTML(
     disableGoogleFont,
     templateOptions,
   });
-}
-
-export function isURL(str: string): boolean {
-  return /^(https?:)\/\//m.test(str);
 }
 
 export function sanitizeJSONString(str: string): string {

@@ -1,3 +1,5 @@
+import { ConfigFixture } from '../__tests__/fixtures/config';
+
 export const getFallbackApisOrExit = jest.fn((entrypoints) =>
   entrypoints.map((path: string) => ({ path }))
 );
@@ -12,3 +14,4 @@ export const getOutputFileName = jest.fn(() => ({ outputFile: 'test.yaml', ext: 
 export const handleError = jest.fn();
 export const exitWithError = jest.fn();
 export const writeYaml = jest.fn();
+export const loadConfigAndHandleErrors = jest.fn(() => ConfigFixture);
