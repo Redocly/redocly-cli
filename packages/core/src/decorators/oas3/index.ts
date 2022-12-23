@@ -6,6 +6,7 @@ import { InfoDescriptionOverride } from '../common/info-description-override';
 import { RemoveXInternal } from '../common/remove-x-internal';
 import { FilterIn } from '../common/filters/filter-in';
 import { FilterOut } from '../common/filters/filter-out';
+import { MediaTypeExamplesOverride } from '../common/media-type-examples-override';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,
@@ -15,4 +16,5 @@ export const decorators = {
   'remove-x-internal': RemoveXInternal as Oas3Decorator,
   'filter-in': FilterIn as Oas3Decorator,
   'filter-out': FilterOut as Oas3Decorator,
+  'media-type-examples-override': MediaTypeExamplesOverride as Oas3Decorator,
 };

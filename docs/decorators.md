@@ -18,6 +18,9 @@ They are commonly used to add, remove, or change content.
 - [operation-description-override](./decorators/operation-description-override.md)
 - [tag-description-override](./decorators/tag-description-override.md)
 
+### Changing examples
+- [media-type-examples-override](./decorators/media-type-examples-override.md)
+
 ### Removing content
 
 - [filter-in](./decorators/filter-in.md)
