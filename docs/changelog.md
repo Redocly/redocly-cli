@@ -9,14 +9,14 @@ toc:
 
 ### Features
 
-- Allowed enabling to remove unused components in config to use within the bundle command.
-- Implemented a special SpecExtension type `VendorExtension`
-- Added an error handler in cases if the definition or plugin does not exist.
-- Added `media-type-examples-override` decorator
+- Enabled removing unused components in the config to use within the bundle command.
+- Implemented special SpecExtension type `VendorExtension`.
+- Added an error handler for the case when the definition or a plugin does not exist.
+- Added `media-type-examples-override` decorator.
 
 ### Fixes
 
-- Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjust the logic behind the rule in general.
+- Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjusted the logic behind the rule in general.
 
 ## 1.0.0-beta.116 (2022-12-7)
 
