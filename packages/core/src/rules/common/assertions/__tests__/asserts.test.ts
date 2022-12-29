@@ -629,7 +629,11 @@ describe('oas3 assertions', () => {
       it('should not order objects without property defined', () => {
         expect(
           asserts.sortOrder(
-            [{ name: 'bar', id: 1 }, { name: 'baz', id: 2 }, { name: 'foo', id: 3 }],
+            [
+              { name: 'bar', id: 1 },
+              { name: 'baz', id: 2 },
+              { name: 'foo', id: 3 },
+            ],
             { direction: 'desc' },
             baseLocation
           )
@@ -641,7 +645,11 @@ describe('oas3 assertions', () => {
         ]);
         expect(
           asserts.sortOrder(
-            [{ name: 'bar', id: 1 }, { name: 'baz', id: 2 }, { name: 'foo', id: 3 }],
+            [
+              { name: 'bar', id: 1 },
+              { name: 'baz', id: 2 },
+              { name: 'foo', id: 3 },
+            ],
             { direction: 'asc' },
             baseLocation
           )
