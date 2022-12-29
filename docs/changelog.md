@@ -14,10 +14,6 @@ toc:
 - Added an error handler in cases if the definition or plugin does not exist.
 - Added `media-type-examples-override` decorator
 
-### Changes
-
-- Changed `sortOrder` logic 
-
 ### Fixes
 
 - Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjust the logic behind the rule in general.
