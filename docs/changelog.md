@@ -5,6 +5,19 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.118 (2022-12-29)
+
+### Features
+
+- Enabled removing unused components in the config to use within the bundle command.
+- Implemented special SpecExtension type `VendorExtension`.
+- Added an error handler for the case when the definition or a plugin does not exist.
+- Added `media-type-examples-override` decorator.
+
+### Fixes
+
+- Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjusted the logic behind the rule in general.
+
 ## 1.0.0-beta.116 (2022-12-7)
 
 ### Fixes
