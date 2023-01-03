@@ -487,7 +487,7 @@ describe('Oas3.1 spec', () => {
   it('should not report on SpecExtension with additionalProperties', async () => {
     const document = parseYamlToDocument(
       outdent`
-      openapi: 3.0.0
+      openapi: 3.1.0
       info:
         x-logo:
           url: 'https://redocly.github.io/redoc/example-logo.svg'
