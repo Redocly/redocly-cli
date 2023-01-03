@@ -5,6 +5,12 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.119 (2023-01-03)
+
+### Fixes
+
+- Fixed an issue where the `spec` rule showed an error for `x-logo` properties in the 3.1 OpenAPI definition.
+
 ## 1.0.0-beta.118 (2022-12-29)
 
 ### Features
