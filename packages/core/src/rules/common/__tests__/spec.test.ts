@@ -516,7 +516,7 @@ describe('Oas3.1 spec', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "The field \`paths\` must be present on this level.",
+          "message": "Must contain at least one of the following fields: paths, components, webhooks.",
           "ruleId": "spec",
           "severity": "error",
           "suggest": Array [],
