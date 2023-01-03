@@ -66,6 +66,7 @@ export function mapOf(typeName: string) {
 export const SpecExtension: NormalizedNodeType = {
   name: 'SpecExtension',
   properties: {},
+  additionalProperties: null
 };
 
 export function normalizeTypes(
