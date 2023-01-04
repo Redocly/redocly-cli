@@ -67,7 +67,7 @@ export const SpecExtension: NormalizedNodeType = {
   name: 'SpecExtension',
   properties: {},
   // skip validation of additional properties for unknown extensions
-  additionalProperties: null,
+  additionalProperties: { resolvable: true },
 };
 
 export function normalizeTypes(
