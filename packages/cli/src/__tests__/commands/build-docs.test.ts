@@ -51,7 +51,7 @@ describe('build-docs', () => {
       disableGoogleFont: false,
       template: '',
       templateOptions: {},
-      theme: { openapi : {} },
+      theme: { openapi: {} },
       api: '../some-path/openapi.yaml',
     } as BuildDocsArgv);
     expect(loadAndBundleSpec).toBeCalledTimes(1);
