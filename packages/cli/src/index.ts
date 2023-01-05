@@ -404,13 +404,17 @@ yargs
           describe:
             'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
         },
-        oasFeatures: {
-          describe: 'Redoc oasFeatures, use dot notation, e.g. oasFeatures.nativeScrollbars',
+        theme: {
+          describe: 'Redoc theme.openapi, use dot notation, e.g. theme.openapi.nativeScrollbars',
         },
         config: {
           describe: 'Specify path to the config file.',
           type: 'string',
         },
+      }).check((argv: any) => {
+        if (argv.theme && !argv.theme?.openapi)
+          throw Error('Invalid option: features.openapi not set');
+        return true;
       }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';

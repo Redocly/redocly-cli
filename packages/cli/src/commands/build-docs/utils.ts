@@ -37,9 +37,9 @@ export function getObjectOrJSON(
       break;
     default: {
       if (config.configFile) {
-        process.stderr.write(`Found ${config.configFile} and using oasFeatures options`);
+        process.stderr.write(`Found ${config.configFile} and using theme.openapi options`);
 
-        return config['features.openapi']; // FIXME: rename features.openapi to oasFeatures after global renaming inside repo.
+        return config['features.openapi']; // FIXME: rename features.openapi to theme.openapi after global renaming inside repo.
       }
       return {};
     }
