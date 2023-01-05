@@ -9,7 +9,7 @@ The `build-docs` command builds Redoc into a zero-dependency HTML file.
 ```bash
 redocly build-docs <api>
 redocly build-docs <api> --output=custom.html
-redocly build-docs <api> --features.openapi.theme.colors.primary.main=orange
+redocly build-docs <api> --theme.openapi.disableSearch
 redocly build-docs <api> --template custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
@@ -26,7 +26,7 @@ api | string | Path to the API definition filename or alias that you want to gen
 --cdn | boolean | Uses the CDN pointing to the latest version of Redoc. If not enabled, the Redoc version is selected from Redocly CLI's associated dependency (and to update Redoc requires updating the CLI and building the docs again). The default value is `false`.
 --template, -t | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
 --templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
---features.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming).
+--theme.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming).
 --config | string | Specifies path to the [configuration file](#custom-configuration-file).
 --help | boolean | Shows help.
 --version | boolean | Shows version number.
@@ -70,12 +70,12 @@ By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/co
 redocly build-docs --config=./another/directory/config.yaml
 ```
 
-### `features.openapi` example
+### `theme.openapi` example
 
-Build docs with the main color changed to `orange`:
+Build docs with hidden search box:
 
 ```bash
-redocly build-docs openapi.yaml --features.openapi.theme.colors.primary.main=orange
+redocly build-docs openapi.yaml --theme.openapi.disableSearch
 ```
 
 ### `templateOptions` example
