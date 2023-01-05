@@ -83,7 +83,7 @@ paths:
 ## Related rules
 
 - [request-mime-type](./request-mime-type.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

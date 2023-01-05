@@ -1,8 +1,101 @@
 ---
-tocMaxDepth: 2
+toc:
+  maxDepth: 2
 ---
 
 # Redocly CLI changelog
+
+## 1.0.0-beta.119 (2023-01-03)
+
+### Fixes
+
+- Fixed an issue where the `spec` rule showed an error for `x-logo` properties in the 3.1 OpenAPI definition.
+
+## 1.0.0-beta.118 (2022-12-29)
+
+### Features
+
+- Enabled removing unused components in the config to use within the bundle command.
+- Implemented special SpecExtension type `VendorExtension`.
+- Added an error handler for the case when the definition or a plugin does not exist.
+- Added `media-type-examples-override` decorator.
+
+### Fixes
+
+- Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjusted the logic behind the rule in general.
+
+## 1.0.0-beta.116 (2022-12-7)
+
+### Fixes
+
+- Fixed an issue with scalar assertion failing when an object is of invalid type.
+  
+### Features
+
+- Added Redoc vendor extensions to supported types.
+
+## 1.0.0-beta.115 (2022-11-29)
+
+### Features
+
+- Added support for [`any`](./rules/custom-rules.md#any-example) type in assertions.
+
+### Changes
+
+- Renamed the Docker image on [Docker Hub](https://hub.docker.com/repository/docker/redocly/cli).
+- Changed assertions errors grouping.
+- Removed orphaned git submodule `public_api_docs`.
+
+## 1.0.0-beta.114 (2022-11-18)
+
+### Features
+
+- Added a new assertion [`notPattern`](./rules/custom-rules.md#notpattern-example) to the custom rules.
+
+## 1.0.0-beta.113 (2022-11-15)
+
+### Changes
+
+- Removed automatically adding the `recommended` configuration when there is a config defined without an `extends` list.
+
+### Fixes
+
+- Fixed an issue with undefined `process.cwd` in browser environment.
+- Fixed an issue with `$anchors` in OpenAPI documents are not properly parsed.
+- Fixed an issue with the `spec` rule not reporting on `nullable` in Schema object that don't have a `type` sibling.
+- Added missing OAS2 and OAS3 list types.
+- Don't show false media type example errors when a discriminator is used with the `allOf` keyword.
+ 
+## 1.0.0-beta.112 (2022-11-01)
+
+### Changes
+
+- Changed assertions syntax and renamed to [custom rules](./rules/custom-rules.md).
+- Removed `info-description` rule.
+- Removed deprecated fields suggestions in Redocly config file.
+
+## 1.0.0-beta.111 (2022-10-10)
+
+### Changes
+
+- Renamed four type names for alignment with the OpenAPI specification.
+    - `PathsMap` to `Paths`
+    - `ResponsesMap` to `Responses`
+    - `EncodingsMap` to `EncodingMap`
+    - `SecuritySchemeFlows` to `OAuth2Flows`
+
+### Features
+
+- Added a new option `--keep-url-references` to the `bundle` command that disables bundling of absolute URL `$ref`-s.
+
+### Fixes
+
+- Improved location of problems produced by `security-defined` rule.
+- Fixed an issue with `response-contains-header` being case-sensitive.
+- Fixed an issue with `path-params-defined` rule that was not accounting for params defined on the operation level.
+- Fixed an issue with `type` not being validated if it is an array.
+- Fixed an issue with `apis` overrides not picking up some base values from the root config.
+- Fixed an issue with api not being detected from the `apis` list if used as a file name.
 
 ## 1.0.0-beta.110 (2022-09-21)
 
@@ -231,7 +324,7 @@ rules:
 
 ### Features
 
-- Introduced [assertions](./rules/assertions.md) - a new, powerful lint feature, which helps you enforce API design standards without coding custom rules.
+- Introduced [custom rules](./rules/custom-rules.md) - a new, powerful lint feature, which helps you enforce API design standards without coding (named `assertions` at the time of the release).
 - The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes

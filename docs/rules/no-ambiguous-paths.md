@@ -24,11 +24,11 @@ According to the OpenAPI specification:
 ```mermaid
 flowchart TD
 
-root ==> PathsMap
+root ==> Paths
 
 root ==> components
 
-style PathsMap fill:#codaf9,stroke:#0044d4,stroke-width:5px
+style Paths fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
 ## API design principles

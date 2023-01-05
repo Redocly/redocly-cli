@@ -4,4 +4,3 @@ apis:
 
 rules:
   operation-description: warn
-extends: []

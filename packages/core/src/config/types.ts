@@ -14,6 +14,8 @@ import { Location } from '../ref-utils';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
+export type RuleSettings = { severity: RuleSeverity };
+
 export type PreprocessorSeverity = RuleSeverity | 'on';
 
 export type RuleConfig =

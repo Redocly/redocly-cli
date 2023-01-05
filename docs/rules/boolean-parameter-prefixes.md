@@ -13,7 +13,7 @@ When this rule is enabled, the `name` fields of all `boolean` parameters in your
 ```mermaid
 flowchart TD
 
-root ==> PathsMap --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
+root ==> Paths --> PathItem --> Operation --> Parameter --enforces names for boolean types--> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 
@@ -89,7 +89,7 @@ schema:
 ```
 
 ## Related rules
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [parameter-description](./parameter-description.md)
 - [operation-parameters-unique](./operation-parameters-unique.md)

@@ -15,7 +15,6 @@ import { OperationIdUrlSafe } from '../common/operation-operationId-url-safe';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
 import { NoServerExample } from './no-server-example.com';
 import { NoServerTrailingSlash } from './no-server-trailing-slash';
-import { InfoDescription } from '../common/info-description';
 import { TagDescription } from '../common/tag-description';
 import { InfoContact } from '../common/info-contact';
 import { InfoLicense } from '../common/info-license';
@@ -53,7 +52,6 @@ import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-detai
 
 export const rules = {
   spec: OasSpec,
-  'info-description': InfoDescription,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,

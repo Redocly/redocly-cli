@@ -39,7 +39,6 @@ Object {
     "assertions": "warn",
     "boolean-parameter-prefixes": "error",
     "info-contact": "off",
-    "info-description": "warn",
     "info-license": "warn",
     "info-license-url": "warn",
     "local/operation-id-not-test": "error",
@@ -73,7 +72,7 @@ Object {
 }
 `;
 
-exports[`resolveStyleguideConfig should resolve extends with local file config witch contains path to nested config 1`] = `
+exports[`resolveStyleguideConfig should resolve extends with local file config which contains path to nested config 1`] = `
 Object {
   "decorators": Object {},
   "doNotResolveExamples": undefined,
@@ -129,7 +128,6 @@ Object {
     ],
     "boolean-parameter-prefixes": "error",
     "info-contact": "off",
-    "info-description": "warn",
     "info-license": "warn",
     "info-license-url": "warn",
     "local/operation-id-not-test": "error",

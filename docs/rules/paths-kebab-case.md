@@ -77,7 +77,7 @@ paths:
 
 - [path-excludes-patterns](./path-excludes-patterns.md)
 - [paths-segment-plural](./path-segment-plural.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

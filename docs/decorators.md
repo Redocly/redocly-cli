@@ -18,6 +18,9 @@ They are commonly used to add, remove, or change content.
 - [operation-description-override](./decorators/operation-description-override.md)
 - [tag-description-override](./decorators/tag-description-override.md)
 
+### Changing examples
+- [media-type-examples-override](./decorators/media-type-examples-override.md)
+
 ### Removing content
 
 - [filter-in](./decorators/filter-in.md)
@@ -48,5 +51,5 @@ Optionally, you may specify `severity` as one of decorator options in the config
 
 ## Custom decorators
 
-You can create your own decorators using [custom plugins](./resources/custom-rules.md).
-Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-server-url.md).
+You can create your own decorators using [custom plugins](./resources/custom-plugins.md).
+Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-servers-url.md).

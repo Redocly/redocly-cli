@@ -67,7 +67,7 @@ paths:
 ## Related rules
 
 - [path-parameters-defined](./path-parameters-defined.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

@@ -9,4 +9,3 @@ rules:
     exceptions:
       - v1
       - pet
-extends: []

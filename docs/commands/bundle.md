@@ -9,7 +9,7 @@ Redocly CLI can help you combine separate API definition files into one. The `bu
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
 :::success Tip
-To learn more about preprocessors, rules, and decorators, refer to the [custom rules](../resources/custom-rules.md) page.
+To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../resources/custom-plugins.md) page.
 :::
 
 ## Usage
@@ -182,6 +182,6 @@ redocly bundle --skip-decorator=generate-code-samples,remove-internal-operations
 
 :::success Tip
 
-To learn more about preprocessors, rules, and decorators, refer to the [custom rules](../resources/custom-rules.md) page.
+To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../resources/custom-plugins.md) page.
 
 :::

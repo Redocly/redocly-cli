@@ -1,3 +1,4 @@
+import { Assertion, AssertionDefinition } from '..';
 import { isOrdered, buildVisitorObject, getIntersectionLength } from '../utils';
 
 describe('Oas3 assertions', () => {
@@ -25,29 +26,43 @@ describe('Oas3 assertions', () => {
 
     describe('buildVisitorObject', () => {
       it('should return a consistent visitor structure', () => {
-        const context = [
+        const where: AssertionDefinition[] = [
           {
-            type: 'Foo',
-            matchParentKeys: ['test'],
+            subject: {
+              type: 'Foo',
+              filterInParentKeys: ['test'],
+            },
+            assertions: {},
           },
           {
-            type: 'Bar',
-            matchParentKeys: ['test'],
+            subject: {
+              type: 'Bar',
+              filterInParentKeys: ['test'],
+            },
+            assertions: {},
           },
           {
-            type: 'Roof',
-            matchParentKeys: ['test'],
+            subject: {
+              type: 'Roof',
+              filterInParentKeys: ['test'],
+            },
+            assertions: {},
           },
-        ];
+        ] as AssertionDefinition[];
 
-        const visitors = buildVisitorObject('Bar', context, () => {}) as any;
+        const visitors = buildVisitorObject(
+          { subject: { type: 'Bar' }, where, assertions: {} } as Assertion,
+          () => {}
+        );
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
             "Foo": Object {
               "Bar": Object {
                 "Roof": Object {
-                  "Bar": [Function],
+                  "Bar": Object {
+                    "enter": [Function],
+                  },
                   "skip": [Function],
                 },
                 "skip": [Function],
@@ -59,24 +74,35 @@ describe('Oas3 assertions', () => {
       });
 
       it('should return the right visitor structure', () => {
-        const context = [
+        const where = [
           {
-            type: 'Operation',
-            matchParentKeys: ['put'],
+            subject: {
+              type: 'Operation',
+              filterInParentKeys: ['put'],
+            },
+            assertions: {},
           },
           {
-            type: 'ResponsesMap',
-            matchParentKeys: [201, 200],
+            subject: {
+              type: 'Responses',
+              filterInParentKeys: [201, 200],
+            },
+            assertions: {},
           },
         ];
 
-        const visitors = buildVisitorObject('MediaTypesMap', context, () => {}) as any;
+        const visitors = buildVisitorObject(
+          { subject: { type: 'MediaTypesMap' }, where, assertions: {} } as Assertion,
+          () => {}
+        );
 
         expect(visitors).toMatchInlineSnapshot(`
           Object {
             "Operation": Object {
-              "ResponsesMap": Object {
-                "MediaTypesMap": [Function],
+              "Responses": Object {
+                "MediaTypesMap": Object {
+                  "enter": [Function],
+                },
                 "skip": [Function],
               },
               "skip": [Function],

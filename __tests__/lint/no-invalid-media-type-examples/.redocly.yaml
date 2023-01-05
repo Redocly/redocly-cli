@@ -2,6 +2,5 @@ apis:
   main:
     root: ./openapi.yaml
 
-extends: []
 rules:
   no-invalid-media-type-examples: error

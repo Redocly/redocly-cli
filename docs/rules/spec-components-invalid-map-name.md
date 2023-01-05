@@ -84,7 +84,7 @@ components:
 
 ## Related rules
 
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [spec](./spec.md)
 
 ## Resources

@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  assert/path-item-mutually-required:
+    subject: 
+      type: Operation
+    assertions:
+      defined: true

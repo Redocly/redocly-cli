@@ -4,4 +4,3 @@ apis:
 
 rules:
   no-unresolved-refs: error
-extends: []

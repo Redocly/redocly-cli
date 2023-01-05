@@ -1,43 +1,54 @@
-import { basename, dirname, extname, join, resolve } from 'path';
+import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
 import * as glob from 'glob-promise';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import {
   BundleOutputFormat,
-  Config,
   StyleguideConfig,
   ResolveError,
   YamlParseError,
+  ResolvedApi,
   parseYaml,
   stringifyYaml,
+  isAbsoluteUrl,
+  loadConfig,
+  RawConfig,
+  Region,
+  Config,
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions, Entrypoint } from './types';
+import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
-  config: Config
+  config: ConfigApis
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
     !isNotEmptyArray(argsApis) && apis && Object.keys(apis).length > 0;
   const res = shouldFallbackToAllDefinitions
-    ? Object.entries(apis).map(([alias, { root }]) => ({
-        path: resolve(getConfigDirectory(config), root),
-        alias,
-      }))
+    ? fallbackToAllDefinitions(apis, config)
     : await expandGlobsInEntrypoints(argsApis!, config);
-  if (!isNotEmptyArray(res)) {
-    process.stderr.write('error: missing required argument `apis`.\n');
+
+  const filteredInvalidEntrypoints = res.filter(({ path }) => !isApiPathValid(path));
+  if (isNotEmptyArray(filteredInvalidEntrypoints)) {
+    for (const { path } of filteredInvalidEntrypoints) {
+      process.stderr.write(
+        yellow(
+          `\n ${relative(process.cwd(), path)} ${red(
+            `does not exist or is invalid. Please provide a valid path. \n\n`
+          )}`
+        )
+      );
+    }
     process.exit(1);
   }
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+function getConfigDirectory(config: ConfigApis) {
   return config.configFile ? dirname(config.configFile) : process.cwd();
 }
 
@@ -45,17 +56,42 @@ function isNotEmptyArray<T>(args?: T[]): boolean {
   return Array.isArray(args) && !!args.length;
 }
 
-function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint {
-  return config.apis[aliasOrPath]
-    ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
-    : { path: aliasOrPath };
+function isApiPathValid(apiPath: string): string | void {
+  if (!apiPath.trim()) {
+    exitWithError('Path cannot be empty.');
+    return;
+  }
+  return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
 
-async function expandGlobsInEntrypoints(args: string[], config: Config) {
+function fallbackToAllDefinitions(
+  apis: Record<string, ResolvedApi>,
+  config: ConfigApis
+): Entrypoint[] {
+  return Object.entries(apis).map(([alias, { root }]) => ({
+    path: isAbsoluteUrl(root) ? root : resolve(getConfigDirectory(config), root),
+    alias,
+  }));
+}
+
+function getAliasOrPath(config: ConfigApis, aliasOrPath: string): Entrypoint {
+  return config.apis[aliasOrPath]
+    ? { path: config.apis[aliasOrPath]?.root, alias: aliasOrPath }
+    : {
+        path: aliasOrPath,
+        // find alias by path, take the first match
+        alias:
+          Object.entries(config.apis).find(([_alias, api]) => {
+            return resolve(api.root) === resolve(aliasOrPath);
+          })?.[0] ?? undefined,
+      };
+}
+
+async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
   return (
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
-        return glob.hasMagic(aliasOrPath)
+        return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
           ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
@@ -113,7 +149,7 @@ export function dumpBundle(obj: any, format: BundleOutputFormat, dereference?: b
 }
 
 export function saveBundle(filename: string, output: string) {
-  fs.mkdirSync(path.dirname(filename), { recursive: true });
+  fs.mkdirSync(dirname(filename), { recursive: true });
   fs.writeFileSync(filename, output);
 }
 
@@ -320,6 +356,23 @@ export function exitWithError(message: string) {
  * Checks if dir is subdir of parent
  */
 export function isSubdir(parent: string, dir: string): boolean {
-  const relative = path.relative(parent, dir);
-  return !!relative && !/^..($|\/)/.test(relative) && !path.isAbsolute(relative);
+  const relativePath = relative(parent, dir);
+  return !!relativePath && !/^..($|\/)/.test(relativePath) && !isAbsolute(relativePath);
+}
+
+export async function loadConfigAndHandleErrors(
+  options: {
+    configPath?: string;
+    customExtends?: string[];
+    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    files?: string[];
+    region?: Region;
+  } = {}
+): Promise<Config> {
+  try {
+    return await loadConfig(options);
+  } catch (e) {
+    exitWithError(e.message);
+    return new Config({ apis: {}, styleguide: {} });
+  }
 }

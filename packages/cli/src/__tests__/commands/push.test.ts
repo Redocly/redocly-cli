@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { Config, getMergedConfig, loadConfig } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils';
+import { Config, getMergedConfig } from '@redocly/openapi-core';
+import { exitWithError, loadConfigAndHandleErrors } from '../../utils';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 
@@ -79,7 +79,7 @@ describe('push', () => {
   });
 
   it('push with --files', async () => {
-    (loadConfig as jest.Mock).mockImplementation(({ files }) => {
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(({ files }) => {
       return { ...ConfigFixture, files };
     });
 

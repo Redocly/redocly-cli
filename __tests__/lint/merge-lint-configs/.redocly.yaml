@@ -2,8 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
     rules:
-      info-description: warn
+      info-contact: warn
 
 rules:
-  info-description: error
-extends: []
+  info-contact: error

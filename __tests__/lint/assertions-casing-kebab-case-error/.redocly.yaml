@@ -4,16 +4,18 @@ apis:
 
 rules:
   assert/operation-get:
-    context:
-      - type: Operation
-        matchParentKeys: [get]
-    subject: Operation
-    property: operationId
+    subject:
+      type: Operation
+      property: operationId
+      filterInParentKeys: [get]
+    assertions:
+      casing: kebab-case
     message: Operation id should be kebab-case
-    casing: kebab-case
+
   assert/operation-id-kebab-case:
-    subject: Operation
-    property: operationId
+    subject:
+      type: Operation
+      property: operationId
     message: Operation id should be kebab-case
-    casing: kebab-case
-extends: []
+    assertions:
+      casing: kebab-case

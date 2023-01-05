@@ -1,6 +1,6 @@
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
-import { asserts, buildAssertCustomFunction } from '../asserts';
+import { Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
@@ -38,6 +38,24 @@ describe('oas3 assertions', () => {
           {
             message: '"./other.yaml" should match a regex /^(./)?components/.*.yaml$/',
             location: baseLocation,
+          },
+        ]);
+      });
+    });
+
+    describe('notPattern', () => {
+      it('value should not match regex pattern', () => {
+        expect(asserts.notPattern('test string', '/test me/', baseLocation)).toEqual([]);
+        expect(asserts.notPattern('test string', '/test/', baseLocation)).toEqual([
+          { location: baseLocation, message: '"test string" should not match a regex /test/' },
+        ]);
+        expect(
+          asserts.notPattern(['test string', 'test me'], '/test other/', baseLocation)
+        ).toEqual([]);
+        expect(asserts.notPattern(['test string', 'test me'], '/test me/', baseLocation)).toEqual([
+          {
+            message: '"test me" should not match a regex /test me/',
+            location: baseLocation.key(),
           },
         ]);
       });
@@ -531,21 +549,25 @@ describe('oas3 assertions', () => {
       });
     });
 
-    describe.skip('sortOrder', () => {
+    describe('sortOrder', () => {
       it('value should be ordered in ASC direction', () => {
         expect(asserts.sortOrder(['example', 'foo', 'test'], 'asc', baseLocation)).toEqual([]);
         expect(
           asserts.sortOrder(['example', 'foo', 'test'], { direction: 'asc' }, baseLocation)
         ).toEqual([]);
         expect(asserts.sortOrder(['example'], 'asc', baseLocation)).toEqual([]);
-        expect(asserts.sortOrder(['example', 'test', 'foo'], 'asc', baseLocation)).toEqual({
-          isValid: false,
-          location: baseLocation,
-        });
-        expect(asserts.sortOrder(['example', 'foo', 'test'], 'desc', baseLocation)).toEqual({
-          isValid: false,
-          location: baseLocation,
-        });
+        expect(asserts.sortOrder(['example', 'test', 'foo'], 'asc', baseLocation)).toEqual([
+          {
+            message: 'Should be sorted in an ascending order',
+            location: baseLocation,
+          },
+        ]);
+        expect(asserts.sortOrder(['example', 'foo', 'test'], 'desc', baseLocation)).toEqual([
+          {
+            message: 'Should be sorted in a descending order',
+            location: baseLocation,
+          },
+        ]);
         expect(
           asserts.sortOrder(
             [{ name: 'bar' }, { name: 'baz' }, { name: 'foo' }],
@@ -559,7 +581,12 @@ describe('oas3 assertions', () => {
             { direction: 'desc', property: 'name' },
             baseLocation
           )
-        ).toEqual({ isValid: false, location: baseLocation });
+        ).toEqual([
+          {
+            message: 'Should be sorted in a descending order by property name',
+            location: baseLocation,
+          },
+        ]);
       });
       it('value should be ordered in DESC direction', () => {
         expect(asserts.sortOrder(['test', 'foo', 'example'], 'desc', baseLocation)).toEqual([]);
@@ -567,14 +594,18 @@ describe('oas3 assertions', () => {
           asserts.sortOrder(['test', 'foo', 'example'], { direction: 'desc' }, baseLocation)
         ).toEqual([]);
         expect(asserts.sortOrder(['example'], 'desc', baseLocation)).toEqual([]);
-        expect(asserts.sortOrder(['example', 'test', 'foo'], 'desc', baseLocation)).toEqual({
-          isValid: false,
-          location: baseLocation,
-        });
-        expect(asserts.sortOrder(['test', 'foo', 'example'], 'asc', baseLocation)).toEqual({
-          isValid: false,
-          location: baseLocation,
-        });
+        expect(asserts.sortOrder(['example', 'test', 'foo'], 'desc', baseLocation)).toEqual([
+          {
+            message: 'Should be sorted in a descending order',
+            location: baseLocation,
+          },
+        ]);
+        expect(asserts.sortOrder(['test', 'foo', 'example'], 'asc', baseLocation)).toEqual([
+          {
+            message: 'Should be sorted in an ascending order',
+            location: baseLocation,
+          },
+        ]);
         expect(
           asserts.sortOrder(
             [{ name: 'foo' }, { name: 'baz' }, { name: 'bar' }],
@@ -588,7 +619,64 @@ describe('oas3 assertions', () => {
             { direction: 'asc', property: 'name' },
             baseLocation
           )
-        ).toEqual({ isValid: false, location: baseLocation });
+        ).toEqual([
+          {
+            message: 'Should be sorted in an ascending order by property name',
+            location: baseLocation,
+          },
+        ]);
+      });
+      it('should not order objects without property defined', () => {
+        expect(
+          asserts.sortOrder(
+            [
+              { name: 'bar', id: 1 },
+              { name: 'baz', id: 2 },
+              { name: 'foo', id: 3 },
+            ],
+            { direction: 'desc' },
+            baseLocation
+          )
+        ).toEqual([
+          {
+            message: 'Please define a property to sort objects by',
+            location: baseLocation,
+          },
+        ]);
+        expect(
+          asserts.sortOrder(
+            [
+              { name: 'bar', id: 1 },
+              { name: 'baz', id: 2 },
+              { name: 'foo', id: 3 },
+            ],
+            { direction: 'asc' },
+            baseLocation
+          )
+        ).toEqual([
+          {
+            message: 'Please define a property to sort objects by',
+            location: baseLocation,
+          },
+        ]);
+      });
+      it('should ignore string value casing while ordering', () => {
+        expect(asserts.sortOrder(['Example', 'foo', 'Test'], 'asc', baseLocation)).toEqual([]);
+        expect(asserts.sortOrder(['Test', 'foo', 'Example'], 'desc', baseLocation)).toEqual([]);
+        expect(
+          asserts.sortOrder(
+            [{ name: 'bar' }, { name: 'Baz' }, { name: 'Foo' }],
+            { direction: 'asc', property: 'name' },
+            baseLocation
+          )
+        ).toEqual([]);
+        expect(
+          asserts.sortOrder(
+            [{ name: 'Foo' }, { name: 'baz' }, { name: 'Bar' }],
+            { direction: 'desc', property: 'name' },
+            baseLocation
+          )
+        ).toEqual([]);
       });
     });
 
@@ -674,9 +762,13 @@ describe('oas3 assertions', () => {
           }
           return [];
         });
-        asserts['local/customFn'] = buildAssertCustomFunction(customFn);
+        asserts['local/customFn' as keyof Asserts] = buildAssertCustomFunction(customFn);
         expect(
-          asserts['local/customFn'](Object.keys(fakeNode), { word: 'foo' }, baseLocation)
+          asserts['local/customFn' as keyof Asserts](
+            Object.keys(fakeNode),
+            { word: 'foo' },
+            baseLocation
+          )
         ).toEqual([
           {
             message: 'First value should be foo',

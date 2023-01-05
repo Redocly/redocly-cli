@@ -165,4 +165,35 @@ describe('oas3 boolean-parameter-prefixes', () => {
       ]
     `);
   });
+
+  it('should not report on refs inside specification extensions', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          requestBodies:
+            a:
+              content:
+                application/json:
+                  schema:
+                    type: object
+        x-webhooks:
+          test:
+            put:
+              requestBody:
+                $ref: '#/components/requestBodies/a'
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'no-unresolved-refs': 'error',
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`Array []`);
+  });
 });

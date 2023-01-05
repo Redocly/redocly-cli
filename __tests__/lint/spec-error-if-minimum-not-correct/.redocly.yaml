@@ -4,3 +4,5 @@ apis:
 
 rules:
   spec: error
+
+extends: [recommended]

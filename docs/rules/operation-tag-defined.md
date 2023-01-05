@@ -74,7 +74,7 @@ paths:
 - [operation-singular-tag](./operation-singular-tag.md)
 - [tags-alphabetical](./tags-alphabetical.md)
 - [tag-description](./tag-description.md)
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 
 ## Resources
 

@@ -12,11 +12,11 @@ Requires that the contents of every `enum` value in your API definition conform 
 ```mermaid
 flowchart TD
 
-Root ==> PathsMap --> PathItem --> Operation --> Parameter --> Schema
+Root ==> Paths --> PathItem --> Operation --> Parameter --> Schema
 PathItem --> Parameter
 NamedParameter --> Parameter
 Operation --> RequestBody --> MediaType --> Schema
-Operation --> ResponsesMap --> MediaType
+Operation --> Responses --> MediaType
 NamedSchema --> Schema
 Root ==> components
 
@@ -81,7 +81,7 @@ properties:
 
 ## Related rules
 
-- [assertions](./assertions.md)
+- [custom rules](./custom-rules.md)
 - [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
