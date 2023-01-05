@@ -51,6 +51,7 @@ type JoinArgv = {
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
   'without-x-tag-groups'?: boolean;
+  output?: string;
 };
 
 export async function handleJoin(argv: JoinArgv, packageVersion: string) {
@@ -64,6 +65,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     'prefix-tags-with-filename': prefixTagsWithFilename,
     'prefix-tags-with-info-prop': prefixTagsWithInfoProp,
     'without-x-tag-groups': withoutXTagGroups,
+    output: specFilename = 'openapi.yaml',
   } = argv;
 
   const usedTagsOptions = [
@@ -180,7 +182,6 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
   }
 
   iteratePotentialConflicts(potentialConflicts, withoutXTagGroups);
-  const specFilename = 'openapi.yaml';
   const noRefs = true;
 
   if (potentialConflictsTotal) {

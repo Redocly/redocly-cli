@@ -95,6 +95,12 @@ yargs
             description: 'Skip automated x-tagGroups creation',
             type: 'boolean',
           },
+          output: {
+            describe: 'Output file',
+            alias: 'o',
+            type: 'string',
+            default: 'openapi.yaml',
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
