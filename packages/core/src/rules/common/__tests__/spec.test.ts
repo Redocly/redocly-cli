@@ -308,6 +308,56 @@ describe('Oas3 spec', () => {
       ]
     `);
   });
+
+  it('should not report on SpecExtension with additionalProperties', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      x-foo:
+        prop: bar
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`paths\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`info\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
 });
 
 describe('Oas3.1 spec', () => {
@@ -432,5 +482,74 @@ describe('Oas3.1 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('should not report on SpecExtension with additionalProperties', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.1.0
+      info:
+        x-logo:
+          url: 'https://redocly.github.io/redoc/example-logo.svg'
+          backgroundColor: '#FFFFFF'
+          altText: 'Example logo'
+      x-foo:
+        prop: bar
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ spec: 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Must contain at least one of the following fields: paths, components, webhooks.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/info",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`title\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/info",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The field \`version\` must be present on this level.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
   });
 });

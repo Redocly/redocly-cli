@@ -239,9 +239,18 @@ export const asserts: Asserts = {
     condition: OrderOptions | OrderDirection,
     baseLocation: Location
   ) => {
-    if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && !property) {
+      return [
+        {
+          message: `Please define a property to sort objects by`,
+          location: baseLocation,
+        },
+      ];
+    }
+    if (typeof value === 'undefined' || isOrdered(value, condition)) return [];
+
     return [
       {
         message: `Should be sorted in ${

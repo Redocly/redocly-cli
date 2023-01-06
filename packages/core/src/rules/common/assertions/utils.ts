@@ -118,11 +118,11 @@ function applyAssertions(
         );
       }
     } else {
-      const value = assert.name === 'ref' ? rawNode : Object.keys(node);
+      const value = Array.isArray(node) ? node : Object.keys(node);
       assertResults.push(
         runAssertion({
-          values: Object.keys(node),
-          rawValues: value,
+          values: value,
+          rawValues: rawNode,
           assert,
           location: currentLocation,
         })
@@ -288,11 +288,20 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
     let prevVal = value[i - 1];
 
     if (property) {
-      if (!value[i][property] || !value[i - 1][property]) {
+      const currPropValue = value[i][property];
+      const prevPropValue = value[i - 1][property];
+
+      if (!currPropValue || !prevPropValue) {
         return false; // property doesn't exist, so collection is not ordered
       }
-      currValue = value[i][property];
-      prevVal = value[i - 1][property];
+
+      currValue = currPropValue;
+      prevVal = prevPropValue;
+    }
+
+    if (typeof currValue === 'string' && typeof prevVal === 'string') {
+      currValue = currValue.toLowerCase();
+      prevVal = prevVal.toLowerCase();
     }
 
     const result = direction === 'asc' ? currValue >= prevVal : currValue <= prevVal;

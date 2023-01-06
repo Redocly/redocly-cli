@@ -5,6 +5,31 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.120 (2023-01-05)
+
+### Fixes
+
+- Fixed an issue where `$refs` weren't resolved inside specification extensions.
+
+## 1.0.0-beta.119 (2023-01-03)
+
+### Fixes
+
+- Fixed an issue where the `spec` rule showed an error for `x-logo` properties in the 3.1 OpenAPI definition.
+
+## 1.0.0-beta.118 (2022-12-29)
+
+### Features
+
+- Enabled removing unused components in the config to use within the bundle command.
+- Implemented special SpecExtension type `VendorExtension`.
+- Added an error handler for the case when the definition or a plugin does not exist.
+- Added `media-type-examples-override` decorator.
+
+### Fixes
+
+- Fixed an issue where the rule spec-components-invalid-map-name is not applied for all examples and adjusted the logic behind the rule in general.
+
 ## 1.0.0-beta.116 (2022-12-7)
 
 ### Fixes

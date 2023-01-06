@@ -38,6 +38,7 @@ const Info: NodeType = {
     summary: { type: 'string' },
     contact: 'Contact',
     license: 'License',
+    'x-logo': 'Logo',
   },
   required: ['title', 'version'],
   extensionsPrefix: 'x-',
