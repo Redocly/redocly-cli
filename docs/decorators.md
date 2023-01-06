@@ -56,4 +56,4 @@ You can create your own decorators using [custom plugins](./resources/custom-plu
 For example, with custom decorators you can:
 
 - [replace your server URL](./guides/replace-servers-url.md)
-- [hide custom extensions](./guides/hide-custom-extensions.md)
+- [hide openAPI extensions](./guides/hide-openapi-extensions.md)

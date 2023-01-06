@@ -1,12 +1,8 @@
----
-redirectFrom:
-  - /docs/cli/resources/custom-plugins/
----
-# Hide custom API extensions
+# Hide openAPI extensions
 
 When you want to hide internal operations and properties, you can follow our [hide internal APIs](./hide-apis.md) guide.
-However, this approach won't work if you use [custom extensions](https://spec.openapis.org/oas/latest.html#specification-extensions)
-in your API and want to hide their details as well. You need a custom decorator to hide custom extensions.
+However, this approach won't work if you use [specification extensions](https://spec.openapis.org/oas/latest.html#specification-extensions)
+in your API and want to hide their details as well. For this purpose, you need a custom decorator.
 
 ## Overview
 
@@ -19,7 +15,7 @@ graph TD
     A[SSOT] -->|bundle| C(External)
 ```
 
-For this tutorial, we've prepared a sample containing custom extensions starting with `x-amazon-apigateway`.
+For this tutorial, we've prepared a sample containing openAPI extensions starting with `x-amazon-apigateway`.
 
 ## Prerequisites
 
@@ -28,7 +24,7 @@ This tutorial is most effective when you follow along and complete the steps.
 :::
 
 - [Install @redocly/cli](../installation.md) with version 1.0.0-beta.117 or later (we use 1.0.0-beta.117 in this tutorial).
-- Download the [sample.yaml](https://gist.github.com/bandantonio/e1331ba5afd24485de5e6229c91d25ed) file into a new directory named `hide-custom-extensions`.
+- Download the [sample.yaml](https://gist.github.com/bandantonio/e1331ba5afd24485de5e6229c91d25ed) file into a new directory named `hide-openapi-extensions`.
 - Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](../../redocly-openapi/index.md) installed).
 
 ## Step 1: Create a custom plugin
@@ -39,18 +35,18 @@ In this step, create a custom plugin and define the decorator dependency.
 1. In the `plugins` directory, create a `plugin.js` file with the following code:
 
     ```js
-    const removeCustomExtensions = require('./decorators/remove-custom-extensions');
+    const hideOpenapiExtensions = require('./decorators/hide-openapi-extensions');
     const id = 'plugin';
 
     const decorators = {
-    oas3: {
-        'remove-custom-extensions': removeCustomExtensions,
-    },
+      oas3: {
+        'hide-openapi-extensions': hideOpenapiExtensions,
+      },
     };
 
     module.exports = {
-    id,
-    decorators,
+      id,
+      decorators,
     };
     ```
 
@@ -63,28 +59,28 @@ You can name the plugins directory and the file anything you want. Make sure you
 ## Step 2: Add a decorator and associate it with an environment variable
 
 1. In the `plugins` directory, create a new directory called `decorators`.
-1. In the `decorators` directory, create a `remove-custom-extensions.js` file with the following code:
+1. In the `decorators` directory, create a `hide-openapi-extensions.js` file with the following code:
 
     ```js
-    module.exports = removeCustomExtensions;
+    module.exports = hideCustomExtensions;
 
     /** @type {import('@redocly/cli').OasDecorator} */
 
-    function removeCustomExtensions({ pattern }) {
-        return {
-            any: {
-                enter: node => {
-                    pattern.forEach(item => {
-                        Object.keys(node).forEach(key => {
-                            const regex = new RegExp(item, 'i');
-                            if (regex.test(key)) {
-                            delete node[key];
-                            }
-                        });
-                    });
+    function hideCustomExtensions({ pattern }) {
+      return {
+        any: {
+          enter: node => {
+            pattern.forEach(item => {
+              Object.keys(node).forEach(key => {
+                const regex = new RegExp(item, 'i');
+                if (regex.test(key)) {
+                  delete node[key];
                 }
-            }
+              });
+            });
+          }
         }
+      }
     }
     ```
 
@@ -105,7 +101,7 @@ apis:
   external@latest:
     root: ./sample.yaml
     decorators:
-      plugin/remove-custom-extensions:
+      plugin/hide-openapi-extensions:
         pattern:
           - x-amazon-apigateway
 plugins:
@@ -114,13 +110,13 @@ extends:
   - recommended
 ```
 
-Make sure your `hide-custom-extensions` looks as follows:
+Make sure your `hide-openapi-extensions` looks as follows:
 
 ```bash
 .
 ├── plugins
 │   ├── decorators
-│   │   └── remove-custom-extensions.js
+│   │   └── hide-openapi-extensions.js
 │   └── plugin.js
 ├── redocly.yaml
 └── sample.yaml
@@ -133,17 +129,22 @@ In this step, you'll produce the two API snapshots from the single source of tru
 1. Bundle the `external@latest` API.
 
     ```bash
-    redocly bundle external@latest -o dist/internal.yaml
+    redocly bundle external@latest -o dist/bundle-external.yaml
+    // or
+    npx @redocly/cli bundle external@latest -o dist/bundle-external.yaml
     ```
-
-1. Inspect the file at `dist/external.yaml`.
+    
+    Inspect the file at `dist/external.yaml`.
     Confirm that all the occurrences of `x-amazon-apigateway` are removed.
 
 1. Bundle the `internal@latest` API.
 
     ```bash
-    redocly bundle internal@latest -o dist/internal.yaml
+    redocly bundle internal@latest -o dist/bundle-internal.yaml
+    // or
+    npx @redocly/cli bundle internal@latest -o dist/bundle-internal.yaml
     ```
+
     Inspect the file at `dist/internal.yaml`.
     Confirm that all the occurrences of `x-amazon-apigateway` are **not** removed.
 
@@ -154,7 +155,7 @@ to the `pattern` list (after the line 9):
 
 ```yaml
 decorators:
-  plugin/remove-custom-extensions:
+  plugin/hide-openapi-extensions:
     pattern:
       - x-amazon-apigateway
       - x-another-custom-extension
