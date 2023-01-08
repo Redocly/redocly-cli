@@ -1,7 +1,7 @@
-# Hide openAPI extensions
+# Hide OpenAPI specification extensions
 
 When you want to hide internal operations and properties, you can follow our [hide internal APIs](./hide-apis.md) guide.
-However, this approach won't work if you use [specification extensions](https://spec.openapis.org/oas/latest.html#specification-extensions)
+However, this approach won't work if you use [specification extensions](https://redocly.com/docs/openapi-visual-reference/specification-extensions/)
 in your API and want to hide their details as well. For this purpose, you need a custom decorator.
 
 ## Overview
@@ -15,7 +15,7 @@ graph TD
     A[SSOT] -->|bundle| C(External)
 ```
 
-For this tutorial, we've prepared a sample containing openAPI extensions starting with `x-amazon-apigateway`.
+For this tutorial, we've prepared a sample containing OpenAPI specification extensions starting with `x-amazon-apigateway`.
 
 ## Prerequisites
 
@@ -62,11 +62,11 @@ You can name the plugins directory and the file anything you want. Make sure you
 1. In the `decorators` directory, create a `hide-openapi-extensions.js` file with the following code:
 
     ```js
-    module.exports = hideCustomExtensions;
+    module.exports = hideOpenapiExtensions;
 
     /** @type {import('@redocly/cli').OasDecorator} */
 
-    function hideCustomExtensions({ pattern }) {
+    function hideOpenapiExtensions({ pattern }) {
       return {
         any: {
           enter: node => {
@@ -150,7 +150,7 @@ In this step, you'll produce the two API snapshots from the single source of tru
 
 ## Advanced usage
 
-If you want to hide multiple custom extensions, open the `redocly.yaml` and add the corresponding extension names
+If you want to hide multiple specification extensions, open the `redocly.yaml` and add the corresponding extension names
 to the `pattern` list (after the line 9):
 
 ```yaml
