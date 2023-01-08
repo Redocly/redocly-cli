@@ -318,7 +318,7 @@ See an examples of decorators:
 - Read our [how-to hide APIs guide](../guides/hide-apis.md) with our [remove-x-internal decorator](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/decorators/common/remove-x-internal.ts) implementation.
 - Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
 - Change your [OAuth2 token URL](../guides/change-token-url.md).
-- Learn how to [hide OpenAPI specification extensions](../guides/hide-openapi-extensions.md).
+- Learn how to [hide OpenAPI specification extensions](../guides/hide-specification-extensions.md).
 
 ## Configs in plugins
 
