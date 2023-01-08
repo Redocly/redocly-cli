@@ -25,6 +25,7 @@ They are commonly used to add, remove, or change content.
 
 - [filter-in](./decorators/filter-in.md)
 - [filter-out](./decorators/filter-out.md)
+- [remove-unused-components](./decorators/remove-unused-components.md)
 - [remove-x-internal](./decorators/remove-x-internal.md)
 
 Have an idea for a decorator?
