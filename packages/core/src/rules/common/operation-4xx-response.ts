@@ -1,17 +1,24 @@
 import { Oas3Rule, Oas2Rule } from '../../visitors';
 import { UserContext } from '../../walk';
+import { validateResponseCodes } from '../utils';
 
-export const Operation4xxResponse: Oas3Rule | Oas2Rule = () => {
+export const Operation4xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) => {
   return {
-    Responses(responses: Record<string, object>, { report }: UserContext) {
-      const codes = Object.keys(responses || {});
+    Paths: {
+      Responses(responses: Record<string, object>, { report }: UserContext) {
+        const codes = Object.keys(responses || {});
 
-      if (!codes.some((code) => /4[Xx0-9]{2}/.test(code))) {
-        report({
-          message: 'Operation must have at least one `4XX` response.',
-          location: { reportOnKey: true },
-        });
-      }
+        validateResponseCodes(codes, '4XX', { report } as UserContext);
+      },
+    },
+    WebhooksMap: {
+      Responses(responses: Record<string, object>, { report }: UserContext) {
+        if (!validateWebhooks) return;
+
+        const codes = Object.keys(responses || {});
+
+        validateResponseCodes(codes, '4XX', { report } as UserContext);
+      },
     },
   };
 };

@@ -164,3 +164,20 @@ export function validateSchemaEnumType(
     });
   }
 }
+
+export function validateResponseCodes(
+  responseCodes: string[],
+  codeType: string,
+  { report }: UserContext
+) {
+  if (
+    !responseCodes.some((code) =>
+      codeType === '4XX' ? /4[Xx0-9]{2}/.test(code) : code === 'default' || /2[Xx0-9]{2}/.test(code)
+    )
+  ) {
+    report({
+      message: `Operation must have at least one \`${codeType}\` response.`,
+      location: { reportOnKey: true },
+    });
+  }
+}

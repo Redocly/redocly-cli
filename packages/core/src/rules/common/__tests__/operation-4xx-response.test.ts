@@ -164,4 +164,68 @@ describe('Oas3 operation-4xx-response', () => {
       ]
     `);
   });
+
+  it('should report missing 4xx response in webhooks when enabled', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          webhooks:
+            '/test/':
+              put:
+                responses:
+                  200:
+                    description: success response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'operation-4xx-response': { severity: 'error', validateWebhooks: true },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/webhooks/~1test~1/put/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`4XX\` response.",
+          "ruleId": "operation-4xx-response",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report missing 4xx response in webhooks when not enabled', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          x-webhooks:
+            '/test/':
+              put:
+                responses:
+                  200:
+                    description: success response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-response': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });
