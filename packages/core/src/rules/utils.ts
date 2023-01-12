@@ -172,9 +172,11 @@ export function validateResponseCodes(
 ) {
   const responseCodeRegexp = new RegExp(`^${codeRange[0]}[0-9Xx]{2}$`);
 
-  const containsNeededCode = responseCodes.some((code) => 
-    (codeRange === '2XX' && code === 'default') // It's OK to replace 2xx codes with the default
-    || responseCodeRegexp.test(code));
+  const containsNeededCode = responseCodes.some(
+    (code) =>
+      (codeRange === '2XX' && code === 'default') || // It's OK to replace 2xx codes with the default
+      responseCodeRegexp.test(code)
+  );
 
   if (!containsNeededCode) {
     report({
