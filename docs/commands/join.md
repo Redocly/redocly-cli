@@ -19,7 +19,7 @@ With Redocly CLI, you can solve this problem by using the `join` command that ca
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 
-The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file is not supported, which also means that if there is a file called `openapi.yaml` in the working directory, it will be overwritten.
+The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file will be overwritten.
 
 Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command will collect all matching files and combine them into one file.
 
@@ -27,11 +27,13 @@ Apart from providing individual API definition files as the input, you can also 
 
 ```bash
 redocly join <api> <api>...
+redocly join <api> <api>... -o <outputName>
 redocly join <path-to-folder>/<wildcard-pattern> [--lint]
 redocly join [--help] [--prefix-components-with-info-prop] [--prefix-tags-with-info-prop] [--prefix-tags-with-filename]
 
 redocly join first-api.yaml second-api.yaml
 redocly join first-api.yaml second-api.json
+redocly join first-api.yaml second-api.json -o openapi-custom.yaml
 redocly join ./*.yaml
 redocly join --version
 ```
@@ -48,6 +50,7 @@ apis | array | **REQUIRED.**  1. Array of paths to API definition files that you
 --prefix-tags-with-info-prop | boolean | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.
 --without-x-tag-groups | boolean | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.
 --version | boolean | Show version number.
+--output, -o | string | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**
 
 ## Examples
 
@@ -236,4 +239,12 @@ components:
             id:
               type: integer
               format: int64
+```
+
+### Custom output file
+
+By default, the CLI tool writes the joined file as `openapi.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
+
+```bash Command
+redocly join --output=openapi-custom.yaml
 ```
