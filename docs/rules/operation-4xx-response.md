@@ -21,7 +21,7 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 |Option|Type|Description|
 |---|---|---|
 |severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-|validateWebhooks|[boolean]|Determines if responses inside webhooks are validated. Default `false`. |
+|validateWebhooks|boolean|Determines if responses inside webhooks are validated. Default `false`. |
 
 An example configuration:
 
