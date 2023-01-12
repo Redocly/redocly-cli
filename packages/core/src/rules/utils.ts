@@ -179,7 +179,7 @@ export function validateResponseCodes(
 
     return responseCodeRegexp.test(code);
   });
-  
+
   if (!containsNeededCode) {
     report({
       message: `Operation must have at least one \`${codeRange}\` response.`,
