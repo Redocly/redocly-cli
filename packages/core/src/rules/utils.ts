@@ -167,16 +167,22 @@ export function validateSchemaEnumType(
 
 export function validateResponseCodes(
   responseCodes: string[],
-  codeType: string,
+  codeRange: string,
   { report }: UserContext
 ) {
-  if (
-    !responseCodes.some((code) =>
-      codeType === '4XX' ? /4[Xx0-9]{2}/.test(code) : code === 'default' || /2[Xx0-9]{2}/.test(code)
-    )
-  ) {
+  const responseCodeRegexp = new RegExp(`^${codeRange[0]}[0-9Xx]{2}$`);
+
+  const containsNeededCode = responseCodes.some((code) => {
+    if (code === 'default' && codeRange === '2XX') {
+      return true;
+    }
+
+    return responseCodeRegexp.test(code);
+  });
+  
+  if (!containsNeededCode) {
     report({
-      message: `Operation must have at least one \`${codeType}\` response.`,
+      message: `Operation must have at least one \`${codeRange}\` response.`,
       location: { reportOnKey: true },
     });
   }

@@ -21,12 +21,22 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 |Option|Type|Description|
 |---|---|---|
 |severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+|validateWebhooks|[boolean]|Determines if responses inside webhooks are validated. Default `false`. |
 
 An example configuration:
 
 ```yaml
 rules:
   operation-4xx-response: error
+```
+
+The following example enables validation of responses inside webhooks:
+
+```yaml
+rules:
+  operation-4xx-response: 
+    severity: error
+    validateWebhooks: true
 ```
 
 ## Examples

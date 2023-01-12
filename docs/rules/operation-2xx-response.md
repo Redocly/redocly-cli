@@ -23,12 +23,22 @@ You can greatly improve the developer and user experience of your APIs by making
 |Option|Type|Description|
 |---|---|---|
 |severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+|validateWebhooks|[boolean]|Determines if responses inside webhooks are validated. Default `false`. |
 
 An example configuration:
 
 ```yaml
 rules:
   operation-2xx-response: error
+```
+
+The following example enables validation of responses inside webhooks:
+
+```yaml
+rules:
+  operation-2xx-response: 
+    severity: error
+    validateWebhooks: true
 ```
 
 ## Examples
