@@ -122,6 +122,20 @@ export function escapeLanguageName(lang: string) {
   return lang.replace(/#/g, '_sharp').replace(/\//, '_').replace(/\s/g, '');
 }
 
+export function langToExt(lang: string) {
+  const langObj: any = {
+    php: '.php',
+    'c#': '.cs',
+    shell: '.sh',
+    curl: '.sh',
+    bash: '.sh',
+    javascript: '.js',
+    js: '.js',
+    python: '.py',
+  };
+  return langObj[lang.toLowerCase()];
+}
+
 export class CircularJSONNotSupportedError extends Error {
   constructor(public originalError: Error) {
     super(originalError.message);
