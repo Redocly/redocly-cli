@@ -230,7 +230,7 @@ export function showErrorForDeprecatedField(
   updatedField?: string,
   updatedObject?: string
 ) {
-  console.log('showErrorForDeprecatedField', [deprecatedField, updatedField, updatedObject] )
+  console.log('showErrorForDeprecatedField', [deprecatedField, updatedField, updatedObject]);
   throw new Error(
     `Do not use '${deprecatedField}' field. ${
       updatedField ? `Use '${getUpdatedFieldName(updatedField, updatedObject)}' instead. ` : ''
@@ -272,6 +272,6 @@ export function nextTick() {
   });
 }
 
-function getUpdatedFieldName(updatedField: string, updatedObject?: string) {  
+function getUpdatedFieldName(updatedField: string, updatedObject?: string) {
   return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
 }

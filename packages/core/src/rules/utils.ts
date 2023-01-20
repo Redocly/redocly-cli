@@ -136,7 +136,11 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
   }
 
   if (opts.allowAdditionalProperties !== undefined) {
-    showErrorForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties', undefined);
+    showErrorForDeprecatedField(
+      'disallowAdditionalProperties',
+      'allowAdditionalProperties',
+      undefined
+    );
   }
 
   showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');

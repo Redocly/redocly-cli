@@ -218,7 +218,7 @@ const ConfigRootTheme: NodeType = {
   properties: {
     openapi: 'ConfigReferenceDocs',
     mockServer: 'ConfigMockServer',
-  }
+  },
 };
 
 const Rules: NodeType = {
