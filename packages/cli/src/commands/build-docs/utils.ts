@@ -36,10 +36,10 @@ export function getObjectOrJSON(
       }
       break;
     default: {
-      if (config) {
-        process.stderr.write(`Found ${config.configFile} and using features.openapi options`);
+      if (config.theme.openapi) {
+        process.stderr.write(`Found ${config.configFile} and using theme.openapi options`);
 
-        return config['features.openapi'];
+        return config.theme.openapi;
       }
       return {};
     }

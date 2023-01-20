@@ -417,7 +417,7 @@ yargs
         })
         .check((argv: any) => {
           if (argv.features && !argv.features?.openapi)
-            throw Error('Invalid option: features.openapi not set');
+            throw Error('Invalid option: theme.openapi not set');
           return true;
         }),
     async (argv) => {

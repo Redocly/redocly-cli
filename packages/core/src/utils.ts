@@ -211,18 +211,29 @@ export function doesYamlFileExist(filePath: string): boolean {
   );
 }
 
-export function showWarningForDeprecatedField(deprecatedField: string, updatedField?: string) {
+export function showWarningForDeprecatedField(
+  deprecatedField: string,
+  updatedField?: string,
+  updatedObject?: string
+) {
   logger.warn(
     `The '${colorize.red(deprecatedField)}' field is deprecated. ${
-      updatedField ? `Use ${colorize.green(updatedField)} instead. ` : ''
+      updatedField
+        ? `Use ${colorize.green(getUpdatedFieldName(updatedField, updatedObject))} instead. `
+        : ''
     }Read more about this change: https://redocly.com/docs/api-registry/guides/migration-guide-config-file/#changed-properties\n`
   );
 }
 
-export function showErrorForDeprecatedField(deprecatedField: string, updatedField?: string) {
+export function showErrorForDeprecatedField(
+  deprecatedField: string,
+  updatedField?: string,
+  updatedObject?: string
+) {
+  console.log('showErrorForDeprecatedField', [deprecatedField, updatedField, updatedObject] )
   throw new Error(
     `Do not use '${deprecatedField}' field. ${
-      updatedField ? `Use '${updatedField}' instead. ` : ''
+      updatedField ? `Use '${getUpdatedFieldName(updatedField, updatedObject)}' instead. ` : ''
     }\n`
   );
 }
@@ -259,4 +270,8 @@ export function nextTick() {
   new Promise((resolve) => {
     setTimeout(resolve);
   });
+}
+
+function getUpdatedFieldName(updatedField: string, updatedObject?: string) {  
+  return `${typeof updatedObject !== 'undefined' ? `${updatedObject}.` : ''}${updatedField}`;
 }

@@ -241,8 +241,8 @@ async function collectFilesToUpload(api: string, config: Config) {
   if (config.configFile) {
     // All config file paths including the root one
     files.push(...[...new Set(config.styleguide.extendPaths)].map((f) => getFileEntry(f)));
-    if (config['features.openapi'].htmlTemplate) {
-      const dir = getFolder(config['features.openapi'].htmlTemplate);
+    if (config.theme?.openapi?.htmlTemplate) {
+      const dir = getFolder(config.theme.openapi.htmlTemplate);
       const fileList = getFilesList(dir, []);
       files.push(...fileList.map((f) => getFileEntry(f)));
     }
