@@ -25,6 +25,7 @@ They are commonly used to add, remove, or change content.
 
 - [filter-in](./decorators/filter-in.md)
 - [filter-out](./decorators/filter-out.md)
+- [remove-unused-components](./decorators/remove-unused-components.md)
 - [remove-x-internal](./decorators/remove-x-internal.md)
 
 Have an idea for a decorator?
@@ -52,4 +53,8 @@ Optionally, you may specify `severity` as one of decorator options in the config
 ## Custom decorators
 
 You can create your own decorators using [custom plugins](./resources/custom-plugins.md).
-Read a guide that demonstrates a custom decorator to [replace your server URL](./guides/replace-servers-url.md).
+
+For example, with custom decorators you can:
+
+- [replace your server URL](./guides/replace-servers-url.md)
+- [hide OpenAPI specification extensions](./guides/hide-specification-extensions.md)

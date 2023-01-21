@@ -276,7 +276,11 @@ export async function resolveDocument(opts: {
         if (propType === undefined) propType = type.additionalProperties;
         if (typeof propType === 'function') propType = propType(propValue, propName);
         if (propType === undefined) propType = unknownType;
-        if (type.extensionsPrefix && propName.startsWith(type.extensionsPrefix)) {
+        if (
+          type.extensionsPrefix &&
+          propName.startsWith(type.extensionsPrefix) &&
+          propType === unknownType
+        ) {
           propType = SpecExtension;
         }
 

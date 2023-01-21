@@ -5,7 +5,7 @@ toc:
 
 # Redocly CLI changelog
 
-## Next
+## 1.0.0-beta.121 (2023-01-24)
 
 ### Changes
 
@@ -23,6 +23,12 @@ theme:
   openapi: {}
   mockServer: {}
 ```
+
+## 1.0.0-beta.120 (2023-01-05)
+
+### Fixes
+
+- Fixed an issue where `$refs` weren't resolved inside specification extensions.
 
 ## 1.0.0-beta.119 (2023-01-03)
 

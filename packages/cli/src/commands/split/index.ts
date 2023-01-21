@@ -13,6 +13,7 @@ import {
   writeYaml,
   exitWithError,
   escapeLanguageName,
+  langToExt,
 } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
@@ -104,20 +105,6 @@ function validateDefinitionFileName(fileName: string) {
       'File does not conform to the OpenAPI Specification. OpenAPI version is not specified'
     );
   return true;
-}
-
-function langToExt(lang: string) {
-  const langObj: any = {
-    php: '.php',
-    'c#': '.cs',
-    shell: '.sh',
-    curl: '.sh',
-    bash: '.sh',
-    javascript: '.js',
-    js: '.js',
-    python: '.py',
-  };
-  return langObj[lang];
 }
 
 function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {
