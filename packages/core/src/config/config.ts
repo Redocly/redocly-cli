@@ -18,6 +18,7 @@ import type {
   ResolvedStyleguideConfig,
   RuleConfig,
   RuleSettings,
+  ThemeRawConfig,
 } from './types';
 import { getResolveConfig } from './utils';
 
@@ -304,15 +305,13 @@ export class Config {
   resolve: ResolveConfig;
   licenseKey?: string;
   region?: Region;
-  'features.openapi': Record<string, any>;
-  'features.mockServer'?: Record<string, any>;
+  theme: ThemeRawConfig;
   organization?: string;
   files: string[];
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
-    this['features.openapi'] = rawConfig['features.openapi'] || {};
-    this['features.mockServer'] = rawConfig['features.mockServer'] || {};
+    this.theme = rawConfig.theme || {};
     this.resolve = getResolveConfig(rawConfig?.resolve);
     this.region = rawConfig.region;
     this.organization = rawConfig.organization;

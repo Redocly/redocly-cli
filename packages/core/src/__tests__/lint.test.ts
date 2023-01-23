@@ -68,17 +68,8 @@ describe('lint', () => {
             assertions:
               local/checkWordsCount: 
                 min: 3
-      features.openapi:
-        showConsole: true
-        layout:
-          scope: section
-        routingStrategy: browser
-        theme:
-          rightPanel:
-            backgroundColor: '#263238'
-          links:
-            color: '#6CC496'
-        features.openapi:
+      theme:
+        openapi:
           showConsole: true
           layout:
             scope: section
@@ -88,6 +79,17 @@ describe('lint', () => {
               backgroundColor: '#263238'
             links:
               color: '#6CC496'
+            theme:
+              openapi:
+              showConsole: true
+              layout:
+                scope: section
+              routingStrategy: browser
+              theme:
+                rightPanel:
+                  backgroundColor: '#263238'
+                links:
+                  color: '#6CC496'
       `,
       ''
     );
@@ -99,70 +101,28 @@ describe('lint', () => {
           "from": undefined,
           "location": Array [
             Object {
-              "pointer": "#/atures.openapi",
+              "pointer": "#/eme",
               "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Property \`atures.openapi\` is not expected here.",
+          "message": "Property \`eme\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": Array [
-            "features.openapi",
+            "theme",
           ],
         },
         Object {
           "from": undefined,
           "location": Array [
             Object {
-              "pointer": "#/showConsole",
+              "pointer": "#/openapi",
               "reportOnKey": true,
               "source": "",
             },
           ],
-          "message": "Property \`showConsole\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "from": undefined,
-          "location": Array [
-            Object {
-              "pointer": "#/layout",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`layout\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "from": undefined,
-          "location": Array [
-            Object {
-              "pointer": "#/routingStrategy",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`routingStrategy\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "from": undefined,
-          "location": Array [
-            Object {
-              "pointer": "#/theme",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`theme\` is not expected here.",
+          "message": "Property \`openapi\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": Array [],
@@ -177,20 +137,6 @@ describe('lint', () => {
             },
           ],
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "from": undefined,
-          "location": Array [
-            Object {
-              "pointer": "#/features.openapi/layout",
-              "reportOnKey": false,
-              "source": "",
-            },
-          ],
-          "message": "\`layout\` can be one of the following only: \\"stacked\\", \\"three-panel\\".",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": Array [],
@@ -234,7 +180,7 @@ describe('lint', () => {
     `);
   });
 
-  it('lintConfig should work with legacy fields', async () => {
+  it('lintConfig should work with legacy fields - referenceDocs', async () => {
     const document = parseYamlToDocument(
       outdent`
         apis: 

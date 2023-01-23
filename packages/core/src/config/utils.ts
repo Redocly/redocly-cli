@@ -19,6 +19,7 @@ import type {
   ResolvedStyleguideConfig,
   RulesFields,
   StyleguideRawConfig,
+  ThemeConfig,
 } from './types';
 import { logger, colorize } from '../logger';
 
@@ -225,13 +226,9 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
             extendPaths,
             pluginPaths,
           },
-          'features.openapi': {
-            ...config['features.openapi'],
-            ...config.apis[apiName]?.['features.openapi'],
-          },
-          'features.mockServer': {
-            ...config['features.mockServer'],
-            ...config.apis[apiName]?.['features.mockServer'],
+          theme: {
+            ...config.rawConfig.theme,
+            ...config.apis[apiName]?.theme,
           },
           files: [...config.files, ...(config.apis?.[apiName]?.files ?? [])],
           // TODO: merge everything else here
@@ -241,10 +238,11 @@ export function getMergedConfig(config: Config, apiName?: string): Config {
     : config;
 }
 
-function checkForDeprecatedFields(
+export function checkForDeprecatedFields(
   deprecatedField: keyof (DeprecatedInRawConfig & RawConfig),
   updatedField: keyof FlatRawConfig | undefined,
-  rawConfig: DeprecatedInRawConfig & RawConfig & FlatRawConfig
+  rawConfig: DeprecatedInRawConfig & RawConfig & FlatRawConfig,
+  updatedObject: keyof FlatRawConfig | undefined
 ): void {
   const isDeprecatedFieldInApis =
     rawConfig.apis &&
@@ -261,8 +259,12 @@ function checkForDeprecatedFields(
     showErrorForDeprecatedField(deprecatedField, updatedField);
   }
 
+  if (rawConfig[deprecatedField] && updatedObject && rawConfig[updatedObject]) {
+    showErrorForDeprecatedField(deprecatedField, updatedField, updatedObject);
+  }
+
   if (rawConfig[deprecatedField] || isDeprecatedFieldInApis) {
-    showWarningForDeprecatedField(deprecatedField, updatedField);
+    showWarningForDeprecatedField(deprecatedField, updatedField, updatedObject);
   }
 }
 
@@ -271,16 +273,18 @@ export function transformConfig(
 ): RawConfig {
   const migratedFields: [
     keyof (DeprecatedInRawConfig & RawConfig),
-    keyof FlatRawConfig | undefined
+    keyof FlatRawConfig | undefined,
+    keyof ThemeConfig | undefined
   ][] = [
-    ['apiDefinitions', 'apis'],
-    ['referenceDocs', 'features.openapi'],
-    ['lint', undefined],
-    ['styleguide', undefined],
+    ['apiDefinitions', 'apis', undefined],
+    ['referenceDocs', 'openapi', 'theme'],
+    ['lint', undefined, undefined],
+    ['styleguide', undefined, undefined],
+    ['features.openapi', 'openapi', 'theme'],
   ];
 
-  for (const [deprecatedField, updatedField] of migratedFields) {
-    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig);
+  for (const [deprecatedField, updatedField, updatedObject] of migratedFields) {
+    checkForDeprecatedFields(deprecatedField, updatedField, rawConfig, updatedObject);
   }
 
   const { apis, apiDefinitions, referenceDocs, lint, ...rest } = rawConfig;
@@ -288,7 +292,17 @@ export function transformConfig(
   const { styleguideConfig, rawConfigRest } = extractFlatConfig(rest);
 
   return {
-    'features.openapi': referenceDocs,
+    theme: {
+      openapi: {
+        ...referenceDocs,
+        ...rawConfig['features.openapi'],
+        ...rawConfig.theme?.openapi,
+      },
+      mockServer: {
+        ...rawConfig['features.mockServer'],
+        ...rawConfig.theme?.mockServer,
+      },
+    },
     apis: transformApis(apis) || transformApiDefinitionsToApis(apiDefinitions),
     styleguide: styleguideConfig || lint,
     ...rawConfigRest,

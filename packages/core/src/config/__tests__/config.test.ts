@@ -44,8 +44,10 @@ const testConfig: Config = {
     preprocessors: { oas2: {}, oas3_0: {}, oas3_1: {} },
     decorators: { oas2: {}, oas3_0: {}, oas3_1: {} },
   } as unknown as StyleguideConfig,
-  'features.openapi': {},
-  'features.mockServer': {},
+  theme: {
+    openapi: {},
+    mockServer: {},
+  },
   resolve: { http: { headers: [] } },
   organization: 'redocly-test',
   files: [],
@@ -66,8 +68,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "features.mockServer": Object {},
-        "features.openapi": Object {},
         "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
@@ -81,8 +81,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "features.mockServer": Object {},
-          "features.openapi": Object {},
           "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
@@ -92,6 +90,7 @@ describe('getMergedConfig', () => {
               "operation-summary": "warn",
             },
           },
+          "theme": Object {},
         },
         "region": undefined,
         "resolve": Object {
@@ -139,6 +138,7 @@ describe('getMergedConfig', () => {
             },
           },
         },
+        "theme": Object {},
       }
     `);
   });
@@ -164,8 +164,6 @@ describe('getMergedConfig', () => {
           },
         },
         "configFile": "redocly.yaml",
-        "features.mockServer": Object {},
-        "features.openapi": Object {},
         "files": Array [],
         "organization": "redocly-test",
         "rawConfig": Object {
@@ -179,8 +177,6 @@ describe('getMergedConfig', () => {
               },
             },
           },
-          "features.mockServer": Object {},
-          "features.openapi": Object {},
           "files": Array [],
           "organization": "redocly-test",
           "styleguide": Object {
@@ -192,6 +188,7 @@ describe('getMergedConfig', () => {
               "operation-summary": "error",
             },
           },
+          "theme": Object {},
         },
         "region": undefined,
         "resolve": Object {
@@ -244,6 +241,7 @@ describe('getMergedConfig', () => {
             },
           },
         },
+        "theme": Object {},
       }
     `);
   });
