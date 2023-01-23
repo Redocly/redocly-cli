@@ -41,8 +41,10 @@ const rawTestConfig: RawConfig = {
   resolve: {
     http: { headers: [{ matches: '*', name: 'all', envVariable: 'all' }] },
   },
-  'features.openapi': {
-    disableSidebar: true,
+  theme: {
+    openapi: {
+      disableSidebar: true,
+    },
   },
 };
 
@@ -63,8 +65,10 @@ const flatTestConfig: FlatRawConfig = {
     http: { headers: [{ matches: '*', name: 'all', envVariable: 'all' }] },
     doNotResolveExamples: true,
   },
-  'features.openapi': {
-    disableSidebar: true,
+  theme: {
+    openapi: {
+      disableSidebar: true,
+    },
   },
 };
 
@@ -85,11 +89,14 @@ describe('transformConfig', () => {
             },
           },
         },
-        "features.openapi": undefined,
         "styleguide": Object {
           "rules": Object {
             "operation-4xx-response": "warn",
           },
+        },
+        "theme": Object {
+          "mockServer": Object {},
+          "openapi": Object {},
         },
       }
     `);
@@ -110,11 +117,14 @@ describe('transformConfig', () => {
             "root": "file.yaml",
           },
         },
-        "features.openapi": undefined,
         "styleguide": Object {
           "rules": Object {
             "operation-4xx-response": "warn",
           },
+        },
+        "theme": Object {
+          "mockServer": Object {},
+          "openapi": Object {},
         },
       }
     `);
@@ -139,5 +149,56 @@ describe('transformConfig', () => {
     expect(() => utils.transformConfig({ ...rawTestConfig, extends: ['recommended'] })).toThrow(
       `Do not use 'lint', 'styleguide' and flat syntax together. \nSee more about the configuration in the docs: https://redocly.com/docs/cli/configuration/ \n`
     );
+  });
+  it('should throw an error if both `features.openapi` and `theme` syntaxes used together', () => {
+    const testRawConfig: RawConfig & DeprecatedInRawConfig = {
+      apis: {
+        'test@v1': {
+          root: 'root.yaml',
+          styleguide: {
+            extends: ['recommended'],
+            rules: { 'operation-2xx-response': 'error' },
+          },
+        },
+      },
+      'features.openapi': {
+        disableSidebar: true,
+      },
+      theme: {
+        openapi: {
+          disableSidebar: true,
+        },
+      },
+    };
+    expect(() => utils.transformConfig(testRawConfig)).toThrowError(
+      `Do not use 'features.openapi' field. Use 'theme.openapi' instead. `
+    );
+  });
+  it('should transform referenceDocs config into theme.openapi', () => {
+    const testRawConfig: RawConfig & DeprecatedInRawConfig = {
+      referenceDocs: {
+        disableSidebar: true,
+      },
+    };
+    expect(utils.transformConfig(testRawConfig)).toEqual({
+      apis: undefined,
+      styleguide: undefined,
+      theme: { mockServer: {}, openapi: { disableSidebar: true } },
+    });
+  });
+  it('should transform "features.openapi" config into theme.openapi', () => {
+    const testRawConfig: RawConfig & DeprecatedInRawConfig = {
+      'features.openapi': {
+        disableSidebar: true,
+      },
+    };
+    expect(utils.transformConfig(testRawConfig)).toEqual({
+      apis: undefined,
+      'features.openapi': {
+        disableSidebar: true,
+      },
+      styleguide: undefined,
+      theme: { mockServer: {}, openapi: { disableSidebar: true } },
+    });
   });
 });

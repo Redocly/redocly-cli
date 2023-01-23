@@ -145,16 +145,16 @@ export type DeprecatedInRawConfig = {
   styleguide?: StyleguideRawConfig;
   referenceDocs?: Record<string, any>;
   apis?: Record<string, Api & DeprecatedInApi>;
-};
+} & DeprecatedFeaturesConfig;
 
 export type Api = {
   root: string;
   styleguide?: ApiStyleguideRawConfig;
-} & FeaturesConfig;
+} & ThemeConfig;
 
 export type DeprecatedInApi = {
   lint?: ApiStyleguideRawConfig;
-};
+} & DeprecatedFeaturesConfig;
 
 export type ResolvedApi = Omit<Api, 'styleguide'> & {
   styleguide: ResolvedStyleguideConfig;
@@ -168,7 +168,7 @@ export type RawConfig = {
   region?: Region;
   organization?: string;
   files?: string[];
-} & FeaturesConfig;
+} & ThemeConfig;
 
 export type FlatApi = Omit<Api, 'styleguide'> &
   Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
@@ -177,16 +177,25 @@ export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
   Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
     resolve?: RawResolveConfig;
     apis?: Record<string, FlatApi>;
-  };
+  } & ThemeRawConfig;
 
 export type ResolvedConfig = Omit<RawConfig, 'apis' | 'styleguide'> & {
   apis: Record<string, ResolvedApi>;
   styleguide: ResolvedStyleguideConfig;
 };
 
-type FeaturesConfig = {
+type DeprecatedFeaturesConfig = {
   'features.openapi'?: Record<string, any>;
   'features.mockServer'?: Record<string, any>;
+};
+
+export type ThemeConfig = {
+  theme?: ThemeRawConfig;
+};
+
+export type ThemeRawConfig = {
+  openapi?: Record<string, any>;
+  mockServer?: Record<string, any>;
 };
 
 export type RulesFields =

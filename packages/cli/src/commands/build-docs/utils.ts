@@ -36,10 +36,10 @@ export function getObjectOrJSON(
       }
       break;
     default: {
-      if (config.configFile) {
+      if (config) {
         process.stderr.write(`Found ${config.configFile} and using theme.openapi options`);
 
-        return config['features.openapi']; // FIXME: rename features.openapi to theme.openapi after global renaming inside repo.
+        return config.theme.openapi ? config.theme.openapi : {};
       }
       return {};
     }
