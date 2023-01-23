@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { createElement } from 'react';
 import { createStore, Redoc } from 'redoc';
 import { Config, isAbsoluteUrl } from '@redocly/openapi-core';
 
@@ -36,10 +36,10 @@ export function getObjectOrJSON(
       }
       break;
     default: {
-      if (config.theme.openapi) {
+      if (config.configFile) {
         process.stderr.write(`Found ${config.configFile} and using theme.openapi options`);
 
-        return config.theme.openapi;
+        return config['features.openapi']; // FIXME: rename features.openapi to theme.openapi after global renaming inside repo.
       }
       return {};
     }
@@ -66,7 +66,7 @@ export async function getPageHTML(
   const store = await createStore(api, apiUrl, redocOptions);
   const sheet = new ServerStyleSheet();
 
-  const html = renderToString(sheet.collectStyles(React.createElement(Redoc, { store })));
+  const html = renderToString(sheet.collectStyles(createElement(Redoc, { store })));
   const state = await store.toJS();
   const css = sheet.getStyleTags();
 
