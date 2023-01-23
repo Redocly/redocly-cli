@@ -230,7 +230,6 @@ export function showErrorForDeprecatedField(
   updatedField?: string,
   updatedObject?: string
 ) {
-  console.log('showErrorForDeprecatedField', [deprecatedField, updatedField, updatedObject]);
   throw new Error(
     `Do not use '${deprecatedField}' field. ${
       updatedField ? `Use '${getUpdatedFieldName(updatedField, updatedObject)}' instead. ` : ''
