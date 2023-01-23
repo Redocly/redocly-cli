@@ -29,7 +29,7 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
     templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.features?.openapi, config),
+    redocOptions: getObjectOrJSON(argv.theme?.openapi, config),
   };
 
   const redocCurrentVersion = require('../../../package.json').dependencies.redoc.substring(1); // remove ~
