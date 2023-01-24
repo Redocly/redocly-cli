@@ -132,6 +132,20 @@ describe('E2E', () => {
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
+
+    test('with separator: /', () => {
+      const folderPath = join(__dirname, `split/slash-separator`);
+      const file = '../../../__tests__/split/slash-separator/openapi.yaml';
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        file,
+        '--separator=/',
+        '--outDir=output',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('join', () => {
