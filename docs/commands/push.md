@@ -15,7 +15,7 @@ Apart from uploading your API definition file, the `push` command can automatica
 
 - the [Redocly configuration file](/docs/cli/configuration/index.mdx) and any configuration files referenced in the `extends` list.
 - the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/cli` version specified in `package.json`.
-- the HTML template and the full contents of the folder specified as the `features.openapi > htmlTemplate` parameter in the Redocly configuration file.
+- the HTML template and the full contents of the folder specified as the `theme > openapi > htmlTemplate` parameter in the Redocly configuration file.
 
 :::attention
 
