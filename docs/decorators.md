@@ -15,6 +15,7 @@ They are commonly used to add, remove, or change content.
 
 ### Changing descriptions
 - [info-description-override](./decorators/info-description-override.md)
+- [info-override](./decorators/info-override.md)
 - [operation-description-override](./decorators/operation-description-override.md)
 - [tag-description-override](./decorators/tag-description-override.md)
 
