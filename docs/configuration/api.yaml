@@ -111,15 +111,18 @@ additionalProperties:
                   - off
                 description: The severity level if the problem occurs.
             additionalProperties: true
-    features.openapi:
+    theme:
       type: object
-      description: >-
-        Defines theming and functionality for an API definition.
-        Supports the same format and options as the [global `features.openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
-        API-level configuration will always override global configuration.
-    features.mockServer:
-      type: object
-      description: |-
-        Defines mock server behavior for an API definition.
-        Supports the same format and options as the [global `features.mockServer` object](#featuresmockserver-object).
-        API-level configuration will always override global configuration.
+      properties:
+        openapi:
+          type: object
+          description: >-
+            Defines theming and functionality for an API definition.
+            Supports the same format and options as the [global `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+            API-level configuration will always override global configuration.
+        mockServer:
+          type: object
+          description: >-
+            Defines mock server behavior for an API definition.
+            Supports the same format and options as the [global `mockServer` object](#featuresmockserver-object).
+            API-level configuration will always override global configuration.

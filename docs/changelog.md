@@ -5,6 +5,25 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.121 (2023-01-25)
+
+### Changes
+
+- Moved and renamed the `features.openapi` and `features.mockServer` into the `theme` object with the names `openapi` and `mockServer`.
+
+Before:
+```yaml
+features.openapi: {}
+features.mockServer: {}
+```
+
+After:
+```yaml
+theme:
+  openapi: {}
+  mockServer: {}
+```
+
 ## 1.0.0-beta.120 (2023-01-05)
 
 ### Fixes
