@@ -8,12 +8,7 @@ servers:
 info:
   title: Updated title
   version: 1.0.0
-  description: |
-    This is a test API description.
-
-    # Heading test
-
-    Body [test](#) content.
+  description: some description
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
