@@ -1,0 +1,8 @@
+apis:
+  main:
+    root: ./main.yaml
+
+decorators:
+  info-override:
+    title: Updated title
+    x-vendor: custom extension
