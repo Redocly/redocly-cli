@@ -12,6 +12,7 @@ toc:
 - Added custom output file option to the `join` command.
 - Added an option to include webhooks to [operation-4xx-response](./rules/operations-4xx-response.md) rule.
 - Added a new built-in decorator [info-override](./decorators/info-override.md).
+- Added support for `/` as a separator which puts paths into subdirectories for each path segment with the [split command](./commands/split.md).
 
 ### Fixes
 
