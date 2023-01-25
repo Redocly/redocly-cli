@@ -7,7 +7,8 @@ export const InfoOverride: Oas3Decorator | Oas2Decorator = (newInfo) => {
         if (typeof newInfo !== 'object' || Array.isArray(newInfo) || newInfo === null) {
           throw new Error(`"info-override" decorator should be called with an object`);
         }
-        Object.assign(info, newInfo);
+        const { severity: _, ...rest } = newInfo;
+        Object.assign(info, rest);
       },
     },
   };
