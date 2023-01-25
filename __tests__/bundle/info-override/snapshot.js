@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E bundle info-description-override 1`] = `
+exports[`E2E bundle info-override 1`] = `
 openapi: 3.0.0
 servers:
   - url: //petstore.swagger.io/v2
