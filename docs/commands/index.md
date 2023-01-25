@@ -6,6 +6,7 @@ tocMaxDepth: 2
 
 Redocly CLI currently supports the following commands:
 
+* [build-docs](build-docs.md)
 * [bundle](bundle.md)
 * [join](join.md)
 * [lint](lint.md)

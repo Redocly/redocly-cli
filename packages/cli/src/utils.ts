@@ -210,6 +210,7 @@ export function writeYaml(data: any, filename: string, noRefs = false) {
     process.stderr.write(content);
     return;
   }
+  fs.mkdirSync(dirname(filename), { recursive: true });
   fs.writeFileSync(filename, content);
 }
 
