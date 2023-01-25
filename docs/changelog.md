@@ -7,6 +7,17 @@ toc:
 
 ## 1.0.0-beta.121 (2023-01-25)
 
+### Features
+
+- Added custom output file option to the `join` command.
+- Added an option to include webhooks to [operation-4xx-response](./rules/operations-4xx-response.md) rule.
+- Added a new built-in decorator [info-override](./decorators/info-override.md).
+- Added support for `/` as a separator which puts paths into subdirectories for each path segment with the [split command](./commands/split.md).
+
+### Fixes
+
+- Ignored case when inferring file extension from code sample `lang` property.
+
 ### Changes
 
 - Moved and renamed the `features.openapi` and `features.mockServer` into the `theme` object with the names `openapi` and `mockServer`.
