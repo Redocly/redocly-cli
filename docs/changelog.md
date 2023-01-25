@@ -7,6 +7,15 @@ toc:
 
 ## 1.0.0-beta.121 (2023-01-25)
 
+### Features
+
+- Added custom output file option to join command
+- Added an option to include webhooks to operation-4xx-response rule
+
+### Fixes
+
+- Ignored case when inferring file extension from codeSample lang property
+
 ### Changes
 
 - Moved and renamed the `features.openapi` and `features.mockServer` into the `theme` object with the names `openapi` and `mockServer`.
