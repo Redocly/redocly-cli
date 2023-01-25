@@ -137,11 +137,11 @@ export async function previewDocs(
     styleguide.skipPreprocessors(argv['skip-preprocessor']);
     styleguide.skipDecorators(argv['skip-decorator']);
 
-    const referenceDocs = resolvedConfig['features.openapi'];
+    const referenceDocs = resolvedConfig.theme?.openapi;
     redocOptions = {
       ...referenceDocs,
-      useCommunityEdition: argv['use-community-edition'] || referenceDocs.useCommunityEdition,
-      licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs.licenseKey,
+      useCommunityEdition: argv['use-community-edition'] || referenceDocs?.useCommunityEdition,
+      licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs?.licenseKey,
     };
     return resolvedConfig;
   }

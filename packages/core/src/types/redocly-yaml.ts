@@ -154,8 +154,9 @@ const ConfigRoot: NodeType = {
     organization: { type: 'string' },
     apis: 'ConfigApis',
     ...RootConfigStyleguide.properties,
-    'features.openapi': 'ConfigReferenceDocs',
-    'features.mockServer': 'ConfigMockServer',
+    theme: 'ConfigRootTheme',
+    'features.openapi': 'ConfigReferenceDocs', // deprecated
+    'features.mockServer': 'ConfigMockServer', // deprecated
     region: { enum: ['us', 'eu'] },
     resolve: {
       properties: {
@@ -189,8 +190,9 @@ const ConfigApisProperties: NodeType = {
     lint: 'ConfigStyleguide', // deprecated
     styleguide: 'ConfigStyleguide', // deprecated
     ...ConfigStyleguide.properties,
-    'features.openapi': 'ConfigReferenceDocs',
-    'features.mockServer': 'ConfigMockServer',
+    'features.openapi': 'ConfigReferenceDocs', // deprecated
+    'features.mockServer': 'ConfigMockServer', // deprecated
+    theme: 'ConfigRootTheme',
     files: {
       type: 'array',
       items: {
@@ -209,6 +211,13 @@ const ConfigHTTP: NodeType = {
         type: 'string',
       },
     },
+  },
+};
+
+const ConfigRootTheme: NodeType = {
+  properties: {
+    openapi: 'ConfigReferenceDocs',
+    mockServer: 'ConfigMockServer',
   },
 };
 
@@ -947,6 +956,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
+  ConfigRootTheme,
   AssertDefinition,
   ThemeColors,
   CommonThemeColors,

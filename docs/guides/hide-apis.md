@@ -37,7 +37,7 @@ This tutorial is most effective when you follow along and complete the steps.
 
 ## Step 1: Add `x-internal` to the API definition
 
-In this step, you will mark operations nad properties of the API definition as internal.
+In this step, you will mark operations and properties of the API definition as internal.
 
 Open the `sample.yaml` file in your IDE. We'll change it in a few places.
 

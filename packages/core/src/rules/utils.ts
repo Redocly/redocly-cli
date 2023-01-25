@@ -136,7 +136,11 @@ export function getAdditionalPropertiesOption(opts: Record<string, any>): boolea
   }
 
   if (opts.allowAdditionalProperties !== undefined) {
-    showErrorForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
+    showErrorForDeprecatedField(
+      'disallowAdditionalProperties',
+      'allowAdditionalProperties',
+      undefined
+    );
   }
 
   showWarningForDeprecatedField('disallowAdditionalProperties', 'allowAdditionalProperties');
@@ -161,6 +165,27 @@ export function validateSchemaEnumType(
         .join(', ')}.`,
       from: refLocation,
       suggest: getSuggest(propertyValue, schemaEnum),
+    });
+  }
+}
+
+export function validateResponseCodes(
+  responseCodes: string[],
+  codeRange: string,
+  { report }: UserContext
+) {
+  const responseCodeRegexp = new RegExp(`^${codeRange[0]}[0-9Xx]{2}$`);
+
+  const containsNeededCode = responseCodes.some(
+    (code) =>
+      (codeRange === '2XX' && code === 'default') || // It's OK to replace 2xx codes with the default
+      responseCodeRegexp.test(code)
+  );
+
+  if (!containsNeededCode) {
+    report({
+      message: `Operation must have at least one \`${codeRange}\` response.`,
+      location: { reportOnKey: true },
     });
   }
 }

@@ -64,6 +64,20 @@ describe('handleJoin fails', () => {
       },
       'cli-version'
     );
-    expect(writeYaml).toHaveBeenCalled();
+
+    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'openapi.yaml', expect.any(Boolean));
+  });
+
+  it('should call writeYaml function with custom output file', async () => {
+    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+        output: 'output.yml',
+      },
+      'cli-version'
+    );
+
+    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'output.yml', expect.any(Boolean));
   });
 });

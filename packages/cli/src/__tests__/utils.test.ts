@@ -1,4 +1,10 @@
-import { getFallbackApisOrExit, isSubdir, pathToFilename, printConfigLintTotals } from '../utils';
+import {
+  getFallbackApisOrExit,
+  isSubdir,
+  pathToFilename,
+  printConfigLintTotals,
+  langToExt,
+} from '../utils';
 import { ResolvedApi, Totals, isAbsoluteUrl } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
 import { existsSync } from 'fs';
@@ -234,5 +240,24 @@ describe('getFallbackApisOrExit', () => {
         path: 'https://someLinkt/petstore.yaml?main',
       },
     ]);
+  });
+});
+
+describe('langToExt', () => {
+  it.each([
+    ['php', '.php'],
+    ['c#', '.cs'],
+    ['shell', '.sh'],
+    ['curl', '.sh'],
+    ['bash', '.sh'],
+    ['javascript', '.js'],
+    ['js', '.js'],
+    ['python', '.py'],
+  ])('should infer file extension from lang - %s', (lang, expected) => {
+    expect(langToExt(lang)).toBe(expected);
+  });
+
+  it('should ignore case when inferring file extension', () => {
+    expect(langToExt('JavaScript')).toBe('.js');
   });
 });

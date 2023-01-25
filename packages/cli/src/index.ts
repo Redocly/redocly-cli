@@ -95,6 +95,12 @@ yargs
             description: 'Skip automated x-tagGroups creation',
             type: 'boolean',
           },
+          output: {
+            describe: 'Output file',
+            alias: 'o',
+            type: 'string',
+            default: 'openapi.yaml',
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
@@ -400,9 +406,8 @@ yargs
             describe:
               'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
           },
-          features: {
-            describe:
-              'Redoc features.openapi, use dot notation, e.g. features.openapi.nativeScrollbars',
+          theme: {
+            describe: 'Redoc theme.openapi, use dot notation, e.g. theme.openapi.nativeScrollbars',
           },
           config: {
             describe: 'Specify path to the config file.',
@@ -410,8 +415,8 @@ yargs
           },
         })
         .check((argv: any) => {
-          if (argv.features && !argv.features?.openapi)
-            throw Error('Invalid option: features.openapi not set');
+          if (argv.theme && !argv.theme?.openapi)
+            throw Error('Invalid option: theme.openapi not set');
           return true;
         }),
     async (argv) => {
