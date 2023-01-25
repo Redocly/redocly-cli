@@ -9,12 +9,12 @@ toc:
 
 ### Features
 
-- Added custom output file option to join command
-- Added an option to include webhooks to operation-4xx-response rule
+- Added custom output file option to the `join` command.
+- Added an option to include webhooks to [operation-4xx-response](./rules/operations-4xx-response.md) rule.
 
 ### Fixes
 
-- Ignored case when inferring file extension from codeSample lang property
+- Ignored case when inferring file extension from code sample `lang` property.
 
 ### Changes
 
