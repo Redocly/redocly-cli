@@ -55,17 +55,18 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const batchId = argv['batch-id'];
   const batchSize = argv['batch-size'];
 
-  const isValidDestination = destination && Object.values(validateDestination(destination) || {}).every(Boolean);
+  const isValidDestination =
+    destination && Object.values(validateDestination(destination) || {}).every(Boolean);
 
   if (!isValidDestination) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<@organization-id/api-name@api-version>'
       )}`
-    );  
+    );
   }
 
-  const {organizationId, name, version}  = getDestinationProps(destination, config.organization);
+  const { organizationId, name, version } = getDestinationProps(destination, config.organization);
 
   if (!organizationId) {
     return exitWithError(
