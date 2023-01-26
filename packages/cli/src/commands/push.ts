@@ -302,7 +302,7 @@ function hashFiles(filePaths: { filePath: string }[]) {
 }
 
 function validateDestination(destination: string) {
-  const regexp = /^(@(?<organizationId>\w+)\/)?(?<name>.*)@(?<version>[\w\.\-\_]+)$/;
+  const regexp = /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
   return destination?.match(regexp)?.groups;
 }
