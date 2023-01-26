@@ -202,6 +202,37 @@ describe('getDestinationProps', () => {
       version: 'v1',
     });
   });
+  it('should return organizationId from destination string', () => {
+    expect(getDestinationProps('@test-org/main@main-v1', undefined)).toEqual({
+      organizationId: 'test-org',
+      name: 'main',
+      version: 'main-v1',
+    });
+  });
+
+  it('should return organizationId, version and empty name from destination string', () => {
+    expect(getDestinationProps('@test_org/@main_v1', undefined)).toEqual({
+      organizationId: 'test_org',
+      name: '',
+      version: 'main_v1',
+    });
+  });
+
+  it('should validate organizationId with space and version with dot', () => {
+    expect(getDestinationProps('@test org/simple_name@main.v1', undefined)).toEqual({
+      organizationId: 'test org',
+      name: 'simple_name',
+      version: 'main.v1',
+    });
+  });
+
+  it('should not work with "@" in destination name', () => {
+    expect(getDestinationProps('@test org/simple@name@main.v1', undefined)).toEqual({
+      organizationId: undefined,
+      name: undefined,
+      version: undefined,
+    });
+  });
 });
 
 describe('getApiRoot', () => {
