@@ -5,6 +5,12 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.122 (2023-01-26)
+
+### Fixes
+
+- Fixed an issue with `push` command not working with valid organization id
+
 ## 1.0.0-beta.121 (2023-01-25)
 
 ### Features
