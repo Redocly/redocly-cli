@@ -66,7 +66,7 @@ const ServerVariable: NodeType = {
       items: { type: 'string' },
     },
     default: { type: 'string' },
-    description: null,
+    description: { type: 'string' },
   },
   required: ['default'],
   extensionsPrefix: 'x-',

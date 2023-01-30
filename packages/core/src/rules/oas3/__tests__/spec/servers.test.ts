@@ -414,7 +414,6 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  //Check: No error
   it('should report if description in variable is not a string', async () => {
     const source = outdent`
       openapi: 3.0.2
@@ -448,7 +447,14 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": "#/servers/0/variables/username/description",
+          "message": "Expected type \`string\` but got \`null\`.",
+        },
+      ]
+    `);
   });
 
   it('should not report if servers property is not provided', async () => {

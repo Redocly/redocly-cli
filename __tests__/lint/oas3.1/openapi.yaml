@@ -241,7 +241,6 @@ components:
       discriminator:
         propertyName: type
         x-extension: true
-      myArbitraryKeyword: true
     Pets:
       type: array
       items:
