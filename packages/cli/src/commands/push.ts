@@ -58,7 +58,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const batchId = argv['batch-id'];
   const batchSize = argv['batch-size'];
 
-  if (!validateDestination(destination)) {
+  if (destination && !DESTINATION_REGEX.test(destination)) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<@organization-id/api-name@api-version>'
@@ -98,6 +98,11 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   }
 
   const apis = api ? { [`${name}@${version}`]: { root: api } } : config.apis;
+  if (!Object.keys(apis).length) {
+    exitWithError(
+      `Api not found. Please make sure you have provided the correct data in the config file.`
+    );
+  }
 
   for (const [apiNameAndVersion, { root: api }] of Object.entries(apis)) {
     const resolvedConfig = getMergedConfig(config, apiNameAndVersion);
@@ -299,10 +304,6 @@ function hashFiles(filePaths: { filePath: string }[]) {
   const sum = createHash('sha256');
   filePaths.forEach((file) => sum.update(fs.readFileSync(file.filePath)));
   return sum.digest('hex');
-}
-
-function validateDestination(destination?: string): boolean {
-  return destination ? DESTINATION_REGEX.test(destination) : false;
 }
 
 function parseDestination(

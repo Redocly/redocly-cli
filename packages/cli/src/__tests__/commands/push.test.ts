@@ -3,6 +3,7 @@ import { Config, getMergedConfig } from '@redocly/openapi-core';
 import { exitWithError, loadConfigAndHandleErrors } from '../../utils';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
+import { yellow } from 'colorette';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({
@@ -106,6 +107,92 @@ describe('push', () => {
       version: '1.0.0',
     });
     expect(redoclyClient.registryApi.prepareFileUpload).toBeCalledTimes(3);
+  });
+
+  it('push should fail if organization not provided', async () => {
+    await handlePush({
+      upsert: true,
+      api: 'spec.json',
+      destination: 'test@v1',
+      branchName: 'test',
+      public: true,
+      'batch-id': '123',
+      'batch-size': 2,
+    });
+
+    expect(exitWithError).toBeCalledTimes(1);
+    expect(exitWithError).toBeCalledWith(
+        `No organization provided, please use the right format: ${yellow(
+            '<@organization-id/api-name@api-version>'
+        )} or specify the 'organization' field in the config file.`
+    );
+  });
+
+  it('pushes with organization in config', async () => {
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      return { ...ConfigFixture, organization: 'test_org' };
+    });
+    await handlePush({
+      upsert: true,
+      api: 'spec.json',
+      destination: 'my-api@1.0.0',
+      branchName: 'test',
+      public: true,
+      'batch-id': '123',
+      'batch-size': 2,
+    });
+
+    expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
+    expect(redoclyClient.registryApi.pushApi).toHaveBeenLastCalledWith({
+      branch: 'test',
+      filePaths: ['filePath'],
+      isUpsert: true,
+      isPublic: true,
+      name: 'my-api',
+      organizationId: 'test_org',
+      rootFilePath: 'filePath',
+      version: '1.0.0',
+      batchId: '123',
+      batchSize: 2,
+    });
+  });
+
+  it('push should works if destination not provided and api in config is provided', async () => {
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      return {
+        ...ConfigFixture,
+        organization: 'test_org',
+        apis: { 'my-api@1.0.0': { root: 'path' } },
+      };
+    });
+    await handlePush({
+      upsert: true,
+      api: 'spec.json',
+      branchName: 'test',
+      public: true,
+      'batch-id': '123',
+      'batch-size': 2,
+    });
+
+    expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
+  });
+
+  it('push should fail if destination and apis not provided', async () => {
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      return { organization: 'test_org', apis: {} };
+    });
+    await handlePush({
+      upsert: true,
+      branchName: 'test',
+      public: true,
+      'batch-id': '123',
+      'batch-size': 2,
+    });
+
+    expect(exitWithError).toBeCalledTimes(1);
+    expect(exitWithError).toHaveBeenLastCalledWith(
+      'Api not found. Please make sure you have provided the correct data in the config file.'
+    );
   });
 });
 
