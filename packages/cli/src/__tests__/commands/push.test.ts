@@ -122,13 +122,13 @@ describe('push', () => {
 
     expect(exitWithError).toBeCalledTimes(1);
     expect(exitWithError).toBeCalledWith(
-        `No organization provided, please use the right format: ${yellow(
-            '<@organization-id/api-name@api-version>'
-        )} or specify the 'organization' field in the config file.`
+      `No organization provided, please use the right format: ${yellow(
+        '<@organization-id/api-name@api-version>'
+      )} or specify the 'organization' field in the config file.`
     );
   });
 
-  it('pushes with organization in config', async () => {
+  it('push should work with organization in config', async () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
       return { ...ConfigFixture, organization: 'test_org' };
     });
@@ -157,7 +157,7 @@ describe('push', () => {
     });
   });
 
-  it('push should works if destination not provided and api in config is provided', async () => {
+  it('push should work if destination not provided and api in config is provided', async () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
       return {
         ...ConfigFixture,
