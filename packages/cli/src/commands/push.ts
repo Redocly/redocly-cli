@@ -27,6 +27,9 @@ import { promptClientToken } from './login';
 
 const DEFAULT_VERSION = 'latest';
 
+const DESTINATION_REGEX =
+  /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
+
 type PushArgs = {
   api?: string;
   destination?: string;
@@ -55,10 +58,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   const batchId = argv['batch-id'];
   const batchSize = argv['batch-size'];
 
-  const isValidDestination =
-    destination && Object.values(validateDestination(destination) || {}).every(Boolean);
-
-  if (!isValidDestination) {
+  if (destination && !DESTINATION_REGEX.test(destination)) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
         '<@organization-id/api-name@api-version>'
@@ -98,6 +98,11 @@ export async function handlePush(argv: PushArgs): Promise<void> {
   }
 
   const apis = api ? { [`${name}@${version}`]: { root: api } } : config.apis;
+  if (!Object.keys(apis).length) {
+    exitWithError(
+      `Api not found. Please make sure you have provided the correct data in the config file.`
+    );
+  }
 
   for (const [apiNameAndVersion, { root: api }] of Object.entries(apis)) {
     const resolvedConfig = getMergedConfig(config, apiNameAndVersion);
@@ -301,17 +306,17 @@ function hashFiles(filePaths: { filePath: string }[]) {
   return sum.digest('hex');
 }
 
-function validateDestination(destination: string) {
-  const regexp = /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
-
-  return destination?.match(regexp)?.groups;
+function parseDestination(
+  destination?: string
+): { organizationId?: string; name?: string; version?: string } | undefined {
+  return destination?.match(DESTINATION_REGEX)?.groups;
 }
 
 export function getDestinationProps(
   destination: string | undefined,
   organization: string | undefined
 ) {
-  const groups = destination && validateDestination(destination);
+  const groups = destination && parseDestination(destination);
   if (groups) {
     groups.name && (groups.name = encodeURIComponent(groups.name));
     return {
