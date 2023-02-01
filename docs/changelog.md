@@ -5,6 +5,12 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.123 (2023-01-02)
+
+### Fixes
+
+- Fixed an issue with `push` command not executing when organization is provided via redocly.yaml
+
 ## 1.0.0-beta.122 (2023-01-26)
 
 ### Fixes
