@@ -53,7 +53,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
     `);
   });
 
-  it('should report `application/problem+json` must have `type` property', async () => {
+  it('should report `application/problem+json` schema must have `type` property', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: "3.0.0"
@@ -92,6 +92,389 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
             },
           ],
           "message": "SchemaProperties object should contain \`type\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/status",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`status\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/detail",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`detail\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/instance",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`instance\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report `application/problem+json` schema must have `title` property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`type\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/title",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`title\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/detail",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`detail\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/instance",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`instance\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report `application/problem+json` schema must have `status` property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        type: object
+                        properties:
+                          title:
+                            type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`type\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/status",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`status\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/detail",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`detail\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/instance",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`instance\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report `application/problem+json` schema must have `detail` property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        type: object
+                        properties:
+                          title:
+                            type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`type\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/status",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`status\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/detail",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`detail\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/instance",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`instance\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should report `application/problem+json` schema must have `instance` property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: "3.0.0"
+        paths:
+          /pets:
+            get:
+              summary: List all pets
+              operationId: listPets
+              responses:
+                '400':
+                  description: Test
+                  content:
+                    application/problem+json:
+                      schema:
+                        type: object
+                        properties:
+                          title:
+                            type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`type\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/status",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`status\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/detail",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`detail\` field.",
+          "ruleId": "operation-4xx-problem-details-rfc7807",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/instance",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "SchemaProperties object should contain \`instance\` field.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
           "suggest": Array [],

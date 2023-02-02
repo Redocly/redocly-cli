@@ -29,6 +29,9 @@ export const Operation4xxProblemDetailsRfc7807: Oas3Rule = () => {
         SchemaProperties(schema: Oas3Schema, ctx: UserContext) {
           validateDefinedAndNonEmpty('type', schema, ctx);
           validateDefinedAndNonEmpty('title', schema, ctx);
+          validateDefinedAndNonEmpty('status', schema, ctx);
+          validateDefinedAndNonEmpty('detail', schema, ctx);
+          validateDefinedAndNonEmpty('instance', schema, ctx);
         },
       },
     },
