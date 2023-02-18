@@ -4,7 +4,7 @@ properties:
     type: string
     description: |-
       Stores your Redocly Workflows organization ID that the `push` command uses to push API definition files to the API registry.
-      If an organization ID is not passed explicitly in command-line arguments, `push` will look for it in `redocly.yaml`.
+      If an organization ID is not passed explicitly in command-line arguments, `push` looks for it in `redocly.yaml`.
 
       To find the organization ID:
 
@@ -61,7 +61,7 @@ properties:
             Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
             You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
 
-            If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
+            If you try to assign labels that don't already exist for your organization, Redocly displays a warning in the output and only assigns the existing labels (if any).
           items:
             type: string
         preprocessors:
@@ -156,14 +156,14 @@ properties:
               type: object
               description: >-
                 Defines theming and functionality for an API definition.
-                Supports the same format and options as the [global `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
-                API-level configuration will always override global configuration.
+                Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+                API-level configuration always overrides root configuration.
             mockServer:
               type: object
               description: >-
                 Defines mock server behavior for an API definition.
-                Supports the same format and options as the global `mockServer` object.
-                API-level configuration will always override global configuration.
+                Supports the same format and options as the root `mockServer` object.
+                API-level configuration always overrides root configuration.
   preprocessors:
     type: object
     title: Preprocessors object
@@ -259,8 +259,8 @@ properties:
           errorIfForcedExampleNotFound:
             description: >-
               You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests.
-              If you pass an example ID that can't be found in the API definition, the mock server will return any other example unless `errorIfForcedExampleNotFound` is `true`.
-              Then the mock server will return an error instead.
+              If you pass an example ID that can't be found in the API definition, the mock server returns any other example unless `errorIfForcedExampleNotFound` is `true`.
+              Then the mock server returns an error instead.
             type: boolean
             default: false
           strictExamples:
@@ -287,7 +287,7 @@ properties:
   resolve:
     type: object
     description: >-
-      All API registry links and public URLs in your API definitions will automatically resolve.
+      All API registry links and public URLs in your API definitions automatically resolve.
       If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
       Use environment variables where possible.
     properties:
@@ -321,4 +321,4 @@ properties:
                   description: The value of the header. Mutually exclusive with `envVariable`. We recommend to use `envVariable` instead for any secrets.
                 envVariable:
                   type: string
-                  description: The environment variable name which will be resolved and should contain the value. Mutually exclusive with `value`.
+                  description: The environment variable name resolved which should contain the value. Mutually exclusive with `value`.

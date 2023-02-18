@@ -5,8 +5,8 @@ properties:
   errorIfForcedExampleNotFound:
     description: >-
       You can force specific examples to appear in the response by adding the optional `x-redocly-response-body-example` header to your requests.
-      If you pass an example ID that can't be found in the API definition, the mock server will return any other example unless `errorIfForcedExampleNotFound` is `true`.
-      Then the mock server will return an error instead.
+      If you pass an example ID that can't be found in the API definition, the mock server returns any other example unless `errorIfForcedExampleNotFound` is `true`.
+      Then the mock server returns an error instead.
     type: boolean
     default: false
   strictExamples:

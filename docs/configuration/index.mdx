@@ -30,11 +30,11 @@ The Redocly configuration file must be named either `redocly.yaml` or `.redocly.
 It must be located in the root of your project directory, and it must be in the YAML format.
 If you cloned the `openapi-starter` project, this is already set up for you.
 
-Redocly CLI will search for the configuration file in the working directory.
+Redocly CLI searches for the configuration file in the working directory.
 
 :::warning
 
-If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly apps will show a warning in the output and ask you to choose one file.
+If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly shows a warning in the output and ask you to choose one file.
 
 :::
 
@@ -173,9 +173,9 @@ rules:
 
 
 The same approach applies within the `extends` list.
-If you have multiple configurations that try to configure the same rule, only the setting from the last configuration in the list will apply.
+If you have multiple configurations that try to configure the same rule, only the setting from the last configuration in the list applies.
 
-In the following example, Redocly CLI will use the setting for the conflicting `tags-alphabetical` rule from the `testing.yaml` file, because that file is further down in the `extends` list.
+In the following example, Redocly CLI uses the setting for the conflicting `tags-alphabetical` rule from the `testing.yaml` file, because that file is further down in the `extends` list.
 
 This means you can control the priority of configurations by reordering them in the `extends` list, and override all lint configurations (custom and built-in) by specifying individual rule settings in the `rules` object.
 
@@ -229,9 +229,9 @@ Every `name@version` combination listed in the object must be unique.
 
 For every API listed in the object, you must provide the path to the OpenAPI definition using the `root` property.
 
-If `rules`, `decorators`, or `preprocessors` aren't defined for an API, global settings are used.
-If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the global configuration.
-If per-API and global settings modify the same properties, per-API settings will override global settings.
+If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root settings are used.
+If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the root configuration.
+If per-API and root settings modify the same properties, per-API settings overrides root settings.
 
 
 #### Patterned properties
@@ -282,7 +282,7 @@ The `theme` object configures OpenAPI features, mock server features, and others
 
 #### mockServer object
 
-You can apply `mockServer` to individual APIs as well as at the global level.
+You can apply `mockServer` to individual APIs as well as at the root (default) level.
 In case of conflict, API takes priority.
 
 The API registry supports [the mock server feature](../../api-registry/guides/mock-server-quickstart.md) and allows project owners to enable it for all branches per API version.
@@ -313,7 +313,7 @@ Find the full list of supported options on the [Reference docs configuration pag
 
 ### resolve object
 
-Redocly will automatically resolve any API registry link or public URL in your API definitions.
+Redocly automatically resolves any API registry link or public URL in your API definitions.
 If you want to resolve links that are neither API registry links nor publicly accessible, set the `resolve` object in your configuration file.
 
 Redocly CLI supports one `http` header per URL.
@@ -345,4 +345,4 @@ resolve:
         envVariable: SECRET_AUTH
 ```
 The first match takes priority when a URL matches multiple patterns.
-Therefore, only the header from the first match will be used in the request.
+Therefore, only the header from the first match is used in the request.
