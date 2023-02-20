@@ -21,6 +21,7 @@ import type {
   ThemeRawConfig,
 } from './types';
 import { getResolveConfig } from './utils';
+import { isAbsoluteUrl } from '../ref-utils';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -115,11 +116,14 @@ export class StyleguideConfig {
 
     // resolve ignore paths
     for (const fileName of Object.keys(this.ignore)) {
-      this.ignore[path.resolve(path.dirname(ignoreFile), fileName)] = this.ignore[fileName];
+      this.ignore[
+        isAbsoluteUrl(fileName) ? fileName : path.resolve(path.dirname(ignoreFile), fileName)
+      ] = this.ignore[fileName];
+
       for (const ruleId of Object.keys(this.ignore[fileName])) {
         this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
       }
-      delete this.ignore[fileName];
+      !isAbsoluteUrl(fileName) && delete this.ignore[fileName];
     }
   }
 
@@ -128,8 +132,10 @@ export class StyleguideConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = (mapped[slash(path.relative(dir, absFileName))] =
-        this.ignore[absFileName]);
+      const ignoredRules = (mapped[
+        isAbsoluteUrl(absFileName) ? absFileName : slash(path.relative(dir, absFileName))
+      ] = this.ignore[absFileName]);
+
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
       }
