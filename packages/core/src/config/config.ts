@@ -123,7 +123,10 @@ export class StyleguideConfig {
       for (const ruleId of Object.keys(this.ignore[fileName])) {
         this.ignore[fileName][ruleId] = new Set(this.ignore[fileName][ruleId]);
       }
-      !isAbsoluteUrl(fileName) && delete this.ignore[fileName];
+
+      if (!isAbsoluteUrl(fileName)) {
+        delete this.ignore[fileName];
+      }
     }
   }
 
@@ -132,9 +135,10 @@ export class StyleguideConfig {
     const ignoreFile = path.join(dir, IGNORE_FILE);
     const mapped: Record<string, any> = {};
     for (const absFileName of Object.keys(this.ignore)) {
-      const ignoredRules = (mapped[
-        isAbsoluteUrl(absFileName) ? absFileName : slash(path.relative(dir, absFileName))
-      ] = this.ignore[absFileName]);
+      const mappedDefinitionName = isAbsoluteUrl(absFileName)
+        ? absFileName
+        : slash(path.relative(dir, absFileName));
+      const ignoredRules = (mapped[mappedDefinitionName] = this.ignore[absFileName]);
 
       for (const ruleId of Object.keys(ignoredRules)) {
         ignoredRules[ruleId] = Array.from(ignoredRules[ruleId]) as any;
