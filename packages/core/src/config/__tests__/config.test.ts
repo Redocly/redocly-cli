@@ -1,6 +1,17 @@
 import { OasVersion } from '../../oas-types';
 import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
+import { doesYamlFileExist } from '../../utils';
+import { parseYaml } from '../../js-yaml';
+import { readFileSync } from 'fs';
+import { ignoredFileStub } from './fixtures/ingore-file';
+import * as path from 'path';
+import { NormalizedProblem } from '../../walk';
+import { Source } from '../../resolve';
+
+jest.mock('../../utils');
+jest.mock('../../js-yaml');
+jest.mock('fs');
 
 const testConfig: Config = {
   rawConfig: {
@@ -278,5 +289,19 @@ describe('StyleguideConfig.extendTypes', () => {
     expect(() => styleguideConfig.extendTypes({}, 'something else' as OasVersion)).toThrowError(
       'Not implemented'
     );
+  });
+});
+
+describe('generation ignore object', () => {
+  it('should generate config with absoluteUri for ignore', () => {
+    (readFileSync as jest.Mock<any, any>).mockImplementationOnce(() => '');
+    (parseYaml as jest.Mock<any, any>).mockImplementationOnce(() => ignoredFileStub);
+    (doesYamlFileExist as jest.Mock<any, any>).mockImplementationOnce(() => true);
+
+    jest.spyOn(path, 'resolve').mockImplementationOnce((_, filename) => `some-path/${filename}`);
+
+    const styleguideConfig = new StyleguideConfig(testConfig.styleguide);
+
+    expect(styleguideConfig).toMatchSnapshot();
   });
 });

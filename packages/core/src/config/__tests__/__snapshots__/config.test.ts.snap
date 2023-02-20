@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generation ignore object should generate config with absoluteUri for ignore 1`] = `
+StyleguideConfig {
+  "_usedRules": Set {},
+  "_usedVersions": Set {},
+  "configFile": undefined,
+  "decorators": Object {
+    "oas2": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "oas3_0": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "oas3_1": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+  },
+  "doNotResolveExamples": false,
+  "extendPaths": Array [],
+  "ignore": Object {
+    "https://some-path.yaml": Object {
+      "no-unused-components": Set {
+        "#/components/schemas/Foo",
+      },
+    },
+    "some-path/openapi.yaml": Object {
+      "no-unused-components": Set {
+        "#/components/schemas/Foo",
+      },
+    },
+  },
+  "pluginPaths": Array [],
+  "plugins": Array [],
+  "preprocessors": Object {
+    "oas2": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "oas3_0": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "oas3_1": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+  },
+  "rawConfig": Object {
+    "_usedRules": Set {},
+    "_usedVersions": Set {},
+    "configFile": "redocly.yaml",
+    "decorators": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "doNotResolveExamples": false,
+    "ignore": Object {},
+    "plugins": Array [],
+    "preprocessors": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
+    "rawConfig": Object {
+      "plugins": Array [],
+      "rules": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+    "recommendedFallback": false,
+    "rules": Object {
+      "oas2": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+  },
+  "recommendedFallback": false,
+  "rules": Object {
+    "oas2": Object {
+      "oas2": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+    "oas3_0": Object {
+      "oas2": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+    "oas3_1": Object {
+      "oas2": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+  },
+}
+`;

@@ -7,6 +7,7 @@ const coreVersion = require('../../package.json').version;
 import { NormalizedProblem, ProblemSeverity, LineColLocationObject, LocationObject } from '../walk';
 import { getCodeframe, getLineColLocation } from './codeframes';
 import { env } from '../env';
+import { isAbsoluteUrl } from '../ref-utils';
 
 export type Totals = {
   errors: number;
@@ -120,7 +121,7 @@ export function formatProblems(
       for (const [file, { ruleIdPad, locationPad: positionPad, fileProblems }] of Object.entries(
         groupedByFile
       )) {
-        logger.info(`${colorize.blue(path.relative(cwd, file))}:\n`);
+        logger.info(`${colorize.blue(isAbsoluteUrl(file) ? file : path.relative(cwd, file))}:\n`);
 
         for (let i = 0; i < fileProblems.length; i++) {
           const problem = fileProblems[i];
@@ -138,7 +139,9 @@ export function formatProblems(
       output.write('<checkstyle version="4.3">\n');
 
       for (const [file, { fileProblems }] of Object.entries(groupedByFile)) {
-        output.write(`<file name="${xmlEscape(path.relative(cwd, file))}">\n`);
+        output.write(
+          `<file name="${xmlEscape(isAbsoluteUrl(file) ? file : path.relative(cwd, file))}">\n`
+        );
         fileProblems.forEach(formatCheckstyle);
         output.write(`</file>\n`);
       }
@@ -169,7 +172,9 @@ export function formatProblems(
       return {
         description: p.message,
         location: {
-          path: path.relative(cwd, location.source.absoluteRef),
+          path: isAbsoluteUrl(location.source.absoluteRef)
+            ? location.source.absoluteRef
+            : path.relative(cwd, location.source.absoluteRef),
           lines: {
             begin: lineCol.start.line,
           },
@@ -191,14 +196,18 @@ export function formatProblems(
           location: p.location.map((location: any) => ({
             ...location,
             source: {
-              ref: path.relative(cwd, location.source.absoluteRef),
+              ref: isAbsoluteUrl(location.source.absoluteRef)
+                ? location.source.absoluteRef
+                : path.relative(cwd, location.source.absoluteRef),
             },
           })),
           from: p.from
             ? {
                 ...p.from,
                 source: {
-                  ref: path.relative(cwd, p.from?.source.absoluteRef || cwd),
+                  ref: isAbsoluteUrl(p.from?.source.absoluteRef)
+                    ? p.from?.source.absoluteRef
+                    : path.relative(cwd, p.from?.source.absoluteRef || cwd),
                 },
               }
             : undefined,
@@ -226,7 +235,9 @@ export function formatProblems(
   function formatCodeframe(problem: NormalizedProblem, idx: number) {
     const bgColor = getBgColor(problem);
     const location = problem.location[0]; // TODO: support multiple locations
-    const relativePath = path.relative(cwd, location.source.absoluteRef);
+    const relativePath = isAbsoluteUrl(location.source.absoluteRef)
+      ? location.source.absoluteRef
+      : path.relative(cwd, location.source.absoluteRef);
     const loc = getLineColLocation(location);
     const atPointer = location.pointer ? colorize.gray(`at ${location.pointer}`) : '';
     const fileWithLoc = `${relativePath}:${loc.start.line}:${loc.start.col}`;
