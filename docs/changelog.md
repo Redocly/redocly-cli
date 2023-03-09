@@ -5,6 +5,10 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.124 (2023-03-09)
+
+- Fixed an issue with remote file inside the lint ignore file.
+
 ## 1.0.0-beta.123 (2023-01-02)
 
 ### Fixes
