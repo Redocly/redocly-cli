@@ -1,8 +1,8 @@
 import { asserts, runOnKeysSet, runOnValuesSet, Asserts } from './asserts';
 import { colorize } from '../../../logger';
-import { isRef, Location } from '../../../ref-utils';
+import { isRef } from '../../../ref-utils';
 import { isTruthy, keysOf, isString } from '../../../utils';
-import type { AssertResult } from '../../../config';
+import type { AssertionContext, AssertResult } from '../../../config';
 import type { Assertion, AssertionDefinition, AssertionLocators } from '.';
 import type {
   Oas2Visitor,
@@ -10,6 +10,7 @@ import type {
   SkipFunctionContext,
   VisitFunction,
 } from '../../../visitors';
+import { UserContext } from 'core/src/walk';
 
 export type OrderDirection = 'asc' | 'desc';
 
@@ -25,8 +26,10 @@ export type AssertToApply = {
   runsOnValues: boolean;
 };
 
-type AssertionContext = SkipFunctionContext & {
-  node: any;
+type RunAssertionParams = {
+  ctx: AssertionContext;
+  assert: AssertToApply;
+  assertionProperty?: string;
 };
 
 const assertionMessageTemplates = {
@@ -96,35 +99,27 @@ function getAssertionProperties({ subject }: AssertionDefinition): string[] {
 function applyAssertions(
   assertionDefinition: AssertionDefinition,
   asserts: AssertToApply[],
-  { rawLocation, rawNode, resolve, location, node }: AssertionContext
+  ctx: AssertionContext
 ): AssertResult[] {
   const properties = getAssertionProperties(assertionDefinition);
   const assertResults: Array<AssertResult[]> = [];
 
   for (const assert of asserts) {
-    const currentLocation = assert.name === 'ref' ? rawLocation : location;
-
     if (properties.length) {
       for (const property of properties) {
-        // we can have resolvable scalar so need to resolve value here.
-        const value = isRef(node[property]) ? resolve(node[property])?.node : node[property];
         assertResults.push(
           runAssertion({
-            values: value,
-            rawValues: rawNode[property],
             assert,
-            location: currentLocation.child(property),
+            ctx,
+            assertionProperty: property,
           })
         );
       }
     } else {
-      const value = Array.isArray(node) ? node : Object.keys(node);
       assertResults.push(
         runAssertion({
-          values: value,
-          rawValues: rawNode,
           assert,
-          location: currentLocation,
+          ctx,
         })
       );
     }
@@ -139,7 +134,7 @@ export function buildVisitorObject(
 ): Oas2Visitor | Oas3Visitor {
   const targetVisitorLocatorPredicates = getPredicatesFromLocators(assertion.subject);
   const targetVisitorSkipFunction = targetVisitorLocatorPredicates.length
-    ? (node: any, key: string | number) =>
+    ? (_: any, key: string | number) =>
         !targetVisitorLocatorPredicates.every((predicate) => predicate(key))
     : undefined;
   const targetVisitor: Oas2Visitor | Oas3Visitor = {
@@ -169,19 +164,9 @@ export function buildVisitorObject(
     const locatorPredicates = getPredicatesFromLocators(assertionDefinitionNode.subject);
     const assertsToApply = getAssertsToApply(assertionDefinitionNode);
 
-    const skipFunction = (
-      node: unknown,
-      key: string | number,
-      { location, rawLocation, resolve, rawNode }: SkipFunctionContext
-    ): boolean =>
+    const skipFunction = (node: unknown, key: string | number, ctx: SkipFunctionContext): boolean =>
       !locatorPredicates.every((predicate) => predicate(key)) ||
-      !!applyAssertions(assertionDefinitionNode, assertsToApply, {
-        location,
-        node,
-        rawLocation,
-        rawNode,
-        resolve,
-      }).length;
+      !!applyAssertions(assertionDefinitionNode, assertsToApply, { ...ctx, node }).length;
 
     const nodeVisitor = {
       ...((locatorPredicates.length || assertsToApply.length) && { skip: skipFunction }),
@@ -215,7 +200,7 @@ export function buildVisitorObject(
 }
 
 export function buildSubjectVisitor(assertId: string, assertion: Assertion): VisitFunction<any> {
-  return (node: any, { report, location, rawLocation, resolve, rawNode }) => {
+  return (node: any, ctx: UserContext) => {
     const properties = getAssertionProperties(assertion);
 
     const defaultMessage = `${colorize.blue(assertId)} failed because the ${colorize.blue(
@@ -225,10 +210,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
     }`.replace(/ +/g, ' ');
 
     const problems = applyAssertions(assertion, getAssertsToApply(assertion), {
-      rawLocation,
-      rawNode,
-      resolve,
-      location,
+      ...ctx,
       node,
     });
 
@@ -236,9 +218,9 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
       for (const problemGroup of groupProblemsByPointer(problems)) {
         const message = assertion.message || defaultMessage;
         const problemMessage = getProblemsMessage(problemGroup);
-        report({
+        ctx.report({
           message: message.replace(assertionMessageTemplates.problems, problemMessage),
-          location: getProblemsLocation(problemGroup) || location,
+          location: getProblemsLocation(problemGroup) || ctx.location,
           forceSeverity: assertion.severity || 'error',
           suggest: assertion.suggest || [],
           ruleId: assertId,
@@ -312,15 +294,35 @@ export function isOrdered(value: any[], options: OrderOptions | OrderDirection):
   return true;
 }
 
-type RunAssertionParams = {
-  values: string | string[];
-  rawValues: any;
-  assert: AssertToApply;
-  location: Location;
-};
+export function runAssertion({
+  assert,
+  ctx,
+  assertionProperty,
+}: RunAssertionParams): AssertResult[] {
+  const currentLocation = assert.name === 'ref' ? ctx.rawLocation : ctx.location;
 
-function runAssertion({ values, rawValues, assert, location }: RunAssertionParams): AssertResult[] {
-  return asserts[assert.name](values, assert.conditions, location, rawValues);
+  if (assertionProperty) {
+    const values = isRef(ctx.node[assertionProperty])
+      ? ctx.resolve(ctx.node[assertionProperty])?.node
+      : ctx.node[assertionProperty];
+    const rawValues = ctx.rawNode[assertionProperty];
+
+    const location = currentLocation.child(assertionProperty);
+
+    return asserts[assert.name](values, assert.conditions, {
+      ctx,
+      baseLocation: location,
+      rawValue: rawValues,
+    });
+  } else {
+    const value = Array.isArray(ctx.node) ? ctx.node : Object.keys(ctx.node);
+
+    return asserts[assert.name](value, assert.conditions, {
+      rawValue: ctx.rawNode,
+      ctx,
+      baseLocation: currentLocation,
+    });
+  }
 }
 
 export function regexFromString(input: string): RegExp | null {

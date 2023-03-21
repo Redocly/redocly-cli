@@ -1,4 +1,4 @@
-import { AssertResult, CustomFunction } from 'core/src/config/types';
+import { AssertionContext, AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
 import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils';
 import {
@@ -9,11 +9,16 @@ import {
   regexFromString,
 } from './utils';
 
+export type AssertionProperties = {
+  rawValue?: any;
+  ctx: AssertionContext;
+  baseLocation: Location;
+};
+
 export type AssertionFn = (
   value: any,
   condition: any,
-  baseLocation: Location,
-  rawValue?: any
+  assertionProperties: AssertionProperties
 ) => AssertResult[];
 
 export type Asserts = {
@@ -69,7 +74,11 @@ export const runOnValuesSet = new Set<keyof Asserts>([
 ]);
 
 export const asserts: Asserts = {
-  pattern: (value: string | string[], condition: string, baseLocation: Location) => {
+  pattern: (
+    value: string | string[],
+    condition: string,
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
@@ -79,12 +88,18 @@ export const asserts: Asserts = {
         (_val) =>
           !regex?.test(_val) && {
             message: `"${_val}" should match a regex ${condition}`,
-            location: runOnValue(value) ? baseLocation : baseLocation.key(),
+            location: runOnValue(value)
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.key(),
           }
       )
       .filter(isTruthy);
   },
-  notPattern: (value: string | string[], condition: string, baseLocation: Location) => {
+  notPattern: (
+    value: string | string[],
+    condition: string,
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
@@ -94,12 +109,18 @@ export const asserts: Asserts = {
         (_val) =>
           regex?.test(_val) && {
             message: `"${_val}" should not match a regex ${condition}`,
-            location: runOnValue(value) ? baseLocation : baseLocation.key(),
+            location: runOnValue(value)
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.key(),
           }
       )
       .filter(isTruthy);
   },
-  enum: (value: string | string[], condition: string[], baseLocation: Location) => {
+  enum: (
+    value: string | string[],
+    condition: string[],
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     return values
@@ -107,12 +128,18 @@ export const asserts: Asserts = {
         (_val) =>
           !condition.includes(_val) && {
             message: `"${_val}" should be one of the predefined values`,
-            location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+            location: runOnValue(value)
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.child(_val).key(),
           }
       )
       .filter(isTruthy);
   },
-  defined: (value: string | undefined, condition: boolean = true, baseLocation: Location) => {
+  defined: (
+    value: string | undefined,
+    condition: boolean = true,
+    assertionProperties: AssertionProperties
+  ) => {
     const isDefined = typeof value !== 'undefined';
     const isValid = condition ? isDefined : !isDefined;
     return isValid
@@ -120,22 +147,26 @@ export const asserts: Asserts = {
       : [
           {
             message: condition ? `Should be defined` : 'Should be not defined',
-            location: baseLocation,
+            location: assertionProperties.baseLocation,
           },
         ];
   },
-  required: (value: string[], keys: string[], baseLocation: Location) => {
+  required: (value: string[], keys: string[], assertionProperties: AssertionProperties) => {
     return keys
       .map(
         (requiredKey) =>
           !value.includes(requiredKey) && {
             message: `${requiredKey} is required`,
-            location: baseLocation.key(),
+            location: assertionProperties.baseLocation.key(),
           }
       )
       .filter(isTruthy);
   },
-  disallowed: (value: string | string[], condition: string[], baseLocation: Location) => {
+  disallowed: (
+    value: string | string[],
+    condition: string[],
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     return values
@@ -143,7 +174,9 @@ export const asserts: Asserts = {
         (_val) =>
           condition.includes(_val) && {
             message: `"${_val}" is disallowed`,
-            location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+            location: runOnValue(value)
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.child(_val).key(),
           }
       )
       .filter(isTruthy);
@@ -151,7 +184,7 @@ export const asserts: Asserts = {
   const: (
     value: string | number | boolean | string[] | number[],
     condition: string | number | boolean,
-    baseLocation: Location
+    assertionProperties: AssertionProperties
   ) => {
     if (typeof value === 'undefined') return [];
 
@@ -161,7 +194,9 @@ export const asserts: Asserts = {
           (_val) =>
             condition !== _val && {
               message: `"${_val}" should be equal ${condition} `,
-              location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+              location: runOnValue(value)
+                ? assertionProperties.baseLocation
+                : assertionProperties.baseLocation.child(_val).key(),
             }
         )
         .filter(isTruthy);
@@ -170,13 +205,17 @@ export const asserts: Asserts = {
         ? [
             {
               message: `${value} should be equal ${condition}`,
-              location: baseLocation,
+              location: assertionProperties.baseLocation,
             },
           ]
         : [];
     }
   },
-  undefined: (value: unknown, condition: boolean = true, baseLocation: Location) => {
+  undefined: (
+    value: unknown,
+    condition: boolean = true,
+    assertionProperties: AssertionProperties
+  ) => {
     const isUndefined = typeof value === 'undefined';
     const isValid = condition ? isUndefined : !isUndefined;
     return isValid
@@ -184,14 +223,14 @@ export const asserts: Asserts = {
       : [
           {
             message: condition ? `Should not be defined` : 'Should be defined',
-            location: baseLocation,
+            location: assertionProperties.baseLocation,
           },
         ];
   },
   nonEmpty: (
     value: string | undefined | null,
     condition: boolean = true,
-    baseLocation: Location
+    assertionProperties: AssertionProperties
   ) => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     const isValid = condition ? !isEmpty : isEmpty;
@@ -200,19 +239,41 @@ export const asserts: Asserts = {
       : [
           {
             message: condition ? `Should not be empty` : 'Should be empty',
-            location: baseLocation,
+            location: assertionProperties.baseLocation,
           },
         ];
   },
-  minLength: (value: string | any[], condition: number, baseLocation: Location) => {
+  minLength: (
+    value: string | any[],
+    condition: number,
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || value.length >= condition) return []; // property doesn't exist, no need to lint it with this assert
-    return [{ message: `Should have at least ${condition} characters`, location: baseLocation }];
+    return [
+      {
+        message: `Should have at least ${condition} characters`,
+        location: assertionProperties.baseLocation,
+      },
+    ];
   },
-  maxLength: (value: string | any[], condition: number, baseLocation: Location) => {
+  maxLength: (
+    value: string | any[],
+    condition: number,
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || value.length <= condition) return []; // property doesn't exist, no need to lint it with this assert
-    return [{ message: `Should have at most ${condition} characters`, location: baseLocation }];
+    return [
+      {
+        message: `Should have at most ${condition} characters`,
+        location: assertionProperties.baseLocation,
+      },
+    ];
   },
-  casing: (value: string | string[], condition: string, baseLocation: Location) => {
+  casing: (
+    value: string | string[],
+    condition: string,
+    assertionProperties: AssertionProperties
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const casingRegexes: Record<string, RegExp> = {
@@ -229,7 +290,9 @@ export const asserts: Asserts = {
         (_val) =>
           !_val.match(casingRegexes[condition]) && {
             message: `"${_val}" should use ${condition}`,
-            location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
+            location: runOnValue(value)
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.child(_val).key(),
           }
       )
       .filter(isTruthy);
@@ -237,7 +300,7 @@ export const asserts: Asserts = {
   sortOrder: (
     value: unknown[],
     condition: OrderOptions | OrderDirection,
-    baseLocation: Location
+    assertionProperties: AssertionProperties
   ) => {
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
@@ -245,7 +308,7 @@ export const asserts: Asserts = {
       return [
         {
           message: `Please define a property to sort objects by`,
-          location: baseLocation,
+          location: assertionProperties.baseLocation,
         },
       ];
     }
@@ -256,20 +319,28 @@ export const asserts: Asserts = {
         message: `Should be sorted in ${
           direction === 'asc' ? 'an ascending' : 'a descending'
         } order${property ? ` by property ${property}` : ''}`,
-        location: baseLocation,
+        location: assertionProperties.baseLocation,
       },
     ];
   },
-  mutuallyExclusive: (value: string[], condition: string[], baseLocation: Location) => {
+  mutuallyExclusive: (
+    value: string[],
+    condition: string[],
+    assertionProperties: AssertionProperties
+  ) => {
     if (getIntersectionLength(value, condition) < 2) return [];
     return [
       {
         message: `${condition.join(', ')} keys should be mutually exclusive`,
-        location: baseLocation.key(),
+        location: assertionProperties.baseLocation.key(),
       },
     ];
   },
-  mutuallyRequired: (value: string[], condition: string[], baseLocation: Location) => {
+  mutuallyRequired: (
+    value: string[],
+    condition: string[],
+    assertionProperties: AssertionProperties
+  ) => {
     const isValid =
       getIntersectionLength(value, condition) > 0
         ? getIntersectionLength(value, condition) === condition.length
@@ -279,23 +350,23 @@ export const asserts: Asserts = {
       : [
           {
             message: `Properties ${condition.join(', ')} are mutually required`,
-            location: baseLocation.key(),
+            location: assertionProperties.baseLocation.key(),
           },
         ];
   },
-  requireAny: (value: string[], condition: string[], baseLocation: Location) => {
+  requireAny: (value: string[], condition: string[], assertionProperties: AssertionProperties) => {
     return getIntersectionLength(value, condition) >= 1
       ? []
       : [
           {
             message: `Should have any of ${condition.join(', ')}`,
-            location: baseLocation.key(),
+            location: assertionProperties.baseLocation.key(),
           },
         ];
   },
-  ref: (_value: unknown, condition: string | boolean, baseLocation: Location, rawValue: any) => {
-    if (typeof rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
-    const hasRef = rawValue.hasOwnProperty('$ref');
+  ref: (_value: unknown, condition: string | boolean, assertionProperties: AssertionProperties) => {
+    if (typeof assertionProperties.rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
+    const hasRef = assertionProperties.rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
       const isValid = condition ? hasRef : !hasRef;
       return isValid
@@ -303,24 +374,28 @@ export const asserts: Asserts = {
         : [
             {
               message: condition ? `should use $ref` : 'should not use $ref',
-              location: hasRef ? baseLocation : baseLocation.key(),
+              location: hasRef
+                ? assertionProperties.baseLocation
+                : assertionProperties.baseLocation.key(),
             },
           ];
     }
     const regex = regexFromString(condition);
-    const isValid = hasRef && regex?.test(rawValue['$ref']);
+    const isValid = hasRef && regex?.test(assertionProperties.rawValue['$ref']);
     return isValid
       ? []
       : [
           {
             message: `$ref value should match ${condition}`,
-            location: hasRef ? baseLocation : baseLocation.key(),
+            location: hasRef
+              ? assertionProperties.baseLocation
+              : assertionProperties.baseLocation.key(),
           },
         ];
   },
 };
 
 export function buildAssertCustomFunction(fn: CustomFunction): AssertionFn {
-  return (value: string[], options: any, baseLocation: Location) =>
-    fn.call(null, value, options, baseLocation);
+  return (value: string[], options: any, assertionProperties: AssertionProperties) =>
+    fn.call(null, value, options, assertionProperties);
 }

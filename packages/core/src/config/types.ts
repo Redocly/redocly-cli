@@ -1,4 +1,4 @@
-import type { ProblemSeverity } from '../walk';
+import type { ProblemSeverity, UserContext } from '../walk';
 import type {
   Oas3PreprocessorsSet,
   OasMajorVersion,
@@ -11,6 +11,8 @@ import type {
 } from '../oas-types';
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
+import { SkipFunctionContext } from '../visitors';
+import { OptionalIntersectionTypes } from '../utils';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -85,6 +87,13 @@ export type CustomRulesConfig = {
   oas3?: Oas3RuleSet;
   oas2?: Oas2RuleSet;
 };
+
+export type AssertionContext = OptionalIntersectionTypes<
+  UserContext,
+  SkipFunctionContext & {
+    node: any;
+  }
+>;
 
 export type AssertResult = { message?: string; location?: Location };
 export type CustomFunction = (

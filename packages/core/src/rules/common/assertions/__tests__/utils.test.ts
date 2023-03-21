@@ -1,5 +1,8 @@
 import { Assertion, AssertionDefinition } from '..';
-import { isOrdered, buildVisitorObject, getIntersectionLength } from '../utils';
+import { AssertionContext } from '../../../../config';
+import { Location } from '../../../../ref-utils';
+import { Source } from '../../../../resolve';
+import { isOrdered, buildVisitorObject, getIntersectionLength, runAssertion } from '../utils';
 
 describe('Oas3 assertions', () => {
   describe('Utils', () => {
@@ -109,6 +112,124 @@ describe('Oas3 assertions', () => {
             },
           }
         `);
+      });
+    });
+
+    describe('runAssertion', () => {
+      const baseLocation = new Location(jest.fn() as any as Source, 'pointer');
+      const rawLocation = new Location(jest.fn() as any as Source, 'raw-pointer');
+      // { $ref: 'text' }, true, {...assertionProperties, rawValue:  { $ref: 'text' }}
+
+      const ctxStub = {
+        location: baseLocation,
+        node: {
+          property: 'test',
+        },
+        rawNode: {
+          property: 'test',
+        },
+        rawLocation: rawLocation,
+      } as AssertionContext;
+
+      it('should catch error cause property should be not defined with assertionProperty', () => {
+        const result = runAssertion({
+          assert: {
+            name: 'defined',
+            conditions: false,
+            runsOnKeys: true,
+            runsOnValues: false,
+          },
+          ctx: ctxStub,
+          assertionProperty: 'property',
+        });
+
+        const expectedLocation = new Location(jest.fn() as any as Source, 'pointer/property');
+
+        expect(JSON.stringify(result)).toEqual(
+          JSON.stringify([
+            {
+              message: 'Should be not defined',
+              location: expectedLocation,
+            },
+          ])
+        );
+      });
+
+      it('should pass cause property defined', () => {
+        const result = runAssertion({
+          assert: {
+            name: 'defined',
+            conditions: true,
+            runsOnKeys: true,
+            runsOnValues: false,
+          },
+          ctx: ctxStub,
+          assertionProperty: 'property',
+        });
+
+        expect(result).toEqual([]);
+      });
+
+      it('should failure cause property does not passed', () => {
+        const result = runAssertion({
+          assert: {
+            name: 'defined',
+            conditions: false,
+            runsOnKeys: true,
+            runsOnValues: false,
+          },
+          ctx: ctxStub,
+        });
+
+        expect(result).toEqual([
+          {
+            message: 'Should be not defined',
+            location: baseLocation,
+          },
+        ]);
+      });
+
+      it('should pass with ref assertion cause it is defined', () => {
+        const result = runAssertion({
+          assert: {
+            name: 'ref',
+            conditions: true,
+            runsOnKeys: true,
+            runsOnValues: false,
+          },
+          ctx: {
+            ...ctxStub,
+            rawNode: {
+              $ref: 'test',
+            },
+          },
+        });
+
+        expect(result).toEqual([]);
+      });
+
+      it('should failure with ref assertion cause it is defined', () => {
+        const result = runAssertion({
+          assert: {
+            name: 'ref',
+            conditions: false,
+            runsOnKeys: true,
+            runsOnValues: false,
+          },
+          ctx: {
+            ...ctxStub,
+            rawNode: {
+              $ref: 'test',
+            },
+          },
+        });
+
+        expect(result).toEqual([
+          {
+            message: 'should not use $ref',
+            location: rawLocation,
+          },
+        ]);
       });
     });
   });

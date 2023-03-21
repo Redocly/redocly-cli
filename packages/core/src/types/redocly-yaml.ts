@@ -53,6 +53,7 @@ const builtInRulesList = [
   'response-contains-property',
   'scalar-property-missing-example',
   'spec-components-invalid-map-name',
+  'required-min-length-string-type-property',
 ];
 const nodeTypesList = [
   'any',
