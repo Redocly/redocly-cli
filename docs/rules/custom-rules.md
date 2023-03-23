@@ -263,7 +263,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-plugins.md#location-object)
+assertionProperties | `object` | Assertion Properties contains 3 properties: `baseLocation`, `rawValue` and `ctx`. Base location (`baseLocation`) is corresponding to the Location in the source document, see [Location Object](../resources/custom-plugins.md#location-object). Raw value contains the original value that appears at at the corresponding location. Context (`ctx`) is corresponding to the [Context object](../resources/custom-plugins.md#the-context-object) that contains additional data and functionality.
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -300,12 +300,17 @@ assert/operation-summary-check:
 module.exports = {
   id: 'local',
   assertions: {
-    checkWordsStarts: (value, options, location) => {
+    checkWordsStarts: (value, options, assertionProperties) => {
       const regexp = new RegExp(`^${options.words.join('|')}`);
       if (regexp.test(value)) {
         return [];
       }
-      return [{ message: 'Operation summary should start with an active verb', location }];
+      return [
+        { 
+          message: 'Operation summary should start with an active verb', 
+          location: assertionProperties.baseLocation 
+        }
+      ];
     },
     checkWordsCount: (value, options, location) => {
       const words = value.split(' ');
@@ -313,7 +318,10 @@ module.exports = {
         return [];
       }
       return [
-        { message: `Operation summary should contain at least ${options.min} words`, location },
+        { 
+          message: `Operation summary should contain at least ${options.min} words`, 
+          location: assertionProperties.baseLocation  
+        }
       ];
     },
   },

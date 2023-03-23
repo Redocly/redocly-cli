@@ -71,6 +71,7 @@ The *Special rules* group contains rules that may apply to multiple objects or t
 - [response-contains-header](./rules/response-contains-header.md)
 - [response-contains-property](./rules/response-contains-property.md)
 - [scalar-property-missing-example](./rules/scalar-property-missing-example.md)
+- [required-min-length-string-type-property](./rules/required-min-length-string-type-property.md)
 
 ### Servers
 
