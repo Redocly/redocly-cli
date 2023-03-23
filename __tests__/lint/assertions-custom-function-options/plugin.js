@@ -1,7 +1,7 @@
 module.exports = {
   id: 'local',
   assertions: {
-    checkWordsStarts: (value, opts, assertionProperties) => {
+    checkWordsStarts: (value, opts, assertionContext) => {
       const regexp = new RegExp(`^${opts.words.join('|')}`);
       if (regexp.test(value)) {
         return [];
@@ -9,11 +9,11 @@ module.exports = {
       return [
         {
           message: `Should start with one of ${opts.words.join(', ')}`,
-          location: assertionProperties.baseLocation,
+          location: assertionContext.baseLocation,
         },
       ];
     },
-    checkWordsCount: (value, opts, assertionProperties) => {
+    checkWordsCount: (value, opts, assertionContext) => {
       const words = value.split(' ');
       if (words.length >= opts.min) {
         return [];
@@ -21,7 +21,7 @@ module.exports = {
       return [
         {
           message: `Should have at least ${opts.min} words`,
-          location: assertionProperties.baseLocation,
+          location: assertionContext.baseLocation,
         },
       ];
     },

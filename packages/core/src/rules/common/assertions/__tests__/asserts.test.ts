@@ -1,11 +1,11 @@
 import { AssertionContext } from '../../../../config';
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
-import { AssertionProperties, Asserts, asserts, buildAssertCustomFunction } from '../asserts';
+import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
-const assertionProperties: AssertionProperties = {
+const assertionProperties: AssertionFnContext = {
   ctx: {} as AssertionContext,
   baseLocation: baseLocation,
 };
