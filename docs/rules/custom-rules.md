@@ -263,7 +263,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-assertionContext | `object` | Assertion Context contains 3 properties: `baseLocation`, `rawValue`, and `ctx`. Base location (`baseLocation`) corresponds to the location in the source document. (See [Location Object](../resources/custom-plugins.md#location-object).) Raw value is the original value that appears at at the corresponding location. Context (`ctx`) corresponds to the [Context object](../resources/custom-plugins.md#the-context-object) that contains additional data and functionality.
+assertionContext | `object` | Assertion Context contains 3 properties: `baseLocation`, `rawValue`, and `ctx`. Base location (`baseLocation`) corresponds to the location in the source document. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original value that appears at the corresponding location. Context (`ctx`) corresponds to the [Context object](../resources/custom-plugins.md#the-context-object) that contains additional data and functionality.
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
