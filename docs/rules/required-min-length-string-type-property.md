@@ -1,6 +1,6 @@
 # required-min-length-string-type-property
 
-Requires that every property in the API definition with type `string` that are required also to have `minLength`. 
+Requires that every required property in the API definition with type `string` has a `minLength`. 
 
 |OAS|Compatibility|
 |---|---|
@@ -82,7 +82,7 @@ schemas:
 
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
 - [response-contains-property](./response-contains-property.md)
-- [custom rules](./custom-rules.md)
+- [Custom rules](./custom-rules.md)
 
 ## Resources
 
