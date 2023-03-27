@@ -29,6 +29,7 @@ import {
 import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
 import { OPENAPI3_METHOD } from './split/types';
+import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -101,7 +102,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     )
   );
 
-  for (const { problems, bundle: document } of bundleResults as any) {
+  for (const { problems, bundle: document } of bundleResults as BundleResult[]) {
     const fileTotals = getTotals(problems);
     if (fileTotals.errors) {
       formatProblems(problems, {
@@ -418,14 +419,22 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         joinedDef.paths[path].parameters = [];
       }
 
-      for (const parameter of pathItem.parameters as Oas3Parameter[]) {
+      for (const parameter of pathItem.parameters as (Oas3Parameter & { $ref: string })[]) {
         let isFoundParameter = false;
+
         for (const pathParameter of joinedDef.paths[path].parameters) {
-          if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
-            if (!isEqual(pathParameter.schema, parameter.schema)) {
-              exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
+          // if current parameter is $ref
+          if (pathParameter['$ref']) {
+            if (pathParameter['$ref'] === parameter['$ref']) {
+              isFoundParameter = true;
             }
-            isFoundParameter = true;
+          } else {
+            if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
+              if (!isEqual(pathParameter.schema, parameter.schema)) {
+                exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
+              }
+              isFoundParameter = true;
+            }
           }
         }
 

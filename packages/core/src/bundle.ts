@@ -5,7 +5,7 @@ import { Oas3Types } from './types/oas3';
 import { Oas2Types } from './types/oas2';
 import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
-import { WalkContext, walkDocument, UserContext, ResolveResult } from './walk';
+import {WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem} from './walk';
 import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
@@ -64,6 +64,15 @@ export async function bundle(opts: {
 
 type BundleContext = WalkContext;
 
+export type BundleResult = {
+  bundle: Document;
+  problems: NormalizedProblem[];
+  fileDependencies: Set<string>;
+  rootType: NormalizedNodeType;
+  refTypes?:  Map<string, NormalizedNodeType>;
+  visitorsData:  Record<string, Record<string, unknown>>;
+}
+
 export async function bundleDocument(opts: {
   document: Document;
   config: StyleguideConfig;
@@ -73,7 +82,7 @@ export async function bundleDocument(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
-}) {
+}): Promise<BundleResult> {
   const {
     document,
     config,
