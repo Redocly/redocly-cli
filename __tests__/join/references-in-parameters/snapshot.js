@@ -22,7 +22,7 @@ paths:
         '404':
           description: Not found
       tags:
-        - b_other
+        - foo_other
   /users/{userId}/orders/{orderId}/items/{itemId}:
     parameters:
       - $ref: '#/components/parameters/userIdParam'
@@ -36,7 +36,7 @@ paths:
         '404':
           description: Not found
       tags:
-        - b_other
+        - foo_other
   /users/{userId}/orders/{orderId}:
     parameters:
       - $ref: '#/components/parameters/userIdParam'
@@ -49,19 +49,19 @@ paths:
         '404':
           description: Not found
       tags:
-        - a_other
+        - bar_other
 tags:
-  - name: b_other
+  - name: foo_other
     x-displayName: other
-  - name: a_other
+  - name: bar_other
     x-displayName: other
 x-tagGroups:
-  - name: b
+  - name: foo
     tags:
-      - b_other
-  - name: a
+      - foo_other
+  - name: bar
     tags:
-      - a_other
+      - bar_other
 components:
   parameters:
     userIdParam:
