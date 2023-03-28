@@ -36,19 +36,16 @@ paths:
                 properties:
                   a:
                     type: string
-                    # minLength: 2
                     
                   b:
                     type: object
                   k: 
                     type: string
-                    # minLength: 2
+                    minLength: 2
                   c: 
                     type: object
                     required: 
-                      -  d
+                      -  k
                     properties: 
-                      d:
-                        type: string
-                        minLength: 2
-            
+                      k:
+                        type: string       

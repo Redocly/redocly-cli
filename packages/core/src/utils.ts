@@ -237,8 +237,6 @@ export function showErrorForDeprecatedField(
   );
 }
 
-export type OptionalIntersectionTypes<T, T2> = Partial<Omit<T, keyof T2>> & T2;
-
 export type Falsy = undefined | null | false | '' | 0;
 
 export function isTruthy<Truthy>(value: Truthy | Falsy): value is Truthy {

@@ -12,7 +12,6 @@ import type {
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
 import { SkipFunctionContext } from '../visitors';
-import { OptionalIntersectionTypes } from '../utils';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -88,12 +87,8 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
-export type AssertionContext = OptionalIntersectionTypes<
-  UserContext,
-  SkipFunctionContext & {
-    node: any;
-  }
->;
+export type AssertionContext = Partial<Omit<UserContext, keyof SkipFunctionContext>> &
+  SkipFunctionContext & { node: any };
 
 export type AssertResult = { message?: string; location?: Location };
 export type CustomFunction = (
