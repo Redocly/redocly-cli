@@ -9,17 +9,9 @@ import {
   regexFromString,
 } from './utils';
 
-export type AssertionFnContext = {
-  rawValue?: any;
-  ctx: AssertionContext;
-  baseLocation: Location;
-};
+export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
-export type AssertionFn = (
-  value: any,
-  condition: any,
-  assertionContext: AssertionFnContext
-) => AssertResult[];
+export type AssertionFn = (value: any, condition: any, ctx: AssertionFnContext) => AssertResult[];
 
 export type Asserts = {
   pattern: AssertionFn;
@@ -360,6 +352,6 @@ export const asserts: Asserts = {
 };
 
 export function buildAssertCustomFunction(fn: CustomFunction): AssertionFn {
-  return (value: string[], options: any, assertionContext: AssertionFnContext) =>
-    fn.call(null, value, options, assertionContext);
+  return (value: string[], options: any, ctx: AssertionFnContext) =>
+    fn.call(null, value, options, ctx);
 }

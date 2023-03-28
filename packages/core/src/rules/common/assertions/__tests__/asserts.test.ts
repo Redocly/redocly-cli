@@ -1,14 +1,12 @@
-import { AssertionContext } from '../../../../config';
 import { Location } from '../../../../ref-utils';
 import { Source } from '../../../../resolve';
 import { AssertionFnContext, Asserts, asserts, buildAssertCustomFunction } from '../asserts';
 
 let baseLocation = new Location(jest.fn() as any as Source, 'pointer');
 
-const assertionProperties: AssertionFnContext = {
-  ctx: {} as AssertionContext,
+const assertionProperties = {
   baseLocation: baseLocation,
-};
+} as AssertionFnContext;
 
 describe('oas3 assertions', () => {
   describe('generic rules', () => {

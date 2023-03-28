@@ -310,7 +310,7 @@ export function runAssertion({
     const location = currentLocation.child(assertionProperty);
 
     return asserts[assert.name](values, assert.conditions, {
-      ctx,
+      ...ctx,
       baseLocation: location,
       rawValue: rawValues,
     });
@@ -318,8 +318,8 @@ export function runAssertion({
     const value = Array.isArray(ctx.node) ? ctx.node : Object.keys(ctx.node);
 
     return asserts[assert.name](value, assert.conditions, {
+      ...ctx,
       rawValue: ctx.rawNode,
-      ctx,
       baseLocation: currentLocation,
     });
   }

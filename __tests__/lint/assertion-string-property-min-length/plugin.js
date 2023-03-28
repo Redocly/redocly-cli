@@ -3,11 +3,10 @@ const requiredKeySet = new Set();
 module.exports = {
   id: 'local',
   assertions: {
-    checkSchema: (_, opts, assertionContext) => {
+    checkSchema: (_, opts, ctx) => {
       const name = opts.required;
 
-      const rawValue = assertionContext.rawValue;
-      const ctx = assertionContext.ctx;
+      const rawValue = ctx.rawValue;
 
       if (rawValue?.required) {
         for (const requiredKey of rawValue?.required) {
@@ -21,7 +20,7 @@ module.exports = {
           return [
             {
               message: `Required property ${name} for type string`,
-              location: assertionContext.baseLocation,
+              location: ctx.baseLocation,
             },
           ];
         }
