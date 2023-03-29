@@ -426,7 +426,6 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
         for (const pathParameter of joinedDef.paths[path]
           .parameters as Referenced<Oas3Parameter>[]) {
-
           // Compare $ref only if both are reference objects
           if (isRef(pathParameter) && isRef(parameter)) {
             if (pathParameter['$ref'] === parameter['$ref']) {
