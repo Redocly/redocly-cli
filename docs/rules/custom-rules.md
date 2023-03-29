@@ -263,7 +263,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-assertionContext | `object` | Assertion Context contains 3 properties: `baseLocation`, `rawValue`, and `ctx`. Base location (`baseLocation`) corresponds to the location in the source document. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original value that appears at the corresponding location. Context (`ctx`) corresponds to the [Context object](../resources/custom-plugins.md#the-context-object) that contains additional data and functionality.
+ctx | `object` | Context object corresponds to the [Context object](../resources/custom-plugins.md#the-context-object) and extended by 2 properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) corresponds to the location in the source document for current assertion. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original value that appears at the corresponding assertion location. 
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -300,7 +300,7 @@ assert/operation-summary-check:
 module.exports = {
   id: 'local',
   assertions: {
-    checkWordsStarts: (value, options, assertionContext) => {
+    checkWordsStarts: (value, options, ctx) => {
       const regexp = new RegExp(`^${options.words.join('|')}`);
       if (regexp.test(value)) {
         return [];
@@ -308,11 +308,11 @@ module.exports = {
       return [
         { 
           message: 'Operation summary should start with an active verb', 
-          location: assertionContext.baseLocation 
+          location: ctx.baseLocation 
         }
       ];
     },
-    checkWordsCount: (value, options, location) => {
+    checkWordsCount: (value, options, ctx) => {
       const words = value.split(' ');
       if (words.length >= options.min) {
         return [];
@@ -320,7 +320,7 @@ module.exports = {
       return [
         { 
           message: `Operation summary should contain at least ${options.min} words`, 
-          location: assertionContext.baseLocation  
+          location: ctx.baseLocation  
         }
       ];
     },
