@@ -15,6 +15,8 @@ import {
   lintDocument,
   detectOpenAPI,
   bundleDocument,
+  Referenced,
+  isRef,
 } from '@redocly/openapi-core';
 
 import {
@@ -419,16 +421,20 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         joinedDef.paths[path].parameters = [];
       }
 
-      for (const parameter of pathItem.parameters as (Oas3Parameter & { $ref: string })[]) {
+      for (const parameter of pathItem.parameters as Referenced<Oas3Parameter>[]) {
         let isFoundParameter = false;
 
-        for (const pathParameter of joinedDef.paths[path].parameters) {
-          // if current parameter is $ref
-          if (pathParameter['$ref']) {
+        for (const pathParameter of joinedDef.paths[path]
+          .parameters as Referenced<Oas3Parameter>[]) {
+
+          // Compare $ref only if both are reference objects
+          if (isRef(pathParameter) && isRef(parameter)) {
             if (pathParameter['$ref'] === parameter['$ref']) {
               isFoundParameter = true;
             }
-          } else {
+          }
+          // Compare properties only if both are reference objects
+          if (!isRef(pathParameter) && !isRef(parameter)) {
             if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
               if (!isEqual(pathParameter.schema, parameter.schema)) {
                 exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}`);
