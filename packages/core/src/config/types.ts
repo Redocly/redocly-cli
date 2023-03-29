@@ -87,8 +87,7 @@ export type CustomRulesConfig = {
   oas2?: Oas2RuleSet;
 };
 
-export type AssertionContext = Partial<Omit<UserContext, keyof SkipFunctionContext>> &
-  SkipFunctionContext & { node: any };
+export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };
 
 export type AssertResult = { message?: string; location?: Location };
 export type CustomFunction = (
