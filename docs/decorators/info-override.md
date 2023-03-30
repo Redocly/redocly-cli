@@ -19,7 +19,7 @@ Example of a configuration:
 
 ```yaml
 decorators:
-  info-description-override:
+  info-override:
     title: Updated title
     x-meta: Custom metadata
 ```
