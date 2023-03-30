@@ -1,4 +1,4 @@
-import { AssertResult, CustomFunction } from 'core/src/config/types';
+import { AssertionContext, AssertResult, CustomFunction } from 'core/src/config/types';
 import { Location } from '../../../ref-utils';
 import { isPlainObject, isString as runOnValue, isTruthy } from '../../../utils';
 import {
@@ -9,12 +9,9 @@ import {
   regexFromString,
 } from './utils';
 
-export type AssertionFn = (
-  value: any,
-  condition: any,
-  baseLocation: Location,
-  rawValue?: any
-) => AssertResult[];
+export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
+
+export type AssertionFn = (value: any, condition: any, ctx: AssertionFnContext) => AssertResult[];
 
 export type Asserts = {
   pattern: AssertionFn;
@@ -69,7 +66,7 @@ export const runOnValuesSet = new Set<keyof Asserts>([
 ]);
 
 export const asserts: Asserts = {
-  pattern: (value: string | string[], condition: string, baseLocation: Location) => {
+  pattern: (value: string | string[], condition: string, { baseLocation }: AssertionFnContext) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
@@ -84,7 +81,11 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  notPattern: (value: string | string[], condition: string, baseLocation: Location) => {
+  notPattern: (
+    value: string | string[],
+    condition: string,
+    { baseLocation }: AssertionFnContext
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
@@ -99,7 +100,7 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  enum: (value: string | string[], condition: string[], baseLocation: Location) => {
+  enum: (value: string | string[], condition: string[], { baseLocation }: AssertionFnContext) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     return values
@@ -112,7 +113,11 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  defined: (value: string | undefined, condition: boolean = true, baseLocation: Location) => {
+  defined: (
+    value: string | undefined,
+    condition: boolean = true,
+    { baseLocation }: AssertionFnContext
+  ) => {
     const isDefined = typeof value !== 'undefined';
     const isValid = condition ? isDefined : !isDefined;
     return isValid
@@ -124,7 +129,7 @@ export const asserts: Asserts = {
           },
         ];
   },
-  required: (value: string[], keys: string[], baseLocation: Location) => {
+  required: (value: string[], keys: string[], { baseLocation }: AssertionFnContext) => {
     return keys
       .map(
         (requiredKey) =>
@@ -135,7 +140,11 @@ export const asserts: Asserts = {
       )
       .filter(isTruthy);
   },
-  disallowed: (value: string | string[], condition: string[], baseLocation: Location) => {
+  disallowed: (
+    value: string | string[],
+    condition: string[],
+    { baseLocation }: AssertionFnContext
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     return values
@@ -151,7 +160,7 @@ export const asserts: Asserts = {
   const: (
     value: string | number | boolean | string[] | number[],
     condition: string | number | boolean,
-    baseLocation: Location
+    { baseLocation }: AssertionFnContext
   ) => {
     if (typeof value === 'undefined') return [];
 
@@ -176,7 +185,7 @@ export const asserts: Asserts = {
         : [];
     }
   },
-  undefined: (value: unknown, condition: boolean = true, baseLocation: Location) => {
+  undefined: (value: unknown, condition: boolean = true, { baseLocation }: AssertionFnContext) => {
     const isUndefined = typeof value === 'undefined';
     const isValid = condition ? isUndefined : !isUndefined;
     return isValid
@@ -191,7 +200,7 @@ export const asserts: Asserts = {
   nonEmpty: (
     value: string | undefined | null,
     condition: boolean = true,
-    baseLocation: Location
+    { baseLocation }: AssertionFnContext
   ) => {
     const isEmpty = typeof value === 'undefined' || value === null || value === '';
     const isValid = condition ? !isEmpty : isEmpty;
@@ -204,15 +213,25 @@ export const asserts: Asserts = {
           },
         ];
   },
-  minLength: (value: string | any[], condition: number, baseLocation: Location) => {
+  minLength: (value: string | any[], condition: number, { baseLocation }: AssertionFnContext) => {
     if (typeof value === 'undefined' || value.length >= condition) return []; // property doesn't exist, no need to lint it with this assert
-    return [{ message: `Should have at least ${condition} characters`, location: baseLocation }];
+    return [
+      {
+        message: `Should have at least ${condition} characters`,
+        location: baseLocation,
+      },
+    ];
   },
-  maxLength: (value: string | any[], condition: number, baseLocation: Location) => {
+  maxLength: (value: string | any[], condition: number, { baseLocation }: AssertionFnContext) => {
     if (typeof value === 'undefined' || value.length <= condition) return []; // property doesn't exist, no need to lint it with this assert
-    return [{ message: `Should have at most ${condition} characters`, location: baseLocation }];
+    return [
+      {
+        message: `Should have at most ${condition} characters`,
+        location: baseLocation,
+      },
+    ];
   },
-  casing: (value: string | string[], condition: string, baseLocation: Location) => {
+  casing: (value: string | string[], condition: string, { baseLocation }: AssertionFnContext) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const casingRegexes: Record<string, RegExp> = {
@@ -237,7 +256,7 @@ export const asserts: Asserts = {
   sortOrder: (
     value: unknown[],
     condition: OrderOptions | OrderDirection,
-    baseLocation: Location
+    { baseLocation }: AssertionFnContext
   ) => {
     const direction = (condition as OrderOptions).direction || (condition as OrderDirection);
     const property = (condition as OrderOptions).property;
@@ -260,7 +279,11 @@ export const asserts: Asserts = {
       },
     ];
   },
-  mutuallyExclusive: (value: string[], condition: string[], baseLocation: Location) => {
+  mutuallyExclusive: (
+    value: string[],
+    condition: string[],
+    { baseLocation }: AssertionFnContext
+  ) => {
     if (getIntersectionLength(value, condition) < 2) return [];
     return [
       {
@@ -269,7 +292,11 @@ export const asserts: Asserts = {
       },
     ];
   },
-  mutuallyRequired: (value: string[], condition: string[], baseLocation: Location) => {
+  mutuallyRequired: (
+    value: string[],
+    condition: string[],
+    { baseLocation }: AssertionFnContext
+  ) => {
     const isValid =
       getIntersectionLength(value, condition) > 0
         ? getIntersectionLength(value, condition) === condition.length
@@ -283,7 +310,7 @@ export const asserts: Asserts = {
           },
         ];
   },
-  requireAny: (value: string[], condition: string[], baseLocation: Location) => {
+  requireAny: (value: string[], condition: string[], { baseLocation }: AssertionFnContext) => {
     return getIntersectionLength(value, condition) >= 1
       ? []
       : [
@@ -293,7 +320,11 @@ export const asserts: Asserts = {
           },
         ];
   },
-  ref: (_value: unknown, condition: string | boolean, baseLocation: Location, rawValue: any) => {
+  ref: (
+    _value: unknown,
+    condition: string | boolean,
+    { baseLocation, rawValue }: AssertionFnContext
+  ) => {
     if (typeof rawValue === 'undefined') return []; // property doesn't exist, no need to lint it with this assert
     const hasRef = rawValue.hasOwnProperty('$ref');
     if (typeof condition === 'boolean') {
@@ -321,6 +352,6 @@ export const asserts: Asserts = {
 };
 
 export function buildAssertCustomFunction(fn: CustomFunction): AssertionFn {
-  return (value: string[], options: any, baseLocation: Location) =>
-    fn.call(null, value, options, baseLocation);
+  return (value: string[], options: any, ctx: AssertionFnContext) =>
+    fn.call(null, value, options, ctx);
 }
