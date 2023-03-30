@@ -1,5 +1,3 @@
-const requiredKeySet = new Set();
-
 module.exports = {
   id: 'local',
   assertions: {
@@ -7,26 +5,24 @@ module.exports = {
       const name = opts.required;
 
       const rawValue = ctx.rawValue;
+      const errors = [];
 
-      if (rawValue?.required) {
-        for (const requiredKey of rawValue?.required) {
-          requiredKeySet.add(requiredKey);
+      if (Array.isArray(rawValue?.required) && rawValue?.properties) {
+        const required = rawValue?.required;
+        const properties = rawValue?.properties;
+
+        for (const item of required) {
+          if (properties[item] && properties[item].type === 'string') {
+            if (!properties[item][name]) {
+              errors.push({
+                message: `Required property ${name} inside ${item} string property`,
+                location: ctx.baseLocation,
+              });
+            }
+          }
         }
       }
-
-      if (rawValue?.type === 'string' && requiredKeySet.has(ctx.key)) {
-        if (!rawValue[name]) {
-          requiredKeySet.delete(ctx.key);
-          return [
-            {
-              message: `Required property ${name} for type string`,
-              location: ctx.baseLocation,
-            },
-          ];
-        }
-      }
-
-      return [];
+      return errors;
     },
   },
 };

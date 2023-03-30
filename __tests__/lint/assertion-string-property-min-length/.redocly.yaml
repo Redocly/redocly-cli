@@ -11,6 +11,3 @@ rules:
     assertions:
       local/checkSchema: 
         required: minLength
-
-
-  
