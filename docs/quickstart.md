@@ -207,7 +207,7 @@ $ redocly bundle openapi.yaml --output bundled.yaml
 
 Use `preview-docs` to generate a preview of your API reference docs.
 
-First of all, make sure you have a bundled file to preview. Then in your terminal, type the following:
+First, make sure you have a definition file to preview. Then in your terminal, enter the following command, replacing `bundled.yaml` with the file path and name of your definition file:
 
 ```bash
 $ redocly preview-docs bundled.yaml
