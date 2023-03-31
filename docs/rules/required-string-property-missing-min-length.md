@@ -1,4 +1,4 @@
-# required-min-length-string-type-property
+# required-string-property-missing-min-length
 
 Requires that every required property in the API definition with type `string` has a `minLength`. 
 
@@ -10,7 +10,7 @@ Requires that every required property in the API definition with type `string` h
 
 ## API design principles
 
-The `minLength` property is useful in scenarios where you need to specify a minimum length requirement for a string or to check if the string is not empty, especially if the property is marked as `required`. It helps to prevent errors or unexpected behavior in your application that may result from having strings that are too short or even empty. By setting a minimum length, you can ensure that the string has enough characters to be useful in your application. Overall, using the `minLength` property for string type properties in OAS definitions is a best practice for ensuring data integrity and improving the overall quality of the API.
+The `minLength` keyword constrains string values. When a property of type `string` is `required`, defining the `minLength` helps prevent common mistakes, such as empty strings. Use the `minLength` property as a best practice to ensure data integrity and enhances the overall quality of the API.
 
 ## Configuration
 
@@ -19,7 +19,7 @@ Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
-  required-min-length-string-type-property:
+  required-string-property-missing-min-length:
     severity: error
 ```
 
@@ -34,7 +34,7 @@ An example configuration:
 
 ```yaml
 rules:
-  required-min-length-string-type-property: error
+  required-string-property-missing-min-length: error
 ```
 
 ## Examples
@@ -44,7 +44,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  required-min-length-string-type-property: error
+  required-string-property-missing-min-length: error
 ```
 
 Example of an **incorrect** schema:
@@ -86,5 +86,5 @@ schemas:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/required-min-length-string-type-property.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/required-string-property-missing-min-length.ts)
 - [Schema docs](https://redocly.com/docs/openapi-visual-reference/schemas/)
