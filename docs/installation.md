@@ -44,7 +44,6 @@ docker run --rm -v $PWD:/spec redocly/cli lint petstore.yaml
 
 ## Next steps
 
-- Check the full list of [Redocly CLI commands](./commands/index.md) available to you
-- Learn how to fine-tune your Redocly CLI tool using a [configuration file](./configuration/index.mdx)
-- Learn more about [custom plugins and rules](./resources/custom-plugins.md)
+- Set up [autocomplete for Redocly CLI](./guides/autocomplete.md).
+- Check the full list of [Redocly CLI commands](./commands/index.md) available.
 
