@@ -18,7 +18,7 @@ toc:
 
 ### Changes
 
-- Changed arguments for assertion custom functions. Now as third parameters instead of `location` it has `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).  
+- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).  
 
 ## 1.0.0-beta.124 (2023-03-09)
 
