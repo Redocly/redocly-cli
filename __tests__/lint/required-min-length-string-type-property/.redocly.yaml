@@ -1,5 +1,0 @@
-apis:
-  main: 
-    root: ./openapi.yaml
-rules: 
-  required-min-length-string-type-property: error
