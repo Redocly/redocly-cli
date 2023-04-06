@@ -13,7 +13,7 @@ toc:
 
 ### Fixes
 
-- Fixed an issue with `$ref` in path parameters during for the `join` command.
+- Fixed an issue with `$ref` in path parameters during the `join` command.
 - This release also includes various internal stability fixes and improvements.
 
 ### Changes
