@@ -9,7 +9,7 @@ toc:
 
 ### Features
 
-- Added the [required-min-length-string-type-property](./rules/required-min-length-string-type-property.md) rule for required property in the API definition with type `string` should have a `minLength`. 
+- Added the [required-min-length-string-type-property](./rules/required-min-length-string-type-property.md) rule that requires required properties in the API definition with type `string` to have a `minLength`. 
 
 ### Fixes
 
