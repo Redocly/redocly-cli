@@ -160,6 +160,7 @@ describe('E2E', () => {
         'fails-if-component-conflicts',
         'multiple-tags-in-same-files',
         'references-in-parameters',
+        'ignore-decorators',
       ];
 
       test.each(testDirNames)('test: %s', (dir) => {
