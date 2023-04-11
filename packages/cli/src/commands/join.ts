@@ -50,6 +50,8 @@ type JoinDocumentContext = {
 type JoinArgv = {
   apis: string[];
   lint?: boolean;
+  decorate?: boolean;
+  preprocess?: boolean;
   'prefix-tags-with-info-prop'?: string;
   'prefix-tags-with-filename'?: boolean;
   'prefix-components-with-info-prop'?: string;
@@ -92,15 +94,19 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     )
   );
 
-  // skip all decorators
-  const decorators = new Set([...Object.keys(config.styleguide.decorators.oas3_0),
-      ...Object.keys(config.styleguide.decorators.oas3_1), ...Object.keys(config.styleguide.decorators.oas2)]);
-  config.styleguide.skipDecorators(Array.from(decorators));
 
-  // skip all preprocessors
-  const preprocessors = new Set([...Object.keys(config.styleguide.preprocessors.oas3_0),
-    ...Object.keys(config.styleguide.preprocessors.oas3_1), ...Object.keys(config.styleguide.preprocessors.oas2)]);
-  config.styleguide.skipPreprocessors(Array.from(preprocessors));
+  console.log('argv', argv);
+  if (!argv.decorate) {
+    const decorators = new Set([...Object.keys(config.styleguide.decorators.oas3_0),
+      ...Object.keys(config.styleguide.decorators.oas3_1), ...Object.keys(config.styleguide.decorators.oas2)]);
+    config.styleguide.skipDecorators(Array.from(decorators));
+  }
+
+  if (!argv.preprocess) {
+    const preprocessors = new Set([...Object.keys(config.styleguide.preprocessors.oas3_0),
+      ...Object.keys(config.styleguide.preprocessors.oas3_1), ...Object.keys(config.styleguide.preprocessors.oas2)]);
+    config.styleguide.skipPreprocessors(Array.from(preprocessors));
+  }
 
   const bundleResults = await Promise.all(
     documents.map((document) =>

@@ -45,6 +45,8 @@ Option | Type | Description
 apis | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
 --help | boolean | Show help.
 --lint | boolean | Lint definition files.
+--decorate | boolean | Run decorators.
+--preprocess | boolean | Run preprocessors.
 --prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.
 --prefix-components-with-info-prop | string | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.
 --prefix-tags-with-info-prop | boolean | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.
