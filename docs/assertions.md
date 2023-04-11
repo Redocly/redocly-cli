@@ -2,17 +2,12 @@
 redirectFrom:
   - /docs/cli/resources/rules/assertions/
   - /docs/cli/rules/assertions/
+  - /docs/cli/rules/custom-rules
 ---
-# Custom rules and assertions
+# Assertions are configurable rules
 
-Configure custom rules and assertions to enforce your API design standards.
 
-There are three types of custom rules (from easiest to most difficult):
-- Use included assertions (no JavaScript required).
-- Use custom assertion functions (middle - requires some JavaScript).
-- Craft custom rules entirely from JavaScript code.
-
-Define custom rules in the `rules` map in the Redocly configuration file.
+Define assertions in the `rules` map in the Redocly configuration file.
 
 ```yaml
 rules:
@@ -22,7 +17,7 @@ rules:
     ...
 ```
 
-A custom rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+An assertion describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Pattern Property | Type | Description
