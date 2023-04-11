@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`E2E join with options test with option: { name: 'decorate', value: true } 1`] = `
-argv {
-  _: [ 'join' ],
-  decorate: true,
-  apis: [ 'foo.yaml', 'bar.yaml' ],
-  lint: false,
-  preprocess: false,
-  'prefix-tags-with-filename': false,
-  prefixTagsWithFilename: false,
-  output: 'openapi.yaml',
-  o: 'openapi.yaml',
-  '$0': '../../../packages/cli/src/index.ts'
-}
 
 openapi: 3.0.0
 info:

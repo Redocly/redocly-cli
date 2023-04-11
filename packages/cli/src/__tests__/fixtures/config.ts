@@ -16,6 +16,6 @@ export const ConfigFixture = {
       oas2: {},
       oas3_0: {},
       oas3_1: {},
-    }
+    },
   },
 };

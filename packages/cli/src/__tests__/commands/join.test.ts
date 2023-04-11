@@ -2,7 +2,7 @@ import { handleJoin } from '../../commands/join';
 import { exitWithError, writeYaml } from '../../utils';
 import { yellow } from 'colorette';
 import { detectOpenAPI } from '@redocly/openapi-core';
-import {loadConfig} from "../../__mocks__/@redocly/openapi-core";
+import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 
 jest.mock('../../utils');
 jest.mock('colorette');
@@ -82,33 +82,33 @@ describe('handleJoin fails', () => {
     expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'output.yml', expect.any(Boolean));
   });
 
-  it ('should call skipDecorators and skipPreprocessors', async () => {
-      (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
-      await handleJoin(
-          {
-              apis: ['first.yaml', 'second.yaml'],
-          },
-          'cli-version'
-      );
+  it('should call skipDecorators and skipPreprocessors', async () => {
+    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+      },
+      'cli-version'
+    );
 
-      const config = loadConfig();
-      expect(config.styleguide.skipDecorators).toHaveBeenCalled();
-      expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
+    const config = loadConfig();
+    expect(config.styleguide.skipDecorators).toHaveBeenCalled();
+    expect(config.styleguide.skipPreprocessors).toHaveBeenCalled();
   });
 
-    it ('should not call skipDecorators and skipPreprocessors', async () => {
-        (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
-        await handleJoin(
-            {
-                apis: ['first.yaml', 'second.yaml'],
-                decorate: true,
-                preprocess: true
-            },
-            'cli-version'
-        );
+  it('should not call skipDecorators and skipPreprocessors', async () => {
+    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+        decorate: true,
+        preprocess: true,
+      },
+      'cli-version'
+    );
 
-        const config = loadConfig();
-        expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
-        expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
-    });
+    const config = loadConfig();
+    expect(config.styleguide.skipDecorators).not.toHaveBeenCalled();
+    expect(config.styleguide.skipPreprocessors).not.toHaveBeenCalled();
+  });
 });
