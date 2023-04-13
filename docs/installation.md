@@ -24,7 +24,7 @@ Running `redocly --version` will confirm that the installation was successful, a
 
 ## Use `npx` at runtime
 
-[npx](??) is npm's package runner. It will install and run a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
+[npx](https://docs.npmjs.com/cli/v9/commands/npx) is npm's package runner. It will install and run a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
 
 ```shell Command
 npx @redocly/cli <command> [options]
