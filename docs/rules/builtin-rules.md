@@ -92,9 +92,9 @@ Build [configurable rules](./rules/configurable-rules.md) if the rule you need i
 
 To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
 
-You can specify global settings in the top-level `lint` and `rules` object, or use per-API settings by adding a `lint` and `rules` object under each API in `apis`.
+You can specify global settings in the top-level `rules` object, or use per-API settings by adding a `rules` object under each API in `apis`.
 
-You can format each entry in the `lint` and `rules` object in one of the following ways:
+You can format each entry in the `rules` object in one of the following ways:
 
 - Short syntax with single-line configuration `rule-name: {severity}`, where `{severity}` is one of `error`, `warn` or `off`. You can't configure additional rule options with this syntax.
 
