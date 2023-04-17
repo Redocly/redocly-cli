@@ -1,7 +1,7 @@
 type: object
 title: Resolve object
 description: >-
-  All API registry links and public URLs in your API definitions will automatically resolve.
+  All API registry links and public URLs in your API definitions automatically resolve.
   If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
 
   If the URL matches multiple patterns, the first match takes priority.
@@ -39,4 +39,4 @@ properties:
               description: The value of the header. Mutually exclusive with `envVariable`. We recommend to use `envVariable` instead for any secrets.
             envVariable:
               type: string
-              description: The environment variable name which will be resolved and should contain the value. Mutually exclusive with `value`.
+              description: The environment variable name resolved which should contain the value. Mutually exclusive with `value`.

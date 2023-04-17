@@ -263,7 +263,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-plugins.md#location-object)
+ctx | `object` | `ctx` object extends the [Context object](../resources/custom-plugins.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original assertion value. 
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -300,20 +300,28 @@ assert/operation-summary-check:
 module.exports = {
   id: 'local',
   assertions: {
-    checkWordsStarts: (value, options, location) => {
+    checkWordsStarts: (value, options, ctx) => {
       const regexp = new RegExp(`^${options.words.join('|')}`);
       if (regexp.test(value)) {
         return [];
       }
-      return [{ message: 'Operation summary should start with an active verb', location }];
+      return [
+        { 
+          message: 'Operation summary should start with an active verb', 
+          location: ctx.baseLocation 
+        }
+      ];
     },
-    checkWordsCount: (value, options, location) => {
+    checkWordsCount: (value, options, ctx) => {
       const words = value.split(' ');
       if (words.length >= options.min) {
         return [];
       }
       return [
-        { message: `Operation summary should contain at least ${options.min} words`, location },
+        { 
+          message: `Operation summary should contain at least ${options.min} words`, 
+          location: ctx.baseLocation  
+        }
       ];
     },
   },

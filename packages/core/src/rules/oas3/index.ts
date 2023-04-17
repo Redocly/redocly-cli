@@ -49,6 +49,7 @@ import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
 import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name';
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
+import { RequiredStringPropertyMissingMunLength } from '../common/required-string-property-missing-min-length';
 
 export const rules = {
   spec: OasSpec,
@@ -102,6 +103,7 @@ export const rules = {
   'response-contains-property': ResponseContainsProperty,
   'scalar-property-missing-example': ScalarPropertyMissingExample,
   'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
+  'required-string-property-missing-min-length': RequiredStringPropertyMissingMunLength,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

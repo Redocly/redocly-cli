@@ -166,29 +166,29 @@ bundled.yaml: split processed in 76ms
 So, what just happened? Take a look in the newly created `bundled` directory. That's where the magic is! See how the `split` command automatically broke the single API definition into its constituent parts and very kindly organized them in the new directory?
 
 ```bash
+.
 ├── code samples
-│   └── C#
-│       └── postundefined
+│   ├── C#
+│   |   └── postundefined
 │   └── PHP
 │       └── postundefined
 ├── components
-│   └── headers
-│       └── ExpiresAfter.yaml
-│   └── responses
-│       └── Problem.yaml
+│   ├── headers
+│   |   └── ExpiresAfter.yaml
+│   ├── responses
+│   |   └── Problem.yaml
 │   └── schemas
-│       └── Email.yaml
-│       └── Problem.yaml
-│       └── Schema.yaml
+│       ├── Email.yaml
+│       ├── Problem.yaml
+│       ├── Schema.yaml
 │       └── User.yaml
 ├── paths
-│       └── echo.yaml
-│       └── pathItem.yaml
-│       └── pathItemWithExamples.yaml
-│       └── users@{username}.yaml
+│   ├── echo.yaml
+│   ├── pathItem.yaml
+│   ├── pathItemWithExamples.yaml
+│   └── users@{username}.yaml
 └── openapi.yaml
 ```
-
 
 :::info Note
 
@@ -207,7 +207,7 @@ $ redocly bundle openapi.yaml --output bundled.yaml
 
 Use `preview-docs` to generate a preview of your API reference docs.
 
-First of all, make sure you have a bundled file to preview. Then in your terminal, type the following:
+First, make sure you have a definition file to preview. Then in your terminal, enter the following command, replacing `bundled.yaml` with the file path and name of your definition file:
 
 ```bash
 $ redocly preview-docs bundled.yaml

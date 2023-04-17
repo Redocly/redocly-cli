@@ -47,7 +47,7 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
     mkdirSync(dirname(options.output), { recursive: true });
     writeFileSync(options.output, pageHTML);
     const sizeInKiB = Math.ceil(Buffer.byteLength(pageHTML) / 1024);
-    process.stderr.write(
+    process.stdout.write(
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {

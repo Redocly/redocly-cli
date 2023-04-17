@@ -159,6 +159,7 @@ describe('E2E', () => {
         'two-files-with-no-errors',
         'fails-if-component-conflicts',
         'multiple-tags-in-same-files',
+        'references-in-parameters',
       ];
 
       test.each(testDirNames)('test: %s', (dir) => {

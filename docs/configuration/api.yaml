@@ -23,7 +23,7 @@ additionalProperties:
         Use it to assign one or more existing Redocly Workflows organization-wide labels to your APIs.
         You must have a Redocly Workflows account with an active organization, and add the top-level `organization` property to the configuration file.
 
-        If you try to assign labels that don't already exist for your organization, Redocly apps will display a warning in the output and will only assign the existing labels (if any).
+        If you try to assign labels that don't already exist for your organization, Redocly apps display a warning in the output and only assigns the existing labels (if any).
       items:
         type: string
     preprocessors:
@@ -118,11 +118,11 @@ additionalProperties:
           type: object
           description: >-
             Defines theming and functionality for an API definition.
-            Supports the same format and options as the [global `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
-            API-level configuration will always override global configuration.
+            Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
+            API-level configuration always overrides the root configuration.
         mockServer:
           type: object
           description: >-
             Defines mock server behavior for an API definition.
-            Supports the same format and options as the [global `mockServer` object](#featuresmockserver-object).
-            API-level configuration will always override global configuration.
+            Supports the same format and options as the [root `mockServer` object](#mockserver-object).
+            API-level configuration always overrides the root configuration.

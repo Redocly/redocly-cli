@@ -39,6 +39,7 @@ import { PathSegmentPlural } from '../common/path-segment-plural';
 import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
+import { RequiredStringPropertyMissingMunLength } from '../common/required-string-property-missing-min-length';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -82,6 +83,7 @@ export const rules = {
   'response-contains-header': ResponseContainsHeader as Oas2Rule,
   'response-contains-property': ResponseContainsProperty as Oas2Rule,
   'scalar-property-missing-example': ScalarPropertyMissingExample,
+  'required-string-property-missing-min-length': RequiredStringPropertyMissingMunLength,
 };
 
 export const preprocessors = {};

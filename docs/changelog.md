@@ -5,6 +5,25 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.125 (2023-04-06)
+
+### Features
+
+- Added the [required-min-length-string-type-property](./rules/required-min-length-string-type-property.md) rule that requires required properties in the API definition with type `string` to have a `minLength`. 
+
+### Fixes
+
+- Fixed an issue with `$ref` in path parameters during the `join` command.
+- This release also includes various internal stability fixes and improvements.
+
+### Changes
+
+- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).  
+
+## 1.0.0-beta.124 (2023-03-09)
+
+- Fixed an issue with remote file inside the lint ignore file.
+
 ## 1.0.0-beta.123 (2023-01-02)
 
 ### Fixes
@@ -22,7 +41,7 @@ toc:
 ### Features
 
 - Added custom output file option to the `join` command.
-- Added an option to include webhooks to [operation-4xx-response](./rules/operations-4xx-response.md) rule.
+- Added an option to include webhooks to [operation-4xx-response](./rules/operation-4xx-response.md) rule.
 - Added a new built-in decorator [info-override](./decorators/info-override.md).
 - Added support for `/` as a separator which puts paths into subdirectories for each path segment with the [split command](./commands/split.md).
 
