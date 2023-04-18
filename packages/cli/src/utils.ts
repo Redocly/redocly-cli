@@ -423,5 +423,6 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
       result[key] = document[key];
     }
   }
+  // merge any other top-level keys (e.g. vendor extensions)
   return Object.assign(result, document);
 }
