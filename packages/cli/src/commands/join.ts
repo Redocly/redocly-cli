@@ -26,7 +26,7 @@ import {
   printLintTotals,
   writeYaml,
   exitWithError,
-  loadConfigAndHandleErrors,
+  loadConfigAndHandleErrors, sorTopLevelKeysForOas,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
@@ -211,7 +211,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
   }
 
-  writeYaml(joinedDef, specFilename, noRefs);
+  writeYaml(sorTopLevelKeysForOas(joinedDef), specFilename, noRefs);
   printExecutionTime('join', startedAt, specFilename);
 
   function populateTags({

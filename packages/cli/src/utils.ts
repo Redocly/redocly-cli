@@ -17,7 +17,7 @@ import {
   loadConfig,
   RawConfig,
   Region,
-  Config,
+  Config, Oas3Definition, Oas2Definition,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
@@ -390,4 +390,26 @@ export async function loadConfigAndHandleErrors(
     exitWithError(e.message);
     return new Config({ apis: {}, styleguide: {} });
   }
+}
+
+
+export function sorTopLevelKeysForOas(document: Oas3Definition | Oas2Definition): Oas3Definition | Oas2Definition {
+  if ('swagger' in document) {
+    // do we need sort keys for oas2 ?
+    return document;
+  }
+  return sortOas3Keys(document as Oas3Definition);
+}
+
+function sortOas3Keys(document: Oas3Definition): Oas3Definition {
+  const orderedKeys = ['openapi', 'info', 'jsonSchemaDialect', 'servers', 'security', 'tags', 'externalDocs', 'paths', 'x-webhooks', 'components'];
+  const result = {};
+  for (const key of orderedKeys) {
+    if (document.hasOwnProperty(key)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      result[key] = document[key];
+    }
+  }
+  return Object.assign(result, document);
 }
