@@ -3,9 +3,10 @@ import {
   isSubdir,
   pathToFilename,
   printConfigLintTotals,
-  langToExt, sorTopLevelKeysForOas,
+  langToExt,
+  sorTopLevelKeysForOas,
 } from '../utils';
-import {ResolvedApi, Totals, isAbsoluteUrl, Oas3Definition} from '@redocly/openapi-core';
+import { ResolvedApi, Totals, isAbsoluteUrl, Oas3Definition } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
@@ -336,4 +337,4 @@ describe('sorTopLevelKeysForOas', () => {
       expect(key).toEqual(orderedKeys[index]);
     });
   });
-})
+});
