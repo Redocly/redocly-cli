@@ -12,6 +12,8 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://redocly.com/v1
 tags:
   - name: Pet
     description: Pet Discription
@@ -20,8 +22,6 @@ tags:
     x-displayName: other
   - name: bar_other
     x-displayName: other
-servers:
-  - url: https://redocly.com/v1
 paths:
   /pets:
     get:

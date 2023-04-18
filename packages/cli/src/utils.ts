@@ -403,11 +403,9 @@ export function sorTopLevelKeysForOas(document: Oas3Definition | Oas2Definition)
 
 function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   const orderedKeys = ['openapi', 'info', 'jsonSchemaDialect', 'servers', 'security', 'tags', 'externalDocs', 'paths', 'x-webhooks', 'components'];
-  const result = {};
-  for (const key of orderedKeys) {
+  const result: any = {};
+  for (const key of orderedKeys as (keyof Oas3Definition)[]) {
     if (document.hasOwnProperty(key)) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       result[key] = document[key];
     }
   }

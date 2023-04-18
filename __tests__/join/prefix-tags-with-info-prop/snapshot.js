@@ -10,6 +10,8 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://redocly.com/v1
 tags:
   - name: Example OpenAPI 3 definition with foo title._Pet
     description: Pet Discription
@@ -21,19 +23,6 @@ tags:
     x-displayName: Pet
   - name: Example OpenAPI 3 definition._other
     x-displayName: other
-x-tagGroups:
-  - name: foo
-    tags:
-      - Example OpenAPI 3 definition with foo title._Pet
-      - Example OpenAPI 3 definition with foo title._other
-    description: Information about API
-  - name: bar
-    tags:
-      - Example OpenAPI 3 definition._Pet
-      - Example OpenAPI 3 definition._other
-    description: Information about API
-servers:
-  - url: https://redocly.com/v1
 paths:
   /pets:
     get:
@@ -62,6 +51,17 @@ paths:
       tags:
         - Example OpenAPI 3 definition._other
 components: {}
+x-tagGroups:
+  - name: foo
+    tags:
+      - Example OpenAPI 3 definition with foo title._Pet
+      - Example OpenAPI 3 definition with foo title._other
+    description: Information about API
+  - name: bar
+    tags:
+      - Example OpenAPI 3 definition._Pet
+      - Example OpenAPI 3 definition._other
+    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 
