@@ -17,7 +17,9 @@ import {
   loadConfig,
   RawConfig,
   Region,
-  Config, Oas3Definition, Oas2Definition,
+  Config,
+  Oas3Definition,
+  Oas2Definition,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
@@ -392,8 +394,9 @@ export async function loadConfigAndHandleErrors(
   }
 }
 
-
-export function sorTopLevelKeysForOas(document: Oas3Definition | Oas2Definition): Oas3Definition | Oas2Definition {
+export function sorTopLevelKeysForOas(
+  document: Oas3Definition | Oas2Definition
+): Oas3Definition | Oas2Definition {
   if ('swagger' in document) {
     // do we need sort keys for oas2 ?
     return document;
@@ -402,7 +405,18 @@ export function sorTopLevelKeysForOas(document: Oas3Definition | Oas2Definition)
 }
 
 function sortOas3Keys(document: Oas3Definition): Oas3Definition {
-  const orderedKeys = ['openapi', 'info', 'jsonSchemaDialect', 'servers', 'security', 'tags', 'externalDocs', 'paths', 'x-webhooks', 'components'];
+  const orderedKeys = [
+    'openapi',
+    'info',
+    'jsonSchemaDialect',
+    'servers',
+    'security',
+    'tags',
+    'externalDocs',
+    'paths',
+    'x-webhooks',
+    'components',
+  ];
   const result: any = {};
   for (const key of orderedKeys as (keyof Oas3Definition)[]) {
     if (document.hasOwnProperty(key)) {

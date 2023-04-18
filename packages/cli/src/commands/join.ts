@@ -26,7 +26,8 @@ import {
   printLintTotals,
   writeYaml,
   exitWithError,
-  loadConfigAndHandleErrors, sorTopLevelKeysForOas,
+  loadConfigAndHandleErrors,
+  sorTopLevelKeysForOas,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
