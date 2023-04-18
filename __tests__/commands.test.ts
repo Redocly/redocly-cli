@@ -160,6 +160,7 @@ describe('E2E', () => {
         'fails-if-component-conflicts',
         'multiple-tags-in-same-files',
         'references-in-parameters',
+        'ignore-decorators',
       ];
 
       test.each(testDirNames)('test: %s', (dir) => {
@@ -176,6 +177,7 @@ describe('E2E', () => {
         { name: 'prefix-tags-with-filename', value: true },
         { name: 'without-x-tag-groups', value: true },
         { name: 'prefix-components-with-info-prop', value: 'title' },
+        { name: 'decorate', value: true },
       ];
 
       test.each(options)('test with option: %s', (option) => {

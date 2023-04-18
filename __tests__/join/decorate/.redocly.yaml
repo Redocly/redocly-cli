@@ -1,0 +1,3 @@
+decorators:
+  remove-x-internal:
+    internalFlagProperty: 'x-private'
