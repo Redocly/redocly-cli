@@ -261,7 +261,7 @@ export async function resolveDocument(opts: {
       if (Array.isArray(node)) {
         const itemsType = type.items;
         // we continue resolving unknown types, but stop early on known scalars
-        if (type !== unknownType && itemsType === undefined) {
+        if (itemsType === undefined && type !== unknownType && type !== SpecExtension) {
           return;
         }
         for (let i = 0; i < node.length; i++) {
