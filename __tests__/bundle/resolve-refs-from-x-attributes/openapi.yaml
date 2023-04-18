@@ -1,0 +1,8 @@
+openapi: 3.0.3
+info:
+  title: foo
+  version: 1.0
+  x-attributes:
+    - $ref: external.yaml#/Test1
+  test-attributes:
+    - $ref: external.yaml#/Test2
