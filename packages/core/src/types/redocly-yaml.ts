@@ -225,7 +225,10 @@ const ConfigRootTheme: NodeType = {
 const Rules: NodeType = {
   properties: {},
   additionalProperties: (value: unknown, key: string) => {
-    if (key.startsWith('assert/')) {
+    if (key.startsWith('rule/')) {
+      return 'Assert';
+    } else if (key.startsWith('assert/')) {
+      // keep the old assert/ prefix as an alias
       return 'Assert';
     } else if (builtInRulesList.includes(key) || isCustomRuleId(key)) {
       if (typeof value === 'string') {
