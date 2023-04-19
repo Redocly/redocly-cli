@@ -10,7 +10,6 @@ import { ResolvedApi, Totals, isAbsoluteUrl } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
-// import {describe} from "yargs";
 
 jest.mock('os');
 jest.mock('colorette');
