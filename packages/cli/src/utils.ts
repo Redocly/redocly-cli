@@ -20,6 +20,7 @@ import {
   Config,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
+import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -389,5 +390,17 @@ export async function loadConfigAndHandleErrors(
   } catch (e) {
     exitWithError(e.message);
     return new Config({ apis: {}, styleguide: {} });
+  }
+}
+
+export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rules) {
+  const ruleset = {
+    ...rules.oas2,
+    ...rules.oas3_0,
+    ...rules.oas3_0,
+  };
+
+  if (isEmptyObject(ruleset)) {
+    exitWithError('No rules were configured. Please configure rules in config file');
   }
 }

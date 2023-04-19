@@ -1,28 +1,29 @@
 import {
   Config,
+  doesYamlFileExist,
+  findConfig,
   formatProblems,
+  getMergedConfig,
   getTotals,
   lint,
   lintConfig,
-  findConfig,
-  getMergedConfig,
   makeDocumentFromString,
-  stringifyYaml,
+  ProblemSeverity,
   RawConfig,
   RuleSeverity,
-  ProblemSeverity,
-  doesYamlFileExist,
+  stringifyYaml,
 } from '@redocly/openapi-core';
 import {
+  checkIfRulesetExist,
+  exitWithError,
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  pluralize,
-  printLintTotals,
-  printConfigLintTotals,
-  printUnusedWarnings,
-  exitWithError,
   loadConfigAndHandleErrors,
+  pluralize,
+  printConfigLintTotals,
+  printLintTotals,
+  printUnusedWarnings,
 } from '../utils';
 import type { CommonOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
@@ -47,6 +48,10 @@ export async function handleLint(argv: LintOptions, version: string) {
 
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
+  if (!apis.length) {
+    return exitWithError('No APIs were provided');
+  }
+
   if (argv['generate-ignore-file']) {
     config.styleguide.ignore = {}; // clear ignore
   }
@@ -59,6 +64,8 @@ export async function handleLint(argv: LintOptions, version: string) {
       const startedAt = performance.now();
       const resolvedConfig = getMergedConfig(config, alias);
       const { styleguide } = resolvedConfig;
+
+      checkIfRulesetExist(styleguide.rules);
 
       styleguide.skipRules(argv['skip-rule']);
       styleguide.skipPreprocessors(argv['skip-preprocessor']);

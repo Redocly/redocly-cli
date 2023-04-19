@@ -4,11 +4,13 @@ import {
   pathToFilename,
   printConfigLintTotals,
   langToExt,
+  checkIfRulesetExist,
 } from '../utils';
 import { ResolvedApi, Totals, isAbsoluteUrl } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
+// import {describe} from "yargs";
 
 jest.mock('os');
 jest.mock('colorette');
@@ -259,5 +261,35 @@ describe('langToExt', () => {
 
   it('should ignore case when inferring file extension', () => {
     expect(langToExt('JavaScript')).toBe('.js');
+  });
+});
+
+describe('checkIfRulesetExist', () => {
+  beforeEach(() => {
+    jest.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should exit if rules not provided', () => {
+    const rules = {
+      oas2: {},
+      oas3_0: {},
+      oas3_1: {},
+    };
+    checkIfRulesetExist(rules);
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should not exit if rules provided', () => {
+    const rules = {
+      oas2: { 'operation-4xx-response': 'error' },
+      oas3_0: {},
+      oas3_1: {},
+    } as any;
+    checkIfRulesetExist(rules);
+    expect(process.exit).not.toHaveBeenCalled();
   });
 });
