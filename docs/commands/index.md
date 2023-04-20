@@ -27,7 +27,7 @@ Redocly platform commands:
 * [`push`](push.md) Push an API definition to the Redocly API registry.
 
 Supporting commands:
-* `completion` Generate completion script.
+* `completion` Generate completion script (includes install instructions).
 
 
 ## Additional options
