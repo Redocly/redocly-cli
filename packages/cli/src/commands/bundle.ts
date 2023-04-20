@@ -9,7 +9,7 @@ import {
   saveBundle,
   printLintTotals,
   loadConfigAndHandleErrors,
-  sorTopLevelKeysForOas,
+  sortTopLevelKeysForOas,
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
@@ -97,13 +97,13 @@ export async function handleBundle(argv: BundleOptions, version: string) {
       if (fileTotals.errors === 0 || argv.force) {
         if (!argv.output) {
           const output = dumpBundle(
-            sorTopLevelKeysForOas(result.parsed),
+            sortTopLevelKeysForOas(result.parsed),
             argv.ext || 'yaml',
             argv.dereferenced
           );
           process.stdout.write(output);
         } else {
-          const output = dumpBundle(sorTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
+          const output = dumpBundle(sortTopLevelKeysForOas(result.parsed), ext, argv.dereferenced);
           saveBundle(outputFile, output);
         }
       }

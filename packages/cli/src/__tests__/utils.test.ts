@@ -4,7 +4,7 @@ import {
   pathToFilename,
   printConfigLintTotals,
   langToExt,
-  sorTopLevelKeysForOas,
+  sortTopLevelKeysForOas,
 } from '../utils';
 import { ResolvedApi, Totals, isAbsoluteUrl, Oas3Definition } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
@@ -274,6 +274,7 @@ describe('sorTopLevelKeysForOas', () => {
       paths: {},
       info: {},
       externalDocs: {},
+      webhooks: [],
       'x-webhooks': [],
       jsonSchemaDialect: '',
     } as any;
@@ -286,10 +287,11 @@ describe('sorTopLevelKeysForOas', () => {
       'tags',
       'externalDocs',
       'paths',
+      'webhooks',
       'x-webhooks',
       'components',
     ];
-    const result = sorTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeysForOas(openApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);
@@ -331,7 +333,7 @@ describe('sorTopLevelKeysForOas', () => {
       'responses',
       'securityDefinitions',
     ];
-    const result = sorTopLevelKeysForOas(openApi);
+    const result = sortTopLevelKeysForOas(openApi);
 
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);

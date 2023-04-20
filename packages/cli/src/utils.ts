@@ -394,7 +394,7 @@ export async function loadConfigAndHandleErrors(
   }
 }
 
-export function sorTopLevelKeysForOas(
+export function sortTopLevelKeysForOas(
   document: Oas3Definition | Oas2Definition
 ): Oas3Definition | Oas2Definition {
   if ('swagger' in document) {
@@ -440,6 +440,7 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
     'tags',
     'externalDocs',
     'paths',
+    'webhooks',
     'x-webhooks',
     'components',
   ];
