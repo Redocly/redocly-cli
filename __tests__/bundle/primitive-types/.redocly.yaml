@@ -1,3 +1,5 @@
 apis:
   main:
     root: ./openapi.yaml
+rules:
+  info-license-url: error

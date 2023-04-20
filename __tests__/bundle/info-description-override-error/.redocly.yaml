@@ -1,7 +1,8 @@
 apis:
   main:
     root: ./main.yaml
-
+rules:
+  operation-2xx-response: error
 decorators:
   info-description-override:
     filePath: ./test.md

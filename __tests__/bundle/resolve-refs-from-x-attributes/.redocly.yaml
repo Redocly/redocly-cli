@@ -1,6 +1,8 @@
 apis:
   main:
     root: ./openapi.yaml
+rules:
+  info-license-url: error
 decorators:
   plugin/resolve-x: on
 plugins:

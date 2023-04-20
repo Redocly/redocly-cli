@@ -5,6 +5,9 @@ openapi: 3.0.3
 info:
   title: foo
   version: 1
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   x-attributes:
     - $ref: external.yaml#/Test1
       resolved:

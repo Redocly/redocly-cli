@@ -9,6 +9,7 @@ import {
   saveBundle,
   printLintTotals,
   loadConfigAndHandleErrors,
+  checkIfRulesetExist,
 } from '../utils';
 import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
@@ -50,6 +51,7 @@ export async function handleBundle(argv: BundleOptions, version: string) {
       styleguide.skipDecorators(argv['skip-decorator']);
 
       if (argv.lint) {
+        checkIfRulesetExist(styleguide.rules);
         if (config.styleguide.recommendedFallback) {
           process.stderr.write(
             `No configurations were provided -- using built in ${blue(
