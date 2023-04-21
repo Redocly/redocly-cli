@@ -228,10 +228,10 @@ export function handleError(e: Error, ref: string) {
       return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
     case YamlParseError:
       return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
-      // TODO: codeframe
-    case  CircularJSONNotSupportedError: {
+    // TODO: codeframe
+    case CircularJSONNotSupportedError: {
       process.stderr.write(
-          red(`Detected circular reference which can't be converted to JSON.\n`) +
+        red(`Detected circular reference which can't be converted to JSON.\n`) +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
       );
       return process.exit(1);
