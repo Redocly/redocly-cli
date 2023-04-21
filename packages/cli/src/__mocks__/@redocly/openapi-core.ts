@@ -1,5 +1,5 @@
 import { ConfigFixture } from './../../__tests__/fixtures/config';
-import { Document, ResolveError } from '@redocly/openapi-core';
+import { Document } from '@redocly/openapi-core';
 import { firstDocument, secondDocument } from '../documents';
 
 export const __redoclyClient = {
@@ -46,6 +46,20 @@ export class BaseResolver {
     .mockImplementationOnce(() =>
       Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument })
     );
+}
+
+export class ResolveError extends Error {
+  constructor(public originalError: Error) {
+    super(originalError.message);
+    Object.setPrototypeOf(this, ResolveError.prototype);
+  }
+}
+
+export class YamlParseError extends Error {
+  constructor(public originalError: Error) {
+    super(originalError.message);
+    Object.setPrototypeOf(this, YamlParseError.prototype);
+  }
 }
 
 export enum OasVersion {

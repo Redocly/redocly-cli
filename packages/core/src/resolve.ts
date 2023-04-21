@@ -115,6 +115,9 @@ export class BaseResolver {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
+        if (fs.lstatSync(absoluteRef).isDirectory()) {
+           throw new Error(`API path cannot refer to a folder. ${absoluteRef} is a folder`);
+        }
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
         // In some cases file have \r\n line delimeters like on windows, we should skip it.
         return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
@@ -150,6 +153,7 @@ export class BaseResolver {
     isRoot: boolean = false
   ): Promise<Document | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
+
     const cachedDocument = this.cache.get(absoluteRef);
     if (cachedDocument) {
       return cachedDocument;
