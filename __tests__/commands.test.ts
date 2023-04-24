@@ -240,7 +240,7 @@ describe('E2E', () => {
       ]);
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
-    })
+    });
   });
 
   describe('bundle lint format', () => {
