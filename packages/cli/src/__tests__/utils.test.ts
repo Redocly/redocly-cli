@@ -4,8 +4,9 @@ import {
   pathToFilename,
   printConfigLintTotals,
   langToExt,
+  sortTopLevelKeysForOas,
 } from '../utils';
-import { ResolvedApi, Totals, isAbsoluteUrl } from '@redocly/openapi-core';
+import { ResolvedApi, Totals, isAbsoluteUrl, Oas3Definition } from '@redocly/openapi-core';
 import { red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
@@ -259,5 +260,83 @@ describe('langToExt', () => {
 
   it('should ignore case when inferring file extension', () => {
     expect(langToExt('JavaScript')).toBe('.js');
+  });
+});
+
+describe('sorTopLevelKeysForOas', () => {
+  it('should sort oas3 top level keys', () => {
+    const openApi = {
+      openapi: '3.0.0',
+      components: {},
+      security: [],
+      tags: [],
+      servers: [],
+      paths: {},
+      info: {},
+      externalDocs: {},
+      webhooks: [],
+      'x-webhooks': [],
+      jsonSchemaDialect: '',
+    } as any;
+    const orderedKeys = [
+      'openapi',
+      'info',
+      'jsonSchemaDialect',
+      'servers',
+      'security',
+      'tags',
+      'externalDocs',
+      'paths',
+      'webhooks',
+      'x-webhooks',
+      'components',
+    ];
+    const result = sortTopLevelKeysForOas(openApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
+  });
+
+  it('should sort oas2 top level keys', () => {
+    const openApi = {
+      swagger: '2.0.0',
+      security: [],
+      tags: [],
+      paths: {},
+      info: {},
+      externalDocs: {},
+      host: '',
+      basePath: '',
+      securityDefinitions: [],
+      schemes: [],
+      consumes: [],
+      parameters: [],
+      produces: [],
+      definitions: [],
+      responses: [],
+    } as any;
+    const orderedKeys = [
+      'swagger',
+      'info',
+      'host',
+      'basePath',
+      'schemes',
+      'consumes',
+      'produces',
+      'security',
+      'tags',
+      'externalDocs',
+      'paths',
+      'definitions',
+      'parameters',
+      'responses',
+      'securityDefinitions',
+    ];
+    const result = sortTopLevelKeysForOas(openApi);
+
+    Object.keys(result).forEach((key, index) => {
+      expect(key).toEqual(orderedKeys[index]);
+    });
   });
 });

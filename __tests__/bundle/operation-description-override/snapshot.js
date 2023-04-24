@@ -2,9 +2,6 @@
 
 exports[`E2E bundle operation-description-override 1`] = `
 openapi: 3.1.0
-servers:
-  - url: //petstore.swagger.io/v2
-    description: Default server
 info:
   description: some description
   title: Example OpenAPI 3 definition.
@@ -16,6 +13,9 @@ info:
     name: qa
     url: https://swagger.io/specification/#definitions
     email: email@redoc.ly
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
 paths:
   /pet:
     put:

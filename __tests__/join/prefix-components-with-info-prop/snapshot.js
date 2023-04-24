@@ -10,6 +10,8 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://redocly.com/v1
 tags:
   - name: Foo
     description: Foo Discription
@@ -21,19 +23,6 @@ tags:
     x-displayName: Bar
   - name: bar_other
     x-displayName: other
-x-tagGroups:
-  - name: foo
-    tags:
-      - Foo
-      - foo_other
-    description: Information about API
-  - name: bar
-    tags:
-      - Bar
-      - bar_other
-    description: Information about API
-servers:
-  - url: https://redocly.com/v1
 paths:
   /pets:
     get:
@@ -69,6 +58,17 @@ components:
     Example OpenAPI 3 definition._some-property:
       description: bar description
       type: string
+x-tagGroups:
+  - name: foo
+    tags:
+      - Foo
+      - foo_other
+    description: Information about API
+  - name: bar
+    tags:
+      - Bar
+      - bar_other
+    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 
