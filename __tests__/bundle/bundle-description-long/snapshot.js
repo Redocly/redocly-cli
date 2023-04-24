@@ -18,12 +18,6 @@ info:
     second line exists
 components: {}
 
-test.yaml:
-  1:1  error    no-empty-servers  Servers must be present.
-
-❌ Validation failed with 1 error.
-run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 

@@ -43,8 +43,6 @@ paths:
           description: example description
 components: {}
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
-
 bundling ./main.yaml...
 📦 Created a bundle for ./main.yaml at stdout <test>ms.
 

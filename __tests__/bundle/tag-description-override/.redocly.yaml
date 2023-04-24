@@ -1,8 +1,7 @@
 apis:
   main:
     root: ./main.yaml
-rules:
-  operation-2xx-response: error
+
 decorators:
   tag-description-override:
     tagNames:

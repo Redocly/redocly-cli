@@ -1,8 +1,7 @@
 apis:
   main:
     root: ./openapi.yaml
-rules:
-  info-license-url: error
+
 decorators:
   operation-description-override:
     operationIds:

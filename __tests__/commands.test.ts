@@ -205,6 +205,7 @@ describe('E2E', () => {
       'bundle-remove-unused-components',
       'bundle-remove-unused-components-from-config',
       'bundle-lint-format',
+      'max-problems-argument',
     ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -218,8 +219,6 @@ describe('E2E', () => {
       const entryPoints = getEntrypoints(testPath);
 
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-        '--lint',
-        '--max-problems=1',
         '--format=stylish',
         ...entryPoints,
       ]);
@@ -229,6 +228,19 @@ describe('E2E', () => {
         (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
       });
     }
+
+    it('max-problems-argument', () => {
+      const folderPath = join(__dirname, 'bundle/max-problems-argument');
+      const entryPoints = getEntrypoints(folderPath);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        '--lint',
+        '--max-problems=1',
+        '--format=stylish',
+        ...entryPoints,
+      ]);
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    })
   });
 
   describe('bundle lint format', () => {

@@ -36,13 +36,6 @@ components:
           $ref: '#/components/schemas/Name'
           description: Other name (specific).
 
-test.yaml:
-  1:1  error    spec  The field \`info\` must be present on this level.
-
-< ... 2 more problems hidden > increase with \`--max-problems N\`
-❌ Validation failed with 2 errors and 1 warning.
-run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 

@@ -28,8 +28,6 @@ paths:
                 foo: TEST
 components: {}
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 
