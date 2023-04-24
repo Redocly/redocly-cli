@@ -59,7 +59,7 @@ post:
 ## Related rules
 
 - [operation-description](./operation-description.md)
-- [custom rules](./custom-rules.md)
+- [custom rules](./configurable-rules.md)
 - [operation-operationId-unique](./operation-operationId-unique.md)
 
 ## Resources

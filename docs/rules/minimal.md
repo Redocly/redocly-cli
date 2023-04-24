@@ -11,7 +11,7 @@ Errors:
 
 Warnings:
 
-* [assertions](./assertions.md)
+* [configurable rules](./configurable-rules.md)
 * [no-ambiguous-paths](./no-ambiguous-paths.md)
 * [no-empty-servers](./no-empty-servers.md)
 * [no-enum-type-mismatch](./no-enum-type-mismatch.md)
@@ -19,7 +19,7 @@ Warnings:
 * [no-identical-paths](./no-identical-paths.md)
 * [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
 * [no-path-trailing-slash](./no-path-trailing-slash.md)
-* [no-server-example.com](./no-server-example.com.md)
+* [no-server-example-com](./no-server-example-com.md)
 * [no-undefined-server-variable](./no-undefined-server-variable.md)
 * [no-unused-components](./no-unused-components.md)
 * [operation-2xx-response](./operation-2xx-response.md)

@@ -35,4 +35,4 @@ Sometimes, the OpenAPI description you have isn't the one you wish you had. Redo
 Whether you need to filter out some endpoints before publishing documentation, improve or add description fields, or add other elements to bring your API description to the standard you'd like, decorators can help.
 
 - [Redocly decorators](./decorators.md)
-- [Custom plugins in Javascript](./custom-plugins.md) allow you to create your own advanced decorators.
+- [Custom plugins in Javascript](./resources/custom-plugins.md) allow you to create your own advanced decorators.

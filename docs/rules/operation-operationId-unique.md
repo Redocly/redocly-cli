@@ -67,10 +67,10 @@ paths:
 - [operation-summary](./operation-summary.md)
 - [operation-operationId-url-safe](./operation-operationId-url-safe.md)
 - [operation-operationId](./operation-operationId.md)
-- [custom rules](./custom-rules.md)
+- [custom rules](./configurable-rules.md)
 
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId-unique.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
-- Consider using [custom rules](./custom-rules.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.
+- Consider using [custom rules](./configurable-rules.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.
