@@ -127,6 +127,6 @@ rules:
 
 ## Next steps
 
-* Learn more about [linting rules](...md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
+* Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
 * If you didn't find the rule you need, build a [configurable rule](./configurable-rules.md) for a perfect linting fit.
 

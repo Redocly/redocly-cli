@@ -66,7 +66,7 @@ pattern | string | Asserts a value matches a regex pattern. See [regex pattern e
 ref | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
 required | [string] | Asserts all listed values are defined. See [required example](#required-example).
 requireAny | [string] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
-`{pluginId}/{functionName}` | object | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](./resources/custom-plugins.md#custom-function-example).
+`{pluginId}/{functionName}` | object | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).
 
 ## Where object
 

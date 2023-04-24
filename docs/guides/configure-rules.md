@@ -151,5 +151,5 @@ Configuring per-API means that there doesn't have to be compromise for the lowes
 
 ## Next steps
 
-* Check out the detailed reference documentation for the [built-in rules](../../rules/) and [assertions](../../rules/custom-rules).
-* If nothing there meets your needs, you can create your own rules by creating [custom plugins](../resources/custom-plugins/) with JavaScript.
+* Check out the detailed reference documentation for the [built-in rules](../rules/builtin-rules.md) and [configurable rules](../rules/configurable-rules.md).
+* If nothing there meets your needs, you can create your own rules by creating [custom plugins](../resources/custom-plugins.md) with JavaScript.

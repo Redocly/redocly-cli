@@ -26,12 +26,12 @@ Errors:
 
 Warnings:
 
-* [assertions](./assertions.md)
+* [configurable rules](./configurable-rules.md)
 * [info-license-url](./info-license-url.md)
 * [info-license](./info-license.md)
 * [no-ambiguous-paths](./no-ambiguous-paths.md)
 * [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
-* [no-server-example.com](./no-server-example.com.md)
+* [no-server-example-com](./no-server-example-com.md)
 * [no-unused-components](./no-unused-components.md)
 * [operation-2xx-response](./operation-2xx-response.md)
 * [operation-4xx-response](./operation-4xx-response.md)
