@@ -116,7 +116,9 @@ export class BaseResolver {
         return new Source(absoluteRef, body, mimeType);
       } else {
         if (fs.lstatSync(absoluteRef).isDirectory()) {
-          throw new Error(`API path cannot refer to a folder. ${absoluteRef} is a folder`);
+          throw new Error(
+            `Invalid file path. Please provide a valid file path that includes the name of a file. ${absoluteRef} is a folder`
+          );
         }
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
         // In some cases file have \r\n line delimeters like on windows, we should skip it.
