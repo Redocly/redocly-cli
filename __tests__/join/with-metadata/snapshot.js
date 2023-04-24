@@ -16,6 +16,11 @@ info:
 servers:
   - url: http://localhost:8081
   - url: http://localhost:8080
+tags:
+  - name: user
+    x-displayName: user
+  - name: pet
+    x-displayName: pet
 paths:
   /GETUser/{userId}:
     summary: getUser
@@ -73,11 +78,7 @@ paths:
           description: ok
         '400':
           description: bad request
-tags:
-  - name: user
-    x-displayName: user
-  - name: pet
-    x-displayName: pet
+components: {}
 x-tagGroups:
   - name: test
     tags:
@@ -85,7 +86,6 @@ x-tagGroups:
   - name: pet
     tags:
       - pet
-components: {}
 
 openapi.yaml: join processed in <test>ms
 

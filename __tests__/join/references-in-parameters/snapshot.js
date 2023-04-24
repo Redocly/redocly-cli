@@ -9,6 +9,11 @@ info:
   version: 1.0.0
 servers:
   - url: https://example.com/api
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
 paths:
   /users/{userId}/products/{productId}:
     parameters:
@@ -50,18 +55,6 @@ paths:
           description: Not found
       tags:
         - bar_other
-tags:
-  - name: foo_other
-    x-displayName: other
-  - name: bar_other
-    x-displayName: other
-x-tagGroups:
-  - name: foo
-    tags:
-      - foo_other
-  - name: bar
-    tags:
-      - bar_other
 components:
   parameters:
     userIdParam:
@@ -92,6 +85,13 @@ components:
       required: true
       schema:
         type: integer
+x-tagGroups:
+  - name: foo
+    tags:
+      - foo_other
+  - name: bar
+    tags:
+      - bar_other
 
 openapi.yaml: join processed in <test>ms
 

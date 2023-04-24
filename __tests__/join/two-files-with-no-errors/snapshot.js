@@ -12,6 +12,11 @@ info:
     url: https://opensource.org/licenses/MIT
 servers:
   - url: https://redocly.com/v1
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
 paths:
   /pets:
     get:
@@ -39,11 +44,7 @@ paths:
           description: example description
       tags:
         - bar_other
-tags:
-  - name: foo_other
-    x-displayName: other
-  - name: bar_other
-    x-displayName: other
+components: {}
 x-tagGroups:
   - name: foo
     tags:
@@ -51,7 +52,6 @@ x-tagGroups:
   - name: bar
     tags:
       - bar_other
-components: {}
 
 openapi.yaml: join processed in <test>ms
 

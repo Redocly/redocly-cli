@@ -2,9 +2,6 @@
 
 exports[`E2E bundle info-override 1`] = `
 openapi: 3.0.0
-servers:
-  - url: //petstore.swagger.io/v2
-    description: Default server
 info:
   title: Updated title
   version: 1.0.0
@@ -17,6 +14,9 @@ info:
     url: https://swagger.io/specification/#definitions
     email: email@redoc.ly
   x-vendor: custom extension
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
 paths:
   /pet/findByStatus:
     get:

@@ -10,6 +10,8 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://redocly.com/v1
 tags:
   - name: Store
     description: Store tags
@@ -22,19 +24,6 @@ tags:
   - name: Dog
     description: Wild description
     x-displayName: Dog
-x-tagGroups:
-  - name: foo
-    tags:
-      - Store
-      - foo_other
-    description: Information about API
-  - name: bar
-    tags:
-      - Pets
-      - Dog
-    description: Information about API
-servers:
-  - url: https://redocly.com/v1
 paths:
   /cart:
     get:
@@ -81,6 +70,17 @@ paths:
         '201':
           description: example description
 components: {}
+x-tagGroups:
+  - name: foo
+    tags:
+      - Store
+      - foo_other
+    description: Information about API
+  - name: bar
+    tags:
+      - Pets
+      - Dog
+    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 

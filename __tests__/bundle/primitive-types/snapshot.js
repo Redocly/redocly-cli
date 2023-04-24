@@ -2,9 +2,6 @@
 
 exports[`E2E bundle primitive-types 1`] = `
 openapi: 3.1.0
-servers:
-  - url: https://api.example.com/v1
-security: []
 info:
   title: Title
   license:
@@ -12,6 +9,9 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   description: Description
   version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+security: []
 paths:
   /my_post:
     post:
