@@ -117,7 +117,7 @@ export class BaseResolver {
       } else {
         if (fs.lstatSync(absoluteRef).isDirectory()) {
           throw new Error(
-            `Invalid file path. Please provide a valid file path that includes the name of a file. ${absoluteRef} is a folder`
+            `Expected a file but received a folder at ${absoluteRef}`
           );
         }
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
