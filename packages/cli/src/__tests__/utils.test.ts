@@ -4,12 +4,22 @@ import {
   pathToFilename,
   printConfigLintTotals,
   langToExt,
+  handleError,
+  CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
 } from '../utils';
-import { ResolvedApi, Totals, isAbsoluteUrl, Oas3Definition } from '@redocly/openapi-core';
-import { red, yellow } from 'colorette';
+import {
+  ResolvedApi,
+  Totals,
+  isAbsoluteUrl,
+  ResolveError,
+  YamlParseError,
+  Oas3Definition,
+} from '@redocly/openapi-core';
+import { blue, red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
+import * as process from 'process';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -338,5 +348,63 @@ describe('sorTopLevelKeysForOas', () => {
     Object.keys(result).forEach((key, index) => {
       expect(key).toEqual(orderedKeys[index]);
     });
+  });
+});
+
+describe('handleErrors', () => {
+  const ref = 'openapi/test.yaml';
+
+  const redColoretteMocks = red as jest.Mock<any, any>;
+
+  beforeEach(() => {
+    jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    jest.spyOn(process, 'exit').mockImplementation((code) => code as never);
+    redColoretteMocks.mockImplementation((text) => text);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should handle ResolveError', () => {
+    const resolveError = new ResolveError(new Error('File not found'));
+    handleError(resolveError, ref);
+    expect(redColoretteMocks).toHaveBeenCalledTimes(1);
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Failed to resolve api definition at openapi/test.yaml:\n\n  - File not found.\n\n`
+    );
+  });
+
+  it('should handle YamlParseError', () => {
+    const yamlParseError = new YamlParseError(new Error('Invalid yaml'), {} as any);
+    handleError(yamlParseError, ref);
+    expect(redColoretteMocks).toHaveBeenCalledTimes(1);
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Failed to parse api definition at openapi/test.yaml:\n\n  - Invalid yaml.\n\n`
+    );
+  });
+
+  it('should handle CircularJSONNotSupportedError', () => {
+    const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
+    handleError(circularError, ref);
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Detected circular reference which can't be converted to JSON.\n` +
+        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
+    );
+  });
+
+  it('should throw unknown error', () => {
+    const testError = new Error('Test error');
+    try {
+      handleError(testError, ref);
+    } catch (e) {
+      expect(e).toEqual(testError);
+    }
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.\n\n`
+    );
   });
 });
