@@ -34,7 +34,7 @@ npx @redocly/cli <command> [options]
 npx @redocly/cli@latest lint petstore.yaml
 ```
 
-### Run commands inside Docker
+## Run commands inside Docker
 
 To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is in the current working directory, the command to use is:
 
