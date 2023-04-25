@@ -1,7 +1,7 @@
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
-import * as glob from 'glob-promise';
+import glob from 'glob-promise';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
@@ -452,4 +452,12 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   }
   // merge any other top-level keys (e.g. vendor extensions)
   return Object.assign(result, document);
+}
+
+
+import simpleUpdateNotifier from 'simple-update-notifier';
+
+export  async function notifyUpdateCliVersion() {
+  const pkg = require('../package.json');
+  await simpleUpdateNotifier({ pkg, alwaysRun: true, shouldNotifyInNpmScript: true });
 }

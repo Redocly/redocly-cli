@@ -13,6 +13,7 @@ import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
+import { notifyUpdateCliVersion } from './utils';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 const version = require('../package.json').version;
 
@@ -428,4 +429,5 @@ yargs
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
-  .strict().argv;
+  .strict()
+  .middleware([notifyUpdateCliVersion]).argv;

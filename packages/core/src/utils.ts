@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { extname } from 'path';
-import * as minimatch from 'minimatch';
+import minimatch from 'minimatch';
 import fetch from 'node-fetch';
 import * as pluralize from 'pluralize';
 import { parseYaml } from './js-yaml';

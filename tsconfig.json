@@ -13,6 +13,7 @@
     "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
+    "esModuleInterop": true,
     "lib": ["es2020", "es2020.string", "dom"],
     "baseUrl": "./packages"
   }
