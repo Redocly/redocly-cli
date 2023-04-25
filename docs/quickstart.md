@@ -6,7 +6,7 @@ Before you start:
 * [install the Redocly CLI](./installation.md) if you haven't already
 * if you have an OpenAPI description to use, have it handy (we assume it's called `openapi.yaml`), or [download our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 
-:::tip
+:::attention
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
 :::
 

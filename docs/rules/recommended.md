@@ -37,6 +37,3 @@ Warnings:
 * [operation-4xx-response](./operation-4xx-response.md)
 * [operation-operationId](./operation-operationId.md)
 * [tag-description](./tag-description.md)
-
-
-
