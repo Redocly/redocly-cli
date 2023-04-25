@@ -125,6 +125,7 @@ export class BaseResolver {
         return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
       }
     } catch (error) {
+      error.message = error.message.replace(', lstat', '');
       throw new ResolveError(error);
     }
   }

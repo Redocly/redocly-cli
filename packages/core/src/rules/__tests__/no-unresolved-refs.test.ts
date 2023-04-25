@@ -36,7 +36,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Can't resolve $ref: ENOENT: no such file or directory, lstat 'invalid.yaml'",
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'invalid.yaml'",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
           "suggest": Array [],
