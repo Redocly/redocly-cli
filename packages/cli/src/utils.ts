@@ -18,6 +18,8 @@ import {
   RawConfig,
   Region,
   Config,
+  Oas3Definition,
+  Oas2Definition,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
@@ -392,4 +394,64 @@ export async function loadConfigAndHandleErrors(
     exitWithError(e.message);
     return new Config({ apis: {}, styleguide: {} });
   }
+}
+
+export function sortTopLevelKeysForOas(
+  document: Oas3Definition | Oas2Definition
+): Oas3Definition | Oas2Definition {
+  if ('swagger' in document) {
+    return sortOas2Keys(document);
+  }
+  return sortOas3Keys(document as Oas3Definition);
+}
+
+function sortOas2Keys(document: Oas2Definition): Oas2Definition {
+  const orderedKeys = [
+    'swagger',
+    'info',
+    'host',
+    'basePath',
+    'schemes',
+    'consumes',
+    'produces',
+    'security',
+    'tags',
+    'externalDocs',
+    'paths',
+    'definitions',
+    'parameters',
+    'responses',
+    'securityDefinitions',
+  ];
+  const result: any = {};
+  for (const key of orderedKeys as (keyof Oas2Definition)[]) {
+    if (document.hasOwnProperty(key)) {
+      result[key] = document[key];
+    }
+  }
+  // merge any other top-level keys (e.g. vendor extensions)
+  return Object.assign(result, document);
+}
+function sortOas3Keys(document: Oas3Definition): Oas3Definition {
+  const orderedKeys = [
+    'openapi',
+    'info',
+    'jsonSchemaDialect',
+    'servers',
+    'security',
+    'tags',
+    'externalDocs',
+    'paths',
+    'webhooks',
+    'x-webhooks',
+    'components',
+  ];
+  const result: any = {};
+  for (const key of orderedKeys as (keyof Oas3Definition)[]) {
+    if (document.hasOwnProperty(key)) {
+      result[key] = document[key];
+    }
+  }
+  // merge any other top-level keys (e.g. vendor extensions)
+  return Object.assign(result, document);
 }

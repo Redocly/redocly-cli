@@ -9,6 +9,9 @@ info:
   version: 1.0.0
 servers:
   - url: https://example.com/api
+tags:
+  - name: bar_other
+    x-displayName: other
 paths:
   /users/{userId}/orders/{orderId}:
     parameters:
@@ -42,9 +45,6 @@ paths:
       tags:
         - bar_other
 components: {}
-tags:
-  - name: bar_other
-    x-displayName: other
 x-tagGroups:
   - name: bar
     tags:

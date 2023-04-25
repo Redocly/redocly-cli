@@ -9,6 +9,11 @@ info:
   version: 1.0.0
 servers:
   - url: https://example.com/api
+tags:
+  - name: foo_other
+    x-displayName: other
+  - name: bar_other
+    x-displayName: other
 paths:
   /users/{userId}/orders/{orderId}:
     parameters:
@@ -51,11 +56,7 @@ paths:
           description: Not found
       tags:
         - bar_other
-tags:
-  - name: foo_other
-    x-displayName: other
-  - name: bar_other
-    x-displayName: other
+components: {}
 x-tagGroups:
   - name: foo
     tags:
@@ -63,7 +64,6 @@ x-tagGroups:
   - name: bar
     tags:
       - bar_other
-components: {}
 
 openapi.yaml: join processed in <test>ms
 
