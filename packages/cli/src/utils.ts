@@ -21,6 +21,7 @@ import {
   Oas3Definition,
   Oas2Definition,
 } from '@redocly/openapi-core';
+import simpleUpdateNotifier from 'simple-update-notifier';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 
 export async function getFallbackApisOrExit(
@@ -453,9 +454,6 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   // merge any other top-level keys (e.g. vendor extensions)
   return Object.assign(result, document);
 }
-
-
-import simpleUpdateNotifier from 'simple-update-notifier';
 
 export  async function notifyUpdateCliVersion() {
   const pkg = require('../package.json');

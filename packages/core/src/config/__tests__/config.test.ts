@@ -5,7 +5,7 @@ import { doesYamlFileExist } from '../../utils';
 import { parseYaml } from '../../js-yaml';
 import { readFileSync } from 'fs';
 import { ignoredFileStub } from './fixtures/ingore-file';
-import * as path from 'path';
+import path from 'path';
 import { NormalizedProblem } from '../../walk';
 import { Source } from '../../resolve';
 

@@ -7,8 +7,8 @@ import {
   pickDefined,
 } from '../utils';
 import { isBrowser } from '../env';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 
 describe('utils', () => {
   const testObject = {

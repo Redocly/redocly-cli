@@ -3,12 +3,11 @@ import { handlePush } from '../../commands/push';
 import { promptClientToken } from '../../commands/login';
 
 jest.mock('fs');
-jest.mock('node-fetch', () => ({
-  default: jest.fn(() => ({
-    ok: true,
-    json: jest.fn().mockResolvedValue({}),
-  })),
-}));
+jest.mock('node-fetch', () => jest.fn(() => ({
+  __esModule: true,
+  ok: true,
+  json: jest.fn().mockResolvedValue({}),
+})));
 jest.mock('@redocly/openapi-core');
 jest.mock('../../commands/login');
 jest.mock('../../utils');

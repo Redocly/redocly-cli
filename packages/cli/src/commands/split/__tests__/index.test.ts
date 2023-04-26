@@ -1,5 +1,5 @@
 import { iteratePathItems, handleSplit } from '../index';
-import * as path from 'path';
+import path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
 import { ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
@@ -12,6 +12,7 @@ jest.mock('../../../utils', () => ({
 }));
 
 jest.mock('@redocly/openapi-core', () => ({
+  __esModule: true,
   ...jest.requireActual('@redocly/openapi-core'),
   isRef: jest.fn(),
 }));

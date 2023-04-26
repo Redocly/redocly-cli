@@ -47,7 +47,8 @@
     "redoc": "~2.0.0",
     "simple-websocket": "^9.0.0",
     "styled-components": "5.3.3",
-    "yargs": "17.0.1"
+    "yargs": "17.0.1",
+    "simple-update-notifier": "github:IgorKarpiuk/simple-update-notifier#semver_7.5"
   },
   "devDependencies": {
     "@types/configstore": "^5.0.1",

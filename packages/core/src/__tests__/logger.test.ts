@@ -1,4 +1,4 @@
-import * as colorette from 'colorette';
+import colorette from 'colorette';
 import { logger, colorize } from '../logger';
 
 describe('Logger in nodejs', () => {
