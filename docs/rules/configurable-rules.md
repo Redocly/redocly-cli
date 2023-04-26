@@ -2,7 +2,7 @@
 redirectFrom:
   - /docs/cli/resources/rules/assertions/
   - /docs/cli/rules/assertions/
-  - /docs/cli/rules/custom-rules
+  - /docs/cli/rules/custom-rules/
 ---
 # Configurable rules
 
@@ -17,14 +17,14 @@ rules:
     ...
 ```
 
-An assertion describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+A configurable rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Pattern Property | Type | Description
 -- | -- | --
-assert/{string} | [Custom rule object](#custom-rule-object) | Custom rules definitions enforce your custom API design standards. Add or edit your custom rules in the configuration file. A custom rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Assertion names display in the lint log if the assertion fails. More than one assertion may be defined, and any custom rule may have multiple asserts.
+assert/{string} | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one assertion may be defined, and any configurable rule may have multiple assertions.
 
-## Custom rule object
+## Configurable rule object
 
 Property | Type | Description
 -- | -- | --
