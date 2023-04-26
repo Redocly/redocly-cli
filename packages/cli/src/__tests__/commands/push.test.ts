@@ -7,11 +7,13 @@ import { yellow } from 'colorette';
 import fetch from 'node-fetch';
 
 jest.mock('fs');
-jest.mock('node-fetch', () => jest.fn(() => ({
-  __esModule: true,
-  ok: true,
-  json: jest.fn().mockResolvedValue({}),
-})));
+jest.mock('node-fetch', () =>
+  jest.fn(() => ({
+    __esModule: true,
+    ok: true,
+    json: jest.fn().mockResolvedValue({}),
+  }))
+);
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
 

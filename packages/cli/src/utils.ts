@@ -455,7 +455,7 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   return Object.assign(result, document);
 }
 
-export  async function notifyUpdateCliVersion() {
+export async function notifyUpdateCliVersion() {
   const pkg = require('../package.json');
   await simpleUpdateNotifier({ pkg, alwaysRun: true, shouldNotifyInNpmScript: true });
 }

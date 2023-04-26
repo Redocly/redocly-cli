@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import fetch  from 'node-fetch';
+import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
 import { yellow, green, blue } from 'colorette';
 import { createHash } from 'crypto';
