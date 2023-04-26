@@ -98,7 +98,7 @@ paths:
 
 - [response-contains-headers](./response-contains-header.md)
 - [response-mime-type](./response-mime-type.md)
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 

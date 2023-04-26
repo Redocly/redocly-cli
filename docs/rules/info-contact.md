@@ -68,7 +68,7 @@ info:
 - [info-license](./info-license.md)
 - [info-license-url](./info-license-url.md)
 - [spec](./spec.md)
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 
