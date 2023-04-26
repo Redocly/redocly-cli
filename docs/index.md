@@ -10,7 +10,7 @@ Redocly CLI is an open source command-line tool for working with OpenAPI descrip
 
 * **OpenAPI descriptions made [manageable](./file-management.md)** with the ability to split an OpenAPI description into logical chunks, bundle the chunks to create a single file, or even join existing definitions into one.
 
-* **Transform OpenAPI descriptions** by filtering out the correct endpoints for a specific use case. You can also use [decorators](./decorators) to enhance your existing OpenAPI and make a richer experience for users.
+* **Transform OpenAPI descriptions** by filtering out the correct endpoints for a specific use case. You can also use [decorators](./decorators.md) to enhance your existing OpenAPI and make a richer experience for users.
 
 * **API governance, batteries included:** With our ready-made rulesets, check that your API meets a common standard every time it changes. Make use of the built-in and configurable rules to compose the API standards that fit each of your APIs. Extend Redocly to meet the [API governance you need](./api-standards.md) with custom plugins.
 

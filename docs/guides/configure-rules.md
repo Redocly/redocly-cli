@@ -8,8 +8,8 @@ In this guide, you will learn how to chose and adapt the rules built into Redocl
 
 To get started, try one of the existing rulesets and see if it meets your needs. 
 
-* The [`recommended`](../rules/recommended) ruleset has a good basic set of rules for a consistent, user-friendly API.
-* Or try the [`minimal`](../rules/minimal) ruleset which will show some warnings, but far fewer errors that would cause the lint to fail.
+* The [`recommended`](../rules/recommended.md) ruleset has a good basic set of rules for a consistent, user-friendly API.
+* Or try the [`minimal`](../rules/minimal.md) ruleset which shows some warnings, but far fewer errors that would cause the lint to fail.
 
 You can specify the ruleset with the `lint` command in Redocly CLI like this:
 
@@ -63,7 +63,7 @@ rules:
   operation-singular-tag: error
 ```
 
-The custom ruleset sets the rule `operation-singular-tag` to error if it isn't satisfied, so every operation must have exactly one tag otherwise an `error` will be reported.
+The custom ruleset sets the rule `operation-singular-tag` to error if it isn't satisfied, so every operation must have exactly one tag otherwise an `error` is reported.
 
 To use the ruleset in a Redocly CLI configuration file, add it to the `extends` array, something like this:
 
@@ -78,7 +78,7 @@ rules:
 
 Since multiple rulesets can be added, and you can adjust these settings for each API, this gives a flexible approach to build up different levels of compliance and check your APIs against the appropriate level for each.
 
-## Use assertions
+## Use configurable rules
 
 Assertions are a low-code way of creating targeted rules for specific situations in your use case. You specify which elements of the API description that should be checked, and using features like `defined`, `nonEmpty`, and `pattern`, describe the expectations for that element.
 
@@ -106,7 +106,7 @@ Using the supplied assertion features, you can extend the built-in rules in Redo
 
 ## Set up per-API configuration
 
-Not all APIs are made equal. Perhaps your newsletter signup microservice is held to a different standard than the finance-related APIs in use in your organisation. Perhaps one API can't be changed, but newer versions can be checked against stricter rules. Whatever the reason, per-API configuration can be useful in these situations.
+Not all APIs are made equal. Perhaps your newsletter signup microservice is held to a different standard than the finance-related APIs in use in your organization. Perhaps one API can't be changed, but newer versions can be checked against stricter rules. Whatever the reason, per-API configuration can be useful in these situations.
 
 You can configure linting differently for multiple APIs in a Redocly configuration file. Here's an example with three APIs defined, and different rules applied for each:
 
