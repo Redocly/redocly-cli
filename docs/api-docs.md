@@ -23,7 +23,7 @@ Get started with Redocly API reference:
 
 ## Redoc
 
-Redoc is open source, and yours to use however you wish. It has fewer theming options, but still integrates well with Redocly CLI, allowing you to preview and also build your docs to publish to a platform of your choice.
+Redoc is open source, and yours to use however you wish. It has fewer features and theming options, but still integrates well with Redocly CLI, allowing you to preview and also build your docs to publish to a platform of your choice.
 
 ![Example API reference from Redoc](images/redoc.png)
 

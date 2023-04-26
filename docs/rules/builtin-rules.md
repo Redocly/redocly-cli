@@ -4,7 +4,7 @@ redirectFrom:
   - /docs/cli/resources/built-in-rules/
 ---
 
-# Built in rules
+# Built-in rules
 
 The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](#rule-configuration-syntax), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
 

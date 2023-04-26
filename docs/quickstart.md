@@ -12,7 +12,7 @@ There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) re
 
 ### Preview API documentation
 
-The Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc) rendering your API docs, which updates when the API description updates. 
+Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc) rendering your API docs, which updates when the API description updates. 
 Run the command:
 
 ```bash
