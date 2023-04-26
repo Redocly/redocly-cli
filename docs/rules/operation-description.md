@@ -66,11 +66,11 @@ get:
 - [tag-description](./tag-description.md)
 - [parameter-description](./parameter-description.md)
 - [operation-summary](./operation-summary.md)
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 - [operation-operationId](./operation-operationId.md)
 
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-description.ts)
-- Consider using [custom rules](./configurable-rules.md) for more specific rules for operation descriptions such as minimum length and pattern enforcement.
+- Consider using [configurable rules](./configurable-rules.md) for more specific rules for operation descriptions such as minimum length and pattern enforcement.
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)

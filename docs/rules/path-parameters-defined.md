@@ -67,7 +67,7 @@ paths:
 
 - [path-declaration-must-exist](./path-declaration-must-exist.md)
 - [path-excludes-patterns](./path-excludes-patterns.md)
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 

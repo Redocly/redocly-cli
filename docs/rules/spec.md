@@ -60,7 +60,7 @@ paths: {}
 
 ## Related rules
 
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 

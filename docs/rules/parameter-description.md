@@ -68,7 +68,7 @@ paths:
 
 - [tag-description](./tag-description.md)
 - [operation-description](./operation-description.md)
-- [custom rules](./configurable-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 
