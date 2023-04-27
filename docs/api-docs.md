@@ -1,5 +1,5 @@
 ---
-title: API Docs
+title: API docs
 ---
 
 # API documentation
