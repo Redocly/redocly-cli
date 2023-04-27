@@ -56,7 +56,7 @@ Customizing the rulesets is a great way to get API linting set up in a way that 
 
 If you work with multiple APIs, or need to use consistent API linting in different projects, consider creating a ruleset that you can use in each situation.
 
-The custom rulesets are configured the same way as the Redocly CLI, but the yaml file contains only the `rules:` section. An example ruleset could be like this one, which is in a file called `custom-ruleset.yaml`:
+Reusable rulesets are configured the same way as the Redocly CLI, but the yaml file contains only the `rules:` section. An example ruleset could be like this one, which is in a file called `reusable-ruleset.yaml`:
 
 ```yaml
 rules:
