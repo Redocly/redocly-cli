@@ -1,6 +1,6 @@
 # Redocly CLI
 
-Command-line utility from [@Redocly](https://redocly.com) with OpenAPI superpowers. Build, manage anAd quality-check OpenAPI descriptions, configure and execute API governance, and publish beautiful API documentation. Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger format).
+Command-line utility from [@Redocly](https://redocly.com) with OpenAPI superpowers. Build, manage and quality-check OpenAPI descriptions, configure and execute API governance, and publish beautiful API documentation. Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger format).
 
 ![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
