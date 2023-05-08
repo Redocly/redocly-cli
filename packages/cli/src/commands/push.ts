@@ -109,6 +109,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     resolvedConfig.styleguide.skipDecorators(argv['skip-decorator']);
 
     const [name, version = DEFAULT_VERSION] = apiNameAndVersion.split('@');
+    const encodedName = encodeURIComponent(name);
     try {
       let rootFilePath = '';
       const filePaths: string[] = [];
@@ -127,7 +128,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
       for (const file of filesToUpload.files) {
         const { signedUploadUrl, filePath } = await client.registryApi.prepareFileUpload({
           organizationId,
-          name,
+          name: encodedName,
           version,
           filesHash,
           filename: file.keyOnS3,
@@ -162,7 +163,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
 
       await client.registryApi.pushApi({
         organizationId,
-        name,
+        name: encodedName,
         version,
         rootFilePath,
         filePaths,
@@ -318,7 +319,6 @@ export function getDestinationProps(
 ) {
   const groups = destination && parseDestination(destination);
   if (groups) {
-    groups.name && (groups.name = encodeURIComponent(groups.name));
     return {
       organizationId: groups.organizationId || organization,
       name: groups.name,
