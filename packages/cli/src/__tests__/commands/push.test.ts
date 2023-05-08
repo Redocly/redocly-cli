@@ -194,6 +194,28 @@ describe('push', () => {
       'Api not found. Please make sure you have provided the correct data in the config file.'
     );
   });
+
+  it('push should work and encode name with spaces', async () => {
+    const encodeURIComponentSpy = jest.spyOn(global, 'encodeURIComponent');
+    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+      return {
+        ...ConfigFixture,
+        organization: 'test_org',
+        apis: { 'my test api@v1': { root: 'path' } },
+      };
+    });
+    await handlePush({
+      upsert: true,
+      destination: 'my test api@v1',
+      branchName: 'test',
+      public: true,
+      'batch-id': '123',
+      'batch-size': 2,
+    });
+
+    expect(encodeURIComponentSpy).toHaveReturnedWith('my%20test%20api');
+    expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
+  });
 });
 
 describe('transformPush', () => {
