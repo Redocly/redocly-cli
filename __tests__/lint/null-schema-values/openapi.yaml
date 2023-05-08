@@ -1,0 +1,15 @@
+openapi: 3.0.0
+info: 
+paths:
+  /test:
+    get:
+      responses:
+        200:
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySchema'
+components:
+  schemas:
+    EmptySchema:
