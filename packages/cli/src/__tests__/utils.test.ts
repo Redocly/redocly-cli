@@ -4,6 +4,7 @@ import {
   pathToFilename,
   printConfigLintTotals,
   langToExt,
+  checkIfRulesetExist,
   handleError,
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
@@ -406,5 +407,35 @@ describe('handleErrors', () => {
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.\n\n`
     );
+  });
+});
+
+describe('checkIfRulesetExist', () => {
+  beforeEach(() => {
+    jest.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should exit if rules not provided', () => {
+    const rules = {
+      oas2: {},
+      oas3_0: {},
+      oas3_1: {},
+    };
+    checkIfRulesetExist(rules);
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should not exit if rules provided', () => {
+    const rules = {
+      oas2: { 'operation-4xx-response': 'error' },
+      oas3_0: {},
+      oas3_1: {},
+    } as any;
+    checkIfRulesetExist(rules);
+    expect(process.exit).not.toHaveBeenCalled();
   });
 });

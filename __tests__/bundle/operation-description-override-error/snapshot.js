@@ -2,8 +2,6 @@
 
 exports[`E2E bundle operation-description-override-error 1`] = `
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
-
 bundling ./openapi.yaml...
 openapi.yaml:
   23:7  error    operation-description-override  Failed to read markdown override file for operation "updatePet".

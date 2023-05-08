@@ -47,8 +47,6 @@ paths:
           description: ok
 components: {}
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
-
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
 

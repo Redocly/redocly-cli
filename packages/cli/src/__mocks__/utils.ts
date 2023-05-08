@@ -15,4 +15,5 @@ export const handleError = jest.fn();
 export const exitWithError = jest.fn();
 export const writeYaml = jest.fn();
 export const loadConfigAndHandleErrors = jest.fn(() => ConfigFixture);
+export const checkIfRulesetExist = jest.fn();
 export const sortTopLevelKeysForOas = jest.fn((document) => document);
