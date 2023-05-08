@@ -226,23 +226,25 @@ export function pluralize(label: string, num: number) {
 }
 
 export function handleError(e: Error, ref: string) {
-  if (e instanceof ResolveError) {
-    process.stderr.write(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
-  } else if (e instanceof YamlParseError) {
-    process.stderr.write(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.\n\n`);
+  switch (e.constructor) {
+    case ResolveError:
+      return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
+    case YamlParseError:
+      return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
     // TODO: codeframe
-  } else {
-    if (e instanceof CircularJSONNotSupportedError) {
+    case CircularJSONNotSupportedError: {
       process.stderr.write(
         red(`Detected circular reference which can't be converted to JSON.\n`) +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
       );
-    } else {
+      return process.exit(1);
+    }
+    default: {
       process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
+      process.exitCode = 1;
+      throw e;
     }
   }
-  process.exitCode = 1;
-  throw e;
 }
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {

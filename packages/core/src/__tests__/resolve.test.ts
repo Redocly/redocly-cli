@@ -5,6 +5,7 @@ import { resolveDocument, BaseResolver, Document } from '../resolve';
 import { parseYamlToDocument } from '../../__tests__/utils';
 import { Oas3Types } from '../types/oas3';
 import { normalizeTypes } from '../types';
+import * as fs from 'fs';
 
 describe('collect refs', () => {
   it('should resolve local refs', async () => {
@@ -404,5 +405,26 @@ describe('collect refs', () => {
     ]);
 
     expect(Array.from(resolvedRefs.values()).pop()!.node).toEqual({ type: 'string' });
+  });
+
+  it('should throw error if ref is folder', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          $ref: "./transitive/components.yaml#/components/schemas/a"
+      `,
+      path.join(cwd, 'foobar')
+    );
+    jest.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true } as any));
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    expect(Array.from(resolvedRefs.values()).pop()!.error).toBeInstanceOf(Error);
   });
 });

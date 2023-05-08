@@ -115,11 +115,15 @@ export class BaseResolver {
         const { body, mimeType } = await readFileFromUrl(absoluteRef, this.config.http);
         return new Source(absoluteRef, body, mimeType);
       } else {
+        if (fs.lstatSync(absoluteRef).isDirectory()) {
+          throw new Error(`Expected a file but received a folder at ${absoluteRef}`);
+        }
         const content = await fs.promises.readFile(absoluteRef, 'utf-8');
         // In some cases file have \r\n line delimeters like on windows, we should skip it.
         return new Source(absoluteRef, content.replace(/\r\n/g, '\n'));
       }
     } catch (error) {
+      error.message = error.message.replace(', lstat', '');
       throw new ResolveError(error);
     }
   }
@@ -150,6 +154,7 @@ export class BaseResolver {
     isRoot: boolean = false
   ): Promise<Document | ResolveError | YamlParseError> {
     const absoluteRef = this.resolveExternalRef(base, ref);
+
     const cachedDocument = this.cache.get(absoluteRef);
     if (cachedDocument) {
       return cachedDocument;

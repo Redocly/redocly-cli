@@ -9,7 +9,7 @@ toc:
 
 ### Features
 
-- Added the [required-min-length-string-type-property](./rules/required-min-length-string-type-property.md) rule that requires required properties in the API definition with type `string` to have a `minLength`. 
+- Added the [required-min-length-string-type-property](./rules/required-string-property-missing-min-length.md) rule that requires required properties in the API definition with type `string` to have a `minLength`.
 
 ### Fixes
 
@@ -18,7 +18,7 @@ toc:
 
 ### Changes
 
-- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).  
+- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).
 
 ## 1.0.0-beta.124 (2023-03-09)
 
@@ -96,7 +96,7 @@ theme:
 ### Fixes
 
 - Fixed an issue with scalar assertion failing when an object is of invalid type.
-  
+
 ### Features
 
 - Added Redoc vendor extensions to supported types.
@@ -132,7 +132,7 @@ theme:
 - Fixed an issue with the `spec` rule not reporting on `nullable` in Schema object that don't have a `type` sibling.
 - Added missing OAS2 and OAS3 list types.
 - Don't show false media type example errors when a discriminator is used with the `allOf` keyword.
- 
+
 ## 1.0.0-beta.112 (2022-11-01)
 
 ### Changes
