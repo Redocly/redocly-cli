@@ -465,6 +465,6 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
   };
 
   if (isEmptyObject(ruleset)) {
-    exitWithError('No rules were configured. Please configure the rules in the configuration file');
+    exitWithError('⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/');
   }
 }

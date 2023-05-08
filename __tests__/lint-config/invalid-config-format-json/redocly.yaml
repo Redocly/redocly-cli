@@ -1,3 +1,4 @@
 badKey: 1
-rules:
-  info-contact: off
+
+extends:
+  - recommended

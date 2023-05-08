@@ -2,7 +2,7 @@
 
 exports[`E2E zero-config no-default-recommended-fallback 1`] = `
 
-No rules were configured. Please configure the rules in the configuration file
+⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/
 
 
 `;

@@ -91,7 +91,7 @@ describe('handleLint', () => {
 
     it('should check if ruleset exist', async () => {
       await handleLint(argvMock, versionMock);
-      expect(checkIfRulesetExist).toHaveBeenCalled();
+      expect(checkIfRulesetExist).toHaveBeenCalledTimes(1);
     });
 
     it('should fail if apis not provided', async () => {
