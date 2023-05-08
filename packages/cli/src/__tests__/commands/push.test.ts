@@ -213,7 +213,7 @@ describe('push', () => {
       'batch-size': 2,
     });
 
-    expect(encodeURIComponentSpy).toHaveReturnedWith("my%20test%20api")
+    expect(encodeURIComponentSpy).toHaveReturnedWith('my%20test%20api');
     expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
   });
 });
