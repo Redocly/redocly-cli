@@ -22,6 +22,7 @@ import {
   Oas2Definition,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
+import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -454,4 +455,18 @@ function sortOas3Keys(document: Oas3Definition): Oas3Definition {
   }
   // merge any other top-level keys (e.g. vendor extensions)
   return Object.assign(result, document);
+}
+
+export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rules) {
+  const ruleset = {
+    ...rules.oas2,
+    ...rules.oas3_0,
+    ...rules.oas3_0,
+  };
+
+  if (isEmptyObject(ruleset)) {
+    exitWithError(
+      '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
+    );
+  }
 }

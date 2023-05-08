@@ -13,6 +13,7 @@ import {
   handleError,
   exitWithError,
   loadConfigAndHandleErrors,
+  checkIfRulesetExist,
 } from '../../utils';
 import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
@@ -86,6 +87,17 @@ describe('handleLint', () => {
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
       await handleLint({ ...argvMock, 'generate-ignore-file': true }, versionMock);
       expect(getMergedConfigMock).toHaveBeenCalled();
+    });
+
+    it('should check if ruleset exist', async () => {
+      await handleLint(argvMock, versionMock);
+      expect(checkIfRulesetExist).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fail if apis not provided', async () => {
+      await handleLint({ ...argvMock, apis: [] }, versionMock);
+      expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
+      expect(exitWithError).toHaveBeenCalledWith('No APIs were provided');
     });
   });
 

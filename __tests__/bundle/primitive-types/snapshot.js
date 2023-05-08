@@ -40,8 +40,6 @@ paths:
                     key2: 2
 components: {}
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
-
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
 
