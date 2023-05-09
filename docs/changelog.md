@@ -20,7 +20,6 @@ toc:
 ### Changes
 
 - Display an error if apis or rules for the `lint` command are not provided.
-- Renamed `required-min-length-string-type-property` rule to `required-string-property-missing-min-length`.
 - Ceased executing decorators and preprocessors upon the `join` command.
 - Sort top-level OAS3 keys in `bundle` and `join` commands.
 
