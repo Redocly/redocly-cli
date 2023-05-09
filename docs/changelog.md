@@ -13,12 +13,9 @@ toc:
 
 ### Fixes
 
-- Renamed `required-min-length-string-type-property` to `required-string-property-missing-min-length`
-- Fixed a bug where context.resolve() did not work when applied to nodes belonging to external oas (x-) attributes that contain an array.
-- Don't execute decorators and preprocessors in join command
-- Display an error if apis or rules for the `lint` command not provided
-- Display an error if the api path refer to a folder
-- Fixed the issue with `push` command doesn't recognize API definitions with a spaces
+- Fixed a bug with external OAS (x-) attributes containing an array.
+- Display an error if the api path refers to a folder.
+- Fixed the `push` command not recognising API definitions with spaces.
 
 ### Changes
 
