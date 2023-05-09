@@ -142,6 +142,7 @@ export async function previewDocs(
       ...referenceDocs,
       useCommunityEdition: argv['use-community-edition'] || referenceDocs?.useCommunityEdition,
       licenseKey: process.env.REDOCLY_LICENSE_KEY || referenceDocs?.licenseKey,
+      whiteLabel: true,
     };
     return resolvedConfig;
   }
