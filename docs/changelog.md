@@ -9,7 +9,7 @@ toc:
 
 ### Features
 
-- Added new options for join command: `--decorate` and `--preprocess`
+- Added new options for the `join` command: `--decorate` and `--preprocess`.
 
 ### Fixes
 
