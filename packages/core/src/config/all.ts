@@ -36,7 +36,14 @@ export default {
       severity: 'error',
       patterns: [],
     },
-    'request-mime-type': 'error',
+    'request-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json']
+    },
+    'response-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json']
+    },
     spec: 'error',
     'no-invalid-schema-examples': 'error',
     'no-invalid-parameter-examples': 'error',
