@@ -73,7 +73,7 @@ export async function getPageHTML(
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? redocOptions.htmlTemplate as string
+    ? (redocOptions.htmlTemplate as string)
     : join(__dirname, './template.hbs');
   const template = compile(readFileSync(templateFileName).toString());
   return template({
