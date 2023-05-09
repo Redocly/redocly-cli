@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  version: 0.0.1
+  title: BugDemo
+components:
+  schemas:
+    BugDemo:
+      type: object
+      properties:
+        id:
+          type: string
+          required: true

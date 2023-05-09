@@ -138,6 +138,7 @@ export const OasSpec: Oas3Rule | Oas2Rule = () => {
             from: refLocation,
             location: propLocation,
           });
+          ignoreNextVisitorsOnNode();
         } else if (propValueType === 'array' && propSchema.items?.type) {
           const itemsType = propSchema.items?.type;
           for (let i = 0; i < propValue.length; i++) {
