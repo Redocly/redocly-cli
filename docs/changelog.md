@@ -5,6 +5,26 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.126 (2023-05-09)
+
+### Features
+
+- Added new options for join command: `--decorate` and `--preprocess`
+
+### Fixes
+
+- Renamed `required-min-length-string-type-property` to `required-string-property-missing-min-length`
+- Fixed a bug where context.resolve() did not work when applied to nodes belonging to external oas (x-) attributes that contain an array.
+- Don't execute decorators and preprocessors in join command
+- Display an error if apis or rules for the `lint` command not provided
+- Display an error if the api path refer to a folder
+- Fixed the issue with `push` command doesn't recognize API definitions with a spaces
+
+### Changes
+
+- Renamed misspelled built-in rule function - `RequiredStringPropertyMissingMinLength`
+- Sort top level OAS3 keys in `bundle` and `join` commands
+
 ## 1.0.0-beta.125 (2023-04-06)
 
 ### Features
