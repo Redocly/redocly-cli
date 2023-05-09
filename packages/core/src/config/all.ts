@@ -38,11 +38,11 @@ export default {
     },
     'request-mime-type': {
       severity: 'error',
-      allowedValues: ['application/json']
+      allowedValues: ['application/json'],
     },
     'response-mime-type': {
       severity: 'error',
-      allowedValues: ['application/json']
+      allowedValues: ['application/json'],
     },
     spec: 'error',
     'no-invalid-schema-examples': 'error',
