@@ -5,7 +5,7 @@ toc:
 
 # Redocly CLI changelog
 
-## 1.0.0-beta.126 (2023-05-09)
+## 1.0.0-beta.126 (2023-05-10)
 
 ### Features
 
