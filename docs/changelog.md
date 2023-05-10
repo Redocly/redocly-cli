@@ -16,6 +16,7 @@ toc:
 - Fixed a bug with external OAS (x-) attributes containing an array.
 - Display an error if the api path refers to a folder.
 - Fixed the `push` command not recognising API definitions with spaces.
+- Defined default `allowedValues` in the `all` ruleset for mime-type rules
 
 ### Changes
 
