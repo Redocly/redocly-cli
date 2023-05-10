@@ -106,6 +106,13 @@ redocly lint --config=./another/directory/config.yaml
 
 The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the values is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
 
+:::warning Important
+
+When you run the `lint` command without a configuration file, it uses the `extends: recommended` by default.
+However, if you have a configuration file, but it doesn't include any rules or extends configuration, the `lint` command shows an error.
+
+:::
+
 ### Format
 
 #### Codeframe (default)

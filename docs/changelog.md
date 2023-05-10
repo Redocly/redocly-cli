@@ -5,6 +5,26 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.126 (2023-05-10)
+
+### Features
+
+- Added new options for the `join` command: `--decorate` and `--preprocess`.
+
+### Fixes
+
+- Fixed a bug with external OAS (x-) attributes containing an array.
+- Display an error if the api path refers to a folder.
+- Fixed the `push` command not recognising API definitions with spaces.
+- Defined default `allowedValues` in the `all` ruleset for mime-type rules
+
+### Changes
+
+- Display an error if apis or rules for the `lint` command are not provided.
+- Ceased executing decorators and preprocessors upon the `join` command.
+- Sort top-level OAS3 keys in `bundle` and `join` commands.
+
+
 ## 1.0.0-beta.125 (2023-04-06)
 
 ### Features
