@@ -108,8 +108,8 @@ The `--extends` option allows you to extend the existing configuration. This opt
 
 :::warning Important
 
-When you run the `lint` command without a configuration file, it will use the `extends: recommended` by default.
-However, if you have a configuration file, but it doesn't include any rules or extensions, the `lint` command will show an error.
+When you run the `lint` command without a configuration file, it uses the `extends: recommended` by default.
+However, if you have a configuration file, but it doesn't include any rules or extends configuration, the `lint` command shows an error.
 
 :::
 
