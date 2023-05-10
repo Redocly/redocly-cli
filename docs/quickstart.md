@@ -19,7 +19,7 @@ Run the command:
 redocly preview-docs openapi.yaml
 ```
 
-The output will take a few moments to build, and then will let you know the host and port where the preview server is running - usually `http://localhost:8080`.
+The output takes a few moments to build, and then lets you know the host and port where the preview server is running - usually `http://localhost:8080`.
 
 Open that URL in your browser, and admire your lovely API documentation!
 
