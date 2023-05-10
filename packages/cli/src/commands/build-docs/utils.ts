@@ -37,7 +37,7 @@ export function getObjectOrJSON(
       break;
     default: {
       if (config) {
-        process.stderr.write(`Found ${config.configFile} and using theme.openapi options`);
+        process.stderr.write(`Found ${config.configFile} and using theme.openapi options\n`);
 
         return config.theme.openapi ? config.theme.openapi : {};
       }
@@ -70,7 +70,11 @@ export async function getPageHTML(
   const state = await store.toJS();
   const css = sheet.getStyleTags();
 
-  templateFileName = templateFileName ? templateFileName : join(__dirname, './template.hbs');
+  templateFileName = templateFileName
+    ? templateFileName
+    : redocOptions?.htmlTemplate
+    ? (redocOptions.htmlTemplate as string)
+    : join(__dirname, './template.hbs');
   const template = compile(readFileSync(templateFileName).toString());
   return template({
     redocHTML: `
