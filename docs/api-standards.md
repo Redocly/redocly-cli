@@ -26,7 +26,7 @@ By establishing good standards and making them part of your development workflow
 
 - [Redocly linting rules](./rules.md)
 - [Configure a simple API standard ruleset](./guides/configure-rules.md)
-- [See the list of built-in rules](./rules/builtin-rules.md)
+- [See the list of built-in rules](./rules/built-in-rules.md)
 
 ## Enhance an existing OpenAPI description
 

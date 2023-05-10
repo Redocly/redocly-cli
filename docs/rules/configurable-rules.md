@@ -7,7 +7,7 @@ redirectFrom:
 # Configurable rules
 
 
-Configure flexible rules to meet any situation not covered by the [built-in rules](./builtin-rules.md) by adding to the `rules` map in the Redocly configuration file.
+Configure flexible rules to meet any situation not covered by the [built-in rules](./built-in-rules.md) by adding to the `rules` map in the Redocly configuration file.
 
 ```yaml
 rules:
