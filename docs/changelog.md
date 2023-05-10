@@ -38,7 +38,7 @@ toc:
 
 ### Changes
 
-- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/custom-rules.md#custom-function-example).
+- Changed the arguments for assertion custom functions. Now as the third parameter, instead of a `location` object, assertion custom functions include a `ctx` object. See [Custom functions](./rules/configurable-rules.md#custom-function-example).
 
 ## 1.0.0-beta.124 (2023-03-09)
 
@@ -125,7 +125,7 @@ theme:
 
 ### Features
 
-- Added support for [`any`](./rules/custom-rules.md#any-example) type in assertions.
+- Added support for [`any`](./rules/configurable-rules.md#any-example) type in assertions.
 
 ### Changes
 
@@ -137,7 +137,7 @@ theme:
 
 ### Features
 
-- Added a new assertion [`notPattern`](./rules/custom-rules.md#notpattern-example) to the custom rules.
+- Added a new assertion [`notPattern`](./rules/configurable-rules.md#notpattern-example) to the custom rules.
 
 ## 1.0.0-beta.113 (2022-11-15)
 
@@ -157,7 +157,7 @@ theme:
 
 ### Changes
 
-- Changed assertions syntax and renamed to [custom rules](./rules/custom-rules.md).
+- Changed assertions syntax and renamed to [custom rules](./rules/configurable-rules.md).
 - Removed `info-description` rule.
 - Removed deprecated fields suggestions in Redocly config file.
 
@@ -411,7 +411,7 @@ rules:
 
 ### Features
 
-- Introduced [custom rules](./rules/custom-rules.md) - a new, powerful lint feature, which helps you enforce API design standards without coding (named `assertions` at the time of the release).
+- Introduced [configurable rules](./rules/configurable-rules.md) - a new, powerful lint feature, which helps you enforce API design standards without coding (named `assertions` at the time of the release).
 - The `push` command supports a new `--skip-decorator` option.
 
 ### Fixes

@@ -28,7 +28,7 @@ assert/{string} | [Configurable rule object](#configurable-rule-object) | Config
 
 Property | Type | Description
 -- | -- | --
-subject | [Subject object](#subject-object) | **REQUIRED.** Locates the specific [OpenAPI node type](#openapi-node-types) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
+subject | [Subject object](#subject-object) | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
 assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.
 where | [Where object](#where-object) | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.
 message | string | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
@@ -39,8 +39,8 @@ severity | string | Configure the severity level of the problem if the assertion
 
 Property | Type | Description
 -- | -- | --
-type | string |  **REQUIRED.** Locates the [OpenAPI node type](#openapi-node-types) that the [lint command](../commands/lint.md) evaluates.
-property | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#openapi-node-types). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example).
+type | string |  **REQUIRED.** Locates the [OpenAPI node type](#subject-node-types-and-properties) that the [lint command](../commands/lint.md) evaluates.
+property | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#subject-node-types-and-properties). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example).
 filterInParentKeys | [string] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).
 filterOutParentKeys | [string] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
 matchParentKeys | string | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
@@ -200,7 +200,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-ctx | `object` | `ctx` object extends the [Context object](../resources/custom-plugins.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original assertion value. 
+ctx | `object` | `ctx` object extends the [Context object](../resources/custom-plugins.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original assertion value.
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -243,9 +243,9 @@ module.exports = {
         return [];
       }
       return [
-        { 
-          message: 'Operation summary should start with an active verb', 
-          location: ctx.baseLocation 
+        {
+          message: 'Operation summary should start with an active verb',
+          location: ctx.baseLocation
         }
       ];
     },
@@ -255,9 +255,9 @@ module.exports = {
         return [];
       }
       return [
-        { 
-          message: `Operation summary should contain at least ${options.min} words`, 
-          location: ctx.baseLocation  
+        {
+          message: `Operation summary should contain at least ${options.min} words`,
+          location: ctx.baseLocation
         }
       ];
     },

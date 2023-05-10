@@ -25,7 +25,7 @@ By keeping your API in this format, managing changes can be easier since it's cl
 
 ## Bundle OpenAPI to a single file
 
-OpenAPI is designed to work across multiple files, but not all tools (or people) like to work that way. Whether you `split` your API description files to make it more manageable, or your API description contains `$ref`s to common descriptions, the [`bundle`](./commands/bundle) command turns it back into a single file.
+OpenAPI is designed to work across multiple files, but not all tools (or people) like to work that way. Whether you `split` your API description files to make it more manageable, or your API description contains `$ref`s to common descriptions, the [`bundle`](./commands/bundle.md) command turns it back into a single file.
 
 Some tools require one file, so it's likely that you may need this step at some point in your workflow.
 
@@ -69,6 +69,6 @@ Gives a summary of the API, including the number of operations, tags, schemas, a
 
 ## Further reading
 
-* See [all Redocly CLI commands](./commands)
-* Learn how to [filter out internal API endpoints before publishing](./guides/hide-apis) if you have more detailed API descriptions than you want to pass to another stage of the API workflow
+* See [all Redocly CLI commands](./commands/index.md)
+* Learn how to [filter out internal API endpoints before publishing](./guides/hide-apis.md) if you have more detailed API descriptions than you want to pass to another stage of the API workflow
 
