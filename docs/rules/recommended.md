@@ -1,4 +1,4 @@
-# Recommended rulset
+# Recommended ruleset
 
 These are the rules in the `recommended` set, grouped by their severity.
 
