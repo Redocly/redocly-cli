@@ -117,7 +117,7 @@ This last example wouldn't trigger an error because the casing won't split "get"
 
 ## Related rules
 
-- [custom rules](./custom-rules.md)
+- [configurable rules](./configurable-rules.md)
 - [path-excludes-patterns](./path-excludes-patterns.md)
 
 ## Resources

@@ -1,264 +1,38 @@
 # Redocly CLI quickstart guide
 
-## Before you begin
+Take your first steps with the Redocly CLI by following the steps in this guide.
 
-* Get yourself a [GitHub](https://github.com/) account.
-* Install [node.js](https://nodejs.org/en/) on your local computer.
+Before you start:
+* [install the Redocly CLI](./installation.md) if you haven't already
+* if you have an OpenAPI description to use, have it handy (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 
-## Step 1 - Clone the openapi-starter project
-
-[openapi-starter](https://github.com/Redocly/openapi-starter) creates a local folder structure that you can use to manage your API definition either as a single file, or in multi-file format. It also places a basic API definition file called `openapi.yaml` in the `openapi` root folder for those of you who don't have a definition file but need one to start exploring Redocly CLI. You're welcome!
-
-If you have your own definition file, go right ahead and use it.
-
-If you want to learn how to clone the `openapi-starter` project and see how it works, we have [an entire page dedicated to it](openapi-starter.md)!
-
-## Step 2 - Install Redocly CLI from openapi-starter
-
-Run `npm install` in the root of your local `openapi-starter` project.
-
-## Step 3 - Prepare your API definition file
-
-In this guide, we'll use `openapi.yaml` from the `openapi-starter` project in all examples. We recommend that you use it until you're confident with Redocly CLI.
-
-## Step 4 - Try some basic commands
-
-[Redocly CLI commands](./commands/index.md) are used to run tasks (like splitting up large definition files and putting them back together) and they can also return information (like getting stats about your definition). To get you started, we'll focus on the top four: `bundle`, `lint`, `split` and `preview`.
-
-:::success Tip
-If you're new to command-line interfaces, note that you don't have to include the `$` in your commands. This symbol only indicates that the command after it should be entered into the terminal. To run a command, open your terminal, use `cd` to access the path where your API definition file is stored, type the command, and press **Enter**.
+:::attention
+There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
 :::
 
-### `bundle` - Bundle multiple files into one
+### Preview API documentation
 
-`bundle` merges standalone files into a single definition file. For `bundle` to work, standalone files must exist in a multi-file structure (either a pre-existing structure or one created using the `split` command).
-
-In your terminal, type the following:
-
-```bash
-$ redocly bundle openapi.yaml --output bundled.yaml
-```
-
-You should get the response below, and you should also see a new `bundled.yaml` file in the root directory:
+Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc) rendering your API docs, which updates when the API description updates. 
+Run the command:
 
 ```bash
-bundling openapi/openapi.yaml...
-📦 Created a bundle for openapi/openapi.yaml at bundled.yaml 49ms.
+redocly preview-docs openapi.yaml
 ```
 
-### `lint` - Validate your definition file
+The output takes a few moments to build, and then lets you know the host and port where the preview server is running - usually `http://localhost:8080`.
 
-The `lint` command ensures that your definition file structure is valid (according to the OpenAPI Specification) and contains no errors.
+Open that URL in your browser, and admire your lovely API documentation!
 
-In your terminal, navigate to the directory where `bundled.yaml` is located, then type the following:
+![Preview of API documentation](./images/preview-docs.png)
+
+### Lint an OpenAPI description
+
+The `lint` command is used to check that the OpenAPI description is compliant with a set of rules. You can define your own rules if you want to be specific, but to get started, try this:
 
 ```bash
-$ redocly lint bundled.yaml
+redocly lint --extends minimal openapi.yaml
 ```
 
-You should get this response:
+The output shows any aspects where the OpenAPI doesn't meet the standard. If you get too much output, try adding the `--format summary` parameter to the command.
 
-```bash
-No configurations were defined in extends -- using built in recommended configuration by default.
-
-validating bundled.yaml...
-bundled.yaml: validated in 44ms
-
-Woohoo! Your OpenAPI definition is valid. 🎉
-```
-
-That's great, but what happens when `lint` detects errors? To find out, let's introduce an error then check the output.
-
-1. Open `bundled.yaml`.
-1. Go to line #40: `operationId: getUserByName`.
-1. Change `operationId` to `operationIdentifier`.
-1. Save `bundled.yaml`.
-1. Run `$ redocly lint bundled.yaml`.
-
-You should get the following response:
-
-```bash Full listing
-validating bundled.yaml...
-[1] bundled.yaml.yaml:40:7 at #/paths/~1users~1{username}/get/operationIdentifier
-
-Property `operationIdentifier` is not expected here.
-
-38 |   Some description of the operation.
-39 |   You can use `Markdown` here.
-40 | operationIdentifier: getUserByName
-41 | parameters:
-42 |   - name: username
-
-Error was generated by the spec rule.
-
-[2] bundled.yaml:33:5 at #/paths/~1users~1{username}/get/operationId
-
-Operation object should contain `operationId` field.
-
-31 |     schema:
-32 |       type: boolean
-33 | get:
-34 |   tags:
-35 |     - User
-
-Warning was generated by the operation-operationId rule.
-
-bundled.yaml: validated in 72ms
-
-❌ Validation failed with 1 error and 1 warning.
-run `redocly lint --generate-ignore-file` to add all problems to the ignore file.
-```
-
-You got this response because `lint` uses rules to ensure that your file conforms to what you consider to be 'valid'. Redocly CLI ships with a set of built-in rules, but you can also customize your own, depending on how closely you want to follow the [OpenAPI Specification](https://spec.openapis.org/oas/latest.html). In our example response above, we can see that there is one error [1] and one warning [2].
-
-**Why you got an error**
-
-Because you changed a property that is strictly defined in the OpenAPI Specification. The linter's built-in [`spec`](./rules/spec.md) rule will throw an error whenever it finds something that is not defined in the specification. That error in detail:
-
-* [1] bundled.yaml:40:7 (the error is somewhere on line 40 near the 7th character).
-* Property `operationIdentifier` is not expected here.
-* Error was generated by the spec rule (the rule that detected the error).
-
-**Why you received a warning**
-
-The warning results from the error. When you changed the `operationId` property, you also changed the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) which is a non-negotiable object within the OpenAPI Specification. Since `operationId` is no longer there, the matching built-in rule ([operation-operationId](./rules/operation-operationId.md)) triggered a warning. That warning in detail:
-
-* [2] bundled.yaml:33:5 (the issue is somewhere on line 33 near the 5th character).
-* Operation object should contain `operationId` field (there should be a particular field here).
-* Warning was generated by the operation-operationId rule (the rule that prompted the warning).
-
-To make your definition valid again:
-
-* Read the warning description to work out what's wrong.
-* Check the OpenAPI Specification's defined field names for the [Operation object](https://spec.openapis.org/oas/latest.html#operation-object) (hint: you cannot name it `operationIdentifier`).
-* Change it back to `operationId` and you'll fix both the warning and the error because the unexpected `operationIdentifier` property is gone.
-
-To check that everything is correct, run the `lint` command again. If you see the following, congratulations - your definition is valid again!
-
-```bash
-No configurations were defined in extends -- using built in recommended configuration by default.
-
-validating bundled.yaml...
-bundled.yaml: validated in 44ms
-
-Woohoo! Your OpenAPI definition is valid. 🎉
-```
-
-### `split` - Divide your large definition into smaller parts
-
-This command splits a single OpenAPI definition file into its constituent parts, enabling you to follow the multi-file approach to API docs. This approach makes it easier to deal with a definition file that has become too large or too complex to manage as a single file. But don't worry, the `bundle` command brings everything back into a single file when you're ready to publish your definition.
-
-In your terminal, type the following command. We'll output the constituent files into a new folder called `bundled` to keep things neat and tidy, but you could also specify an existing folder:
-
-```bash
-$ redocly split bundled.yaml --outDir bundled
-```
-
-You should get this response:
-
-```bash
-Document: bundled.yaml is successfully split
-  and all related files are saved to the directory: bundled
-
-bundled.yaml: split processed in 76ms
-```
-
-So, what just happened? Take a look in the newly created `bundled` directory. That's where the magic is! See how the `split` command automatically broke the single API definition into its constituent parts and very kindly organized them in the new directory?
-
-```bash
-.
-├── code samples
-│   ├── C#
-│   |   └── postundefined
-│   └── PHP
-│       └── postundefined
-├── components
-│   ├── headers
-│   |   └── ExpiresAfter.yaml
-│   ├── responses
-│   |   └── Problem.yaml
-│   └── schemas
-│       ├── Email.yaml
-│       ├── Problem.yaml
-│       ├── Schema.yaml
-│       └── User.yaml
-├── paths
-│   ├── echo.yaml
-│   ├── pathItem.yaml
-│   ├── pathItemWithExamples.yaml
-│   └── users@{username}.yaml
-└── openapi.yaml
-```
-
-:::info Note
-
-`openapi.yaml` in the `bundled` folder is the default name that Redocly CLI gives to the 'root' YAML file you just split up. It contains `$ref`s to its constituent parts. You do the work in the constituent parts.
-
-:::
-
-Continuing on with our example, when you need to bundle up your API definition again, you run the `bundle` command against `openapi.yaml` and use `--output` to send the constituent parts to `bundled.yaml`.
-In the real world, you could send them to some other file (`redocly bundle openapi.yaml --output some-other-file.yaml`):
-
-```bash
-$ redocly bundle openapi.yaml --output bundled.yaml
-```
-
-### `preview-docs` - Quickly preview your definition file
-
-Use `preview-docs` to generate a preview of your API reference docs.
-
-First, make sure you have a definition file to preview. Then in your terminal, enter the following command, replacing `bundled.yaml` with the file path and name of your definition file:
-
-```bash
-$ redocly preview-docs bundled.yaml
-```
-
-You should get this response:
-
-```bash
-Using Redoc community edition.
-Login with `redocly login` or use an enterprise license key to preview with the premium docs.
-
-  🔎  Preview server running at http://127.0.0.1:8080
-
-Bundling...
-
-  👀  Watching bundled.yaml and all related resources for changes
-
-Created a bundle for bundled.yaml successfully
-```
-
-Open a web browser, navigate to `http://127.0.0.1:8080` and check that your definition file has been served successfully.
-
-This server supports live changes. If you modify the definition file (in our example, `bundled.yaml`), the changes will be visible in the preview straight away. For example, if you change the version from `1.0.0` to `2.0.0`...
-
-```bash
-openapi: 3.1.0
-info:
-  version: 1.0.0
-  title: Example.com
-  termsOfService: https://example.com/terms/
-  ...
-  ```
-
-... you should get the following response:
-
-```bash
-Bundling...
-
-Created a bundle for bundled.yaml successfully
-GET /: 1.968ms
-GET /simplewebsocket.min.js: 2.733ms
-GET /hot.js: 1.495ms
-GET /openapi.json: 0.44ms
-GET /favicon.png: 1.836ms
-watch changed bundled.yaml
-```
-
-Back in `http://127.0.0.1:8080` the update will be visible.
-
-## Now, get into it!
-
-* Take a look at [all of the available Redocly CLI commands](./commands/index.md).
-* Fine-tune Redocly CLI through the awesome magic that is the [config file](./configuration/index.mdx).
-* Get creative and head straight to [custom plugins and rules](./resources/custom-plugins.md).
+Feeling brave and highly API compliant? Try the `recommended` standard instead and see how yours measures up.

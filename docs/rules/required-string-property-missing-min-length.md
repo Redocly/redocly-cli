@@ -82,7 +82,7 @@ schemas:
 
 - [no-invalid-schema-examples](./no-invalid-schema-examples.md)
 - [response-contains-property](./response-contains-property.md)
-- [Custom rules](./custom-rules.md)
+- [Custom rules](./configurable-rules.md)
 
 ## Resources
 

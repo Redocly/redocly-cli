@@ -84,7 +84,7 @@ components:
 
 ## Related rules
 
-- [custom rules](./custom-rules.md)
+- [configurable rules](./configurable-rules.md)
 - [spec](./spec.md)
 
 ## Resources

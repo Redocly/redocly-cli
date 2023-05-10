@@ -78,7 +78,7 @@ components:
 
 ## Related rules
 
-- [custom rules](./custom-rules.md)
+- [configurable rules](./configurable-rules.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources

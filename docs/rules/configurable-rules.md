@@ -2,17 +2,12 @@
 redirectFrom:
   - /docs/cli/resources/rules/assertions/
   - /docs/cli/rules/assertions/
+  - /docs/cli/rules/custom-rules/
 ---
-# Custom rules and assertions
+# Configurable rules
 
-Configure custom rules and assertions to enforce your API design standards.
 
-There are three types of custom rules (from easiest to most difficult):
-- Use included assertions (no JavaScript required).
-- Use custom assertion functions (middle - requires some JavaScript).
-- Craft custom rules entirely from JavaScript code.
-
-Define custom rules in the `rules` map in the Redocly configuration file.
+Configure flexible rules to meet any situation not covered by the [built-in rules](./built-in-rules.md) by adding to the `rules` map in the Redocly configuration file.
 
 ```yaml
 rules:
@@ -22,14 +17,14 @@ rules:
     ...
 ```
 
-A custom rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+A configurable rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Pattern Property | Type | Description
 -- | -- | --
-assert/{string} | [Custom rule object](#custom-rule-object) | Custom rules definitions enforce your custom API design standards. Add or edit your custom rules in the configuration file. A custom rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Assertion names display in the lint log if the assertion fails. More than one assertion may be defined, and any custom rule may have multiple asserts.
+assert/{string} | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one assertion may be defined, and any configurable rule may have multiple assertions.
 
-## Custom rule object
+## Configurable rule object
 
 Property | Type | Description
 -- | -- | --
@@ -63,15 +58,15 @@ disallowed | [string] | Asserts all listed values are not defined. See [disallow
 enum | [string] | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).
 maxLength | integer | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
 minLength | integer | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
-nonEmpty | boolean | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
-pattern | string | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
-notPattern | string | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).
 mutuallyExclusive | [string] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
 mutuallyRequired | [string] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
+nonEmpty | boolean | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
+notPattern | string | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).
+pattern | string | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
 ref | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
 required | [string] | Asserts all listed values are defined. See [required example](#required-example).
 requireAny | [string] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
-`{pluginId}/{functionName}` | object | Custom assert defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).
+`{pluginId}/{functionName}` | object | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).
 
 ## Where object
 
@@ -83,7 +78,54 @@ Property | Type | Description
 subject | [Subject object](#subject-object) | **REQUIRED.** Narrows the subject further.
 assertions | [Assertion object](#assertion-object) | **REQUIRED.** Applies assertions to determine if the subject should continue towards evaluating the main assertions. If an assertion fails, it narrows that from downstream subject evaluation and does not report a problem.
 
-See [where examples](#where-example).
+### `where` example
+
+The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
+Without the `where`, the assertion would evaluate every `MediaTypesMap` property including:
+- Responses with all codes, including codes other than 200 or 201.
+- Responses for all HTTP methods, including DELETE, GET, POST, and more.
+To restrict the evaluation, use the `where` feature to limit what is evaluated.
+
+```yaml
+assert/no-pdf-in-ok-response:
+  where:
+    - subject:
+        type: Operation
+        filterByParentKeys:
+          - put
+      assertions:
+        defined: true
+    - subject:
+        type: Response
+        filterByParentKeys:
+          - '201'
+          - '200'
+      assertions:
+        defined: true
+  subject:
+    type: MediaTypesMap
+  assertions:
+    disallowed:
+      - 'application/pdf'
+```
+
+Where enables complex assertions based on sibling values.
+The following example asserts that the `limit` parameter must have a schema with `type: integer`.
+
+```yaml
+assert/limit-is-integer:
+  subject:
+    type: Schema
+    property: type
+  assertions:
+    const: integer
+  where:
+    - subject:
+        type: Parameter
+        property: name
+      assertions:
+        const: limit
+```
 
 ## Examples
 
@@ -141,111 +183,6 @@ rules:
       maxLength: 60
       pattern: /[^\.]$/
     message: Operation summary must be between 20 and 60 characters and not end with a full stop.
-```
-
-### `property` example
-
-The following example asserts that every path item has a GET operation defined.
-
-```yaml
-rules:
-  assert/path-item-get-operation-defined:
-    subject:
-      type: PathItem
-      property: get
-    assertions:
-      defined: true
-```
-
-A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
-Notice we don't need to include `property` in this approach.
-
-```yaml
-rules:
-  assert/path-item-operation-required:
-    subject:
-      type: PathItem
-    assertions:
-      required:
-        - get
-    message: Every path item must have a GET operation.
-```
-
-The following example asserts that Tags have both name and description defined.
-
-```yaml
-rules:
-  assert/tag-name-and-desc-defined:
-    subject:
-      type: Tag
-      property:
-        - name
-        - description
-    assertions:
-      defined: true
-    message: Every tag must have a name and description.
-```
-
-Another way to compose that rule is to require the subject keys:
-
-```yaml
-rules:
-  assert/tag-name-and-desc-required:
-    subject:
-      type: Tag
-    assertions:
-      required:
-        - name
-        - description
-```
-
-### `where` example
-
-The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
-Without the `where`, the assertion would evaluate every `MediaTypesMap` property including:
-- Responses with all codes, including codes other than 200 or 201.
-- Responses for all HTTP methods, including DELETE, GET, POST, and more.
-To restrict the evaluation, use the `where` feature to limit what is evaluated.
-
-```yaml
-assert/no-pdf-in-ok-response:
-  where:
-    - subject:
-        type: Operation
-        filterByParentKeys:
-          - put
-      assertions:
-        defined: true
-    - subject:
-        type: Response
-        filterByParentKeys:
-          - '201'
-          - '200'
-      assertions:
-        defined: true
-  subject:
-    type: MediaTypesMap
-  assertions:
-    disallowed:
-      - 'application/pdf'
-```
-
-Where enables complex assertions based on sibling values.
-The following example asserts that the `limit` parameter must have a schema with `type: integer`.
-
-```yaml
-assert/limit-is-integer:
-  subject:
-    type: Schema
-    property: type
-  assertions:
-    const: integer
-  where:
-    - subject:
-        type: Parameter
-        property: name
-      assertions:
-        const: limit
 ```
 
 ### Custom function example
@@ -328,6 +265,30 @@ module.exports = {
 };
 ```
 
+## Assertion examples
+
+### `casing` example
+
+The following example asserts the casing style is `PascalCase` for `NamedExamples` map keys.
+
+```yaml
+rules:
+  assert/named-examples-pascal-case:
+    subject:
+      type: NamedExamples
+    assertions:
+      casing: PascalCase
+```
+
+Casing supports the following styles:
+- camelCase
+- COBOL-CASE
+- flatcase
+- kebab-case
+- snake_case
+- PascalCase
+- MACRO_CASE
+
 ### `const` example
 
 The following example asserts that only `application/json` can be used as a key of the `MediaTypesMap`.
@@ -340,6 +301,49 @@ rules:
     assertions:
       const: application/json
     message: Only application/json can be used
+```
+
+### `defined` example
+
+The following example asserts that `x-codeSamples` is defined.
+
+```yaml
+rules:
+  assert/x-code-samples-defined:
+    subject:
+      type: Operation
+      property: x-codeSamples
+    assertions:
+      defined: true
+```
+
+The following example asserts that `x-code-samples` is undefined.
+
+```yaml
+rules:
+  assert/x-code-samples-undefined:
+    subject:
+      type: Operation
+      property: x-code-samples
+    suggest:
+      - x-codeSamples instead of x-code-samples
+    assertions:
+      defined: false
+```
+
+### `disallowed` example
+
+The following example asserts that `x-code-samples` and `x-internal` are not defined.
+
+```yaml
+rules:
+  assert/no-x-code-samples-and-x-internal:
+    subject:
+      type: Operation
+    assertions:
+      disallowed:
+        - x-code-samples
+        - x-internal
 ```
 
 ### `enum` example
@@ -376,56 +380,35 @@ rules:
       - change to 'My collection'
 ```
 
-### `pattern` example
+### `maxLength` example
 
-The following example asserts that the operation summary contains "test".
+The following example asserts that the maximum length of each operation summary is 20 characters.
 
 ```yaml
 rules:
-  assert/operation-summary-contains-test:
+  assert/operation-summary-max-length:
     subject:
       type: Operation
       property: summary
+    message: Operation summary must have a maximum of 20 characters
     assertions:
-      pattern: /test/
+      maxLength: 20
 ```
 
-### `notPattern` example
+### `minLength` example
 
-The following example asserts that the operation summary doesn't start with "The".
+The following example asserts that the minimum length of each operation summary is 20 characters.
 
 ```yaml
 rules:
-  assert/operation-summary-contains-test:
+  assert/operation-summary-min-length:
     subject:
       type: Operation
-      property: The summary
+      property: summary
+    message: Operation summary must have minimum of 20 chars length
     assertions:
-      notPattern: /^The/
+      minLength: 20
 ```
-
-### `casing` example
-
-The following example asserts the casing style is `PascalCase` for `NamedExamples` map keys.
-
-```yaml
-rules:
-  assert/named-examples-pascal-case:
-    subject:
-      type: NamedExamples
-    assertions:
-      casing: PascalCase
-```
-
-Casing supports the following styles:
-- camelCase
-- COBOL-CASE
-- flatcase
-- kebab-case
-- snake_case
-- PascalCase
-- MACRO_CASE
-
 
 ### `mutuallyExclusive` example
 
@@ -480,6 +463,76 @@ rules:
         - '201'
 ```
 
+### `nonEmpty` example
+
+The following example asserts that the operation summary is not empty.
+
+```yaml
+rules:
+  assert/operation-summary-non-empty:
+    subject:
+      type: Operation
+      property: summary
+    assertions:
+      nonEmpty: true
+```
+
+### `notPattern` example
+
+The following example asserts that the operation summary doesn't start with "The".
+
+```yaml
+rules:
+  assert/operation-summary-contains-test:
+    subject:
+      type: Operation
+      property: The summary
+    assertions:
+      notPattern: /^The/
+```
+
+### `pattern` example
+
+The following example asserts that the operation summary contains "test".
+
+```yaml
+rules:
+  assert/operation-summary-contains-test:
+    subject:
+      type: Operation
+      property: summary
+    assertions:
+      pattern: /test/
+```
+
+### `ref` example
+
+The following example asserts that schema in MediaType contains a Reference object ($ref).
+
+```yaml
+rules:
+  assert/mediatype-schema-has-ref:
+    subject:
+      type: MediaType
+      property: schema
+    assertions:
+      ref: true
+```
+
+Also, you can specify a Regular Expression to check if the reference object conforms to it:
+
+```yaml
+rules:
+  assert/mediatype-schema-ref-pattern:
+    subject:
+      type: MediaType
+      property: schema
+    message: Ref needs to point to components directory.
+    assertions:
+      ref: /^(\.\/)?components\/.*\.yaml$/
+```
+
+
 ### `required` example
 
 The following example asserts that `PUT` requests have both `200` and `201` responses defined.
@@ -520,121 +573,7 @@ rules:
         - externalDocs
 ```
 
-### `disallowed` example
-
-The following example asserts that `x-code-samples` and `x-internal` are not defined.
-
-```yaml
-rules:
-  assert/no-x-code-samples-and-x-internal:
-    subject:
-      type: Operation
-    assertions:
-      disallowed:
-        - x-code-samples
-        - x-internal
-```
-
-### `defined` example
-
-The following example asserts that `x-codeSamples` is defined.
-
-```yaml
-rules:
-  assert/x-code-samples-defined:
-    subject:
-      type: Operation
-      property: x-codeSamples
-    assertions:
-      defined: true
-```
-
-The following example asserts that `x-code-samples` is undefined.
-
-```yaml
-rules:
-  assert/x-code-samples-undefined:
-    subject:
-      type: Operation
-      property: x-code-samples
-    suggest:
-      - x-codeSamples instead of x-code-samples
-    assertions:
-      defined: false
-```
-
-### `nonEmpty` example
-
-The following example asserts that the operation summary is not empty.
-
-```yaml
-rules:
-  assert/operation-summary-non-empty:
-    subject:
-      type: Operation
-      property: summary
-    assertions:
-      nonEmpty: true
-```
-
-### `minLength` example
-
-The following example asserts that the minimum length of each operation summary is 20 characters.
-
-```yaml
-rules:
-  assert/operation-summary-min-length:
-    subject:
-      type: Operation
-      property: summary
-    message: Operation summary must have minimum of 20 chars length
-    assertions:
-      minLength: 20
-```
-
-### `maxLength` example
-
-The following example asserts that the maximum length of each operation summary is 20 characters.
-
-```yaml
-rules:
-  assert/operation-summary-max-length:
-    subject:
-      type: Operation
-      property: summary
-    message: Operation summary must have a maximum of 20 characters
-    assertions:
-      maxLength: 20
-```
-
-### `ref` example
-
-The following example asserts that schema in MediaType contains a Reference object ($ref).
-
-```yaml
-rules:
-  assert/mediatype-schema-has-ref:
-    subject:
-      type: MediaType
-      property: schema
-    assertions:
-      ref: true
-```
-
-Also, you can specify a Regular Expression to check if the reference object conforms to it:
-
-```yaml
-rules:
-  assert/mediatype-schema-ref-pattern:
-    subject:
-      type: MediaType
-      property: schema
-    message: Ref needs to point to components directory.
-    assertions:
-      ref: /^(\.\/)?components\/.*\.yaml$/
-```
-
-## OpenAPI node types
+## Subject node types and properties
 
 Redocly defines a type tree based on the document type.
 OpenAPI 2.0 has one type tree.
@@ -656,3 +595,60 @@ rules:
     assertions:
       maxLength: 20
 ```
+
+### `property` example
+
+The following example asserts that every path item has a GET operation defined.
+
+```yaml
+rules:
+  assert/path-item-get-operation-defined:
+    subject:
+      type: PathItem
+      property: get
+    assertions:
+      defined: true
+```
+
+A different way to declare the same assertion is to require that the `PathItem` has the `get` key.
+Notice we don't need to include `property` in this approach.
+
+```yaml
+rules:
+  assert/path-item-operation-required:
+    subject:
+      type: PathItem
+    assertions:
+      required:
+        - get
+    message: Every path item must have a GET operation.
+```
+
+The following example asserts that Tags have both name and description defined.
+
+```yaml
+rules:
+  assert/tag-name-and-desc-defined:
+    subject:
+      type: Tag
+      property:
+        - name
+        - description
+    assertions:
+      defined: true
+    message: Every tag must have a name and description.
+```
+
+Another way to compose that rule is to require the subject keys:
+
+```yaml
+rules:
+  assert/tag-name-and-desc-required:
+    subject:
+      type: Tag
+    assertions:
+      required:
+        - name
+        - description
+```
+

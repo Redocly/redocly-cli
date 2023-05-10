@@ -83,7 +83,7 @@ paths:
 ## Related rules
 
 - [request-mime-type](./request-mime-type.md)
-- [custom rules](./custom-rules.md)
+- [configurable rules](./configurable-rules.md)
 
 ## Resources
 
