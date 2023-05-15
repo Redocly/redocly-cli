@@ -13,15 +13,15 @@ toc:
 
 ### Fixes
 
-- Fixed a bug with external OAS (x-) attributes containing an array.
-- Display an error if the api path refers to a folder.
-- Fixed the `push` command not recognising API definitions with spaces.
-- Defined default `allowedValues` in the `all` ruleset for mime-type rules
+- Fixed a bug with OAS (`x-`) specification extensions that contain an array.
+- Display an error if the API path refers to a folder.
+- Fixed the `push` command not recognizing API definitions with spaces.
+- Defined default `allowedValues` in the `all` ruleset for mime-type rules.
 
 ### Changes
 
 - Display an error if apis or rules for the `lint` command are not provided.
-- Ceased executing decorators and preprocessors upon the `join` command.
+- Stopped executing decorators and preprocessors upon the `join` command.
 - Sort top-level OAS3 keys in `bundle` and `join` commands.
 
 
@@ -48,13 +48,13 @@ toc:
 
 ### Fixes
 
-- Fixed an issue with `push` command not executing when organization is provided via redocly.yaml
+- Fixed the `push` command when organization is provided in the `redocly.yaml` configuration file.
 
 ## 1.0.0-beta.122 (2023-01-26)
 
 ### Fixes
 
-- Fixed an issue with `push` command not working with a valid `organizationId`.
+- Fixed an issue with the `push` command not working with a valid `organizationId`.
 
 ## 1.0.0-beta.121 (2023-01-25)
 
