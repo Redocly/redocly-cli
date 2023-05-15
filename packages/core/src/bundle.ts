@@ -223,6 +223,7 @@ function makeBundleVisitor(
   keepUrlRefs: boolean
 ) {
   let components: Record<string, Record<string, any>>;
+  let rootLocation: Location;
 
   const visitor: Oas3Visitor | Oas2Visitor = {
     ref: {
@@ -264,7 +265,8 @@ function makeBundleVisitor(
       },
     },
     Root: {
-      enter(root: any) {
+      enter(root: any, ctx: any) {
+        rootLocation = ctx.location;
         if (version === OasMajorVersion.Version3) {
           components = root.components = root.components || {};
         } else if (version === OasMajorVersion.Version2) {
@@ -342,7 +344,7 @@ function makeBundleVisitor(
   ) {
     if (
       isRef(node) &&
-      ctx.resolve(node).location?.absolutePointer === target.location.absolutePointer
+      ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer === target.location.absolutePointer
     ) {
       return true;
     }
