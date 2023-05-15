@@ -344,7 +344,8 @@ function makeBundleVisitor(
   ) {
     if (
       isRef(node) &&
-      ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer === target.location.absolutePointer
+      ctx.resolve(node, rootLocation.absolutePointer).location?.absolutePointer ===
+        target.location.absolutePointer
     ) {
       return true;
     }

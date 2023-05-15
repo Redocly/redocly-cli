@@ -1,0 +1,8 @@
+openapi: 3.1.0
+paths:
+  /path:
+    $ref: './paths/path.yaml'
+components:
+  schemas:
+    Test:
+      $ref: './Test.yaml'
