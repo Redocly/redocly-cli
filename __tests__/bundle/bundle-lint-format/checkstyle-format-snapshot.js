@@ -9,7 +9,7 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: chec
 </checkstyle>
 
 ❌ Validation failed with 1 error.
-run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
+run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at /tmp/null.yaml <test>ms.

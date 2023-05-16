@@ -25,7 +25,7 @@ export function getParams(
 }
 
 export function getEntrypoints(folderPath: string) {
-  const redoclyYamlFile = readFileSync(join(folderPath, '.redocly.yaml'), 'utf8');
+  const redoclyYamlFile = readFileSync(join(folderPath, 'redocly.yaml'), 'utf8');
   const redoclyYaml = parseYaml(redoclyYamlFile) as { apis: Record<string, string> };
   return Object.keys(redoclyYaml.apis);
 }

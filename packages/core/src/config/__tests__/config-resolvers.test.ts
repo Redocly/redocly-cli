@@ -5,7 +5,7 @@ const path = require('path');
 
 import type { StyleguideRawConfig, RawConfig } from '../types';
 
-const configPath = path.join(__dirname, 'fixtures/resolve-config/.redocly.yaml');
+const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
 const baseStyleguideConfig: StyleguideRawConfig = {
   rules: {
     'operation-2xx-response': 'warn',
@@ -73,9 +73,9 @@ describe('resolveStyleguideConfig', () => {
     expect(plugins?.length).toBe(2);
 
     expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual(['resolve-config/plugin.js']);
 
@@ -116,10 +116,10 @@ describe('resolveStyleguideConfig', () => {
     expect(plugins?.length).toBe(3);
 
     expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
       'resolve-config/local-config-with-file.yaml',
       'resolve-config/api/nested-config.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/api/plugin.js',
@@ -215,8 +215,8 @@ describe('resolveStyleguideConfig', () => {
     expect(Object.keys(styleguide.rules || {}).length).toBe(2);
 
     expect(styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
@@ -253,7 +253,7 @@ describe('resolveApis', () => {
     const apisResult = await resolveApis({ rawConfig, configPath });
 
     expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
 
@@ -294,7 +294,7 @@ describe('resolveApis', () => {
     expect(apisResult['petstore'].styleguide.plugins[0].id).toEqual('');
 
     expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
   });
@@ -331,9 +331,9 @@ describe('resolveApis', () => {
     expect(apisResult['petstore'].styleguide.plugins.length).toEqual(2);
 
     expect(apisResult['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apisResult['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
@@ -368,7 +368,7 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].styleguide.plugins[0].id).toEqual('');
 
     expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
 
@@ -408,9 +408,9 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].styleguide.plugins.length).toEqual(2);
 
     expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
@@ -451,9 +451,9 @@ describe('resolveConfig', () => {
     delete apis['petstore'].styleguide.plugins;
 
     expect(apis['petstore'].styleguide.extendPaths!.map(removeAbsolutePath)).toEqual([
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
       'resolve-config/local-config.yaml',
-      'resolve-config/.redocly.yaml',
+      'resolve-config/redocly.yaml',
     ]);
     expect(apis['petstore'].styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([
       'resolve-config/plugin.js',
