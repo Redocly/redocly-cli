@@ -22,19 +22,19 @@ redocly lint --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-apis | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.
---config | string | Specify path to the [configuration file](#custom-configuration-file).
---extends | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).
---format | string | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`.
---generate-ignore-file | boolean | [Generate ignore file](#generate-ignore-file).
---help | boolean | Show help.
---lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.
---max-problems | integer | Truncate output to display the specified [maximum number of problems](#max-problems).
---skip-preprocessor | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
---skip-rule | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
---version | boolean | Show version number.
+| Option                 | Type     | Description                                                                                                                        |
+| ---------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| apis                   | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.                          |
+| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                              |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                       |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`.           |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                     |
+| --help                 | boolean  | Show help.                                                                                                                         |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems).                                              |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                       |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                               |
+| --version              | boolean  | Show version number.                                                                                                               |
 
 ## Examples
 
@@ -249,4 +249,4 @@ To learn more about preprocessors and rules, refer to the [custom plugins](../re
 
 ### Lint config file
 
-The `lint` command also validates the configuration file. You may want to set severity level by using the `--lint-config` option.  This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`.
+The `lint` command also validates the configuration file. You may want to set severity level by using the `--lint-config` option. This option accepts one of the following values: `warn`,`error`,`off`. Default value is `warn`.

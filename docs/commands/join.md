@@ -1,6 +1,7 @@
 ---
 tocMaxDepth: 3
 ---
+
 # `join`
 
 ## Introduction
@@ -40,19 +41,19 @@ redocly join --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-apis | [string] | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
---help | boolean | Show help.
---lint | boolean | Lint definition files.
---decorate | boolean | Run decorators.
---preprocess | boolean | Run preprocessors.
---prefix-tags-with-filename | string | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.
---prefix-components-with-info-prop | string | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.
---prefix-tags-with-info-prop | boolean | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.
---without-x-tag-groups | boolean | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.
---version | boolean | Show version number.
---output, -o | string | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**
+| Option                             | Type     | Description                                                                                                                                                                                              |
+| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apis                               | [string] | **REQUIRED.** 1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder. |
+| --help                             | boolean  | Show help.                                                                                                                                                                                               |
+| --lint                             | boolean  | Lint definition files.                                                                                                                                                                                   |
+| --decorate                         | boolean  | Run decorators.                                                                                                                                                                                          |
+| --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                       |
+| --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                           |
+| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                     |
+| --prefix-tags-with-info-prop       | boolean  | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.                                                                             |
+| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.                                                                                                    |
+| --version                          | boolean  | Show version number.                                                                                                                                                                                     |
+| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                           |
 
 ## Examples
 
@@ -92,11 +93,11 @@ x-tagGroups:
     tags:
       - expanded
       - other
-    description: "Text from info: description of the first input file"
+    description: 'Text from info: description of the first input file'
   - name: second-api
     tags:
       - pets
-    description: "Text from info: description of the second input file"
+    description: 'Text from info: description of the second input file'
 ```
 
 :::info
@@ -159,7 +160,6 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
   x-displayName: pets
 ```
 
-
 ### prefix-tags-with-filename
 
 If any of the input files contain the `tags` object, tags in the output file will be prefixed by the filename of the corresponding input file.
@@ -199,6 +199,7 @@ warning: 1 conflict(s) on tags description.
 
 openapi.yaml: join processed in 69ms
 ```
+
 ### prefix-components-with-info-prop
 
 If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file will be prefixed by the selected property from the `info` object of the corresponding input file(s).
