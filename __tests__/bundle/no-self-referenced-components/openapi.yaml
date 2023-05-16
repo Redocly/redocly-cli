@@ -1,0 +1,9 @@
+openapi: 3.0.3
+paths:
+  /pets/{petId}:
+    $ref: './paths/Pet.yaml'
+components:
+  schemas:
+    $ref: './schemas/_index.yaml'
+  parameters:
+    $ref: './parameters/_index.yaml'

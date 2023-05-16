@@ -1,0 +1,6 @@
+get:
+  requestBody:
+    content:
+      'application/json':
+        schema:
+          $ref: ../Test.yaml
