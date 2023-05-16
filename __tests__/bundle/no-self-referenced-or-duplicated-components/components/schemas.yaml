@@ -1,0 +1,3 @@
+schemas:
+  myObject:
+    $ref: ../folder/myObject.v2.schema.yaml

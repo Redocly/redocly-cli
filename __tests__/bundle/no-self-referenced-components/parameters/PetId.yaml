@@ -1,0 +1,4 @@
+name: petId
+in: path
+schema:
+  type: string

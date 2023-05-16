@@ -1,0 +1,3 @@
+openapi: 3.0.3
+components:
+  $ref: ./components/schemas.yaml

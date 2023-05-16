@@ -1,0 +1,9 @@
+get:
+  parameters:
+    - $ref: '../parameters/PetId.yaml'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Pet.yaml'
