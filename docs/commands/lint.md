@@ -24,16 +24,16 @@ redocly lint --version
 
 Option | Type | Description
 -- | -- | --
-apis | array | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.
+apis | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.
 --config | string | Specify path to the [configuration file](#custom-configuration-file).
---extends | array | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).
+--extends | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).
 --format | string | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`.
 --generate-ignore-file | boolean | [Generate ignore file](#generate-ignore-file).
 --help | boolean | Show help.
 --lint-config | string | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.
 --max-problems | integer | Truncate output to display the specified [maximum number of problems](#max-problems).
---skip-preprocessor | array | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
---skip-rule | array | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+--skip-preprocessor | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
+--skip-rule | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.
 --version | boolean | Show version number.
 
 ## Examples
@@ -108,7 +108,7 @@ The `--extends` option allows you to extend the existing configuration. This opt
 
 :::warning Important
 
-When you run the `lint` command without a configuration file, it uses the `extends: recommended` by default.
+When you run the `lint` command without a configuration file, it uses the `extends: [recommended]` by default.
 However, if you have a configuration file, but it doesn't include any rules or extends configuration, the `lint` command shows an error.
 
 :::
@@ -236,11 +236,11 @@ The rule in the example is named `spec`, which indicates compliance with the Ope
 You may want to skip specific preprocessors or rules upon running the command.
 
 ```bash Skip preprocessors
-redocly lint --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly lint --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
 
 ```bash Skip rules
-redocly lint --skip-rule=no-sibling-refs,no-parent-tags
+redocly lint --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
 
 :::success Tip

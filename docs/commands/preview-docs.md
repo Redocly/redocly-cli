@@ -29,8 +29,8 @@ api | string | Path to the API definition filename or alias that you want to gen
 --help | boolean | Show help.
 --host, -h | string | Specify the host where the documentation preview can be accessed. The default value is `127.0.0.1`.
 --port, -p | integer | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system. The default value is port `8080`.
---skip-decorator | array | Ignore [certain decorators](#skip-preprocessor-or-decorator).
---skip-preprocessor | array | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).
+--skip-decorator | [string] | Ignore [certain decorators](#skip-preprocessor-or-decorator).
+--skip-preprocessor | [string] | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).
 --use-community-edition | boolean | Force using Redoc Community Edition for docs preview.
 --version | boolean | Show version number.
 
@@ -110,9 +110,9 @@ Both commands will start the preview on host `0.0.0.0`, so you can access the do
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
 
 ```bash Skip decorators
-redocly preview-docs --skip-decorator=generate-code-samples,remove-internal-operations
+redocly preview-docs --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```

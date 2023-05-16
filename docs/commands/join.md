@@ -42,7 +42,7 @@ redocly join --version
 
 Option | Type | Description
 -- | -- | --
-apis | array | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
+apis | [string] | **REQUIRED.**  1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder.
 --help | boolean | Show help.
 --lint | boolean | Lint definition files.
 --decorate | boolean | Run decorators.

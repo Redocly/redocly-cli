@@ -169,15 +169,15 @@ All other information is omitted.
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
 
 ```bash Skip rules
-redocly bundle --skip-rule=no-sibling-refs,no-parent-tags
+redocly bundle --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
 
 ```bash Skip decorators
-redocly bundle --skip-decorator=generate-code-samples,remove-internal-operations
+redocly bundle --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```
 
 :::success Tip

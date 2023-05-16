@@ -89,7 +89,7 @@ destination      | string    | Conditional. The location in the API registry whe
 --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
 --upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
 --version     | boolean | Show version number.  |
---files|string[]|List of other folders and files to upload. See [the Files section](#files) for more information. |
+--files|[string]|List of other folders and files to upload. See [the Files section](#files) for more information. |
 
 ## Examples
 
