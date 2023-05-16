@@ -1,0 +1,21 @@
+openapi: 3.0.1
+servers: 
+  - url: http://localhost:8080 
+info: 
+  license: 
+    name: PROPRIETARY
+    url: http://localhost:8080
+  title: Test
+  version: 1.0.0
+security: []
+paths: 
+  /items:
+    get: 
+      operationId: getItems
+      summary: Items
+      responses: 
+        200: 
+          $ref: "./successful-request.response.yaml"
+          
+  /status:
+    $ref: nested/status.yaml

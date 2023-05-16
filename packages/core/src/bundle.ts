@@ -129,15 +129,32 @@ export async function bundleDocument(opts: {
     });
   }
 
-  const resolvedRefMap = await resolveDocument({
+  let resolvedRefMap = // new Map();
+  await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
 
-  const bundleVisitor = normalizeVisitors(
+  let bundleVisitor = normalizeVisitors(preprocessors, types);
+
+  walkDocument({
+    document,
+    rootType: types.Root as NormalizedNodeType,
+    normalizedVisitors: bundleVisitor,
+    resolvedRefMap,
+    ctx,
+  });
+
+  resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  bundleVisitor = normalizeVisitors(
     [
-      ...preprocessors,
+      // ...preprocessqors,
       {
         severity: 'error',
         ruleId: 'bundler',

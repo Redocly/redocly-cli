@@ -77,8 +77,24 @@ export async function lintDocument(opts: {
 
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', oasVersion);
-  const normalizedVisitors = normalizeVisitors([...preprocessors, ...regularRules] as any, types);
-  const resolvedRefMap = await resolveDocument({
+  const normalizedPreprocessorVisitors = normalizeVisitors(preprocessors, types); // <--
+  let resolvedRefMap = //new Map()
+   await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  walkDocument({
+    document,
+    rootType: types.Root,
+    normalizedVisitors: normalizedPreprocessorVisitors,
+    resolvedRefMap,
+    ctx,
+  });
+
+  const normalizedVisitors = normalizeVisitors([/* ...preprocessors,  */...regularRules], types); // <--
+   resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
