@@ -19,6 +19,7 @@ const version = require('../package.json').version;
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
+  .parserConfiguration({ 'greedy-arrays': false })
   .command(
     'stats [api]',
     'Gathering statistics for a document.',
