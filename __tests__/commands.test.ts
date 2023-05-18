@@ -19,7 +19,7 @@ describe('E2E', () => {
     for (const file of contents) {
       const testPath = join(folderPath, file);
       if (statSync(testPath).isFile()) continue;
-      if (!existsSync(join(testPath, '.redocly.yaml'))) continue;
+      if (!existsSync(join(testPath, 'redocly.yaml'))) continue;
 
       const args = getParams('../../../packages/cli/src/index.ts', 'lint');
 

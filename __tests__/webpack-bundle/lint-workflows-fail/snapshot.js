@@ -45,7 +45,7 @@ validating ./openapi.yaml...
 ./openapi.yaml: validated in <test>ms
 
 ❌ Validation failed with 1 error and 1 warning.
-run \`openapi lint --generate-ignore-file\` to add all problems to the ignore file.
+run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.
 
 
 `;
