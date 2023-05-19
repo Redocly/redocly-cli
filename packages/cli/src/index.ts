@@ -14,6 +14,8 @@ import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import { notifyUpdateCliVersion } from './update-version-notifier';
+import * as process from 'process';
 const version = require('../package.json').version;
 
 yargs
@@ -429,4 +431,5 @@ yargs
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
+  .middleware([notifyUpdateCliVersion])
   .strict().argv;
