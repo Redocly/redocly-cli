@@ -58,7 +58,7 @@ const renderUpdateBanner = (packageName: string, current: string, latest: string
     ${chalk.yellow('╚' + border + '╝')}
   `;
 
-  console.log(banner);
+  process.stderr.write(banner);
 
   function getLineWithPadding(line: string, index: number): string {
     const padding = ' '.repeat(maxLength - cleanColors(line).length);
