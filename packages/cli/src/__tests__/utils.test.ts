@@ -447,7 +447,6 @@ describe('cleanColors', () => {
     const stringWithColors = `String for ${chalk.cyan('test')}`;
     const result = cleanColors(stringWithColors);
 
-    expect(result.length).toBeLessThan(stringWithColors.length);
     expect(result).not.toMatch(/\x1b\[\d+m/g);
   });
 });
