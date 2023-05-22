@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as semver from 'semver';
 import fetch from 'node-fetch';
-import { cyan, green, yellow } from 'colorette'
+import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './utils';
 
 const { version, name } = require('../package.json');
