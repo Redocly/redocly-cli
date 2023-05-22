@@ -13,13 +13,14 @@ const SPACE_TO_BORDER = 4;
 
 const INTERVAL_TO_CHECK = 1000; // * 60 * 60 * 12;
 
-export const notifyUpdateCliVersion = async () => {
-  if (!isNeedsToBeChecked()) {
-    return;
-  }
+export const notifyUpdateCliVersion = () => {
+  // if (!isNeedsToBeChecked()) {
+  //   return;
+  // }
 
   try {
-    const latestVersion = await getLatestVersion(name);
+    // const latestVersion = await getLatestVersion(name);
+    const latestVersion = readFileSync(join(tmpdir(), 'cli-version')).toString();
 
     if (isNewVersionAvailable(version, latestVersion)) {
       renderUpdateBanner(version, latestVersion);
@@ -36,6 +37,16 @@ const getLatestVersion = async (packageName: string): Promise<string> => {
   const response = await fetch(latestUrl);
   const info = await response.json();
   return info.version;
+};
+
+export const cacheLatestVersion = async () => {
+  try {
+    const version = await getLatestVersion(name);
+    const lastCheckFile = join(tmpdir(), 'cli-version');
+    writeFileSync(lastCheckFile, version);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const renderUpdateBanner = (current: string, latest: string) => {
