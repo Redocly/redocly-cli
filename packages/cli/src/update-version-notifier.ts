@@ -19,10 +19,14 @@ export const notifyUpdateCliVersion = async () => {
     return;
   }
 
-  const latestVersion = await getLatestVersion(name);
+  try {
+    const latestVersion = await getLatestVersion(name);
 
-  if (isNewVersionAvailable(version, latestVersion)) {
-    renderUpdateBanner(name, version, latestVersion);
+    if (isNewVersionAvailable(version, latestVersion)) {
+      renderUpdateBanner(name, version, latestVersion);
+    }
+  } catch (e) {
+    return;
   }
 };
 
@@ -38,9 +42,9 @@ const getLatestVersion = async (packageName: string): Promise<string> => {
 
 const renderUpdateBanner = (packageName: string, current: string, latest: string) => {
   const messageLines = [
-    `Update available for ${chalk.cyan(packageName)}!`,
-    `${chalk.gray(current)} → ${chalk.green(latest)}`,
-    `Run ${chalk.cyan('npm i -g @redocly/cli')} to update`,
+    `A new version of ${chalk.cyan('Redocly CLI')} (${chalk.green(latest)}) is available.`,
+    `Update now: \`${chalk.cyan('npm i -g @redocly/cli@latest')}\`.`,
+    `Changelog: https://redocly.com/docs/cli/changelog/`,
   ];
   const maxLength = Math.max(...messageLines.map((line) => cleanColors(line).length));
 
