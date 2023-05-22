@@ -12,19 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
-      - name: Environments
-        run: |
-          echo
-          echo Using Node $(node -v), NPM $(npm -v)
-          echo
+          node-version: 18
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
         env:
@@ -43,19 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
-      - name: Environments
-        run: |
-          echo
-          echo Using Node $(node -v), NPM $(npm -v)
-          echo
+          node-version: 18
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
         env:
@@ -82,14 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
+          node-version: 18
+          cache: 'npm'
       - name: Coverage Report
         uses: artiomtr/jest-coverage-report-action@v2.0.8
         continue-on-error: true
@@ -102,14 +80,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
+          node-version: 18
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
         env:
@@ -120,14 +94,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - uses: actions/setup-node@v3
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ hashFiles('package-lock.json') }}
-            npm-
+          node-version: 18
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
         env:
