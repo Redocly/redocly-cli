@@ -8,6 +8,7 @@ import {
   handleError,
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
+  cleanColors,
 } from '../utils';
 import {
   ResolvedApi,
@@ -21,6 +22,7 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
+import * as chalk from 'chalk';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -437,5 +439,15 @@ describe('checkIfRulesetExist', () => {
     } as any;
     checkIfRulesetExist(rules);
     expect(process.exit).not.toHaveBeenCalled();
+  });
+});
+
+describe('cleanColors', () => {
+  it('should remove colors from string', () => {
+    const stringWithColors = `String for ${chalk.cyan('test')}`;
+    const result = cleanColors(stringWithColors);
+
+    expect(result.length).toBeLessThan(stringWithColors.length);
+    expect(result).not.toMatch(/\x1b\[\d+m/g);
   });
 });
