@@ -22,7 +22,6 @@ import { blue, red, yellow } from 'colorette';
 import { existsSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import * as chalk from 'chalk';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -444,7 +443,7 @@ describe('checkIfRulesetExist', () => {
 
 describe('cleanColors', () => {
   it('should remove colors from string', () => {
-    const stringWithColors = `String for ${chalk.cyan('test')}`;
+    const stringWithColors = `String for ${red('test')}`;
     const result = cleanColors(stringWithColors);
 
     expect(result).not.toMatch(/\x1b\[\d+m/g);
