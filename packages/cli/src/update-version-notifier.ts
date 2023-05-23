@@ -1,6 +1,6 @@
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { existsSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, writeFileSync, readFileSync, statSync } from 'fs';
 import { compare } from 'semver';
 import fetch from 'node-fetch';
 import { cyan, green, yellow } from 'colorette';
@@ -8,19 +8,18 @@ import { cleanColors } from './utils';
 
 const { version, name } = require('../package.json');
 
-const TIMESTAMP_FILE = 'redocly-cli-check-version';
+const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;
 
-const INTERVAL_TO_CHECK = 1000; // * 60 * 60 * 12;
+const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
+const SHOULD_NOTIFY = process.env.NODE_ENV !== 'test' && !process.env.CI;
 
 export const notifyUpdateCliVersion = () => {
-  // if (!isNeedsToBeChecked()) {
-  //   return;
-  // }
-
+  if (SHOULD_NOTIFY) {
+    return;
+  }
   try {
-    // const latestVersion = await getLatestVersion(name);
-    const latestVersion = readFileSync(join(tmpdir(), 'cli-version')).toString();
+    const latestVersion = readFileSync(join(tmpdir(), VERSION_CACHE_FILE)).toString();
 
     if (isNewVersionAvailable(version, latestVersion)) {
       renderUpdateBanner(version, latestVersion);
@@ -40,12 +39,16 @@ const getLatestVersion = async (packageName: string): Promise<string> => {
 };
 
 export const cacheLatestVersion = async () => {
+  if (!isNeedsToBeCached() || !SHOULD_NOTIFY) {
+    return;
+  }
+
   try {
     const version = await getLatestVersion(name);
-    const lastCheckFile = join(tmpdir(), 'cli-version');
+    const lastCheckFile = join(tmpdir(), VERSION_CACHE_FILE);
     writeFileSync(lastCheckFile, version);
   } catch (e) {
-    console.log(e);
+    return;
   }
 };
 
@@ -80,26 +83,20 @@ const getLineWithPadding = (maxLength: number, line: string, index: number): str
   return `${extraSpaces}${yellow('║')}  ${line}${padding}  ${yellow('║')}`;
 };
 
-const isNeedsToBeChecked = (): boolean => {
+const isNeedsToBeCached = (): boolean => {
   try {
-    // Last check time is stored as a timestamp in a file in the OS temp folder
-    const lastCheckFile = join(tmpdir(), TIMESTAMP_FILE);
+    // Last version from npm is stored in a file in the OS temp folder
+    const versionFile = join(tmpdir(), VERSION_CACHE_FILE);
 
-    const now = new Date().getTime();
-
-    if (!existsSync(lastCheckFile)) {
-      writeFileSync(lastCheckFile, now.toString());
+    if (!existsSync(versionFile)) {
       return true;
     }
-    const lastCheck = Number(readFileSync(lastCheckFile).toString());
 
-    if (now - lastCheck < INTERVAL_TO_CHECK) {
-      return false;
-    }
+    const now = new Date().getTime();
+    const stats = statSync(versionFile);
+    const lastCheck = stats.mtime.getTime();
 
-    writeFileSync(lastCheckFile, now.toString());
-
-    return true;
+    return now - lastCheck >= INTERVAL_TO_CHECK;
   } catch (e) {
     return false;
   }
