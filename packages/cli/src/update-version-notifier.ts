@@ -12,10 +12,10 @@ const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;
 
 const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
-const SHOULD_NOTIFY = process.env.NODE_ENV !== 'test' && !process.env.CI;
+const SHOULD_NOT_NOTIFY = process.env.NODE_ENV === 'test' || process.env.CI || !!process.env.LAMBDA_TASK_ROOT;
 
 export const notifyUpdateCliVersion = () => {
-  if (SHOULD_NOTIFY) {
+  if (SHOULD_NOT_NOTIFY) {
     return;
   }
   try {
@@ -38,18 +38,17 @@ const getLatestVersion = async (packageName: string): Promise<string> => {
   return info.version;
 };
 
-export const cacheLatestVersion = async () => {
-  if (!isNeedsToBeCached() || !SHOULD_NOTIFY) {
+export const cacheLatestVersion = () => {
+  if (!isNeedToBeCached() || SHOULD_NOT_NOTIFY) {
     return;
   }
 
-  try {
-    const version = await getLatestVersion(name);
-    const lastCheckFile = join(tmpdir(), VERSION_CACHE_FILE);
-    writeFileSync(lastCheckFile, version);
-  } catch (e) {
-    return;
-  }
+  getLatestVersion(name)
+    .then((version) => {
+      const lastCheckFile = join(tmpdir(), VERSION_CACHE_FILE);
+      writeFileSync(lastCheckFile, version);
+    })
+    .catch(() => {});
 };
 
 const renderUpdateBanner = (current: string, latest: string) => {
@@ -83,7 +82,7 @@ const getLineWithPadding = (maxLength: number, line: string, index: number): str
   return `${extraSpaces}${yellow('║')}  ${line}${padding}  ${yellow('║')}`;
 };
 
-const isNeedsToBeCached = (): boolean => {
+const isNeedToBeCached = (): boolean => {
   try {
     // Last version from npm is stored in a file in the OS temp folder
     const versionFile = join(tmpdir(), VERSION_CACHE_FILE);
