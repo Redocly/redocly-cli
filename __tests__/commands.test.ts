@@ -206,6 +206,7 @@ describe('E2E', () => {
       'bundle-remove-unused-components-from-config',
       'bundle-lint-format',
       'max-problems-argument',
+      'resolve-refs-in-preprocessors',
     ];
     const folderPath = join(__dirname, 'bundle');
     const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -240,6 +241,27 @@ describe('E2E', () => {
       ]);
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('should not resolve $refs in preprocessors by default', () => {
+      const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'openapi.yaml',
+        '--lint',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('should resolve $refs in preprocessors with flag', () => {
+      const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'openapi.yaml',
+        '--lint',
+        '--resolve-after-transformers',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
   });
 

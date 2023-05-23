@@ -36,6 +36,7 @@ export async function bundle(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  resolveAfterTransformers?: boolean;
 }) {
   const {
     ref,
@@ -82,6 +83,7 @@ export async function bundleDocument(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
+  resolveAfterTransformers?: boolean;
 }): Promise<BundleResult> {
   const {
     document,
@@ -129,32 +131,32 @@ export async function bundleDocument(opts: {
     });
   }
 
-  let resolvedRefMap = // new Map();
-  await resolveDocument({
+  if (opts.resolveAfterTransformers) {
+    // Make preliminary pass to be able to resolve refs defined in preprocessors in the next pass.
+    const preliminaryResolvedRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: types.Root,
+      externalRefResolver,
+    });
+    const normalizedPreprocessorVisitors = normalizeVisitors(preprocessors, types);
+    walkDocument({
+      document,
+      rootType: types.Root as NormalizedNodeType,
+      normalizedVisitors: normalizedPreprocessorVisitors,
+      resolvedRefMap: preliminaryResolvedRefMap,
+      ctx,
+    });
+  }
+
+  const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
 
-  let bundleVisitor = normalizeVisitors(preprocessors, types);
-
-  walkDocument({
-    document,
-    rootType: types.Root as NormalizedNodeType,
-    normalizedVisitors: bundleVisitor,
-    resolvedRefMap,
-    ctx,
-  });
-
-  resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.Root,
-    externalRefResolver,
-  });
-
-  bundleVisitor = normalizeVisitors(
+  const bundleVisitor = normalizeVisitors(
     [
-      // ...preprocessqors,
+      ...(opts.resolveAfterTransformers ? [] : preprocessors),
       {
         severity: 'error',
         ruleId: 'bundler',
@@ -168,7 +170,7 @@ export async function bundleDocument(opts: {
         ),
       },
       ...decorators,
-    ] as any,
+    ],
     types
   );
 

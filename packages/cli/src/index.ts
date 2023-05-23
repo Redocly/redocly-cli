@@ -212,6 +212,10 @@ yargs
           array: true,
           type: 'string',
         },
+        'resolve-after-transformers': {
+          description: 'Resolve references after preprocessors.',
+          type: 'boolean',
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'lint';
@@ -293,6 +297,10 @@ yargs
           description: 'Keep absolute url references.',
           type: 'boolean',
           alias: 'k',
+        },
+        'resolve-after-transformers': {
+          description: 'Resolve references after preprocessors.',
+          type: 'boolean',
         },
       }),
     (argv) => {

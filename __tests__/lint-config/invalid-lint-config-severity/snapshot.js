@@ -10,21 +10,22 @@ Positionals:
   apis                                                     [array] [default: []]
 
 Options:
-  --version               Show version number.                         [boolean]
-  --help                  Show help.                                   [boolean]
-  --format                Use a specific output format.
+  --version                     Show version number.                   [boolean]
+  --help                        Show help.                             [boolean]
+  --format                      Use a specific output format.
           [choices: "stylish", "codeframe", "json", "checkstyle", "codeclimate",
                                                "summary"] [default: "codeframe"]
-  --max-problems          Reduce output to max N problems.
+  --max-problems                Reduce output to max N problems.
                                                          [number] [default: 100]
-  --generate-ignore-file  Generate ignore file.                        [boolean]
-  --skip-rule             Ignore certain rules.                          [array]
-  --skip-preprocessor     Ignore certain preprocessors.                  [array]
-  --lint-config           Apply severity for linting the config file.
+  --generate-ignore-file        Generate ignore file.                  [boolean]
+  --skip-rule                   Ignore certain rules.                    [array]
+  --skip-preprocessor           Ignore certain preprocessors.            [array]
+  --lint-config                 Apply severity for linting the config file.
                              [choices: "warn", "error", "off"] [default: "warn"]
-  --config                Specify path to the config file.              [string]
-  --extends               Override extends configurations (defaults or config
-                          file settings).                                [array]
+  --config                      Specify path to the config file.        [string]
+  --extends                     Override extends configurations (defaults or
+                                config file settings).                   [array]
+  --resolve-after-transformers  Resolve references after preprocessors.[boolean]
 
 Invalid values:
   Argument: lint-config, Given: "something", Choices: "warn", "error", "off"

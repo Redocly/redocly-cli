@@ -33,6 +33,7 @@ export type LintOptions = CommonOptions &
   Omit<Skips, 'skip-decorator'> & {
     'generate-ignore-file'?: boolean;
     'lint-config': RuleSeverity;
+    'resolve-after-transformers'?: boolean;
   };
 
 export async function handleLint(argv: LintOptions, version: string) {
@@ -81,6 +82,7 @@ export async function handleLint(argv: LintOptions, version: string) {
       const results = await lint({
         ref: path,
         config: resolvedConfig,
+        resolveAfterTransformers: argv['resolve-after-transformers'],
       });
 
       const fileTotals = getTotals(results);
