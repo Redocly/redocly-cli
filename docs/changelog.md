@@ -367,10 +367,10 @@ Technical release for changing the package name from `@redocly/openapi-cli` to `
 
 The product name has changed from OpenAPI CLI to **Redocly CLI**.
 
-You will notice this change reflected in all Redocly product documentation, in the npm package name (more on that in the "Deprecated" section),
+This change is reflected in all Redocly product documentation, in the npm package name (more on that in the "Deprecated" section),
 and later in the official project GitHub repository.
 
-The change also affects the CLI commands. The legacy name `openapi` will remain supported for a while, but we strongly recommend you use the new name `redocly`.
+The change also affects the CLI commands. The legacy name `openapi` is supported for a while, but we strongly recommend you use the new name `redocly`.
 (To illustrate, if you previously used `openapi lint`, now you should use `redocly lint`).
 
 If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/redocly-cli/issues).
@@ -704,7 +704,7 @@ rules:
 
 ### Features
 
-- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content will replace any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content replaces any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
 
 The following examples show how to add the decorators to the `.redocly.yaml` file:
 
@@ -839,7 +839,7 @@ lint:
 
 - Resolved an issue with transitive $ref resolution in the JSON schema validator.
 
-- If the JSON schema validator crashes, OpenAPI CLI will now report the problem in the output instead of crashing itself.
+- If the JSON schema validator crashes, OpenAPI CLI reports the problem in the output instead of crashing itself.
 
 ---
 
@@ -903,7 +903,7 @@ lint:
 
 - Improved the error messages for `kebab-case` and implemented detection of `snake_case` usage in paths.
 
-- The `join` command will no longer overwrite an existing `x-displayName` of a tag with the tag's `name` property.
+- The `join` command does not overwrite an existing `x-displayName` of a tag with the tag's `name` property.
 
 ---
 
@@ -967,7 +967,7 @@ lint:
 
 ### Fixes
 
-- Resolved a hot-reloading issue with the `preview-docs` command. It will now automatically reload the docs in the browser when you make live changes to an OpenAPI definition.
+- Resolved a hot-reloading issue with the `preview-docs` command. It now automatically reloads the docs in the browser when you make live changes to an OpenAPI definition.
 
 ---
 
@@ -1015,7 +1015,7 @@ lint:
 
 ### Features
 
-- You can now use the `--verbose` parameter with the `login` command to show a detailed error trace (if any). Detailed error output will no longer be displayed by default for this command.
+- You can now use the `--verbose` parameter with the `login` command to show a detailed error trace (if any). Detailed error output is not displayed by default for this command.
 
 ---
 
@@ -1079,7 +1079,7 @@ lint:
 
 - Resolved an issue with `assert-node-version` using the wrong path.
 
-- OpenAPI CLI will now bundle the API definition before gathering stats.
+- OpenAPI CLI bundles the API definition before gathering stats.
 
 ---
 
@@ -1125,7 +1125,7 @@ lint:
 
 ### Features
 
-- A new command called `stats` has been implemented. It provides statistics about the structure of one or more API definition files, and lets you choose the format in which the statistics will be presented.
+- A new command called `stats` has been implemented. It provides statistics about the structure of one or more API definition files, and lets you choose the format in which the statistics are presented.
 
 ### Fixes
 

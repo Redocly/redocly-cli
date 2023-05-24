@@ -20,11 +20,11 @@ npm i -g @redocly/cli@latest
 yarn global add @redocly/cli
 ```
 
-Running `redocly --version` will confirm that the installation was successful, and the currently-installed version of the tool.
+Running `redocly --version` confirms that the installation was successful, and the currently-installed version of the tool.
 
 ## Use `npx` at runtime
 
-[npx](https://docs.npmjs.com/cli/v9/commands/npx/) is npm's package runner. It will install and run a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
+[npx](https://docs.npmjs.com/cli/v9/commands/npx/) is npm's package runner. It installs and runs a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
 
 ```shell Command
 npx @redocly/cli <command> [options]

@@ -24,7 +24,7 @@ Clone the project to your local machine so you can use it with [Redocly CLI](qui
 
 ## Step 3: Work with OpenAPI
 
-By default, you will have a root directory (`openapi`) that contains a sample API definition file (`openapi.yaml`). The sample file is already split into its constituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
+By default, there is a root directory (`openapi`) that contains a sample API definition file (`openapi.yaml`). The sample file is already split into its constituent parts, which are contained in the `code_samples`, `components` and `paths` folders.
 
 ### Just starting out with API docs?
 
