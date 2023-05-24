@@ -1,13 +1,13 @@
 # Hide OpenAPI specification extensions
 
 When you want to hide internal operations and properties, you can follow our [hide internal APIs](./hide-apis.md) guide.
-However, this approach won't work if you use [specification extensions](https://redocly.com/docs/openapi-visual-reference/specification-extensions/)
+However, this approach doesn't work if you use [specification extensions](https://redocly.com/docs/openapi-visual-reference/specification-extensions/)
 in your API and want to hide their details as well. For this purpose, you need a custom decorator.
 
 ## Overview
 
-In this tutorial, we'll maintain a single source of truth (SSOT) OpenAPI definition.
-Then, we'll generate an internal and an external version of the API.
+In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI definition.
+Then generate an internal and an external version of the API.
 
 ```mermaid
 graph TD
@@ -92,7 +92,7 @@ You can name the decorators directory anything you want. Make sure you use the c
 
 ## Step 3: Configure the plugin for use
 
-To use the decorator, you will need to register your plugin in your Redocly configuration file `redocly.yaml`. Register your `plugins` and `decorators`.
+To use the decorator, register your plugin in your Redocly configuration file `redocly.yaml`. Register your `plugins` and `decorators`.
 
 ```yaml
 apis:
@@ -124,7 +124,7 @@ Make sure your `hide-openapi-extensions` looks as follows:
 
 ## Step 4: Output internal and external APIs
 
-In this step, you'll produce the two API snapshots from the single source of truth. To do this, you can use the [`bundle` command](../commands/bundle.md) on your machine.
+In this step, two API snapshots are produced from the single source of truth. To do this, you can use the [`bundle` command](../commands/bundle.md) on your machine.
 
 1. Bundle the `external@latest` API.
 

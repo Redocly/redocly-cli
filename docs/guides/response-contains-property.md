@@ -19,7 +19,7 @@ Let's get started!
 
 ## Before you begin
 
-- [Use the openapi-starter repository](../openapi-starter.md) to set up a basic project that we will use for this guide.
+- [Use the openapi-starter repository](../openapi-starter.md) to set up a basic project for use with this guide.
 - [Download the modified project files](https://gist.github.com/bandantonio/c6047e3ee70c90da013a2f8e6757edb0) and use them to
 replace the corresponding files in the `openapi` folder:
 
