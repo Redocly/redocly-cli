@@ -71,6 +71,16 @@ $ npm run benchmark
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
+### Contribute to documentation
+
+We are proud of our docs. When you open a pull request, we lint the prose using [Vale](https://vale.sh/). You can also install this tool locally and run it from the root of the project with:
+
+```
+vale docs/
+```
+
+The configuration is in `.vale.ini` in the root of the project.
+
 ## Project Structure
 
 - **`__mocks__`**: contains basic mocks for e2e tests.
