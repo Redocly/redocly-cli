@@ -36,7 +36,7 @@ It would be considered a design fail to make the path "getcustomers" or "get-cus
 If you're aiming to design RESTful resources, then consider this rule your friend.
 There is the option to `splitIntoWords` to reduce false positives.
 Imagine a world-famous rock band, the Redockers, and they have an API powering their music tour with one resource "posters".
-With the `splitIntoWords` enabled it will be identified as a resource and not trigger a false positive even though it contains the word `post`.
+With the `splitIntoWords` enabled it is identified as a resource and not trigger a false positive even though it contains the word `post`.
 
 ## Configuration
 
@@ -113,7 +113,7 @@ paths:
     $ref: ./paths/customer.yaml
 ```
 
-This last example wouldn't trigger an error because the casing won't split "get" into its own word.
+This last example wouldn't trigger an error because the casing doesn't split "get" into its own word.
 
 ## Related rules
 
