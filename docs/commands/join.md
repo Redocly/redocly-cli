@@ -20,9 +20,9 @@ With Redocly CLI, you can solve this problem by using the `join` command that ca
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 
-The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file will be overwritten.
+The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten.
 
-Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command will collect all matching files and combine them into one file.
+Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combine them into one file.
 
 ### Usage
 
@@ -140,7 +140,7 @@ These options are mutually exclusive: `without-x-tag-groups`, `prefix-tags-with-
 
 ### prefix-tags-with-info-prop
 
-If any of the input files contain the `tags` object, tags in the output file will be prefixed by the selected property from the `info` object of the corresponding input file.
+If any of the input files contain the `tags` object, tags in the output file are prefixed by the selected property from the `info` object of the corresponding input file.
 
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
@@ -162,7 +162,7 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 
 ### prefix-tags-with-filename
 
-If any of the input files contain the `tags` object, tags in the output file will be prefixed by the filename of the corresponding input file.
+If any of the input files contain the `tags` object, tags in the output file are prefixed by the filename of the corresponding input file.
 
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
@@ -184,7 +184,7 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 
 ### without-x-tag-groups
 
-If you have the same tags in multiple API definitions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property will not be created in the joined file.
+If you have the same tags in multiple API definitions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
 
 #### Usage
 
@@ -202,7 +202,7 @@ openapi.yaml: join processed in 69ms
 
 ### prefix-components-with-info-prop
 
-If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file will be prefixed by the selected property from the `info` object of the corresponding input file(s).
+If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
 
 #### Usage
 

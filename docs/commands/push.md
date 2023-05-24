@@ -14,22 +14,22 @@ This allows you to:
 Apart from uploading your API definition file, the `push` command can automatically upload other files if they are detected or referenced in the API definition:
 
 - the [Redocly configuration file](/docs/cli/configuration/index.mdx) and any configuration files referenced in the `extends` list.
-- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows will use the `@redocly/cli` version specified in `package.json`.
+- the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows uses the `@redocly/cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `theme > openapi > htmlTemplate` parameter in the Redocly configuration file.
 
 :::attention
 
-If a plugin is referenced in the Redocly configuration file, the `push` command will recursively scan the folder containing the plugin and upload all `.js`, `.json`, `.mjs` and `.ts` files.
+If a plugin is referenced in the Redocly configuration file, the `push` command recursively scans the folder containing the plugin and upload all `.js`, `.json`, `.mjs` and `.ts` files.
 
-Make sure that each plugin has all the required files in its folder, otherwise they will not be uploaded.
+Make sure that each plugin has all the required files in its folder, otherwise they are not uploaded.
 
 :::
 
-By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it will not be created automatically. For details on how to create an API, check the [Upsert an API with push](#upsert-an-api-with-push) section.
+By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it isn't created automatically. For details on how to create an API, check the [Upsert an API with push](#upsert-an-api-with-push) section.
 
 :::warning
 
-Only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources will fail with an error.
+Only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources fails with an error.
 
 :::
 
@@ -44,7 +44,7 @@ Before using the `push` command, ensure the following prerequisites are met:
 
 To authenticate to the API registry, you can use several approaches:
 
-- use the [`login` command](login.md). In this case, the command will look as follows:
+- use the [`login` command](login.md). In this case, the command is as follows:
 
   ```bash
   redocly login
@@ -80,8 +80,8 @@ redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml
 | ---------------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api              |  string  | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                                                                                                                    |
 | destination      |  string  | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information. |
-| --branch, -b     |  string  | The branch where your API definition will be pushed or upserted. Default value is `main`.                                                                                                                                                                                                                                                   |
-| --batch-id       |  string  | Specifies the ID of the CI job that the current push will be associated with. See [the Batch ID section](#batch-id) for more information.                                                                                                                                                                                                   |
+| --branch, -b     |  string  | The branch where your API definition to be pushed or upserted. Default value is `main`.                                                                                                                                                                                                                                                   |
+| --batch-id       |  string  | Specifies the ID of the CI job that the current push is associated with. See [the Batch ID section](#batch-id) for more information.                                                                                                                                                                                                   |
 | --batch-size     |  number  | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                                                                                |
 | --help           | boolean  | Help output for the command.                                                                                                                                                                                                                                                                                                                |
 | -- public        | boolean  | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                                                                                                         |
@@ -90,7 +90,6 @@ redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml
 | --upsert, -u     | boolean  | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                                                                                                                                                                |
 | --version        | boolean  | Show version number.                                                                                                                                                                                                                                                                                                                        |
 | --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                                                                                                            |
-
 ## Examples
 
 The command behaves differently depending on the options you pass to it and whether the configuration file exists in your working directory.
@@ -143,7 +142,7 @@ When using the `push` command, you would provide the API name after the [Organiz
 
 :::attention
 
-The name of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
+The name of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
 
 :::
 
@@ -160,7 +159,7 @@ When using the `push` command, you would provide the API version after the [API 
 
 :::attention
 
-The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character will result in an error, and your API will not be created.
+The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
 
 :::
 
@@ -172,7 +171,7 @@ Provide the `api` as a path to the root API definition file, and specify the org
 redocly push openapi/petstore.yaml @openapi-org/petstore-api@v1
 ```
 
-In this case, `push` will upload only the definition that was passed to the command. The configuration file is ignored.
+In this case, `push` uploads only the definition that was passed to the command. The configuration file is ignored.
 
 To push the definition to a particular branch, specify the branch name.
 
@@ -252,7 +251,7 @@ Must be used only in combination with the `--batch-size` option.
 
 ### Batch Size
 
-The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total will be performed within one batch to properly handle parallel pushes.
+The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total are performed within one batch to properly handle parallel pushes.
 
 Must be used only in combination with the `--batch-id` option. Must be an integer bigger than 1.
 

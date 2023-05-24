@@ -43,7 +43,7 @@ The `stats` command behaves differently depending on how you pass the api to it 
 redocly stats openapi/openapi.yaml
 ```
 
-In this case, `stats` will show statistics for the definition that was passed to the command. The configuration file is ignored.
+In this case, `stats` shows statistics for the definition that was passed to the command. The configuration file is ignored.
 
 #### Pass api via configuration file
 

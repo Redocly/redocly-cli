@@ -4,7 +4,7 @@
 
 With this command, you can generate documentation previews for API definitions on your local machine.
 
-If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). If you don't, you will get a preview of [Redoc community edition](https://redocly.com/redoc/).
+If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise it is a preview of [Redoc community edition](https://redocly.com/redoc/).
 
 :::success Tip
 To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.
@@ -46,7 +46,7 @@ The command behaves differently depending on how you pass the api to it, and whe
 redocly preview-docs openapi/openapi.yaml
 ```
 
-In this case, `preview-docs` will preview the definition that was passed to the command. The configuration file is ignored.
+In this case, `preview-docs` previews the definition that was passed to the command. The configuration file is ignored.
 
 #### Pass api alias
 
@@ -86,7 +86,7 @@ redocly preview-docs -p 8888 openapi/openapi.yaml
 redocly preview-docs -port 8888 openapi/openapi.yaml
 ```
 
-Both commands will start the preview on port `8888`, so you can access the docs at `http://localhost:8888`
+Both commands start the preview on port `8888`, so you can access the docs at `http://localhost:8888`
 
 ### Custom host for preview
 
@@ -102,7 +102,7 @@ redocly preview-docs -h 0.0.0.0 openapi/openapi.yaml
 redocly preview-docs --host 0.0.0.0 openapi/openapi.yaml
 ```
 
-Both commands will start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
+Both commands start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
 
 ### Skip preprocessor or decorator
 
