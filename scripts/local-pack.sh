@@ -7,5 +7,3 @@ jq '.dependencies."@redocly/openapi-core" = $packagefile' ./packages/cli/package
 
 cd packages/cli && cli=$(npm pack | tail -n 1) && mv $cli ../../redocly-cli.tgz
 
-
-
