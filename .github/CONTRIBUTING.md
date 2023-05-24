@@ -11,7 +11,7 @@ Hi! We're really excited that you are interested in contributing to Redocly CLI.
 
 ## Issue Reporting Guidelines
 
-- Before opening a new issue, try to make sure the same problem or idea hasn't already been reported. You can do that by going to the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem. It helps us notice that more people have the same issue or use-case, and reduces the chance of getting your issue marked as a duplicate. Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
+- Before opening a new issue, try to make sure the same problem or idea hasn't already been reported. You can do that on the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem. It helps us notice that more people have the same issue or use-case, and reduces the chance of getting your issue marked as a duplicate. Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
 
 - The best way to get your bug fixed is to provide a (reduced) test case. This means listing and explaining the steps we should take to try and hit the same problem you're having. It helps us understand in which conditions the issue appears, and gives us a better idea of what may be causing it.
 
@@ -28,7 +28,7 @@ Before submitting a pull request, please make sure the following is done:
 
 ## Development Setup
 
-You will need [Node.js](http://nodejs.org) at `v12.0.0+`.
+[Node.js](http://nodejs.org) at `v12.0.0+` is required.
 
 After forking the repo, run:
 
