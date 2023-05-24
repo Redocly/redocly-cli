@@ -1,0 +1,38 @@
+name: Performance Benchmark
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  hyperfine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm ci
+      - name: Install External
+        run: npm i -g hyperfine @redocly/cli@latest
+      - name: Prepare
+        run: |
+          jq '.bin = {"redocly-next":"bin/cli.js"} | .name = "@redocly/cli-next"' packages/cli/package.json > __tmp__.json
+          mv __tmp__.json packages/cli/package.json
+          cat packages/cli/package.json
+          npm run pack:prepare
+          npm i -g redocly-cli.tgz
+      - run: redocly-next --version
+      - run: redocly --version
+      - name: Run Benchmark
+        run: hyperfine -i --warmup 3 'redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
+        env:
+          CI: true
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: benchmark_check.md
+          comment_tag: hyperfine-comparison
