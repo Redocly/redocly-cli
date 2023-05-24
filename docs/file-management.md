@@ -8,7 +8,7 @@ Every OpenAPI file is different, but most of them are lengthy. It is common to s
 
 ## One large file to many small ones
 
-OpenAPI is designed with support for `$ref` syntax, allowing parts of an API description to be described elsewhere, and reused between multiple descriptions. Redocly CLI takes advantage of this feature and provides the [`split`](./commands/split.md) to break your specification into mulitple files.
+OpenAPI is designed with support for `$ref` syntax, allowing parts of an API description to be described elsewhere, and reused between multiple descriptions. Redocly CLI takes advantage of this feature and provides the [`split`](./commands/split.md) to break your specification into multiple files.
 
 If you have one large single file, split it up like this:
 
@@ -47,7 +47,7 @@ Pass `--lint` to the bundle command to have Redocly CLI check your API meets the
 This feature is experimental, and supports OpenAPI 3.x only
 :::
 
-When you have mulitple APIs but want to publish a single definition file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
+When you have multiple APIs but want to publish a single definition file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
 
 Use the command to combine files like this:
 
