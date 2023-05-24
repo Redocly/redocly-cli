@@ -373,7 +373,7 @@ and later in the official project GitHub repository.
 The change also affects the CLI commands. The legacy name `openapi` will remain supported for a while, but we strongly recommend you use the new name `redocly`.
 (To illustrate, if you previously used `openapi lint`, now you should use `redocly lint`).
 
-If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/openapi-cli/issues).
+If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/redocly-cli/issues).
 
 :::
 
