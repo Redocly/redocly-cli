@@ -74,6 +74,18 @@ There are some other scripts available in the `scripts` section of the `package.
 
 ## Contribute documentation
 
+### Prose linting
+
+We are proud of our docs. When you open a pull request, we lint the prose using [Vale](https://vale.sh/). You can also install this tool locally and run it from the root of the project with:
+
+```
+vale docs/
+```
+
+The configuration is in `.vale.ini` in the root of the project.
+
+### Markdown link checking
+
 We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder. This tool runs automatically on every pull request, but you can also run it locally if you want to. Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
 
 ```
