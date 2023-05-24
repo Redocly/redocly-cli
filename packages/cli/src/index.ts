@@ -228,7 +228,8 @@ yargs
           type: 'string',
         },
         'resolve-after-transformers': {
-          description: 'Resolve references after preprocessors.',
+          description:
+            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
           type: 'boolean',
         },
       }),
@@ -314,7 +315,8 @@ yargs
           alias: 'k',
         },
         'resolve-after-transformers': {
-          description: 'Resolve references after preprocessors.',
+          description:
+            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
           type: 'boolean',
         },
       }),

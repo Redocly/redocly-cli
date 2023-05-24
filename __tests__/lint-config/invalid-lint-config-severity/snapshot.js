@@ -25,7 +25,9 @@ Options:
   --config                      Specify path to the config file.        [string]
   --extends                     Override extends configurations (defaults or
                                 config file settings).                   [array]
-  --resolve-after-transformers  Resolve references after preprocessors.[boolean]
+  --resolve-after-transformers  Resolve references after preprocessors. Please
+                                note that this option could potentially break
+                                errors reporting.                      [boolean]
 
 Invalid values:
   Argument: lint-config, Given: "something", Choices: "warn", "error", "off"
