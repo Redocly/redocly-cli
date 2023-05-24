@@ -1,13 +1,10 @@
 apis:
   main:
     root: ./openapi.yaml
-
-extends: 
-  -  recommended
-plugins: 
-  -  ./plugin.js
-# rules: 
-#   no-unresolved-refs: off
+extends:
+  - recommended
+plugins:
+  - ./plugin.js
 preprocessors:
   plugin/conventional-response:
     codes:

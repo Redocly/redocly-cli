@@ -93,7 +93,7 @@ export async function lintDocument(opts: {
       document,
       rootType: types.Root,
       normalizedVisitors: normalizedPreprocessorVisitors,
-      resolvedRefMap :preliminaryResolvedRefMap,
+      resolvedRefMap: preliminaryResolvedRefMap,
       ctx,
     });
   }
@@ -104,7 +104,10 @@ export async function lintDocument(opts: {
     externalRefResolver,
   });
 
-  const normalizedVisitors = normalizeVisitors([...(opts.resolveAfterTransformers ? [] : preprocessors), ...regularRules], types); 
+  const normalizedVisitors = normalizeVisitors(
+    [...(opts.resolveAfterTransformers ? [] : preprocessors), ...regularRules],
+    types
+  );
 
   walkDocument({
     document,

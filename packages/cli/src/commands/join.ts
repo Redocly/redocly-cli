@@ -58,6 +58,7 @@ type JoinArgv = {
   'prefix-components-with-info-prop'?: string;
   'without-x-tag-groups'?: boolean;
   output?: string;
+  'resolve-after-transformers'?: boolean;
 };
 
 export async function handleJoin(argv: JoinArgv, packageVersion: string) {
@@ -119,6 +120,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
         document,
         config: config.styleguide,
         externalRefResolver,
+        resolveAfterTransformers: argv['resolve-after-transformers'],
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
       })
@@ -155,7 +157,7 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
 
   if (argv.lint) {
     for (const document of documents) {
-      await validateApi(document, config.styleguide, externalRefResolver, packageVersion);
+      await validateApi(document, config.styleguide, externalRefResolver, packageVersion, argv);
     }
   }
 
@@ -762,10 +764,16 @@ async function validateApi(
   document: Document,
   config: StyleguideConfig,
   externalRefResolver: BaseResolver,
-  packageVersion: string
+  packageVersion: string,
+  argv: JoinArgv
 ) {
   try {
-    const results = await lintDocument({ document, config, externalRefResolver });
+    const results = await lintDocument({
+      document,
+      config,
+      externalRefResolver,
+      resolveAfterTransformers: argv['resolve-after-transformers'],
+    });
     const fileTotals = getTotals(results);
     formatProblems(results, { format: 'stylish', totals: fileTotals, version: packageVersion });
     printLintTotals(fileTotals, 2);

@@ -20,6 +20,7 @@ export async function previewDocs(
     config?: string;
     api?: string;
     force?: boolean;
+    'resolve-after-transformers'?: boolean;
   } & Omit<Skips, 'skip-rule'>
 ) {
   let isAuthorizedWithRedocly = false;
@@ -46,6 +47,7 @@ export async function previewDocs(
       } = await bundle({
         ref: api.path,
         config,
+        resolveAfterTransformers: argv['resolve-after-transformers'],
       });
       const removed = [...deps].filter((x) => !fileDependencies.has(x));
       watcher.unwatch(removed);

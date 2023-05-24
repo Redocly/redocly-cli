@@ -6,7 +6,6 @@ const preprocessors = {
     'conventional-response': (config) => {
       return {
         async Operation(operation, ctx) {
-
           const codes = {};
           for (const i in config.codes) {
             codes[i] = { $ref: path.join(__dirname, config.codes[i]) };
