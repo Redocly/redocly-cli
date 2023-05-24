@@ -8,6 +8,7 @@ import {
   handleError,
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
+  cleanColors,
 } from '../utils';
 import {
   ResolvedApi,
@@ -437,5 +438,14 @@ describe('checkIfRulesetExist', () => {
     } as any;
     checkIfRulesetExist(rules);
     expect(process.exit).not.toHaveBeenCalled();
+  });
+});
+
+describe('cleanColors', () => {
+  it('should remove colors from string', () => {
+    const stringWithColors = `String for ${red('test')}`;
+    const result = cleanColors(stringWithColors);
+
+    expect(result).not.toMatch(/\x1b\[\d+m/g);
   });
 });
