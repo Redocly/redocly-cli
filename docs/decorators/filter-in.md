@@ -10,7 +10,7 @@ Giant monolithic API docs can overwhelm anyone. By filtering what is most releva
 
 |Option|Type|Description|
 |---|---|---|
-|property|string|**REQUIRED.** The property name used for evaluation. It will attempt to match the values.|
+|property|string|**REQUIRED.** The property name used for evaluation. It attempts to match the values.|
 |value|[string]|**REQUIRED.** List of values used for the matching.|
 |matchStrategy|string|Possible values: `all`, `any`. If `all` it needs to match all of the values supplied. If `any` it needs to match only one of the values supplied. Default value: `any`.|
 
