@@ -1,0 +1,4 @@
+# List of links which will be ignored
+ignore-links=["../*"]
+# Path to the root folder used to resolve all relative paths
+root-dir="./docs"
