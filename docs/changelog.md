@@ -5,6 +5,23 @@ toc:
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.127 (2023-05-25)
+
+### Features
+
+- Inform the user if a new version is available.
+
+### Fixes
+
+- Improved messages on wrong schemas.
+- Fixed components duplication and self-referencing when bundling.
+- Fixed typos.
+
+### Changes
+
+- Adjusted CLI arguments behavior for array-like options: it's required to specify the option multiple times to add multiple values. For example, `--skip-rule rule1 --skip-rule rule2` instead of `--skip-rule rule1 rule2`.
+
 ## 1.0.0-beta.126 (2023-05-10)
 
 ### Features
