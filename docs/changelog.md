@@ -6,7 +6,7 @@ toc:
 # Redocly CLI changelog
 
 
-## 1.0.0-beta.127 (2023-05-?)
+## 1.0.0-beta.127 (2023-05-25)
 
 ### Features
 
@@ -16,6 +16,7 @@ toc:
 
 - Improved messages on wrong schemas.
 - Fixed components duplication and self-referencing when bundling.
+- Fixed typos.
 
 ### Changes
 
