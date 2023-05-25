@@ -240,8 +240,7 @@ export function handleError(e: Error, ref?: string) {
       return process.exit(1);
     }
     case SyntaxError:
-      process.stderr.write(red(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}\n`));
-      return process.exit(1);
+      return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
       process.stderr.write(
         red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)

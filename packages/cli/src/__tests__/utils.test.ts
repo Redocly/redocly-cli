@@ -407,7 +407,7 @@ describe('handleErrors', () => {
     }
     expect(process.exit).toHaveBeenCalledWith(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
-      'Syntax error: Unexpected identifier test stack\n'
+      'Syntax error: Unexpected identifier test stack\n\n'
     );
   });
 
