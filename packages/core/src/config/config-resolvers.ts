@@ -421,10 +421,10 @@ function groupStyleguideAssertionRules({
       typeof rule === 'object' &&
       rule !== null
     ) {
-        if (ruleKey.startsWith('assert/')) {
-          logger.warn(
-            `The 'assert/' syntax in ${ruleKey} is deprecated. Update your configuration to use 'rule/' instead. Examples and more information: https://redocly.com/docs/cli/rules/configurable-rules/\n`
-          );
+      if (ruleKey.startsWith('assert/')) {
+        logger.warn(
+          `The 'assert/' syntax in ${ruleKey} is deprecated. Update your configuration to use 'rule/' instead. Examples and more information: https://redocly.com/docs/cli/rules/configurable-rules/\n`
+        );
       }
 
       const assertion = rule as RawAssertion;
