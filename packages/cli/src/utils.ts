@@ -225,7 +225,7 @@ export function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-export function handleError(e: Error, ref: string) {
+export function handleError(e: Error, ref?: string) {
   switch (e.constructor) {
     case ResolveError:
       return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
@@ -239,9 +239,14 @@ export function handleError(e: Error, ref: string) {
       );
       return process.exit(1);
     }
+    case SyntaxError:
+      process.stderr.write(red(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}\n`));
+      return process.exit(1);
     default: {
-      process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
-      process.exitCode = 1;
+      process.stderr.write(
+        red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
+      );
+      process.exit(1);
       throw e;
     }
   }
@@ -392,7 +397,7 @@ export async function loadConfigAndHandleErrors(
   try {
     return await loadConfig(options);
   } catch (e) {
-    exitWithError(e.message);
+    handleError(e);
     return new Config({ apis: {}, styleguide: {} });
   }
 }

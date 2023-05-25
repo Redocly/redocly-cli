@@ -89,6 +89,9 @@ export function resolvePlugins(
             __non_webpack_require__(absoltePluginPath)
           : require(absoltePluginPath);
       } catch (e) {
+        if (e instanceof SyntaxError) {
+          throw e;
+        }
         throw new Error(`Failed to load plugin "${plugin}". Please provide a valid path`);
       }
     }

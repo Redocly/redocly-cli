@@ -16,7 +16,6 @@ import {
   isAbsoluteUrl,
   ResolveError,
   YamlParseError,
-  Oas3Definition,
 } from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
 import { existsSync } from 'fs';
@@ -395,6 +394,20 @@ describe('handleErrors', () => {
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Detected circular reference which can't be converted to JSON.\n` +
         `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
+    );
+  });
+
+  it('should handle SyntaxError', () => {
+    const testError = new SyntaxError('Unexpected identifier');
+    testError.stack = 'test stack';
+    try {
+      handleError(testError);
+    } catch (e) {
+      expect(e).toEqual(testError);
+    }
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      'Syntax error: Unexpected identifier test stack\n'
     );
   });
 
