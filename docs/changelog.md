@@ -10,7 +10,7 @@ toc:
 
 ### Features
 
-- Display an update call-to-action if a new version is available.
+- Inform the user if a new version is available.
 
 ### Fixes
 
