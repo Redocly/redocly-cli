@@ -401,7 +401,7 @@ describe('handleErrors', () => {
     const testError = new SyntaxError('Unexpected identifier');
     testError.stack = 'test stack';
     try {
-      handleError(testError);
+      handleError(testError, ref);
     } catch (e) {
       expect(e).toEqual(testError);
     }
