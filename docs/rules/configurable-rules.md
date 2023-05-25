@@ -11,18 +11,18 @@ Configure flexible rules to meet any situation not covered by the [built-in rule
 
 ```yaml
 rules:
-  assert/assertion-name:
+  rule/my-rule-name:
     ...
-  assert/one-more-assertion-name:
+  rule/one-more-rule-name:
     ...
 ```
 
-A configurable rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in an assertion, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+A configurable rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in a configurable rule, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Pattern Property | Type | Description
 -- | -- | --
-assert/{string} | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `assert/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one assertion may be defined, and any configurable rule may have multiple assertions.
+rule/{string} | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `rule/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions.
 
 ## Configurable rule object
 
@@ -87,7 +87,7 @@ Without the `where`, the assertion would evaluate every `MediaTypesMap` property
 To restrict the evaluation, use the `where` feature to limit what is evaluated.
 
 ```yaml
-assert/no-pdf-in-ok-response:
+rule/no-pdf-in-ok-response:
   where:
     - subject:
         type: Operation
@@ -109,11 +109,11 @@ assert/no-pdf-in-ok-response:
       - 'application/pdf'
 ```
 
-Where enables complex assertions based on sibling values.
+The `where` section enables complex assertions based on sibling values.
 The following example asserts that the `limit` parameter must have a schema with `type: integer`.
 
 ```yaml
-assert/limit-is-integer:
+rule/limit-is-integer:
   subject:
     type: Schema
     property: type
@@ -145,7 +145,7 @@ The following example shows how to configure those assertions:
 
 ```yaml
 rules:
-  assert/tag-description:
+  rule/tag-description:
     subject:
       type: Tag
       property: description
@@ -154,7 +154,7 @@ rules:
       minLength: 30
       pattern: /\.$/
     message: Tag description must be at least 30 characters and end with a full stop.
-  assert/operation-description:
+  rule/operation-description:
     subject:
       type: Operation
       property: description
@@ -164,7 +164,7 @@ rules:
       pattern: /\.$/
     message: Operation description must be at least 30 characters and end with a full stop.
     severity: warn
-  assert/info-description:
+  rule/info-description:
     subject:
       type: Info
       property: description
@@ -173,7 +173,7 @@ rules:
       minLength: 30
       pattern: /\.$/
     message: Info description must be at least 30 characters and end with a full stop.
-  assert/operation-summary:
+  rule/operation-summary:
     subject:
       type: Operation
       property: summary
@@ -212,7 +212,7 @@ location | `Location Object` | Location in the source document. See [Location Ob
 
 `.redocly.yaml`
 ```yaml
-assert/operation-summary-check:
+rule/operation-summary-check:
   subject:
     type: Operation
     property: summary
@@ -273,7 +273,7 @@ The following example asserts the casing style is `PascalCase` for `NamedExample
 
 ```yaml
 rules:
-  assert/named-examples-pascal-case:
+  rule/named-examples-pascal-case:
     subject:
       type: NamedExamples
     assertions:
@@ -295,7 +295,7 @@ The following example asserts that only `application/json` can be used as a key 
 
 ```yaml keys
 rules:
-  assert/media-type-map-application-json:
+  rule/media-type-map-application-json:
     subject:
       type: MediaTypesMap
     assertions:
@@ -309,7 +309,7 @@ The following example asserts that `x-codeSamples` is defined.
 
 ```yaml
 rules:
-  assert/x-code-samples-defined:
+  rule/x-code-samples-defined:
     subject:
       type: Operation
       property: x-codeSamples
@@ -321,7 +321,7 @@ The following example asserts that `x-code-samples` is undefined.
 
 ```yaml
 rules:
-  assert/x-code-samples-undefined:
+  rule/x-code-samples-undefined:
     subject:
       type: Operation
       property: x-code-samples
@@ -337,7 +337,7 @@ The following example asserts that `x-code-samples` and `x-internal` are not def
 
 ```yaml
 rules:
-  assert/no-x-code-samples-and-x-internal:
+  rule/no-x-code-samples-and-x-internal:
     subject:
       type: Operation
     assertions:
@@ -353,7 +353,7 @@ It has the same effect as the `const` assertion.
 
 ```yaml keys
 rules:
-  assert/media-type-map-application-json:
+  rule/media-type-map-application-json:
     subject:
       type: MediaTypesMap
     assertions:
@@ -366,7 +366,7 @@ The following example asserts that the operation summary must match one of the l
 
 ```yaml values
 rules:
-  assert/operation-summary-match:
+  rule/operation-summary-match:
     subject:
       type: Operation
       property: summary
@@ -386,7 +386,7 @@ The following example asserts that the maximum length of each operation summary 
 
 ```yaml
 rules:
-  assert/operation-summary-max-length:
+  rule/operation-summary-max-length:
     subject:
       type: Operation
       property: summary
@@ -401,7 +401,7 @@ The following example asserts that the minimum length of each operation summary 
 
 ```yaml
 rules:
-  assert/operation-summary-min-length:
+  rule/operation-summary-min-length:
     subject:
       type: Operation
       property: summary
@@ -417,7 +417,7 @@ This assertion evaluates only property keys for the node, but not property value
 
 ```yaml
 rules:
-  assert/operation-no-both-description-and-external-docs:
+  rule/operation-no-both-description-and-external-docs:
     subject:
       type: Operation
     assertions:
@@ -433,7 +433,7 @@ This assertion evaluates only property keys for the node, but not property value
 
 ```yaml Schema example
 rules:
-  assert/schema-properties-both-created-at-and-updated-at:
+  rule/schema-properties-both-created-at-and-updated-at:
     subject:
       type: SchemaProperties
     assertions:
@@ -446,7 +446,7 @@ The following example asserts that when `PUT` requests have either `200` or `201
 
 ```yaml Response example
 rules:
-  assert/put-200-and-201:
+  rule/put-200-and-201:
     subject:
       type: Responses
     where:
@@ -469,7 +469,7 @@ The following example asserts that the operation summary is not empty.
 
 ```yaml
 rules:
-  assert/operation-summary-non-empty:
+  rule/operation-summary-non-empty:
     subject:
       type: Operation
       property: summary
@@ -483,7 +483,7 @@ The following example asserts that the operation summary doesn't start with "The
 
 ```yaml
 rules:
-  assert/operation-summary-contains-test:
+  rule/operation-summary-contains-test:
     subject:
       type: Operation
       property: The summary
@@ -497,7 +497,7 @@ The following example asserts that the operation summary contains "test".
 
 ```yaml
 rules:
-  assert/operation-summary-contains-test:
+  rule/operation-summary-contains-test:
     subject:
       type: Operation
       property: summary
@@ -511,7 +511,7 @@ The following example asserts that schema in MediaType contains a Reference obje
 
 ```yaml
 rules:
-  assert/mediatype-schema-has-ref:
+  rule/mediatype-schema-has-ref:
     subject:
       type: MediaType
       property: schema
@@ -523,7 +523,7 @@ Also, you can specify a Regular Expression to check if the reference object conf
 
 ```yaml
 rules:
-  assert/mediatype-schema-ref-pattern:
+  rule/mediatype-schema-ref-pattern:
     subject:
       type: MediaType
       property: schema
@@ -540,7 +540,7 @@ The difference between `mutuallyRequired` is that neither `200` and `201` need t
 
 ```yaml Response example
 rules:
-  assert/put-200-and-201:
+  rule/put-200-and-201:
     subject:
       type: Responses
     where:
@@ -564,7 +564,7 @@ This assertion evaluates only property keys for the node, but not property value
 
 ```yaml Response example
 rules:
-  assert/operation-no-both-description-and-external-docs:
+  rule/operation-no-both-description-and-external-docs:
     subject:
       type: Operation
     assertions:
@@ -587,7 +587,7 @@ The following example asserts that the maximum length of each description is 20 
 
 ```yaml
 rules:
-  assert/description-max-length:
+  rule/description-max-length:
     subject:
       type: any
       property: description
@@ -602,7 +602,7 @@ The following example asserts that every path item has a GET operation defined.
 
 ```yaml
 rules:
-  assert/path-item-get-operation-defined:
+  rule/path-item-get-operation-defined:
     subject:
       type: PathItem
       property: get
@@ -615,7 +615,7 @@ Notice we don't need to include `property` in this approach.
 
 ```yaml
 rules:
-  assert/path-item-operation-required:
+  rule/path-item-operation-required:
     subject:
       type: PathItem
     assertions:
@@ -628,7 +628,7 @@ The following example asserts that Tags have both name and description defined.
 
 ```yaml
 rules:
-  assert/tag-name-and-desc-defined:
+  rule/tag-name-and-desc-defined:
     subject:
       type: Tag
       property:
@@ -643,7 +643,7 @@ Another way to compose that rule is to require the subject keys:
 
 ```yaml
 rules:
-  assert/tag-name-and-desc-required:
+  rule/tag-name-and-desc-required:
     subject:
       type: Tag
     assertions:
