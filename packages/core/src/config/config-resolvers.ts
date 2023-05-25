@@ -416,6 +416,16 @@ function groupStyleguideAssertionRules({
   for (const [ruleKey, rule] of Object.entries(rules)) {
     // keep the old assert/ syntax as an alias
     if (
+      ( ruleKey.startsWith('assert/')) &&
+      typeof rule === 'object' &&
+      rule !== null
+    ) {
+    logger.warn(
+      `The 'assert/' syntax in ${ruleKey} is deprecated. Update your configuration to use 'rule/' instead. Examples and more information: https://redocly.com/docs/cli/rules/configurable-rules/\n`
+  );
+    }
+
+    if (
       (ruleKey.startsWith('rule/') || ruleKey.startsWith('assert/')) &&
       typeof rule === 'object' &&
       rule !== null
