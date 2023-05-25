@@ -62,8 +62,8 @@ To authenticate to the API registry, you can use several approaches:
   Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
 
   - [Travis CI documentation](https://docs.travis-ci.com/user/environment-variables/)
-  - [CircleCI documentation](https://circleci.com/docs/2.0/env-vars/)
-  - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
+  - [CircleCI documentation](https://circleci.com/docs/env-vars/)
+  - [GitHub Actions documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
   - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
 
 ## Usage
