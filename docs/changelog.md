@@ -5,6 +5,23 @@ toc:
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.127 (2023-05-25)
+
+### Features
+
+- Inform the user if a new version is available.
+
+### Fixes
+
+- Improved messages on wrong schemas.
+- Fixed components duplication and self-referencing when bundling.
+- Fixed typos.
+
+### Changes
+
+- Adjusted CLI arguments behavior for array-like options: it's required to specify the option multiple times to add multiple values. For example, `--skip-rule rule1 --skip-rule rule2` instead of `--skip-rule rule1 rule2`.
+
 ## 1.0.0-beta.126 (2023-05-10)
 
 ### Features
@@ -356,7 +373,7 @@ and later in the official project GitHub repository.
 The change also affects the CLI commands. The legacy name `openapi` will remain supported for a while, but we strongly recommend you use the new name `redocly`.
 (To illustrate, if you previously used `openapi lint`, now you should use `redocly lint`).
 
-If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/openapi-cli/issues).
+If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/redocly-cli/issues).
 
 :::
 

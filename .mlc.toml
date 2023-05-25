@@ -1,0 +1,7 @@
+# Ignore these links, we can't check them from this subproject
+ignore-links=["../../*", "/docs/*",
+	# skip this, it redirects to user login
+	"https://github.com/Redocly/redocly-cli/issues/*"
+]
+# Path to the root folder used to resolve all relative paths
+root-dir="./docs"
