@@ -225,7 +225,7 @@ export function pluralize(label: string, num: number) {
   return num === 1 ? `${label}` : `${label}s`;
 }
 
-export function handleError(e: Error, ref?: string) {
+export function handleError(e: Error, ref: string) {
   switch (e.constructor) {
     case ResolveError:
       return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
@@ -396,7 +396,7 @@ export async function loadConfigAndHandleErrors(
   try {
     return await loadConfig(options);
   } catch (e) {
-    handleError(e);
+    handleError(e, '');
     return new Config({ apis: {}, styleguide: {} });
   }
 }
