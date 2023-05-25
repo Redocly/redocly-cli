@@ -804,7 +804,7 @@ lint:
 
 ### Features
 
-- Updated and improved the [introductory content](index.md) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
+- Updated and improved the [introductory content](index.mdx) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
 
 - Implemented improvements to the internal CD process.
 
