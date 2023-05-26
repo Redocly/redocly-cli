@@ -3,10 +3,10 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/description-min-length:
-    subject: 
+  rule/description-min-length:
+    subject:
       type: Info
       property: description
     message: Info description should be minimum 20 chars length
-    assertions: 
+    assertions:
       minLength: 20

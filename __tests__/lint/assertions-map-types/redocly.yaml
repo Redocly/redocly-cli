@@ -3,33 +3,33 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/headerMap:
-    subject: 
-      type: HeadersMap 
+  rule/headerMap:
+    subject:
+      type: HeadersMap
       property: x-next
     assertions:
       defined: false
 
-  assert/encodingMap:
-    subject: 
+  rule/encodingMap:
+    subject:
       type: EncodingMap
     assertions:
       casing: kebab-case
 
-  assert/linkMap:
-    subject: 
+  rule/linkMap:
+    subject:
       type: LinksMap
-    assertions: 
+    assertions:
       pattern: /^pet/
 
-  assert/serverVariableMap:
-    subject: 
+  rule/serverVariableMap:
+    subject:
       type: ServerVariablesMap
-    assertions: 
+    assertions:
       casing: flatcase
 
-  assert/callbackMap:
-    subject: 
+  rule/callbackMap:
+    subject:
       type: CallbacksMap
     assertions:
       casing: snake_case

@@ -3,14 +3,14 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/path-item-suggest:
+  rule/path-item-suggest:
     where:
       - subject:
           type: PathItem
           property: get
         assertions:
           defined: true
-    subject: 
+    subject:
       type: Operation
       property: summary
     message: Operation summary should have at least 10 chars length

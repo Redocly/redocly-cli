@@ -3,20 +3,20 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/ref-required:
+  rule/ref-required:
     where:
       - subject:
           type: Response
         assertions:
           defined: true
-    subject: 
+    subject:
       type: MediaType
       property: schema
     message: Response MediaType schema should have a ref
     assertions:
       ref: true
-  assert/ref-required-no-property:
-    subject: 
+  rule/ref-required-no-property:
+    subject:
       type: PathItem
     message: PathItems should have refs
     assertions:

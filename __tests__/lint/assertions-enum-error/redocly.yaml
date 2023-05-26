@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/operation-summary-value:
+  rule/operation-summary-value:
     subject:
       type: Operation
       property: summary
@@ -13,5 +13,5 @@ rules:
       - test example
     assertions:
       enum:
-      - test summary
-      - test example
+        - test summary
+        - test example

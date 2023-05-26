@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 rules:
-  assert/no-description-future-past:
+  rule/no-description-future-past:
     subject:
       type: any
       property: description

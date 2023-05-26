@@ -3,8 +3,8 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/operation-get:
-    subject: 
+  rule/operation-get:
+    subject:
       type: Operation
       filterInParentKeys: [get]
       property: operationId
@@ -13,17 +13,16 @@ rules:
       casing: camelCase
     message: Operation id for get operation should be camelCase
 
-   
-  assert/operation-id-camel-case:
+  rule/operation-id-camel-case:
     subject:
       type: Operation
       property: operationId
     message: Operation id should be camelCase
-    assertions: 
+    assertions:
       casing: camelCase
 
-  assert/camel-case-on-value:
-    subject: 
+  rule/camel-case-on-value:
+    subject:
       type: NamedParameters
     assertions:
       casing: camelCase

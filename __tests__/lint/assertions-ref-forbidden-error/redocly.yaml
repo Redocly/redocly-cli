@@ -3,21 +3,21 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/ref-forbidden:
+  rule/ref-forbidden:
     where:
       - subject:
           type: Response
-        assertions: 
+        assertions:
           defined: true
     subject:
       type: MediaType
       property: schema
     message: Response MediaType schema should NOT have a ref
-    assertions: 
+    assertions:
       ref: false
-  assert/ref-forbidden-no-property:
-    subject: 
+  rule/ref-forbidden-no-property:
+    subject:
       type: PathItem
     message: PathItems should NOT should have a ref
-    assertions: 
+    assertions:
       ref: false

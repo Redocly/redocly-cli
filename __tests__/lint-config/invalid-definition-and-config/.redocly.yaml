@@ -5,5 +5,5 @@ apis:
 rules:
   context:
 
-extends: 
+extends:
   - recommended

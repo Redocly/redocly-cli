@@ -4,20 +4,20 @@ apis:
 
 extends: []
 rules:
-  assert/TagList:
-    subject: 
-      type: TagList 
+  rule/TagList:
+    subject:
+      type: TagList
     assertions:
       defined: false
 
-  assert/ServerList:
-    subject: 
+  rule/ServerList:
+    subject:
       type: ServerList
     assertions:
       maxLength: 0
 
-  assert/SecurityRequirementList:
-    subject: 
+  rule/SecurityRequirementList:
+    subject:
       type: SecurityRequirementList
-    assertions: 
+    assertions:
       minLength: 1

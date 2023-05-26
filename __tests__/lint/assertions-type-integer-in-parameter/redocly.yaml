@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 rules:
-  assert/no-type-integer-in-parameter:
+  rule/no-type-integer-in-parameter:
     where:
       - subject:
           type: Parameter
@@ -11,7 +11,7 @@ rules:
           defined: true
           enum:
             - en-US
-    subject: 
+    subject:
       type: Schema
       property: type
     assertions:

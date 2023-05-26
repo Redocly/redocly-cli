@@ -3,8 +3,8 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/tags-max-length:
-    subject: 
+  rule/tags-max-length:
+    subject:
       type: Operation
       property: tags
     message: Operation tags should have maximum 2 items

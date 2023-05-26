@@ -1,8 +1,8 @@
 apis:
   api@legacy:
     root: ./openapi.yaml
-    lint: 
-      rules: 
+    lint:
+      rules:
         operation-4xx-response: error
 
 lint:
