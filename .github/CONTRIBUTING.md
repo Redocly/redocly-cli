@@ -71,6 +71,16 @@ $ npm run benchmark
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
+## Contribute documentation
+
+We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder. This tool runs automatically on every pull request, but you can also run it locally if you want to. Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
+
+```
+mlc docs/
+```
+
+It only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors, so take care when renaming pages or titles.
+
 ## Project Structure
 
 - **`__mocks__`**: contains basic mocks for e2e tests.
