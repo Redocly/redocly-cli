@@ -4,7 +4,7 @@
 
 With this command, you can generate documentation previews for API definitions on your local machine.
 
-If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redocly.com/reference-docs). If you don't, you will get a preview of [Redoc community edition](https://redocly.com/redoc).
+If you have a license key or API key, you will get a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). If you don't, you will get a preview of [Redoc community edition](https://redocly.com/redoc/).
 
 :::success Tip
 To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.
@@ -21,18 +21,18 @@ redocly preview-docs <api> --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.
---config | string | Specify path to the [configuration file](#custom-configuration-file).
---force, -f | boolean | Generate preview output even when errors occur.
---help | boolean | Show help.
---host, -h | string | Specify the host where the documentation preview can be accessed. The default value is `127.0.0.1`.
---port, -p | integer | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system. The default value is port `8080`.
---skip-decorator | array | Ignore [certain decorators](#skip-preprocessor-or-decorator).
---skip-preprocessor | array | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).
---use-community-edition | boolean | Force using Redoc Community Edition for docs preview.
---version | boolean | Show version number.
+| Option                  | Type     | Description                                                                                                                                                                                  |
+| ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                     | string   | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                                   |
+| --config                | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                                        |
+| --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                                              |
+| --help                  | boolean  | Show help.                                                                                                                                                                                   |
+| --host, -h              | string   | Specify the host where the documentation preview can be accessed. The default value is `127.0.0.1`.                                                                                          |
+| --port, -p              | integer  | Specify the port where the documentation preview can be accessed. You can set any port as long as it is not used by applications in your operating system. The default value is port `8080`. |
+| --skip-decorator        | [string] | Ignore [certain decorators](#skip-preprocessor-or-decorator).                                                                                                                                |
+| --skip-preprocessor     | [string] | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).                                                                                                                             |
+| --use-community-edition | boolean  | Force using Redoc Community Edition for docs preview.                                                                                                                                        |
+| --version               | boolean  | Show version number.                                                                                                                                                                         |
 
 ## Examples
 
@@ -104,15 +104,14 @@ redocly preview-docs --host 0.0.0.0 openapi/openapi.yaml
 
 Both commands will start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
 
-
 ### Skip preprocessor or decorator
 
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 
 ```bash Skip preprocessors
-redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of,another-example
+redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
 
 ```bash Skip decorators
-redocly preview-docs --skip-decorator=generate-code-samples,remove-internal-operations
+redocly preview-docs --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```

@@ -62,8 +62,8 @@ To authenticate to the API registry, you can use several approaches:
   Treat the API keys as secrets and work with them accordingly. Consult the documentation for your CI system to learn more about handling secrets:
 
   - [Travis CI documentation](https://docs.travis-ci.com/user/environment-variables/)
-  - [CircleCI documentation](https://circleci.com/docs/2.0/env-vars/)
-  - [GitHub Actions documentation](https://docs.github.com/en/free-pro-team@latest/actions/reference/encrypted-secrets)
+  - [CircleCI documentation](https://circleci.com/docs/env-vars/)
+  - [GitHub Actions documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
   - [Jenkins documentation](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#handling-credentials)
 
 ## Usage
@@ -76,20 +76,20 @@ redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml
 
 ## Options
 
-Option           | Type      | Description    |
------------------|:---------:|------------|
-api              | string    | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.  |
-destination      | string    | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information.  |
---branch, -b    | string  | The branch where your API definition will be pushed or upserted. Default value is `main`.  |
---batch-id       | string  | Specifies the ID of the CI job that the current push will be associated with. See [the Batch ID section](#batch-id) for more information.  |
---batch-size       | number | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.  |
---help       | boolean | Help output for the command.  |
--- public    | boolean | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).  |
---region,-r    | string | Specifies which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value the appropriate Redocly API. |
---skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.
---upsert, -u | boolean | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.  |
---version     | boolean | Show version number.  |
---files|string[]|List of other folders and files to upload. See [the Files section](#files) for more information. |
+| Option           |   Type   | Description                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api              |  string  | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                                                                                                                    |
+| destination      |  string  | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information. |
+| --branch, -b     |  string  | The branch where your API definition will be pushed or upserted. Default value is `main`.                                                                                                                                                                                                                                                   |
+| --batch-id       |  string  | Specifies the ID of the CI job that the current push will be associated with. See [the Batch ID section](#batch-id) for more information.                                                                                                                                                                                                   |
+| --batch-size     |  number  | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                                                                                |
+| --help           | boolean  | Help output for the command.                                                                                                                                                                                                                                                                                                                |
+| -- public        | boolean  | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                                                                                                         |
+| --region,-r      |  string  | Specifies which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value the appropriate Redocly API.                                                                             |
+| --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                                                                                                        |
+| --upsert, -u     | boolean  | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                                                                                                                                                                |
+| --version        | boolean  | Show version number.                                                                                                                                                                                                                                                                                                                        |
+| --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                                                                                                            |
 
 ## Examples
 
@@ -289,8 +289,8 @@ You can also add files and folders providing them in `.redocly.yaml`:
 
 ```yaml
 apis:
-  main: 
-     root: ./openapi.yam;
+  main:
+    root: ./openapi.yam;
 files:
   - ./path/to/folder
   - ./path/to/another-folder/file.md

@@ -42,16 +42,7 @@ jobs:
         run: npm ci
         env:
           CI: true
-      - name: Pack CORE package
-        run: npm pack ./packages/core
-      - name: Use local CORE package in CLI
-        run: |
-          version=$(cat ./packages/core/package.json | jq '.version' | tr -d '"')
-          jq '.dependencies."@redocly/openapi-core" = $packagefile' ./packages/cli/package.json --arg packagefile file:./redocly-openapi-core-$version.tgz > package.json.tmp && mv package.json.tmp ./packages/cli/package.json
-      - name: Output package.json
-        run: cat ./packages/cli/package.json
-
-      - name: Prepare CLI package
+      - name: Prepare CLI and Core packages
         run: npm run pack:prepare
       - name: Install CLI Package
         run: npm install -g redocly-cli.tgz
