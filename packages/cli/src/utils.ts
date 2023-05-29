@@ -239,9 +239,13 @@ export function handleError(e: Error, ref: string) {
       );
       return process.exit(1);
     }
+    case SyntaxError:
+      return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
-      process.exitCode = 1;
+      process.stderr.write(
+        red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
+      );
+      process.exit(1);
       throw e;
     }
   }
@@ -392,7 +396,7 @@ export async function loadConfigAndHandleErrors(
   try {
     return await loadConfig(options);
   } catch (e) {
-    exitWithError(e.message);
+    handleError(e, '');
     return new Config({ apis: {}, styleguide: {} });
   }
 }
