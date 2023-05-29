@@ -379,7 +379,7 @@ yargs
   )
   .command(
     'build-docs [api]',
-    'build definition into zero-dependency HTML-file',
+    'build definition into an HTML file',
     (yargs) =>
       yargs
         .positional('api', { type: 'string' })
