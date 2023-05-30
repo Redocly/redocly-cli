@@ -15,4 +15,3 @@ paths:
       responses:
         '200':
           description: example description
-

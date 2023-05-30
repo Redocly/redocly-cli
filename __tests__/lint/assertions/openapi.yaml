@@ -24,8 +24,8 @@ paths:
       operationId: exampleOne
       summary: My resource
       externalDocs:
-        description: "Find more info here"
-        url: "https://example.com"
+        description: 'Find more info here'
+        url: 'https://example.com'
       requestBody:
         content:
           application/json:
@@ -87,4 +87,3 @@ paths:
         - lang: 'C#'
           source: |
             PetStore.v1.Pet pet = new PetStore.v1.Pet();
-

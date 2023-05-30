@@ -86,7 +86,7 @@ x-webhooks:
                   type: string
                   example: Guru
       responses:
-        "200":
+        '200':
           description: Return a 200 status
           content:
             application/xml:

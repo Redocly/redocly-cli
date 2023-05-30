@@ -16,7 +16,7 @@ paths:
                   - array
                 enum:
                   - 1
-                  - [ 1, 2, 3, string]
+                  - [1, 2, 3, string]
                   - 3
                   - string
   /pong:

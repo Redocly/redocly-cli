@@ -17,7 +17,7 @@ paths:
     get:
       summary: Get user by ID
       responses:
-        "200":
+        '200':
           description: OK
-        "404":
+        '404':
           description: Not found

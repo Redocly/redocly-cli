@@ -8,7 +8,7 @@ validating /openapi.yaml...
 no-type-integer-in-parameter assertion failed because the Schema type didn't meet the assertions: "integer" should be one of the predefined values
 
 24 |     example: en-US
-25 |     schema: 
+25 |     schema:
 26 |       type: integer
    |             ^^^^^^^
 27 | responses:

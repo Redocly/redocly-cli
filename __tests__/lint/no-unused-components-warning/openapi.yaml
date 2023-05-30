@@ -23,4 +23,3 @@ components:
           format: int64
         name:
           type: string
-

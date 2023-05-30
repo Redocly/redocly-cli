@@ -8,14 +8,14 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-- url: http://petstore.swagger.io/v1
+  - url: http://petstore.swagger.io/v1
 security: []
 components:
   schemas:
     Test:
       nullable: true
 paths:
-  "/test":
+  /test:
     get:
       summary: test
       operationId: test
@@ -25,7 +25,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Test"
+                $ref: '#/components/schemas/Test'
               example: {}
         '400':
           description: An error response

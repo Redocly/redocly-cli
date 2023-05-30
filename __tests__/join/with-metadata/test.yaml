@@ -17,10 +17,8 @@ paths:
       - name: param2
         in: header
     servers:
-      - url:
-          /test
-      - url:
-          /pets
+      - url: /test
+      - url: /pets
         description: another description
     post:
       tags:
@@ -40,4 +38,3 @@ paths:
       responses:
         '200':
           description: oka
-

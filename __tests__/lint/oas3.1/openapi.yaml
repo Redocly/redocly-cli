@@ -17,8 +17,8 @@ servers:
     variables:
       var:
         enum:
-        - a
-        - b
+          - a
+          - b
         default: b
 security: []
 paths:
@@ -28,13 +28,13 @@ paths:
       summary: Get Test! Foo! Etc!
       responses:
         200:
-          description: "200"
+          description: '200'
           content:
             application/json:
               schema:
                 type: array
                 prefixItems:
-                  - type: "string"
+                  - type: 'string'
                 items: false
         400:
           description: An error response
@@ -56,7 +56,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                $ref: '#/components/schemas/Pets'
         '400':
           description: An error response
   /pets/model:
@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Model"
+                $ref: '#/components/schemas/Model'
         '400':
           description: An error response
   /pets/person:
@@ -98,7 +98,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/person"
+                $ref: '#/components/schemas/person'
         '400':
           description: An error response
   /:
@@ -151,7 +151,7 @@ webhooks:
                   contentEncoding: base64
                   contentMediaType: image/png
       responses:
-        "200":
+        '200':
           description: Return a 200 status to indicate that the data was received successfully
         '405':
           description: Invalid input
@@ -165,7 +165,7 @@ webhooks:
         content:
           application/octet-stream: {}
       responses:
-        "200":
+        '200':
           description: Return a 200 status to indicate that the data was received successfully
         '400':
           description: An error response
@@ -177,11 +177,11 @@ components:
   pathItems: {}
   schemas:
     Problem:
-      id: "https://tools.ietf.org/rfc/rfc7807.txt"
-      $schema: "http://json-schema.org/draft-06/schema#"
-      description: "schema for a rfc7807"
+      id: 'https://tools.ietf.org/rfc/rfc7807.txt'
+      $schema: 'http://json-schema.org/draft-06/schema#'
+      description: 'schema for a rfc7807'
       definitions: {}
-      type: "object"
+      type: 'object'
       properties:
         type:
           description: A URI reference [RFC3986] that identifies the problem type.
@@ -237,14 +237,14 @@ components:
           type: array
           $comment: Array without items keyword
         either:
-          type: ['string','null']
+          type: ['string', 'null']
       discriminator:
         propertyName: type
         x-extension: true
     Pets:
       type: array
       items:
-        $ref: "#/components/schemas/Pet"
+        $ref: '#/components/schemas/Pet'
     Model:
       type: object
       properties:
@@ -255,12 +255,12 @@ components:
             - string
         two:
           description: type 'null'
-          type: "null"
+          type: 'null'
         three:
           description: type array including 'null'
           type:
             - string
-            - "null"
+            - 'null'
         four:
           description: array with no items
           type: array
@@ -285,7 +285,7 @@ components:
           description: nullable string
           type:
             - string
-            - "null"
+            - 'null'
         eleven:
           description: x-nullable string
           type:

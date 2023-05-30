@@ -24,7 +24,7 @@ paths:
       x-private: true
       summary: Get an order by ID for a specific user
       responses:
-        "200":
+        '200':
           description: OK
-        "404":
+        '404':
           description: Not found

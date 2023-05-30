@@ -19,8 +19,7 @@ paths:
           description: string
     description: get Pet description
     servers:
-      - url:
-          /pet
+      - url: /pet
         description: some description
 
     get:
@@ -30,8 +29,7 @@ paths:
       description: Returns a single pet
       operationId: getPetById
       servers:
-        - url:
-            /pet
+        - url: /pet
       parameters:
         - name: petId
           in: path
