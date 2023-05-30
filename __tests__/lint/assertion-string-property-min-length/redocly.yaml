@@ -1,13 +1,13 @@
 apis:
   main:
     root: ./openapi.yaml
-    
+
 plugins:
   - ./plugin.js
 rules:
-  assert/minLength:
-    subject: 
+  rule/minLength:
+    subject:
       type: Schema
     assertions:
-      local/checkSchema: 
+      local/checkSchema:
         required: minLength

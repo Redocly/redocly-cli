@@ -2,7 +2,7 @@ apis:
   main:
     root: ./openapi.yaml
 rules:
-  assert/match-parent-keys-with-defined:
+  rule/match-parent-keys-with-defined:
     subject:
       type: Operation
       matchParentKeys: /^p/
@@ -11,7 +11,7 @@ rules:
       defined: true
       const: true
 
-  assert/match-parent-keys-example-without-defined:
+  rule/match-parent-keys-example-without-defined:
     subject:
       type: Operation
       matchParentKeys: /^p/

@@ -1,7 +1,7 @@
 rules:
   no-invalid-media-type-examples: warn
   operation-4xx-response: off
-  assert/tag-description:
+  rule/tag-description:
     subject: Tag
     property: description
     message: Tag description must be at least 13 characters and end with a full stop.

@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/vendor-extension:
+  rule/vendor-extension:
     subject:
       type: SpecExtension
       property: prop
@@ -11,7 +11,7 @@ rules:
     severity: error
     assertions:
       enum: [foo, bar]
-  assert/vendor-extension-in-info-section:
+  rule/vendor-extension-in-info-section:
     subject:
       type: SpecExtension
       property: prop2
@@ -26,7 +26,7 @@ rules:
       enum: [foo, bar]
 
   # built-in vendor extension should be processed as generic SpecExtension too
-  # assert/vendor-extension-built-in:
+  # rule/vendor-extension-built-in:
   #   subject:
   #     type: SpecExtension
   #     filterInParentKeys: ['x-logo']

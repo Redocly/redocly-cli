@@ -3,17 +3,17 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/path-item-mutually-required:
+  rule/path-item-mutually-required:
     where:
       - subject:
           type: PathItem
           property: get
         assertions:
           defined: true
-    subject: 
+    subject:
       type: Operation
     message: Operation should have summary and security fields simultaneously
     assertions:
       mutuallyRequired:
-      - summary
-      - security
+        - summary
+        - security

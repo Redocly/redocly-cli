@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/operation-get:
+  rule/operation-get:
     subject:
       type: Operation
       property: operationId
@@ -12,7 +12,7 @@ rules:
       casing: kebab-case
     message: Operation id should be kebab-case
 
-  assert/operation-id-kebab-case:
+  rule/operation-id-kebab-case:
     subject:
       type: Operation
       property: operationId

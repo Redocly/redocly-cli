@@ -2,27 +2,27 @@ apis:
   main:
     root: ./openapi.yaml
 rules:
-  assert/type-integer-in-schema-response:
+  rule/type-integer-in-schema-response:
     where:
       - subject:
           type: Operation
           filterInParentKeys: [get]
         assertions:
           defined: true
-      - subject: 
+      - subject:
           type: Response
           filterInParentKeys: ['201', '200']
-        assertions: 
+        assertions:
           defined: true
-      - subject: 
+      - subject:
           type: MediaType
           property: example
-        assertions: 
+        assertions:
           defined: true
           const: example
-          
-    subject: 
+
+    subject:
       type: Schema
       property: type
-    assertions: 
+    assertions:
       const: string

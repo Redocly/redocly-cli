@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/named-parameters-camelCase:
+  rule/named-parameters-camelCase:
     subject:
       type: NamedParameters
     message: Parameters must use camelCase

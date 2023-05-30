@@ -1,8 +1,8 @@
 apis:
   api@legacy:
     root: ./openapi.yaml
-    styleguide: 
-      rules: 
+    styleguide:
+      rules:
         operation-4xx-response: error
 
 styleguide:

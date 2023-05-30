@@ -2,5 +2,5 @@ apis:
   main:
     root: ./test.yaml
 
-extends: 
+extends:
   - recommended

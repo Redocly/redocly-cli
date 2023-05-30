@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/summary-pattern:
+  rule/summary-pattern:
     subject:
       type: Operation
       property: summary

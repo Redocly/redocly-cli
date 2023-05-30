@@ -3,10 +3,10 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/media-type-application-json:
+  rule/media-type-application-json:
     subject:
       type: MediaTypesMap
     message: Only application/json can be used
-    assertions: 
+    assertions:
       enum:
-      - application/json
+        - application/json

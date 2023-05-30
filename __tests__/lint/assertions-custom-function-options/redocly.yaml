@@ -4,15 +4,15 @@ apis:
 plugins:
   - ./plugin.js
 rules:
-  assert/operation-summary-length-custom:
-    subject: 
+  rule/operation-summary-length-custom:
+    subject:
       type: Operation
       property: summary
     message: Custom message {{problems}}
     assertions:
       minLength: 16
-      local/checkWordsStarts: 
-        words: 
+      local/checkWordsStarts:
+        words:
           - Create
           - Retrieve
           - Merge
@@ -22,18 +22,17 @@ rules:
           - Update
           - Approve
           - Reject
-      local/checkWordsCount: 
+      local/checkWordsCount:
         min: 3
 
-
-  assert/operation-summary-length:
-    subject: 
+  rule/operation-summary-length:
+    subject:
       type: Operation
       property: summary
-    assertions: 
+    assertions:
       minLength: 16
-      local/checkWordsStarts: 
-        words: 
+      local/checkWordsStarts:
+        words:
           - Create
           - Retrieve
           - Merge
@@ -43,18 +42,18 @@ rules:
           - Update
           - Approve
           - Reject
-      local/checkWordsCount: 
+      local/checkWordsCount:
         min: 3
 
-  assert/operation-summary-length-with-where:
+  rule/operation-summary-length-with-where:
     where:
-      - subject: 
+      - subject:
           type: Operation
           property: summary
         assertions:
-          local/checkWordsCount: 
+          local/checkWordsCount:
             min: 3
-    subject: 
+    subject:
       type: Schema
       property: type
     assertions:

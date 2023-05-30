@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/operation-get:
+  rule/operation-get:
     subject:
       type: Operation
       property: operationId
@@ -12,7 +12,7 @@ rules:
       casing: PascalCase
     message: Operation id should be PascalCase
 
-  assert/operation-id-pascal-case:
+  rule/operation-id-pascal-case:
     subject:
       type: Operation
       property: operationId
