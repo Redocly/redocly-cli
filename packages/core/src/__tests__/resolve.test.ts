@@ -374,7 +374,8 @@ describe('collect refs', () => {
       Array [
         "# Hello World
 
-      Lorem ipsum",
+      Lorem ipsum
+      ",
       ]
     `);
   });

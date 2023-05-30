@@ -6,7 +6,8 @@ openapi: 3.0.0
 info:
   version: 1.0.0
   title: Example OpenAPI 3 definition.
-  description: Test description from md file
+  description: |
+    Test description from md file
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
