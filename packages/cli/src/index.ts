@@ -35,11 +35,6 @@ yargs
           choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
           default: 'stylish' as OutputFormat,
         },
-        'resolve-after-transformers': {
-          description:
-            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-          type: 'boolean',
-        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'stats';
@@ -113,11 +108,6 @@ yargs
             type: 'string',
             default: 'openapi.yaml',
           },
-          'resolve-after-transformers': {
-            description:
-              'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-            type: 'boolean',
-          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
@@ -160,11 +150,6 @@ yargs
             description: 'List of other folders and files to upload',
             array: true,
             type: 'string',
-          },
-          'resolve-after-transformers': {
-            description:
-              'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-            type: 'boolean',
           },
         })
         .implies('batch-id', 'batch-size')
@@ -226,11 +211,6 @@ yargs
           requiresArg: true,
           array: true,
           type: 'string',
-        },
-        'resolve-after-transformers': {
-          description:
-            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-          type: 'boolean',
         },
       }),
     (argv) => {
@@ -314,11 +294,6 @@ yargs
           type: 'boolean',
           alias: 'k',
         },
-        'resolve-after-transformers': {
-          description:
-            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-          type: 'boolean',
-        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
@@ -395,11 +370,6 @@ yargs
         config: {
           description: 'Specify path to the config file.',
           type: 'string',
-        },
-        'resolve-after-transformers': {
-          description:
-            'Resolve references after preprocessors. Please note that this option could potentially break errors reporting.',
-          type: 'boolean',
         },
       }),
     (argv) => {

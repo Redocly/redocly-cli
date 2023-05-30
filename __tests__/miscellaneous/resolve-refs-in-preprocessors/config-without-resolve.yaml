@@ -9,5 +9,3 @@ preprocessors:
   plugin/conventional-response:
     codes:
       400: ./bad-request-error.response.yaml
-resolve: 
-  resolveAfterTransformers: true

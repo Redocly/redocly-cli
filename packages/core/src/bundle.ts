@@ -36,7 +36,6 @@ export async function bundle(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
-  resolveAfterTransformers?: boolean;
 }) {
   const {
     ref,
@@ -83,7 +82,6 @@ export async function bundleDocument(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
-  resolveAfterTransformers?: boolean;
 }): Promise<BundleResult> {
   const {
     document,
@@ -131,7 +129,7 @@ export async function bundleDocument(opts: {
     });
   }
 
-  if (opts.resolveAfterTransformers) {
+  if (config.resolveAfterTransformers) {
     // Make preliminary pass to be able to resolve refs defined in preprocessors in the next pass.
     const preliminaryResolvedRefMap = await resolveDocument({
       rootDocument: document,
@@ -156,7 +154,7 @@ export async function bundleDocument(opts: {
 
   const bundleVisitor = normalizeVisitors(
     [
-      ...(opts.resolveAfterTransformers ? [] : preprocessors),
+      ...(config.resolveAfterTransformers ? [] : preprocessors),
       {
         severity: 'error',
         ruleId: 'bundler',

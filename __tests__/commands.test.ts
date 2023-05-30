@@ -353,17 +353,17 @@ describe('E2E', () => {
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'openapi.yaml',
         '--lint',
+        '--config=config-without-resolve.yaml',
       ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('bundle should resolve $refs in preprocessors with flag', () => {
+    test('bundle should resolve $refs with the resolveAfterTransformers option', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
         'openapi.yaml',
         '--lint',
-        '--resolve-after-transformers',
       ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
@@ -371,34 +371,34 @@ describe('E2E', () => {
 
     test('lint should not resolve $refs in preprocessors by default', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
-      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        'openapi.yaml',
+        '--config=config-without-resolve.yaml',
+      ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('lint should resolve $refs in preprocessors with flag', () => {
+    test('lint should resolve $refs in preprocessors with the resolveAfterTransformers option', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
-      const args = getParams('../../../packages/cli/src/index.ts', 'lint', [
-        'openapi.yaml',
-        '--resolve-after-transformers',
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
 
     test('stat should print a wrong summary without resolving refs in preprocessors', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
-      const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
+      const args = getParams('../../../packages/cli/src/index.ts', 'stats', [
+        'openapi.yaml',
+        '--config=config-without-resolve.yaml',
+      ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
 
-    test('stat should print the correct summary with flag', () => {
+    test('stat should print the correct summary with the resolveAfterTransformers option', () => {
       const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
-      const args = getParams('../../../packages/cli/src/index.ts', 'stats', [
-        'openapi.yaml',
-        '--resolve-after-transformers',
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });

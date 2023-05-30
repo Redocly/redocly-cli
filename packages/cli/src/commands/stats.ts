@@ -64,20 +64,11 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
   }
 }
 
-export async function handleStats(argv: {
-  config?: string;
-  api?: string;
-  format: string;
-  'resolve-after-transformers'?: boolean;
-}) {
+export async function handleStats(argv: { config?: string; api?: string; format: string }) {
   const config: Config = await loadConfigAndHandleErrors({ configPath: argv.config });
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
-  const { bundle: document } = await bundle({
-    config,
-    ref: path,
-    resolveAfterTransformers: argv['resolve-after-transformers'],
-  });
+  const { bundle: document } = await bundle({ config, ref: path });
   const lintConfig: StyleguideConfig = config.styleguide;
   const oasVersion = detectOpenAPI(document.parsed);
   const oasMajorVersion = openAPIMajor(oasVersion);

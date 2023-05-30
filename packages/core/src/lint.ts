@@ -16,7 +16,6 @@ export async function lint(opts: {
   ref: string;
   config: Config;
   externalRefResolver?: BaseResolver;
-  resolveAfterTransformers?: boolean;
 }) {
   const { ref, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = (await externalRefResolver.resolveDocument(null, ref, true)) as Document;
@@ -34,7 +33,6 @@ export async function lintFromString(opts: {
   absoluteRef?: string;
   config: Config;
   externalRefResolver?: BaseResolver;
-  resolveAfterTransformers?: boolean;
 }) {
   const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
   const document = makeDocumentFromString(source, absoluteRef || '/');
@@ -52,7 +50,6 @@ export async function lintDocument(opts: {
   config: StyleguideConfig;
   customTypes?: Record<string, NodeType>;
   externalRefResolver: BaseResolver;
-  resolveAfterTransformers?: boolean;
 }) {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
@@ -81,7 +78,7 @@ export async function lintDocument(opts: {
   const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
   const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', oasVersion);
 
-  if (opts.resolveAfterTransformers) {
+  if (config.resolveAfterTransformers) {
     // Make preliminary pass to be able to resolve refs defined in preprocessors in the next pass.
     const preliminaryResolvedRefMap = await resolveDocument({
       rootDocument: document,
@@ -105,7 +102,7 @@ export async function lintDocument(opts: {
   });
 
   const normalizedVisitors = normalizeVisitors(
-    [...(opts.resolveAfterTransformers ? [] : preprocessors), ...regularRules],
+    [...(config.resolveAfterTransformers ? [] : preprocessors), ...regularRules],
     types
   );
 

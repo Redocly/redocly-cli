@@ -41,7 +41,6 @@ type PushArgs = {
   'skip-decorator'?: string[];
   public?: boolean;
   files?: string[];
-  'resolve-after-transformers'?: boolean;
 };
 
 export async function handlePush(argv: PushArgs): Promise<void> {
@@ -114,7 +113,7 @@ export async function handlePush(argv: PushArgs): Promise<void> {
     try {
       let rootFilePath = '';
       const filePaths: string[] = [];
-      const filesToUpload = await collectFilesToUpload(api, resolvedConfig, argv);
+      const filesToUpload = await collectFilesToUpload(api, resolvedConfig);
       const filesHash = hashFiles(filesToUpload.files);
 
       process.stdout.write(
@@ -212,7 +211,7 @@ function getFilesList(dir: string, files?: any): string[] {
   return files;
 }
 
-async function collectFilesToUpload(api: string, config: Config, argv: PushArgs) {
+async function collectFilesToUpload(api: string, config: Config) {
   const files: { filePath: string; keyOnS3: string; contents?: Buffer }[] = [];
   const [{ path: apiPath }] = await getFallbackApisOrExit([api], config);
 
@@ -222,7 +221,6 @@ async function collectFilesToUpload(api: string, config: Config, argv: PushArgs)
     config,
     ref: apiPath,
     skipRedoclyRegistryRefs: true,
-    resolveAfterTransformers: argv['resolve-after-transformers'],
   });
 
   const fileTotals = getTotals(problems);

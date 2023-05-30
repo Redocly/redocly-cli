@@ -137,6 +137,7 @@ describe('getMergedConfig', () => {
             },
           },
           "recommendedFallback": false,
+          "resolveAfterTransformers": false,
           "rules": Object {
             "oas2": Object {
               "operation-summary": "warn",
@@ -237,6 +238,7 @@ describe('getMergedConfig', () => {
             },
           },
           "recommendedFallback": false,
+          "resolveAfterTransformers": false,
           "rules": Object {
             "oas2": Object {
               "no-empty-servers": "error",

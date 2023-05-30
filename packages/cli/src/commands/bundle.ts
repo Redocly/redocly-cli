@@ -27,7 +27,6 @@ export type BundleOptions = CommonOptions &
     metafile?: string;
     'remove-unused-components'?: boolean;
     'keep-url-references'?: boolean;
-    'resolve-after-transformers'?: boolean;
   };
 
 export async function handleBundle(argv: BundleOptions, version: string) {
@@ -64,7 +63,6 @@ export async function handleBundle(argv: BundleOptions, version: string) {
         const results = await lint({
           ref: path,
           config: resolvedConfig,
-          resolveAfterTransformers: argv['resolve-after-transformers'],
         });
         const fileLintTotals = getTotals(results);
 
@@ -93,7 +91,6 @@ export async function handleBundle(argv: BundleOptions, version: string) {
         dereference: argv.dereferenced,
         removeUnusedComponents,
         keepUrlRefs: argv['keep-url-references'],
-        resolveAfterTransformers: argv['resolve-after-transformers'],
       });
 
       const fileTotals = getTotals(problems);

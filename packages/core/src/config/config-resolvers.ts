@@ -287,6 +287,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     plugins: getUniquePlugins(mergedPlugins),
     recommendedFallback: styleguideConfig?.recommendedFallback,
     doNotResolveExamples: styleguideConfig?.doNotResolveExamples,
+    resolveAfterTransformers: styleguideConfig?.resolveAfterTransformers,
   };
 }
 

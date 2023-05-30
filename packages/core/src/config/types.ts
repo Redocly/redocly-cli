@@ -37,6 +37,7 @@ export type StyleguideRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   doNotResolveExamples?: boolean;
+  resolveAfterTransformers?: boolean;
   recommendedFallback?: boolean;
 
   rules?: Record<string, RuleConfig>;
@@ -127,6 +128,7 @@ export type ResolveHeader =
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
   doNotResolveExamples?: boolean;
+  resolveAfterTransformers?: boolean;
 };
 
 export type HttpResolveConfig = {
@@ -174,10 +176,10 @@ export type RawConfig = {
 } & ThemeConfig;
 
 export type FlatApi = Omit<Api, 'styleguide'> &
-  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
+  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples' | 'resolveAfterTransformers'>;
 
 export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
-  Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
+  Omit<StyleguideRawConfig, 'doNotResolveExamples' | 'resolveAfterTransformers'> & {
     resolve?: RawResolveConfig;
     apis?: Record<string, FlatApi>;
   } & ThemeRawConfig;
