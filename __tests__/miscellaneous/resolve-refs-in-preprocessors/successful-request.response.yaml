@@ -1,0 +1,7 @@
+description: Success
+content:
+  application/json:
+    schema:
+      type: array
+      items:
+        type: string

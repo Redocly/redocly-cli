@@ -344,4 +344,32 @@ describe('E2E', () => {
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
+
+  describe('miscellaneous', () => {
+    const folderPath = join(__dirname, 'miscellaneous');
+
+    test('bundle should resolve $refs in preprocessors', () => {
+      const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
+        'openapi.yaml',
+        '--lint',
+      ]);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('lint should resolve $refs in preprocessors', () => {
+      const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
+      const args = getParams('../../../packages/cli/src/index.ts', 'lint', ['openapi.yaml']);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    test('stat should print the correct summary with $refs in preprocessors', () => {
+      const testPath = join(folderPath, 'resolve-refs-in-preprocessors');
+      const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['openapi.yaml']);
+      const result = getCommandOutput(args, testPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+  });
 });

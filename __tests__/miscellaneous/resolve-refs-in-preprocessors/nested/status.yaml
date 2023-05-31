@@ -1,0 +1,6 @@
+get:
+  operationId: getStatus
+  summary: Status
+  responses:
+    200:
+      $ref: ../successful-request.response.yaml

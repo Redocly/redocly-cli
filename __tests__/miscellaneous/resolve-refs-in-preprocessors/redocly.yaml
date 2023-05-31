@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+extends:
+  - recommended
+plugins:
+  - ./plugin.js
+preprocessors:
+  plugin/conventional-response:
+    codes:
+      400: ./bad-request-error.response.yaml
