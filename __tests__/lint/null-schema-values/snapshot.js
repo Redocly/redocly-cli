@@ -8,7 +8,7 @@ validating /openapi.yaml...
 Expected type \`Info\` (object) but got \`null\`
 
 1 | openapi: 3.0.0
-2 | info: 
+2 | info:
   | ^^^^^
 3 | paths:
 4 |   /test:

@@ -5,6 +5,6 @@ allOf:
       - integration_type
     properties:
       integration_type:
-        $ref: "../openapi-with-back.yaml#/components/schemas/TypeB"
+        $ref: '../openapi-with-back.yaml#/components/schemas/TypeB'
       name:
         type: string

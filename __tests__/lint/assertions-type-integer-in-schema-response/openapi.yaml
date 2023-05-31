@@ -20,10 +20,10 @@ paths:
       summary: summary example
       responses:
         '200':
-          content: 
+          content:
             application/json:
               example: example
-              schema: 
+              schema:
                 type: string
           description: example description
         '404':
@@ -34,12 +34,11 @@ paths:
       summary: summary example
       responses:
         '200':
-          content: 
+          content:
             application/json:
               example: example
-              schema: 
+              schema:
                 type: integer
           description: example description
         '404':
           description: example description
-    

@@ -29,24 +29,23 @@ paths:
             application/json:
               schema:
                 type: object
-                required: 
+                required:
                   - b
                   - a
                   - k
                 properties:
                   a:
                     type: string
-                    
+
                   b:
                     type: object
-                  k: 
+                  k:
                     type: string
                     minLength: 2
-                  c: 
+                  c:
                     type: object
-                    required: 
-                      -  d
-                    properties: 
+                    required:
+                      - d
+                    properties:
                       d:
                         type: string
-            

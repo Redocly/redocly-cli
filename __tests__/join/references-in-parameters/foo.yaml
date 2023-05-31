@@ -8,26 +8,26 @@ servers:
 paths:
   /users/{userId}/products/{productId}:
     parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/productIdParam"
+      - $ref: '#/components/parameters/userIdParam'
+      - $ref: '#/components/parameters/productIdParam'
     get:
       summary: Get a product by ID for a specific user
       responses:
-        "200":
+        '200':
           description: OK
-        "404":
+        '404':
           description: Not found
   /users/{userId}/orders/{orderId}/items/{itemId}:
     parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/orderIdParam"
-      - $ref: "#/components/parameters/itemIdParam"
+      - $ref: '#/components/parameters/userIdParam'
+      - $ref: '#/components/parameters/orderIdParam'
+      - $ref: '#/components/parameters/itemIdParam'
     get:
       summary: Get an item by ID for a specific order and user
       responses:
-        "200":
+        '200':
           description: OK
-        "404":
+        '404':
           description: Not found
 components:
   parameters:

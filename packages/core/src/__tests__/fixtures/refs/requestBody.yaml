@@ -1,8 +1,8 @@
-content: 
-  application/json: 
-    schema: 
+content:
+  application/json:
+    schema:
       type: object
-      properties: 
+      properties:
         a:
           type: string
         b:

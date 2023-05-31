@@ -9,9 +9,11 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "servers": [{
-    "url": "http://petstore.swagger.io/v1"
-  }],
+  "servers": [
+    {
+      "url": "http://petstore.swagger.io/v1"
+    }
+  ],
   "security": [],
   "paths": {
     "/test": {
@@ -39,10 +41,7 @@
     "schemas": {
       "Pet": {
         "type": "object",
-        "oneOf": [
-          { "$ref": "#/components/schemas/Pet" },
-          { "$ref": "#/components/schemas/Cat" }
-        ]
+        "oneOf": [{ "$ref": "#/components/schemas/Pet" }, { "$ref": "#/components/schemas/Cat" }]
       },
       "Cat": {
         "type": "object",

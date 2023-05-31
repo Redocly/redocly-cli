@@ -7,7 +7,7 @@ validating /openapi.yaml...
 
 query-in-parameters assertion failed because the Parameter in didn't meet the assertions: query should be equal path
 
-21 | parameters: 
+21 | parameters:
 22 |   - name: statusId
 23 |     in: query
    |         ^^^^^

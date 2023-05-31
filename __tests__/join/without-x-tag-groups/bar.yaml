@@ -1,5 +1,5 @@
 openapi: 3.0.0
-tags: 
+tags:
   - name: Pet
     description: Another description
 info:

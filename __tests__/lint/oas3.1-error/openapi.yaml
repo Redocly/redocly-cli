@@ -17,7 +17,7 @@ servers:
     variables:
       var:
         enum:
-        - a
-        - b
+          - a
+          - b
         default: b
 security: []

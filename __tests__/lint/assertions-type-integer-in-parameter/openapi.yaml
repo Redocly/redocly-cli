@@ -18,15 +18,14 @@ paths:
     get:
       operationId: GetExampleId
       summary: summary example
-      parameters: 
+      parameters:
         - name: statusId
           in: path
           example: en-US
-          schema: 
+          schema:
             type: integer
       responses:
         '200':
           description: example description
         '404':
           description: example description
-    

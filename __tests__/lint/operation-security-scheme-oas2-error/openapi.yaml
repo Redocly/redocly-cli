@@ -1,13 +1,13 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: "Swagger Petstore"
-  description: "This is a sample"
-  version: "1.0.0"
-host: "petstore.swagger.io"
-basePath: "/v2"
+  title: 'Swagger Petstore'
+  description: 'This is a sample'
+  version: '1.0.0'
+host: 'petstore.swagger.io'
+basePath: '/v2'
 securityDefinitions:
   basicAuth:
     type: basic
@@ -24,57 +24,57 @@ securityDefinitions:
     testProp: test
   oauthImplicit:
     type: oauth2
-    authorizationUrl: "http://swagger.io/api/oauth/dialog"
+    authorizationUrl: 'http://swagger.io/api/oauth/dialog'
     flow: implicit
     description: oauth implicit
-    tokenUrl: "http://tokenUrl"
+    tokenUrl: 'http://tokenUrl'
     scopes:
-      "write:pets": "modify pets in your account"
-      "read:pets": "read your pets"
+      'write:pets': 'modify pets in your account'
+      'read:pets': 'read your pets'
   oauthAccessCode:
     type: oauth2
     flow: accessCode
-    authorizationUrl: "http://swagger.io/api/oauth/dialog"
-    tokenUrl: "http://tokenUrl"
+    authorizationUrl: 'http://swagger.io/api/oauth/dialog'
+    tokenUrl: 'http://tokenUrl'
     description: access code
     name: accessCodeName
     scopes:
-      "write:pets": "modify pets in your account"
-      "read:pets": "read your pets"
+      'write:pets': 'modify pets in your account'
+      'read:pets': 'read your pets'
   oauthApplication:
     type: oauth2
     flow: application
-    authorizationUrl: "http://swagger.io/api/oauth/dialog"
-    tokenUrl: "http://tokenUrl"
+    authorizationUrl: 'http://swagger.io/api/oauth/dialog'
+    tokenUrl: 'http://tokenUrl'
     description: oauth application
     scopes:
-      "write:pets": "modify pets in your account"
-      "read:pets": "read your pets"
+      'write:pets': 'modify pets in your account'
+      'read:pets': 'read your pets'
   oauthPassword:
     type: oauth2
     flow: password
-    authorizationUrl: "http://swagger.io/api/oauth/dialog"
-    tokenUrl: "http://tokenUrl"
+    authorizationUrl: 'http://swagger.io/api/oauth/dialog'
+    tokenUrl: 'http://tokenUrl'
     description: oauth password
     scopes:
-      "write:pets": "modify pets in your account"
-      "read:pets": "read your pets"
+      'write:pets': 'modify pets in your account'
+      'read:pets': 'read your pets'
 paths:
   /pet:
     get:
-      summary: "Add a new pet to the store"
-      description: ""
-      operationId: "addPet"
+      summary: 'Add a new pet to the store'
+      description: ''
+      operationId: 'addPet'
       consumes:
-        - "application/json"
-        - "application/xml"
+        - 'application/json'
+        - 'application/xml'
       produces:
-        - "application/xml"
-        - "application/json"
+        - 'application/xml'
+        - 'application/json'
       responses:
         '201':
           description: Pet updated
-        "405":
-          description: "Invalid input"
+        '405':
+          description: 'Invalid input'
       security:
         - basicAuth: []

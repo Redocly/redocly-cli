@@ -8,14 +8,14 @@ servers:
 paths:
   /users/{userId}/orders/{orderId}:
     parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/orderIdParam"
+      - $ref: '#/components/parameters/userIdParam'
+      - $ref: '#/components/parameters/orderIdParam'
     get:
       summary: Get an order by ID for a specific user
       responses:
-        "200":
+        '200':
           description: OK
-        "404":
+        '404':
           description: Not found
 components:
   parameters:

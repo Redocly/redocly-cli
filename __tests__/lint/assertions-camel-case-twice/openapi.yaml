@@ -5,17 +5,17 @@ info:
     name: MIT
     url: example.com
 tags:
-- name: sometag
-  description: sometag
+  - name: sometag
+    description: sometag
 servers:
-- url: https://example.com
+  - url: https://example.com
 security: []
 paths:
   /someGet:
     get:
       operationId: operationIdGet
-      parameters: 
-      - $ref: "#/components/parameters/header_Accept"
+      parameters:
+        - $ref: '#/components/parameters/header_Accept'
       responses:
         '200':
           description: ''

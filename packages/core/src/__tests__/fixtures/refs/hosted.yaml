@@ -1,7 +1,7 @@
-openapi: "3.0.3"
+openapi: '3.0.3'
 info:
   title: bugtest
-  version: "1.0"
+  version: '1.0'
   description: Demo
   license:
     name: DEMO
@@ -10,20 +10,20 @@ servers:
   - url: http://demo.com/api
 paths:
   /customer:
-    summary: "Customer scope"
+    summary: 'Customer scope'
     get:
-      summary: "Get demo no refs"
+      summary: 'Get demo no refs'
       operationId: GetCustomer
-      description: "Returns Demo No Refs"
+      description: 'Returns Demo No Refs'
       responses:
         200:
           description: Demo No Refs
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Customer"  
+                $ref: '#/components/schemas/Customer'
 components:
-  schemas: 
+  schemas:
     Customer:
       type: object
       properties:
@@ -32,4 +32,4 @@ components:
         accounts:
           type: array
           items:
-            $ref: "https://someexternal.schema"
+            $ref: 'https://someexternal.schema'
