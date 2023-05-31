@@ -35,11 +35,6 @@ export const SpecComponentsInvalidMapName: Oas3Rule = () => {
         validateKey(key, report, location, 'responses');
       },
     },
-    NamedExamples: {
-      Example(_node, { key, report, location }: UserContext) {
-        validateKey(key, report, location, 'examples');
-      },
-    },
     NamedRequestBodies: {
       RequestBody(_node, { key, report, location }: UserContext) {
         validateKey(key, report, location, 'requestBodies');
@@ -65,7 +60,7 @@ export const SpecComponentsInvalidMapName: Oas3Rule = () => {
         validateKey(key, report, location, 'callbacks');
       },
     },
-    ExampleMap: {
+    Components: {
       Example(_node, { key, report, location }: UserContext) {
         validateKey(key, report, location, 'examples');
       },
