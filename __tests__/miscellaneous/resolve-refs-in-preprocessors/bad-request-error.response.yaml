@@ -1,5 +1,5 @@
 description: Failure
-content: 
+content:
   application/json+problem:
-    schema: 
+    schema:
       $ref: ./error-schema.yaml

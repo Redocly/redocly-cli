@@ -56,8 +56,8 @@ components:
 
 Info object should contain \`license\` field.
 
-2 | servers: 
-3 |   - url: http://localhost:8080 
+2 | servers:
+3 |   - url: http://localhost:8080
 4 | info:
   | ^^^^
 5 |   title: Test
@@ -81,8 +81,8 @@ validating openapi.yaml...
 
 Info object should contain \`license\` field.
 
-2 | servers: 
-3 |   - url: http://localhost:8080 
+2 | servers:
+3 |   - url: http://localhost:8080
 4 | info:
   | ^^^^
 5 |   title: Test
