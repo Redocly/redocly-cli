@@ -368,9 +368,9 @@ Technical release for changing the package name from `@redocly/openapi-cli` to `
 The product name has changed from OpenAPI CLI to **Redocly CLI**.
 
 This change is reflected in all Redocly product documentation, in the npm package name (more on that in the "Deprecated" section),
-and later in the official project GitHub repository.
+and in the official project GitHub repository.
 
-The change also affects the CLI commands. The legacy name `openapi` is supported for a while, but we strongly recommend you use the new name `redocly`.
+The change also affects the CLI commands. The legacy name `openapi` is supported for now, but we strongly recommend you use the new name `redocly`.
 (To illustrate, if you previously used `openapi lint`, now you should use `redocly lint`).
 
 If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/redocly-cli/issues).
