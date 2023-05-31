@@ -19,9 +19,9 @@ Apart from uploading your API definition file, the `push` command can automatica
 
 :::attention
 
-If a plugin is referenced in the Redocly configuration file, the `push` command recursively scans the folder containing the plugin and upload all `.js`, `.json`, `.mjs` and `.ts` files.
+If a plugin is referenced in the Redocly configuration file, the `push` command recursively scans the folder containing the plugin and uploads all `.js`, `.json`, `.mjs` and `.ts` files.
 
-Make sure that each plugin has all the required files in its folder, otherwise they are not uploaded.
+Make sure that each plugin has all the required files in its folder; otherwise, they are not uploaded.
 
 :::
 
@@ -80,7 +80,7 @@ redocly push [-u] [--batch-id id] [--batch-size number] <path/to/definition.yaml
 | ---------------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api              |  string  | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                                                                                                                    |
 | destination      |  string  | Conditional. The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `@organization-id/api-name@api-version` or `api-name@api-version`if organization ID is already defined in the configuration file. See [the Destination section](#destination) for more information. |
-| --branch, -b     |  string  | The branch where your API definition to be pushed or upserted. Default value is `main`.                                                                                                                                                                                                                                                   |
+| --branch, -b     |  string  | The branch where your API definition is pushed or upserted. Default value is `main`.                                                                                                                                                                                                                                                   |
 | --batch-id       |  string  | Specifies the ID of the CI job that the current push is associated with. See [the Batch ID section](#batch-id) for more information.                                                                                                                                                                                                   |
 | --batch-size     |  number  | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                                                                                |
 | --help           | boolean  | Help output for the command.                                                                                                                                                                                                                                                                                                                |
