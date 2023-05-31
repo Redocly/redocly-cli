@@ -22,7 +22,7 @@ To easily distinguish the origin of OpenAPI objects and properties, you can opti
 
 The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten.
 
-Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combine them into one file.
+Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combines them into one file.
 
 ### Usage
 
