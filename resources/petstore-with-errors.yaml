@@ -1,5 +1,4 @@
-
-openapi: "3.0.0"
+openapi: '3.0.0'
 info:
   version: 1.0.0
   title: Swagger Petstore
@@ -29,12 +28,12 @@ paths:
                   type: number
             example:
               summary: A foo example
-              value: {"foo": "bar"}
+              value: { 'foo': 'bar' }
               externalValue: 'http://example.org/foo.json'
             examples:
               foo:
                 summary: A foo example
-                value: {"foo": "bar"}
+                value: { 'foo': 'bar' }
                 externalValue: 'http://example.org/foo.json'
       tags:
         - pets
@@ -63,13 +62,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                $ref: '#/components/schemas/Pets'
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
     post:
       summary: Create a pet
       description: afasf
@@ -84,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /pets/{petId}/TesSt:
     get:
       summary: Info for a specific pet
@@ -105,13 +104,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pet"
+                $ref: '#/components/schemas/Pet'
         default:
           description: unexpected error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 components:
   parameters:
     anotherParam:
@@ -142,7 +141,7 @@ components:
     Pets:
       type: array
       items:
-        $ref: "#/components/schemas/Pet"
+        $ref: '#/components/schemas/Pet'
     Error:
       type: object
       required:

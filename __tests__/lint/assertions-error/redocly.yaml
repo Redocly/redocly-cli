@@ -3,8 +3,8 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/tag-description-pattern:
-    subject: 
+  rule/tag-description-pattern:
+    subject:
       type: Tag
       property: description
     message: Tag description must be at least 13 characters and end with a full stop.
@@ -13,22 +13,22 @@ rules:
       minLength: 13
       pattern: /\.$/
   # property example
-  assert/path-item-get-defined:
-    subject: 
+  rule/path-item-get-defined:
+    subject:
       type: PathItem
       property: get
     message: Every path item must have a GET operation.
-    assertions: 
+    assertions:
       defined: true
-  assert/path-item-get-required:
-    subject: 
+  rule/path-item-get-required:
+    subject:
       type: PathItem
     message: Every path item must have a GET(required) operation.
     assertions:
       required:
-      - get
-  assert/tag-name-and-desc:
-    subject: 
+        - get
+  rule/tag-name-and-desc:
+    subject:
       type: Tag
       property:
         - name
@@ -37,14 +37,14 @@ rules:
     assertions:
       defined: true
   # context example
-  assert/operation-w-context:
+  rule/operation-w-context:
     subject:
       type: MediaTypesMap
     where:
       - subject:
           type: Operation
           filterOutParentKeys:
-          - put
+            - put
         assertions:
           defined: true
       - subject:
@@ -53,20 +53,20 @@ rules:
         assertions:
           defined: true
     assertions:
-      disallowed: [ 'application/pdf' ]
+      disallowed: ['application/pdf']
     message: Media type should not be pdf
 
   # enum example
-  assert/media-type-pdf:
-    subject: 
+  rule/media-type-pdf:
+    subject:
       type: MediaTypesMap
     message: Only application/pdf can be used
     severity: error
     assertions:
       enum:
-      - application/pdf
-  assert/operation-summary-suggest:
-    subject: 
+        - application/pdf
+  rule/operation-summary-suggest:
+    subject:
       type: Operation
       property: summary
     message: Summary must be one of the predefined values
@@ -74,13 +74,13 @@ rules:
       - change to 'My resource'
       - change to 'My collection'
     severity: error
-    assertions: 
+    assertions:
       enum:
-      - My resource
-      - My collection
+        - My resource
+        - My collection
   # pattern example
-  assert/operation-summary-pattern:
-    subject: 
+  rule/operation-summary-pattern:
+    subject:
       type: Operation
       property: summary
     message: Summary should match a regex
@@ -88,8 +88,8 @@ rules:
     assertions:
       pattern: /resource/
   # casing
-  assert/operation-id-camel-case:
-    subject: 
+  rule/operation-id-camel-case:
+    subject:
       type: Operation
       property: operationId
     message: NamedExamples key must be in camelCase
@@ -97,17 +97,17 @@ rules:
     assertions:
       casing: camelCase
   # mutuallyExclusive example
-  assert/operation-mutually-exclusive:
-    subject: 
+  rule/operation-mutually-exclusive:
+    subject:
       type: Operation
-    message: "Operation must not define both properties together: description and externalDocs"
+    message: 'Operation must not define both properties together: description and externalDocs'
     severity: error
     assertions:
       mutuallyExclusive:
-      - description
-      - externalDocs
+        - description
+        - externalDocs
   # mutuallyRequired example
-  assert/operation-mutually-required:
+  rule/operation-mutually-required:
     subject:
       type: SchemaProperties
     where:
@@ -117,78 +117,78 @@ rules:
           defined: true
     message: The created_at and updated_at properties are mutually required
     severity: error
-    assertions: 
+    assertions:
       mutuallyRequired:
-      - created_at
-      - updated_at
+        - created_at
+        - updated_at
   # mutuallyRequired example with context
-  assert/operation-mutually-required-w-context:
-    subject: 
+  rule/operation-mutually-required-w-context:
+    subject:
       type: Responses
     where:
-        - subject:
-            type: Operation
-            filterInParentKeys:
+      - subject:
+          type: Operation
+          filterInParentKeys:
             - put
-          assertions:
-            defined: true
+        assertions:
+          defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.
     severity: error
-    assertions: 
+    assertions:
       mutuallyRequired:
-      - '200'
-      - '201'
+        - '200'
+        - '201'
   # disallowed example
-  assert/operation-disallowed:
-    subject: 
+  rule/operation-disallowed:
+    subject:
       type: Operation
     message: x-code-samples and x-internal must not be defined
     severity: error
-    assertions: 
+    assertions:
       disallowed:
-      - x-code-samples
-      - x-internal
+        - x-code-samples
+        - x-internal
   # defined example
-  assert/operation-x-code-samples-defined:
-    subject: 
+  rule/operation-x-code-samples-defined:
+    subject:
       type: Operation
       property: x-codeSamples
     message: x-codeSamples must be defined
     severity: error
-    assertions: 
+    assertions:
       defined: true
   # undefined example
-  assert/operation-x-code-samples-undefined:
-    subject: 
+  rule/operation-x-code-samples-undefined:
+    subject:
       type: Operation
       property: x-code-samples
     message: x-code-samples is deprecated
     suggest:
       - x-codeSamples instead of x-code-samples
     severity: error
-    assertions: 
+    assertions:
       defined: false
   # nonEmpty example
-  assert/operation-summary-non-empty:
-    subject: 
+  rule/operation-summary-non-empty:
+    subject:
       type: Operation
       property: summary
     message: Operation summary should not be empty
     severity: error
-    assertions: 
+    assertions:
       nonEmpty: true
   # minLength example
-  assert/operation-summary-min-length:
-    subject: 
+  rule/operation-summary-min-length:
+    subject:
       type: Operation
       property: summary
     message: Operation summary must have minimum of 2 chars length
     severity: error
-    assertions: 
+    assertions:
       minLength: 2
   # maxLength example
-  assert/operation-summary-max-length:
-    subject: 
+  rule/operation-summary-max-length:
+    subject:
       type: Operation
       property: summary
     message: Operation summary must have a maximum of 2 characters
@@ -196,16 +196,16 @@ rules:
     assertions:
       maxLength: 2
   # Example map subject example
-  assert/exampleMap:
-    subject: 
+  rule/exampleMap:
+    subject:
       type: ExamplesMap
     message: Examples names must use camelCase
     assertions:
       casing: camelCase
     severity: error
   # any subject type example
-  assert/anyType:
-    subject: 
+  rule/anyType:
+    subject:
       type: any
       property: description
     assertions:

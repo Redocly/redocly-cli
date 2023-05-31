@@ -30,8 +30,7 @@ paths:
                   uniqueItems: true
                   items:
                     type: string
-                  example:
-                    test
+                  example: test
       responses:
         '200':
           description: My 200 response

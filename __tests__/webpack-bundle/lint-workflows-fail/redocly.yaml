@@ -2,6 +2,6 @@ apis:
   main:
     root: ./openapi.yaml
 
-rules: 
+rules:
   operation-operationId: warn
   operation-summary: error

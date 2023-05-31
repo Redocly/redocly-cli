@@ -3,17 +3,17 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/path-item-mutually-exclusive:
+  rule/path-item-mutually-exclusive:
     where:
       - subject:
           type: PathItem
           property: get
         assertions:
           defined: true
-    subject: 
+    subject:
       type: Operation
     message: Operation should not have summary and tags fields simultaneously
     assertions:
       mutuallyExclusive:
-      - summary
-      - tags
+        - summary
+        - tags

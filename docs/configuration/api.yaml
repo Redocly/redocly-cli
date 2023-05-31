@@ -4,7 +4,7 @@ description: >-
   Lets you configure one or more API definition files.
   This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
 additionalProperties:
-  x-additionalPropertiesName: "{name}@{version}"
+  x-additionalPropertiesName: '{name}@{version}'
   type: object
   title: API object
   minItems: 1

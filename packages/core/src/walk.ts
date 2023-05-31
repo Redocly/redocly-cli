@@ -410,12 +410,16 @@ export function walkDocument<T>(opts: {
     }
 
     function reportFn(ruleId: string, severity: ProblemSeverity, opts: Problem) {
-      const loc = opts.location
+      const normalizedLocation = opts.location
         ? Array.isArray(opts.location)
           ? opts.location
           : [opts.location]
         : [{ ...currentLocation, reportOnKey: false }];
-
+      const location = normalizedLocation.map((l) => ({
+        ...currentLocation,
+        reportOnKey: false,
+        ...l,
+      }));
       const ruleSeverity = opts.forceSeverity || severity;
       if (ruleSeverity !== 'off') {
         ctx.problems.push({
@@ -423,9 +427,7 @@ export function walkDocument<T>(opts: {
           severity: ruleSeverity,
           ...opts,
           suggest: opts.suggest || [],
-          location: loc.map((loc: any) => {
-            return { ...currentLocation, reportOnKey: false, ...loc };
-          }),
+          location,
         });
       }
     }

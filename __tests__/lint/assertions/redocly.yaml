@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/tag-description:
+  rule/tag-description:
     subject:
       type: Tag
       property: description
@@ -13,22 +13,22 @@ rules:
       minLength: 13
       pattern: /\.$/
   # property example
-  assert/path-item-get-defined:
-    subject: 
+  rule/path-item-get-defined:
+    subject:
       type: PathItem
       property: get
     message: Every path item must have a GET operation.
     assertions:
       defined: true
-  assert/path-item-get-required:
-    subject: 
+  rule/path-item-get-required:
+    subject:
       type: PathItem
     message: Every path item must have a GET operation.
     assertions:
       required:
         - get
-  assert/tag-name-and-desc:
-    subject: 
+  rule/tag-name-and-desc:
+    subject:
       type: Tag
       property:
         - name
@@ -38,29 +38,29 @@ rules:
       defined: true
 
   # context example
-  assert/media-type-map-not-pdf:
+  rule/media-type-map-not-pdf:
     subject:
       type: MediaTypesMap
     assertions:
       disallowed: ['application/pdf']
     message: Media type should not be pdf
-    where: 
-      - subject: 
+    where:
+      - subject:
           type: Operation
           filterOutParentKeys:
             - put
-        assertions: 
+        assertions:
           defined: true
       - subject:
           type: Response
           filterInParentKeys: ['201', '200']
           property: description
-        assertions: 
+        assertions:
           defined: true
-   
+
   # enum example
-  assert/media-type-map-enum:
-    subject: 
+  rule/media-type-map-enum:
+    subject:
       type: MediaTypesMap
     message: Only application/json and application/pdf can be used
     severity: error
@@ -69,8 +69,8 @@ rules:
         - application/json
         - application/pdf
 
-  assert/operation-summary-suggest:
-    subject: 
+  rule/operation-summary-suggest:
+    subject:
       type: Operation
       property: summary
     message: Summary must be one of the predefined values
@@ -78,14 +78,14 @@ rules:
       - change to 'My resource'
       - change to 'My collection'
     severity: error
-    assertions: 
+    assertions:
       enum:
         - My resource
         - My collection
 
   # pattern example
-  assert/operation-summary-pattern:
-    subject: 
+  rule/operation-summary-pattern:
+    subject:
       type: Operation
       property: summary
     message: Summary should match a regex
@@ -93,8 +93,8 @@ rules:
     assertions:
       pattern: /resource/
   # casing
-  assert/operation-id-casing:
-    subject: 
+  rule/operation-id-casing:
+    subject:
       type: Operation
       property: operationId
     message: NamedExamples key must be in camelCase
@@ -102,8 +102,8 @@ rules:
     assertions:
       casing: camelCase
   # mutuallyExclusive example
-  assert/operation-mutually-exclusive:
-    subject: 
+  rule/operation-mutually-exclusive:
+    subject:
       type: Operation
     message: 'Operation must not define both properties together: description and externalDocs'
     severity: error
@@ -112,8 +112,8 @@ rules:
         - description
         - externalDocs
   # mutuallyRequired example
-  assert/schema-properties-mutually-required:
-    subject: 
+  rule/schema-properties-mutually-required:
+    subject:
       type: SchemaProperties
     assertions:
       mutuallyRequired:
@@ -123,32 +123,32 @@ rules:
     severity: error
 
     where:
-      - subject: 
+      - subject:
           type: Response
         assertions:
           defined: true
-    
+
   # mutuallyRequired example with context
-  assert/response-map-required-with-context:
-    subject: 
+  rule/response-map-required-with-context:
+    subject:
       type: Responses
-    assertions: 
+    assertions:
       mutuallyRequired:
         - '200'
         - '201'
     where:
-      - subject: 
+      - subject:
           type: Operation
           filterInParentKeys:
             - put
-        assertions: 
+        assertions:
           defined: true
     message: Must mutually define 200 and 201 responses for PUT requests.
     severity: error
-  
+
   # requireAny example
-  assert/operation-require-any-description-or-external:
-    subject: 
+  rule/operation-require-any-description-or-external:
+    subject:
       type: Operation
     message: 'Operation must have one of properties defined: description or externalDocs'
     severity: error
@@ -158,29 +158,29 @@ rules:
         - externalDocs
 
   # disallowed example
-  assert/operation-disallowed:
-    subject: 
+  rule/operation-disallowed:
+    subject:
       type: Operation
     message: x-code-samples and x-internal must not be defined
     severity: error
-    assertions: 
+    assertions:
       disallowed:
         - x-code-samples
         - x-internal
 
   # defined example
-  assert/operation-defined:
+  rule/operation-defined:
     subject:
       type: Operation
       property: x-codeSamples
     message: x-codeSamples must be defined
     severity: error
-    assertions: 
+    assertions:
       defined: true
 
   # nonEmpty example
-  assert/operation-non-empty:
-    subject: 
+  rule/operation-non-empty:
+    subject:
       type: Operation
       property: summary
     message: Operation summary should not be empty
@@ -189,8 +189,8 @@ rules:
       nonEmpty: true
 
   # minLength example
-  assert/operation-min-length:
-    subject: 
+  rule/operation-min-length:
+    subject:
       type: Operation
       property: summary
     message: Operation summary must have minimum of 2 chars length
@@ -199,8 +199,8 @@ rules:
       minLength: 2
 
   # maxLength example
-  assert/operation-max-length:
-    subject: 
+  rule/operation-max-length:
+    subject:
       type: Operation
       property: summary
     message: Operation summary must have a maximum of 2 characters
@@ -209,8 +209,8 @@ rules:
       maxLength: 20
 
   # ref example
-  assert/ref:
-    subject: 
+  rule/ref:
+    subject:
       type: PathItem
     message: No refs on Path Items
     severity: error

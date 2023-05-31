@@ -26,8 +26,8 @@ paths:
 
   '/dog/{dogId}':
     post:
-      tags: 
-        -  Dog
+      tags:
+        - Dog
       summary: Dog example
       operationId: exampleDogId
       responses:

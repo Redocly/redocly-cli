@@ -10,4 +10,4 @@ components:
     TestSchema:
       title: TestSchema
       allOf:
-        - $ref: "#/components/requestBodies/TestRequestBody"
+        - $ref: '#/components/requestBodies/TestRequestBody'

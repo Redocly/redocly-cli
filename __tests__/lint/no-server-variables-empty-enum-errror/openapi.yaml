@@ -8,8 +8,8 @@ servers:
       id:
         enum: []
       placeId:
-          enum: [b]
-          default: a
+        enum: [b]
+        default: a
   - url: https://example.com/{var}
     variables: {}
 

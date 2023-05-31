@@ -7,7 +7,7 @@ tocMaxDepth: 2
 Documentation commands:
 
 * [`preview-docs`](preview-docs.md) Preview API reference docs for the specified definition.
-* [`build-docs`](build-docs.md) Build definition into zero-dependency HTML-file.
+* [`build-docs`](build-docs.md) Build definition into an HTML file.
 
 API management commands:
 

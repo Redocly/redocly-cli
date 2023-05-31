@@ -3,7 +3,7 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/response-content-defined:
+  rule/response-content-defined:
     subject:
       type: Response
       property: content
@@ -11,7 +11,7 @@ rules:
     message: Response content should be defined
     assertions:
       defined: true
-  assert/operation-security:
+  rule/operation-security:
     subject:
       type: Operation
       property: security

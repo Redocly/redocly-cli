@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: '3.0.0'
 info:
   version: 1.0.0
   title: Swagger Petstore
@@ -44,7 +44,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                $ref: '#/components/schemas/Pets'
         '400':
           description: An error response
         default:
@@ -52,7 +52,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
     post:
       summary: Create a pet
       operationId: create_pets
@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
   /pets/{pet_id}:
     get:
       summary: Info for a specific pet
@@ -88,7 +88,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Pets"
+                $ref: '#/components/schemas/Pets'
         '400':
           description: An error response
         default:
@@ -96,12 +96,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Pet:
-      description:
-        A pet
+      description: A pet
       required:
         - id
         - name
@@ -109,16 +108,15 @@ components:
         id:
           type: integer
           format: int64
-          description: "id property"
+          description: 'id property'
         name:
           type: string
-          description: "name property"
+          description: 'name property'
         tag:
           type: string
-          description: "tag property"
+          description: 'tag property'
     Pets:
-      description:
-        A list of pets
+      description: A list of pets
       required:
         - pets
         - next_url
@@ -127,9 +125,9 @@ components:
       properties:
         pets:
           type: array
-          description: "object containing a list of pets"
+          description: 'object containing a list of pets'
           items:
-            $ref: "#/components/schemas/Pet"
+            $ref: '#/components/schemas/Pet'
         next_url:
           type: string
           description: this is the url to next page
@@ -146,8 +144,7 @@ components:
           description: next token
 
     Error:
-      description:
-        An error in processing a service request
+      description: An error in processing a service request
       required:
         - code
         - message
@@ -155,7 +152,7 @@ components:
         code:
           type: integer
           format: int32
-          description: "code property"
+          description: 'code property'
         message:
           type: string
-          description: "message property"
+          description: 'message property'

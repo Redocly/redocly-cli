@@ -3,11 +3,11 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/summary-non-empty:
-    subject: 
+  rule/summary-non-empty:
+    subject:
       type: Operation
       property: summary
     message: Operation summary should not be empty
-    assertions: 
+    assertions:
       nonEmpty: true
     severity: warn

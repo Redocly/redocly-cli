@@ -79,7 +79,6 @@ export class StyleguideConfig {
   constructor(public rawConfig: ResolvedStyleguideConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
-
     this.recommendedFallback = rawConfig.recommendedFallback || false;
 
     this.rules = {

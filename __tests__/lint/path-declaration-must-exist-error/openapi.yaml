@@ -8,7 +8,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-- url: https://development.com/v1
+  - url: https://development.com/v1
 
 paths:
   '/api/user/{}/profie':

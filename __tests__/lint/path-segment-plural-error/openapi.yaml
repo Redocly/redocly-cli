@@ -18,7 +18,7 @@ paths:
     parameters:
       - name: Accept-Language
         in: header
-        description: "The language you prefer for messages"
+        description: 'The language you prefer for messages'
         example: en-US
         required: false
         schema:

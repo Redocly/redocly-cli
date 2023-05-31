@@ -4,5 +4,5 @@ apis:
   bar:
     root: ./bar.yaml
 
-extends: 
+extends:
   - recommended

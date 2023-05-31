@@ -10,9 +10,11 @@
     }
   },
   "security": [],
-  "servers": [{
-    "url": "http://petstore.swagger.io/v1"
-  }],
+  "servers": [
+    {
+      "url": "http://petstore.swagger.io/v1"
+    }
+  ],
   "paths": {
     "/test": {
       "get": {
@@ -25,8 +27,7 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/PetWithProps" },
                 "example": {
-                  "a": {
-                  },
+                  "a": {},
                   "b": {
                     "c": "hello"
                   }
@@ -61,7 +62,7 @@
         "properties": {
           "c": { "type": "string" },
           "a": {
-            "$ref":  "#/components/schemas/PetWithProps"
+            "$ref": "#/components/schemas/PetWithProps"
           },
           "b": {
             "oneOf": [{ "$ref": "#/components/schemas/PetWithProps" }]

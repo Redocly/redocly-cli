@@ -18,6 +18,7 @@ Hi! We're really excited that you are interested in contributing to Redocly CLI.
 - Abide by our [Code of Conduct](https://redocly.com/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
 
 ## Pull Request Guidelines
+
 Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
@@ -38,7 +39,7 @@ $ npm install # or npm i
 
 ### Commonly used NPM scripts
 
-``` bash
+```bash
 # run a separate CLI command
 $ npm run <command>
 

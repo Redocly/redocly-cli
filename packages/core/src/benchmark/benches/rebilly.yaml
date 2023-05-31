@@ -1567,7 +1567,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/ResourceId'
         name:
-          description: 'The tag''s unique name, which is case-insensitive.'
+          description: "The tag's unique name, which is case-insensitive."
           type: string
           maxLength: 255
           pattern: '^[@~\-\.\w\s]+$'
@@ -1628,10 +1628,10 @@ components:
       type: object
       properties:
         medium:
-          description: 'Lead Source''s medium (eg search, display)'
+          description: "Lead Source's medium (eg search, display)"
           type: string
         source:
-          description: 'Lead Source''s source (eg google, yahoo)'
+          description: "Lead Source's source (eg google, yahoo)"
           type: string
         campaign:
           description: Lead Source's campaign (eg go-big-123)
@@ -1643,7 +1643,7 @@ components:
           description: Lead Source's content (eg smiley faces)
           type: string
         affiliate:
-          description: 'Lead Source''s affiliate (eg 123, Bob Smith)'
+          description: "Lead Source's affiliate (eg 123, Bob Smith)"
           type: string
         subAffiliate:
           description: >-
@@ -2952,7 +2952,7 @@ components:
               format: double
               example: 99.95
             maxQuantity:
-              description: 'If the value is `null`, it''s assumed to be infinite.'
+              description: "If the value is `null`, it's assumed to be infinite."
               type: integer
               example: 1
     stairstep:
@@ -2995,7 +2995,7 @@ components:
                 type: object
                 properties:
                   price:
-                    description: 'If the price is 0, it''s free.'
+                    description: "If the price is 0, it's free."
                     type: number
                     format: double
                     example: 99.95
@@ -3047,7 +3047,7 @@ components:
                 type: object
                 properties:
                   price:
-                    description: 'If the price is 0, it''s free.'
+                    description: "If the price is 0, it's free."
                     type: number
                     format: double
                     example: 99.95
@@ -3099,7 +3099,7 @@ components:
                 type: object
                 properties:
                   price:
-                    description: 'If the price is 0, it''s free.'
+                    description: "If the price is 0, it's free."
                     type: number
                     format: double
                     example: 99.95
@@ -3724,7 +3724,7 @@ components:
           readOnly: true
           type: integer
         subscriptionId:
-          description: 'The related subscription''s ID if available, otherwise null.'
+          description: "The related subscription's ID if available, otherwise null."
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/ResourceId'
@@ -4863,10 +4863,10 @@ components:
                       description: The gateway's response type
                       type: string
                     originalCode:
-                      description: 'The raw, unmapped gateway''s response code'
+                      description: "The raw, unmapped gateway's response code"
                       type: string
                     originalMessage:
-                      description: 'The raw, unmapped gateway''s response message'
+                      description: "The raw, unmapped gateway's response message"
                       type: string
                 avsResponse:
                   description: The AVS gateway's response
@@ -14948,7 +14948,7 @@ components:
           description: The user mobile phone number
           type: string
         password:
-          description: 'User''s password. If not provided, password reset email will be sent'
+          description: "User's password. If not provided, password reset email will be sent"
           type: string
           format: password
         permissions:

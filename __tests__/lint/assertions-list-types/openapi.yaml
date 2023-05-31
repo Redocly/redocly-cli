@@ -27,10 +27,10 @@ paths:
       operationId: list_pets
       tags:
         - pets
-      parameters: 
+      parameters:
         - name: Accept-Language
           in: header
-          description: "The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US"
+          description: 'The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US'
           example: en-US
           required: false
           schema:

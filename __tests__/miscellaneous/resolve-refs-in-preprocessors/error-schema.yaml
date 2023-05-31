@@ -1,0 +1,6 @@
+type: object
+properties:
+  message:
+    type: string
+  error_code:
+    type: number

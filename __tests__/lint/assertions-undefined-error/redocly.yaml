@@ -3,8 +3,8 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  assert/summary-undefined:
-    subject: 
+  rule/summary-undefined:
+    subject:
       type: Operation
       property: summary
     message: Operation summary should be undefined

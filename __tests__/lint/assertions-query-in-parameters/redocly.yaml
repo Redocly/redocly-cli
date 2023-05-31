@@ -1,16 +1,16 @@
 apis:
   main:
     root: ./openapi.yaml
-rules: 
-  assert/query-in-parameters:
+rules:
+  rule/query-in-parameters:
     where:
-      - subject: 
+      - subject:
           type: Parameter
           property: name
         assertions:
           const: statusId
-    subject: 
+    subject:
       type: Parameter
       property: in
-    assertions: 
+    assertions:
       const: path

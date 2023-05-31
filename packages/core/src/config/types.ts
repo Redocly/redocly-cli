@@ -11,7 +11,7 @@ import type {
 } from '../oas-types';
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
-import { SkipFunctionContext } from '../visitors';
+import type { SkipFunctionContext } from '../visitors';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 

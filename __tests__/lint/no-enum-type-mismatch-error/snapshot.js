@@ -7,7 +7,7 @@ validating /openapi.yaml...
 
 Enum value \`string\` must be of allowed types: \`integer,array\`.
 
-19 |                 - [ 1, 2, 3, string]
+19 |                 - [1, 2, 3, string]
 20 |                 - 3
 21 |                 - string
    |                   ^^^^^^

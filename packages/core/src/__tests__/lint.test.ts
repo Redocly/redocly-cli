@@ -60,7 +60,7 @@ describe('lint', () => {
           no-invalid-media-type-examples: error
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
-          assert/operation-summary-length:
+          rule/operation-summary-length:
             subject: 
               type: Operation
               property: summary
