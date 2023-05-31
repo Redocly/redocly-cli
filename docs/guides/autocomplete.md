@@ -14,4 +14,3 @@ redocly completion >> ~/.bashrc
 ```
 
 The approach is similar for other shells. After the installation, restart your terminal for the changes to take effect.
-

@@ -51,12 +51,14 @@ Open the `sample.yaml` file in your IDE. We'll change it in a few places.
           x-internal: true
           operationId: postStars
     ```
+
 1. Go to line 52 and add a new line between `hasPlanets` and `type`, like we did previously. The following example shows how it should look.
     ```yaml
             hasPlanets:
               x-internal: true
               type: boolean
     ```
+
 1. Save the file.
 
 ## Step 2: Add a Redocly configuration file
