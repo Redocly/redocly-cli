@@ -90,12 +90,12 @@ See an example of a custom rule implementation in our ["Response contains proper
 
 Keys of the object can be any of the following:
 
-- node type - the visitor is called on specific node type. List of available node types for each specific OAS version:
+- node type - the visitor is called on specific node types. List of available node types for each specific OAS version:
   - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
   - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
   - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
-- `any` - visitor is called on every node
-- `ref` - visitor is called on $ref nodes
+- `any` - visitor is called on every node.
+- `ref` - visitor is called on $ref nodes.
 
 The value of each node can be either **visitor function** (runs while going down the tree) or **visitor object** (see below).
 
@@ -128,7 +128,9 @@ Also, visitor object (if it is not `any` or `ref`) can define [nested visitors](
 
 ## Visitors execution and $ref
 
-Top level **visitor functions** run only once for each node. If the same node is referenced via $ref multiple times top-level **visitor functions** are executed only once for this node.
+Top level **visitor functions** run only once for each node.
+If the same node is referenced by the $ref multiple times,
+top-level **visitor functions** are executed only once for this node.
 
 This works fine for most context-free rules which check basic things. If you need contextual info you should use [nested visitors](#nested-visitors).
 
@@ -151,7 +153,7 @@ function ExampleRule() {
 }
 ```
 
-The `Schema` **visitor function** is called by Redocly CLI if only Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
+The `Schema` **visitor function** is called by Redocly CLI only if the Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
 
 As the third argument, the **visitor function** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
