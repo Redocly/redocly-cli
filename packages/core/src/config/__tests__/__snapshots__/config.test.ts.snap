@@ -96,7 +96,6 @@ StyleguideConfig {
     },
   },
   "recommendedFallback": false,
-  "resolveAfterTransformers": false,
   "rules": Object {
     "oas2": Object {
       "oas2": Object {

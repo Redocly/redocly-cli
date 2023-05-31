@@ -35,7 +35,6 @@ Object {
   },
   "preprocessors": Object {},
   "recommendedFallback": false,
-  "resolveAfterTransformers": undefined,
   "rules": Object {
     "assertions": "warn",
     "boolean-parameter-prefixes": "error",
@@ -108,7 +107,6 @@ Object {
   },
   "preprocessors": Object {},
   "recommendedFallback": undefined,
-  "resolveAfterTransformers": undefined,
   "rules": Object {
     "assertions": Array [
       Object {

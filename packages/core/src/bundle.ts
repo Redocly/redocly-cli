@@ -129,32 +129,30 @@ export async function bundleDocument(opts: {
     });
   }
 
-  if (config.resolveAfterTransformers) {
-    // Make preliminary pass to be able to resolve refs defined in preprocessors in the next pass.
-    const preliminaryResolvedRefMap = await resolveDocument({
-      rootDocument: document,
-      rootType: types.Root,
-      externalRefResolver,
-    });
-    const normalizedPreprocessorVisitors = normalizeVisitors(preprocessors, types);
-    walkDocument({
-      document,
-      rootType: types.Root as NormalizedNodeType,
-      normalizedVisitors: normalizedPreprocessorVisitors,
-      resolvedRefMap: preliminaryResolvedRefMap,
-      ctx,
-    });
-  }
-
-  const resolvedRefMap = await resolveDocument({
+  let resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
     externalRefResolver,
   });
 
+  if (preprocessors.length > 0) {
+    // Make additional pass to resolve refs defined in preprocessors.
+    walkDocument({
+      document,
+      rootType: types.Root as NormalizedNodeType,
+      normalizedVisitors: normalizeVisitors(preprocessors, types),
+      resolvedRefMap,
+      ctx,
+    });
+    resolvedRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: types.Root,
+      externalRefResolver,
+    });
+  }
+
   const bundleVisitor = normalizeVisitors(
     [
-      ...(config.resolveAfterTransformers ? [] : preprocessors),
       {
         severity: 'error',
         ruleId: 'bundler',

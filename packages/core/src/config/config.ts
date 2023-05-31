@@ -64,7 +64,6 @@ export class StyleguideConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
-  resolveAfterTransformers: boolean;
   rules: Record<OasVersion, Record<string, RuleConfig>>;
   preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
@@ -80,7 +79,6 @@ export class StyleguideConfig {
   constructor(public rawConfig: ResolvedStyleguideConfig, public configFile?: string) {
     this.plugins = rawConfig.plugins || [];
     this.doNotResolveExamples = !!rawConfig.doNotResolveExamples;
-    this.resolveAfterTransformers = !!rawConfig.resolveAfterTransformers;
     this.recommendedFallback = rawConfig.recommendedFallback || false;
 
     this.rules = {

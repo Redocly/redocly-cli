@@ -11,7 +11,7 @@ import type {
 } from '../oas-types';
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
-import { SkipFunctionContext } from '../visitors';
+import type { SkipFunctionContext } from '../visitors';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -37,7 +37,6 @@ export type StyleguideRawConfig = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   doNotResolveExamples?: boolean;
-  resolveAfterTransformers?: boolean;
   recommendedFallback?: boolean;
 
   rules?: Record<string, RuleConfig>;
@@ -128,7 +127,6 @@ export type ResolveHeader =
 export type RawResolveConfig = {
   http?: Partial<HttpResolveConfig>;
   doNotResolveExamples?: boolean;
-  resolveAfterTransformers?: boolean;
 };
 
 export type HttpResolveConfig = {
@@ -176,10 +174,10 @@ export type RawConfig = {
 } & ThemeConfig;
 
 export type FlatApi = Omit<Api, 'styleguide'> &
-  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples' | 'resolveAfterTransformers'>;
+  Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
 
 export type FlatRawConfig = Omit<RawConfig, 'styleguide' | 'resolve' | 'apis'> &
-  Omit<StyleguideRawConfig, 'doNotResolveExamples' | 'resolveAfterTransformers'> & {
+  Omit<StyleguideRawConfig, 'doNotResolveExamples'> & {
     resolve?: RawResolveConfig;
     apis?: Record<string, FlatApi>;
   } & ThemeRawConfig;

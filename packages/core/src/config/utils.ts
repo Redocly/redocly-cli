@@ -91,7 +91,6 @@ function extractFlatConfig<
     oas3_1Decorators,
 
     doNotResolveExamples: rawConfigRest.resolve?.doNotResolveExamples,
-    resolveAfterTransformers: rawConfigRest.resolve?.resolveAfterTransformers,
   };
 
   if (

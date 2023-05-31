@@ -163,7 +163,6 @@ const ConfigRoot: NodeType = {
       properties: {
         http: 'ConfigHTTP',
         doNotResolveExamples: { type: 'boolean' },
-        resolveAfterTransformers: { type: 'boolean' },
       },
     },
     files: {

@@ -1,4 +1,4 @@
-import { DeprecatedInRawConfig, RawConfig, FlatRawConfig } from '../types';
+import type { DeprecatedInRawConfig, RawConfig, FlatRawConfig } from '../types';
 import * as utils from '../utils';
 
 const makeTestRawConfig = (

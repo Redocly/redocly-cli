@@ -1,10 +1,7 @@
 openapi: 3.0.1
 servers: 
   - url: http://localhost:8080 
-info: 
-  license: 
-    name: PROPRIETARY
-    url: http://localhost:8080
+info:
   title: Test
   version: 1.0.0
 security: []
