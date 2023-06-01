@@ -48,7 +48,7 @@ The `lint` command behaves differently depending on how you pass apis to it and 
 redocly lint openapi/openapi.yaml
 ```
 
-In this case, `lint` will validate the definition(s) passed to the command. The configuration file is ignored.
+In this case, `lint` validates the definition(s) passed to the command. The configuration file is ignored.
 
 The `apis` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 
@@ -66,7 +66,7 @@ apis:
     root: ./openapi/definition.json
 ```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` will validate the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` validates the `definition.json` file. The presence of the Redocly configuration file is mandatory.
 
 #### Empty apis
 
@@ -90,7 +90,7 @@ In this case, if no API definitions are specified, `lint` validates all apis lis
 
 :::warning Important
 
-If you try to execute the `lint` command without apis when your project doesn't have any configuration files, the `lint` command will display an error.
+If you try to execute the `lint` command without apis when your project doesn't have any configuration files, the `lint` command displays an error.
 
 :::
 
@@ -104,7 +104,7 @@ redocly lint --config=./another/directory/config.yaml
 
 ### Extend configuration
 
-The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, `all`. Each of the values is a base set of rules that the lint command will use. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
+The `--extends` option allows you to extend the existing configuration. This option accepts one of the following values: `minimal`, `recommended`, or `all`. Each of the values is a base set of rules that the lint command uses. You can further modify this set in cases when you want to have your own set of rules based on the existing one, including particular rules that cover your specific needs.
 
 :::warning Important
 
@@ -193,7 +193,7 @@ redocly lint --max-problems 200
 
 ### Generate ignore file
 
-With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output. You will still receive visual feedback to let you know how many problems were ignored.
+With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output. You still receive visual feedback to let you know how many problems were ignored.
 
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 
@@ -207,7 +207,7 @@ Generated ignore file with 3 problems.
 ```
 
 :::warning
-This command will overwrite an existing ignore file.
+This command overwrites an existing ignore file.
 :::
 
 To generate an ignore file for multiple definitions, pass them as arguments:

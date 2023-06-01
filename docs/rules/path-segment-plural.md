@@ -18,7 +18,7 @@ For example, "customers" instead of "customer" because:
 - `GET /customers` means getting a collection of customers
 - `GET /customers/abc` means getting customer ABC from the customers collection
 
-As your API grows, you'll likely hit some false positives and may also need to ignore a few outliers.
+As your API grows, you may hit some false positives and may also need to ignore a few outliers.
 That is, unless you're a purist.
 Nothing wrong with that.
 

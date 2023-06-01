@@ -34,9 +34,10 @@ The REST type prefers to name paths after resources like "customers", and "payme
 And the REST type relies on HTTP methods, like GET, to indicate the action on that resource.
 It would be considered a design fail to make the path "getcustomers" or "get-customers" or any variation on that.
 If you're aiming to design RESTful resources, then consider this rule your friend.
-There is the option to `splitIntoWords` to reduce false positives.
+
+To reduce false positives, use the `splitIntoWords` option.
 Imagine a world-famous rock band, the Redockers, and they have an API powering their music tour with one resource "posters".
-With the `splitIntoWords` enabled it will be identified as a resource and not trigger a false positive even though it contains the word `post`.
+With the `splitIntoWords` option enabled, "posters" is identified as a resource and does not trigger a false positive, even though it contains the word `post`.
 
 ## Configuration
 
@@ -113,7 +114,7 @@ paths:
     $ref: ./paths/customer.yaml
 ```
 
-This last example wouldn't trigger an error because the casing won't split "get" into its own word.
+This last example wouldn't trigger an error because the casing doesn't split "get" into its own word.
 
 ## Related rules
 

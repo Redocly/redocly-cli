@@ -5,8 +5,8 @@ Replaces the info description with the designated Markdown in the corresponding 
 ## API design principles
 
 Sometimes developers generate OpenAPI and the descriptions need to be improved after the fact.
-This generally happens when you have no permission to edit the source.
-This decorator provides a way to "overlay" a new description over the source so that as the source changes you won't lose your modifications.
+This generally happens when you don't have permission to edit the source.
+This decorator provides a way to "overlay" a new description over the source, so that as the source changes, the modifications can be reapplied.
 
 
 ## Configuration

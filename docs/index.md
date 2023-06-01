@@ -20,7 +20,7 @@ Redocly CLI is an open source command-line tool for working with OpenAPI descrip
 
 Redoc is our open source API documentation tool. Use `redocly` (this project) to work with your Redoc documentation projects.
 
-The Redocly CLI also supports many of the other operations you'll need to be successful working with OpenAPI. API linting, enhancement, bundling and other tools are also available as part of this open source CLI tool.
+The Redocly CLI also supports many of the other operations needed to be successful working with OpenAPI. API linting, enhancement, bundling and other tools are also available as part of this open source CLI tool.
 
 Redocly offers a full suite of API lifecycle tools as commercial offerings; you can manage those from this tool too.
 
