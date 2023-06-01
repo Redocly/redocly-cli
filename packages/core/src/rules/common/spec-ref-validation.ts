@@ -17,7 +17,7 @@ export const SpecRefValidation: Oas3Rule | Oas2Rule = () => {
 
   return {
     any(_node, { report, rawNode, rawLocation, type }) {
-      const isShouldCheck = !nodesToSkip.includes(type.name);
+      const shouldCheck = !nodesToSkip.includes(type.name);
 
       if (shouldCheck && isRef(rawNode)) {
         report({
