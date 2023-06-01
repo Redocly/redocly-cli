@@ -2,8 +2,8 @@
 
 Choose the most appropriate installation method for your needs:
 
-* [Install locally, using `npm` or `yarn`](#local) to make the `redocly` command available on your system.
-* [Use `npx` to get the tool at runtime](#runtime) rather than installing it.
+* [Install locally, using `npm` or `yarn`](#install-globally) to make the `redocly` command available on your system.
+* [Use `npx` to get the tool at runtime](#use-npx-at-runtime) rather than installing it.
 * The command is also [available via Docker](#docker) if you'd prefer to use it that way.
 
 ## Install globally
@@ -34,7 +34,7 @@ npx @redocly/cli <command> [options]
 npx @redocly/cli@latest lint petstore.yaml
 ```
 
-## Run commands inside Docker
+## <a id="docker"></a>Run commands inside Docker
 
 To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is in the current working directory, the command to use is:
 
