@@ -17,7 +17,7 @@ export const SpecRefValidation: Oas3Rule | Oas2Rule = () => {
 
   return {
     any(_node, { report, rawNode, rawLocation, type }) {
-      if (!nodesToValidate.includes(type.name) && isRef(rawNode)) {
+      if (!nodesToSkip.includes(type.name) && isRef(rawNode)) {
         report({
           message: 'Field $ref is not expected here.',
           location: rawLocation.child('$ref').key(),
