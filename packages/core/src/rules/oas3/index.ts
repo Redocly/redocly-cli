@@ -50,7 +50,7 @@ import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-
 import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name';
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
-import { SpecRefValidation } from './spec-ref-validation';
+import { SpecRefValidation } from '../common/spec-ref-validation';
 
 export const rules = {
   spec: OasSpec,
