@@ -22,6 +22,7 @@ Build [configurable rules](./configurable-rules.md) if the rule you need isn't l
 - [security-defined](./security-defined.md): Security rules must be defined, either globally or per-operation
 - [spec](./spec.md): Conform to the declared OpenAPI specification version
 - [spec-components-invalid-map-name](./spec-components-invalid-map-name.md): Use only alphanumeric and basic punctuation as key names in the components section
+- [spec-ref-validation](./spec-ref-validation.md) Restricts the usage of the `$ref` keyword.
 
 ### Info
 
