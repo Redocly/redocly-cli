@@ -8,7 +8,6 @@ export const SpecRefValidation: Oas3Rule | Oas2Rule = () => {
     'Parameter',
     'RequestBody',
     'Example',
-    'Examples',
     'Header',
     'SecurityScheme',
     'Link',
