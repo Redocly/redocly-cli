@@ -75,7 +75,7 @@ You can name the plugins directory and file anything you want. Make sure you use
 
 ## Step 2: Add a decorator and associate it with an environment variable
 
-In this step, you will add a decorator and define the environment variable associated with it.
+In this step, add a decorator and define the environment variable associated with it.
 
 1. Create a directory `decorators` inside of the `plugins` directory.
 1. Create a `replace-servers-url.js` file with this information and save it inside of the `decorators` directory.
@@ -108,7 +108,7 @@ You can name the decorators directory anything you want. Make sure you use the c
 
 ## Step 3: Configure the plugin for use
 
-To use the decorator, you will need to register your plugin in your Redocly configuration file. Register your `plugins` and `decorators`.
+To use the decorator, register your plugin in your Redocly configuration file. Register your `plugins` and `decorators`.
 
 ```yaml
 apis:

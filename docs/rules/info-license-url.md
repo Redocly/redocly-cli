@@ -23,9 +23,7 @@ The principle of providing your users with accurate and relevant information doe
 
 Before they can work with your API, your users must understand the terms and conditions of your API usage.
 
-"Can I use your API? Will I get in trouble? Will I lose my job?"
-Sometimes questions like these go through consumers' minds.
-By being upfront with the API license, you can reduce friction towards usage.
+By being upfront with the API license, you can reduce friction and encourage API adoption.
 
 ## Configuration
 

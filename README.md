@@ -55,7 +55,7 @@ Redocly CLI is a great way to render API reference documentation. It uses open s
 redocly build-docs openapi.yaml
 ```
 
-Your API reference docs will be in `redoc-static.html` by default. You can customise this in many ways, [read the main docs](https://redocly.com/docs/cli/commands/build-docs) for more information.
+Your API reference docs are in `redoc-static.html` by default. You can customize this in many ways. [Read the main docs](https://redocly.com/docs/cli/commands/build-docs) for more information.
 
 > :bulb: Redocly also has [hosted API reference docs](https://redocly.com/docs/api-registry/guides/api-registry-quickstart/), a (commercial) alternative to Redoc. Both Redoc and Redocly API reference docs can be worked on locally using the `preview-docs` command.
 
@@ -71,7 +71,7 @@ redocly lint openapi.yaml
 
 **Format the output** in whatever way you need, the `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, we've got those too.
 
-**Multiple files supported** so you don't need to bundle your API description in order to lint it, just give the entrypoint and Redocly CLI will do the rest.
+**Multiple files supported** so you don't need to bundle your API description to lint it, just give the entry point and Redocly CLI does the rest.
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 

@@ -13,7 +13,7 @@ Redocly recommends using the highly [configurable rules](../rules/configurable-r
 ## Concepts
 
 Extend the CLI through the use of custom plugins.
-There are three main differences between preprocessors, rules and decorators.
+There are three main differences between preprocessors, rules, and decorators.
 
 1. The order of execution:
 
@@ -29,7 +29,7 @@ There are three main differences between preprocessors, rules and decorators.
 1. Preprocessors and decorators do not support nested visitors.
 
 ### Plugins
-A plugin defines a configuration and set of rules, preprocessors and decorators.
+A plugin defines a configuration and set of rules, preprocessors, and decorators.
 
 Plugins need to be explicitly defined in the configuration file (except for the Redocly built in plugins).
 
@@ -90,12 +90,12 @@ See an example of a custom rule implementation in our ["Response contains proper
 
 Keys of the object can be any of the following:
 
-- node type - visitor will be called on specific node type. List of available node types for each specific OAS version:
+- node type - the visitor is called on specific node types. List of available node types for each specific OAS version:
   - OAS 3.1: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3_1.ts#L209
   - OAS 3.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas3.ts#L530
   - OAS 2.0: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/types/oas2.ts#L367
-- `any` - visitor will be called on every node
-- `ref` - visitor will be called on $ref nodes
+- `any` - visitor is called on every node.
+- `ref` - visitor is called on $ref nodes.
 
 The value of each node can be either **visitor function** (runs while going down the tree) or **visitor object** (see below).
 
@@ -128,7 +128,9 @@ Also, visitor object (if it is not `any` or `ref`) can define [nested visitors](
 
 ## Visitors execution and $ref
 
-Top level **visitor functions** run only once for each node. If the same node is referenced via $ref multiple times top-level **visitor functions** will be executed only once for this node.
+Top level **visitor functions** run only once for each node.
+If the same node is referenced by the $ref multiple times,
+top-level **visitor functions** are executed only once for this node.
 
 This works fine for most context-free rules which check basic things. If you need contextual info you should use [nested visitors](#nested-visitors).
 
@@ -151,7 +153,7 @@ function ExampleRule() {
 }
 ```
 
-The `Schema` **visitor function** will be called by Redocly CLI if only Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
+The `Schema` **visitor function** is called by Redocly CLI only if the Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
 
 As the third argument, the **visitor function** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
@@ -184,7 +186,7 @@ put:
         type: number
 ```
 
-The visitor above will log the following:
+The visitor above logs the following:
 
 ```
 type string from get
@@ -226,7 +228,7 @@ and the following methods:
 
 ## context.report()
 
-The main method you'll use is `context.report()`, which publishes a warning or error (depending on the configuration being used). This method accepts a single argument, which is an object containing the following properties:
+The main method used is `context.report()`, which publishes a warning or error (depending on the configuration being used). This method accepts a single argument, which is an object containing the following properties:
 
 - `message` - {string} the problem message.
 - `location` - {Location} (optional) an object specifying the location of the problem. Can be constructed using location object methods.
@@ -392,7 +394,7 @@ The type tree is built from top level `Types` which can link to child types.
 
 This tree can be extended or modified.
 
-## Extending type definitions
+## Extend type definitions
 
 The type tree can be extended by exporting the `typeExtension` function from a custom plugin.
 Follow this pattern (similar to reducers if you're familiar with the map-reduce pattern):

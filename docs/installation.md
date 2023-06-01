@@ -2,8 +2,8 @@
 
 Choose the most appropriate installation method for your needs:
 
-* [Install locally, using `npm` or `yarn`](#local) to make the `redocly` command available on your system.
-* [Use `npx` to get the tool at runtime](#runtime) rather than installing it.
+* [Install locally, using `npm` or `yarn`](#install-globally) to make the `redocly` command available on your system.
+* [Use `npx` to get the tool at runtime](#use-npx-at-runtime) rather than installing it.
 * The command is also [available via Docker](#docker) if you'd prefer to use it that way.
 
 ## Install globally
@@ -20,11 +20,11 @@ npm i -g @redocly/cli@latest
 yarn global add @redocly/cli
 ```
 
-Running `redocly --version` will confirm that the installation was successful, and the currently-installed version of the tool.
+Running `redocly --version` confirms that the installation was successful, and the currently-installed version of the tool.
 
 ## Use `npx` at runtime
 
-[npx](https://docs.npmjs.com/cli/v9/commands/npx/) is npm's package runner. It will install and run a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
+[npx](https://docs.npmjs.com/cli/v9/commands/npx/) is npm's package runner. It installs and runs a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
 
 ```shell Command
 npx @redocly/cli <command> [options]
@@ -34,7 +34,7 @@ npx @redocly/cli <command> [options]
 npx @redocly/cli@latest lint petstore.yaml
 ```
 
-## Run commands inside Docker
+## <a id="docker"></a>Run commands inside Docker
 
 To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is in the current working directory, the command to use is:
 

@@ -16,7 +16,7 @@ If you have one large single file, split it up like this:
 redocly split openapi.yaml --outDir myApi
 ```
 
-The original file is unchanged, but look in the directory named by the `--outDir` parameter and you will find:
+The original file is unchanged, but look in the directory named by the `--outDir` parameter. It now contains:
 * An `openapi.yaml` file, which is the entry point of the API and includes the `info` section and other metadata. This file also contains the bare bones of the API description, with all the details moved to dedicated files.
 * A `paths/` directory, with a file for each of the URLs in the API. All verbs for that endpoint are in this file.
 * A `components/` directory containing subdirectories for each of the top-level keys, such as `schema`, and files for the individual data structures described in each section.

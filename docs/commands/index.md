@@ -50,7 +50,7 @@ Redocly CLI comes with one primary configuration file (`redocly.yaml`), also kno
 This file defines all of the config options available to you, including the location of your files (for unbundling and bundling), and linting rules (for validation against the OpenAPI Specification).
 
 The Redocly configuration file must sit in your root directory.
-If Redocly CLI finds `redocly.yaml` in the root directory, it will use the options set in that file when executing commands.
+If Redocly CLI finds `redocly.yaml` in the root directory, it uses the options set in that file when executing commands.
 
 You can also specify a config file to most commands using `--config myconfig.yaml` as part of the command. For example:
 

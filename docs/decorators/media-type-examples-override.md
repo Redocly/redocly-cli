@@ -6,7 +6,7 @@ Replaces the examples in the corresponding file.
 
 Sometimes developers generate OpenAPI and the examples need to be added or improved after the fact.
 This generally happens when you have no permission to edit the source.
-This decorator provides a way to "overlay" a new examples over the source so that as the source changes you won't lose your modifications.
+This decorator provides a way to "overlay" a new examples over the source so that as the source changes, the modifications can be reapplied.
 
 ## Configuration
 

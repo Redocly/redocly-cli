@@ -13,16 +13,16 @@ They are commonly used to add, remove, or change content.
 
 ## List of decorators
 
-### Changing descriptions
+### Update descriptions
 - [info-description-override](./decorators/info-description-override.md)
 - [info-override](./decorators/info-override.md)
 - [operation-description-override](./decorators/operation-description-override.md)
 - [tag-description-override](./decorators/tag-description-override.md)
 
-### Changing examples
+### Change examples
 - [media-type-examples-override](./decorators/media-type-examples-override.md)
 
-### Removing content
+### Remove content
 
 - [filter-in](./decorators/filter-in.md)
 - [filter-out](./decorators/filter-out.md)

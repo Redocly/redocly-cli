@@ -13,8 +13,8 @@ Follow along using our sample API provided with this tutorial to hide APIs, and 
 
 ## Overview
 
-In this tutorial, we'll maintain a single source of truth (SSOT) OpenAPI definition.
-Then, we'll generate an internal and an external version of the API.
+In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI definition.
+Once the definition is complete, generate an internal and an external version of the API.
 
 ```mermaid
 graph TD
@@ -22,7 +22,7 @@ graph TD
     A[SSOT] -->|bundle| C(External)
 ```
 
-The following image highlights what we'll remove in this tutorial.
+The following image highlights what is to be removed in this tutorial.
 ![what needs to be hidden](./images/hide-internal-apis-problem.png)
 
 ## Prerequisites
@@ -37,9 +37,9 @@ This tutorial is most effective when you follow along and complete the steps.
 
 ## Step 1: Add `x-internal` to the API definition
 
-In this step, you will mark operations and properties of the API definition as internal.
+In this step, mark which operations and properties of the API definition are for internal use.
 
-Open the `sample.yaml` file in your IDE. We'll change it in a few places.
+Open the `sample.yaml` file in your IDE. Changes are needed in a few places.
 
 1. Go to line 22 and add a new line between `post` and `operationId`.
   The indentation is important.
@@ -61,7 +61,7 @@ Open the `sample.yaml` file in your IDE. We'll change it in a few places.
 
 ## Step 2: Add a Redocly configuration file
 
-In this step, you will create a Redocly configuration file with two APIs pointing to the same root file.
+In this step, create a Redocly configuration file with two APIs pointing to the same root file.
 
 Make a new file in the same `hide-apis-demo` directory named `redocly.yaml` (the casing is important).
 
@@ -105,7 +105,7 @@ Save the `redocly.yaml` file.
 
 ## Step 3: Output internal and external APIs
 
-In this step, you'll produce the two API snapshots from the single source of truth.
+In this step, produce two API snapshots from the single source of truth.
 This can be done in two ways:
 
 - Option A: Let Redocly's API registry handle the work (which uses the `bundle` command under the hood).
@@ -114,7 +114,7 @@ This can be done in two ways:
 ### Option A: Redocly's API registry bundles automatically
 
 1. Add the APIs to the API registry.
-  This process will vary depending on the source type you use.
+  This process varies depending on the source type you use.
   If using the CICD `push` command, it can push all APIs or the API you specify by the API `name@version`.
   If using a git-based integration, select the appropriate API in the path to your root file.
 
