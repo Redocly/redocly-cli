@@ -1,0 +1,11 @@
+description: |
+  This is a sample server Petstore server.
+version: 1.0.0
+title: Swagger Petstore
+contact:
+  name: API Support
+  email: apiteam@swagger.io
+  url: https://github.com/Redocly/redoc
+license:
+  name: Apache 2.0
+  url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
