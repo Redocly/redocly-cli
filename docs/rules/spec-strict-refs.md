@@ -1,4 +1,4 @@
-# spec-rule-validation
+# spec-strict-refs
 
 Restricts the usage of the `$ref` keyword.
 
@@ -34,7 +34,7 @@ Set the desired [severity](/docs/cli/rules.md#severity-settings) for the rule.
 
 ```yaml
 rules:
-  spec-ref-validation: error
+  spec-strict-refs: error
 ```
 
 ## Configuration
@@ -48,7 +48,7 @@ An example configuration:
 
 ```yaml
 rules:
-  spec-ref-validation: error
+  spec-strict-refs: error
 ```
 
 ## Examples
@@ -57,7 +57,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  spec-ref-validation: error
+  spec-strict-refs: error
 ```
 
 Example of **incorrect** use of `$ref`:
@@ -95,5 +95,5 @@ responses:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/spec-ref-validation.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/spec-strict-refs.ts)
 - [Components docs](https://redocly.com/docs/openapi-visual-reference/reference/)
