@@ -1,0 +1,22 @@
+openapi: 3.1.0
+servers:
+  - url: //petstore.swagger.io/v2
+    description: Default server
+info:
+  $ref: './info.yaml'
+paths:
+  /pet:
+    get:
+      operationId: example
+      summary: summary example
+      responses:
+        '200':
+          description: example description
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $ref: './props.yaml'
+                  name:
+                    type: string
