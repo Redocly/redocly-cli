@@ -1,6 +1,6 @@
 jest.mock('node-fetch');
 
-import fetch, {Response} from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import { mocked } from 'ts-jest/utils';
 
 import { resolvePlugins } from '../../config';
@@ -18,7 +18,10 @@ describe('config-resolvers', () => {
   });
 
   it('loads plugin from remote url', async () => {
-    mocked(fetch).mockReturnValue(Promise.resolve({ text: () => Promise.resolve(`
+    mocked(fetch).mockReturnValue(
+      Promise.resolve({
+        text: () =>
+          Promise.resolve(`
 const UniqueSchemaName = function UniqueSchemaName() {
     return {};
 };
@@ -34,7 +37,9 @@ module.exports = {
     id,
     rules,
 };
-    `)}) as Promise<Response>);
+    `),
+      }) as Promise<Response>
+    );
 
     const plugins = await resolvePlugins(['https://example.com/getyourguide.js']);
 

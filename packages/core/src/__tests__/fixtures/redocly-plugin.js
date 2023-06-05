@@ -1,15 +1,15 @@
 const UniqueSchemaName = function UniqueSchemaName() {
-    return {};
+  return {};
 };
 const id = 'getyourguide';
 
 const rules = {
-    oas3: {
-        'unique-schema-name': UniqueSchemaName,
-    },
+  oas3: {
+    'unique-schema-name': UniqueSchemaName,
+  },
 };
 
 module.exports = {
-    id,
-    rules,
+  id,
+  rules,
 };
