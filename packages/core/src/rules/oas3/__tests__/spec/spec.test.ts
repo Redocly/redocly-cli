@@ -5,11 +5,13 @@ import { StyleguideConfig, defaultPlugin, resolvePlugins, resolvePreset } from '
 
 import { BaseResolver } from '../../../../resolve';
 
-describe('Oas3 Structural visitor basic', async () => {
+async function buildConfig() {
   const plugins = await resolvePlugins([defaultPlugin]);
   const presets = resolvePreset('all', plugins);
-  const allConfig = new StyleguideConfig({ ...presets, plugins });
+  return new StyleguideConfig({ ...presets, plugins });
+}
 
+describe('Oas3 Structural visitor basic', () => {
   it('should report wrong types', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -42,7 +44,7 @@ describe('Oas3 Structural visitor basic', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: allConfig,
+      config: await buildConfig(),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -176,7 +178,7 @@ describe('Oas3 Structural visitor basic', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: allConfig,
+      config: await buildConfig(),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -247,7 +249,7 @@ describe('Oas3 Structural visitor basic', async () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: allConfig,
+      config: await buildConfig(),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
