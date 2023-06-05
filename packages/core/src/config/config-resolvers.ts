@@ -1,4 +1,7 @@
+import * as os from 'os';
 import * as path from 'path';
+import fetch from 'node-fetch';
+import * as fs from 'fs';
 import { isAbsoluteUrl } from '../ref-utils';
 import { pickDefined } from '../utils';
 import { BaseResolver } from '../resolve';
@@ -64,10 +67,10 @@ export async function resolveConfig(rawConfig: RawConfig, configPath?: string): 
   );
 }
 
-export function resolvePlugins(
+export async function resolvePlugins(
   plugins: (string | Plugin)[] | null,
   configPath: string = ''
-): Plugin[] {
+): Promise<Plugin[]> {
   if (!plugins) return [];
 
   // TODO: implement or reuse Resolver approach so it will work in node and browser envs
@@ -99,16 +102,31 @@ export function resolvePlugins(
     return plugin;
   };
 
-  const seenPluginIds = new Map<string, string>();
-
-  return plugins
-    .map((p) => {
-      if (isString(p) && isAbsoluteUrl(p)) {
-        throw new Error(colorize.red(`We don't support remote plugins yet.`));
-      }
+  const resolvePlugin = async (plugin: string | Plugin): Promise<Plugin | undefined> => {
+    if (isString(plugin) && isAbsoluteUrl(plugin)) {
+      const response = await fetch(plugin);
+      const responseBodyText = await response.text();
+      const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'redocly-'));
+      const tempFile = path.join(tempDirectory, 'plugin.js');
+      fs.writeFileSync(tempFile, responseBodyText);
 
       // TODO: resolve npm packages similar to eslint
-      const pluginModule = requireFunc(p);
+      const pluginModule = requireFunc(tempFile);
+
+      fs.rmSync(tempFile);
+      fs.rmdirSync(tempDirectory);
+
+      return pluginModule;
+    }
+
+    // TODO: resolve npm packages similar to eslint
+    return requireFunc(plugin);
+  };
+
+  const seenPluginIds = new Map<string, string>();
+  const pluginPromises = plugins
+    .map(async (p) => {
+      const pluginModule = await resolvePlugin(p);
 
       if (!pluginModule) {
         return;
@@ -185,8 +203,8 @@ export function resolvePlugins(
       }
 
       return plugin;
-    })
-    .filter(isDefined);
+    });
+  return (await Promise.all(pluginPromises)).filter(isDefined);
 }
 
 export async function resolveApis({
@@ -237,7 +255,7 @@ async function resolveAndMergeNestedStyleguideConfig(
     throw new Error(`Circular dependency in config file: "${configPath}"`);
   }
   const plugins = getUniquePlugins(
-    resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
+    await resolvePlugins([...(styleguideConfig?.plugins || []), defaultPlugin], configPath)
   );
   const pluginPaths = styleguideConfig?.plugins
     ?.filter(isString)

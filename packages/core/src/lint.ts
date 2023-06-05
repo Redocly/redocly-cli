@@ -120,7 +120,7 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
     oasVersion: OasVersion.Version3_0,
     visitorsData: {},
   };
-  const plugins = resolvePlugins([defaultPlugin]);
+  const plugins = await resolvePlugins([defaultPlugin]);
   const config = new StyleguideConfig({
     plugins,
     rules: { spec: 'error' },

@@ -29,9 +29,9 @@ const visitor = {
     };
   },
 };
-const config = makeConfigForRuleset(visitor);
-export function measureAsync() {
-  return lintDocument({
+export async function measureAsync() {
+  const config = await makeConfigForRuleset(visitor);
+  return await lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

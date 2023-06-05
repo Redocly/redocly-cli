@@ -11,23 +11,22 @@ const rebillyDocument = parseYamlToDocument(
   readFileSync(rebillyDefinitionRef, 'utf-8'),
   rebillyDefinitionRef
 );
+export async function measureAsync() {
+  const config = await makeConfigForRuleset({
+    test: () => {
+      return {
+        Schema(schema, ctx) {
+          if (schema.type === 'number') {
+            ctx.report({
+              message: 'type number is not allowed',
+            });
+          }
+        },
+      };
+    },
+  });
 
-const config = makeConfigForRuleset({
-  test: () => {
-    return {
-      Schema(schema, ctx) {
-        if (schema.type === 'number') {
-          ctx.report({
-            message: 'type number is not allowed',
-          });
-        }
-      },
-    };
-  },
-});
-
-export function measureAsync() {
-  return lintDocument({
+  return await lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

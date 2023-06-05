@@ -10,9 +10,9 @@ const rebillyDocument = parseYamlToDocument(
   readFileSync(rebillyDefinitionRef, 'utf-8'),
   rebillyDefinitionRef
 );
-const config = makeConfigForRuleset({});
-export function measureAsync() {
-  return lintDocument({
+export async function measureAsync() {
+  const config = await makeConfigForRuleset({});
+  return await lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

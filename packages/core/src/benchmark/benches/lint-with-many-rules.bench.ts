@@ -25,9 +25,9 @@ for (let i = 0; i < 50; i++) {
   };
 }
 
-const config = makeConfigForRuleset(ruleset);
-export function measureAsync() {
-  return lintDocument({
+export async function measureAsync() {
+  const config = await makeConfigForRuleset(ruleset);
+  return await lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

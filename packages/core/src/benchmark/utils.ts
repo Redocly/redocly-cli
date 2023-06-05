@@ -12,7 +12,7 @@ export function parseYamlToDocument(body: string, absoluteRef: string = ''): Doc
   };
 }
 
-export function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>) {
+export async function makeConfigForRuleset(rules: Oas3RuleSet, plugin?: Partial<Plugin>) {
   const rulesConf: Record<string, RuleConfig> = {};
   const ruleId = 'test';
   Object.keys(rules).forEach((name) => {

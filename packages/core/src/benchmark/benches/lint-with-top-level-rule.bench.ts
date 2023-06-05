@@ -11,20 +11,20 @@ const rebillyDocument = parseYamlToDocument(
   rebillyDefinitionRef
 );
 
-const config = makeConfigForRuleset({
-  test: () => {
-    let count = 0;
-    return {
-      Schema() {
-        count++;
-        if (count === -1) throw new Error('Disable optimization');
-      },
-    };
-  },
-});
+export async function measureAsync() {
+  const config = await makeConfigForRuleset({
+    test: () => {
+      let count = 0;
+      return {
+        Schema() {
+          count++;
+          if (count === -1) throw new Error('Disable optimization');
+        },
+      };
+    },
+  });
 
-export function measureAsync() {
-  return lintDocument({
+  return await lintDocument({
     externalRefResolver: new BaseResolver(),
     document: rebillyDocument,
     config,

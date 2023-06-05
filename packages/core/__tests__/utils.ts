@@ -45,7 +45,7 @@ export const yamlSerializer = {
   },
 };
 
-export function makeConfigForRuleset(
+export async function makeConfigForRuleset(
   rules: Oas3RuleSet,
   plugin?: Partial<Plugin>,
   version: string = 'oas3'
@@ -55,7 +55,7 @@ export function makeConfigForRuleset(
   Object.keys(rules).forEach((name) => {
     rulesConf[`${ruleId}/${name}`] = 'error';
   });
-  const plugins = resolvePlugins([
+  const plugins = await resolvePlugins([
     {
       ...plugin,
       id: ruleId,
