@@ -1,6 +1,6 @@
 # spec-strict-refs
 
-Check that `$ref` is only used in the locations permitted by the OpenAPI specification.
+Checks that `$ref` is only used in the locations permitted by the OpenAPI specification.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -12,11 +12,11 @@ Check that `$ref` is only used in the locations permitted by the OpenAPI specifi
 
 This rule is for spec correctness.
 
-Allows to use the `$ref` keyword exclusively for references to elements that may be inside the component section
+Allows to use the `$ref` keyword exclusively for references to elements that may be inside the component section.
 
-It can be useful when other tools are integrated into the API workflow, that demand strict adherence to the specifications.
+It can be useful when other tools are integrated into the API workflow that demands strict adherence to the specifications.
 
-List of elements with which the `$ref` can be used:
+List of elements the `$ref` can be used with:
 
 - Schema
 - Response
@@ -65,28 +65,28 @@ Example of **incorrect** use of `$ref`:
 
 ```yaml Example
 responses:
-'200':
-  description: successful operation
-  content:
-    application/json:
-      schema:
-        type: object
-        properties:
-          $ref: './properties.yaml'
-          name:
-            type: string
+  '200':
+    description: successful operation
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            $ref: './properties.yaml'
+            name:
+              type: string
 ```
 
 Example of **correct** use of `$ref`:
 
 ```yaml Example
 responses:
-'200':
-  description: successful operation
-  content:
-    application/json:
-      schema:
-        $ref: './properties.yaml'
+  '200':
+    description: successful operation
+    content:
+      application/json:
+        schema:
+          $ref: './properties.yaml'
 ```
 
 ## Related rules
