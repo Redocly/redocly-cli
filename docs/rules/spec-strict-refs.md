@@ -54,7 +54,7 @@ rules:
 
 ## Examples
 
-Given this configuration:
+Given the following configuration:
 
 ```yaml
 rules:
