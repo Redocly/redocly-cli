@@ -1,18 +1,20 @@
 # spec-strict-refs
 
-Restricts the usage of the `$ref` keyword.
+Check that `$ref` is only used in the locations permitted by the OpenAPI specification.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
 This rule is for spec correctness.
 
 Allows to use the `$ref` keyword exclusively for references to elements that may be inside the component section
+
+It can be useful when other tools are integrated into the API workflow, that demand strict adherence to the specifications.
 
 List of elements with which the `$ref` can be used:
 
@@ -39,10 +41,9 @@ rules:
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. |
+| Option   | Type   | Description                              |
+| -------- | ------ | ---------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. |
 
 An example configuration:
 
