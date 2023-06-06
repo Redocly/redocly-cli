@@ -227,7 +227,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             description: param
             in: path
             examples:
-              invalid identifier:
+              valid identifier:
                 description: 'Some description'
                 value: 21 
 		`);
@@ -258,7 +258,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             description: param
             in: path
             examples:
-              invalid identifier:
+              valid identifier:
                 description: 'Some description'
                 value: 21 ",
                 "mimeType": undefined,
