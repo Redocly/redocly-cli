@@ -16,6 +16,7 @@ toc:
 ### Fixes
 
 - Handle syntax errors from plugins
+- Apply regular expression `^[a-zA-Z0-9\.\-_]+$` only to fixed fields under components
 
 ## 1.0.0-beta.127 (2023-05-25)
 
