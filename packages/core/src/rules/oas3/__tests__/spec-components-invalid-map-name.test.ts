@@ -1,4 +1,4 @@
-import { makeConfig, parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
+import { makeConfig, parseYamlToDocument } from '../../../../__tests__/utils';
 import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
 import { BaseResolver } from '../../../resolve';
