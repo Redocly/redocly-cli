@@ -215,7 +215,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     expect(results).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('should does not report about invalid keys inside nested examples', async () => {
+  it('should not report invalid keys inside nested examples', async () => {
     const document = parseYamlToDocument(outdent`
       openapi: 3.0.0
       info:
