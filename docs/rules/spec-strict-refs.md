@@ -34,13 +34,6 @@ The following is a list of elements the `$ref` can be used with according to the
 To configure the rule, add it to the `rules` object in your configuration file, and
 set the desired [severity](/docs/cli/rules.md#severity-settings).
 
-```yaml
-rules:
-  spec-strict-refs: error
-```
-
-## Configuration
-
 | Option   | Type   | Description                              |
 | -------- | ------ | ---------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. |
