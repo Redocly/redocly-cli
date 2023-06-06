@@ -16,7 +16,7 @@ It limits  use of the `$ref` keyword to only references for elements that may be
 
 It can be useful when other tools are integrated into the API workflow that demands strict adherence to the specifications.
 
-List of elements the `$ref` can be used with:
+The following is a list of elements the `$ref` can be used with according to the OpenAPI specification:
 
 - Schema
 - Response
