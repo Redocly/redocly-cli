@@ -30,6 +30,7 @@ export default {
     'no-enum-type-mismatch': 'error',
     'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
+    'schema-name-unique': 'off',
     spec: 'error',
   },
   oas3_0Rules: {

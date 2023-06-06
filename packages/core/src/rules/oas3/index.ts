@@ -51,6 +51,7 @@ import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecRefValidation } from '../common/spec-ref-validation';
+import { SchemaNameUnique } from '../common/schema-name-unique';
 
 export const rules = {
   spec: OasSpec,
@@ -106,6 +107,7 @@ export const rules = {
   'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
   'spec-ref-validation': SpecRefValidation,
+  'schema-name-unique': SchemaNameUnique,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

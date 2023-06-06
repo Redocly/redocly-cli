@@ -55,6 +55,7 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
   'required-string-property-missing-min-length',
   'spec-ref-validation',
+  'schema-name-unique',
 ];
 const nodeTypesList = [
   'any',
