@@ -10,7 +10,7 @@ Checks that `$ref` is only used in the locations permitted by the OpenAPI specif
 
 ## API design principles
 
-This rule is for spec correctness.
+This rule ensures adherence to OpenAPI specification standards.
 
 Allows to use the `$ref` keyword exclusively for references to elements that may be inside the component section.
 
