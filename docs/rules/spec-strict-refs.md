@@ -12,7 +12,7 @@ Checks that `$ref` is only used in the locations permitted by the OpenAPI specif
 
 This rule ensures adherence to OpenAPI specification standards.
 
-Allows to use the `$ref` keyword exclusively for references to elements that may be inside the component section.
+It limits  use of the `$ref` keyword to only references for elements that may be inside the component section.
 
 It can be useful when other tools are integrated into the API workflow that demands strict adherence to the specifications.
 
