@@ -11,7 +11,7 @@ toc:
 
 - Support rule/ as a prefix for configurable rules
 - Resolve $refs in preprocessors
-- Create the `spec-strict-refs` rule to ensure  `$ref` usage in accordance with the OpenAPI specification
+- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification
 
 ### Fixes
 
