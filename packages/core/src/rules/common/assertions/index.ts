@@ -41,7 +41,7 @@ export const Assertions = (opts: Record<string, Assertion>) => {
 
   for (const [index, assertion] of assertions.entries()) {
     const assertId =
-      (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
+      (assertion.assertionId && `${assertion.assertionId}`) || `assertion #${index + 1}`;
 
     if (!isString(assertion.subject.type)) {
       throw new Error(`${assertId}: 'type' (String) is required`);

@@ -110,14 +110,14 @@ Object {
   "rules": Object {
     "assertions": Array [
       Object {
-        "assertionId": "path-item-get-defined",
+        "assertionId": "rule/path-item-get-defined",
         "defined": true,
         "message": "Every path item must have a GET operation.",
         "property": "get",
         "subject": "PathItem",
       },
       Object {
-        "assertionId": "tag-description",
+        "assertionId": "rule/tag-description",
         "message": "Tag description must be at least 13 characters and end with a full stop.",
         "minLength": 13,
         "pattern": "/\\\\.$/",
