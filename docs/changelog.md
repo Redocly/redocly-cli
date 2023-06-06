@@ -5,6 +5,17 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.128 (2023-06-06)
+
+### Features
+
+- Support rule/ as a prefix for configurable rules
+- Resolve $refs in preprocessors
+- Create rule to strict `$ref`
+
+### Fixes
+
+- Handle syntax errors from plugins
 
 ## 1.0.0-beta.127 (2023-05-25)
 
