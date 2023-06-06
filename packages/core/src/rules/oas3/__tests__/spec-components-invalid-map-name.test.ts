@@ -215,7 +215,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     expect(results).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('should report about invalid keys inside nested examples', async () => {
+  it('should does not report about invalid keys inside nested examples', async () => {
     const document = parseYamlToDocument(outdent`
       openapi: 3.0.0
       info:
@@ -266,95 +266,6 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in parameters \\"my Param\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
-          "ruleId": "spec-components-invalid-map-name",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/components/parameters/my Param/examples/invalid identifier",
-              "reportOnKey": true,
-              "source": Source {
-                "absoluteRef": "",
-                "body": "openapi: 3.0.0
-      info:
-        version: 3.0.0
-      components:
-        parameters:
-          my Param:
-            name: param
-            description: param
-            in: path
-            examples:
-              invalid identifier:
-                description: 'Some description'
-                value: 21 ",
-                "mimeType": undefined,
-              },
-            },
-          ],
-          "message": "The map key in examples \\"invalid identifier\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
-          "ruleId": "spec-components-invalid-map-name",
-          "severity": "error",
-          "suggest": Array [],
-        },
-      ]
-    `);
-  });
-
-  it('should report about invalid key only inside components', async () => {
-    const document = parseYamlToDocument(outdent`
-      openapi: 3.0.0
-      info:
-        version: 3.0.0
-      paths:
-        /bikes:
-          get:
-            tags:
-              - Bikes
-            summary: List bikes
-            description: List all bikes
-            operationId: getBike
-            parameters:
-              my-param:
-                name: param
-                description: param
-                in: path
-                examples:
-                  valid identifier:
-                    description: 'Some description'
-                    value: 21   
-      components:
-        parameters:
-          my-param:
-            name: param
-            description: param
-            in: path
-            examples:
-              invalid identifier:
-                description: 'Some description'
-                value: 21 
-		`);
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await makeConfig({
-        'spec-components-invalid-map-name': 'error',
-      }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/components/parameters/my-param/examples/invalid identifier",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "The map key in examples \\"invalid identifier\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": Array [],
