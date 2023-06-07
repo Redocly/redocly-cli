@@ -12,7 +12,7 @@ Checks that `$ref` is only used in the locations permitted by the OpenAPI specif
 
 This rule ensures adherence to OpenAPI specification standards.
 
-It limits  use of the `$ref` keyword to only references for elements that may be inside the component section.
+It limits use of the `$ref` keyword to only references for elements that may be inside the component section.
 
 This rule is useful when other tools are integrated into the API workflow that demand strict adherence to the specifications.
 
@@ -34,9 +34,9 @@ The following is a list of elements the `$ref` can be used with according to the
 To configure the rule, add it to the `rules` object in your configuration file, and
 set the desired [severity](/docs/cli/rules.md#severity-settings).
 
-| Option   | Type   | Description                              |
-| -------- | ------ | ---------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
