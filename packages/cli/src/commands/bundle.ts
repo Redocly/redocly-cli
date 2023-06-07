@@ -164,7 +164,8 @@ export async function handleBundle(argv: BundleOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
-  // defer process exit to allow STDOUT pipe to flush
-  // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
+  return totals.errors === 0 || argv.force ? 0 : 1
+  // // defer process exit to allow STDOUT pipe to flush
+  // // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
+  // process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
 }

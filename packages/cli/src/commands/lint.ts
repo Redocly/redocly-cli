@@ -120,11 +120,16 @@ export async function handleLint(argv: LintOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
+  return totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1
+
+
   // defer process exit to allow STDOUT pipe to flush
   // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () =>
-    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1)
-  );
+  // process.once('exit', () =>
+  // {console.log(222222);
+  //   process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1)}
+  // );
+
 }
 
 function lintConfigCallback(argv: LintOptions, version: string) {

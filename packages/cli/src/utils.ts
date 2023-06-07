@@ -20,9 +20,11 @@ import {
   Config,
   Oas3Definition,
   Oas2Definition,
+  // RedoclyClient,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
+// import { Arguments } from 'yargs';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -41,12 +43,12 @@ export async function getFallbackApisOrExit(
       process.stderr.write(
         yellow(
           `\n ${relative(process.cwd(), path)} ${red(
-            `does not exist or is invalid. Please provide a valid path. \n\n`
+            `does not exist or is invalid.  \n\n`
           )}`
         )
       );
     }
-    process.exit(1);
+    exitWithError('Please provide a valid path.');
   }
   return res;
 }
@@ -233,11 +235,11 @@ export function handleError(e: Error, ref: string) {
       return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
     // TODO: codeframe
     case CircularJSONNotSupportedError: {
-      process.stderr.write(
-        red(`Detected circular reference which can't be converted to JSON.\n`) +
-          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
-      );
-      return process.exit(1);
+
+      return exitWithError(
+        `Detected circular reference which can't be converted to JSON.\n` +
+      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`)
+  
     }
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
@@ -245,7 +247,7 @@ export function handleError(e: Error, ref: string) {
       process.stderr.write(
         red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
       );
-      process.exit(1);
+      process.exitCode = 1;
       throw e;
     }
   }
@@ -373,6 +375,7 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 
 export function exitWithError(message: string) {
   process.stderr.write(red(message) + '\n\n');
+  // send error
   process.exit(1);
 }
 

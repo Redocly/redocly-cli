@@ -2,6 +2,7 @@ import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core'
 
 import { handleBundle } from '../../commands/bundle';
 import { handleError } from '../../utils';
+import { commandWrapper } from '../../wrapper';
 import SpyInstance = jest.SpyInstance;
 
 jest.mock('@redocly/openapi-core');
@@ -31,7 +32,7 @@ describe('bundle', () => {
   it('bundles definitions w/o linting', async () => {
     const apis = ['foo.yaml', 'bar.yaml'];
 
-    await handleBundle(
+    await commandWrapper( handleBundle)(
       {
         apis,
         ext: 'yaml',
@@ -47,7 +48,7 @@ describe('bundle', () => {
   it('exits with code 0 when bundles definitions', async () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',
@@ -69,7 +70,7 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',
@@ -86,7 +87,7 @@ describe('bundle', () => {
   it('exits with code 0 when bundles definitions w/linting w/o errors', async () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',
@@ -109,7 +110,7 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',
@@ -131,7 +132,7 @@ describe('bundle', () => {
       throw new Error('Invalid definition');
     });
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'json',
@@ -154,7 +155,7 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',

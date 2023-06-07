@@ -17,6 +17,7 @@ import {
 } from '../../utils';
 import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
+import { commandWrapper } from '../../wrapper';
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
@@ -55,7 +56,7 @@ describe('handleLint', () => {
 
   describe('loadConfig and getEnrtypoints stage', () => {
     it('should fail if config file does not exist', async () => {
-      await handleLint({ ...argvMock, config: 'config.yaml' }, versionMock);
+      await commandWrapper(handleLint)({ ...argvMock, config: 'config.yaml' }, versionMock);
       expect(exitWithError).toHaveBeenCalledWith(
         'Please, provide valid path to the configuration file'
       );
@@ -63,7 +64,7 @@ describe('handleLint', () => {
     });
 
     it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       expect(loadConfigAndHandleErrors).toHaveBeenCalledWith({
         configPath: undefined,
         customExtends: undefined,
@@ -73,7 +74,7 @@ describe('handleLint', () => {
     });
 
     it('should call loadConfig with args if such exist', async () => {
-      await handleLint(
+      await commandWrapper(handleLint)(
         { ...argvMock, config: 'redocly.yaml', extends: ['some/path'] },
         versionMock
       );
@@ -85,17 +86,17 @@ describe('handleLint', () => {
     });
 
     it('should call mergedConfig with clear ignore if `generate-ignore-file` argv', async () => {
-      await handleLint({ ...argvMock, 'generate-ignore-file': true }, versionMock);
+      await commandWrapper(handleLint)({ ...argvMock, 'generate-ignore-file': true }, versionMock);
       expect(getMergedConfigMock).toHaveBeenCalled();
     });
 
     it('should check if ruleset exist', async () => {
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       expect(checkIfRulesetExist).toHaveBeenCalledTimes(1);
     });
 
     it('should fail if apis not provided', async () => {
-      await handleLint({ ...argvMock, apis: [] }, versionMock);
+      await commandWrapper(handleLint)({ ...argvMock, apis: [] }, versionMock);
       expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
       expect(exitWithError).toHaveBeenCalledWith('No APIs were provided');
     });
@@ -103,7 +104,7 @@ describe('handleLint', () => {
 
   describe('loop through entrypints and lint stage', () => {
     it('should call getMergedConfig and lint ', async () => {
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       expect(performance.now).toHaveBeenCalled();
       expect(getMergedConfigMock).toHaveBeenCalled();
       expect(lint).toHaveBeenCalled();
@@ -111,7 +112,7 @@ describe('handleLint', () => {
 
     it('should call skipRules,skipPreprocessors and addIgnore with argv', async () => {
       (lint as jest.Mock<any, any>).mockResolvedValueOnce(['problem']);
-      await handleLint(
+      await commandWrapper(handleLint)(
         {
           ...argvMock,
           'skip-preprocessor': ['preprocessor'],
@@ -126,7 +127,7 @@ describe('handleLint', () => {
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
       (lint as jest.Mock<any, any>).mockResolvedValueOnce(['problem']);
-      await handleLint({ ...argvMock, 'max-problems': 2, format: 'stylish' }, versionMock);
+      await commandWrapper(handleLint)({ ...argvMock, 'max-problems': 2, format: 'stylish' }, versionMock);
       expect(getTotals).toHaveBeenCalledWith(['problem']);
       expect(formatProblems).toHaveBeenCalledWith(['problem'], {
         format: 'stylish',
@@ -139,26 +140,26 @@ describe('handleLint', () => {
 
     it('should catch error in handleError if something fails', async () => {
       (lint as jest.Mock<any, any>).mockRejectedValueOnce('error');
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       expect(handleError).toHaveBeenCalledWith('error', 'openapi.yaml');
     });
   });
 
   describe('erros and warning handle after lint stage', () => {
     it('should call printLintTotals and printLintTotals', async () => {
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       expect(printUnusedWarnings).toHaveBeenCalled();
     });
 
     it('should call exit with 0 if no errors', async () => {
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       exitCb?.();
       expect(processExitMock).toHaveBeenCalledWith(0);
     });
 
     it('should exit with 1 if tootals error > 0', async () => {
       (getTotals as jest.Mock<any, any>).mockReturnValueOnce({ errors: 1 });
-      await handleLint(argvMock, versionMock);
+      await commandWrapper(handleLint)(argvMock, versionMock);
       exitCb?.();
       expect(processExitMock).toHaveBeenCalledWith(1);
     });
