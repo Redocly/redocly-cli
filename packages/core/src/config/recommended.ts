@@ -31,6 +31,7 @@ export default {
     'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
     spec: 'error',
+    'spec-strict-refs': 'off',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': {
