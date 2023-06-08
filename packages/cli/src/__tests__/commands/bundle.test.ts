@@ -57,7 +57,7 @@ describe('bundle', () => {
       '1.0.0'
     );
 
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -97,7 +97,7 @@ describe('bundle', () => {
       '1.0.0'
     );
 
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -121,7 +121,7 @@ describe('bundle', () => {
     );
 
     expect(lint).toBeCalledTimes(apis.length);
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 

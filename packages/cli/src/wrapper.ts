@@ -7,7 +7,6 @@ export function commandWrapper(cb: any) {
     try {
       code = await cb(argv, ...rest);
     } catch (e) {
-      console.log(e);
       code = 1;
     }
     process.once('beforeExit', async (exitCode) => {
@@ -17,6 +16,7 @@ export function commandWrapper(cb: any) {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function sendAnalytics(argv: Arguments, exit_code?: any): Promise<void> {
   // FIXME: temporarily disabled to not fail tests
   // console.log('sendAnalytics', argv, exit_code)
@@ -29,15 +29,15 @@ export async function sendAnalytics(argv: Arguments, exit_code?: any): Promise<v
   //   const event_time = new Date().toISOString();
   //   const node_version = process.version;
   //   const logged_in = await new RedoclyClient().isAuthorizedWithRedoclyByRegion();
-  //   console.log({
-  //     event_type: 'cli-command',
-  //     event_time,
-  //     logged_in,
-  //     command,
-  //     arguments: args,
-  //     node_version,
-  //     // version,
-  //     exit_code: exit_code,
-  //   });
+    // console.log({
+    //   event_type: 'cli-command',
+    //   event_time,
+    //   logged_in,
+    //   command,
+    //   arguments: args,
+    //   node_version,
+    //   // version,
+    //   exit_code: exit_code,
+    // });
   // }
 }

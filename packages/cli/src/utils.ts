@@ -24,11 +24,13 @@ import {
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
+import * as process from "process";
+import {exit} from "yargs";
 // import { Arguments } from 'yargs';
 
 export async function getFallbackApisOrExit(
-  argsApis: string[] | undefined,
-  config: ConfigApis
+    argsApis: string[] | undefined,
+    config: ConfigApis
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
@@ -42,8 +44,8 @@ export async function getFallbackApisOrExit(
     for (const { path } of filteredInvalidEntrypoints) {
       process.stderr.write(
         yellow(
-          `\n ${relative(process.cwd(), path)} ${red(
-            `does not exist or is invalid.  \n\n`
+          `\n${relative(process.cwd(), path)} ${red(
+            `does not exist or is invalid.\n\n`
           )}`
         )
       );
@@ -229,6 +231,9 @@ export function pluralize(label: string, num: number) {
 
 export function handleError(e: Error, ref: string) {
   switch (e.constructor) {
+    case HandledError: {
+      throw e;
+    }
     case ResolveError:
       return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
     case YamlParseError:
@@ -247,10 +252,15 @@ export function handleError(e: Error, ref: string) {
       process.stderr.write(
         red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
       );
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       process.exitCode = 1;
       throw e;
     }
   }
+}
+
+export class HandledError extends Error {
 }
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {
@@ -375,8 +385,12 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 
 export function exitWithError(message: string) {
   process.stderr.write(red(message) + '\n\n');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  process.exitCode = 1;
+  throw new HandledError(message);
   // send error
-  process.exit(1);
+  // process.exit(1);
 }
 
 /**
