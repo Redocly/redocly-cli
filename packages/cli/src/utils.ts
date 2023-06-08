@@ -249,13 +249,7 @@ export function handleError(e: Error, ref: string) {
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      process.stderr.write(
-        red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
-      );
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      process.exitCode = 1;
-      throw e;
+      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
     }
   }
 }
