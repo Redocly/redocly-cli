@@ -20,13 +20,10 @@ import {
   Config,
   Oas3Definition,
   Oas2Definition,
-  // RedoclyClient,
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import * as process from "process";
-import {exit} from "yargs";
-// import { Arguments } from 'yargs';
 
 export async function getFallbackApisOrExit(
     argsApis: string[] | undefined,

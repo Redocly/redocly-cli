@@ -164,10 +164,8 @@ export async function handleBundle(argv: BundleOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
+  // handle error in commandWrapper and exit with code 1
   if (!(totals.errors === 0 || argv.force)) {
     throw new Error();
   }
-  // // defer process exit to allow STDOUT pipe to flush
-  // // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  // process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
 }

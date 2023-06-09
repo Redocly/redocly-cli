@@ -15,7 +15,6 @@ import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
-// import type { Arguments } from 'yargs';
 import { commandWrapper } from './wrapper';
 import { version } from "./update-version-notifier";
 

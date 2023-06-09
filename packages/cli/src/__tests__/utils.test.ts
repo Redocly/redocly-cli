@@ -422,7 +422,6 @@ describe('handleErrors', () => {
   it('should handle CircularJSONNotSupportedError', () => {
     const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
     expect(() => handleError(circularError, ref)).toThrowError(HandledError);
-    // FIXME
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Detected circular reference which can't be converted to JSON.\n` +
         `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`

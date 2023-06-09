@@ -120,17 +120,10 @@ export async function handleLint(argv: LintOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
+  // handle error in commandWrapper and exit with code 1
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new Error();
   }
-
-
-  // defer process exit to allow STDOUT pipe to flush
-  // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  // process.once('exit', () =>
-  // {console.log(222222);
-  //   process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1)}
-  // );
 
 }
 
