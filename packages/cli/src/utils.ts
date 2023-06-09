@@ -243,13 +243,14 @@ export function handleError(e: Error, ref: string) {
 
       return exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
-      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`)
+      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`)
   
     }
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
+      console.error(e.stack);
+      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
     }
   }
 }
@@ -379,12 +380,7 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 
 export function exitWithError(message: string) {
   process.stderr.write(red(message) + '\n\n');
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  process.exitCode = 1;
   throw new HandledError(message);
-  // send error
-  // process.exit(1);
 }
 
 /**

@@ -120,7 +120,9 @@ export async function handleLint(argv: LintOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
-  return totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1
+  if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
+    throw new Error();
+  }
 
 
   // defer process exit to allow STDOUT pipe to flush

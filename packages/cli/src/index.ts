@@ -17,8 +17,7 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
 // import type { Arguments } from 'yargs';
 import { commandWrapper } from './wrapper';
-
-const version = require('../package.json').version;
+import { version } from "./update-version-notifier";
 
 cacheLatestVersion();
 

@@ -156,18 +156,17 @@ describe('getFallbackApisOrExit', () => {
     const apisConfig = {
       apis: {},
     };
-    expect.assertions(2);
+    expect.assertions(1);
     try {
       await getFallbackApisOrExit([''], apisConfig)
     } catch (e) {
       expect(e.message).toEqual('Path cannot be empty.');
-      expect(process.exitCode).toEqual(1);
     }
   });
 
   it('should error if file from config do not exist', async () => {
     (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
-    expect.assertions(4);
+    expect.assertions(3);
     try {
       await getFallbackApisOrExit(undefined, config);
     } catch (e) {
@@ -178,7 +177,6 @@ describe('getFallbackApisOrExit', () => {
           'Please provide a valid path.\n\n'
       );
       expect(e.message).toEqual('Please provide a valid path.');
-      expect(process.exitCode).toEqual(1);
     }
   });
 
@@ -202,7 +200,7 @@ describe('getFallbackApisOrExit', () => {
       apis: {},
     };
     (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
-    expect.assertions(4);
+    expect.assertions(3);
 
     try {
       await getFallbackApisOrExit(['someFile.yaml'], apisConfig);
@@ -214,7 +212,6 @@ describe('getFallbackApisOrExit', () => {
           'Please provide a valid path.\n\n'
       );
       expect(e.message).toEqual('Please provide a valid path.');
-      expect(process.exitCode).toEqual(1);
     }
   });
 
@@ -223,7 +220,7 @@ describe('getFallbackApisOrExit', () => {
       apis: {},
     };
     (existsSync as jest.Mock<any, any>).mockImplementationOnce(() => false);
-    expect.assertions(4);
+    expect.assertions(3);
     try {
       await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
     } catch (e) {
@@ -234,7 +231,6 @@ describe('getFallbackApisOrExit', () => {
           'Please provide a valid path.\n\n'
       );
       expect(e.message).toEqual('Please provide a valid path.');
-      expect(process.exitCode).toEqual(1);
     }
   });
 
@@ -250,7 +246,7 @@ describe('getFallbackApisOrExit', () => {
 
     const existSyncMock = (existsSync as jest.Mock<any, any>).mockImplementation((path) => path.endsWith('someFile.yaml'));
 
-    expect.assertions(5);
+    expect.assertions(4);
 
     try {
       await getFallbackApisOrExit(undefined, configStub);
@@ -263,7 +259,6 @@ describe('getFallbackApisOrExit', () => {
       );
       expect(process.stderr.write).toHaveBeenCalledTimes(2);
       expect(e.message).toEqual('Please provide a valid path.');
-      expect(process.exitCode).toEqual(1);
     }
     existSyncMock.mockClear();
   });
@@ -283,7 +278,6 @@ describe('getFallbackApisOrExit', () => {
     const result = await getFallbackApisOrExit(undefined, apisConfig);
 
     expect(process.stderr.write).toHaveBeenCalledTimes(0);
-    expect(process.exit).toHaveBeenCalledTimes(0);
     expect(result).toStrictEqual([
       {
         alias: 'main',
@@ -414,14 +408,12 @@ describe('handleErrors', () => {
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Failed to resolve api definition at openapi/test.yaml:\n\n  - File not found.\n\n`
     );
-    expect(process.exitCode).toEqual(1);
   });
 
   it('should handle YamlParseError', () => {
     const yamlParseError = new YamlParseError(new Error('Invalid yaml'), {} as any);
     expect(() => handleError(yamlParseError, ref)).toThrowError(HandledError);
     expect(redColoretteMocks).toHaveBeenCalledTimes(1);
-    expect(process.exitCode).toEqual(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
       `Failed to parse api definition at openapi/test.yaml:\n\n  - Invalid yaml.\n\n`
     );
@@ -431,18 +423,16 @@ describe('handleErrors', () => {
     const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
     expect(() => handleError(circularError, ref)).toThrowError(HandledError);
     // FIXME
-    // expect(process.stderr.write).toHaveBeenCalledWith(
-    //   `Detected circular reference which can't be converted to JSON.\n` +
-    //     `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.  \n\n`
-    // );
-    expect(process.exitCode).toEqual(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Detected circular reference which can't be converted to JSON.\n` +
+        `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
+    );
   });
 
   it('should handle SyntaxError', () => {
     const testError = new SyntaxError('Unexpected identifier');
     testError.stack = 'test stack'
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
-    expect(process.exitCode).toEqual(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
       'Syntax error: Unexpected identifier test stack\n\n'
     );
@@ -451,11 +441,9 @@ describe('handleErrors', () => {
   it('should throw unknown error', () => {
     const testError = new Error('Test error');
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
-   // FIXME
-    // expect(process.stderr.write).toHaveBeenCalledWith(
-    //   `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.  \n\n`
-    // );
-    expect(process.exitCode).toEqual(1);
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      `Something went wrong when processing openapi/test.yaml:\n\n  - Test error.\n\n`
+    );
   });
 });
 
