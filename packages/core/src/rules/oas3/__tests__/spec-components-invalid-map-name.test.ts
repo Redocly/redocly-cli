@@ -215,7 +215,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     expect(results).toMatchInlineSnapshot(`Array []`);
   });
 
-  it('should report about invalid keys inside nested examples', async () => {
+  it('should not report invalid keys inside nested examples', async () => {
     const document = parseYamlToDocument(outdent`
       openapi: 3.0.0
       info:
@@ -227,7 +227,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             description: param
             in: path
             examples:
-              invalid identifier:
+              valid identifier:
                 description: 'Some description'
                 value: 21 
 		`);
@@ -258,7 +258,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             description: param
             in: path
             examples:
-              invalid identifier:
+              valid identifier:
                 description: 'Some description'
                 value: 21 ",
                 "mimeType": undefined,
@@ -266,35 +266,6 @@ describe('Oas3 spec-components-invalid-map-name', () => {
             },
           ],
           "message": "The map key in parameters \\"my Param\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
-          "ruleId": "spec-components-invalid-map-name",
-          "severity": "error",
-          "suggest": Array [],
-        },
-        Object {
-          "location": Array [
-            Object {
-              "pointer": "#/components/parameters/my Param/examples/invalid identifier",
-              "reportOnKey": true,
-              "source": Source {
-                "absoluteRef": "",
-                "body": "openapi: 3.0.0
-      info:
-        version: 3.0.0
-      components:
-        parameters:
-          my Param:
-            name: param
-            description: param
-            in: path
-            examples:
-              invalid identifier:
-                description: 'Some description'
-                value: 21 ",
-                "mimeType": undefined,
-              },
-            },
-          ],
-          "message": "The map key in examples \\"invalid identifier\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
           "suggest": Array [],

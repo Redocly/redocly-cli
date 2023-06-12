@@ -3,4 +3,4 @@ apis:
     root: ./openapi.yaml
 
 rules:
-  spec-ref-validation: error
+  spec-strict-refs: error

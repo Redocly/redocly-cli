@@ -129,3 +129,20 @@ It only checks links within the local docs (it can't check links to other docs s
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
 - **`resources`**: contains some example API definitions and configuration files that might be useful for testing.
+
+## Arguments usage
+
+There are three ways of providing arguments to the CLI: environment variables, command line arguments, and Redocly configuration file.
+
+### Environment variables
+
+Environment variables should be used to provide some arguments that are common for all the commands.
+Please avoid using environment variables if possible, as they may lead to ambiguous results. They should not affect the **core** package logic.
+
+### Command line arguments
+
+Use them to provide some arguments that are specific to a certain command. Think of them as modifiers. They should not affect the **core** package logic.
+
+### Configuration file
+
+The **redocly.yaml** file is the most flexible way of providing arguments. Please use it to provide arguments that are common for all the commands, for a specific command, or for a specific API. It could be used for providing arguments for both **cli** and **core** packages. Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.

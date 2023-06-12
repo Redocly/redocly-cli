@@ -5,6 +5,18 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.128 (2023-06-07)
+
+### Features
+
+- Support rule/ as a prefix for configurable rules
+- Resolve $refs in preprocessors
+- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification
+
+### Fixes
+
+- Handle syntax errors from plugins
+- Apply the following regular expression, `^[a-zA-Z0-9\.\-_]+$`, only to fixed fields under components
 
 ## 1.0.0-beta.127 (2023-05-25)
 
@@ -821,7 +833,7 @@ lint:
 
 ### Features
 
-- Updated and improved the [introductory content](index.md) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
+- Updated and improved the [introductory content](index.mdx) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
 
 - Implemented improvements to the internal CD process.
 

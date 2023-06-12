@@ -40,7 +40,7 @@ import { ResponseContainsHeader } from '../common/response-contains-header';
 import { ResponseContainsProperty } from './response-contains-property';
 import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-example';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
-import { SpecRefValidation } from '../common/spec-ref-validation';
+import { SpecStrictRefs } from '../common/spec-strict-refs';
 
 export const rules = {
   spec: OasSpec as Oas2Rule,
@@ -85,7 +85,7 @@ export const rules = {
   'response-contains-property': ResponseContainsProperty as Oas2Rule,
   'scalar-property-missing-example': ScalarPropertyMissingExample,
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
-  'spec-ref-validation': SpecRefValidation,
+  'spec-strict-refs': SpecStrictRefs,
 };
 
 export const preprocessors = {};

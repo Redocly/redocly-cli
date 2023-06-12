@@ -1,7 +1,7 @@
 import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { isRef } from '../../ref-utils';
 
-export const SpecRefValidation: Oas3Rule | Oas2Rule = () => {
+export const SpecStrictRefs: Oas3Rule | Oas2Rule = () => {
   const nodesToSkip = [
     'Schema',
     'Response',
