@@ -183,7 +183,7 @@ describe('resolveStyleguideConfig', () => {
         property: 'get',
         message: 'Every path item must have a GET operation.',
         defined: true,
-        assertionId: 'path-item-get-defined',
+        assertionId: 'rule/path-item-get-defined',
       },
       {
         subject: 'Tag',
@@ -192,7 +192,7 @@ describe('resolveStyleguideConfig', () => {
         severity: 'error',
         minLength: 13,
         pattern: '/\\.$/',
-        assertionId: 'tag-description',
+        assertionId: 'rule/tag-description',
       },
     ]);
   });
