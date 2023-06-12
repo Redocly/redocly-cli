@@ -120,7 +120,10 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
   }
 }
 
-export function lintConfigCallback(argv: LintOptions, version: string) {
+export function lintConfigCallback(
+  argv: CommonOptions & { 'lint-config'?: string },
+  version: string
+) {
   if (argv['lint-config'] === 'off') {
     return;
   }

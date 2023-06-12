@@ -2,7 +2,7 @@
 
 import './assert-node-version';
 import * as yargs from 'yargs';
-import { outputExtensions, regionChoices } from './types';
+import { CommonOptions, outputExtensions, regionChoices } from './types';
 import { RedoclyClient, OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
@@ -17,6 +17,7 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { version } from './update-version-notifier';
+import { Arguments } from 'yargs';
 
 cacheLatestVersion();
 
@@ -111,7 +112,7 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
-      commandWrapper(handleJoin)(argv, version);
+      commandWrapper(handleJoin)(argv);
     }
   )
   .command(
@@ -215,7 +216,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'lint';
-      commandWrapper(handleLint)(argv, version);
+      commandWrapper(handleLint)(argv);
     }
   )
   .command(
@@ -297,7 +298,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
-      commandWrapper(handleBundle)(argv, version);
+      commandWrapper(handleBundle)(argv);
     }
   )
   .command(
@@ -326,7 +327,7 @@ yargs
     (yargs) => yargs,
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'logout';
-      commandWrapper(() => {
+      await commandWrapper(async () => {
         const client = new RedoclyClient();
         client.logout();
         process.stdout.write('Logged out from the Redocly account. ✋\n');
@@ -430,7 +431,7 @@ yargs
         }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
-      commandWrapper(handlerBuildCommand)(argv as unknown as BuildDocsArgv);
+      commandWrapper(handlerBuildCommand)(argv as unknown as Arguments<BuildDocsArgv>);
     }
   )
   .completion('completion', 'Generate completion script.')

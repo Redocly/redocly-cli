@@ -29,7 +29,7 @@ const DEFAULT_VERSION = 'latest';
 const DESTINATION_REGEX =
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
-type PushArgs = {
+export type PushArgs = {
   api?: string;
   destination?: string;
   branchName?: string;

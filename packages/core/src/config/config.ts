@@ -18,6 +18,7 @@ import type {
   ResolvedStyleguideConfig,
   RuleConfig,
   RuleSettings,
+  Telemetry,
   ThemeRawConfig,
 } from './types';
 import { getResolveConfig } from './utils';
@@ -317,6 +318,7 @@ export class Config {
   theme: ThemeRawConfig;
   organization?: string;
   files: string[];
+  telemetry?: Telemetry;
   constructor(public rawConfig: ResolvedConfig, public configFile?: string) {
     this.apis = rawConfig.apis || {};
     this.styleguide = new StyleguideConfig(rawConfig.styleguide || {}, configFile);
@@ -325,5 +327,6 @@ export class Config {
     this.region = rawConfig.region;
     this.organization = rawConfig.organization;
     this.files = rawConfig.files || [];
+    this.telemetry = rawConfig.telemetry;
   }
 }
