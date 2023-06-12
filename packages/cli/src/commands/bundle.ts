@@ -1,4 +1,11 @@
-import { formatProblems, getTotals, getMergedConfig, lint, bundle } from '@redocly/openapi-core';
+import {
+  formatProblems,
+  getTotals,
+  getMergedConfig,
+  lint,
+  bundle,
+  Config,
+} from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -8,7 +15,6 @@ import {
   printUnusedWarnings,
   saveBundle,
   printLintTotals,
-  loadConfigAndHandleErrors,
   checkIfRulesetExist,
   sortTopLevelKeysForOas,
 } from '../utils';
@@ -29,11 +35,7 @@ export type BundleOptions = CommonOptions &
     'keep-url-references'?: boolean;
   };
 
-export async function handleBundle(argv: BundleOptions, version: string) {
-  const config = await loadConfigAndHandleErrors({
-    configPath: argv.config,
-    customExtends: argv.extends,
-  });
+export async function handleBundle(argv: BundleOptions, config: Config, version: string) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');

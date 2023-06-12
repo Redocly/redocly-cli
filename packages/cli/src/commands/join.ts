@@ -26,7 +26,6 @@ import {
   printLintTotals,
   writeYaml,
   exitWithError,
-  loadConfigAndHandleErrors,
   sortTopLevelKeysForOas,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
@@ -60,7 +59,7 @@ type JoinArgv = {
   output?: string;
 };
 
-export async function handleJoin(argv: JoinArgv, packageVersion: string) {
+export async function handleJoin(argv: JoinArgv, config: Config, packageVersion: string) {
   const startedAt = performance.now();
   if (argv.apis.length < 2) {
     return exitWithError(`At least 2 apis should be provided. \n\n`);
@@ -86,7 +85,6 @@ export async function handleJoin(argv: JoinArgv, packageVersion: string) {
     );
   }
 
-  const config: Config = await loadConfigAndHandleErrors();
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const documents = await Promise.all(

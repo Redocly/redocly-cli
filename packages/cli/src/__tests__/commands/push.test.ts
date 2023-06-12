@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { Config, getMergedConfig } from '@redocly/openapi-core';
-import { exitWithError, loadConfigAndHandleErrors } from '../../utils';
+import { exitWithError } from '../../utils';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
@@ -25,15 +25,18 @@ describe('push', () => {
   });
 
   it('pushes definition', async () => {
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      ConfigFixture as any
+    );
 
     expect(redoclyClient.registryApi.prepareFileUpload).toBeCalledTimes(1);
     expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
@@ -52,50 +55,61 @@ describe('push', () => {
   });
 
   it('fails if batchId value is an empty string', async () => {
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      branchName: 'test',
-      public: true,
-      'batch-id': ' ',
-      'batch-size': 2,
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        branchName: 'test',
+        public: true,
+        'batch-id': ' ',
+        'batch-size': 2,
+      },
+      ConfigFixture as any
+    );
 
     expect(exitWithError).toBeCalledTimes(1);
   });
 
   it('fails if batchSize value is less than 2', async () => {
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 1,
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 1,
+      },
+      ConfigFixture as any
+    );
 
     expect(exitWithError).toBeCalledTimes(1);
   });
 
   it('push with --files', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(({ files }) => {
-      return { ...ConfigFixture, files };
-    });
+    // (loadConfigAndHandleErrors as jest.Mock).mockImplementation(({ files }) => {
+    //   return { ...ConfigFixture, files };
+    // });
+
+    const mockConfig = { ...ConfigFixture, files: ['./resouces/1.md', './resouces/2.md'] } as any;
 
     //@ts-ignore
     fs.statSync.mockImplementation(() => {
       return { isDirectory: () => false, size: 10 };
     });
 
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      public: true,
-      files: ['./resouces/1.md', './resouces/2.md'],
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        public: true,
+        files: ['./resouces/1.md', './resouces/2.md'],
+      },
+      mockConfig
+    );
 
     expect(redoclyClient.registryApi.pushApi).toHaveBeenLastCalledWith({
       filePaths: ['filePath', 'filePath', 'filePath'],
@@ -110,15 +124,18 @@ describe('push', () => {
   });
 
   it('push should fail if organization not provided', async () => {
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: 'test@v1',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: 'test@v1',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      ConfigFixture as any
+    );
 
     expect(exitWithError).toBeCalledTimes(1);
     expect(exitWithError).toBeCalledWith(
@@ -129,18 +146,19 @@ describe('push', () => {
   });
 
   it('push should work with organization in config', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { ...ConfigFixture, organization: 'test_org' };
-    });
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: 'my-api@1.0.0',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+    const mockConfig = { ...ConfigFixture, organization: 'test_org' } as any;
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: 'my-api@1.0.0',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      mockConfig
+    );
 
     expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
     expect(redoclyClient.registryApi.pushApi).toHaveBeenLastCalledWith({
@@ -158,36 +176,40 @@ describe('push', () => {
   });
 
   it('push should work if destination not provided and api in config is provided', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return {
-        ...ConfigFixture,
-        organization: 'test_org',
-        apis: { 'my-api@1.0.0': { root: 'path' } },
-      };
-    });
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+    const mockConfig = {
+      ...ConfigFixture,
+      organization: 'test_org',
+      apis: { 'my-api@1.0.0': { root: 'path' } },
+    } as any;
+
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      mockConfig
+    );
 
     expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
   });
 
   it('push should fail if destination and apis not provided', async () => {
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { organization: 'test_org', apis: {} };
-    });
-    await handlePush({
-      upsert: true,
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+    const mockConfig = { organization: 'test_org', apis: {} } as any;
+
+    await handlePush(
+      {
+        upsert: true,
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      mockConfig
+    );
 
     expect(exitWithError).toBeCalledTimes(1);
     expect(exitWithError).toHaveBeenLastCalledWith(
@@ -197,21 +219,24 @@ describe('push', () => {
 
   it('push should work and encode name with spaces', async () => {
     const encodeURIComponentSpy = jest.spyOn(global, 'encodeURIComponent');
-    (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return {
-        ...ConfigFixture,
-        organization: 'test_org',
-        apis: { 'my test api@v1': { root: 'path' } },
-      };
-    });
-    await handlePush({
-      upsert: true,
-      destination: 'my test api@v1',
-      branchName: 'test',
-      public: true,
-      'batch-id': '123',
-      'batch-size': 2,
-    });
+
+    const mockConfig = {
+      ...ConfigFixture,
+      organization: 'test_org',
+      apis: { 'my test api@v1': { root: 'path' } },
+    } as any;
+
+    await handlePush(
+      {
+        upsert: true,
+        destination: 'my test api@v1',
+        branchName: 'test',
+        public: true,
+        'batch-id': '123',
+        'batch-size': 2,
+      },
+      mockConfig
+    );
 
     expect(encodeURIComponentSpy).toHaveReturnedWith('my%20test%20api');
     expect(redoclyClient.registryApi.pushApi).toBeCalledTimes(1);
@@ -221,66 +246,96 @@ describe('push', () => {
 describe('transformPush', () => {
   it('should adapt the existing syntax', () => {
     const cb = jest.fn();
-    transformPush(cb)({
-      maybeApiOrDestination: 'openapi.yaml',
-      maybeDestination: '@testing_org/main@v1',
-    });
-    expect(cb).toBeCalledWith({
-      api: 'openapi.yaml',
-      destination: '@testing_org/main@v1',
-    });
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: 'openapi.yaml',
+        maybeDestination: '@testing_org/main@v1',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+      },
+      {}
+    );
   });
   it('should adapt the existing syntax (including branchName)', () => {
     const cb = jest.fn();
-    transformPush(cb)({
-      maybeApiOrDestination: 'openapi.yaml',
-      maybeDestination: '@testing_org/main@v1',
-      maybeBranchName: 'other',
-    });
-    expect(cb).toBeCalledWith({
-      api: 'openapi.yaml',
-      destination: '@testing_org/main@v1',
-      branchName: 'other',
-    });
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: 'openapi.yaml',
+        maybeDestination: '@testing_org/main@v1',
+        maybeBranchName: 'other',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+        branchName: 'other',
+      },
+      {}
+    );
   });
   it('should use --branch option firstly', () => {
     const cb = jest.fn();
-    transformPush(cb)({
-      maybeApiOrDestination: 'openapi.yaml',
-      maybeDestination: '@testing_org/main@v1',
-      maybeBranchName: 'other',
-      branch: 'priority-branch',
-    });
-    expect(cb).toBeCalledWith({
-      api: 'openapi.yaml',
-      destination: '@testing_org/main@v1',
-      branchName: 'priority-branch',
-    });
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: 'openapi.yaml',
+        maybeDestination: '@testing_org/main@v1',
+        maybeBranchName: 'other',
+        branch: 'priority-branch',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+        branchName: 'priority-branch',
+      },
+      {}
+    );
   });
   it('should work for a destination only', () => {
     const cb = jest.fn();
-    transformPush(cb)({
-      maybeApiOrDestination: '@testing_org/main@v1',
-    });
-    expect(cb).toBeCalledWith({
-      destination: '@testing_org/main@v1',
-    });
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: '@testing_org/main@v1',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        destination: '@testing_org/main@v1',
+      },
+      {}
+    );
   });
   it('should accept aliases for the old syntax', () => {
     const cb = jest.fn();
-    transformPush(cb)({
-      maybeApiOrDestination: 'alias',
-      maybeDestination: '@testing_org/main@v1',
-    });
-    expect(cb).toBeCalledWith({
-      destination: '@testing_org/main@v1',
-      api: 'alias',
-    });
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: 'alias',
+        maybeDestination: '@testing_org/main@v1',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        destination: '@testing_org/main@v1',
+        api: 'alias',
+      },
+      {}
+    );
   });
   it('should accept no arguments at all', () => {
     const cb = jest.fn();
-    transformPush(cb)({});
-    expect(cb).toBeCalledWith({});
+    transformPush(cb)({}, {} as any);
+    expect(cb).toBeCalledWith({}, {});
   });
 });
 

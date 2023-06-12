@@ -7,8 +7,9 @@ import {
   RedoclyClient,
   getTotals,
   getMergedConfig,
+  Config,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit, loadConfigAndHandleErrors } from '../../utils';
+import { getFallbackApisOrExit } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from '../../types';
 
@@ -20,11 +21,12 @@ export async function previewDocs(
     config?: string;
     api?: string;
     force?: boolean;
-  } & Omit<Skips, 'skip-rule'>
+  } & Omit<Skips, 'skip-rule'>,
+  configFromFile: Config
 ) {
   let isAuthorizedWithRedocly = false;
   let redocOptions: any = {};
-  let config = await reloadConfig();
+  let config = await reloadConfig(configFromFile);
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const api = apis[0];
@@ -109,7 +111,7 @@ export async function previewDocs(
   const changeHandler = async (type: string, file: string) => {
     process.stdout.write(`${colorette.green('watch')} ${type} ${colorette.blue(file)}\n`);
     if (file === config.configFile) {
-      config = await reloadConfig();
+      config = await reloadConfig(configFromFile);
       hotClients.broadcast(JSON.stringify({ type: 'reload' }));
       return;
     }
@@ -127,8 +129,7 @@ export async function previewDocs(
     );
   });
 
-  async function reloadConfig() {
-    const config = await loadConfigAndHandleErrors({ configPath: argv.config });
+  async function reloadConfig(config: Config) {
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.api);

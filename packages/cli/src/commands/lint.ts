@@ -35,16 +35,10 @@ export type LintOptions = CommonOptions &
     'lint-config': RuleSeverity;
   };
 
-export async function handleLint(argv: LintOptions, version: string) {
+export async function handleLint(argv: LintOptions, config: Config, version: string) {
   if (argv.config && !doesYamlFileExist(argv.config)) {
     return exitWithError('Please, provide valid path to the configuration file');
   }
-
-  const config: Config = await loadConfigAndHandleErrors({
-    configPath: argv.config,
-    customExtends: argv.extends,
-    processRawConfig: lintConfigCallback(argv, version),
-  });
 
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
@@ -124,10 +118,9 @@ export async function handleLint(argv: LintOptions, version: string) {
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new Error();
   }
-
 }
 
-function lintConfigCallback(argv: LintOptions, version: string) {
+export function lintConfigCallback(argv: LintOptions, version: string) {
   if (argv['lint-config'] === 'off') {
     return;
   }

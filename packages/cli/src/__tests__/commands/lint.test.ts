@@ -60,7 +60,6 @@ describe('handleLint', () => {
       expect(exitWithError).toHaveBeenCalledWith(
         'Please, provide valid path to the configuration file'
       );
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledTimes(0);
     });
 
     it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
@@ -127,7 +126,10 @@ describe('handleLint', () => {
 
     it('should call formatProblems and getExecutionTime with argv', async () => {
       (lint as jest.Mock<any, any>).mockResolvedValueOnce(['problem']);
-      await commandWrapper(handleLint)({ ...argvMock, 'max-problems': 2, format: 'stylish' }, versionMock);
+      await commandWrapper(handleLint)(
+        { ...argvMock, 'max-problems': 2, format: 'stylish' },
+        versionMock
+      );
       expect(getTotals).toHaveBeenCalledWith(['problem']);
       expect(formatProblems).toHaveBeenCalledWith(['problem'], {
         format: 'stylish',
@@ -152,6 +154,9 @@ describe('handleLint', () => {
     });
 
     it('should call exit with 0 if no errors', async () => {
+      (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
+        return { ...ConfigFixture };
+      });
       await commandWrapper(handleLint)(argvMock, versionMock);
       await exitCb?.();
       expect(processExitMock).toHaveBeenCalledWith(0);

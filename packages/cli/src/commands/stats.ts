@@ -20,7 +20,7 @@ import {
   bundle,
 } from '@redocly/openapi-core';
 
-import { getFallbackApisOrExit, loadConfigAndHandleErrors } from '../utils';
+import { getFallbackApisOrExit } from '../utils';
 import { printExecutionTime } from '../utils';
 
 const statsAccumulator: StatsAccumulator = {
@@ -64,8 +64,10 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
   }
 }
 
-export async function handleStats(argv: { config?: string; api?: string; format: string }) {
-  const config: Config = await loadConfigAndHandleErrors({ configPath: argv.config });
+export async function handleStats(
+  argv: { config?: string; api?: string; format: string },
+  config: Config
+) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });

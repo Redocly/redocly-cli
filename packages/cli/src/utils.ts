@@ -23,11 +23,11 @@ import {
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
-import * as process from "process";
+import * as process from 'process';
 
 export async function getFallbackApisOrExit(
-    argsApis: string[] | undefined,
-    config: ConfigApis
+  argsApis: string[] | undefined,
+  config: ConfigApis
 ): Promise<Entrypoint[]> {
   const { apis } = config;
   const shouldFallbackToAllDefinitions =
@@ -40,11 +40,7 @@ export async function getFallbackApisOrExit(
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
     for (const { path } of filteredInvalidEntrypoints) {
       process.stderr.write(
-        yellow(
-          `\n${relative(process.cwd(), path)} ${red(
-            `does not exist or is invalid.\n\n`
-          )}`
-        )
+        yellow(`\n${relative(process.cwd(), path)} ${red(`does not exist or is invalid.\n\n`)}`)
       );
     }
     exitWithError('Please provide a valid path.');
@@ -237,11 +233,10 @@ export function handleError(e: Error, ref: string) {
       return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
     // TODO: codeframe
     case CircularJSONNotSupportedError: {
-
       return exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
-      `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`)
-  
+          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
+      );
     }
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
@@ -252,8 +247,7 @@ export function handleError(e: Error, ref: string) {
   }
 }
 
-export class HandledError extends Error {
-}
+export class HandledError extends Error {}
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored

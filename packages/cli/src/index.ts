@@ -16,7 +16,7 @@ import { handlerBuildCommand } from './commands/build-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
 import { commandWrapper } from './wrapper';
-import { version } from "./update-version-notifier";
+import { version } from './update-version-notifier';
 
 cacheLatestVersion();
 
@@ -328,10 +328,9 @@ yargs
       process.env.REDOCLY_CLI_COMMAND = 'logout';
       commandWrapper(() => {
         const client = new RedoclyClient();
-      client.logout();
-      process.stdout.write('Logged out from the Redocly account. ✋\n');
-      })(argv)
-      
+        client.logout();
+        process.stdout.write('Logged out from the Redocly account. ✋\n');
+      })(argv);
     }
   )
   .command(

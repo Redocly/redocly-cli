@@ -1,6 +1,6 @@
-import { Region, RedoclyClient } from '@redocly/openapi-core';
+import { Region, RedoclyClient, Config } from '@redocly/openapi-core';
 import { blue, green, gray } from 'colorette';
-import { loadConfigAndHandleErrors, promptUser } from '../utils';
+import { promptUser } from '../utils';
 
 export function promptClientToken(domain: string) {
   return promptUser(
@@ -11,8 +11,8 @@ export function promptClientToken(domain: string) {
   );
 }
 
-export async function handleLogin(argv: { verbose?: boolean; region?: Region }) {
-  const region = argv.region || (await loadConfigAndHandleErrors()).region;
+export async function handleLogin(argv: { verbose?: boolean; region?: Region }, config: Config) {
+  const region = argv.region || config.region;
   const client = new RedoclyClient(region);
   const clientToken = await promptClientToken(client.domain);
   process.stdout.write(gray('\n  Logging in...\n'));

@@ -8,7 +8,8 @@ import {
   handleError,
   CircularJSONNotSupportedError,
   sortTopLevelKeysForOas,
-  cleanColors, HandledError,
+  cleanColors,
+  HandledError,
 } from '../utils';
 import {
   ResolvedApi,
@@ -158,7 +159,7 @@ describe('getFallbackApisOrExit', () => {
     };
     expect.assertions(1);
     try {
-      await getFallbackApisOrExit([''], apisConfig)
+      await getFallbackApisOrExit([''], apisConfig);
     } catch (e) {
       expect(e.message).toEqual('Path cannot be empty.');
     }
@@ -171,11 +172,9 @@ describe('getFallbackApisOrExit', () => {
       await getFallbackApisOrExit(undefined, config);
     } catch (e) {
       expect(process.stderr.write).toHaveBeenCalledWith(
-          '\nsomeFile.yaml does not exist or is invalid.\n\n'
+        '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(process.stderr.write).toHaveBeenCalledWith(
-          'Please provide a valid path.\n\n'
-      );
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
@@ -206,11 +205,9 @@ describe('getFallbackApisOrExit', () => {
       await getFallbackApisOrExit(['someFile.yaml'], apisConfig);
     } catch (e) {
       expect(process.stderr.write).toHaveBeenCalledWith(
-          '\nsomeFile.yaml does not exist or is invalid.\n\n'
+        '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(process.stderr.write).toHaveBeenCalledWith(
-          'Please provide a valid path.\n\n'
-      );
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
@@ -225,11 +222,9 @@ describe('getFallbackApisOrExit', () => {
       await getFallbackApisOrExit(['someFile.yaml', 'someFile2.yaml'], apisConfig);
     } catch (e) {
       expect(process.stderr.write).toHaveBeenCalledWith(
-          '\nsomeFile.yaml does not exist or is invalid.\n\n'
+        '\nsomeFile.yaml does not exist or is invalid.\n\n'
       );
-      expect(process.stderr.write).toHaveBeenCalledWith(
-          'Please provide a valid path.\n\n'
-      );
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(e.message).toEqual('Please provide a valid path.');
     }
   });
@@ -244,7 +239,9 @@ describe('getFallbackApisOrExit', () => {
     };
     const configStub = { apis: apisStub };
 
-    const existSyncMock = (existsSync as jest.Mock<any, any>).mockImplementation((path) => path.endsWith('someFile.yaml'));
+    const existSyncMock = (existsSync as jest.Mock<any, any>).mockImplementation((path) =>
+      path.endsWith('someFile.yaml')
+    );
 
     expect.assertions(4);
 
@@ -252,11 +249,9 @@ describe('getFallbackApisOrExit', () => {
       await getFallbackApisOrExit(undefined, configStub);
     } catch (e) {
       expect(process.stderr.write).toHaveBeenCalledWith(
-          '\nnotExist.yaml does not exist or is invalid.\n\n'
+        '\nnotExist.yaml does not exist or is invalid.\n\n'
       );
-      expect(process.stderr.write).toHaveBeenCalledWith(
-          'Please provide a valid path.\n\n'
-      );
+      expect(process.stderr.write).toHaveBeenCalledWith('Please provide a valid path.\n\n');
       expect(process.stderr.write).toHaveBeenCalledTimes(2);
       expect(e.message).toEqual('Please provide a valid path.');
     }
@@ -430,7 +425,7 @@ describe('handleErrors', () => {
 
   it('should handle SyntaxError', () => {
     const testError = new SyntaxError('Unexpected identifier');
-    testError.stack = 'test stack'
+    testError.stack = 'test stack';
     expect(() => handleError(testError, ref)).toThrowError(HandledError);
     expect(process.stderr.write).toHaveBeenCalledWith(
       'Syntax error: Unexpected identifier test stack\n\n'
@@ -461,7 +456,9 @@ describe('checkIfRulesetExist', () => {
       oas3_0: {},
       oas3_1: {},
     };
-    expect(() => checkIfRulesetExist(rules)).toThrowError('⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/')
+    expect(() => checkIfRulesetExist(rules)).toThrowError(
+      '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
+    );
   });
 
   it('should not throw an error if rules are provided', () => {

@@ -21,7 +21,6 @@ import {
   getFallbackApisOrExit,
   pluralize,
   dumpBundle,
-  loadConfigAndHandleErrors,
 } from '../utils';
 import { promptClientToken } from './login';
 
@@ -43,8 +42,7 @@ type PushArgs = {
   files?: string[];
 };
 
-export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfigAndHandleErrors({ region: argv.region, files: argv.files });
+export async function handlePush(argv: PushArgs, config: Config): Promise<void> {
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -338,7 +336,10 @@ type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs) => {
+  (
+    { maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs,
+    config: Config
+  ) => {
     if (maybeBranchName) {
       process.stderr.write(
         yellow(
@@ -348,12 +349,15 @@ export const transformPush =
     }
     const api = maybeDestination ? maybeApiOrDestination : undefined;
     const destination = maybeDestination || maybeApiOrDestination;
-    return callback({
-      ...rest,
-      destination,
-      api,
-      branchName: branch ?? maybeBranchName,
-    });
+    return callback(
+      {
+        ...rest,
+        destination,
+        api,
+        branchName: branch ?? maybeBranchName,
+      },
+      config
+    );
   };
 
 export function getApiRoot({

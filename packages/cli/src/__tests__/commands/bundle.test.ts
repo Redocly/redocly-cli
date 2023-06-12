@@ -32,7 +32,7 @@ describe('bundle', () => {
   it('bundles definitions w/o linting', async () => {
     const apis = ['foo.yaml', 'bar.yaml'];
 
-    await commandWrapper( handleBundle)(
+    await commandWrapper(handleBundle)(
       {
         apis,
         ext: 'yaml',
