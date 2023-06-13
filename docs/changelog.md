@@ -9,14 +9,17 @@ toc:
 
 ### Features
 
-- Support rule/ as a prefix for configurable rules
-- Resolve $refs in preprocessors
-- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification
+- Resolve `$ref`s in preprocessors.
+- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification.
 
 ### Fixes
 
-- Handle syntax errors from plugins
-- Apply the following regular expression, `^[a-zA-Z0-9\.\-_]+$`, only to fixed fields under components
+- Handle syntax errors from plugins.
+- Apply the following regular expression, `^[a-zA-Z0-9\.\-_]+$`, only to fixed fields under components.
+
+### Changes
+
+- Change the prefix from `assert/` to `rule/` as a prefix for configurable rules. The `assert/` prefix continues to work with a warning of the deprecated syntax.
 
 ## 1.0.0-beta.127 (2023-05-25)
 
