@@ -59,3 +59,69 @@ rules:
 
 It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration.md#apis-object) to set per-API rules (or exceptions!).
 
+
+### Redocly rules and Spectral equivalents
+
+Included here is an attempt to map the simliar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues/new)?
+
+
+| Spectral rules                         | Redocly rules                                 |
+|----------------------------------------|-----------------------------------------------|
+| `duplicated-entry-in-enum`             |                                               |
+| `info-contact`                         | `info-contact`                                |
+| `info-description`                     |                                               |
+| `info-license`                         | `info-license`                                |
+| `license-url`                          | `info-license-url`                            |
+| `no-$ref-siblings`                     |                                               |
+| `no-eval-in-markdown`                  |                                               |
+| `no-script-tags-in-markdown`           |                                               |
+| `oas3-api-servers`                     | `no-empty-servers`                            |
+| `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`          |
+| `oas3-operation-security-defined`      | `security-defined`                            |
+| `oas3-parameter-description`           | `parameter-description`                       |
+| `oas3-schema`                          | `spec`                                        |
+| `oas3-server-not-example.com`          | `no-server-example.com`                       |
+| `oas3-server-trailing-slash`           | `no-server-trailing-slash`                    |
+| `oas3-unused-component`                | `no-unused-components`                        |
+| `oas3-valid-media-example`             | `no-invalid-media-type-examples`              |
+| `oas3-valid-schema-example`            | `no-invalid-schema-examples`                  |
+| `openapi-tags`                         |                                               |
+| `openapi-tags-alphabetical`            | `tags-alphabetical`                           |
+| `openapi-tags-uniqueness`              |                                               |
+| `operation-description`                | `operation-description`                       |
+| `operation-operationId`                | `operation-operationId`                       |
+| `operation-operationId-unique`         | `operation-operationId-unique`                |
+| `operation-operationId-valid-in-url`   | `operation-operationId-url-safe`              |
+| `operation-parameters`                 | `operation-parameters-unique`                 |
+| `operation-singular-tag`               | `operation-singular-tag`                      |
+| `operation-success-response`           | `operation-2xx-response`                      |
+| `operation-tag-defined`                | `operation-tag-defined`                       |
+| `operation-tags`                       |                                               |
+| `path-declarations-must-exist`         | `path-declaration-must-exist`                 |
+| `path-keys-no-trailing-slash`          | `no-path-trailing-slash`                      |
+| `path-not-include-query`               | `path-not-include-query`                      |
+| `path-params`                          | `path-parameters-defined`                     |
+| `tag-description`                      | `tag-description`                             |
+| `typed-enum`                           |                                               |
+|                                        | `boolean-parameter-prefixes`                  |
+|                                        | `no-ambiguous-paths`                          |
+|                                        | `no-enum-type-mismatch`                       |
+|                                        | `no-http-verbs-in-paths`                      |
+|                                        | `no-identical-paths`                          |
+|                                        | `no-invalid-parameter-examples`               |
+|                                        | `no-server-variables-empty-enum`              |
+|                                        | `no-undefined-server-variable`                |
+|                                        | `no-unresolved-refs`                          |
+|                                        | `operation-4xx-problem-details-rfc7807`       |
+|                                        | `operation-4xx-response`                      |
+|                                        | `operation-summary`                           |
+|                                        | `path-excludes-patterns`                      |
+|                                        | `path-segment-plural`                         |
+|                                        | `paths-kebab-case`                            |
+|                                        | `request-mime-type`                           |
+|                                        | `required-string-property-missing-min-length` |
+|                                        | `response-contains-header`                    |
+|                                        | `response-contains-property`                  |
+|                                        | `response-mime-type`                          |
+|                                        | `scalar-property-missing-example`             |
+|                                        | `spec-components-invalid-map-name`            |
