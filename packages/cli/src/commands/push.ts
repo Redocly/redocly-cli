@@ -23,14 +23,13 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
-import {CommonOptions} from "../types";
 
 const DEFAULT_VERSION = 'latest';
 
 const DESTINATION_REGEX =
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
-export type PushArgs = CommonOptions & {
+export type PushOptions = {
   api?: string;
   destination?: string;
   branchName?: string;
@@ -41,9 +40,10 @@ export type PushArgs = CommonOptions & {
   'skip-decorator'?: string[];
   public?: boolean;
   files?: string[];
+  config?: string;
 };
 
-export async function handlePush(argv: PushArgs, config: Config): Promise<void> {
+export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -328,7 +328,7 @@ export function getDestinationProps(
   }
 }
 
-type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
+type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
   maybeApiOrDestination?: string;
   maybeDestination?: string;
   maybeBranchName?: string;

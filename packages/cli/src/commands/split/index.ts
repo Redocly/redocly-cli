@@ -34,12 +34,12 @@ import {
   OPENAPI3_COMPONENT_NAMES,
   Referenced,
 } from './types';
-import {CommonOptions} from "../../types";
 
-export type SplitOptions = CommonOptions & {
+export type SplitOptions =  {
   api: string;
   outDir: string;
   separator: string
+  config?: string;
 }
 
 export async function handleSplit(argv: SplitOptions) {

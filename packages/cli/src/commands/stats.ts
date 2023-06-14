@@ -6,23 +6,19 @@ import {
   normalizeTypes,
   Oas3Types,
   Oas2Types,
-  StatsAccumulator,
-  StatsName,
   BaseResolver,
   resolveDocument,
   detectOpenAPI,
   OasMajorVersion,
   openAPIMajor,
   normalizeVisitors,
-  WalkContext,
   walkDocument,
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-
 import { getFallbackApisOrExit } from '../utils';
 import { printExecutionTime } from '../utils';
-import {CommonOptions} from "../types";
+import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -65,15 +61,13 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
   }
 }
 
-export type StatsOptions = CommonOptions & {
+export type StatsOptions = {
   api?: string;
-  format: string;
-}
+  format: OutputFormat;
+  config?: string;
+};
 
-export async function handleStats(
-  argv: StatsOptions,
-  config: Config
-) {
+export async function handleStats(argv: StatsOptions, config: Config) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });

@@ -1,7 +1,6 @@
 import { Region, RedoclyClient, Config } from '@redocly/openapi-core';
 import { blue, green, gray } from 'colorette';
 import { promptUser } from '../utils';
-import {CommonOptions} from "../types";
 
 export function promptClientToken(domain: string) {
   return promptUser(
@@ -12,10 +11,11 @@ export function promptClientToken(domain: string) {
   );
 }
 
-export type  LoginOptions = CommonOptions & {
+export type LoginOptions = {
   verbose?: boolean;
-  region?: Region
-}
+  region?: Region;
+  config?: string;
+};
 
 export async function handleLogin(argv: LoginOptions, config: Config) {
   const region = argv.region || config.region;

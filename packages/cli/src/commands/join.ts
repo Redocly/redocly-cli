@@ -32,7 +32,7 @@ import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
 import { OPENAPI3_METHOD } from './split/types';
 import { BundleResult } from '@redocly/openapi-core/lib/bundle';
-import {CommonOptions} from "../types";
+
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -48,7 +48,7 @@ type JoinDocumentContext = {
   componentsPrefix: string | undefined;
 };
 
-type JoinArgv = CommonOptions & {
+export type JoinOptions = {
   apis: string[];
   lint?: boolean;
   decorate?: boolean;
@@ -58,9 +58,12 @@ type JoinArgv = CommonOptions & {
   'prefix-components-with-info-prop'?: string;
   'without-x-tag-groups'?: boolean;
   output?: string;
+  config?: string;
+  extends?: undefined
+  'lint-config'?: undefined
 };
 
-export async function handleJoin(argv: JoinArgv, config: Config, packageVersion: string) {
+export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
   const startedAt = performance.now();
   if (argv.apis.length < 2) {
     return exitWithError(`At least 2 apis should be provided. \n\n`);

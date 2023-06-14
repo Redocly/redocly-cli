@@ -1,6 +1,5 @@
 import {
   Config,
-  doesYamlFileExist,
   findConfig,
   formatProblems,
   getMergedConfig,
@@ -8,9 +7,6 @@ import {
   lint,
   lintConfig,
   makeDocumentFromString,
-  ProblemSeverity,
-  RawConfig,
-  RuleSeverity,
   stringifyYaml,
 } from '@redocly/openapi-core';
 import {
@@ -19,27 +15,27 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  loadConfigAndHandleErrors,
   pluralize,
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
 } from '../utils';
-import type { CommonOptions, Skips, Totals } from '../types';
+import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@redocly/openapi-core';
+import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
-export type LintOptions = CommonOptions &
-  Omit<Skips, 'skip-decorator'> & {
-    'generate-ignore-file'?: boolean;
-    'lint-config': RuleSeverity;
-  };
+export type LintOptions = {
+  apis?: string[];
+  'max-problems': number;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+  'generate-ignore-file'?: boolean;
+  'lint-config'?: RuleSeverity;
+} & Omit<Skips, 'skip-decorator'>;
 
 export async function handleLint(argv: LintOptions, config: Config, version: string) {
-  if (argv.config && !doesYamlFileExist(argv.config)) {
-    return exitWithError('Please, provide valid path to the configuration file');
-  }
-
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
@@ -114,14 +110,13 @@ export async function handleLint(argv: LintOptions, config: Config, version: str
 
   printUnusedWarnings(config.styleguide);
 
-  // handle error in commandWrapper and exit with code 1
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
-    throw new Error();
+    throw new Error('Lint failed.');
   }
 }
 
 export function lintConfigCallback(
-  argv: CommonOptions & { 'lint-config'?: string },
+  argv: CommandOptions & Record<string, undefined>,
   version: string
 ) {
   if (argv['lint-config'] === 'off') {
@@ -134,7 +129,6 @@ export function lintConfigCallback(
   }
 
   return async (config: RawConfig) => {
-    const { 'max-problems': maxProblems, format } = argv;
     const configPath = findConfig(argv.config) || '';
     const stringYaml = stringifyYaml(config);
     const configContent = makeDocumentFromString(stringYaml, configPath);
@@ -146,8 +140,8 @@ export function lintConfigCallback(
     const fileTotals = getTotals(problems);
 
     formatProblems(problems, {
-      format,
-      maxProblems,
+      format: argv.format,
+      maxProblems: argv['max-problems'],
       totals: fileTotals,
       version,
     });

@@ -2,8 +2,8 @@
 
 import './assert-node-version';
 import * as yargs from 'yargs';
-import { CommonOptions, outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import { outputExtensions, regionChoices } from './types';
+import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -13,11 +13,12 @@ import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
-import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
 import { commandWrapper } from './wrapper';
 import { version } from './update-version-notifier';
-import { Arguments } from 'yargs';
+import type { Arguments } from 'yargs';
+import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import type { BuildDocsArgv } from './commands/build-docs/types';
 
 cacheLatestVersion();
 
@@ -62,6 +63,11 @@ yargs
             required: false,
             type: 'string',
             default: '_',
+          },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
+            type: 'string',
           },
         })
         .demandOption('api'),
@@ -109,6 +115,11 @@ yargs
             type: 'string',
             default: 'openapi.yaml',
           },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
@@ -150,6 +161,11 @@ yargs
           files: {
             description: 'List of other folders and files to upload',
             array: true,
+            type: 'string',
+          },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
             type: 'string',
           },
         })
@@ -315,6 +331,11 @@ yargs
           alias: 'r',
           choices: regionChoices,
         },
+        config: {
+          description: 'Specify path to the config file.',
+          requiresArg: true,
+          type: 'string',
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'login';
@@ -431,10 +452,10 @@ yargs
         }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
-      commandWrapper(handlerBuildCommand)(argv as unknown as Arguments<BuildDocsArgv>);
+      commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
   .completion('completion', 'Generate completion script.')
   .demandCommand(1)
-  .middleware([notifyUpdateCliVersion /* sendAnalytics */])
+  .middleware([notifyUpdateCliVersion])
   .strict().argv;

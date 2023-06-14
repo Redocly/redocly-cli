@@ -5,6 +5,7 @@ import {
   lint,
   bundle,
   Config,
+  OutputFormat,
 } from '@redocly/openapi-core';
 import {
   dumpBundle,
@@ -18,22 +19,26 @@ import {
   checkIfRulesetExist,
   sortTopLevelKeysForOas,
 } from '../utils';
-import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
+import type { OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
-export type BundleOptions = CommonOptions &
-  Skips & {
-    output?: string;
-    ext: OutputExtensions;
-    dereferenced?: boolean;
-    force?: boolean;
-    lint?: boolean;
-    metafile?: string;
-    'remove-unused-components'?: boolean;
-    'keep-url-references'?: boolean;
-  };
+export type BundleOptions = {
+  apis?: string[];
+  'max-problems': number;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+  output?: string;
+  ext: OutputExtensions;
+  dereferenced?: boolean;
+  force?: boolean;
+  lint?: boolean;
+  metafile?: string;
+  'remove-unused-components'?: boolean;
+  'keep-url-references'?: boolean;
+} & Skips;
 
 export async function handleBundle(argv: BundleOptions, config: Config, version: string) {
   const removeUnusedComponents =
@@ -166,8 +171,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 
   printUnusedWarnings(config.styleguide);
 
-  // handle error in commandWrapper and exit with code 1
   if (!(totals.errors === 0 || argv.force)) {
-    throw new Error();
+    throw new Error('Bundle failed.');
   }
 }

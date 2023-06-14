@@ -9,21 +9,20 @@ import {
   getMergedConfig,
   Config,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit } from '../../utils';
+import { getFallbackApisOrExit, loadConfigAndHandleErrors } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from '../../types';
 
-export async function previewDocs(
-  argv: {
-    port: number;
-    host: string;
-    'use-community-edition'?: boolean;
-    config?: string;
-    api?: string;
-    force?: boolean;
-  } & Omit<Skips, 'skip-rule'>,
-  configFromFile: Config
-) {
+export type PreviewDocsOptions = {
+  port: number;
+  host: string;
+  'use-community-edition'?: boolean;
+  config?: string;
+  api?: string;
+  force?: boolean;
+} & Omit<Skips, 'skip-rule'>;
+
+export async function previewDocs(argv: PreviewDocsOptions, configFromFile: Config) {
   let isAuthorizedWithRedocly = false;
   let redocOptions: any = {};
   let config = await reloadConfig(configFromFile);
@@ -111,7 +110,7 @@ export async function previewDocs(
   const changeHandler = async (type: string, file: string) => {
     process.stdout.write(`${colorette.green('watch')} ${type} ${colorette.blue(file)}\n`);
     if (file === config.configFile) {
-      config = await reloadConfig(configFromFile);
+      config = await reloadConfig();
       hotClients.broadcast(JSON.stringify({ type: 'reload' }));
       return;
     }
@@ -129,7 +128,10 @@ export async function previewDocs(
     );
   });
 
-  async function reloadConfig(config: Config) {
+  async function reloadConfig(config?: Config) {
+    if (!config) {
+      config = await loadConfigAndHandleErrors({ configPath: argv.config });
+    }
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();
     const resolvedConfig = getMergedConfig(config, argv.api);
