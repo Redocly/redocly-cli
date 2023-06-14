@@ -22,6 +22,7 @@ import {
 
 import { getFallbackApisOrExit } from '../utils';
 import { printExecutionTime } from '../utils';
+import {CommonOptions} from "../types";
 
 const statsAccumulator: StatsAccumulator = {
   refs: { metric: '🚗 References', total: 0, color: 'red', items: new Set() },
@@ -64,8 +65,13 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
   }
 }
 
+export type StatsOptions = CommonOptions & {
+  api?: string;
+  format: string;
+}
+
 export async function handleStats(
-  argv: { config?: string; api?: string; format: string },
+  argv: StatsOptions,
   config: Config
 ) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);

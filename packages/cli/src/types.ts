@@ -13,11 +13,11 @@ export const outputExtensions = ['json', 'yaml', 'yml'] as ReadonlyArray<BundleO
 export type OutputExtensions = 'json' | 'yaml' | 'yml' | undefined;
 export const regionChoices = ['us', 'eu'] as ReadonlyArray<Region>;
 export type CommonOptions = {
-  apis: string[];
+  apis?: string[];
   'max-problems'?: number;
   extends?: string[];
   config?: string;
-  format: OutputFormat;
+  format?: OutputFormat;
 };
 export type Skips = {
   'skip-rule'?: string[];

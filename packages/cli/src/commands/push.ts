@@ -23,13 +23,14 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
+import {CommonOptions} from "../types";
 
 const DEFAULT_VERSION = 'latest';
 
 const DESTINATION_REGEX =
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
-export type PushArgs = {
+export type PushArgs = CommonOptions & {
   api?: string;
   destination?: string;
   branchName?: string;

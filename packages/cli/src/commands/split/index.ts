@@ -34,8 +34,15 @@ import {
   OPENAPI3_COMPONENT_NAMES,
   Referenced,
 } from './types';
+import {CommonOptions} from "../../types";
 
-export async function handleSplit(argv: { api: string; outDir: string; separator: string }) {
+export type SplitOptions = CommonOptions & {
+  api: string;
+  outDir: string;
+  separator: string
+}
+
+export async function handleSplit(argv: SplitOptions) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);

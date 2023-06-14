@@ -32,6 +32,7 @@ import { isObject, isString, keysOf } from '../js-utils';
 import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
 import { OPENAPI3_METHOD } from './split/types';
 import { BundleResult } from '@redocly/openapi-core/lib/bundle';
+import {CommonOptions} from "../types";
 
 const COMPONENTS = 'components';
 const Tags = 'tags';
@@ -47,7 +48,7 @@ type JoinDocumentContext = {
   componentsPrefix: string | undefined;
 };
 
-type JoinArgv = {
+type JoinArgv = CommonOptions & {
   apis: string[];
   lint?: boolean;
   decorate?: boolean;
