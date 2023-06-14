@@ -3,7 +3,7 @@ import { outdent } from 'outdent';
 import { lintDocument } from '../../../lint';
 import { BaseResolver } from '../../../resolve';
 
-describe('Oas3 spec-ref-validation', () => {
+describe('Oas3 spec-strict-refs', () => {
   it('should report about invalid usage of $ref', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -33,7 +33,7 @@ describe('Oas3 spec-ref-validation', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'spec-ref-validation': 'error' }),
+      config: await makeConfig({ 'spec-strict-refs': 'error' }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
@@ -46,7 +46,7 @@ describe('Oas3 spec-ref-validation', () => {
             },
           ],
           "message": "Field $ref is not expected here.",
-          "ruleId": "spec-ref-validation",
+          "ruleId": "spec-strict-refs",
           "severity": "error",
           "suggest": Array [],
         },
@@ -59,7 +59,7 @@ describe('Oas3 spec-ref-validation', () => {
             },
           ],
           "message": "Field $ref is not expected here.",
-          "ruleId": "spec-ref-validation",
+          "ruleId": "spec-strict-refs",
           "severity": "error",
           "suggest": Array [],
         },

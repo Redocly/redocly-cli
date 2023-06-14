@@ -39,15 +39,12 @@ export const Assertions = (opts: Record<string, Assertion>) => {
     (opt: unknown) => typeof opt === 'object' && opt !== null
   );
 
-  for (const [index, assertion] of assertions.entries()) {
-    const assertId =
-      (assertion.assertionId && `${assertion.assertionId} assertion`) || `assertion #${index + 1}`;
-
+  for (const [_, assertion] of assertions.entries()) {
     if (!isString(assertion.subject.type)) {
-      throw new Error(`${assertId}: 'type' (String) is required`);
+      throw new Error(`${assertion.assertionId}: 'type' (String) is required`);
     }
 
-    const subjectVisitor = buildSubjectVisitor(assertId, assertion);
+    const subjectVisitor = buildSubjectVisitor(assertion.assertionId, assertion);
     const visitorObject = buildVisitorObject(assertion, subjectVisitor);
     visitors.push(visitorObject);
   }

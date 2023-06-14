@@ -50,7 +50,7 @@ import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-
 import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name';
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
-import { SpecRefValidation } from '../common/spec-ref-validation';
+import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { SchemaNameUnique } from '../common/schema-name-unique';
 
 export const rules = {
@@ -106,7 +106,7 @@ export const rules = {
   'scalar-property-missing-example': ScalarPropertyMissingExample,
   'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
-  'spec-ref-validation': SpecRefValidation,
+  'spec-strict-refs': SpecStrictRefs,
   'schema-name-unique': SchemaNameUnique,
 } as Oas3RuleSet;
 

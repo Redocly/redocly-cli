@@ -47,6 +47,7 @@ extends:
 
 Use when you need to transform your API definition prior to validation.
 Preprocessors are brittle and error prone because validation occurs **after** preprocessing.
+Preprocessors can impact performance because they add an extra resolution step.
 We recommend avoiding preprocessing.
 
 ### Rules

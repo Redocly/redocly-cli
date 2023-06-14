@@ -52,7 +52,7 @@ When you have multiple APIs but want to publish a single definition file, the [`
 Use the command to combine files like this:
 
 ```
-redocly bundle api1.yaml api2.yaml -o apis-combined.yaml
+redocly join api1.yaml api2.yaml -o apis-combined.yaml
 ```
 
 Supply as many API descriptions as you need to; the first one is used for the `info` and other metadata, endpoints from the following files are then added to the OpenAPI description.

@@ -48,6 +48,7 @@ export default {
     'no-invalid-schema-examples': 'error',
     'no-invalid-parameter-examples': 'error',
     'scalar-property-missing-example': 'error',
+    'spec-strict-refs': 'error',
     'schema-name-unique': 'error',
   },
   oas3_0Rules: {

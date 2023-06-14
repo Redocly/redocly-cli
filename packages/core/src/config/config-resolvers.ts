@@ -433,7 +433,7 @@ function groupStyleguideAssertionRules({
       }
       assertions.push({
         ...assertion,
-        assertionId: ruleKey.replace(/rule\/|assert\//, ''),
+        assertionId: ruleKey,
       });
     } else {
       // If it's not an assertion, keep it as is

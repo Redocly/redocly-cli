@@ -5,6 +5,21 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.128 (2023-06-07)
+
+### Features
+
+- Resolve `$ref`s in preprocessors.
+- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification.
+
+### Fixes
+
+- Handle syntax errors from plugins.
+- Apply the following regular expression, `^[a-zA-Z0-9\.\-_]+$`, only to fixed fields under components.
+
+### Changes
+
+- Change the prefix from `assert/` to `rule/` as a prefix for configurable rules. The `assert/` prefix continues to work with a warning of the deprecated syntax.
 
 ## 1.0.0-beta.127 (2023-05-25)
 
