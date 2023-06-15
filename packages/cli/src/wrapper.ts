@@ -42,18 +42,21 @@ export function commandWrapper<T extends CommandOptions>(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function sendAnalytics(argv: Arguments, exit_code: 0 | 1): Promise<void> {
-  // FIXME: Disable for unit and e2e tests
+export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 1): Promise<void> {
+  if (!argv) {
+    return;
+  }
   const {
     _: [command],
     $0: _,
     ...args
   } = argv;
   const event_time = new Date().toISOString();
+  const redoclyClient = new RedoclyClient();
   const node_version = process.version;
-  const logged_in = await new RedoclyClient().isAuthorizedWithRedoclyByRegion();
+  const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
   const data = {
-    event: 'cli-command',
+    event: 'cli_command',
     event_time,
     logged_in,
     command,
@@ -62,32 +65,5 @@ export async function sendAnalytics(argv: Arguments, exit_code: 0 | 1): Promise<
     version,
     exit_code: exit_code,
   };
-  await sendData(data);
+  await redoclyClient.registryApi.sendTelemetry(data);
 }
-
-type Analytics = {
-  event: string;
-  event_time: string;
-  logged_in: boolean;
-  command: string | number;
-  arguments: Record<string, unknown>;
-  node_version: string;
-  version: string;
-  exit_code: 0 | 1;
-};
-
-// FIXME: Use request function from @redocly/openapi-core
-const sendData = async (data: Analytics) => {
-  try {
-    const response = await fetch('https://api.lab6.redocly.host/registry/telemetry/cli', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    console.log(response.status);
-  } catch (e) {
-    console.log(e);
-  }
-};
