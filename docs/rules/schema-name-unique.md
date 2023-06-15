@@ -1,6 +1,6 @@
 # schema-name-unique
 
-Verifies schema names are unique.
+Verifies schema component names are unique.
 
 |OAS|Compatibility|
 |---|---|
@@ -14,9 +14,9 @@ Verifies schema names are unique.
 When generating code based on an OpenAPI definition, the code generator will create a class for each schema.
 If they are not uniquely named, the generator will append numbers.
 These numbers are non-deterministic.
-By adding a new schema with the same name it could change the name (appended number) of another one.
+By adding a new schema with the same component name it could change the name (appended number) of another one.
 
-This clearly is not optimal. Having unique schema names prevents such problems.
+This clearly is not optimal. Having unique schema component names prevents such problems.
 
 ## Configuration
 
@@ -91,6 +91,7 @@ components:
 
 ## Relates rules
 
+- [schema-name-unique](./schema-name-unique.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources
