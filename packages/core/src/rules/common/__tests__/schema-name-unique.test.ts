@@ -47,7 +47,7 @@ describe('Oas3 schema-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Schema \\"SomeSchema\\" is not unique. It is defined at:
+          "message": "Schema 'SomeSchema' is not unique. It is defined at:
       - /foobar.yaml#/components/schemas/SomeSchema
       - /test.yaml#/components/schemas/SomeSchema",
           "ruleId": "schema-name-unique",
@@ -98,7 +98,7 @@ describe('Oas3 schema-name-unique', () => {
             "source": "/foobar.yaml",
           },
         ],
-        "message": "Schema \\"SomeSchema\\" is not unique. It is defined at:
+        "message": "Schema 'SomeSchema' is not unique. It is defined at:
     - /foobar.yaml#/components/schemas/SomeSchema
     - /SomeSchema.yaml",
         "ruleId": "schema-name-unique",

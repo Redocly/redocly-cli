@@ -56,7 +56,7 @@ export function buildNameUniqueRule(
                 .map((v) => `- ${v}`)
                 .join('\n');
               ctx.report({
-                message: `${typeName} "${key}" is not unique. It is defined at:\n${definitions}`,
+                message: `${typeName} '${key}' is not unique. It is defined at:\n${definitions}`,
               });
             }
           });
