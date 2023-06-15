@@ -34,7 +34,7 @@ export function commandWrapper<T extends CommandOptions>(
         // TODO: Uncomment when we are ready to send analytics
         // await sendAnalytics(argv, code);
       }
-      process.on('beforeExit', () => {
+      process.once('beforeExit', () => {
         process.exit(code);
       });
     }
