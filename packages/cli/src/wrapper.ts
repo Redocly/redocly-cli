@@ -6,6 +6,7 @@ import { version } from './update-version-notifier';
 import { exitWithError, loadConfigAndHandleErrors } from './utils';
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
+import * as process from "process";
 
 export function commandWrapper<T extends CommandOptions>(
   commandHandler: (argv: T, config: Config, version: string) => Promise<void>
@@ -33,7 +34,9 @@ export function commandWrapper<T extends CommandOptions>(
         // TODO: Uncomment when we are ready to send analytics
         // await sendAnalytics(argv, code);
       }
-      process.exit(code);
+      process.on('beforeExit', () => {
+        process.exit(code);
+      });
     }
   };
 }
