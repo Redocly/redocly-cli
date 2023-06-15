@@ -3,7 +3,7 @@ import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { Oas3Schema } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-// TODO build rules for 'Response', 'RequestBody', 'SecurityScheme'
+// TODO build rules for 'RequestBody', 'SecurityScheme'
 export const SchemaNameUnique: Oas3Rule | Oas2Rule = buildNameUniqueRule(
   'Schema',
   (addComponentFromAbsoluteLocation) => ({

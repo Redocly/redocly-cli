@@ -53,6 +53,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { SchemaNameUnique } from '../common/schema-name-unique';
 import { ParameterNameUnique } from '../common/parameter-name-unique';
+import { ResponseNameUnique } from '../common/response-name-unique';
 
 export const rules = {
   spec: OasSpec,
@@ -110,6 +111,7 @@ export const rules = {
   'spec-strict-refs': SpecStrictRefs,
   'schema-name-unique': SchemaNameUnique,
   'parameter-name-unique': ParameterNameUnique,
+  'response-name-unique': ResponseNameUnique,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

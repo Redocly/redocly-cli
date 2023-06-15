@@ -51,6 +51,7 @@ export default {
     'spec-strict-refs': 'error',
     'schema-name-unique': 'error',
     'parameter-name-unique': 'error',
+    'response-name-unique': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',

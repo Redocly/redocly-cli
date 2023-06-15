@@ -1,4 +1,4 @@
-# schema-name-unique
+# parameter-name-unique
 
 Verifies parameter component names are unique.
 
@@ -104,6 +104,7 @@ components:
 ## Relates rules
 
 - [schema-name-unique](./schema-name-unique.md)
+- [response-name-unique](./schema-name-unique.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources

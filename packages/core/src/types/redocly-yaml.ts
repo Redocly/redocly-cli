@@ -57,6 +57,7 @@ const builtInRulesList = [
   'spec-strict-refs',
   'schema-name-unique',
   'parameter-name-unique',
+  'response-name-unique',
 ];
 const nodeTypesList = [
   'any',

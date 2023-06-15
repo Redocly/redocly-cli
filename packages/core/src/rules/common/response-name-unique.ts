@@ -1,13 +1,13 @@
 import { buildNameUniqueRule } from './base-name-unique';
 import { Oas2Rule, Oas3Rule } from '../../visitors';
-import { Oas3Parameter } from '../../typings/openapi';
+import { Oas3Schema } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-export const ParameterNameUnique: Oas3Rule | Oas2Rule = buildNameUniqueRule(
-  'Parameter',
+export const ResponseNameUnique: Oas3Rule | Oas2Rule = buildNameUniqueRule(
+  'Response',
   (addComponentFromAbsoluteLocation) => ({
-    NamedParameters: {
-      Parameter(_: Oas3Parameter, { location }: UserContext) {
+    NamedResponses: {
+      Response(_: Oas3Schema, { location }: UserContext) {
         addComponentFromAbsoluteLocation(location.absolutePointer.toString());
       },
     },

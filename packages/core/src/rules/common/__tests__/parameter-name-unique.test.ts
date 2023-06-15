@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { lintDocumentForTest } from './utils/lint-document-for-test';
 
 describe('Oas3 operation-name-unique', () => {
@@ -90,11 +90,10 @@ describe('Oas3 operation-name-unique', () => {
       {
         absoluteRef: '/ParameterOne.yaml',
         body: outdent`
-          ParameterOne:
-            name: oneParameter
-            in: query
-            schema:
-              type: integer
+          name: oneParameter
+          in: query
+          schema:
+            type: integer
         `,
       },
     ];

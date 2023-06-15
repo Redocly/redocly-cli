@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils';
 import { lintDocumentForTest } from './utils/lint-document-for-test';
 
 describe('Oas3 schema-name-unique', () => {

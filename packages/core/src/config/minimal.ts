@@ -34,6 +34,7 @@ export default {
     'spec-strict-refs': 'off',
     'schema-name-unique': 'off',
     'parameter-name-unique': 'off',
+    'response-name-unique': 'off',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': {
