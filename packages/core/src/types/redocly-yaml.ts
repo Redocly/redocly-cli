@@ -1,5 +1,6 @@
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+import { ApigeeDevOnboardingIntegrationAuthType, AuthProviderType, DEFAULT_TEAM_CLAIM_NAME } from '../config';
 
 const builtInRulesList = [
   'spec',
@@ -54,7 +55,7 @@ const builtInRulesList = [
   'scalar-property-missing-example',
   'spec-components-invalid-map-name',
   'required-string-property-missing-min-length',
-  'spec-strict-refs',
+  'spec-ref-validation',
 ];
 const nodeTypesList = [
   'any',
@@ -141,7 +142,7 @@ const ConfigStyleguide: NodeType = {
   },
 };
 
-const RootConfigStyleguide: NodeType = {
+export const RootConfigStyleguide: any = {
   properties: {
     plugins: {
       type: 'array',
@@ -151,12 +152,338 @@ const RootConfigStyleguide: NodeType = {
   },
 };
 
-const ConfigRoot: NodeType = {
+const oidcIssuerMetadataSchema = {
+  type: 'object',
+  properties: {
+    end_session_endpoint: { type: 'string' },
+    token_endpoint: { type: 'string' },
+    authorization_endpoint: { type: 'string' },
+  },
+  required: ['token_endpoint', 'authorization_endpoint'],
+  additionalProperties: true,
+} as const;
+
+const oidcProviderConfigSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: AuthProviderType.OIDC },
+    title: { type: 'string' },
+    configurationUrl: { type: 'string', minLength: 1 },
+    configuration: oidcIssuerMetadataSchema,
+    clientId: { type: 'string', minLength: 1 },
+    clientSecret: { type: 'string', minLength: 1 },
+    teamsClaimName: { type: 'string' },
+    defaultTeams: { type: 'array', items: { type: 'string' } },
+    scopes: { type: 'array', items: { type: 'string' } },
+    tokenExpirationTime: { type: 'number' },
+    authorizationRequestCustomParams: { type: 'object', additionalProperties: { type: 'string' } },
+    tokenRequestCustomParams: { type: 'object', additionalProperties: { type: 'string' } },
+  },
+  required: ['type', 'clientId', 'clientSecret'],
+  oneOf: [{ required: ['configurationUrl'] }, { required: ['configuration'] }],
+  additionalProperties: false,
+} as const;
+
+const saml2ProviderConfigSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: AuthProviderType.SAML2 },
+    title: { type: 'string' },
+    issuerId: { type: 'string' },
+    entityId: { type: 'string' },
+    ssoUrl: { type: 'string' },
+    x509PublicCert: { type: 'string' },
+    teamsAttributeName: { type: 'string', default: DEFAULT_TEAM_CLAIM_NAME },
+    teamsAttributeMap: { type: 'object', additionalProperties: { type: 'string' } },
+    defaultTeams: { type: 'array', items: { type: 'string' } },
+  },
+  additionalProperties: false,
+  required: ['type', 'issuerId', 'ssoUrl', 'x509PublicCert'],
+} as const;
+
+const basicAuthProviderConfigSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: AuthProviderType.BASIC },
+    title: { type: 'string' },
+    credentials: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          username: { type: 'string' },
+          password: { type: 'string' },
+          passwordHash: { type: 'string' },
+          teams: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['username'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['type', 'credentials'],
+  additionalProperties: false,
+} as const;
+
+const authProviderConfigSchema = {
+  oneOf: [oidcProviderConfigSchema, saml2ProviderConfigSchema, basicAuthProviderConfigSchema],
+  discriminator: { propertyName: 'type' },
+} as const;
+
+const ssoConfigSchema = {
+  type: 'object',
+  additionalProperties: authProviderConfigSchema,
+} as const;
+
+const redirectConfigSchema = {
+  type: 'object',
+  properties: {
+    to: { type: 'string' },
+    type: { type: 'number', default: 301 },
+  },
+  required: ['to'],
+  additionalProperties: false,
+} as const;
+
+const seoConfigSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    description: { type: 'string' },
+    siteUrl: { type: 'string' },
+    image: { type: 'string' },
+    keywords: { type: 'array', items: { type: 'string' } },
+    lang: { type: 'string' },
+    jsonLd: { type: 'object' },
+    meta: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          content: { type: 'string' },
+        },
+        required: ['name', 'content'],
+        additionalProperties: false,
+      },
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
+
+const rbacConfigSchema = {
+  type: 'object',
+  properties: {
+    defaults: rbacScopeItemsSchema,
+  },
+  additionalProperties: rbacScopeItemsSchema,
+} as const;
+
+const graviteeAdapterConfigSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: 'GRAVITEE' },
+    apiBaseUrl: { type: 'string' },
+    env: { type: 'string' },
+    allowApiProductsOutsideCatalog: { type: 'boolean', default: false },
+    stage: { type: 'string', default: 'non-production' },
+
+    auth: { type: 'object', properties: { static: { type: 'string' } } },
+  },
+  additionalProperties: false,
+  required: ['type', 'apiBaseUrl'],
+} as const;
+
+const apigeeAdapterAuthOauth2Schema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: ApigeeDevOnboardingIntegrationAuthType.OAUTH2 },
+    tokenEndpoint: { type: 'string' },
+    clientId: { type: 'string' },
+    clientSecret: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['type', 'tokenEndpoint', 'clientId', 'clientSecret'],
+} as const;
+
+const apigeeAdapterAuthServiceAccountSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: ApigeeDevOnboardingIntegrationAuthType.SERVICE_ACCOUNT },
+    serviceAccountEmail: { type: 'string' },
+    serviceAccountPrivateKey: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['type', 'serviceAccountEmail', 'serviceAccountPrivateKey'],
+} as const;
+
+const apigeeXAdapterConfigSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: 'APIGEE_X' },
+    apiUrl: { type: 'string' },
+    stage: { type: 'string', default: 'non-production' },
+    organizationName: { type: 'string' },
+    ignoreApiProducts: { type: 'array', items: { type: 'string' } },
+    allowApiProductsOutsideCatalog: { type: 'boolean', default: false },
+    auth: {
+      type: 'object',
+      oneOf: [apigeeAdapterAuthOauth2Schema, apigeeAdapterAuthServiceAccountSchema],
+      discriminator: { propertyName: 'type' },
+    },
+  },
+  additionalProperties: false,
+  required: ['type', 'organizationName', 'auth'],
+} as const;
+
+const apigeeEdgeAdapterConfigSchema = {
+  ...apigeeXAdapterConfigSchema,
+  properties: {
+    ...apigeeXAdapterConfigSchema.properties,
+    type: { type: 'string', const: 'APIGEE_EDGE' },
+  },
+} as const;
+
+const devOnboardingAdapterConfigSchema = {
+  type: 'object',
+  oneOf: [apigeeXAdapterConfigSchema, apigeeEdgeAdapterConfigSchema, graviteeAdapterConfigSchema],
+  discriminator: { propertyName: 'type' },
+} as const;
+
+const devOnboardingConfigSchema = {
+  type: 'object',
+  required: ['adapters'],
+  additionalProperties: false,
+  properties: {
+    adapters: {
+      type: 'array',
+      items: devOnboardingAdapterConfigSchema,
+    },
+  },
+} as const;
+
+const responseHeaderSchema = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    value: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['name', 'value'],
+} as const;
+
+
+const apiConfigSchema = {
+  type: 'object',
+  additionalProperties: {
+    type: 'object',
+    properties: {
+      root: { type: 'string' },
+      rbac: { type: 'object', additionalProperties: true },
+      theme: {
+        type: 'object',
+        properties: {
+          openapi: { type: 'object', additionalProperties: true },
+        },
+        additionalProperties: false,
+      },
+      title: { type: 'string' },
+      metadata: { type: 'object', additionalProperties: true },
+    },
+    additionalProperties: true,
+    required: ['root'],
+  }
+} as const;
+
+const scorecardConfigSchema = {
+  type: 'object',
+  additionalProperties: true,
+  required: ['levels'],
+  properties: {
+    levels: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          extends: { type: 'array', items: { type: 'string' } },
+          rules: {
+            type: 'object',
+            additionalProperties: {
+              type: ['object', 'string'],
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+    targets: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['where'],
+        properties: {
+          minimumLevel: { type: 'string' },
+          where: {
+            type: 'object',
+            required: ['metadata'],
+            properties: {
+              metadata: { type: 'object', additionalProperties: { type: 'string' } },
+            },
+            additionalProperties: false,
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+};
+
+const i18nConfigSchema = {
+  type: 'object',
+  properties: {
+    defaultLocale: {
+      type: 'string',
+    },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          code: {
+            type: 'string',
+          },
+          name: {
+            type: 'string',
+          },
+        },
+        required: ['code'],
+      },
+    },
+  },
+  required: ['defaultLocale', 'locales'],
+};
+
+const mockServerConfigSchema = {
+  type: 'object',
+  properties: {
+    off: { type: 'boolean', default: false },
+    position: { type: 'string', enum: ['first', 'last', 'replace', 'off'], default: 'first' },
+    strictExamples: { type: 'boolean', default: false },
+    errorIfForcedExampleNotFound: { type: 'boolean', default: false },
+    description: { type: 'string' },
+  },
+};
+
+
+export const ConfigRoot = {
   properties: {
     organization: { type: 'string' },
-    apis: 'ConfigApis',
     ...RootConfigStyleguide.properties,
-    theme: 'ConfigRootTheme',
+    theme: { type: 'object', default: {} },
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     region: { enum: ['us', 'eu'] },
@@ -172,6 +499,17 @@ const ConfigRoot: NodeType = {
         type: 'string',
       },
     },
+    redirects: { type: 'object', additionalProperties: redirectConfigSchema, default: {} },
+    licenseKey: { type: 'string' },
+    apis: apiConfigSchema,
+    seo: seoConfigSchema,
+    rbac: rbacConfigSchema,
+    responseHeaders: responseHeaderSchema,
+    mockServer: mockServerConfigSchema,
+    sso: ssoConfigSchema,
+    developerOnboarding: devOnboardingConfigSchema,
+    scorecard: scorecardConfigSchema,
+    i18n: i18nConfigSchema,
   },
 };
 
