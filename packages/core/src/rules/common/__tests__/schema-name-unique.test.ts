@@ -1,9 +1,6 @@
 import { outdent } from 'outdent';
-import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
-import { BaseResolver, Document } from '../../../resolve';
-
-// TODO add test with .yaml, .yml without openapi headers
+import { lintDocumentForTest } from './utils/lint-document-for-test';
 
 describe('Oas3 schema-name-unique', () => {
   it('should report on multiple schemas with same name', async () => {
@@ -35,7 +32,7 @@ describe('Oas3 schema-name-unique', () => {
       },
     ];
 
-    const results = await lintDocumentForTest(document, additionalDocuments);
+    const results = await lintDocumentForTest('schema-name-unique', document, additionalDocuments);
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       Array [
@@ -86,7 +83,7 @@ describe('Oas3 schema-name-unique', () => {
       },
     ];
 
-    const results = await lintDocumentForTest(document, additionalDocuments);
+    const results = await lintDocumentForTest('schema-name-unique', document, additionalDocuments);
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
     Array [
@@ -138,26 +135,8 @@ describe('Oas3 schema-name-unique', () => {
       },
     ];
 
-    const results = await lintDocumentForTest(document, additionalDocuments);
+    const results = await lintDocumentForTest('schema-name-unique', document, additionalDocuments);
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot('Array []');
   });
 });
-
-async function lintDocumentForTest(
-  document: Document,
-  additionalDocuments: { absoluteRef: string; body: string }[]
-) {
-  const baseResolver = new BaseResolver();
-  additionalDocuments.forEach((item) =>
-    baseResolver.cache.set(
-      item.absoluteRef,
-      Promise.resolve(parseYamlToDocument(item.body, item.absoluteRef))
-    )
-  );
-  return await lintDocument({
-    externalRefResolver: baseResolver,
-    document,
-    config: await makeConfig({ 'schema-name-unique': 'error' }),
-  });
-}

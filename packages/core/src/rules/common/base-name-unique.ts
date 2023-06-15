@@ -33,6 +33,7 @@ export function buildNameUniqueRule(
     }
 
     function addComponentFromAbsoluteLocation(absoluteLocation: string): void {
+      console.log(absoluteLocation);
       const componentName = getComponentNameFromAbsoluteLocation(absoluteLocation);
       addFoundComponent(componentName, absoluteLocation);
     }
