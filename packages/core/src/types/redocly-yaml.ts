@@ -56,6 +56,7 @@ const builtInRulesList = [
   'required-string-property-missing-min-length',
   'spec-strict-refs',
   'schema-name-unique',
+  'parameter-name-unique',
 ];
 const nodeTypesList = [
   'any',

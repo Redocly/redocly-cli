@@ -33,6 +33,7 @@ export default {
     spec: 'error',
     'spec-strict-refs': 'off',
     'schema-name-unique': 'off',
+    'parameter-name-unique': 'off',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': {

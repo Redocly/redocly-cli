@@ -3,11 +3,13 @@ import { Oas2Rule, Oas3Rule } from '../../visitors';
 import { Oas3Schema } from '../../typings/openapi';
 import { UserContext } from '../../walk';
 
-// TODO build rules for 'Response', 'RequestBody', 'SecurityScheme'
-export const SchemaNameUnique: Oas3Rule | Oas2Rule = buildNameUniqueRule(
+// TODO create the documentation file (.md)
+// TODO create tests
+// TODO add in places needed
+export const ParameterNameUnique: Oas3Rule | Oas2Rule = buildNameUniqueRule(
   'Schema',
   (addComponentFromAbsoluteLocation) => ({
-    NamedSchemas: {
+    NamedParameters: {
       Schema(_: Oas3Schema, { location }: UserContext) {
         addComponentFromAbsoluteLocation(location.absolutePointer.toString());
       },
