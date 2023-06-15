@@ -1,33 +1,50 @@
 // Note: This is not a rule itself, but builder for XyzNameUnique rules.
-import { Oas2Rule, Oas3Rule } from '../../visitors';
-import { Oas3Definition } from '../../typings/openapi';
+import { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors';
+import { Oas3Definition, OasRef } from '../../typings/openapi';
 import { Oas2Definition } from '../../typings/swagger';
 import { UserContext } from '../../walk';
 
-export function buildNameUniqueRule(typeName: string): Oas3Rule | Oas2Rule {
+type AddComponentFromAbsoluteLocation = (absoluteLocation: string) => void;
+
+export function buildNameUniqueRule(
+  typeName: string,
+  additionalBuilder?: (
+    addComponentFromAbsoluteLocation: AddComponentFromAbsoluteLocation
+  ) => Oas3Visitor
+): Oas3Rule | Oas2Rule {
   return () => {
     const components = new Map<string, Set<string>>();
 
-    return {
+    function getComponentNameFromAbsoluteLocation(absoluteLocation: string): string {
+      const componentName = absoluteLocation.split('/').slice(-1)[0];
+      if (
+        componentName.endsWith('.yml') ||
+        componentName.endsWith('.yaml') ||
+        componentName.endsWith('.json')
+      ) {
+        return componentName.slice(0, componentName.lastIndexOf('.'));
+      }
+      return componentName;
+    }
+    function addFoundComponent(componentName: string, absoluteLocation: string): void {
+      const locations = components.get(componentName) ?? new Set();
+      locations.add(absoluteLocation);
+      components.set(componentName, locations);
+    }
+
+    function addComponentFromAbsoluteLocation(absoluteLocation: string): void {
+      const componentName = getComponentNameFromAbsoluteLocation(absoluteLocation);
+      addFoundComponent(componentName, absoluteLocation);
+    }
+
+    const rule = {
       ref: {
-        leave(ref, { type, resolve }) {
+        leave(ref: OasRef, { type, resolve }: UserContext) {
           if (type.name == typeName) {
             const resolvedRef = resolve(ref);
             if (!resolvedRef.location) return;
 
-            const absoluteLocation = resolvedRef.location.absolutePointer.toString();
-            const schemaName =
-              absoluteLocation.endsWith('.yaml') || absoluteLocation.endsWith('.yml')
-                ? absoluteLocation.split('/').slice(-1)[0]
-                : absoluteLocation.split('/').slice(-2).join('/');
-
-            if (resolvedRef.location.absolutePointer.endsWith('yaml')) {
-              console.log(schemaName);
-            }
-
-            const locations = components.get(schemaName) ?? new Set();
-            locations.add(absoluteLocation);
-            components.set(schemaName, locations);
+            addComponentFromAbsoluteLocation(resolvedRef.location.absolutePointer.toString());
           }
         },
       },
@@ -39,12 +56,19 @@ export function buildNameUniqueRule(typeName: string): Oas3Rule | Oas2Rule {
                 .map((v) => `- ${v}`)
                 .join('\n');
               ctx.report({
-                message: `"${key}" is not unique. It is defined at:\n${definitions}`,
+                message: `${typeName} "${key}" is not unique. It is defined at:\n${definitions}`,
               });
             }
           });
         },
       },
+    };
+
+    if (!additionalBuilder) return rule;
+
+    return {
+      ...rule,
+      ...additionalBuilder(addComponentFromAbsoluteLocation),
     };
   };
 }
