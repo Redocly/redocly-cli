@@ -70,7 +70,6 @@ export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 
       exit_code: exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
     };
-    console.log(data);
     // FIXME: put an actual endpoint here
     await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
       method: 'POST',
