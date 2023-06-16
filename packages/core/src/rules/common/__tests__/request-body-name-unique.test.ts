@@ -6,6 +6,7 @@ describe('Oas3 request-body-name-unique', () => {
   it('should report if multiple request bodies have same component name', async () => {
     const document = parseYamlToDocument(
       outdent`
+        openapi: 3.0.0
         paths:
           /test:
             post:
