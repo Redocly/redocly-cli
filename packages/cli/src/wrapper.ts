@@ -35,7 +35,7 @@ export function commandWrapper<T extends CommandOptions>(
     } catch (e) {
       code = 1;
     } finally {
-      if (process.env.REDOCLY_ANALYTICS !== 'off' && telemetry !== 'off') {
+      if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         await sendAnalytics(argv, code);
       }
       process.once('beforeExit', () => {
