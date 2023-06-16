@@ -8,7 +8,6 @@ import type {
 import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
-import { Analytics } from './redocly-client-types';
 
 const version = require('../../package.json').version;
 
@@ -57,17 +56,6 @@ export class RegistryApi {
     }
 
     return response;
-  }
-
-  async sendTelemetry(data: Analytics) {
-    await this.request(`/telemetry/cli`, {
-      body: JSON.stringify(data),
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: this.accessToken as string
-      }
-    }, this.region);
   }
 
   async authStatus(

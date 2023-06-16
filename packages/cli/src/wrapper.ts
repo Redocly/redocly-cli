@@ -6,7 +6,6 @@ import { version } from './update-version-notifier';
 import { exitWithError, loadConfigAndHandleErrors } from './utils';
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
-import * as process from "process";
 
 export function commandWrapper<T extends CommandOptions>(
   commandHandler: (argv: T, config: Config, version: string) => Promise<void>
@@ -41,29 +40,51 @@ export function commandWrapper<T extends CommandOptions>(
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 1): Promise<void> {
-  if (!argv) {
-    return;
+  try {
+    if (!argv) {
+      return;
+    }
+    const {
+      _: [command],
+      $0: _,
+      ...args
+    } = argv;
+    const event_time = new Date().toISOString();
+    const redoclyClient = new RedoclyClient();
+    const node_version = process.version;
+    const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
+    const data: Analytics = {
+      event: 'cli_command',
+      event_time,
+      logged_in,
+      command,
+      arguments: args,
+      node_version,
+      version,
+      exit_code: exit_code,
+      environment: process.env.REDOCLY_ENVIRONMENT,
+    };
+    await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    // Do nothing.
   }
-  const {
-    _: [command],
-    $0: _,
-    ...args
-  } = argv;
-  const event_time = new Date().toISOString();
-  const redoclyClient = new RedoclyClient();
-  const node_version = process.version;
-  const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
-  const data = {
-    event: 'cli_command',
-    event_time,
-    logged_in,
-    command,
-    arguments: args,
-    node_version,
-    version,
-    exit_code: exit_code,
-  };
-  await redoclyClient.registryApi.sendTelemetry(data);
 }
+
+export type Analytics = {
+  event: string;
+  event_time: string;
+  logged_in: boolean;
+  command: string | number;
+  arguments: Record<string, unknown>;
+  node_version: string;
+  version: string;
+  exit_code: 0 | 1;
+  environment: string | undefined;
+};
