@@ -70,6 +70,7 @@ export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 
       exit_code: exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
     };
+    console.log(data);
     // FIXME: put an actual endpoint here
     await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
       method: 'POST',
@@ -100,10 +101,10 @@ function cleanString(value?: string): string | undefined {
     return value;
   }
   if (isAbsoluteUrl(value)) {
-    return value.split('://')[0] + '://*';
+    return value.split('://')[0] + '://***';
   }
   if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
-    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '*.' + ext);
+    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
   }
   return value;
 }
