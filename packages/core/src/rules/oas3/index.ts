@@ -54,6 +54,7 @@ import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { SchemaNameUnique } from '../common/schema-name-unique';
 import { ParameterNameUnique } from '../common/parameter-name-unique';
 import { ResponseNameUnique } from '../common/response-name-unique';
+import { RequestBodyNameUnique } from "../common/request-body-name-unique";
 
 export const rules = {
   spec: OasSpec,
@@ -112,6 +113,7 @@ export const rules = {
   'schema-name-unique': SchemaNameUnique,
   'parameter-name-unique': ParameterNameUnique,
   'response-name-unique': ResponseNameUnique,
+  'request-body-name-unique': RequestBodyNameUnique,
 } as Oas3RuleSet;
 
 export const preprocessors = {};

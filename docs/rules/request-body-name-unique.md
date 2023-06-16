@@ -1,4 +1,4 @@
-# response-name-unique
+# request-body-name-unique
 
 Verifies parameter component names are unique.
 
@@ -11,11 +11,11 @@ Verifies parameter component names are unique.
 
 ## API design principles
 
-Generating a single yaml/json file has problems with responses with the same component name.
+Generating a single yaml/json file has problems with request bodies with the same component name.
 
 It tends to reuse the first one and drops the other ones.
 
-A way to prevent that is by using unique response component names.
+A way to prevent that is by using unique request body component names.
 
 ## Configuration
 
@@ -27,7 +27,7 @@ An example configuration:
 
 ```yaml
 rules:
-  response-name-unique: error
+  request-body-name-unique: error
 ```
 
 ## Examples
@@ -37,7 +37,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  response-name-unique: error
+  request-body-name-unique: error
 ```
 
 ### Example of **incorrect** schema files
@@ -46,19 +46,17 @@ file1.yaml:
 ```yaml
 paths:
   /test:
-    get:
-      responses:
-        '200':
-          $ref: '#/components/responses/SuccessResponse'
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/MyRequestBody'
   /test2:
-    get:
-      responses:
-        '200':
-          $ref: '/test.yaml#/components/responses/SuccessResponse'
+    post:
+      requestBody:
+        $ref: '/file2.yaml#/components/requestBodies/MyRequestBody'
 components:
-  responses:
-    SuccessResponse:
-      description: Successful response
+  requestBodies:
+    MyRequestBody:
+      required: true
       content:
         application/json:
           schema:
@@ -68,9 +66,9 @@ components:
 file2.yaml:
 ```yaml
 components:
-  responses:
-    SuccessResponse:
-      description: Successful response
+  requestBodies:
+    MyRequestBody:
+      required: true
       content:
         application/json:
           schema:
@@ -83,19 +81,17 @@ file1.yaml:
 ```yaml
 paths:
   /test:
-    get:
-      responses:
-        '200':
-          $ref: '#/components/responses/TestSuccessResponse'
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/TestRequestBody'
   /test2:
-    get:
-      responses:
-        '200':
-          $ref: '/test.yaml#/components/responses/Test2SuccessResponse'
+    post:
+      requestBody:
+        $ref: '/file2.yaml#/components/requestBodies/Test2RequestBody'
 components:
-  responses:
-    TestSuccessResponse:
-      description: Successful response
+  requestBodies:
+    TestRequestBody:
+      required: true
       content:
         application/json:
           schema:
@@ -105,9 +101,9 @@ components:
 file2.yaml:
 ```yaml
 components:
-  responses:
-    Test2SuccessResponse:
-      description: Successful response
+  requestBodies:
+    Test2RequestBody:
+      required: true
       content:
         application/json:
           schema:
@@ -118,9 +114,9 @@ components:
 
 - [schema-name-unique](./schema-name-unique.md)
 - [parameter-name-unique](./parameter-name-unique.md)
-- [request-body-name-unique](./request-body-name-unique.md)
+- [response-name-unique](./response-name-unique.md)
 - [no-unused-components](./no-unused-components.md)
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/response-name-unique.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/request-body-name-unique.ts)

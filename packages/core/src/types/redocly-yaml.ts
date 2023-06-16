@@ -58,6 +58,7 @@ const builtInRulesList = [
   'schema-name-unique',
   'parameter-name-unique',
   'response-name-unique',
+  'request-body-name-unique',
 ];
 const nodeTypesList = [
   'any',
