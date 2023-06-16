@@ -1,6 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fetch from 'node-fetch';
-import { Config, RedoclyClient, Region, doesYamlFileExist } from '@redocly/openapi-core';
+import {
+  Config,
+  RedoclyClient,
+  Region,
+  doesYamlFileExist,
+  isAbsoluteUrl,
+} from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { exitWithError, loadConfigAndHandleErrors } from './utils';
@@ -30,8 +36,7 @@ export function commandWrapper<T extends CommandOptions>(
       code = 1;
     } finally {
       if (process.env.REDOCLY_ANALYTICS !== 'off' && telemetry !== 'off') {
-        // TODO: Uncomment when we are ready to send analytics
-        // await sendAnalytics(argv, code);
+        await sendAnalytics(argv, code);
       }
       process.once('beforeExit', () => {
         process.exit(code);
@@ -59,12 +64,13 @@ export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 
       event_time,
       logged_in,
       command,
-      arguments: args,
+      arguments: cleanArgs(args),
       node_version,
       version,
       exit_code: exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
     };
+    // FIXME: put an actual endpoint here
     await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
       method: 'POST',
       headers: {
@@ -86,5 +92,32 @@ export type Analytics = {
   node_version: string;
   version: string;
   exit_code: 0 | 1;
-  environment: string | undefined;
+  environment?: string;
 };
+
+function cleanString(value?: string): string | undefined {
+  if (!value) {
+    return value;
+  }
+  if (isAbsoluteUrl(value)) {
+    return value.split('://')[0] + '://*';
+  }
+  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
+    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '*.' + ext);
+  }
+  return value;
+}
+
+function cleanArgs(args: CommandOptions) {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(args)) {
+    if (typeof value === 'string') {
+      result[key] = cleanString(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(cleanString);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
