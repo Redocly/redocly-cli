@@ -18,6 +18,7 @@ export function commandWrapper<T extends CommandOptions>(
 ) {
   return async (argv: Arguments<T>) => {
     let code: 0 | 1 = 0;
+    let hasConfig;
     let telemetry;
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
@@ -31,12 +32,13 @@ export function commandWrapper<T extends CommandOptions>(
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       });
       telemetry = config.telemetry;
+      hasConfig = !config.styleguide.recommendedFallback;
       await commandHandler(argv, config, version);
     } catch (e) {
       code = 1;
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendAnalytics(argv, code);
+        await sendAnalytics(argv, code, hasConfig);
       }
       process.once('beforeExit', () => {
         process.exit(code);
@@ -45,7 +47,11 @@ export function commandWrapper<T extends CommandOptions>(
   };
 }
 
-export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 1): Promise<void> {
+export async function sendAnalytics(
+  argv: Arguments | undefined,
+  exit_code: 0 | 1,
+  has_config: boolean | undefined
+): Promise<void> {
   try {
     if (!argv) {
       return;
@@ -67,8 +73,10 @@ export async function sendAnalytics(argv: Arguments | undefined, exit_code: 0 | 
       arguments: cleanArgs(args),
       node_version,
       version,
-      exit_code: exit_code,
+      exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
+      raw_input: cleanRawInput(process.argv.slice(2)),
+      has_config,
     };
     // FIXME: put an actual endpoint here
     await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
@@ -93,6 +101,8 @@ export type Analytics = {
   version: string;
   exit_code: 0 | 1;
   environment?: string;
+  raw_input: string;
+  has_config?: boolean;
 };
 
 function cleanString(value?: string): string | undefined {
@@ -120,4 +130,8 @@ function cleanArgs(args: CommandOptions) {
     }
   }
   return result;
+}
+
+function cleanRawInput(argv: string[]) {
+  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
 }
