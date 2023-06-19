@@ -142,7 +142,7 @@ const ConfigStyleguide: NodeType = {
   },
 };
 
-export const RootConfigStyleguide: any = {
+export const RootConfigStyleguide: NodeType = {
   properties: {
     plugins: {
       type: 'array',
@@ -375,27 +375,6 @@ const responseHeaderSchema = {
 } as const;
 
 
-const apiConfigSchema = {
-  type: 'object',
-  additionalProperties: {
-    type: 'object',
-    properties: {
-      root: { type: 'string' },
-      rbac: { type: 'object', additionalProperties: true },
-      theme: {
-        type: 'object',
-        properties: {
-          openapi: { type: 'object', additionalProperties: true },
-        },
-        additionalProperties: false,
-      },
-      title: { type: 'string' },
-      metadata: { type: 'object', additionalProperties: true },
-    },
-    additionalProperties: true,
-    required: ['root'],
-  }
-} as const;
 
 const scorecardConfigSchema = {
   type: 'object',
@@ -440,7 +419,7 @@ const scorecardConfigSchema = {
       },
     },
   },
-};
+} as const;
 
 const i18nConfigSchema = {
   type: 'object',
@@ -465,7 +444,7 @@ const i18nConfigSchema = {
     },
   },
   required: ['defaultLocale', 'locales'],
-};
+} as const;
 
 const mockServerConfigSchema = {
   type: 'object',
@@ -476,14 +455,13 @@ const mockServerConfigSchema = {
     errorIfForcedExampleNotFound: { type: 'boolean', default: false },
     description: { type: 'string' },
   },
-};
+} as const;
 
-
-export const ConfigRoot = {
+export const ConfigRoot: NodeType = {
   properties: {
     organization: { type: 'string' },
     ...RootConfigStyleguide.properties,
-    theme: { type: 'object', default: {} },
+    theme: { type: 'object' },
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     region: { enum: ['us', 'eu'] },
@@ -499,9 +477,9 @@ export const ConfigRoot = {
         type: 'string',
       },
     },
-    redirects: { type: 'object', additionalProperties: redirectConfigSchema, default: {} },
+    redirects: { type: 'object', additionalProperties: redirectConfigSchema },
     licenseKey: { type: 'string' },
-    apis: apiConfigSchema,
+    apis: 'ConfigApis',
     seo: seoConfigSchema,
     rbac: rbacConfigSchema,
     responseHeaders: responseHeaderSchema,
@@ -555,6 +533,7 @@ const ConfigHTTP: NodeType = {
 };
 
 const ConfigRootTheme: NodeType = {
+  additionalProperties: {},
   properties: {
     openapi: 'ConfigReferenceDocs',
     mockServer: 'ConfigMockServer',
