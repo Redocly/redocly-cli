@@ -10,6 +10,8 @@ import {
   sortTopLevelKeysForOas,
   cleanColors,
   HandledError,
+  cleanArgs,
+  cleanRawInput,
 } from '../utils';
 import {
   ResolvedApi,
@@ -151,6 +153,9 @@ describe('getFallbackApisOrExit', () => {
     redColoretteMocks.mockImplementation((text: string) => text);
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
     jest.spyOn(process, 'exit').mockImplementation();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should exit with error because no path provided', async () => {
@@ -477,5 +482,42 @@ describe('cleanColors', () => {
     const result = cleanColors(stringWithColors);
 
     expect(result).not.toMatch(/\x1b\[\d+m/g);
+  });
+});
+
+describe('cleanArgs', () => {
+  it('should remove potentially sensitive data from args', () => {
+    // @ts-ignore
+    isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
+
+    const testArgs = {
+      config: 'some-folder/redocly.yaml',
+      apis: ['main@v1', 'openapi.yaml', 'http://some.url/openapi.yaml'],
+      format: 'codeframe',
+    };
+    expect(cleanArgs(testArgs)).toEqual({
+      config: '***.yaml',
+      apis: ['main@v1', '***.yaml', 'http://***'],
+      format: 'codeframe',
+    });
+  });
+});
+
+describe('cleanRawInput', () => {
+  it('should remove  potentially sensitive data from raw CLI input', () => {
+    // @ts-ignore
+    isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
+
+    const rawInput = [
+      'redocly',
+      'lint',
+      'main@v1',
+      'openapi.yaml',
+      'http://some.url/openapi.yaml',
+      '--config=some-folder/redocly.yaml',
+    ];
+    expect(cleanRawInput(rawInput)).toEqual(
+      'redocly lint main@v1 ***.yaml http://*** --config=***.yaml'
+    );
   });
 });

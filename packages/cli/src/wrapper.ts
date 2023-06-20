@@ -1,15 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import fetch from 'node-fetch';
-import {
-  Config,
-  RedoclyClient,
-  Region,
-  doesYamlFileExist,
-  isAbsoluteUrl,
-} from '@redocly/openapi-core';
+import { Config, Region, doesYamlFileExist } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
-import { exitWithError, loadConfigAndHandleErrors } from './utils';
+import { exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils';
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 
@@ -32,106 +24,17 @@ export function commandWrapper<T extends CommandOptions>(
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       });
       telemetry = config.telemetry;
-      hasConfig = !config.styleguide.recommendedFallback;
+      hasConfig = !!(config.styleguide && !config.styleguide.recommendedFallback);
       await commandHandler(argv, config, version);
-    } catch (e) {
+    } catch (err) {
       code = 1;
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
-        await sendAnalytics(argv, code, hasConfig);
+        await sendTelemetry(argv, code, hasConfig);
       }
       process.once('beforeExit', () => {
         process.exit(code);
       });
     }
   };
-}
-
-export async function sendAnalytics(
-  argv: Arguments | undefined,
-  exit_code: 0 | 1,
-  has_config: boolean | undefined
-): Promise<void> {
-  try {
-    if (!argv) {
-      return;
-    }
-    const {
-      _: [command],
-      $0: _,
-      ...args
-    } = argv;
-    const event_time = new Date().toISOString();
-    const redoclyClient = new RedoclyClient();
-    const node_version = process.version;
-    const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
-    const data: Analytics = {
-      event: 'cli_command',
-      event_time,
-      logged_in,
-      command,
-      arguments: cleanArgs(args),
-      node_version,
-      version,
-      exit_code,
-      environment: process.env.REDOCLY_ENVIRONMENT,
-      raw_input: cleanRawInput(process.argv.slice(2)),
-      has_config,
-    };
-    // FIXME: put an actual endpoint here
-    await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-  } catch (err) {
-    // Do nothing.
-  }
-}
-
-export type Analytics = {
-  event: string;
-  event_time: string;
-  logged_in: boolean;
-  command: string | number;
-  arguments: Record<string, unknown>;
-  node_version: string;
-  version: string;
-  exit_code: 0 | 1;
-  environment?: string;
-  raw_input: string;
-  has_config?: boolean;
-};
-
-function cleanString(value?: string): string | undefined {
-  if (!value) {
-    return value;
-  }
-  if (isAbsoluteUrl(value)) {
-    return value.split('://')[0] + '://***';
-  }
-  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
-    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
-  }
-  return value;
-}
-
-function cleanArgs(args: CommandOptions) {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(args)) {
-    if (typeof value === 'string') {
-      result[key] = cleanString(value);
-    } else if (Array.isArray(value)) {
-      result[key] = value.map(cleanString);
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-}
-
-function cleanRawInput(argv: string[]) {
-  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
 }

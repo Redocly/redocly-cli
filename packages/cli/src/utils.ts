@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import fetch from 'node-fetch';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
@@ -20,10 +22,13 @@ import {
   Config,
   Oas3Definition,
   Oas2Definition,
+  RedoclyClient,
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
+import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import * as process from 'process';
+import { Arguments } from 'yargs';
+import { version } from './update-version-notifier';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -476,4 +481,94 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
 export function cleanColors(input: string): string {
   // eslint-disable-next-line no-control-regex
   return input.replace(/\x1b\[\d+m/g, '');
+}
+
+
+export async function sendTelemetry(
+  argv: Arguments | undefined,
+  exit_code: 0 | 1,
+  has_config: boolean | undefined
+): Promise<void> {
+  try {
+    if (!argv) {
+      return;
+    }
+    const {
+      _: [command],
+      $0: _,
+      ...args
+    } = argv;
+    const event_time = new Date().toISOString();
+    const redoclyClient = new RedoclyClient();
+    const node_version = process.version;
+    const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
+    const data: Analytics = {
+      event: 'cli_command',
+      event_time,
+      logged_in,
+      command,
+      arguments: cleanArgs(args),
+      node_version,
+      version,
+      exit_code,
+      environment: process.env.REDOCLY_ENVIRONMENT,
+      raw_input: cleanRawInput(process.argv.slice(2)),
+      has_config,
+    };
+    // FIXME: put an actual endpoint here
+    await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    // Do nothing.
+  }
+}
+
+export type Analytics = {
+  event: string;
+  event_time: string;
+  logged_in: boolean;
+  command: string | number;
+  arguments: Record<string, unknown>;
+  node_version: string;
+  version: string;
+  exit_code: 0 | 1;
+  environment?: string;
+  raw_input: string;
+  has_config?: boolean;
+};
+
+function cleanString(value?: string): string | undefined {
+  if (!value) {
+    return value;
+  }
+  if (isAbsoluteUrl(value)) {
+    return value.split('://')[0] + '://***';
+  }
+  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
+    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
+  }
+  return value;
+}
+
+export function cleanArgs(args: CommandOptions) {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(args)) {
+    if (typeof value === 'string') {
+      result[key] = cleanString(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(cleanString);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+export function cleanRawInput(argv: string[]) {
+  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
 }

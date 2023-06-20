@@ -19,6 +19,7 @@ import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper';
 import { Arguments } from 'yargs';
+import { blue } from 'colorette';
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
@@ -105,7 +106,7 @@ describe('handleLint', () => {
     });
   });
 
-  describe('loop through entrypints and lint stage', () => {
+  describe('loop through entrypoints and lint stage', () => {
     it('should call getMergedConfig and lint ', async () => {
       await commandWrapper(handleLint)(argvMock);
       expect(performance.now).toHaveBeenCalled();
@@ -165,6 +166,25 @@ describe('handleLint', () => {
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();
       expect(processExitMock).toHaveBeenCalledWith(1);
+    });
+
+    it('should use recommended fallback if no config', async () => {
+      (getMergedConfig as jest.Mock).mockImplementation(() => {
+        return {
+          styleguide: {
+            recommendedFallback: true,
+            rules: {},
+            skipRules: jest.fn(),
+            skipPreprocessors: jest.fn(),
+          },
+        };
+      });
+      await commandWrapper(handleLint)(argvMock);
+      expect(process.stderr.write).toHaveBeenCalledWith(
+        `No configurations were provided -- using built in ${blue(
+          'recommended'
+        )} configuration by default.\n\n`
+      );
     });
   });
 });
