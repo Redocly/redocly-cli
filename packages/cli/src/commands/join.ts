@@ -33,7 +33,6 @@ import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/l
 import { OPENAPI3_METHOD } from './split/types';
 import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
-
 const COMPONENTS = 'components';
 const Tags = 'tags';
 const xTagGroups = 'x-tagGroups';
@@ -59,8 +58,8 @@ export type JoinOptions = {
   'without-x-tag-groups'?: boolean;
   output?: string;
   config?: string;
-  extends?: undefined
-  'lint-config'?: undefined
+  extends?: undefined;
+  'lint-config'?: undefined;
 };
 
 export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {

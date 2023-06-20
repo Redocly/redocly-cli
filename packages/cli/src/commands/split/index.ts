@@ -35,12 +35,12 @@ import {
   Referenced,
 } from './types';
 
-export type SplitOptions =  {
+export type SplitOptions = {
   api: string;
   outDir: string;
-  separator: string
+  separator: string;
   config?: string;
-}
+};
 
 export async function handleSplit(argv: SplitOptions) {
   const startedAt = performance.now();
