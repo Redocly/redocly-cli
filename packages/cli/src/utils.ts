@@ -483,7 +483,6 @@ export function cleanColors(input: string): string {
   return input.replace(/\x1b\[\d+m/g, '');
 }
 
-
 export async function sendTelemetry(
   argv: Arguments | undefined,
   exit_code: 0 | 1,
