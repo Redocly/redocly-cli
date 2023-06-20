@@ -26,7 +26,6 @@ import {
 } from '@redocly/openapi-core';
 import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
-import * as process from 'process';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 
