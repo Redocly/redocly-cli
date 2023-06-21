@@ -49,10 +49,7 @@ export default {
     'no-invalid-parameter-examples': 'error',
     'scalar-property-missing-example': 'error',
     'spec-strict-refs': 'error',
-    'schema-name-unique': 'error',
-    'parameter-name-unique': 'error',
-    'response-name-unique': 'error',
-    'request-body-name-unique': 'error',
+    'component-name-unique': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',

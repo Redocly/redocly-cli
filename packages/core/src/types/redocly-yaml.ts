@@ -55,10 +55,7 @@ const builtInRulesList = [
   'spec-components-invalid-map-name',
   'required-string-property-missing-min-length',
   'spec-strict-refs',
-  'schema-name-unique',
-  'parameter-name-unique',
-  'response-name-unique',
-  'request-body-name-unique',
+  'component-name-unique',
 ];
 const nodeTypesList = [
   'any',

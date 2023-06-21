@@ -51,10 +51,7 @@ import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecStrictRefs } from '../common/spec-strict-refs';
-import { SchemaNameUnique } from '../common/schema-name-unique';
-import { ParameterNameUnique } from '../common/parameter-name-unique';
-import { ResponseNameUnique } from '../common/response-name-unique';
-import { RequestBodyNameUnique } from '../common/request-body-name-unique';
+import { ComponentNameUnique } from '../common/component-name-unique';
 
 export const rules = {
   spec: OasSpec,
@@ -110,10 +107,7 @@ export const rules = {
   'spec-components-invalid-map-name': SpecComponentsInvalidMapName,
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
   'spec-strict-refs': SpecStrictRefs,
-  'schema-name-unique': SchemaNameUnique,
-  'parameter-name-unique': ParameterNameUnique,
-  'response-name-unique': ResponseNameUnique,
-  'request-body-name-unique': RequestBodyNameUnique,
+  'component-name-unique': ComponentNameUnique,
 } as Oas3RuleSet;
 
 export const preprocessors = {};
