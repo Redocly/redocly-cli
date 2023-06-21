@@ -698,7 +698,6 @@ describe('Oas3 component-name-unique', () => {
     });
   });
 
-
   describe('different severities', () => {
     const document = parseYamlToDocument(
       outdent`
@@ -752,7 +751,7 @@ describe('Oas3 component-name-unique', () => {
 
     it('should report both schema and request body', async () => {
       const results = await lintDocumentForTest(
-        {'component-name-unique': 'error' },
+        { 'component-name-unique': 'error' },
         document,
         additionalDocuments
       );
@@ -795,7 +794,7 @@ describe('Oas3 component-name-unique', () => {
 
     it('should not report if severity is off for specific component type', async () => {
       const results = await lintDocumentForTest(
-        {'component-name-unique': { severity: 'error', schema: 'off' }},
+        { 'component-name-unique': { severity: 'error', schema: 'off' } },
         document,
         additionalDocuments
       );
