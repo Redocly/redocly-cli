@@ -119,16 +119,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     },
   };
 
-  function isTypeEnabled(typeName: string): boolean {
-    const optionName = getOptionNameForTypeName(typeName);
-    if (!optionName) {
-      return false;
-    }
-
-    return options[optionName] ? options[optionName] !== 'off' : options.severity !== 'off';
-  }
-
-  if (isTypeEnabled(TYPE_NAME_SCHEMA)) {
+  if (options.schema != 'off') {
     rule.NamedSchemas = {
       Schema(_: Oas3Schema, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location.absolutePointer.toString());
@@ -136,7 +127,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (isTypeEnabled(TYPE_NAME_RESPONSE)) {
+  if (options.response != 'off') {
     rule.NamedResponses = {
       Response(_: Oas3Response, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location.absolutePointer.toString());
@@ -144,7 +135,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (isTypeEnabled(TYPE_NAME_PARAMETER)) {
+  if (options.parameter != 'off') {
     rule.NamedParameters = {
       Parameter(_: Oas3Parameter, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location.absolutePointer.toString());
@@ -152,7 +143,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (isTypeEnabled(TYPE_NAME_REQUEST_BODY)) {
+  if (options.requestBody != 'off') {
     rule.NamedRequestBodies = {
       RequestBody(_: Oas3RequestBody, { location }: UserContext) {
         addComponentFromAbsoluteLocation(
