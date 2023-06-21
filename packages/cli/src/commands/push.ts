@@ -34,12 +34,13 @@ export type PushOptions = {
   destination?: string;
   branchName?: string;
   upsert?: boolean;
-  'batch-id'?: string;
+  'job-id'?: string;
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
   public?: boolean;
   files?: string[];
+  organization?: string;
   config?: string;
 };
 
@@ -54,24 +55,25 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
   const startedAt = performance.now();
   const { destination, branchName, upsert } = argv;
 
-  const batchId = argv['batch-id'];
+  const jobId = argv['job-id'];
   const batchSize = argv['batch-size'];
 
   if (destination && !DESTINATION_REGEX.test(destination)) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>'
+        '<api-name@api-version>'
       )}`
     );
   }
 
-  const { organizationId, name, version } = getDestinationProps(destination, config.organization);
+  const destinationProps = getDestinationProps(destination, config.organization);
+
+  const organizationId = argv.organization || destinationProps.organizationId;
+  const { name, version } = destinationProps;
 
   if (!organizationId) {
     return exitWithError(
-      `No organization provided, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>'
-      )} or specify the 'organization' field in the config file.`
+      `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
     );
   }
   const api = argv.api || (name && version && getApiRoot({ name, version, config }));
@@ -84,9 +86,15 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     );
   }
 
-  if (batchId && !batchId.trim()) {
+  if ((!name || !version) && api) {
+    return exitWithError(
+        `No destination provided, please use --destination option to provide destination.`
+    );
+  }
+
+  if (jobId && !jobId.trim()) {
     exitWithError(
-      `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`
+      `The ${blue(`job-id`)} option value is not valid, please avoid using an empty string.`
     );
   }
 
@@ -169,7 +177,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
         branch: branchName,
         isUpsert: upsert,
         isPublic: argv['public'],
-        batchId: batchId,
+        batchId: jobId,
         batchSize: batchSize,
       });
     } catch (error) {
@@ -333,6 +341,7 @@ type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
   maybeDestination?: string;
   maybeBranchName?: string;
   branch?: string;
+  destination?: string;
 };
 
 export const transformPush =
@@ -344,21 +353,38 @@ export const transformPush =
     if (maybeBranchName) {
       process.stderr.write(
         yellow(
-          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.'
+          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.\n\n'
         )
       );
     }
-    const api = maybeDestination ? maybeApiOrDestination : undefined;
-    const destination = maybeDestination || maybeApiOrDestination;
-    return callback(
-      {
-        ...rest,
-        destination,
-        api,
-        branchName: branch ?? maybeBranchName,
-      },
-      config
-    );
+
+    let api = maybeApiOrDestination;
+    let destination = maybeDestination;
+
+    if (maybeDestination) {
+      process.stderr.write(
+          yellow(
+              'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
+          )
+      );
+    } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      process.stderr.write(
+          yellow(
+              'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
+          )
+      );
+      api = undefined;
+      destination = maybeApiOrDestination;
+    }
+
+    destination = rest.destination || destination;
+
+    return callback({
+      ...rest,
+      destination,
+      api,
+      branchName: branch ?? maybeBranchName,
+    }, config);
   };
 
 export function getApiRoot({

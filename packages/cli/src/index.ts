@@ -135,9 +135,11 @@ yargs
         .positional('maybeDestination', { type: 'string' })
         .positional('maybeBranchName', { type: 'string' })
         .option({
+          organization: { type: 'string', alias: 'o' },
+          destination: { type: 'string', alias: 'd' },
           branch: { type: 'string', alias: 'b' },
           upsert: { type: 'boolean', alias: 'u' },
-          'batch-id': {
+          'job-id': {
             description:
               'Specifies the ID of the CI job that the current push will be associated with.',
             type: 'string',
