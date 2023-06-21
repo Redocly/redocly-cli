@@ -697,4 +697,128 @@ describe('Oas3 component-name-unique', () => {
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot('Array []');
     });
   });
+
+
+  describe('different severities', () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          /test:
+            post:
+              requestBody:
+                $ref: '#/components/requestBodies/MyRequestBody'
+          /test2:
+            post:
+              requestBody:
+                $ref: '/test.yaml#/components/requestBodies/MyRequestBody'
+        components:
+          schemas:
+            SomeSchema:
+              type: object
+            Test:
+              type: object
+              properties:
+                there:
+                  $ref: '/test.yaml#/components/schemas/SomeSchema'
+          requestBodies:
+            MyRequestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    type: string
+      `,
+      '/foobar.yaml'
+    );
+    const additionalDocuments = [
+      {
+        absoluteRef: '/test.yaml',
+        body: outdent`
+        components:
+          schemas:
+            SomeSchema:
+              type: object
+          requestBodies:
+            MyRequestBody:
+              required: true
+              content:
+                application/json:
+                  schema:
+                    type: string
+        `,
+      },
+    ];
+
+    it('should report both schema and request body', async () => {
+      const results = await lintDocumentForTest(
+        {'component-name-unique': 'error' },
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "/foobar.yaml",
+            },
+          ],
+          "message": "RequestBody 'MyRequestBody' is not unique. It is defined at:
+      - /foobar.yaml#/components/requestBodies/MyRequestBody
+      - /test.yaml#/components/requestBodies/MyRequestBody",
+          "ruleId": "component-name-unique",
+          "severity": "error",
+          "suggest": Array [],
+        },
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "/foobar.yaml",
+            },
+          ],
+          "message": "Schema 'SomeSchema' is not unique. It is defined at:
+      - /foobar.yaml#/components/schemas/SomeSchema
+      - /test.yaml#/components/schemas/SomeSchema",
+          "ruleId": "component-name-unique",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+    });
+
+    it('should not report if severity is off for specific component type', async () => {
+      const results = await lintDocumentForTest(
+        {'component-name-unique': { severity: 'error', schema: 'off' }},
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/",
+              "reportOnKey": false,
+              "source": "/foobar.yaml",
+            },
+          ],
+          "message": "RequestBody 'MyRequestBody' is not unique. It is defined at:
+      - /foobar.yaml#/components/requestBodies/MyRequestBody
+      - /test.yaml#/components/requestBodies/MyRequestBody",
+          "ruleId": "component-name-unique",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+    });
+  });
 });
