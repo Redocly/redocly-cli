@@ -27,23 +27,23 @@ This clearly is not optimal. Having unique component names prevents these proble
 
 ## Configuration
 
-| Option      |Type| Description                                                                              |
-|-------------|---|------------------------------------------------------------------------------------------|
-| severity    |string| Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
-| schema      |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| parameter   |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| response    |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| requestBody |string| Possible values: `off`, `warn`, `error`. Default: not set. |
+| Option        |Type| Description                                                                              |
+|---------------|---|------------------------------------------------------------------------------------------|
+| severity      |string| Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| schemas       |string| Possible values: `off`, `warn`, `error`. Default: not set. |
+| parameters    |string| Possible values: `off`, `warn`, `error`. Default: not set. |
+| responses     |string| Possible values: `off`, `warn`, `error`. Default: not set. |
+| requestBodies |string| Possible values: `off`, `warn`, `error`. Default: not set. |
 
 An example configuration:
 
 ```yaml
 rules:
   schema-name-unique:
-    schema: error
-    parameter: off
-    response: warn
-    requestBody: warn
+    schemas: error
+    parameters: off
+    responses: warn
+    requestBodies: warn
 ```
 
 ## Examples

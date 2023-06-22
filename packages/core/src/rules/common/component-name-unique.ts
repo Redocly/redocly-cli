@@ -16,26 +16,26 @@ const TYPE_NAME_RESPONSE = 'Response';
 const TYPE_NAME_REQUEST_BODY = 'RequestBody';
 
 const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
-  [TYPE_NAME_SCHEMA]: 'schema',
-  [TYPE_NAME_PARAMETER]: 'parameter',
-  [TYPE_NAME_RESPONSE]: 'response',
-  [TYPE_NAME_REQUEST_BODY]: 'requestBody',
+  [TYPE_NAME_SCHEMA]: 'schemas',
+  [TYPE_NAME_PARAMETER]: 'parameters',
+  [TYPE_NAME_RESPONSE]: 'responses',
+  [TYPE_NAME_REQUEST_BODY]: 'requestBodies',
 };
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, Set<string>>();
 
   const typeNames: string[] = [];
-  if (options.schema !== 'off') {
+  if (options.schemas !== 'off') {
     typeNames.push(TYPE_NAME_SCHEMA);
   }
-  if (options.parameter !== 'off') {
+  if (options.parameters !== 'off') {
     typeNames.push(TYPE_NAME_PARAMETER);
   }
-  if (options.response !== 'off') {
+  if (options.responses !== 'off') {
     typeNames.push(TYPE_NAME_RESPONSE);
   }
-  if (options.requestBody !== 'off') {
+  if (options.requestBodies !== 'off') {
     typeNames.push(TYPE_NAME_REQUEST_BODY);
   }
 
@@ -119,7 +119,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     },
   };
 
-  if (options.schema != 'off') {
+  if (options.schemas != 'off') {
     rule.NamedSchemas = {
       Schema(_: Oas3Schema, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location.absolutePointer.toString());
@@ -127,7 +127,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (options.response != 'off') {
+  if (options.responses != 'off') {
     rule.NamedResponses = {
       Response(_: Oas3Response, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_RESPONSE, location.absolutePointer.toString());
@@ -135,7 +135,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (options.parameter != 'off') {
+  if (options.parameters != 'off') {
     rule.NamedParameters = {
       Parameter(_: Oas3Parameter, { location }: UserContext) {
         addComponentFromAbsoluteLocation(TYPE_NAME_PARAMETER, location.absolutePointer.toString());
@@ -143,7 +143,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     };
   }
 
-  if (options.requestBody != 'off') {
+  if (options.requestBodies != 'off') {
     rule.NamedRequestBodies = {
       RequestBody(_: Oas3RequestBody, { location }: UserContext) {
         addComponentFromAbsoluteLocation(

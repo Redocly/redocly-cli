@@ -794,7 +794,7 @@ describe('Oas3 component-name-unique', () => {
 
     it('should not report if severity is off for specific component type', async () => {
       const results = await lintDocumentForTest(
-        { 'component-name-unique': { severity: 'error', schema: 'off' } },
+        { 'component-name-unique': { severity: 'error', schemas: 'off' } },
         document,
         additionalDocuments
       );
