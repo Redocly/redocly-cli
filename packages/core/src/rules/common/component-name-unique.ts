@@ -8,7 +8,6 @@ import {
   Oas3Schema,
   OasRef,
 } from '../../typings/openapi';
-import { Oas2Definition } from '../../typings/swagger';
 
 const TYPE_NAME_SCHEMA = 'Schema';
 const TYPE_NAME_PARAMETER = 'Parameter';
@@ -95,7 +94,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
       },
     },
     Root: {
-      leave(root: Oas3Definition | Oas2Definition, ctx: UserContext) {
+      leave(root: Oas3Definition, ctx: UserContext) {
         components.forEach((value, key, _) => {
           if (value.size > 1) {
             const component = getComponentFromKey(key);
@@ -104,7 +103,7 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               .join('\n');
 
             const problem: Problem = {
-              message: `${component.typeName} '${component.componentName}' is not unique. It is defined at:\n${definitions}`,
+              message: `${component.typeName} component '${component.componentName}' is not unique. It is defined at:\n${definitions}`,
             };
 
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
