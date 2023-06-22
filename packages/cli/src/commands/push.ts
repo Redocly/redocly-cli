@@ -358,22 +358,21 @@ export const transformPush =
       );
     }
 
-    let api = maybeApiOrDestination;
-    let destination = maybeDestination;
-
+    let api, destination;
     if (maybeDestination) {
       process.stderr.write(
           yellow(
               'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
           )
       );
+      api = maybeApiOrDestination;
+      destination = maybeDestination;
     } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
       process.stderr.write(
           yellow(
               'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
           )
       );
-      api = undefined;
       destination = maybeApiOrDestination;
     }
 
