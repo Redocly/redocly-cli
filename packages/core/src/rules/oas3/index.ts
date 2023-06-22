@@ -51,7 +51,7 @@ import { SpecComponentsInvalidMapName } from './spec-components-invalid-map-name
 import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-details-rfc7807';
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecStrictRefs } from '../common/spec-strict-refs';
-import { ComponentNameUnique } from '../common/component-name-unique';
+import { ComponentNameUnique } from './component-name-unique';
 
 export const rules = {
   spec: OasSpec,
