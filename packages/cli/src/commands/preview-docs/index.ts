@@ -131,7 +131,7 @@ export async function previewDocs(argv: PreviewDocsOptions, configFromFile: Conf
   async function reloadConfig(config?: Config) {
     if (!config) {
       try {
-        config = await loadConfigAndHandleErrors({ configPath: argv.config }) as Config;
+        config = (await loadConfigAndHandleErrors({ configPath: argv.config })) as Config;
       } catch (err) {
         config = new Config({ apis: {}, styleguide: {} });
       }

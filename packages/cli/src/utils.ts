@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fetch from 'node-fetch';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
@@ -245,7 +244,6 @@ export function handleError(e: Error, ref: string) {
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      console.error(e.stack);
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
     }
   }

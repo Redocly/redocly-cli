@@ -16,21 +16,21 @@ export function commandWrapper<T extends CommandOptions>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         exitWithError('Please, provide valid path to the configuration file');
       }
-      const config: Config = await loadConfigAndHandleErrors({
+      const config: Config = (await loadConfigAndHandleErrors({
         configPath: argv.config,
         customExtends: argv.extends as string[] | undefined,
         region: argv.region as Region,
         files: argv.file as string[] | undefined,
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
-      }) as Config;
+      })) as Config;
       telemetry = config.telemetry;
       hasConfig = !!(config.styleguide && !config.styleguide.recommendedFallback);
-      code = 1
+      code = 1;
       await commandHandler(argv, config, version);
-      code = 0
-    } catch  (err){
+      code = 0;
+    } catch (err) {
       // Do nothing
-    }finally {
+    } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         await sendTelemetry(argv, code, hasConfig);
       }
