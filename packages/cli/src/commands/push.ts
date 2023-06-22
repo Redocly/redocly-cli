@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
-import { yellow, green, blue } from 'colorette';
+import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
 import {
   bundle,
@@ -23,6 +23,7 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
+import { showWarningForDeprecatedField } from '@redocly/openapi-core/lib/utils';
 
 const DEFAULT_VERSION = 'latest';
 
@@ -35,6 +36,7 @@ export type PushOptions = {
   branchName?: string;
   upsert?: boolean;
   'job-id'?: string;
+  'batch-id'?: string;
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
@@ -76,6 +78,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
       `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
     );
   }
+
   const api = argv.api || (name && version && getApiRoot({ name, version, config }));
 
   if (name && version && !api) {
@@ -88,7 +91,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
 
   if ((!name || !version) && api) {
     return exitWithError(
-        `No destination provided, please use --destination option to provide destination.`
+      `No destination provided, please use --destination option to provide destination.`
     );
   }
 
@@ -346,10 +349,16 @@ type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  (
-    { maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs,
-    config: Config
-  ) => {
+  ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs, config: Config) => {
+    if (rest['batch-id']) {
+      process.stderr.write(
+        yellow(
+          `The ${red('batch-id')} option is deprecated. Please use ${green('job-id')} instead.\n\n`
+        )
+      );
+      rest['job-id'] = rest['job-id'] || rest['batch-id'];
+    }
+
     if (maybeBranchName) {
       process.stderr.write(
         yellow(
@@ -361,17 +370,17 @@ export const transformPush =
     let api, destination;
     if (maybeDestination) {
       process.stderr.write(
-          yellow(
-              'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
-          )
+        yellow(
+          'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
+        )
       );
       api = maybeApiOrDestination;
       destination = maybeDestination;
     } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
       process.stderr.write(
-          yellow(
-              'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
-          )
+        yellow(
+          'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
+        )
       );
       destination = maybeApiOrDestination;
     }

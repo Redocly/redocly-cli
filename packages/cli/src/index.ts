@@ -139,6 +139,12 @@ yargs
           destination: { type: 'string', alias: 'd' },
           branch: { type: 'string', alias: 'b' },
           upsert: { type: 'boolean', alias: 'u' },
+          'batch-id': {
+            description:
+              'Specifies the ID of the CI job that the current push will be associated with. (Deprecated)',
+            type: 'string',
+            requiresArg: true,
+          },
           'job-id': {
             description:
               'Specifies the ID of the CI job that the current push will be associated with.',
