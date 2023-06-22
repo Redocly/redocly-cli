@@ -1,6 +1,6 @@
 # component-name-unique
 
-Verifies schema component names are unique.
+Verifies component names are unique.
 
 |OAS|Compatibility|
 |---|---|
@@ -39,7 +39,7 @@ An example configuration:
 
 ```yaml
 rules:
-  schema-name-unique:
+  component-name-unique:
     schemas: error
     parameters: off
     responses: warn
@@ -53,7 +53,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  schema-name-unique: error
+  component-name-unique: error
 ```
 
 ### Example of **incorrect** schema files
