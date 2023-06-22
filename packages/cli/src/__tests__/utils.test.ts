@@ -486,10 +486,11 @@ describe('cleanColors', () => {
 });
 
 describe('cleanArgs', () => {
-  it('should remove potentially sensitive data from args', () => {
+  beforeEach(() => {
     // @ts-ignore
     isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
-
+  });
+  it('should remove potentially sensitive data from args', () => {
     const testArgs = {
       config: 'some-folder/redocly.yaml',
       apis: ['main@v1', 'openapi.yaml', 'http://some.url/openapi.yaml'],
@@ -499,6 +500,14 @@ describe('cleanArgs', () => {
       config: '***.yaml',
       apis: ['main@v1', '***.yaml', 'http://***'],
       format: 'codeframe',
+    });
+  });
+  it('should remove potentially sensitive data from a push destination', () => {
+    const testArgs = {
+      destination: '@org/name@version',
+    };
+    expect(cleanArgs(testArgs)).toEqual({
+      destination: '@***/name@version',
     });
   });
 });

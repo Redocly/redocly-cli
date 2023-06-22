@@ -26,7 +26,7 @@ import { promptClientToken } from './login';
 
 const DEFAULT_VERSION = 'latest';
 
-const DESTINATION_REGEX =
+export const DESTINATION_REGEX =
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
 export type PushOptions = {

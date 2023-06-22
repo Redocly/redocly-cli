@@ -27,6 +27,7 @@ import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
+import { DESTINATION_REGEX } from './commands/push';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -547,6 +548,9 @@ function cleanString(value?: string): string | undefined {
   }
   if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
     return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
+  }
+  if (DESTINATION_REGEX.test(value)) {
+    return value.replace(/^@[\w\-\s]+\//, () => '@***/');
   }
   return value;
 }
