@@ -15,7 +15,7 @@ const TYPE_NAME_PARAMETER = 'Parameter';
 const TYPE_NAME_RESPONSE = 'Response';
 const TYPE_NAME_REQUEST_BODY = 'RequestBody';
 
-const TYPE_NAME_TO_OPTION_NAME: { [key: string]: string } = {
+const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
   [TYPE_NAME_SCHEMA]: 'schema',
   [TYPE_NAME_PARAMETER]: 'parameter',
   [TYPE_NAME_RESPONSE]: 'response',
@@ -39,8 +39,8 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     typeNames.push(TYPE_NAME_REQUEST_BODY);
   }
 
-  function getOptionNameForTypeName(typeName: string): string | null {
-    return TYPE_NAME_TO_OPTION_NAME[typeName] ?? null;
+  function getOptionComponentNameForTypeName(typeName: string): string | null {
+    return TYPE_NAME_TO_OPTION_COMPONENT_NAME[typeName] ?? null;
   }
 
   function getComponentNameFromAbsoluteLocation(absoluteLocation: string): string {
@@ -107,8 +107,8 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               message: `${component.typeName} '${component.componentName}' is not unique. It is defined at:\n${definitions}`,
             };
 
-            const openName = getOptionNameForTypeName(component.typeName);
-            const componentSeverity = openName ? options[openName] : null;
+            const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
+            const componentSeverity = optionComponentName ? options[optionComponentName] : null;
             if (componentSeverity) {
               problem.forceSeverity = componentSeverity;
             }
