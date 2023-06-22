@@ -130,7 +130,11 @@ export async function previewDocs(argv: PreviewDocsOptions, configFromFile: Conf
 
   async function reloadConfig(config?: Config) {
     if (!config) {
-      config = await loadConfigAndHandleErrors({ configPath: argv.config });
+      try {
+        config = await loadConfigAndHandleErrors({ configPath: argv.config }) as Config;
+      } catch (err) {
+        config = new Config({ apis: {}, styleguide: {} });
+      }
     }
     const redoclyClient = new RedoclyClient();
     isAuthorizedWithRedocly = await redoclyClient.isAuthorizedWithRedocly();

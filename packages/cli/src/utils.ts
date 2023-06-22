@@ -394,12 +394,11 @@ export async function loadConfigAndHandleErrors(
     files?: string[];
     region?: Region;
   } = {}
-): Promise<Config> {
+): Promise<Config | void> {
   try {
     return await loadConfig(options);
   } catch (e) {
     handleError(e, '');
-    return new Config({ apis: {}, styleguide: {} });
   }
 }
 
@@ -484,7 +483,7 @@ export function cleanColors(input: string): string {
 
 export async function sendTelemetry(
   argv: Arguments | undefined,
-  exit_code: 0 | 1,
+  exit_code: ExitCode,
   has_config: boolean | undefined
 ): Promise<void> {
   try {
@@ -513,8 +512,7 @@ export async function sendTelemetry(
       raw_input: cleanRawInput(process.argv.slice(2)),
       has_config,
     };
-    // FIXME: put an actual endpoint here
-    await fetch(`https://api.lab6.redocly.host/registry/telemetry/cli`, {
+    await fetch(`https://api.redocly.com/registry/telemetry/cli`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -526,6 +524,8 @@ export async function sendTelemetry(
   }
 }
 
+export type ExitCode = 0 | 1 | 2;
+
 export type Analytics = {
   event: string;
   event_time: string;
@@ -534,7 +534,7 @@ export type Analytics = {
   arguments: Record<string, unknown>;
   node_version: string;
   version: string;
-  exit_code: 0 | 1;
+  exit_code: ExitCode;
   environment?: string;
   raw_input: string;
   has_config?: boolean;
