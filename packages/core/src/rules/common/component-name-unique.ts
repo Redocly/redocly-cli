@@ -98,15 +98,15 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
         components.forEach((value, key, _) => {
           if (value.size > 1) {
             const component = getComponentFromKey(key);
+            const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const definitions = Array.from(value)
               .map((v) => `- ${v}`)
               .join('\n');
 
             const problem: Problem = {
-              message: `${component.typeName} component '${component.componentName}' is not unique. It is defined at:\n${definitions}`,
+              message: `Component '${optionComponentName}/${component.componentName}' is not unique. It is defined at:\n${definitions}`,
             };
 
-            const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
             if (componentSeverity) {
               problem.forceSeverity = componentSeverity;

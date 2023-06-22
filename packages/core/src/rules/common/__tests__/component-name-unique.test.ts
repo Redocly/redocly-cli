@@ -49,7 +49,7 @@ describe('Oas3 component-name-unique', () => {
                 "source": "/foobar.yaml",
               },
             ],
-            "message": "Schema component 'SomeSchema' is not unique. It is defined at:
+            "message": "Component 'schemas/SomeSchema' is not unique. It is defined at:
         - /foobar.yaml#/components/schemas/SomeSchema
         - /test.yaml#/components/schemas/SomeSchema",
             "ruleId": "component-name-unique",
@@ -104,7 +104,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Schema component 'SomeSchema' is not unique. It is defined at:
+          "message": "Component 'schemas/SomeSchema' is not unique. It is defined at:
       - /foobar.yaml#/components/schemas/SomeSchema
       - /SomeSchema.yaml",
           "ruleId": "component-name-unique",
@@ -207,7 +207,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Parameter component 'ParameterOne' is not unique. It is defined at:
+          "message": "Component 'parameters/ParameterOne' is not unique. It is defined at:
       - /foobar.yaml#/components/parameters/ParameterOne
       - /test.yaml#/components/parameters/ParameterOne",
           "ruleId": "component-name-unique",
@@ -266,7 +266,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Parameter component 'ParameterOne' is not unique. It is defined at:
+          "message": "Component 'parameters/ParameterOne' is not unique. It is defined at:
       - /foobar.yaml#/components/parameters/ParameterOne
       - /ParameterOne.yaml",
           "ruleId": "component-name-unique",
@@ -383,7 +383,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Response component 'SuccessResponse' is not unique. It is defined at:
+          "message": "Component 'responses/SuccessResponse' is not unique. It is defined at:
       - /foobar.yaml#/components/responses/SuccessResponse
       - /test.yaml#/components/responses/SuccessResponse",
           "ruleId": "component-name-unique",
@@ -449,7 +449,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Response component 'SuccessResponse' is not unique. It is defined at:
+          "message": "Component 'responses/SuccessResponse' is not unique. It is defined at:
       - /foobar.yaml#/components/responses/SuccessResponse
       - /SuccessResponse.yaml",
           "ruleId": "component-name-unique",
@@ -570,7 +570,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "RequestBody component 'MyRequestBody' is not unique. It is defined at:
+          "message": "Component 'requestBodies/MyRequestBody' is not unique. It is defined at:
       - /foobar.yaml#/components/requestBodies/MyRequestBody
       - /test.yaml#/components/requestBodies/MyRequestBody",
           "ruleId": "component-name-unique",
@@ -637,7 +637,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "RequestBody component 'MyRequestBody' is not unique. It is defined at:
+          "message": "Component 'requestBodies/MyRequestBody' is not unique. It is defined at:
       - /foobar.yaml#/components/requestBodies/MyRequestBody
       - /MyRequestBody.yaml",
           "ruleId": "component-name-unique",
@@ -766,7 +766,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "RequestBody component 'MyRequestBody' is not unique. It is defined at:
+          "message": "Component 'requestBodies/MyRequestBody' is not unique. It is defined at:
       - /foobar.yaml#/components/requestBodies/MyRequestBody
       - /test.yaml#/components/requestBodies/MyRequestBody",
           "ruleId": "component-name-unique",
@@ -781,7 +781,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "Schema component 'SomeSchema' is not unique. It is defined at:
+          "message": "Component 'schemas/SomeSchema' is not unique. It is defined at:
       - /foobar.yaml#/components/schemas/SomeSchema
       - /test.yaml#/components/schemas/SomeSchema",
           "ruleId": "component-name-unique",
@@ -809,7 +809,7 @@ describe('Oas3 component-name-unique', () => {
               "source": "/foobar.yaml",
             },
           ],
-          "message": "RequestBody component 'MyRequestBody' is not unique. It is defined at:
+          "message": "Component 'requestBodies/MyRequestBody' is not unique. It is defined at:
       - /foobar.yaml#/components/requestBodies/MyRequestBody
       - /test.yaml#/components/requestBodies/MyRequestBody",
           "ruleId": "component-name-unique",
