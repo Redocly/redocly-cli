@@ -59,7 +59,7 @@ const builtInRulesList = [
   'scalar-property-missing-example',
   'spec-components-invalid-map-name',
   'required-string-property-missing-min-length',
-  'spec-ref-validation',
+  'spec-strict-refs',
 ];
 const nodeTypesList = [
   'any',
