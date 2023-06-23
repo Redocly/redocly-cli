@@ -24,7 +24,7 @@ export function commandWrapper<T extends CommandOptions>(
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       })) as Config;
       telemetry = config.telemetry;
-      hasConfig = !!(config.styleguide && !config.styleguide.recommendedFallback);
+      hasConfig = !config.styleguide.recommendedFallback;
       code = 1;
       await commandHandler(argv, config, version);
       code = 0;

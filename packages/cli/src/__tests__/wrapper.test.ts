@@ -15,9 +15,9 @@ jest.mock('../commands/lint', () => ({
 }));
 
 describe('commandWrapper', () => {
-  it('should send telemetry if there is telemetry: on in the config', async () => {
+  it('should send telemetry if there is "telemetry: on" in the config', async () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { telemetry: 'on' };
+      return { telemetry: 'on', styleguide: { recommendedFallback: true } };
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 
@@ -28,9 +28,9 @@ describe('commandWrapper', () => {
     expect(sendTelemetry).toHaveBeenCalledWith({}, 0, false);
   });
 
-  it('should NOT send telemetry if there is telemetry: off in the config', async () => {
+  it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
     (loadConfigAndHandleErrors as jest.Mock).mockImplementation(() => {
-      return { telemetry: 'off' };
+      return { telemetry: 'off', styleguide: { recommendedFallback: true } };
     });
     process.env.REDOCLY_TELEMETRY = 'on';
 

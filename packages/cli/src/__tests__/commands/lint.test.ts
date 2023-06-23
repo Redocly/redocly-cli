@@ -161,7 +161,7 @@ describe('handleLint', () => {
       expect(processExitMock).toHaveBeenCalledWith(0);
     });
 
-    it('should exit with 1 if tootals error > 0', async () => {
+    it('should exit with 1 if total errors > 0', async () => {
       (getTotals as jest.Mock<any, any>).mockReturnValueOnce({ errors: 1 });
       await commandWrapper(handleLint)(argvMock);
       await exitCb?.();
