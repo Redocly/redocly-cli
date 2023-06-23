@@ -46,9 +46,6 @@ $ npm run <command>
 # run a compile of packages
 $ npm run compile
 
-# start watch mode (in a separate terminal)
-$ npm run watch
-
 # synchronously pick-up the changes made to the packages
 $ npm run watch
 
@@ -84,6 +81,8 @@ To test the local source code of the packages in other local applications, you c
 ### Local packing and installing
 
 To test local changes as a package, you can use the following steps:
+
+1. Optionally, bump the version of the packages ([see details](#version-updating)).
 
 1. Run `npm run pack:prepare` in the repository's root. This generates **redocly-cli.tgz** and **openapi-core.tgz** files and makes some changes to **packages/cli/package.json** file.
 
@@ -129,7 +128,7 @@ It only checks links within the local docs (it can't check links to other docs s
 
 ### Built-in rules changes
 
-After adding a new rule, make sure it is added to the `minimal`, `recommended` and `all` rulesets with appropriate severity levels.
+After adding a new rule, make sure it is added to the `minimal`, `recommended` and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the `builtInRulesList` in [the config types tree](../packages/core/src/types/redocly-yaml.ts).
 
 Separately, open a merge request with the corresponding documentation changes.
