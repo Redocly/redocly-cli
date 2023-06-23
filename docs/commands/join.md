@@ -54,6 +54,7 @@ redocly join --version
 | --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.                                                                                                    |
 | --version                          | boolean  | Show version number.                                                                                                                                                                                     |
 | --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                           |
+| --config                           | string   | Specify path to the [config file](../configuration/index.mdx).                                                                                                                                           |
 
 ## Examples
 
