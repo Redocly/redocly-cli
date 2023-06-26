@@ -21,16 +21,15 @@ import {
   getFallbackApisOrExit,
   pluralize,
   dumpBundle,
-  loadConfigAndHandleErrors,
 } from '../utils';
 import { promptClientToken } from './login';
 
 const DEFAULT_VERSION = 'latest';
 
-const DESTINATION_REGEX =
+export const DESTINATION_REGEX =
   /^(@(?<organizationId>[\w\-\s]+)\/)?(?<name>[^@]*)@(?<version>[\w\.\-]+)$/;
 
-type PushArgs = {
+export type PushOptions = {
   api?: string;
   destination?: string;
   branchName?: string;
@@ -41,10 +40,10 @@ type PushArgs = {
   'skip-decorator'?: string[];
   public?: boolean;
   files?: string[];
+  config?: string;
 };
 
-export async function handlePush(argv: PushArgs): Promise<void> {
-  const config = await loadConfigAndHandleErrors({ region: argv.region, files: argv.files });
+export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
   const client = new RedoclyClient(config.region);
   const isAuthorized = await client.isAuthorizedWithRedoclyByRegion();
   if (!isAuthorized) {
@@ -329,7 +328,7 @@ export function getDestinationProps(
   }
 }
 
-type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
+type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
   maybeApiOrDestination?: string;
   maybeDestination?: string;
   maybeBranchName?: string;
@@ -338,7 +337,10 @@ type BarePushArgs = Omit<PushArgs, 'api' | 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs) => {
+  (
+    { maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs,
+    config: Config
+  ) => {
     if (maybeBranchName) {
       process.stderr.write(
         yellow(
@@ -348,12 +350,15 @@ export const transformPush =
     }
     const api = maybeDestination ? maybeApiOrDestination : undefined;
     const destination = maybeDestination || maybeApiOrDestination;
-    return callback({
-      ...rest,
-      destination,
-      api,
-      branchName: branch ?? maybeBranchName,
-    });
+    return callback(
+      {
+        ...rest,
+        destination,
+        api,
+        branchName: branch ?? maybeBranchName,
+      },
+      config
+    );
   };
 
 export function getApiRoot({

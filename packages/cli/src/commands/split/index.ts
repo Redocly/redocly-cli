@@ -35,7 +35,14 @@ import {
   Referenced,
 } from './types';
 
-export async function handleSplit(argv: { api: string; outDir: string; separator: string }) {
+export type SplitOptions = {
+  api: string;
+  outDir: string;
+  separator: string;
+  config?: string;
+};
+
+export async function handleSplit(argv: SplitOptions) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);

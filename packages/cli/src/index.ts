@@ -3,7 +3,7 @@
 import './assert-node-version';
 import * as yargs from 'yargs';
 import { outputExtensions, regionChoices } from './types';
-import { RedoclyClient, OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
@@ -13,17 +13,19 @@ import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
-import type { BuildDocsArgv } from './commands/build-docs/types';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
-
-const version = require('../package.json').version;
+import { commandWrapper } from './wrapper';
+import { version } from './update-version-notifier';
+import type { Arguments } from 'yargs';
+import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
+import type { BuildDocsArgv } from './commands/build-docs/types';
 
 cacheLatestVersion();
 
 yargs
   .version('version', 'Show version number.', version)
   .help('help', 'Show help.')
-  .parserConfiguration({ 'greedy-arrays': false })
+  .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
   .command(
     'stats [api]',
     'Gathering statistics for a document.',
@@ -38,7 +40,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'stats';
-      handleStats(argv);
+      commandWrapper(handleStats)(argv);
     }
   )
   .command(
@@ -62,11 +64,16 @@ yargs
             type: 'string',
             default: '_',
           },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
         })
         .demandOption('api'),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'split';
-      handleSplit(argv);
+      commandWrapper(handleSplit)(argv);
     }
   )
   .command(
@@ -108,10 +115,15 @@ yargs
             type: 'string',
             default: 'openapi.yaml',
           },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'join';
-      handleJoin(argv, version);
+      commandWrapper(handleJoin)(argv);
     }
   )
   .command(
@@ -151,12 +163,17 @@ yargs
             array: true,
             type: 'string',
           },
+          config: {
+            description: 'Specify path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
         })
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'batch-id'),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      transformPush(handlePush)(argv);
+      commandWrapper(transformPush(handlePush))(argv);
     }
   )
   .command(
@@ -215,7 +232,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'lint';
-      handleLint(argv, version);
+      commandWrapper(handleLint)(argv);
     }
   )
   .command(
@@ -297,7 +314,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
-      handleBundle(argv, version);
+      commandWrapper(handleBundle)(argv);
     }
   )
   .command(
@@ -314,21 +331,28 @@ yargs
           alias: 'r',
           choices: regionChoices,
         },
+        config: {
+          description: 'Specify path to the config file.',
+          requiresArg: true,
+          type: 'string',
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'login';
-      handleLogin(argv);
+      commandWrapper(handleLogin)(argv);
     }
   )
   .command(
     'logout',
     'Clear your stored credentials for the Redocly API registry.',
     (yargs) => yargs,
-    async () => {
+    async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'logout';
-      const client = new RedoclyClient();
-      client.logout();
-      process.stdout.write('Logged out from the Redocly account. ✋\n');
+      await commandWrapper(async () => {
+        const client = new RedoclyClient();
+        client.logout();
+        process.stdout.write('Logged out from the Redocly account. ✋\n');
+      })(argv);
     }
   )
   .command(
@@ -374,7 +398,7 @@ yargs
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
-      previewDocs(argv);
+      commandWrapper(previewDocs)(argv);
     }
   )
   .command(
@@ -428,7 +452,7 @@ yargs
         }),
     async (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'build-docs';
-      handlerBuildCommand(argv as unknown as BuildDocsArgv);
+      commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
   .completion('completion', 'Generate completion script.')

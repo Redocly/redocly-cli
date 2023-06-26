@@ -1,4 +1,12 @@
-import { formatProblems, getTotals, getMergedConfig, lint, bundle } from '@redocly/openapi-core';
+import {
+  formatProblems,
+  getTotals,
+  getMergedConfig,
+  lint,
+  bundle,
+  Config,
+  OutputFormat,
+} from '@redocly/openapi-core';
 import {
   dumpBundle,
   getExecutionTime,
@@ -8,32 +16,31 @@ import {
   printUnusedWarnings,
   saveBundle,
   printLintTotals,
-  loadConfigAndHandleErrors,
   checkIfRulesetExist,
   sortTopLevelKeysForOas,
 } from '../utils';
-import type { CommonOptions, OutputExtensions, Skips, Totals } from '../types';
+import type { OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 
-export type BundleOptions = CommonOptions &
-  Skips & {
-    output?: string;
-    ext: OutputExtensions;
-    dereferenced?: boolean;
-    force?: boolean;
-    lint?: boolean;
-    metafile?: string;
-    'remove-unused-components'?: boolean;
-    'keep-url-references'?: boolean;
-  };
+export type BundleOptions = {
+  apis?: string[];
+  'max-problems': number;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+  output?: string;
+  ext: OutputExtensions;
+  dereferenced?: boolean;
+  force?: boolean;
+  lint?: boolean;
+  metafile?: string;
+  'remove-unused-components'?: boolean;
+  'keep-url-references'?: boolean;
+} & Skips;
 
-export async function handleBundle(argv: BundleOptions, version: string) {
-  const config = await loadConfigAndHandleErrors({
-    configPath: argv.config,
-    customExtends: argv.extends,
-  });
+export async function handleBundle(argv: BundleOptions, config: Config, version: string) {
   const removeUnusedComponents =
     argv['remove-unused-components'] ||
     config.rawConfig?.styleguide?.decorators?.hasOwnProperty('remove-unused-components');
@@ -164,7 +171,7 @@ export async function handleBundle(argv: BundleOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
-  // defer process exit to allow STDOUT pipe to flush
-  // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () => process.exit(totals.errors === 0 || argv.force ? 0 : 1));
+  if (!(totals.errors === 0 || argv.force)) {
+    throw new Error('Bundle failed.');
+  }
 }

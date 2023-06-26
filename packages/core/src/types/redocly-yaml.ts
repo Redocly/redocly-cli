@@ -172,6 +172,7 @@ const ConfigRoot: NodeType = {
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     region: { enum: ['us', 'eu'] },
+    telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
         http: 'ConfigHTTP',

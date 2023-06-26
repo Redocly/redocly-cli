@@ -139,6 +139,7 @@ export type ResolveConfig = {
 };
 
 export type Region = 'us' | 'eu';
+export type Telemetry = 'on' | 'off';
 
 export type AccessTokens = { [region in Region]?: string };
 
@@ -171,6 +172,7 @@ export type RawConfig = {
   region?: Region;
   organization?: string;
   files?: string[];
+  telemetry?: Telemetry;
 } & ThemeConfig;
 
 export type FlatApi = Omit<Api, 'styleguide'> &
