@@ -87,6 +87,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     );
   }
 
+  // Ensure that a destination for the api is provided.
   if (!name && api) {
     return exitWithError(
       `No destination provided, please use --destination option to provide destination.`
@@ -393,7 +394,7 @@ export const transformPush =
       );
       destination = maybeApiOrDestination;
     } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
-      api = maybeApiOrDestination
+      api = maybeApiOrDestination;
     }
 
     destination = rest.destination || destination;

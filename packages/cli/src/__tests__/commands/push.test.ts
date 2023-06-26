@@ -350,21 +350,21 @@ describe('transformPush', () => {
       {}
     );
   });
-    it('should work for a api only', () => {
-        const cb = jest.fn();
-        transformPush(cb)(
-            {
-                maybeApiOrDestination: 'test.yaml',
-            },
-            {} as any
-        );
-        expect(cb).toBeCalledWith(
-            {
-                api: 'test.yaml',
-            },
-            {}
-        );
-    });
+  it('should work for a api only', () => {
+    const cb = jest.fn();
+    transformPush(cb)(
+      {
+        maybeApiOrDestination: 'test.yaml',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'test.yaml',
+      },
+      {}
+    );
+  });
   it('should accept aliases for the old syntax', () => {
     const cb = jest.fn();
     transformPush(cb)(
