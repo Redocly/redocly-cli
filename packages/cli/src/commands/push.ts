@@ -339,8 +339,7 @@ export function getDestinationProps(
   }
 }
 
-type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
-  maybeApiOrDestination?: string;
+type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
   maybeDestination?: string;
   maybeBranchName?: string;
   branch?: string;
@@ -351,7 +350,7 @@ export const transformPush =
   (callback: typeof handlePush) =>
   (
     {
-      maybeApiOrDestination,
+      api: maybeApiOrDestination,
       maybeDestination,
       maybeBranchName,
       branch,
@@ -377,14 +376,14 @@ export const transformPush =
       );
     }
 
-    let api, destination;
+    let apiFile, destination;
     if (maybeDestination) {
       process.stderr.write(
         yellow(
           'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
         )
       );
-      api = maybeApiOrDestination;
+      apiFile = maybeApiOrDestination;
       destination = maybeDestination;
     } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
       process.stderr.write(
@@ -394,7 +393,7 @@ export const transformPush =
       );
       destination = maybeApiOrDestination;
     } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
-      api = maybeApiOrDestination;
+      apiFile = maybeApiOrDestination;
     }
 
     destination = rest.destination || destination;
@@ -403,7 +402,7 @@ export const transformPush =
       {
         ...rest,
         destination,
-        api,
+        api: apiFile,
         branchName: branch ?? maybeBranchName,
         'job-id': jobId || batchId,
       },

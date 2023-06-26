@@ -126,14 +126,17 @@ yargs
       commandWrapper(handleJoin)(argv);
     }
   )
+
   .command(
-    'push [maybeApiOrDestination] [maybeDestination] [maybeBranchName]',
+    'push [api] [maybeDestination] [maybeBranchName])',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
-        .positional('maybeApiOrDestination', { type: 'string' })
+        .usage('push [api]')
+        .positional('api', { type: 'string' })
         .positional('maybeDestination', { type: 'string' })
-        .positional('maybeBranchName', { type: 'string' })
+        .hide('maybeDestination')
+        .hide('maybeBranchName')
         .option({
           organization: { type: 'string', alias: 'o' },
           destination: { type: 'string', alias: 'd' },
@@ -145,6 +148,7 @@ yargs
             type: 'string',
             requiresArg: true,
             deprecated: true,
+            hidden: true,
           },
           'job-id': {
             description:
@@ -174,6 +178,7 @@ yargs
           },
         })
         .deprecateOption('batch-id', 'use --job-id')
+        .deprecateOption('maybeDestination')
         .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'job-id'),

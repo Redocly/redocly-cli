@@ -283,7 +283,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: 'openapi.yaml',
+        api: 'openapi.yaml',
         maybeDestination: '@testing_org/main@v1',
       },
       {} as any
@@ -300,7 +300,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: 'openapi.yaml',
+        api: 'openapi.yaml',
         maybeDestination: '@testing_org/main@v1',
         maybeBranchName: 'other',
       },
@@ -319,7 +319,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: 'openapi.yaml',
+        api: 'openapi.yaml',
         maybeDestination: '@testing_org/main@v1',
         maybeBranchName: 'other',
         branch: 'priority-branch',
@@ -339,7 +339,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: '@testing_org/main@v1',
+        api: '@testing_org/main@v1',
       },
       {} as any
     );
@@ -354,7 +354,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: 'test.yaml',
+        api: 'test.yaml',
       },
       {} as any
     );
@@ -369,7 +369,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        maybeApiOrDestination: 'alias',
+        api: 'alias',
         maybeDestination: '@testing_org/main@v1',
       },
       {} as any
@@ -388,7 +388,7 @@ describe('transformPush', () => {
       {
         'batch-id': 'b-123',
         'job-id': 'j-123',
-        maybeApiOrDestination: 'test',
+        api: 'test',
         maybeDestination: 'main@v1',
         branch: 'test',
         destination: 'main@v1',
