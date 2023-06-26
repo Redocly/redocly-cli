@@ -140,7 +140,8 @@ There are three ways of providing arguments to the CLI: environment variables, c
 ### Environment variables
 
 Environment variables should be used to provide some arguments that are common for all the commands.
-Please avoid using environment variables if possible, as they may lead to ambiguous results. They should not affect the **core** package logic.
+We always prefer configuration over environment variables.
+Environment variables should not affect the **core** package logic.
 
 ### Command line arguments
 
