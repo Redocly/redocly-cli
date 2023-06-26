@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { performance } from 'perf_hooks';
-import { yellow, green, blue } from 'colorette';
+import { yellow, green, blue, red } from 'colorette';
 import { createHash } from 'crypto';
 import {
   bundle,
@@ -34,12 +34,13 @@ export type PushOptions = {
   destination?: string;
   branchName?: string;
   upsert?: boolean;
-  'batch-id'?: string;
+  'job-id'?: string;
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
   public?: boolean;
   files?: string[];
+  organization?: string;
   config?: string;
 };
 
@@ -54,26 +55,28 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
   const startedAt = performance.now();
   const { destination, branchName, upsert } = argv;
 
-  const batchId = argv['batch-id'];
+  const jobId = argv['job-id'];
   const batchSize = argv['batch-size'];
 
   if (destination && !DESTINATION_REGEX.test(destination)) {
     exitWithError(
       `Destination argument value is not valid, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>'
+        '<api-name@api-version>'
       )}`
     );
   }
 
-  const { organizationId, name, version } = getDestinationProps(destination, config.organization);
+  const destinationProps = getDestinationProps(destination, config.organization);
+
+  const organizationId = argv.organization || destinationProps.organizationId;
+  const { name, version } = destinationProps;
 
   if (!organizationId) {
     return exitWithError(
-      `No organization provided, please use the right format: ${yellow(
-        '<@organization-id/api-name@api-version>'
-      )} or specify the 'organization' field in the config file.`
+      `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
     );
   }
+
   const api = argv.api || (name && version && getApiRoot({ name, version, config }));
 
   if (name && version && !api) {
@@ -84,9 +87,16 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     );
   }
 
-  if (batchId && !batchId.trim()) {
+  // Ensure that a destination for the api is provided.
+  if (!name && api) {
+    return exitWithError(
+      `No destination provided, please use --destination option to provide destination.`
+    );
+  }
+
+  if (jobId && !jobId.trim()) {
     exitWithError(
-      `The ${blue(`batch-id`)} option value is not valid, please avoid using an empty string.`
+      `The ${blue(`job-id`)} option value is not valid, please avoid using an empty string.`
     );
   }
 
@@ -169,7 +179,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
         branch: branchName,
         isUpsert: upsert,
         isPublic: argv['public'],
-        batchId: batchId,
+        batchId: jobId,
         batchSize: batchSize,
       });
     } catch (error) {
@@ -178,12 +188,13 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
       }
 
       if (error.message === 'API_VERSION_NOT_FOUND') {
-        exitWithError(`The definition version ${blue(name)}/${blue(
-          version
-        )} does not exist in organization ${blue(organizationId)}!\n${yellow(
-          'Suggestion:'
-        )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
-        `);
+        exitWithError(
+          `The definition version ${blue(
+            `${name}@${version}`
+          )} does not exist in organization ${blue(organizationId)}!\n${yellow(
+            'Suggestion:'
+          )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.\n\n`
+        );
       }
 
       throw error;
@@ -328,34 +339,72 @@ export function getDestinationProps(
   }
 }
 
-type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
-  maybeApiOrDestination?: string;
+type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
   maybeDestination?: string;
   maybeBranchName?: string;
   branch?: string;
+  destination?: string;
 };
 
 export const transformPush =
   (callback: typeof handlePush) =>
   (
-    { maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs,
+    {
+      api: maybeApiOrDestination,
+      maybeDestination,
+      maybeBranchName,
+      branch,
+      'batch-id': batchId,
+      'job-id': jobId,
+      ...rest
+    }: BarePushArgs & { 'batch-id'?: string },
     config: Config
   ) => {
-    if (maybeBranchName) {
+    if (batchId) {
       process.stderr.write(
         yellow(
-          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.'
+          `The ${red('batch-id')} option is deprecated. Please use ${green('job-id')} instead.\n\n`
         )
       );
     }
-    const api = maybeDestination ? maybeApiOrDestination : undefined;
-    const destination = maybeDestination || maybeApiOrDestination;
+
+    if (maybeBranchName) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.\n\n'
+        )
+      );
+    }
+
+    let apiFile, destination;
+    if (maybeDestination) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
+        )
+      );
+      apiFile = maybeApiOrDestination;
+      destination = maybeDestination;
+    } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
+        )
+      );
+      destination = maybeApiOrDestination;
+    } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      apiFile = maybeApiOrDestination;
+    }
+
+    destination = rest.destination || destination;
+
     return callback(
       {
         ...rest,
         destination,
-        api,
+        api: apiFile,
         branchName: branch ?? maybeBranchName,
+        'job-id': jobId || batchId,
       },
       config
     );

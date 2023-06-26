@@ -126,18 +126,48 @@ yargs
       commandWrapper(handleJoin)(argv);
     }
   )
+
   .command(
-    'push [maybeApiOrDestination] [maybeDestination] [maybeBranchName]',
+    'push [api] [maybeDestination] [maybeBranchName]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
-        .positional('maybeApiOrDestination', { type: 'string' })
+        .usage('push [api]')
+        .positional('api', { type: 'string' })
         .positional('maybeDestination', { type: 'string' })
-        .positional('maybeBranchName', { type: 'string' })
+        .hide('maybeDestination')
+        .hide('maybeBranchName')
         .option({
-          branch: { type: 'string', alias: 'b' },
-          upsert: { type: 'boolean', alias: 'u' },
+          organization: {
+            description: 'Name of the organization to push to.',
+            type: 'string',
+            alias: 'o',
+          },
+          destination: {
+            description: 'API name and version in the format `name@version`.',
+            type: 'string',
+            alias: 'd',
+          },
+          branch: {
+            description: 'Branch name to push to.',
+            type: 'string',
+            alias: 'b',
+          },
+          upsert: {
+            description:
+              "Create the specified API version if it doesn't exist, update if it does exist.",
+            type: 'boolean',
+            alias: 'u',
+          },
           'batch-id': {
+            description:
+              'Specifies the ID of the CI job that the current push will be associated with.',
+            type: 'string',
+            requiresArg: true,
+            deprecated: true,
+            hidden: true,
+          },
+          'job-id': {
             description:
               'Specifies the ID of the CI job that the current push will be associated with.',
             type: 'string',
@@ -163,14 +193,12 @@ yargs
             array: true,
             type: 'string',
           },
-          config: {
-            description: 'Specify path to the config file.',
-            requiresArg: true,
-            type: 'string',
-          },
         })
+        .deprecateOption('batch-id', 'use --job-id')
+        .deprecateOption('maybeDestination')
+        .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'batch-id'),
+        .implies('batch-size', 'job-id'),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
       commandWrapper(transformPush(handlePush))(argv);
