@@ -121,7 +121,7 @@ To find your organization ID required for the command:
 1. In your browser's address bar, find the URL of this page.
 1. Inspect the segment after `app.redocly.com/org/`. This part is your organization ID.
 
-For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `--organozation=test_docs`.
+For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `--organization=test_docs`.
 
 :::warning Note
 
