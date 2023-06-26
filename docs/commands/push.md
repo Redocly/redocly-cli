@@ -91,7 +91,6 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/definition.yaml> 
 | --upsert, -u     | boolean  | Upsert an API to the API registry. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                                                                                    |
 | --version        | boolean  | Show version number.                                                                                                                                                                                                                                            |
 | --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                                |
-| --config         |  string  | Specify path to the [config file](../configuration/index.mdx).                                                                                                                                                                                                  |
 
 ## Examples
 
@@ -301,9 +300,3 @@ The Redocly Workflows interface can help you get started with the `push` command
 1. In **API registry**, select **Add API**.
 1. In the **Definition name** step, provide a name for your new API definition.
 1. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API definition file. Or use the `redocly push -u` command directly from the command-line interface.
-
-## Learn more
-
-- Video tutorial: Using the Redocly CLI push command:
-
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/key2NGkcR5g" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
