@@ -291,7 +291,7 @@ files:
   - ./file.md
 ```
 
-**`--files` has bigger priority than `redocly.yaml`**
+**`--files` has higher priority than `redocly.yaml`**
 
 ### Set up CI from Redocly Workflows
 
