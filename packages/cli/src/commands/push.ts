@@ -376,8 +376,7 @@ export const transformPush =
       );
     }
 
-    let api = maybeApiOrDestination,
-      destination;
+    let api, destination;
     if (maybeDestination) {
       process.stderr.write(
         yellow(
@@ -393,6 +392,8 @@ export const transformPush =
         )
       );
       destination = maybeApiOrDestination;
+    } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      api = maybeApiOrDestination
     }
 
     destination = rest.destination || destination;
