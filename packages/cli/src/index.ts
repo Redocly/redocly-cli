@@ -172,11 +172,12 @@ yargs
             array: true,
             type: 'string',
           },
-          config: {
-            description: 'Specify path to the config file.',
-            requiresArg: true,
-            type: 'string',
-          },
+          // TODO: fix resolving links in config
+          // config: {
+          //   description: 'Specify path to the config file.',
+          //   requiresArg: true,
+          //   type: 'string',
+          // },
         })
         .deprecateOption('batch-id', 'use --job-id')
         .implies('job-id', 'batch-size')
