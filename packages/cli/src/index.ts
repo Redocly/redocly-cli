@@ -139,28 +139,25 @@ yargs
         .hide('maybeBranchName')
         .option({
           organization: {
-            description:
-              'Name of the organization to push to.',
+            description: 'Name of the organization to push to.',
             type: 'string',
-            alias: 'o'
+            alias: 'o',
           },
           destination: {
-            description:
-              'API name and version in the format `name@version`.',
+            description: 'API name and version in the format `name@version`.',
             type: 'string',
-            alias: 'd'
+            alias: 'd',
           },
           branch: {
-            description:
-              'Branch name to push to.',
+            description: 'Branch name to push to.',
             type: 'string',
-            alias: 'b'
+            alias: 'b',
           },
-          upsert: { 
+          upsert: {
             description:
-              'Create the specified API version if it doesn\'t exist, update if it does exist.',
-            type: 'boolean', 
-            alias: 'u'
+              "Create the specified API version if it doesn't exist, update if it does exist.",
+            type: 'boolean',
+            alias: 'u',
           },
           'batch-id': {
             description:
