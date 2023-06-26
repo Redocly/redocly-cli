@@ -87,7 +87,7 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
     );
   }
 
-  if ((!name || !version) && api) {
+  if (!name && api) {
     return exitWithError(
       `No destination provided, please use --destination option to provide destination.`
     );
@@ -187,12 +187,13 @@ export async function handlePush(argv: PushOptions, config: Config): Promise<voi
       }
 
       if (error.message === 'API_VERSION_NOT_FOUND') {
-        exitWithError(`The definition version ${blue(name)}/${blue(
-          version
-        )} does not exist in organization ${blue(organizationId)}!\n${yellow(
-          'Suggestion:'
-        )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.
-        `);
+        exitWithError(
+          `The definition version ${blue(
+            `${name}@${version}`
+          )} does not exist in organization ${blue(organizationId)}!\n${yellow(
+            'Suggestion:'
+          )} please use ${blue('-u')} or ${blue('--upsert')} to create definition.\n\n`
+        );
       }
 
       throw error;
@@ -375,7 +376,8 @@ export const transformPush =
       );
     }
 
-    let api, destination;
+    let api = maybeApiOrDestination,
+      destination;
     if (maybeDestination) {
       process.stderr.write(
         yellow(
