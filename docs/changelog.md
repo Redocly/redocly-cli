@@ -5,6 +5,23 @@ toc:
 
 # Redocly CLI changelog
 
+
+## 1.0.0-beta.129 (2023-06-26)
+
+### Features
+
+- Added telemetry.
+### Fixes
+
+- Fixed build-docs command not working in Docker.
+- Other stability fixes and improvements.
+
+### Changes
+
+- Changed the `push` command interface.
+- Improved Redocly configuration validation.
+- Documentation adn messaging corrections.
+
 ## 1.0.0-beta.128 (2023-06-07)
 
 ### Features
