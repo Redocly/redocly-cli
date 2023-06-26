@@ -77,18 +77,18 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/definition.yaml> 
 ## Options
 
 | Option           |   Type   | Description                                                                                                                                                                                                                                                     |
-| ---------------- | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---------------- | :------: |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | api              |  string  | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                                        |
 | --destination    |  string  | The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `api-name@api-version`.                                                                                                              |
 | --organization   |  string  | Specifies the ID of organization that the deffenition is being pushed to. Overrides the one defined in the config file.                                                                                                                                         |
 | --branch, -b     |  string  | The branch where your API definition is pushed or upserted. Default value is `main`.                                                                                                                                                                            |
-| --job-id         |  string  | Specifies the ID of the CI job that the current push is associated with. See [the Batch ID section](#batch-id) for more information.                                                                                                                            |
+| --job-id         |  string  | Specifies the ID of the CI job that the current push is associated with. See [the Batch ID section](#job-id) for more information.                                                                                                                              |
 | --batch-size     |  number  | Specifies the total number of CI jobs planned to be pushed within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                    |
 | --help           | boolean  | Help output for the command.                                                                                                                                                                                                                                    |
 | --public         | boolean  | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                             |
 | --region,-r      |  string  | Specifies which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value the appropriate Redocly API. |
 | --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                            |
-| --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                                                                                    |
+| --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                         |
 | --version        | boolean  | Show version number.                                                                                                                                                                                                                                            |
 | --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                                |
 
@@ -248,7 +248,7 @@ Must be used only in combination with the `--batch-size` option.
 
 The `--batch-size` option can be used by Redocly Workflows to understand how many pushes in total are performed within one batch to properly handle parallel pushes.
 
-Must be used only in combination with the `--batch-id` option. Must be an integer bigger than 1.
+Must be used only in combination with the `--job-id` option. Must be an integer bigger than 1.
 
 ### Skip decorator
 
