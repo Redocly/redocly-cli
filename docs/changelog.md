@@ -10,7 +10,7 @@ toc:
 
 ### Features
 
-- Added telemetry.
+- Added product metrics collection.
 ### Fixes
 
 - Fixed build-docs command not working in Docker.
