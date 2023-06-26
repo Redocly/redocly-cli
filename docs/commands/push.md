@@ -233,7 +233,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 redocly push -u test-api@v1 -b develop
 ```
 
-### Job ID
+### <a name="batch-id"></a>Job ID
 
 The `--job-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job.
 
