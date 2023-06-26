@@ -556,9 +556,13 @@ function cleanString(value?: string): string | undefined {
 }
 
 export function cleanArgs(args: CommandOptions) {
+  const keysToClean = ['organization', 'o'];
+
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(args)) {
-    if (typeof value === 'string') {
+    if (keysToClean.includes(key)) {
+      result[key] = '***';
+    } else if (typeof value === 'string') {
       result[key] = cleanString(value);
     } else if (Array.isArray(value)) {
       result[key] = value.map(cleanString);
