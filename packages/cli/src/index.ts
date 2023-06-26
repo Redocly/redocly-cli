@@ -138,10 +138,30 @@ yargs
         .hide('maybeDestination')
         .hide('maybeBranchName')
         .option({
-          organization: { type: 'string', alias: 'o' },
-          destination: { type: 'string', alias: 'd' },
-          branch: { type: 'string', alias: 'b' },
-          upsert: { type: 'boolean', alias: 'u' },
+          organization: {
+            description:
+              'Name of the organization to push to.',
+            type: 'string',
+            alias: 'o'
+          },
+          destination: {
+            description:
+              'API name and version in the format `name@version`.',
+            type: 'string',
+            alias: 'd'
+          },
+          branch: {
+            description:
+              'Branch name to push to.',
+            type: 'string',
+            alias: 'b'
+          },
+          upsert: { 
+            description:
+              'Create the specified API version if it doesn\'t exist, update if it does exist.',
+            type: 'boolean', 
+            alias: 'u'
+          },
           'batch-id': {
             description:
               'Specifies the ID of the CI job that the current push will be associated with.',
