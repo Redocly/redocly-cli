@@ -18,9 +18,9 @@ toc:
 
 ### Changes
 
-- Changed the `push` command interface.
+- Streamlined the `push` command interface. The previous syntax also continues to work.
 - Improved Redocly configuration validation.
-- Documentation adn messaging corrections.
+- Documentation and messaging corrections.
 
 ## 1.0.0-beta.128 (2023-06-07)
 
