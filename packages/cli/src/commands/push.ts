@@ -23,7 +23,6 @@ import {
   dumpBundle,
 } from '../utils';
 import { promptClientToken } from './login';
-import { showWarningForDeprecatedField } from '@redocly/openapi-core/lib/utils';
 
 const DEFAULT_VERSION = 'latest';
 
@@ -36,7 +35,6 @@ export type PushOptions = {
   branchName?: string;
   upsert?: boolean;
   'job-id'?: string;
-  'batch-id'?: string;
   'batch-size'?: number;
   region?: Region;
   'skip-decorator'?: string[];
@@ -349,14 +347,24 @@ type BarePushArgs = Omit<PushOptions, 'api' | 'destination' | 'branchName'> & {
 
 export const transformPush =
   (callback: typeof handlePush) =>
-  ({ maybeApiOrDestination, maybeDestination, maybeBranchName, branch, ...rest }: BarePushArgs, config: Config) => {
-    if (rest['batch-id']) {
+  (
+    {
+      maybeApiOrDestination,
+      maybeDestination,
+      maybeBranchName,
+      branch,
+      'batch-id': batchId,
+      'job-id': jobId,
+      ...rest
+    }: BarePushArgs & { 'batch-id'?: string },
+    config: Config
+  ) => {
+    if (batchId) {
       process.stderr.write(
         yellow(
           `The ${red('batch-id')} option is deprecated. Please use ${green('job-id')} instead.\n\n`
         )
       );
-      rest['job-id'] = rest['job-id'] || rest['batch-id'];
     }
 
     if (maybeBranchName) {
@@ -387,12 +395,16 @@ export const transformPush =
 
     destination = rest.destination || destination;
 
-    return callback({
-      ...rest,
-      destination,
-      api,
-      branchName: branch ?? maybeBranchName,
-    }, config);
+    return callback(
+      {
+        ...rest,
+        destination,
+        api,
+        branchName: branch ?? maybeBranchName,
+        'job-id': jobId || batchId,
+      },
+      config
+    );
   };
 
 export function getApiRoot({

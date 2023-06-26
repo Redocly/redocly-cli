@@ -127,7 +127,7 @@ yargs
     }
   )
   .command(
-    'push [maybeApiOrDestination] [maybeDestination] [maybeBranchName]',
+    'push [api]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
@@ -141,9 +141,10 @@ yargs
           upsert: { type: 'boolean', alias: 'u' },
           'batch-id': {
             description:
-              'Specifies the ID of the CI job that the current push will be associated with. (Deprecated)',
+              'Specifies the ID of the CI job that the current push will be associated with.',
             type: 'string',
             requiresArg: true,
+            deprecated: true,
           },
           'job-id': {
             description:
@@ -177,8 +178,10 @@ yargs
             type: 'string',
           },
         })
+        .deprecateOption('batch-id', 'use --job-id')
+        .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'batch-id'),
+        .implies('batch-size', 'job-id'),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
       commandWrapper(transformPush(handlePush))(argv);
