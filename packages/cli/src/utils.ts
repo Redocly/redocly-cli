@@ -539,6 +539,14 @@ export type Analytics = {
   has_config?: boolean;
 };
 
+function isFile(value: string) {
+  return fs.existsSync(value) && fs.statSync(value).isFile();
+}
+
+function isDirectory(value: string) {
+  return fs.existsSync(value) && fs.statSync(value).isDirectory();
+}
+
 function cleanString(value?: string): string | undefined {
   if (!value) {
     return value;
@@ -546,8 +554,11 @@ function cleanString(value?: string): string | undefined {
   if (isAbsoluteUrl(value)) {
     return value.split('://')[0] + '://***';
   }
-  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
-    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
+  if (isFile(value)) {
+    return value.replace(/.+\.([^.]+)$/, (_, ext) => '***.' + ext);
+  }
+  if (isDirectory(value)) {
+    return 'FOLDER';
   }
   if (DESTINATION_REGEX.test(value)) {
     return value.replace(/^@[\w\-\s]+\//, () => '@***/');
