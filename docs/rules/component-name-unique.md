@@ -15,10 +15,10 @@ When generating code based on an OpenAPI definition, there are various different
 unique through the whole spec.
 
 - schema: The code generator creates a class for each schema.
-  If they are not uniquely named, the generator will append numbers. These numbers are non-deterministic.
+  If they are not uniquely named, the generator appends numbers. These numbers are non-deterministic.
   By adding a new schema with the same component name it could change the name (appended number) of another one.
 - parameter: The code generator creates a class for each parameter.
-  If they are not uniquely named, the generator will append numbers. These numbers are non-deterministic.
+  If they are not uniquely named, the generator appends numbers. These numbers are non-deterministic.
   By adding a new parameter with the same component name it could change the name (appended number) of another one.
 - response: The code generator tends to reuse the first one and drops the other ones with the same component name.
 - requestBody: The code generator tends to reuse the first one and drops the other ones with the same component name.
