@@ -14,6 +14,7 @@ Options:
   --help       Show help.                                              [boolean]
   --outDir     Output directory where files will be saved.   [string] [required]
   --separator  File path separator used while splitting. [string] [default: "_"]
+  --config     Specify path to the config file.                         [string]
 
 Missing required argument: outDir
 

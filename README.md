@@ -83,6 +83,10 @@ If your OpenAPI description isn't everything you hoped it would be, enhance it w
 - Improve the docs by adding examples and descriptions
 - Adapt an existing OpenAPI description, and replace details like URLs for use on staging platforms
 
+## Data collection
+
+This tool [collects data](./docs/usage-data.md) to help Redocly improve our products and services. You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`.
+
 ## More resources
 
 [Read the detailed docs](https://redocly.com/docs/cli/).

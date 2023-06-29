@@ -28,7 +28,7 @@ jobs:
       - run: redocly-next --version
       - run: redocly --version
       - name: Run Benchmark
-        run: hyperfine -i --warmup 3 'redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
+        run: hyperfine -i --warmup 3 'REDOCLY_TELEMETRY=off redocly lint packages/core/src/benchmark/benches/rebilly.yaml' 'REDOCLY_TELEMETRY=off redocly-next lint packages/core/src/benchmark/benches/rebilly.yaml' --export-markdown benchmark_check.md --export-json benchmark_check.json
         env:
           CI: true
       - name: Comment PR

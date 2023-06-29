@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
@@ -20,9 +21,13 @@ import {
   Config,
   Oas3Definition,
   Oas2Definition,
+  RedoclyClient,
 } from '@redocly/openapi-core';
-import { Totals, outputExtensions, Entrypoint, ConfigApis } from './types';
+import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
+import { Arguments } from 'yargs';
+import { version } from './update-version-notifier';
+import { DESTINATION_REGEX } from './commands/push';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -39,14 +44,10 @@ export async function getFallbackApisOrExit(
   if (isNotEmptyArray(filteredInvalidEntrypoints)) {
     for (const { path } of filteredInvalidEntrypoints) {
       process.stderr.write(
-        yellow(
-          `\n ${relative(process.cwd(), path)} ${red(
-            `does not exist or is invalid. Please provide a valid path. \n\n`
-          )}`
-        )
+        yellow(`\n${relative(process.cwd(), path)} ${red(`does not exist or is invalid.\n\n`)}`)
       );
     }
-    process.exit(1);
+    exitWithError('Please provide a valid path.');
   }
   return res;
 }
@@ -227,29 +228,29 @@ export function pluralize(label: string, num: number) {
 
 export function handleError(e: Error, ref: string) {
   switch (e.constructor) {
+    case HandledError: {
+      throw e;
+    }
     case ResolveError:
       return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
     case YamlParseError:
       return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
     // TODO: codeframe
     case CircularJSONNotSupportedError: {
-      process.stderr.write(
-        red(`Detected circular reference which can't be converted to JSON.\n`) +
-          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.\n\n`
+      return exitWithError(
+        `Detected circular reference which can't be converted to JSON.\n` +
+          `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
       );
-      return process.exit(1);
     }
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      process.stderr.write(
-        red(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`)
-      );
-      process.exit(1);
-      throw e;
+      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
     }
   }
 }
+
+export class HandledError extends Error {}
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
@@ -373,7 +374,7 @@ export function printUnusedWarnings(config: StyleguideConfig) {
 
 export function exitWithError(message: string) {
   process.stderr.write(red(message) + '\n\n');
-  process.exit(1);
+  throw new HandledError(message);
 }
 
 /**
@@ -392,12 +393,11 @@ export async function loadConfigAndHandleErrors(
     files?: string[];
     region?: Region;
   } = {}
-): Promise<Config> {
+): Promise<Config | void> {
   try {
     return await loadConfig(options);
   } catch (e) {
     handleError(e, '');
-    return new Config({ apis: {}, styleguide: {} });
   }
 }
 
@@ -478,4 +478,101 @@ export function checkIfRulesetExist(rules: typeof StyleguideConfig.prototype.rul
 export function cleanColors(input: string): string {
   // eslint-disable-next-line no-control-regex
   return input.replace(/\x1b\[\d+m/g, '');
+}
+
+export async function sendTelemetry(
+  argv: Arguments | undefined,
+  exit_code: ExitCode,
+  has_config: boolean | undefined
+): Promise<void> {
+  try {
+    if (!argv) {
+      return;
+    }
+    const {
+      _: [command],
+      $0: _,
+      ...args
+    } = argv;
+    const event_time = new Date().toISOString();
+    const redoclyClient = new RedoclyClient();
+    const node_version = process.version;
+    const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
+    const data: Analytics = {
+      event: 'cli_command',
+      event_time,
+      logged_in,
+      command,
+      arguments: cleanArgs(args),
+      node_version,
+      version,
+      exit_code,
+      environment: process.env.REDOCLY_ENVIRONMENT,
+      raw_input: cleanRawInput(process.argv.slice(2)),
+      has_config,
+    };
+    await fetch(`https://api.redocly.com/registry/telemetry/cli`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  } catch (err) {
+    // Do nothing.
+  }
+}
+
+export type ExitCode = 0 | 1 | 2;
+
+export type Analytics = {
+  event: string;
+  event_time: string;
+  logged_in: boolean;
+  command: string | number;
+  arguments: Record<string, unknown>;
+  node_version: string;
+  version: string;
+  exit_code: ExitCode;
+  environment?: string;
+  raw_input: string;
+  has_config?: boolean;
+};
+
+function cleanString(value?: string): string | undefined {
+  if (!value) {
+    return value;
+  }
+  if (isAbsoluteUrl(value)) {
+    return value.split('://')[0] + '://***';
+  }
+  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
+    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
+  }
+  if (DESTINATION_REGEX.test(value)) {
+    return value.replace(/^@[\w\-\s]+\//, () => '@***/');
+  }
+  return value;
+}
+
+export function cleanArgs(args: CommandOptions) {
+  const keysToClean = ['organization', 'o'];
+
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(args)) {
+    if (keysToClean.includes(key)) {
+      result[key] = '***';
+    } else if (typeof value === 'string') {
+      result[key] = cleanString(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(cleanString);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+export function cleanRawInput(argv: string[]) {
+  return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
 }

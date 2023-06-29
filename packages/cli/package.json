@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-beta.128",
+  "version": "1.0.0-beta.129",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -33,7 +33,7 @@
     "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "1.0.0-beta.128",
+    "@redocly/openapi-core": "1.0.0-beta.129",
     "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
@@ -45,7 +45,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "redoc": "~2.0.0",
-    "semver": "^7.5.1",
+    "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
     "styled-components": "5.3.3",
     "yargs": "17.0.1"

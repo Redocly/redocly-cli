@@ -22,6 +22,7 @@ const testConfig: Config = {
       },
     },
     organization: 'redocly-test',
+    telemetry: 'on',
     styleguide: {
       rules: { 'operation-summary': 'error', 'no-empty-servers': 'error' },
       plugins: [],
@@ -101,6 +102,7 @@ describe('getMergedConfig', () => {
               "operation-summary": "warn",
             },
           },
+          "telemetry": "on",
           "theme": Object {},
         },
         "region": undefined,
@@ -149,6 +151,7 @@ describe('getMergedConfig', () => {
             },
           },
         },
+        "telemetry": "on",
         "theme": Object {},
       }
     `);
@@ -199,6 +202,7 @@ describe('getMergedConfig', () => {
               "operation-summary": "error",
             },
           },
+          "telemetry": "on",
           "theme": Object {},
         },
         "region": undefined,
@@ -252,6 +256,7 @@ describe('getMergedConfig', () => {
             },
           },
         },
+        "telemetry": "on",
         "theme": Object {},
       }
     `);

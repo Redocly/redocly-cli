@@ -72,6 +72,38 @@ $ npm run benchmark
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
+## Local source code usage
+
+### NPM linking
+
+To test the local source code of the packages in other local applications, you can use npm linking. See the [docs](https://docs.npmjs.com/cli/v9/commands/npm-link).
+
+### Local packing and installing
+
+To test local changes as a package, you can use the following steps:
+
+1. Optionally, bump the version of the packages ([see details](#version-updating)).
+
+1. Run `npm run pack:prepare` in the repository's root. This generates **redocly-cli.tgz** and **openapi-core.tgz** files and makes some changes to **packages/cli/package.json** file.
+
+1. Copy **redocly-cli.tgz** file to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
+
+Don't forget to revert the changes to **package.json** files later.
+
+## Version updating
+
+Keep the same versions for both packages. To increase the version follow the steps below:
+
+1. First bump the version in **packages/core/package.json**.
+
+1. Run `npm install` in the repository root.
+
+1. Run `npm run compile` in the repository root.
+
+1. Bump the version in **packages/cli/package.json** and **package.json** (3 entries in total).
+
+1. Run `npm install` in the repository root.
+
 ## Contribute documentation
 
 ### Prose linting
@@ -93,6 +125,53 @@ mlc docs/
 ```
 
 It only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors, so take care when renaming pages or titles.
+
+### Built-in rules changes
+
+After adding a new rule, make sure it is added to the `minimal`, `recommended` and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
+Also add the rule to the `builtInRulesList` in [the config types tree](../packages/core/src/types/redocly-yaml.ts).
+
+Separately, open a merge request with the corresponding documentation changes.
+
+## Arguments usage
+
+There are three ways of providing arguments to the CLI: environment variables, command line arguments, and Redocly configuration file.
+
+### Environment variables
+
+Environment variables should be used to provide some arguments that are common for all the commands.
+We always prefer configuration over environment variables.
+Environment variables should not affect the **core** package logic.
+
+### Command line arguments
+
+Use them to provide some arguments that are specific to a certain command. Think of them as modifiers. They should not affect the **core** package logic.
+
+### Configuration file
+
+The **redocly.yaml** file is the most flexible way of providing arguments. Please use it to provide arguments that are common for all the commands, for a specific command, or for a specific API. It could be used for providing arguments for both **cli** and **core** packages. Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
+
+## Exit codes
+
+The application maintains the following exit codes.
+
+| Exit code | Description              |
+| --------- | ------------------------ |
+| 0         | Success                  |
+| 1         | Command execution error  |
+| 2         | Config resolving failure |
+
+## Tests
+
+### Unit tests
+
+Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
+
+To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
+
+### E2E tests
+
+E2E tests are sensitive to any additional output (like `console.log`) in the source code.
 
 ## Project Structure
 
@@ -129,20 +208,3 @@ It only checks links within the local docs (it can't check links to other docs s
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
 - **`resources`**: contains some example API definitions and configuration files that might be useful for testing.
-
-## Arguments usage
-
-There are three ways of providing arguments to the CLI: environment variables, command line arguments, and Redocly configuration file.
-
-### Environment variables
-
-Environment variables should be used to provide some arguments that are common for all the commands.
-Please avoid using environment variables if possible, as they may lead to ambiguous results. They should not affect the **core** package logic.
-
-### Command line arguments
-
-Use them to provide some arguments that are specific to a certain command. Think of them as modifiers. They should not affect the **core** package logic.
-
-### Configuration file
-
-The **redocly.yaml** file is the most flexible way of providing arguments. Please use it to provide arguments that are common for all the commands, for a specific command, or for a specific API. It could be used for providing arguments for both **cli** and **core** packages. Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.

@@ -1,6 +1,7 @@
 import { getMergedConfig } from '@redocly/openapi-core';
 import { handlePush } from '../../commands/push';
 import { promptClientToken } from '../../commands/login';
+import { ConfigFixture } from '../fixtures/config';
 
 jest.mock('fs');
 jest.mock('node-fetch', () => ({
@@ -27,24 +28,30 @@ describe('push-with-region', () => {
 
   it('should call login with default domain when region is US', async () => {
     redoclyClient.domain = 'redoc.ly';
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      branchName: 'test',
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        branchName: 'test',
+      },
+      ConfigFixture as any
+    );
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
   });
 
   it('should call login with EU domain when region is EU', async () => {
     redoclyClient.domain = 'eu.redocly.com';
-    await handlePush({
-      upsert: true,
-      api: 'spec.json',
-      destination: '@org/my-api@1.0.0',
-      branchName: 'test',
-    });
+    await handlePush(
+      {
+        upsert: true,
+        api: 'spec.json',
+        destination: '@org/my-api@1.0.0',
+        branchName: 'test',
+      },
+      ConfigFixture as any
+    );
     expect(mockPromptClientToken).toBeCalledTimes(1);
     expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
   });

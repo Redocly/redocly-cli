@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './utils';
 
-const { version, name } = require('../package.json');
+export const { version, name } = require('../package.json');
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;

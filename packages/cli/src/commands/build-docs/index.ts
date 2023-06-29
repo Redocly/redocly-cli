@@ -5,18 +5,12 @@ import { performance } from 'perf_hooks';
 
 import { getObjectOrJSON, getPageHTML } from './utils';
 import type { BuildDocsArgv } from './types';
-import { getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
-import {
-  exitWithError,
-  getExecutionTime,
-  getFallbackApisOrExit,
-  loadConfigAndHandleErrors,
-} from '../../utils';
+import { Config, getMergedConfig, isAbsoluteUrl } from '@redocly/openapi-core';
+import { exitWithError, getExecutionTime, getFallbackApisOrExit } from '../../utils';
 
-export const handlerBuildCommand = async (argv: BuildDocsArgv) => {
+export const handlerBuildCommand = async (argv: BuildDocsArgv, configFromFile: Config) => {
   const startedAt = performance.now();
 
-  const configFromFile = await loadConfigAndHandleErrors({ configPath: argv.config });
   const config = getMergedConfig(configFromFile, argv.api);
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);

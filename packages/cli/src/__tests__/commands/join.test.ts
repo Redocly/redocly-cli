@@ -3,6 +3,7 @@ import { exitWithError, writeYaml } from '../../utils';
 import { yellow } from 'colorette';
 import { detectOpenAPI } from '@redocly/openapi-core';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
+import { ConfigFixture } from '../fixtures/config';
 
 jest.mock('../../utils');
 jest.mock('colorette');
@@ -12,7 +13,7 @@ describe('handleJoin fails', () => {
   colloreteYellowMock.mockImplementation((string: string) => string);
 
   it('should call exitWithError because only one entrypoint', async () => {
-    await handleJoin({ apis: ['first.yaml'] }, 'cli-version');
+    await handleJoin({ apis: ['first.yaml'] }, {} as any, 'cli-version');
     expect(exitWithError).toHaveBeenCalledWith(`At least 2 apis should be provided. \n\n`);
   });
 
@@ -24,6 +25,7 @@ describe('handleJoin fails', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
+      {} as any,
       'cli-version'
     );
 
@@ -39,6 +41,7 @@ describe('handleJoin fails', () => {
         'without-x-tag-groups': true,
         'prefix-tags-with-filename': true,
       },
+      {} as any,
       'cli-version'
     );
 
@@ -52,6 +55,7 @@ describe('handleJoin fails', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
+      ConfigFixture as any,
       'cli-version'
     );
     expect(exitWithError).toHaveBeenCalledWith('Only OpenAPI 3 is supported: undefined \n\n');
@@ -63,6 +67,7 @@ describe('handleJoin fails', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
+      ConfigFixture as any,
       'cli-version'
     );
 
@@ -76,6 +81,7 @@ describe('handleJoin fails', () => {
         apis: ['first.yaml', 'second.yaml'],
         output: 'output.yml',
       },
+      ConfigFixture as any,
       'cli-version'
     );
 
@@ -88,6 +94,7 @@ describe('handleJoin fails', () => {
       {
         apis: ['first.yaml', 'second.yaml'],
       },
+      ConfigFixture as any,
       'cli-version'
     );
 
@@ -104,6 +111,7 @@ describe('handleJoin fails', () => {
         decorate: true,
         preprocess: true,
       },
+      ConfigFixture as any,
       'cli-version'
     );
 

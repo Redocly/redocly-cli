@@ -1,8 +1,10 @@
 import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
-import { handleBundle } from '../../commands/bundle';
+import { BundleOptions, handleBundle } from '../../commands/bundle';
 import { handleError } from '../../utils';
+import { commandWrapper } from '../../wrapper';
 import SpyInstance = jest.SpyInstance;
+import { Arguments } from 'yargs';
 
 jest.mock('@redocly/openapi-core');
 jest.mock('../../utils');
@@ -31,14 +33,11 @@ describe('bundle', () => {
   it('bundles definitions w/o linting', async () => {
     const apis = ['foo.yaml', 'bar.yaml'];
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+    } as Arguments<BundleOptions>);
 
     expect(lint).toBeCalledTimes(0);
     expect(bundle).toBeCalledTimes(apis.length);
@@ -47,16 +46,13 @@ describe('bundle', () => {
   it('exits with code 0 when bundles definitions', async () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+    } as Arguments<BundleOptions>);
 
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -69,15 +65,12 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-        lint: true,
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+      lint: true,
+    } as Arguments<BundleOptions>);
 
     expect(lint).toBeCalledTimes(apis.length);
     expect(bundle).toBeCalledTimes(apis.length);
@@ -86,17 +79,14 @@ describe('bundle', () => {
   it('exits with code 0 when bundles definitions w/linting w/o errors', async () => {
     const apis = ['foo.yaml', 'bar.yaml', 'foobar.yaml'];
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-        lint: true,
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+      lint: true,
+    } as Arguments<BundleOptions>);
 
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(0);
   });
 
@@ -109,18 +99,15 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-        lint: true,
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+      lint: true,
+    } as Arguments<BundleOptions>);
 
     expect(lint).toBeCalledTimes(apis.length);
-    exitCb?.();
+    await exitCb?.();
     expect(processExitMock).toHaveBeenCalledWith(1);
   });
 
@@ -131,15 +118,12 @@ describe('bundle', () => {
       throw new Error('Invalid definition');
     });
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'json',
-        format: 'codeframe',
-        lint: false,
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'json',
+      format: 'codeframe',
+      lint: false,
+    } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(1);
     expect(handleError).toHaveBeenCalledWith(new Error('Invalid definition'), 'invalid.json');
@@ -154,15 +138,12 @@ describe('bundle', () => {
       ignored: 0,
     });
 
-    await handleBundle(
-      {
-        apis,
-        ext: 'yaml',
-        format: 'codeframe',
-        lint: false,
-      },
-      '1.0.0'
-    );
+    await commandWrapper(handleBundle)({
+      apis,
+      ext: 'yaml',
+      format: 'codeframe',
+      lint: false,
+    } as Arguments<BundleOptions>);
 
     expect(handleError).toHaveBeenCalledTimes(0);
   });

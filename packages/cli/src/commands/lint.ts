@@ -1,6 +1,5 @@
 import {
   Config,
-  doesYamlFileExist,
   findConfig,
   formatProblems,
   getMergedConfig,
@@ -8,9 +7,6 @@ import {
   lint,
   lintConfig,
   makeDocumentFromString,
-  ProblemSeverity,
-  RawConfig,
-  RuleSeverity,
   stringifyYaml,
 } from '@redocly/openapi-core';
 import {
@@ -19,37 +15,31 @@ import {
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  loadConfigAndHandleErrors,
   pluralize,
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
 } from '../utils';
-import type { CommonOptions, Skips, Totals } from '../types';
+import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@redocly/openapi-core';
+import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 
-export type LintOptions = CommonOptions &
-  Omit<Skips, 'skip-decorator'> & {
-    'generate-ignore-file'?: boolean;
-    'lint-config': RuleSeverity;
-  };
+export type LintOptions = {
+  apis?: string[];
+  'max-problems': number;
+  extends?: string[];
+  config?: string;
+  format: OutputFormat;
+  'generate-ignore-file'?: boolean;
+  'lint-config'?: RuleSeverity;
+} & Omit<Skips, 'skip-decorator'>;
 
-export async function handleLint(argv: LintOptions, version: string) {
-  if (argv.config && !doesYamlFileExist(argv.config)) {
-    return exitWithError('Please, provide valid path to the configuration file');
-  }
-
-  const config: Config = await loadConfigAndHandleErrors({
-    configPath: argv.config,
-    customExtends: argv.extends,
-    processRawConfig: lintConfigCallback(argv, version),
-  });
-
+export async function handleLint(argv: LintOptions, config: Config, version: string) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
 
   if (!apis.length) {
-    return exitWithError('No APIs were provided');
+    exitWithError('No APIs were provided');
   }
 
   if (argv['generate-ignore-file']) {
@@ -120,14 +110,15 @@ export async function handleLint(argv: LintOptions, version: string) {
 
   printUnusedWarnings(config.styleguide);
 
-  // defer process exit to allow STDOUT pipe to flush
-  // see https://github.com/nodejs/node-v0.x-archive/issues/3737#issuecomment-19156072
-  process.once('exit', () =>
-    process.exit(totals.errors === 0 || argv['generate-ignore-file'] ? 0 : 1)
-  );
+  if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
+    throw new Error('Lint failed.');
+  }
 }
 
-function lintConfigCallback(argv: LintOptions, version: string) {
+export function lintConfigCallback(
+  argv: CommandOptions & Record<string, undefined>,
+  version: string
+) {
   if (argv['lint-config'] === 'off') {
     return;
   }
@@ -138,7 +129,6 @@ function lintConfigCallback(argv: LintOptions, version: string) {
   }
 
   return async (config: RawConfig) => {
-    const { 'max-problems': maxProblems, format } = argv;
     const configPath = findConfig(argv.config) || '';
     const stringYaml = stringifyYaml(config);
     const configContent = makeDocumentFromString(stringYaml, configPath);
@@ -150,8 +140,8 @@ function lintConfigCallback(argv: LintOptions, version: string) {
     const fileTotals = getTotals(problems);
 
     formatProblems(problems, {
-      format,
-      maxProblems,
+      format: argv.format,
+      maxProblems: argv['max-problems'],
       totals: fileTotals,
       version,
     });

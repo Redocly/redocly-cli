@@ -1,3 +1,15 @@
+import {
+  devOnboardingConfigSchema,
+  i18nConfigSchema,
+  mockServerConfigSchema,
+  rbacConfigSchema,
+  redirectConfigSchema,
+  responseHeaderSchema,
+  scorecardConfigSchema,
+  seoConfigSchema,
+  ssoConfigSchema,
+  themeConfigSchema,
+} from './config-external-schemas';
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 
@@ -161,6 +173,7 @@ const ConfigRoot: NodeType = {
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     region: { enum: ['us', 'eu'] },
+    telemetry: { enum: ['on', 'off'] },
     resolve: {
       properties: {
         http: 'ConfigHTTP',
@@ -173,6 +186,16 @@ const ConfigRoot: NodeType = {
         type: 'string',
       },
     },
+    redirects: { type: 'object', additionalProperties: redirectConfigSchema },
+    licenseKey: { type: 'string' },
+    seo: seoConfigSchema,
+    rbac: rbacConfigSchema,
+    responseHeaders: responseHeaderSchema,
+    mockServer: mockServerConfigSchema,
+    sso: ssoConfigSchema,
+    developerOnboarding: devOnboardingConfigSchema,
+    scorecard: scorecardConfigSchema,
+    i18n: i18nConfigSchema,
   },
 };
 
@@ -202,6 +225,9 @@ const ConfigApisProperties: NodeType = {
         type: 'string',
       },
     },
+    title: { type: 'string' },
+    rbac: { type: 'object' },
+    metadata: { type: 'object' },
   },
   required: ['root'],
 };
@@ -219,6 +245,7 @@ const ConfigHTTP: NodeType = {
 
 const ConfigRootTheme: NodeType = {
   properties: {
+    ...themeConfigSchema.properties,
     openapi: 'ConfigReferenceDocs',
     mockServer: 'ConfigMockServer',
   },

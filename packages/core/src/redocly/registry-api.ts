@@ -8,6 +8,7 @@ import type {
 import type { AccessTokens, Region } from '../config/types';
 import { DEFAULT_REGION, DOMAINS } from '../config/config';
 import { isNotEmptyObject } from '../utils';
+
 const version = require('../../package.json').version;
 
 export class RegistryApi {
