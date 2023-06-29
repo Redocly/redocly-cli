@@ -3,8 +3,8 @@
 Verifies component names are unique.
 
 |OAS|Compatibility|
-|---|---|
-|2.0|✅|
+|---|--|
+|2.0|❌|
 |3.0|✅|
 |3.1|✅|
 
