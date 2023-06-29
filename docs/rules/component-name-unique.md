@@ -80,7 +80,7 @@ components:
           type: string
 ```
 
-### Example of a **correct** schema files
+### Example of **correct** schema files
 
 file1.yaml:
 ```yaml
