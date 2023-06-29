@@ -38,46 +38,6 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     typeNames.push(TYPE_NAME_REQUEST_BODY);
   }
 
-  function getOptionComponentNameForTypeName(typeName: string): string | null {
-    return TYPE_NAME_TO_OPTION_COMPONENT_NAME[typeName] ?? null;
-  }
-
-  function getComponentNameFromAbsoluteLocation(absoluteLocation: string): string {
-    const componentName = absoluteLocation.split('/').slice(-1)[0];
-    if (
-      componentName.endsWith('.yml') ||
-      componentName.endsWith('.yaml') ||
-      componentName.endsWith('.json')
-    ) {
-      return componentName.slice(0, componentName.lastIndexOf('.'));
-    }
-    return componentName;
-  }
-
-  function addFoundComponent(
-    typeName: string,
-    componentName: string,
-    absoluteLocation: string
-  ): void {
-    const key = getKeyForComponent(typeName, componentName);
-    const locations = components.get(key) ?? new Set();
-    locations.add(absoluteLocation);
-    components.set(key, locations);
-  }
-
-  function getKeyForComponent(typeName: string, componentName: string): string {
-    return `${typeName}/${componentName}`;
-  }
-  function getComponentFromKey(key: string): { typeName: string; componentName: string } {
-    const [typeName, componentName] = key.split('/');
-    return { typeName, componentName };
-  }
-
-  function addComponentFromAbsoluteLocation(typeName: string, absoluteLocation: string): void {
-    const componentName = getComponentNameFromAbsoluteLocation(absoluteLocation);
-    addFoundComponent(typeName, componentName, absoluteLocation);
-  }
-
   const rule: Oas3Visitor = {
     ref: {
       leave(ref: OasRef, { type, resolve }: UserContext) {
@@ -154,4 +114,45 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   }
 
   return rule;
+
+  function getComponentNameFromAbsoluteLocation(absoluteLocation: string): string {
+    const componentName = absoluteLocation.split('/').slice(-1)[0];
+    if (
+      componentName.endsWith('.yml') ||
+      componentName.endsWith('.yaml') ||
+      componentName.endsWith('.json')
+    ) {
+      return componentName.slice(0, componentName.lastIndexOf('.'));
+    }
+    return componentName;
+  }
+
+  function addFoundComponent(
+    typeName: string,
+    componentName: string,
+    absoluteLocation: string
+  ): void {
+    const key = getKeyForComponent(typeName, componentName);
+    const locations = components.get(key) ?? new Set();
+    locations.add(absoluteLocation);
+    components.set(key, locations);
+  }
+
+  function addComponentFromAbsoluteLocation(typeName: string, absoluteLocation: string): void {
+    const componentName = getComponentNameFromAbsoluteLocation(absoluteLocation);
+    addFoundComponent(typeName, componentName, absoluteLocation);
+  }
 };
+
+function getOptionComponentNameForTypeName(typeName: string): string | null {
+  return TYPE_NAME_TO_OPTION_COMPONENT_NAME[typeName] ?? null;
+}
+
+function getKeyForComponent(typeName: string, componentName: string): string {
+  return `${typeName}/${componentName}`;
+}
+
+function getComponentFromKey(key: string): { typeName: string; componentName: string } {
+  const [typeName, componentName] = key.split('/');
+  return { typeName, componentName };
+}
