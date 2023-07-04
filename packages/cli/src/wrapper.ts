@@ -20,7 +20,7 @@ export function commandWrapper<T extends CommandOptions>(
         configPath: argv.config,
         customExtends: argv.extends as string[] | undefined,
         region: argv.region as Region,
-        files: argv.file as string[] | undefined,
+        files: argv.files as string[] | undefined,
         processRawConfig: lintConfigCallback(argv as T & Record<string, undefined>, version),
       })) as Config;
       telemetry = config.telemetry;
