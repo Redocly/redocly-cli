@@ -14,7 +14,7 @@ module.exports = {
     'packages/core/': {
       statements: 80,
       branches: 71,
-      functions: 69,
+      functions: 70,
       lines: 80,
     },
     'packages/cli/': {
