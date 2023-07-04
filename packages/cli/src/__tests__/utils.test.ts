@@ -505,7 +505,7 @@ describe('cleanArgs', () => {
     };
     expect(cleanArgs(testArgs)).toEqual({
       config: 'file-yaml',
-      apis: ['main@v1', 'file-yaml', 'http://url'],
+      apis: ['api-name@api-version', 'file-yaml', 'http://url'],
       format: 'codeframe',
     });
   });
@@ -514,7 +514,7 @@ describe('cleanArgs', () => {
       destination: '@org/name@version',
     };
     expect(cleanArgs(testArgs)).toEqual({
-      destination: '@organization/name@version',
+      destination: '@organization/api-name@api-version',
     });
   });
 });
@@ -535,7 +535,7 @@ describe('cleanRawInput', () => {
     const rawInput = [
       'redocly',
       'bundle',
-      'main@v1',
+      'api-name@api-version',
       './fixtures/openapi.yaml',
       'http://some.url/openapi.yaml',
       '--config=fixtures/redocly.yaml',
@@ -543,7 +543,22 @@ describe('cleanRawInput', () => {
       'fixtures',
     ];
     expect(cleanRawInput(rawInput)).toEqual(
-      'redocly bundle main@v1 file-yaml http://url --config=file-yaml --output folder'
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder'
+    );
+  });
+  it('should preserve safe data from raw CLI input', () => {
+    const rawInput = [
+      'redocly',
+      'lint',
+      './fixtures/openapi.json',
+      '--format',
+      'stylish',
+      '--extends=minimal',
+      '--skip-rule',
+      'operation-4xx-response',
+    ];
+    expect(cleanRawInput(rawInput)).toEqual(
+      'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
     );
   });
 });

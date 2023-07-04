@@ -562,7 +562,7 @@ function cleanString(value?: string): string | undefined {
     return 'folder';
   }
   if (DESTINATION_REGEX.test(value)) {
-    return value.replace(/^@[\w\-\s]+\//, () => '@organization/');
+    return value.startsWith('@') ? '@organization/api-name@api-version' : 'api-name@api-version';
   }
   return value;
 }
