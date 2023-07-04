@@ -5,12 +5,22 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.130 (2023-07-?)
+
+### Features
+
+- Added new rule `component-name-unique` to check for unique component names
+
+### Fixes
+
+- Fixed an issue when the `--files` option of the `push` command did not upload extra files
 
 ## 1.0.0-beta.129 (2023-06-26)
 
 ### Features
 
 - Added product metrics collection.
+
 ### Fixes
 
 - Fixed build-docs command not working in Docker.
