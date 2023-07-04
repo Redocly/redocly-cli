@@ -2,7 +2,8 @@ import { loadConfigAndHandleErrors, sendTelemetry } from '../utils';
 import * as process from 'process';
 import { commandWrapper } from '../wrapper';
 import { handleLint } from '../commands/lint';
-import nodeFetch from 'node-fetch';
+import { Arguments } from 'yargs';
+import { handlePush, PushOptions } from '../commands/push';
 
 jest.mock('node-fetch');
 jest.mock('../utils', () => ({
@@ -39,5 +40,18 @@ describe('commandWrapper', () => {
     expect(handleLint).toHaveBeenCalledTimes(1);
 
     expect(sendTelemetry).toHaveBeenCalledTimes(0);
+  });
+
+  it('should pass files from arguments to config', async () => {
+    const filesToPush = ['test1.yaml', 'test2.yaml'];
+
+    const loadConfigMock = loadConfigAndHandleErrors as jest.Mock<any, any>;
+
+    const argv = {
+      files: filesToPush,
+    } as Arguments<PushOptions>;
+
+    await commandWrapper(handlePush)(argv);
+    expect(loadConfigMock).toHaveBeenCalledWith(expect.objectContaining({ files: filesToPush }));
   });
 });
