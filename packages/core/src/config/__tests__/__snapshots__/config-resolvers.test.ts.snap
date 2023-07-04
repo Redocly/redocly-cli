@@ -38,6 +38,7 @@ Object {
   "rules": Object {
     "assertions": "warn",
     "boolean-parameter-prefixes": "error",
+    "component-name-unique": "off",
     "info-contact": "off",
     "info-license": "warn",
     "info-license-url": "warn",
@@ -128,6 +129,7 @@ Object {
       },
     ],
     "boolean-parameter-prefixes": "error",
+    "component-name-unique": "off",
     "info-contact": "off",
     "info-license": "warn",
     "info-license-url": "warn",
