@@ -496,7 +496,6 @@ export async function sendTelemetry(
     } = argv;
     const event_time = new Date().toISOString();
     const redoclyClient = new RedoclyClient();
-    const node_version = process.version;
     const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
     const data: Analytics = {
       event: 'cli_command',
@@ -504,10 +503,11 @@ export async function sendTelemetry(
       logged_in,
       command,
       arguments: cleanArgs(args),
-      node_version,
+      node_version: process.version,
       version,
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
+      environment_ci: process.env.CI,
       raw_input: cleanRawInput(process.argv.slice(2)),
       has_config,
     };
@@ -535,6 +535,7 @@ export type Analytics = {
   version: string;
   exit_code: ExitCode;
   environment?: string;
+  environment_ci?: string;
   raw_input: string;
   has_config?: boolean;
 };
@@ -552,16 +553,16 @@ function cleanString(value?: string): string | undefined {
     return value;
   }
   if (isAbsoluteUrl(value)) {
-    return value.split('://')[0] + '://***';
+    return value.split('://')[0] + '://url';
   }
   if (isFile(value)) {
-    return value.replace(/.+\.([^.]+)$/, (_, ext) => '***.' + ext);
+    return value.replace(/.+\.([^.]+)$/, (_, ext) => 'file-' + ext);
   }
   if (isDirectory(value)) {
-    return 'FOLDER';
+    return 'folder';
   }
   if (DESTINATION_REGEX.test(value)) {
-    return value.replace(/^@[\w\-\s]+\//, () => '@***/');
+    return value.replace(/^@[\w\-\s]+\//, () => '@organization/');
   }
   return value;
 }

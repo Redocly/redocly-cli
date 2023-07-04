@@ -29,4 +29,6 @@ RUN npm cache clean --force && rm -rf /build
 
 WORKDIR /spec
 
-ENTRYPOINT [ "openapi" ]
+ENTRYPOINT [ "redocly" ]
+
+ENV REDOCLY_ENVIRONMENT=docker

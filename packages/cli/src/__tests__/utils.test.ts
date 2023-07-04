@@ -504,8 +504,8 @@ describe('cleanArgs', () => {
       format: 'codeframe',
     };
     expect(cleanArgs(testArgs)).toEqual({
-      config: '***.yaml',
-      apis: ['main@v1', '***.yaml', 'http://***'],
+      config: 'file-yaml',
+      apis: ['main@v1', 'file-yaml', 'http://url'],
       format: 'codeframe',
     });
   });
@@ -514,7 +514,7 @@ describe('cleanArgs', () => {
       destination: '@org/name@version',
     };
     expect(cleanArgs(testArgs)).toEqual({
-      destination: '@***/name@version',
+      destination: '@organization/name@version',
     });
   });
 });
@@ -543,7 +543,7 @@ describe('cleanRawInput', () => {
       'fixtures',
     ];
     expect(cleanRawInput(rawInput)).toEqual(
-      'redocly bundle main@v1 ***.yaml http://*** --config=***.yaml --output FOLDER'
+      'redocly bundle main@v1 file-yaml http://url --config=file-yaml --output folder'
     );
   });
 });
