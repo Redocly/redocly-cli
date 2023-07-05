@@ -228,7 +228,7 @@ components:
           type: 'null'
         tag:
           type:
-            - null
+            - 'null'
             - string
             - integer
           examples:
@@ -287,11 +287,6 @@ components:
             - string
             - 'null'
         eleven:
-          description: x-nullable string
-          type:
-            - string
-            - null
-        twelve:
           description: file/binary
     person:
       type: object
@@ -322,7 +317,7 @@ components:
           description: location can be null, set using `nullable` property thats supported by OpenAPI `3.0.x`
           type:
             - string
-            - null
+            - 'null' 
         age:
           description: Age of Person
           type: integer
