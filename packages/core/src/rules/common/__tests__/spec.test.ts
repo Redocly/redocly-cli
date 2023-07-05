@@ -455,7 +455,7 @@ describe('Oas3.1 spec', () => {
     `);
   });
 
-  it('should not report about unknown type', async () => {
+  it('should report about `type: null` and not report `type: "null"`', async () => {
     const document = parseYamlToDocument(
       outdent`
       openapi: 3.1.0
@@ -468,10 +468,18 @@ describe('Oas3.1 spec', () => {
           url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
       components:
         schemas:
-          TestSchema:
-            title: TestSchema
-            description: Property name's description
+          WrongType:
             type: null
+          CorrectType:
+            type: "null"
+          WrongArrayType:
+            type:
+              - null
+              - string
+          CorrectArrayType:
+            type:
+              - 'null'
+              - string
         `
     );
 
@@ -481,7 +489,54 @@ describe('Oas3.1 spec', () => {
       config: await makeConfig({ spec: 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/schemas/WrongType/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [
+            "object",
+            "array",
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null",
+          ],
+        },
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/components/schemas/WrongArrayType/type/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [
+            "object",
+            "array",
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null",
+          ],
+        },
+      ]
+    `);
   });
 
   it('should not report on SpecExtension with additionalProperties', async () => {
