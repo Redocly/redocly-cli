@@ -317,7 +317,7 @@ components:
           description: location can be null, set using `nullable` property thats supported by OpenAPI `3.0.x`
           type:
             - string
-            - 'null' 
+            - 'null'
         age:
           description: Age of Person
           type: integer
