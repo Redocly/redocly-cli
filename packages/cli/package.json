@@ -40,15 +40,17 @@
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "handlebars": "^4.7.6",
-    "mobx": "^6.3.2",
     "portfinder": "^1.0.26",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "redoc": "~2.0.0",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
-    "styled-components": "5.3.3",
     "yargs": "17.0.1"
+  },
+  "peerDependencies": {
+    "mobx": "^6.0.4",
+    "react": "^16.8.4 || ^17.0.0",
+    "react-dom": "^16.8.4 || ^17.0.0",
+    "styled-components": "^4.1.1 || ^5.1.1"
   },
   "devDependencies": {
     "@types/configstore": "^5.0.1",
