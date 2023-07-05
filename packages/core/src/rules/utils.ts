@@ -70,6 +70,8 @@ export function validateDefinedAndNonEmpty(fieldName: string, value: any, ctx: U
 }
 
 export function getSuggest(given: string, variants: string[]): string[] {
+  if (given === null) return variants;
+
   if (typeof given !== 'string' || !variants.length) return [];
 
   const distances: Array<{ variant: string; distance: number }> = [];
@@ -157,7 +159,7 @@ export function validateSchemaEnumType(
   if (!schemaEnum) {
     return;
   }
-  if (!schemaEnum.includes(propertyValue === null ? 'null' : propertyValue)) {
+  if (!schemaEnum.includes(propertyValue)) {
     report({
       location,
       message: `\`${propName}\` can be one of the following only: ${schemaEnum
