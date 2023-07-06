@@ -38,7 +38,7 @@ npx @redocly/cli@latest lint petstore.yaml
 
 Redocly CLI is available as a pre-built Docker image in [Docker Hub](https://hub.docker.com/r/redocly/cli) and [GitHub Packages](https://github.com/Redocly/redocly-cli/pkgs/container/cli).
 
-If you have [Docker](https://docs.docker.com/get-docker/) installed, pull the image with the following command:
+Install [Docker](https://docs.docker.com/get-docker/) if you don't have it already, then pull the image with the following command:
 
 ```shell Docker Hub
 docker pull redocly/cli
