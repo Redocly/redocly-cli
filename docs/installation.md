@@ -36,6 +36,18 @@ npx @redocly/cli@latest lint petstore.yaml
 
 ## <a id="docker"></a>Run commands inside Docker
 
+Redocly CLI is available as a pre-built Docker image in [Docker Hub](https://hub.docker.com/r/redocly/cli) and [GitHub Packages](https://github.com/Redocly/redocly-cli/pkgs/container/cli).
+
+Install [Docker](https://docs.docker.com/get-docker/) if you don't have it already, then pull the image with the following command:
+
+```shell Docker Hub
+docker pull redocly/cli
+```
+
+```shell GitHub Packages
+docker pull ghcr.io/redocly/cli
+```
+
 To give a Docker container access to your OpenAPI definition files, you need to mount the containing directory as a volume. Assuming the definition is in the current working directory, the command to use is:
 
 ```shell Example with lint command
