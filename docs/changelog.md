@@ -20,7 +20,7 @@ toc:
 
 ### Changes
 
-- Improved data obfuscation.
+- Additional data masking for the anonymous data collection feature.
 - Added fetch request timeout to prevent hanging the tool when executing commands.
 
 ## 1.0.0-beta.129 (2023-06-26)
