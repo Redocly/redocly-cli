@@ -10,7 +10,7 @@ toc:
 ### Features
 
 - Added new rule `component-name-unique` to check for unique component names (kudos to @pboos 🎉).
-- Added docker container to GitHub packages.
+- Added docker container to GitHub container registry.
 
 ### Fixes
 
