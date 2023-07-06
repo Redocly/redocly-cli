@@ -5,15 +5,23 @@ toc:
 
 # Redocly CLI changelog
 
-## 1.0.0-beta.130 (2023-07-?)
+## 1.0.0-beta.130 (2023-07-06)
 
 ### Features
 
 - Added new rule `component-name-unique` to check for unique component names (kudos to @pboos 🎉).
+- Added docker container to GitHub packages.
 
 ### Fixes
 
-- Fixed an issue when the `--files` option of the `push` command did not upload extra files
+- Fixed an issue when the `--files` option of the `push` command did not upload extra files.
+- Fixed wrong schema type validation.
+- Fixed issue with broken styles in `build-docs` command.
+
+### Changes
+
+- Improved data obfuscation.
+- Added fetch request timeout to prevent hanging the tool when executing commands.
 
 ## 1.0.0-beta.129 (2023-06-26)
 
