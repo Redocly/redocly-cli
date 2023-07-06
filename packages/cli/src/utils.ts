@@ -496,7 +496,6 @@ export async function sendTelemetry(
     } = argv;
     const event_time = new Date().toISOString();
     const redoclyClient = new RedoclyClient();
-    const node_version = process.version;
     const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
     const data: Analytics = {
       event: 'cli_command',
@@ -504,10 +503,11 @@ export async function sendTelemetry(
       logged_in,
       command,
       arguments: cleanArgs(args),
-      node_version,
+      node_version: process.version,
       version,
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
+      environment_ci: process.env.CI,
       raw_input: cleanRawInput(process.argv.slice(2)),
       has_config,
     };
@@ -535,22 +535,34 @@ export type Analytics = {
   version: string;
   exit_code: ExitCode;
   environment?: string;
+  environment_ci?: string;
   raw_input: string;
   has_config?: boolean;
 };
+
+function isFile(value: string) {
+  return fs.existsSync(value) && fs.statSync(value).isFile();
+}
+
+function isDirectory(value: string) {
+  return fs.existsSync(value) && fs.statSync(value).isDirectory();
+}
 
 function cleanString(value?: string): string | undefined {
   if (!value) {
     return value;
   }
   if (isAbsoluteUrl(value)) {
-    return value.split('://')[0] + '://***';
+    return value.split('://')[0] + '://url';
   }
-  if (value.endsWith('.json') || value.endsWith('.yaml') || value.endsWith('.yml')) {
-    return value.replace(/^(.*)\.(yaml|yml|json)$/gi, (_, __, ext) => '***.' + ext);
+  if (isFile(value)) {
+    return value.replace(/.+\.([^.]+)$/, (_, ext) => 'file-' + ext);
+  }
+  if (isDirectory(value)) {
+    return 'folder';
   }
   if (DESTINATION_REGEX.test(value)) {
-    return value.replace(/^@[\w\-\s]+\//, () => '@***/');
+    return value.startsWith('@') ? '@organization/api-name@api-version' : 'api-name@api-version';
   }
   return value;
 }

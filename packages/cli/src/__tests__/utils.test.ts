@@ -21,7 +21,7 @@ import {
   YamlParseError,
 } from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
-import { existsSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
 
@@ -489,16 +489,23 @@ describe('cleanArgs', () => {
   beforeEach(() => {
     // @ts-ignore
     isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
+    // @ts-ignore
+    existsSync = (value) => jest.requireActual('fs').existsSync(path.resolve(__dirname, value));
+    // @ts-ignore
+    statSync = (value) => jest.requireActual('fs').statSync(path.resolve(__dirname, value));
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
   it('should remove potentially sensitive data from args', () => {
     const testArgs = {
-      config: 'some-folder/redocly.yaml',
-      apis: ['main@v1', 'openapi.yaml', 'http://some.url/openapi.yaml'],
+      config: './fixtures/redocly.yaml',
+      apis: ['main@v1', 'fixtures/openapi.yaml', 'http://some.url/openapi.yaml'],
       format: 'codeframe',
     };
     expect(cleanArgs(testArgs)).toEqual({
-      config: '***.yaml',
-      apis: ['main@v1', '***.yaml', 'http://***'],
+      config: 'file-yaml',
+      apis: ['api-name@api-version', 'file-yaml', 'http://url'],
       format: 'codeframe',
     });
   });
@@ -507,26 +514,51 @@ describe('cleanArgs', () => {
       destination: '@org/name@version',
     };
     expect(cleanArgs(testArgs)).toEqual({
-      destination: '@***/name@version',
+      destination: '@organization/api-name@api-version',
     });
   });
 });
 
 describe('cleanRawInput', () => {
-  it('should remove  potentially sensitive data from raw CLI input', () => {
+  beforeEach(() => {
     // @ts-ignore
     isAbsoluteUrl = jest.requireActual('@redocly/openapi-core').isAbsoluteUrl;
-
+    // @ts-ignore
+    existsSync = (value) => jest.requireActual('fs').existsSync(path.resolve(__dirname, value));
+    // @ts-ignore
+    statSync = (value) => jest.requireActual('fs').statSync(path.resolve(__dirname, value));
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it('should remove  potentially sensitive data from raw CLI input', () => {
+    const rawInput = [
+      'redocly',
+      'bundle',
+      'api-name@api-version',
+      './fixtures/openapi.yaml',
+      'http://some.url/openapi.yaml',
+      '--config=fixtures/redocly.yaml',
+      '--output',
+      'fixtures',
+    ];
+    expect(cleanRawInput(rawInput)).toEqual(
+      'redocly bundle api-name@api-version file-yaml http://url --config=file-yaml --output folder'
+    );
+  });
+  it('should preserve safe data from raw CLI input', () => {
     const rawInput = [
       'redocly',
       'lint',
-      'main@v1',
-      'openapi.yaml',
-      'http://some.url/openapi.yaml',
-      '--config=some-folder/redocly.yaml',
+      './fixtures/openapi.json',
+      '--format',
+      'stylish',
+      '--extends=minimal',
+      '--skip-rule',
+      'operation-4xx-response',
     ];
     expect(cleanRawInput(rawInput)).toEqual(
-      'redocly lint main@v1 ***.yaml http://*** --config=***.yaml'
+      'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
     );
   });
 });
