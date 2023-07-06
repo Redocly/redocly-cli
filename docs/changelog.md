@@ -5,12 +5,30 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.130 (2023-07-06)
+
+### Features
+
+- Added new rule `component-name-unique` to check for unique component names (kudos to @pboos 🎉).
+- Added docker container to GitHub container registry.
+
+### Fixes
+
+- Fixed an issue when the `--files` option of the `push` command did not upload extra files.
+- Fixed nullable schema type validation for OAS 3.1.
+- Added peer dependencies to fix an issue with styles seen in the build-docs command.
+
+### Changes
+
+- Additional data masking for the anonymous data collection feature.
+- Added fetch request timeout to prevent hanging the tool when executing commands.
 
 ## 1.0.0-beta.129 (2023-06-26)
 
 ### Features
 
 - Added product metrics collection.
+
 ### Fixes
 
 - Fixed build-docs command not working in Docker.
