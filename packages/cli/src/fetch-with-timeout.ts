@@ -1,6 +1,6 @@
 import nodeFetch from 'node-fetch';
 
-const TIMEOUT = 3000;
+const TIMEOUT = 10000;
 
 export default async (url: string, options = {}) => {
   if (!AbortController) {
