@@ -1,4 +1,4 @@
-import fetch from './fetch-with-timeout';
+import fetch from 'node-fetch';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
