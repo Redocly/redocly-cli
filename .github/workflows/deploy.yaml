@@ -79,7 +79,7 @@ jobs:
         with:
           images: |
             redocly/cli
-            ghcr.io/redocly/redocly-cli
+            ghcr.io/redocly/cli
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
