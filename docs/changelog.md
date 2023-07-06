@@ -16,7 +16,7 @@ toc:
 
 - Fixed an issue when the `--files` option of the `push` command did not upload extra files.
 - Fixed wrong schema type validation.
-- Fixed issue with broken styles in `build-docs` command.
+- Added peer dependencies to fix an issue with styles seen in the build-docs command.
 
 ### Changes
 
