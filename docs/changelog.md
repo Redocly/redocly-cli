@@ -9,7 +9,7 @@ toc:
 
 ### Features
 
-- Added new rule `component-name-unique` to check for unique component names
+- Added new rule `component-name-unique` to check for unique component names (kudos to @pboos 🎉).
 
 ### Fixes
 
