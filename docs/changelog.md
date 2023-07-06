@@ -15,7 +15,7 @@ toc:
 ### Fixes
 
 - Fixed an issue when the `--files` option of the `push` command did not upload extra files.
-- Fixed wrong schema type validation.
+- Fixed nullable schema type validation for OAS 3.1.
 - Added peer dependencies to fix an issue with styles seen in the build-docs command.
 
 ### Changes
