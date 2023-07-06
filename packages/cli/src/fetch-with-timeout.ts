@@ -3,7 +3,7 @@ import nodeFetch from 'node-fetch';
 const TIMEOUT = 3000;
 
 export default async (url: string, options = {}) => {
-  if (!AbortController) {
+  if (!global.AbortController) {
     return nodeFetch(url, options);
   }
 
