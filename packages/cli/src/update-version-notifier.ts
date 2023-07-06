@@ -2,7 +2,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { existsSync, writeFileSync, readFileSync, statSync } from 'fs';
 import { compare } from 'semver';
-import fetch from 'node-fetch';
+import fetch from './fetch-with-timeout';
 import { cyan, green, yellow } from 'colorette';
 import { cleanColors } from './utils';
 
