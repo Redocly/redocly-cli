@@ -7,7 +7,9 @@ Redocly CLI can identify and report on problems found in OpenAPI definitions. Th
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
 :::success Tip
-To learn more about preprocessors and rules, refer to the [custom plugins](../resources/custom-plugins.md) page.
+
+To learn more about choosing and configuring linting rules to meet your needs, visit the [API standards](../api-standards.md) page.
+
 :::
 
 ## Usage
@@ -27,11 +29,11 @@ redocly lint --version
 | apis                   | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.                          |
 | --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                              |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                       |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`.           |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe` |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                     |
 | --help                 | boolean  | Show help.                                                                                                                         |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems).                                              |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                        |
 | --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                       |
 | --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                               |
 | --version              | boolean  | Show version number.                                                                                                               |
@@ -48,7 +50,7 @@ The `lint` command behaves differently depending on how you pass apis to it and 
 redocly lint openapi/openapi.yaml
 ```
 
-In this case, `lint` validates the definition(s) passed to the command. The configuration file is ignored.
+In this case, `lint` validates the definition(s) passed to the command. If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used. If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
 
 The `apis` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 

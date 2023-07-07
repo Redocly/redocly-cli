@@ -2,15 +2,9 @@
 
 ## Introduction
 
-:::warning Note
-
-Before proceeding with the command, [generate a personal API key](../../settings/personal-api-keys.md).
-
-:::
-
 Use the `login` command to authenticate to the API registry.
 
-When you log in, the `preview-docs` command starts a preview server using Redocly API reference docs with all of the premium features.
+When you log in, the `preview-docs` command starts a preview server using Redocly API reference docs with all of the premium features. Users who are not logged in see a Redoc community edition version of their documentation.
 
 Also, you can access your members-only (private) API definitions in the Redocly registry, and use the [`push`](./push.md) command.
 
@@ -18,6 +12,12 @@ If you're having issues with the `login` command, use the `--verbose` option to 
 
 
 ## Usage
+
+:::warning Note
+
+Go ahead and [generate a personal API key](../../settings/personal-api-keys.md), this is needed to log in.
+
+:::
 
 ```bash
 redocly login [--help] [--verbose] [--version]
