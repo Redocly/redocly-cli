@@ -2,7 +2,6 @@
 
 
 cd ../__tmp__
-
 rm -rf node_modules package-lock.json yarn.lock .yarn
 
 echo "Yarn version:"

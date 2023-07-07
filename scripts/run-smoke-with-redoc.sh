@@ -12,7 +12,7 @@ echo "Directory content:"
 ls -a
 echo
 
-npm i redocly-cli.tgz
+npm i redocly-cli.tgz redoc
 
 npm run l
 npm run b

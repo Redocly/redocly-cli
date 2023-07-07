@@ -25,6 +25,9 @@ jobs:
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
 
+      - name: Run Smoke with Redoc
+        run: bash ./scripts/run-smoke-with-redoc.sh
+
 
       - name: Switch Node 16
         uses: actions/setup-node@v3
@@ -35,7 +38,8 @@ jobs:
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
 
-
+      - name: Run Smoke with Redoc
+        run: bash ./scripts/run-smoke-with-redoc.sh
 
       - name: Switch Node 14
         uses: actions/setup-node@v3
@@ -46,6 +50,8 @@ jobs:
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
 
+      - name: Run Smoke with Redoc
+        run: bash ./scripts/run-smoke-with-redoc.sh
 
       - name: Switch Node 12
         uses: actions/setup-node@v3
@@ -55,6 +61,9 @@ jobs:
 
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
+
+      - name: Run Smoke with Redoc
+        run: bash ./scripts/run-smoke-with-redoc.sh
 
   smoke-yarn:
     runs-on: ubuntu-latest
@@ -85,4 +94,5 @@ jobs:
 
       - name: Run Smoke
         run: bash ./scripts/run-smoke-yarn.sh
+
 
