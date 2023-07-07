@@ -25,15 +25,6 @@ jobs:
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
 
-      - name: Switch Node 14
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-          cache: 'npm'
-
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh
-
 
       - name: Switch Node 16
         uses: actions/setup-node@v3
@@ -46,3 +37,21 @@ jobs:
 
 
 
+      - name: Switch Node 14
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'npm'
+
+      - name: Run Smoke
+        run: bash ./scripts/run-smoke.sh
+
+
+      - name: Switch Node 12
+        uses: actions/setup-node@v3
+        with:
+          node-version: 12
+          cache: 'npm'
+
+      - name: Run Smoke
+        run: bash ./scripts/run-smoke.sh
