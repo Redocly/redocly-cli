@@ -14,6 +14,7 @@
   "scripts": {
     "compile": "tsc",
     "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js && cp src/commands/preview-docs/preview-server/oauth2-redirect.html lib/commands/preview-docs/preview-server/oauth2-redirect.html && cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs",
+    "prepack": "npm run copy-assets",
     "prepublishOnly": "npm run copy-assets"
   },
   "repository": {

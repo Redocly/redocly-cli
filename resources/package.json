@@ -1,0 +1,13 @@
+{
+  "name": "test-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "l": "redocly lint pets.yaml",
+    "b": "redocly bundle pets.yaml --output b.json",
+    "d": "redocly build-docs pets.yaml"
+  },
+  "author": "redocly",
+  "license": "ISC"
+}
