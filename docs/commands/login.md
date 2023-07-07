@@ -10,7 +10,6 @@ Also, you can access your members-only (private) API definitions in the Redocly 
 
 If you're having issues with the `login` command, use the `--verbose` option to display a detailed error trace (if any).
 
-
 ## Usage
 
 :::warning Note
@@ -27,14 +26,13 @@ redocly login --verbose
 
 ## Options
 
-Option | Type | Description
--- | -- | --
---help | boolean | Show help.
---region, -r | string | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx).
---verbose | boolean | Include additional output.
---version | boolean | Show version number.
---config                   | string   | Specify path to the [config file](../configuration/index.mdx).                                                                                                
-
+| Option       | Type    | Description                                                                                                                                      |
+| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --help       | boolean | Show help.                                                                                                                                       |
+| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx). |
+| --verbose    | boolean | Include additional output.                                                                                                                       |
+| --version    | boolean | Show version number.                                                                                                                             |
+| --config     | string  | Specify path to the [config file](../configuration/index.mdx).                                                                                   |
 
 ## Examples
 

@@ -20,14 +20,14 @@ redocly split --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
---outDir | string | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.
---help | boolean | Show help.
---separator | string | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`).
---config | string | Specify path to the [config file](../configuration/index.mdx).
---version | boolean | Show version number.
+| Option      | Type    | Description                                                                                                                                                                              |
+| ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api         | string  | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.                                                                                        |
+| --outDir    | string  | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.                                           |
+| --help      | boolean | Show help.                                                                                                                                                                               |
+| --separator | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
+| --config    | string  | Specify path to the [config file](../configuration/index.mdx).                                                                                                                           |
+| --version   | boolean | Show version number.                                                                                                                                                                     |
 
 ## Example
 

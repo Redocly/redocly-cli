@@ -6,29 +6,29 @@ tocMaxDepth: 2
 
 Documentation commands:
 
-* [`preview-docs`](preview-docs.md) Preview API reference docs for the specified definition.
-* [`build-docs`](build-docs.md) Build definition into an HTML file.
+- [`preview-docs`](preview-docs.md) Preview API reference docs for the specified definition.
+- [`build-docs`](build-docs.md) Build definition into an HTML file.
 
 API management commands:
 
-* [`stats`](stats.md) Gathering statistics for a document.
-* [`bundle`](bundle.md) Bundle definition.
-* [`split`](split.md) Split definition into a multi-file structure.
-* [`join`](join.md) Join definitions [experimental feature].
+- [`stats`](stats.md) Gathering statistics for a document.
+- [`bundle`](bundle.md) Bundle definition.
+- [`split`](split.md) Split definition into a multi-file structure.
+- [`join`](join.md) Join definitions [experimental feature].
 
 Linting commands:
 
-* [`lint`](lint.md) Lint definition.
+- [`lint`](lint.md) Lint definition.
 
 Redocly platform commands:
 
-* [`login`](login.md) Login to the Redocly API registry with an access token.
-* [`logout`](logout.md) Clear your stored credentials for the Redocly API registry.
-* [`push`](push.md) Push an API definition to the Redocly API registry.
+- [`login`](login.md) Login to the Redocly API registry with an access token.
+- [`logout`](logout.md) Clear your stored credentials for the Redocly API registry.
+- [`push`](push.md) Push an API definition to the Redocly API registry.
 
 Supporting commands:
-* [`completion`](completion.md) Generate autocomplete commands (includes install instructions).
 
+- [`completion`](completion.md) Generate autocomplete commands (includes install instructions).
 
 ## Additional options
 

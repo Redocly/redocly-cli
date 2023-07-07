@@ -14,21 +14,20 @@ redocly build-docs <api> --template custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
-
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.
---output, -o | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
---title | string | Sets the page title.
---disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.
---template, -t | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
---templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
---theme.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/).
---config | string | Specifies path to the [configuration file](#custom-configuration-file).
---help | boolean | Shows help.
---version | boolean | Shows version number.
+| Option              | Type    | Description                                                                                                                                                                                                                                             |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                 | string  | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.                                                                                                  |
+| --output, -o        | string  | Sets the path and name of the output file. The default value is `redoc-static.html`.                                                                                                                                                                    |
+| --title             | string  | Sets the page title.                                                                                                                                                                                                                                    |
+| --disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.                                                                                                                                                                                                    |
+| --template, -t      | string  | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.                                                                                                                                                        |
+| --templateOptions   | string  | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                                            |
+| --theme.openapi     | string  | Customizes your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/).                     |
+| --config            | string  | Specifies path to the [configuration file](#custom-configuration-file).                                                                                                                                                                                 |
+| --help              | boolean | Shows help.                                                                                                                                                                                                                                             |
+| --version           | boolean | Shows version number.                                                                                                                                                                                                                                   |
 
 ## Examples
 

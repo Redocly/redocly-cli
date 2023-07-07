@@ -14,10 +14,10 @@ redocly logout --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
---help | boolean | Show help.
---version | boolean | Show version number.
+| Option    | Type    | Description          |
+| --------- | ------- | -------------------- |
+| --help    | boolean | Show help.           |
+| --version | boolean | Show version number. |
 
 ## Examples
 

@@ -55,7 +55,7 @@ complete -o default -F _redocly_yargs_completions redocly
 
 The installation instructions are included in the output, showing how to run the command and add it to the correct file:
 
-* `redocly completion >> ~/.bashrc`
-* or on OSX: `redocly completion >> ~/.bash_profile`
+- `redocly completion >> ~/.bashrc`
+- or on OSX: `redocly completion >> ~/.bash_profile`
 
 Users of zsh receive similar output appropriate for their system.
