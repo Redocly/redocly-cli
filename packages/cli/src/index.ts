@@ -28,10 +28,10 @@ yargs
   .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
   .command(
     'stats [api]',
-    'Gathering statistics for a document.',
+    'Show statistics for an API description.',
     (yargs) =>
       yargs.positional('api', { type: 'string' }).option({
-        config: { description: 'Specify path to the config file.', type: 'string' },
+        config: { description: 'Path to the config file.', type: 'string' },
         format: {
           description: 'Use a specific output format.',
           choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
@@ -45,7 +45,7 @@ yargs
   )
   .command(
     'split [api]',
-    'Split definition into a multi-file structure.',
+    'Split an API definition into a multi-file structure.',
     (yargs) =>
       yargs
         .positional('api', {
@@ -65,7 +65,7 @@ yargs
             default: '_',
           },
           config: {
-            description: 'Specify path to the config file.',
+            description: 'Path to the config file.',
             requiresArg: true,
             type: 'string',
           },
@@ -116,7 +116,7 @@ yargs
             default: 'openapi.yaml',
           },
           config: {
-            description: 'Specify path to the config file.',
+            description: 'Path to the config file.',
             requiresArg: true,
             type: 'string',
           },
@@ -128,7 +128,7 @@ yargs
   )
 
   .command(
-    'push [api] [maybeDestination] [maybeBranchName]',
+    'push [api]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
@@ -169,12 +169,12 @@ yargs
           },
           'job-id': {
             description:
-              'Specifies the ID of the CI job that the current push will be associated with.',
+              'ID of the CI job that the current push will be associated with.',
             type: 'string',
             requiresArg: true,
           },
           'batch-size': {
-            description: 'Specifies the total number of CI jobs planned to be pushed.',
+            description: 'Number of CI pushes to expect in a batch.',
             type: 'number',
             requiresArg: true,
           },
@@ -185,7 +185,7 @@ yargs
             type: 'string',
           },
           public: {
-            description: 'Make API registry available to the public',
+            description: 'Make the API definition available to the public',
             type: 'boolean',
           },
           files: {
@@ -223,12 +223,12 @@ yargs
         },
         'max-problems': {
           requiresArg: true,
-          description: 'Reduce output to max N problems.',
+          description: 'Reduce output to a maximum of N problems.',
           type: 'number',
           default: 100,
         },
         'generate-ignore-file': {
-          description: 'Generate ignore file.',
+          description: 'Generate an ignore file.',
           type: 'boolean',
         },
         'skip-rule': {
@@ -242,12 +242,12 @@ yargs
           type: 'string',
         },
         'lint-config': {
-          description: 'Apply severity for linting the config file.',
+          description: 'Severity level for config file linting.',
           choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
           default: 'warn' as RuleSeverity,
         },
         config: {
-          description: 'Specify path to the config file.',
+          description: 'Path to the config file.',
           requiresArg: true,
           type: 'string',
         },
@@ -276,7 +276,7 @@ yargs
         },
         'max-problems': {
           requiresArg: true,
-          description: 'Reduce output to max N problems.',
+          description: 'Reduce output to a maximum of N problems.',
           type: 'number',
           default: 100,
         },
@@ -303,7 +303,7 @@ yargs
         dereferenced: {
           alias: 'd',
           type: 'boolean',
-          description: 'Produce fully dereferenced bundle.',
+          description: 'Produce a fully dereferenced bundle.',
         },
         force: {
           alias: 'f',
@@ -311,11 +311,11 @@ yargs
           description: 'Produce bundle output even when errors occur.',
         },
         config: {
-          description: 'Specify path to the config file.',
+          description: 'Path to the config file.',
           type: 'string',
         },
         lint: {
-          description: 'Lint definitions',
+          description: 'Lint API definitions',
           type: 'boolean',
           default: false,
         },
@@ -360,7 +360,7 @@ yargs
           choices: regionChoices,
         },
         config: {
-          description: 'Specify path to the config file.',
+          description: 'Path to the config file.',
           requiresArg: true,
           type: 'string',
         },
@@ -411,7 +411,7 @@ yargs
           type: 'string',
         },
         'use-community-edition': {
-          description: 'Force using Redoc CE for docs preview.',
+          description: 'Use Redoc CE for documentation preview.',
           type: 'boolean',
         },
         force: {
@@ -420,7 +420,7 @@ yargs
           description: 'Produce bundle output even when errors occur.',
         },
         config: {
-          description: 'Specify path to the config file.',
+          description: 'Path to the config file.',
           type: 'string',
         },
       }),
@@ -431,40 +431,40 @@ yargs
   )
   .command(
     'build-docs [api]',
-    'build definition into an HTML file',
+    'Produce API documentation as an HTML file',
     (yargs) =>
       yargs
         .positional('api', { type: 'string' })
         .options({
           o: {
-            describe: 'Output file',
+            describe: 'Output destination file.',
             alias: 'output',
             type: 'string',
             default: 'redoc-static.html',
           },
           title: {
-            describe: 'Page Title',
+            describe: 'Page title.',
             type: 'string',
           },
           disableGoogleFont: {
-            describe: 'Disable Google Font',
+            describe: 'Disable Google fonts.',
             type: 'boolean',
             default: false,
           },
           t: {
             alias: 'template',
-            describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example',
+            describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example.',
             type: 'string',
           },
           templateOptions: {
             describe:
-              'Additional options that you want pass to template. Use dot notation, e.g. templateOptions.metaDescription',
+              'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
           theme: {
-            describe: 'Redoc theme.openapi, use dot notation, e.g. theme.openapi.nativeScrollbars',
+            describe: 'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
           },
           config: {
-            describe: 'Specify path to the config file.',
+            describe: 'Path to the config file.',
             type: 'string',
           },
         })
