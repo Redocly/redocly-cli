@@ -45,7 +45,11 @@
     "redoc": "~2.0.0",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
-    "yargs": "17.0.1"
+    "yargs": "17.0.1",
+    "mobx": "^6.0.4",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "styled-components": "^5.1.1"
   },
   "peerDependencies": {
     "mobx": "^6.0.4",
