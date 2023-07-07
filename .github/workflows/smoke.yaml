@@ -78,8 +78,8 @@ jobs:
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
 
-      - run: bash ./scripts/run-smoke.sh "yarn global add ./openapi-core.tgz && yarn add ./redocly-cli-clean.tgz"
-      - run: bash ./scripts/run-smoke.sh "yarn global add ./openapi-core.tgz && yarn add redoc ./redocly-cli-clean.tgz"
+      - run: bash ./scripts/run-smoke.sh "yarn add ./redocly-cli-clean.tgz"
+      - run: bash ./scripts/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz"
      
 
       # - name: Prepare Smoke
