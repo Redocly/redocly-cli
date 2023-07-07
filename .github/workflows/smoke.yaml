@@ -70,6 +70,9 @@ jobs:
 
       - name: Prepare Smoke
         run: |
+          mkdir ../__tmp__
+          cp  ./resources/package.json ./resources/openapi.yaml ../__tmp__/
+        
           cd packages/cli
           npm pack
           pwd
