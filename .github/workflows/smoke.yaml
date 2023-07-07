@@ -41,6 +41,26 @@ jobs:
       - name: Run Smoke with Redoc
         run: bash ./scripts/run-smoke-with-redoc.sh
 
+      - name: Special Run with beta.129
+        run: |
+          cd ../__tmp__
+          rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
+
+          echo "NPM version:"
+          npm -v
+          echo
+
+          echo "Directory content:"
+          ls -a
+          echo
+
+          npm i redoc @redocly/cli@1.0.0-beta.129
+
+          npm run l
+          npm run b
+          npm run d
+
+
       - name: Switch Node 14
         uses: actions/setup-node@v3
         with:
