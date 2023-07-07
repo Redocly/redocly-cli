@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Running smoke test for $1"
+echo Running smoke test for command "$1"
 echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo
@@ -19,11 +19,10 @@ $($1)
 npm run l
 npm run b
 npm run d
-if [[ "$(wc -l redoc-static.html)" == "     317 redoc-static.html" ]]; then
+if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
   echo "Built correctly."
-else	
-	echo "Built incorrectly. Received lines:"
-	wc -l redoc-static.html
-	echo "Expected lines: 317."
+else
+  echo "Built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317)."
+	echo "Exiting with error"
   exit 1
 fi
