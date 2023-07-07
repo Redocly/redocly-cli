@@ -34,13 +34,10 @@ const isNewVersionAvailable = (current: string, latest: string) => compare(curre
 
 const getLatestVersion = async (packageName: string): Promise<string | undefined> => {
   const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
-  try {
-    const response = await fetch(latestUrl);
-    const info = await response?.json();
-    return info.version;
-  } catch (e) {
-    return;
-  }
+  const response = await fetch(latestUrl);
+  if (!response) return;
+  const info = await response.json();
+  return info.version;
 };
 
 export const cacheLatestVersion = () => {
