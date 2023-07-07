@@ -2,7 +2,15 @@
 
 
 cd ../__tmp__
-ls
+
+echo "NPM version:"
+npm -v
+echo
+
+echo "Directory content:"
+ls -a
+echo
+
 rm -rf node_modules package-lock.json yarn.lock
 
 npm i redocly-cli.tgz
