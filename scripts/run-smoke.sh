@@ -22,7 +22,6 @@ npm run d
 if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
   echo "Built correctly."
 else
-  echo "Built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317)."
-	echo "Exiting with error"
+  echo "Built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
   exit 1
 fi
