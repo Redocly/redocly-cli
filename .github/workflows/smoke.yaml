@@ -1,9 +1,13 @@
-name: Build and Test
+name: Smoke tests
 
 on:
   push:
     branches:
     - test/smoke
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
 
 jobs:
   smoke:
@@ -16,74 +20,46 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-        # env:
-        #   CI: true
+
+      - name: Install Yarn
+        run: npm i -g yarn@^1.22.19
 
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
 
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh
-
-      - name: Run Smoke with Redoc
-        run: bash ./scripts/run-smoke-with-redoc.sh
-
-
+      - name: Switch Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - run: bash ./scripts/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./scripts/run-smoke.sh "npm i redoc redocly-cli.tgz"
+     
       - name: Switch Node 16
         uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
-
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh
-
-      - name: Run Smoke with Redoc
-        run: bash ./scripts/run-smoke-with-redoc.sh
-
-      - name: Special Run with beta.129
-        run: |
-          cd ../__tmp__
-          rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
-
-          echo "NPM version:"
-          npm -v
-          echo
-
-          echo "Directory content:"
-          ls -a
-          echo
-
-          npm i redoc @redocly/cli@1.0.0-beta.129
-
-          npm run l
-          npm run b
-          npm run d
-
+      - run: bash ./scripts/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./scripts/run-smoke.sh "npm i redoc redocly-cli.tgz"
+    
 
       - name: Switch Node 14
         uses: actions/setup-node@v3
         with:
           node-version: 14
           cache: 'npm'
-
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh
-
-      - name: Run Smoke with Redoc
-        run: bash ./scripts/run-smoke-with-redoc.sh
+      - run: bash ./scripts/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./scripts/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
       - name: Switch Node 12
         uses: actions/setup-node@v3
         with:
           node-version: 12
           cache: 'npm'
+      - run: bash ./scripts/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./scripts/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh
-
-      - name: Run Smoke with Redoc
-        run: bash ./scripts/run-smoke-with-redoc.sh
 
   smoke-yarn:
     runs-on: ubuntu-latest
@@ -96,23 +72,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
      
-
-      - name: Prepare Smoke
-        run: |
-          mkdir ../__tmp__
-          cp  ./resources/package.json ./resources/openapi.yaml ../__tmp__/
-        
-          cd packages/cli
-          npm pack
-          pwd
-          ls
-          cp ./redocly-cli-1.0.0-beta.130.tgz ../../../__tmp__/redocly-cli-yarn.tgz
-      
       - name: Install Yarn
         run: npm i -g yarn@^1.22.19
 
+      - name: Prepare Smoke
+        run: bash ./scripts/prepare-smoke.sh
 
-      - name: Run Smoke
-        run: bash ./scripts/run-smoke-yarn.sh
+      - run: bash ./scripts/run-smoke.sh "yarn install && yarn add ./redocly-cli.tgz"
+      - run: bash ./scripts/run-smoke.sh "yarn install && yarn add redoc ./redocly-cli.tgz"
+     
+
+      # - name: Prepare Smoke
+      #   run: |
+      #     mkdir ../__tmp__
+      #     cp  ./resources/package.json ./resources/openapi.yaml ../__tmp__/
+        
+      #     cd packages/cli
+      #     npm pack
+      #     pwd
+      #     ls
+      #     cp ./redocly-cli-1.0.0-beta.130.tgz ../../../__tmp__/redocly-cli-yarn.tgz
+      
+      # - name: Install Yarn
+      #   run: npm i -g yarn@^1.22.19
+
+
+      # - name: Run Smoke
+      #   run: bash ./scripts/run-smoke-yarn.sh
 
 
