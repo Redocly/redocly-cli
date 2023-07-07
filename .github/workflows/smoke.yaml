@@ -18,18 +18,12 @@ jobs:
         run: npm ci
         env:
           CI: true
+
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
 
       - name: Run Smoke
-        run: |
-          cd ../__tmp__
-          npm i redocly-cli.tgz
-          npm run l
-          npm run b
-          npm run d
-      - name: Cleanup
-        run: rm -rf node_modules package-lock.json yarn.lock
+        run: bash ./scripts/run-smoke.sh
 
       - name: Switch Node 14
         uses: actions/setup-node@v3
@@ -38,14 +32,8 @@ jobs:
           cache: 'npm'
 
       - name: Run Smoke
-        run: |
-          cd ../__tmp__
-          npm i redocly-cli.tgz
-          npm run l
-          npm run b
-          npm run d
-      - name: Cleanup
-        run: rm -rf node_modules package-lock.json yarn.lock
+        run: bash ./scripts/run-smoke.sh
+
 
       - name: Switch Node 16
         uses: actions/setup-node@v3
@@ -54,13 +42,7 @@ jobs:
           cache: 'npm'
 
       - name: Run Smoke
-        run: |
-          cd ../__tmp__
-          npm i redocly-cli.tgz
-          npm run l
-          npm run b
-          npm run d
-      - name: Cleanup
-        run: rm -rf node_modules package-lock.json yarn.lock
+        run: bash ./scripts/run-smoke.sh
+
 
 

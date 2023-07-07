@@ -7,18 +7,4 @@ bash scripts/local-pack.sh
 ls ..
 mkdir ../__tmp__
 
-cp ./redocly-cli.tgz ./openapi-core.tgz ./resources/package.json ./resources/pets.yaml ../__tmp__/
-
-cd ../__tmp__
-
-ls
-
-
-
-
-# npm i redocly-cli.tgz
-
-# npm run l
-# npm run b
-# npm run d
-
+cp ./redocly-cli.tgz ./openapi-core.tgz ./resources/package.json ./resources/openapi.yaml ../__tmp__/
