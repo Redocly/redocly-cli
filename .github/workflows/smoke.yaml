@@ -16,8 +16,8 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-        env:
-          CI: true
+        # env:
+        #   CI: true
 
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
@@ -55,3 +55,31 @@ jobs:
 
       - name: Run Smoke
         run: bash ./scripts/run-smoke.sh
+
+  smoke-yarn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+     
+
+      - name: Prepare Smoke
+        run: |
+          cd packages/cli
+          npm pack
+          pwd
+          ls
+          cp ./redocly-cli-1.0.0-beta.130.tgz ../../../__tmp__/redocly-cli-yarn.tgz
+      
+      - name: Install Yarn
+        run: npm i -g yarn@^1.22.19
+
+
+      - name: Run Smoke
+        run: bash ./scripts/run-smoke-yarn.sh
+
