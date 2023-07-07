@@ -32,9 +32,10 @@ export const notifyUpdateCliVersion = () => {
 
 const isNewVersionAvailable = (current: string, latest: string) => compare(current, latest) < 0;
 
-const getLatestVersion = async (packageName: string): Promise<string> => {
+const getLatestVersion = async (packageName: string): Promise<string | undefined> => {
   const latestUrl = `http://registry.npmjs.org/${packageName}/latest`;
   const response = await fetch(latestUrl);
+  if (!response) return;
   const info = await response.json();
   return info.version;
 };
@@ -46,8 +47,10 @@ export const cacheLatestVersion = () => {
 
   getLatestVersion(name)
     .then((version) => {
-      const lastCheckFile = join(tmpdir(), VERSION_CACHE_FILE);
-      writeFileSync(lastCheckFile, version);
+      if (version) {
+        const lastCheckFile = join(tmpdir(), VERSION_CACHE_FILE);
+        writeFileSync(lastCheckFile, version);
+      }
     })
     .catch(() => {});
 };

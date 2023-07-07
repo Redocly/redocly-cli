@@ -496,7 +496,7 @@ export async function sendTelemetry(
     } = argv;
     const event_time = new Date().toISOString();
     const redoclyClient = new RedoclyClient();
-    const logged_in = await redoclyClient.isAuthorizedWithRedoclyByRegion();
+    const logged_in = redoclyClient.hasTokens();
     const data: Analytics = {
       event: 'cli_command',
       event_time,
