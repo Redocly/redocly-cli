@@ -2,7 +2,7 @@
 
 
 cd ../__tmp__
-rm -rf node_modules package-lock.json yarn.lock .yarn
+rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
 
 echo "Yarn version:"
 yarn --version

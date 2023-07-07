@@ -2,7 +2,7 @@
 
 
 cd ../__tmp__
-rm -rf node_modules package-lock.json yarn.lock
+rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
 
 echo "NPM version:"
 npm -v
@@ -12,7 +12,7 @@ echo "Directory content:"
 ls -a
 echo
 
-npm i redocly-cli.tgz redoc
+npm i redoc redocly-cli.tgz
 
 npm run l
 npm run b
