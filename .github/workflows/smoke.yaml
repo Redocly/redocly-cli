@@ -120,24 +120,19 @@ jobs:
 
       - name: ECHOOOOOOOO1111111
         run: |
+          echo "Current directory:"
           pwd
           echo
-          echo "Current DIR:"
+          echo "Current directory content:"
           ls -a
           echo
-          echo "Parent DIR:"
+          echo "Parent directory content:"
           ls -a ..
           echo
 
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
 
-      - name: Install Yarn
-        run: npm i -g yarn@^1.22.19
-    
+
       - uses: actions/cache@v3
         with:
           path: |
@@ -147,14 +142,25 @@ jobs:
 
       - name: ECHOOOOOOOO2222222
         run: |
+          echo "Current directory:"
           pwd
           echo
-          echo "Current DIR:"
+          echo "Current directory content:"
           ls -a
           echo
-          echo "Parent DIR:"
+          echo "Parent directory content:"
           ls -a ..
           echo
+
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          # cache: 'npm'
+
+      - name: Install Yarn
+        run: npm i -g yarn@^1.22.19
+    
 
 
       - name: Run Smoke

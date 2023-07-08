@@ -6,10 +6,14 @@
 
 npm run pack:prepare # for npm
 
+
+echo "Current directory:"
+pwd
+echo
 echo "Current directory content:"
 ls -a
 echo
-echo "Output directory content:"
+echo "Parent directory content:"
 ls -a ..
 echo
 
