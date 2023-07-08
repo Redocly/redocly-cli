@@ -6,8 +6,8 @@ echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo
 
-cd ./__tests__/smoke
-# rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
+cd __tests__/smoke
+
 echo "Directory content:"
 ls -a
 echo
@@ -19,9 +19,10 @@ $($1)
 npm run l
 npm run b
 npm run d
+# Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
-  echo "Bundled correctly."
+  echo "Docs built correctly."
 else
-  echo "Bundled incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
+  echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
   exit 1
 fi

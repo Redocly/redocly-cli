@@ -152,4 +152,4 @@ jobs:
 
 
       - name: Run Smoke
-        run: bash ./scripts/run-smoke.sh "npm i redocly-cli.tgz"
+        run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
