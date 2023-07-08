@@ -131,9 +131,13 @@ jobs:
 
       - uses: actions/cache@v3
         with:
-          # path: |
-          #   path/to/dependencies
-          #   some/other/dependencies
+          path: |
+            redocly-cli.tgz 
+            redocly-cli-clean.tgz 
+            openapi-core.tgz 
+            resources/package.json 
+            resources/openapi.yaml 
+            # ../__tmp__/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: ECHOOOOOOOO2222222
