@@ -116,9 +116,9 @@ jobs:
           echo "Current directory content:"
           ls -a
           echo
-          echo "Target directory content:"
-          ls -a __tests__/smoke/
-          echo
+          # echo "Target directory content:"
+          # ls -a __tests__/smoke/
+          # echo
 
 
 
