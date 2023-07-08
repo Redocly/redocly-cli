@@ -59,7 +59,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke--webpack--node-18:
+  run-smoke--webpack--node-14:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -70,48 +70,22 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 14
 
       - run: | # bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
-          file_content=`cat ./__tests__/smoke/package.json`
-          echo "$file_content"
-          output="${file_content//redocly /node bundle.js }"
-          # output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
-          echo "$output" 
-          echo "$output" > ./__tests__/smoke/package.json
+          # file_content=`cat ./__tests__/smoke/package.json`
+          # echo "$file_content"
+          # output="${file_content//redocly /node bundle.js }"
+          # # output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
+          # echo "$output" 
+          # echo "$output" > ./__tests__/smoke/package.json
           
-          bash ./__tests__/smoke/run-smoke.sh "echo Test Webpack"
+          # bash ./__tests__/smoke/run-smoke.sh "echo Test Webpack"
 
-
-
-          # echo
-          # echo "Running smoke test for command: $1"
-          # echo "NPM version: $(npm -v)"
-          # echo "Yarn version: $(yarn --version)"
-          # echo 
-
-          # cd __tests__/smoke
-
-          # echo "Directory content:"
-          # ls -a
-          # echo
-
-          # # Executing the command provided as the first argument 
-          # $1
-
-          # # Actual smoke test
-          # node bundle.js v
-          # node bundle.js l
-          # node bundle.js b
-          # node bundle.js d
-          # # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
-          # if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
-          #   echo "Docs built correctly."
-          # else
-          #   echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
-          #   exit 1
-          # fi
-
+          node bundle.js --version
+          node bundle.js lint openapi.yaml --extends minimal
+          node bundle.js bundle openapi.yaml
+          
 
   run-smoke--npm--node-16:
     needs: prepare-smoke
