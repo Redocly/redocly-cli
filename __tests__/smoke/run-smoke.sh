@@ -13,11 +13,10 @@ ls -a
 echo
 
 # Executing the command provided as the first argument 
-$($1)
-
-echo "Redocly CLI version: $(redocly --version)"
+$1
 
 # Actual smoke test
+npm run v
 npm run l
 npm run b
 npm run d
