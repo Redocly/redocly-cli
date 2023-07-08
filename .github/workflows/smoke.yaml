@@ -73,8 +73,11 @@ jobs:
           node-version: 18
 
       - run: | # bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
-          output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
-
+          file_content=`cat ./__tests__/smoke/package.json`
+          echo "$file_content"
+          output="${file_content//redocly /node bundle.js }"
+          # output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
+          echo "$output" 
           echo "$output" > ./__tests__/smoke/package.json
           
           bash ./__tests__/smoke/run-smoke.sh "echo Test Webpack"
