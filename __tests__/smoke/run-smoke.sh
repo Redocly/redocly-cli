@@ -6,6 +6,8 @@ echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo 
 
+# set -euxo pipefail # Propagate failure correctly
+
 cd __tests__/smoke
 
 echo "Directory content:"
@@ -23,7 +25,7 @@ npm run d
 # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
   echo "Docs built correctly."
-  exit 1 # FIXME:
+  # exit 1 # FIXME:
 else
   echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
   # exit 1 # FIXME:
