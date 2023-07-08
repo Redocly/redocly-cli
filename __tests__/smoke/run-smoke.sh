@@ -1,12 +1,10 @@
 #!/bin/bash
 
 echo
-echo Running smoke test for command "$1"
+echo "Running smoke test for command: $1"
 echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo 
-
-redocly --version
 
 cd __tests__/smoke
 
@@ -15,7 +13,9 @@ ls -a
 echo
 
 # Executing the command provided as the first argument 
-$($1)
+$("$1")
+
+echo "Redocly CLI version: $(redocly --version)"
 
 # Actual smoke test
 npm run l
