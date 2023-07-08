@@ -13,7 +13,7 @@ ls -a
 echo
 
 # Executing the command provided as the first argument 
-$("$1")
+$($1)
 
 echo "Redocly CLI version: $(redocly --version)"
 
