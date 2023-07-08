@@ -72,7 +72,43 @@ jobs:
         with:
           node-version: 18
 
-      - run: bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
+      - run: | # bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
+          output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
+
+          echo "$output" > ./__tests__/smoke/package.json
+          
+          bash ./__tests__/smoke/run-smoke.sh "echo Test Webpack"
+
+
+
+          # echo
+          # echo "Running smoke test for command: $1"
+          # echo "NPM version: $(npm -v)"
+          # echo "Yarn version: $(yarn --version)"
+          # echo 
+
+          # cd __tests__/smoke
+
+          # echo "Directory content:"
+          # ls -a
+          # echo
+
+          # # Executing the command provided as the first argument 
+          # $1
+
+          # # Actual smoke test
+          # node bundle.js v
+          # node bundle.js l
+          # node bundle.js b
+          # node bundle.js d
+          # # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
+          # if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
+          #   echo "Docs built correctly."
+          # else
+          #   echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
+          #   exit 1
+          # fi
+
 
   run-smoke--npm--node-16:
     needs: prepare-smoke
