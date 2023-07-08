@@ -59,33 +59,6 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke--webpack--node-14:
-    needs: prepare-smoke
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: __tests__/smoke/
-          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 14
-
-      - run: | # bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
-          # file_content=`cat ./__tests__/smoke/package.json`
-          # echo "$file_content"
-          # output="${file_content//redocly /node bundle.js }"
-          # # output="${$(cat ./__tests__/smoke/package.json)//redocly /node bundle.js }"
-          # echo "$output" 
-          # echo "$output" > ./__tests__/smoke/package.json
-          
-          # bash ./__tests__/smoke/run-smoke.sh "echo Test Webpack"
-
-          node bundle.js --version
-          node bundle.js lint openapi.yaml --extends minimal
-          node bundle.js bundle openapi.yaml
-          
 
   run-smoke--npm--node-16:
     needs: prepare-smoke
@@ -217,3 +190,22 @@ jobs:
     
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./openapi-core.tgz ./redocly-cli-clean.tgz"
 
+
+  run-smoke--webpack--node-14:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - run: | 
+          node bundle.js --version
+          node bundle.js lint openapi.yaml --extends minimal
+          node bundle.js bundle openapi.yaml
+          
