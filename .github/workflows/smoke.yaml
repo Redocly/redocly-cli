@@ -29,7 +29,7 @@ jobs:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
-  run-smoke-npm-node-18:
+  run-smoke--npm--node-18:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
 
-  run-smoke-npm-node-18-redoc:
+  run-smoke--npm--node-18--redoc:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,22 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke-npm-node-16:
+  run-smoke--webpack--node-18:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: bash ./__tests__/smoke/run-smoke.sh 'alias redocly="node bundle.js"'
+
+  run-smoke--npm--node-16:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +89,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
 
-  run-smoke-npm-node-16-redoc:
+  run-smoke--npm--node-16--redoc:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -89,7 +104,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke-npm-node-14:
+  run-smoke--npm--node-14:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -105,7 +120,7 @@ jobs:
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
 
 
-  run-smoke-npm-node-14-redoc:
+  run-smoke--npm--node-14--redoc:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +135,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke-npm-node-12:
+  run-smoke--npm--node-12:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -135,7 +150,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
 
-  run-smoke-npm-node-12-redoc:
+  run-smoke--npm--node-12--redoc:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -150,7 +165,7 @@ jobs:
 
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
 
-  run-smoke-yarn-node-18:
+  run-smoke--yarn--node-18:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
@@ -171,7 +186,7 @@ jobs:
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./openapi-core.tgz ./redocly-cli-clean.tgz"
       
 
-  run-smoke-yarn-node-18-redoc:
+  run-smoke--yarn--node-18--redoc:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     steps:
