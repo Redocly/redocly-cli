@@ -4,7 +4,9 @@ echo
 echo Running smoke test for command "$1"
 echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
-echo
+echo 
+
+redocly --version
 
 cd __tests__/smoke
 

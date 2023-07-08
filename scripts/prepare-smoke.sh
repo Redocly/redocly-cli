@@ -1,6 +1,6 @@
 #!/bin/bash
 
-(cd packages/cli && cli=$(npm pack | tail -n 1) && mv $cli ../../redocly-cli-clean.tgz) # for yarn
+(cd packages/cli && cli=$(npm pack | tail -n 1) && mv $cli ../../__tests__/smoke/redocly-cli-clean.tgz) # for yarn
 
 npm run pack:prepare # for npm
 
@@ -14,4 +14,4 @@ echo "Target directory content:"
 ls -a __tests__/smoke/
 echo
 
-cp ./redocly-cli.tgz ./redocly-cli-clean.tgz ./openapi-core.tgz ./__tests__/smoke/
+cp ./redocly-cli.tgz ./openapi-core.tgz ./__tests__/smoke/
