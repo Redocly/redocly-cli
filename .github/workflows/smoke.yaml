@@ -168,8 +168,8 @@ jobs:
       #   run: npm i -g yarn@^1.22.19
     
 
-
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./openapi-core.tgz ./redocly-cli-clean.tgz"
+      - run: yarn global add openapi-core.tgz
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz"
       
 
   run-smoke--yarn--node-18--redoc:
@@ -187,8 +187,9 @@ jobs:
 
       # - name: Install Yarn # Not needed, already installed with setup-node?
       #   run: npm i -g yarn@^1.22.19
-    
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./openapi-core.tgz ./redocly-cli-clean.tgz"
+
+      - run: yarn global add openapi-core.tgz
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz"
 
 
   run-smoke--webpack--node-14:
