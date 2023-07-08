@@ -6,7 +6,7 @@ echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo 
 
-# set -euxo pipefail # Propagate failure correctly
+set -eo pipefail # Fail on script errors
 
 cd __tests__/smoke
 
