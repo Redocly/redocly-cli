@@ -205,6 +205,7 @@ jobs:
           node-version: 14
 
       - run: | 
+          cd __tests__/smoke/
           node bundle.js --version
           node bundle.js lint openapi.yaml --extends minimal
           node bundle.js bundle openapi.yaml
