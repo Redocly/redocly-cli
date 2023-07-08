@@ -93,9 +93,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Install Yarn
-      #   run: npm i -g yarn@^1.22.19
-
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
 
@@ -107,7 +104,7 @@ jobs:
             ./openapi-core.tgz 
             ./resources/package.json 
             ./resources/openapi.yaml 
-            ../__tmp__/
+            # ../__tmp__/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   run-smoke:
@@ -158,8 +155,8 @@ jobs:
           node-version: 18
           # cache: 'npm'
 
-      - name: Install Yarn
-        run: npm i -g yarn@^1.22.19
+      # - name: Install Yarn # Not needed, already installed with setup-node?
+      #   run: npm i -g yarn@^1.22.19
     
 
 
