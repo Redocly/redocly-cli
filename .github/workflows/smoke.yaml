@@ -98,13 +98,7 @@ jobs:
 
       - uses: actions/cache@v3
         with:
-          path: |
-            redocly-cli.tgz 
-            redocly-cli-clean.tgz 
-            openapi-core.tgz 
-            resources/package.json 
-            resources/openapi.yaml 
-            # ../__tmp__/
+          path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
   run-smoke:
@@ -122,8 +116,8 @@ jobs:
           echo "Current directory content:"
           ls -a
           echo
-          echo "Parent directory content:"
-          ls -a ..
+          echo "Target directory content:"
+          ls -a __tests__/smoke/
           echo
 
 
@@ -131,13 +125,7 @@ jobs:
 
       - uses: actions/cache@v3
         with:
-          path: |
-            redocly-cli.tgz 
-            redocly-cli-clean.tgz 
-            openapi-core.tgz 
-            resources/package.json 
-            resources/openapi.yaml 
-            # ../__tmp__/
+          path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: ECHOOOOOOOO2222222
@@ -148,8 +136,8 @@ jobs:
           echo "Current directory content:"
           ls -a
           echo
-          echo "Parent directory content:"
-          ls -a ..
+          echo "Target directory content:"
+          ls -a __tests__/smoke/
           echo
 
 

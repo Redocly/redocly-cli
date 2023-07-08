@@ -6,8 +6,8 @@ echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo
 
-cd ../__tmp__
-rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
+cd ./__tests__/smoke
+# rm -rf node_modules package-lock.json yarn.lock .yarn redoc-static.html
 echo "Directory content:"
 ls -a
 echo
