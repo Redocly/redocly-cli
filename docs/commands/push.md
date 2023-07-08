@@ -106,8 +106,7 @@ You can choose any of the following approaches:
 To properly push your API definition to the Redocly API registry, you need the following information:
 
 - [Organization ID](#organization-id)
-- [API name](#api-name)
-- [API version](#api-version)
+- [API name and version](#api-name-and-version)
 
 #### Organization ID
 
@@ -149,9 +148,10 @@ To find your API version required for the command:
 1. Log into Workflows.
 1. Access the **API registry** page.
 1. Check the list of APIs displayed on this page.
-1. Inspect the subtitle of each list item to the bottom of the [API name](#api-name). This subtitle is an API version.
+1. The version is displayed in the title after the `@` in format `<name> @ <version>`.
 
 When using the `push` command, you would provide the API name and version separated with the "at" symbol (`@`). For example: `--destination=petstore-api@v1`.
+
 :::attention
 
 The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
@@ -233,7 +233,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 redocly push -u test-api@v1 -b develop
 ```
 
-### <a name="batch-id"></a>Job ID
+### Job ID
 
 The `--job-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job.
 
