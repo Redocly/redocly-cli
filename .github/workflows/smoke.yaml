@@ -208,6 +208,7 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
 
       - uses: actions/setup-node@v3
         with:
@@ -223,6 +224,7 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
 
       - uses: actions/setup-node@v3
         with:
