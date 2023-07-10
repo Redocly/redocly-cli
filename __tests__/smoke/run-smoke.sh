@@ -1,15 +1,9 @@
 #!/bin/bash
 
-echo
-echo "Running smoke test for command: $1 -> $2"
-echo "NPM version: $(npm -v)"
-echo "Yarn version: $(yarn --version)"
-echo 
-
 set -eo pipefail # Fail on script errors
 
 cd __tests__/smoke
-
+echo
 echo "Directory content:"
 ls -a
 echo
