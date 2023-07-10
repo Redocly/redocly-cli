@@ -11,7 +11,6 @@ jest.mock('../../utils');
 
 const config = {
   output: '',
-  cdn: false,
   title: 'Test',
   disableGoogleFont: false,
   templateFileName: '',
@@ -47,7 +46,6 @@ describe('build-docs', () => {
     await handlerBuildCommand(
       {
         o: '',
-        cdn: false,
         title: 'test',
         disableGoogleFont: false,
         template: '',

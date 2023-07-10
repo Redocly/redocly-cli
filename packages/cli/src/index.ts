@@ -451,11 +451,6 @@ yargs
             type: 'boolean',
             default: false,
           },
-          cdn: {
-            describe: 'Do not include Redoc source code into html page, use link to CDN instead',
-            type: 'boolean',
-            default: false,
-          },
           t: {
             alias: 'template',
             describe: 'Path to handlebars page template, see https://git.io/vh8fP for the example',
