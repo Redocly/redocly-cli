@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "v": "redocly --version",
-    "l": "redocly lint openapi.yaml",
-    "b": "redocly bundle openapi.yaml --ext json",
-    "d": "redocly build-docs openapi.yaml"
+    "redocly-version": "redocly --version",
+    "redocly-lint": "redocly lint openapi.yaml",
+    "redocly-bundle": "redocly bundle openapi.yaml --ext json",
+    "redocly-build-docs": "redocly build-docs openapi.yaml"
   },
   "author": "redocly",
   "license": "ISC"

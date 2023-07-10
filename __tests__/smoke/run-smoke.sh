@@ -18,10 +18,10 @@ echo
 $1
 
 # Actual smoke test - executing the command provided as the second argument
-$2 v
-$2 l
-$2 b
-$2 d
+$2 redocly-version
+$2 redocly-lint
+$2 redocly-bundle
+$2 redocly-build-docs
 # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
   echo "Docs built correctly."
