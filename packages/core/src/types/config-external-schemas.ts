@@ -514,7 +514,7 @@ const navItemSchema = {
     separator: { type: 'string' },
     separatorLine: { type: 'boolean' },
     version: { type: 'string' },
-    menuStyle: { type: 'string', enum: ['drilldown' /* as MenuStyle */] },
+    menuStyle: { type: 'string', enum: ['drilldown'] },
     expanded: { type: 'string', const: 'always' },
     selectFirstItemOnExpand: { type: 'boolean' },
     flatten: { type: 'boolean' },
