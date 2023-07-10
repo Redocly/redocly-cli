@@ -9,7 +9,7 @@ toc:
 
 ### Fixes
 
-- Handled aborted request in the docker and remove a redundant call.
+- Handled aborted request in the docker and removed a redundant call.
 - Resolved problem with installation failing in node 14- and yarn due to unresolved peer dependencies.
 
 ### Changes
