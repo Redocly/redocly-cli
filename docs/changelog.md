@@ -5,6 +5,18 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-beta.131 (2023-07-10)
+
+### Fixes
+
+- Handled aborted request in the docker and remove a redundant call.
+- Resolved problem with failing in node 14- and yarn due to unresolved peer dependencies.
+
+### Changes
+
+- Removed cdn option from build-docs.
+- Updated Redocly config schemas.
+
 ## 1.0.0-beta.130 (2023-07-06)
 
 ### Features
