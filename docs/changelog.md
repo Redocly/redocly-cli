@@ -14,7 +14,7 @@ toc:
 
 ### Changes
 
-- Removed cdn option from build-docs.
+- Removed the `cdn` option from the `build-docs` command as it was not functional.
 - Updated Redocly config validation schemas.
 
 ## 1.0.0-beta.130 (2023-07-06)
