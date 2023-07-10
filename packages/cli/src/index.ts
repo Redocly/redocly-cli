@@ -128,7 +128,7 @@ yargs
   )
 
   .command(
-    'push [api]',
+    'push [api] [maybeDestination] [maybeBranchName]',
     'Push an API definition to the Redocly API registry.',
     (yargs) =>
       yargs
