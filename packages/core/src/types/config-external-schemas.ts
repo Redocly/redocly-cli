@@ -226,51 +226,6 @@ export const responseHeaderSchema = {
   required: ['name', 'value'],
 } as const;
 
-export const scorecardConfigSchema = {
-  type: 'object',
-  additionalProperties: true,
-  required: ['levels'],
-  properties: {
-    levels: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['name'],
-        properties: {
-          name: { type: 'string' },
-          extends: { type: 'array', items: { type: 'string' } },
-          rules: {
-            type: 'object',
-            additionalProperties: {
-              type: ['object', 'string'],
-            },
-          },
-        },
-        additionalProperties: false,
-      },
-    },
-    targets: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['where'],
-        properties: {
-          minimumLevel: { type: 'string' },
-          where: {
-            type: 'object',
-            required: ['metadata'],
-            properties: {
-              metadata: { type: 'object', additionalProperties: { type: 'string' } },
-            },
-            additionalProperties: false,
-          },
-        },
-        additionalProperties: false,
-      },
-    },
-  },
-} as const;
-
 export const i18nConfigSchema = {
   type: 'object',
   properties: {
@@ -316,49 +271,6 @@ const logoConfigSchema = {
     favicon: { type: 'string' },
   },
   additionalProperties: false,
-} as const;
-
-const adobeAnalyticsConfigSchema = {
-  type: 'object',
-  properties: {
-    includeInDevelopment: { type: 'boolean' },
-    scriptUrl: { type: 'string' },
-    pageViewEventName: { type: 'string' },
-  },
-  additionalProperties: false,
-  required: ['scriptUrl'],
-} as const;
-
-const navItemSchema = {
-  type: 'object',
-  properties: {
-    page: { type: 'string' },
-    directory: { type: 'string' },
-    group: { type: 'string' },
-    label: { type: 'string' },
-    separator: { type: 'string' },
-    separatorLine: { type: 'boolean' },
-    version: { type: 'string' },
-    menuStyle: { type: 'string', enum: ['drilldown'] },
-    expanded: { type: 'string', const: 'always' },
-    selectFirstItemOnExpand: { type: 'boolean' },
-    flatten: { type: 'boolean' },
-    linkedSidebars: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-  },
-} as const;
-
-const navItemsSchema = {
-  type: 'array',
-  items: {
-    ...navItemSchema,
-    properties: {
-      ...navItemSchema.properties,
-      items: { type: 'array', items: navItemSchema },
-    },
-  },
 } as const;
 
 const hideConfigSchema = {
@@ -411,16 +323,6 @@ const linksConfigSchema = {
   additionalProperties: true,
 } as const;
 
-const suggestedPageSchema = {
-  type: 'object',
-  properties: {
-    page: { type: 'string' },
-    label: { type: 'string' },
-    labelTranslationKey: { type: 'string' },
-  },
-  required: ['page'],
-} as const;
-
 const markdownConfigSchema = {
   type: 'object',
   properties: {
@@ -447,7 +349,7 @@ const markdownConfigSchema = {
       type: 'object',
       properties: {
         header: { type: 'string', default: 'On this page' },
-        depth: { type: 'number', default: 3 },
+        depth: { type: 'integer', default: 3, minimum: 1 },
         ...hideConfigSchema.properties,
       },
       additionalProperties: false,
@@ -591,6 +493,157 @@ const googleAnalyticsConfigSchema = {
   required: ['trackingId'],
 } as const;
 
+const adobeAnalyticsConfigSchema = {
+  type: 'object',
+  properties: {
+    includeInDevelopment: { type: 'boolean' },
+    scriptUrl: { type: 'string' },
+    pageViewEventName: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['scriptUrl'],
+} as const;
+
+const navItemSchema = {
+  type: 'object',
+  properties: {
+    page: { type: 'string' },
+    directory: { type: 'string' },
+    group: { type: 'string' },
+    label: { type: 'string' },
+    separator: { type: 'string' },
+    separatorLine: { type: 'boolean' },
+    version: { type: 'string' },
+    menuStyle: { type: 'string', enum: ['drilldown'] },
+    expanded: { type: 'string', const: 'always' },
+    selectFirstItemOnExpand: { type: 'boolean' },
+    flatten: { type: 'boolean' },
+    linkedSidebars: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+  },
+} as const;
+
+const navItemsSchema = {
+  type: 'array',
+  items: {
+    ...navItemSchema,
+    properties: {
+      ...navItemSchema.properties,
+      items: { type: 'array', items: navItemSchema },
+    },
+  },
+} as const;
+
+const productConfigSchema = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    icon: { type: 'string' },
+    folder: { type: 'string' },
+  },
+  additionalProperties: false,
+  required: ['name', 'icon', 'folder'],
+} as const;
+
+const suggestedPageSchema = {
+  type: 'object',
+  properties: {
+    page: { type: 'string' },
+    label: { type: 'string' },
+    labelTranslationKey: { type: 'string' },
+  },
+  required: ['page'],
+} as const;
+
+const catalogFilterSchema = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['title', 'property'],
+  properties: {
+    type: { type: 'string', enum: ['select', 'checkboxes', 'date-range'] },
+    title: { type: 'string' },
+    titleTranslationKey: { type: 'string' },
+    property: { type: 'string' },
+    parentFilter: { type: 'string' },
+    missingCategoryName: { type: 'string' },
+    missingCategoryNameTranslationKey: { type: 'string' },
+    options: { type: 'array', items: { type: 'string' } },
+  },
+} as const;
+
+const scorecardConfigSchema = {
+  type: 'object',
+  additionalProperties: true,
+  required: ['levels'],
+  properties: {
+    failBuildIfBelowMinimum: { type: 'boolean', default: false },
+    levels: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          extends: { type: 'array', items: { type: 'string' } },
+          rules: {
+            type: 'object',
+            additionalProperties: {
+              type: ['object', 'string'],
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+    targets: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['where'],
+        properties: {
+          minimumLevel: { type: 'string' },
+          where: {
+            type: 'object',
+            required: ['metadata'],
+            properties: {
+              metadata: { type: 'object', additionalProperties: { type: 'string' } },
+            },
+            additionalProperties: false,
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+} as const;
+
+const catalogSchema = {
+  type: 'object',
+  additionalProperties: true,
+  required: ['slug', 'filters', 'groupByFirstFilter', 'items'],
+  properties: {
+    slug: { type: 'string' },
+    filters: { type: 'array', items: catalogFilterSchema },
+    groupByFirstFilter: { type: 'boolean' },
+    items: navItemsSchema,
+    requiredPermission: { type: 'string' },
+    separateVersions: { type: 'boolean' },
+    title: { type: 'string' },
+    titleTranslationKey: { type: 'string' },
+    description: { type: 'string' },
+    descriptionTranslationKey: { type: 'string' },
+  },
+} as const;
+
+const catalogsConfigSchema = {
+  type: 'object',
+  patternProperties: {
+    '.*': catalogSchema,
+  },
+} as const;
+
 export const themeConfigSchema = {
   type: 'object',
   properties: {
@@ -607,6 +660,10 @@ export const themeConfigSchema = {
         ...hideConfigSchema.properties,
       },
       additionalProperties: false,
+    },
+    products: {
+      type: 'object',
+      additionalProperties: productConfigSchema,
     },
     footer: {
       type: 'object',
@@ -837,6 +894,23 @@ export const themeConfigSchema = {
       additionalProperties: false,
       default: {},
     },
+    catalog: catalogsConfigSchema,
+    scorecard: scorecardConfigSchema,
+  },
+  additionalProperties: true,
+  default: {},
+} as const;
+
+export const productThemeOverrideSchema = {
+  type: 'object',
+  properties: {
+    logo: themeConfigSchema.properties.logo,
+    navbar: themeConfigSchema.properties.navbar,
+    footer: themeConfigSchema.properties.footer,
+    sidebar: themeConfigSchema.properties.sidebar,
+    search: themeConfigSchema.properties.search,
+    codeSnippet: themeConfigSchema.properties.codeSnippet,
+    breadcrumbs: themeConfigSchema.properties.breadcrumbs,
   },
   additionalProperties: true,
   default: {},
