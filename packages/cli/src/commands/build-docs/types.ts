@@ -1,6 +1,5 @@
 export type BuildDocsOptions = {
   watch?: boolean;
-  cdn?: boolean;
   output?: string;
   title?: string;
   disableGoogleFont?: boolean;
@@ -14,7 +13,6 @@ export type BuildDocsOptions = {
 export type BuildDocsArgv = {
   api: string;
   o: string;
-  cdn: boolean;
   title?: string;
   disableGoogleFont?: boolean;
   template?: string;

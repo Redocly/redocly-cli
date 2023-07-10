@@ -23,7 +23,6 @@ api | string | Path to the API definition filename or alias that you want to gen
 --output, -o | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
 --title | string | Sets the page title.
 --disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.
---cdn | boolean | Uses the CDN pointing to the latest version of Redoc. If not enabled, the Redoc version is selected from Redocly CLI's associated dependency (and to update Redoc requires updating the CLI and building the docs again). The default value is `false`.
 --template, -t | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
 --templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
 --theme.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/).

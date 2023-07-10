@@ -18,7 +18,6 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv, configFromFile: C
 
   const options = {
     output: argv.o,
-    cdn: argv.cdn,
     title: argv.title,
     disableGoogleFont: argv.disableGoogleFont,
     templateFileName: argv.template,
