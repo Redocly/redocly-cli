@@ -5,7 +5,6 @@ import {
   rbacConfigSchema,
   redirectConfigSchema,
   responseHeaderSchema,
-  scorecardConfigSchema,
   seoConfigSchema,
   ssoConfigSchema,
   themeConfigSchema,
@@ -194,7 +193,6 @@ const ConfigRoot: NodeType = {
     mockServer: mockServerConfigSchema,
     sso: ssoConfigSchema,
     developerOnboarding: devOnboardingConfigSchema,
-    scorecard: scorecardConfigSchema,
     i18n: i18nConfigSchema,
   },
 };
