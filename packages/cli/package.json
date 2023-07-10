@@ -14,6 +14,7 @@
   "scripts": {
     "compile": "tsc",
     "copy-assets": "cp src/commands/preview-docs/preview-server/default.hbs lib/commands/preview-docs/preview-server/default.hbs && cp src/commands/preview-docs/preview-server/hot.js lib/commands/preview-docs/preview-server/hot.js && cp src/commands/preview-docs/preview-server/oauth2-redirect.html lib/commands/preview-docs/preview-server/oauth2-redirect.html && cp src/commands/build-docs/template.hbs lib/commands/build-docs/template.hbs",
+    "prepack": "npm run copy-assets",
     "prepublishOnly": "npm run copy-assets"
   },
   "repository": {
@@ -44,13 +45,11 @@
     "redoc": "~2.0.0",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
-    "yargs": "17.0.1"
-  },
-  "peerDependencies": {
+    "yargs": "17.0.1",
     "mobx": "^6.0.4",
-    "react": "^16.8.4 || ^17.0.0",
-    "react-dom": "^16.8.4 || ^17.0.0",
-    "styled-components": "^4.1.1 || ^5.1.1"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
+    "styled-components": "^5.1.1"
   },
   "devDependencies": {
     "@types/configstore": "^5.0.1",
