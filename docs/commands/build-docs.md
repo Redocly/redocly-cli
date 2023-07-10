@@ -87,25 +87,24 @@ redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescri
 Sample Handlebars template:
 
 ```handlebars
-<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf8" />
-        <title>{{title}}</title>
-        <!-- needed for adaptive design -->
-        <meta description="{{{templateOptions.metaDescription}}}">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            body {
-            padding: 0;
-            margin: 0;
-            }
-        </style>
-        {{{redocHead}}}
-        {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
-    </head>
-    <body>
-      {{{redocHTML}}}
-    </body>
+  <head>
+    <meta charset='utf8' />
+    <title>{{title}}</title>
+    <!-- needed for adaptive design -->
+    <meta description='{{{templateOptions.metaDescription}}}' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <style>
+      body { padding: 0; margin: 0; }
+    </style>
+    {{{redocHead}}}
+    {{#unless disableGoogleFont}}<link
+        href='https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700'
+        rel='stylesheet'
+      />{{/unless}}
+  </head>
+  <body>
+    {{{redocHTML}}}
+  </body>
 </html>
 ```

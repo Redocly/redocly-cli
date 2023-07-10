@@ -168,8 +168,7 @@ yargs
             hidden: true,
           },
           'job-id': {
-            description:
-              'ID of the CI job that the current push will be associated with.',
+            description: 'ID of the CI job that the current push will be associated with.',
             type: 'string',
             requiresArg: true,
           },
@@ -461,7 +460,8 @@ yargs
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
           theme: {
-            describe: 'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+            describe:
+              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
           },
           config: {
             describe: 'Path to the config file.',
