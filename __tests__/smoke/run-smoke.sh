@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Running smoke test for command: $1"
+echo "Running smoke test for command: $1 -> $2"
 echo "NPM version: $(npm -v)"
 echo "Yarn version: $(yarn --version)"
 echo 
@@ -17,11 +17,11 @@ echo
 # Executing the command provided as the first argument 
 $1
 
-# Actual smoke test
-npm run v
-npm run l
-npm run b
-npm run d
+# Actual smoke test - executing the command provided as the second argument
+$2 v
+$2 l
+$2 b
+$2 d
 # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
 if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
   echo "Docs built correctly."

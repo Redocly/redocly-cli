@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-18--redoc:
     needs: prepare-smoke
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
 
   run-smoke--npm--node-16:
@@ -73,7 +73,7 @@ jobs:
         with:
           node-version: 16
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-16--redoc:
     needs: prepare-smoke
@@ -88,7 +88,7 @@ jobs:
         with:
           node-version: 16
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-14:
     needs: prepare-smoke
@@ -103,7 +103,7 @@ jobs:
         with:
           node-version: 14
           
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
 
   run-smoke--npm--node-14--redoc:
@@ -119,7 +119,7 @@ jobs:
         with:
           node-version: 14
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-12:
     needs: prepare-smoke
@@ -134,7 +134,7 @@ jobs:
         with:
           node-version: 12
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-12--redoc:
     needs: prepare-smoke
@@ -149,7 +149,7 @@ jobs:
         with:
           node-version: 12
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--yarn--node-18:
     needs: prepare-smoke
@@ -168,7 +168,7 @@ jobs:
       #   run: npm i -g yarn@^1.22.19
     
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" # FIXME:
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME:
       
 
   run-smoke--yarn--node-18--redoc:
@@ -187,7 +187,7 @@ jobs:
       # - name: Install Yarn # Not needed, already installed with setup-node?
       #   run: npm i -g yarn@^1.22.19
 
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" # FIXME:
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz" "yarn" # FIXME:
 
 
   run-smoke--webpack--node-14:
@@ -208,4 +208,3 @@ jobs:
           node bundle.js --version
           node bundle.js lint openapi.yaml --extends minimal
           node bundle.js bundle openapi.yaml
-          
