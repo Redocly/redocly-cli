@@ -26,7 +26,7 @@ Similar to Spectral, Redocly offers multiple output formats using the `--format`
 
 ### Resolvers
 
-If you use `--resolver` to handle how links and remote URLs are resolved, visit the [configuration documentation](../configuration.md/#resolve-object) to see how to handle this with Redocly.
+If you use `--resolver` to handle how links and remote URLs are resolved, visit the [configuration documentation](../../configuration.md/#resolve-object) to see how to handle this with Redocly.
 
 ## Update configuration
 
@@ -53,11 +53,11 @@ rules:
       type: Operation
       property: summary
     assertions:
-      pattern: /test/    
-    message: "Operation must not include the word test"
+      notPattern: /test/
+    message: "Operation summary must not include the word test"
 ```
 
-It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration.md#apis-object) to set per-API rules (or exceptions!).
+It is also possible to configure additional rules for specific APIs using the [APIs object](../../configuration.md/#apis-object) to set per-API rules (or exceptions!).
 
 
 ### Redocly rules and Spectral equivalents
@@ -125,3 +125,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 |                                        | `response-mime-type`                          |
 |                                        | `scalar-property-missing-example`             |
 |                                        | `spec-components-invalid-map-name`            |
+
+## Explore tool functionality
+
+Redocly CLI supports multiple Redocly products and functions, so go ahead and [read more about Redocly CLI](../index.mdx).
