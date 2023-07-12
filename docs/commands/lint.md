@@ -29,7 +29,7 @@ redocly lint --version
 | apis                   | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
 | --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                 |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                          |
-| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe` |
+| --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe`. |
 | --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                        |
 | --help                 | boolean  | Show help.                                                                                                                                            |
 | --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                    |
