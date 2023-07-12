@@ -4,14 +4,14 @@
 
 The `stats` command provides statistics about the structure of one or more API definition files. Statistics are calculated using the counting logic from the `StatsVisitor` module. The `stats` command can generate statistics for the following metrics:
 
-* `References`
-* `External Documents`
-* `Schemas`
-* `Parameters`
-* `Links`
-* `Path Items`
-* `Operations`
-* `Tags`
+- `References`
+- `External Documents`
+- `Schemas`
+- `Parameters`
+- `Links`
+- `Path Items`
+- `Operations`
+- `Tags`
 
 ## Usage
 
@@ -23,13 +23,13 @@ redocly stats --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
---config | string | Specify path to the [configuration file](#custom-configuration-file).
---format | string | Format for the output.<br />**Possible values:** `stylish`, `json`.
---help | boolean | Show help.
---version | boolean | Show version number.
+| Option    | Type    | Description                                                                                       |
+| --------- | ------- | ------------------------------------------------------------------------------------------------- |
+| api       | string  | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure. |
+| --config  | string  | Specify path to the [configuration file](#custom-configuration-file).                             |
+| --format  | string  | Format for the output.<br />**Possible values:** `stylish`, `json`.                               |
+| --help    | boolean | Show help.                                                                                        |
+| --version | boolean | Show version number.                                                                              |
 
 ## Examples
 
@@ -60,7 +60,6 @@ apis:
 ```
 
 In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
-
 
 ### Custom configuration file
 

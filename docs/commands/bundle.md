@@ -4,13 +4,9 @@
 
 API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
 
-Redocly CLI can help you combine separate API definition files into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API definition files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
-
-:::success Tip
-To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../resources/custom-plugins.md) page.
-:::
 
 ## Usage
 
@@ -49,7 +45,7 @@ redocly bundle --version
 
 ### Bundle a single API definition
 
-This command creates a bundled file at the path `dist/openapi.json` starting from the root API definition file `openapi/openapi.yaml`. The bundled file is in JSON format.
+This command creates a bundled file at the path `dist/openapi.json` starting from the root API definition file `openapi/openapi.yaml` and following the `$ref` to other files if appropriate. The bundled file is in JSON format.
 
 ```bash
 redocly bundle openapi/openapi.yaml --output dist/openapi.json
@@ -70,15 +66,17 @@ dist/petstore.json
 
 ### Create a fully dereferenced bundle
 
+A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the definition file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
+
+```bash
+redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
+```
+
 :::warning Note
 
 JSON output only works when there are no circular references.
 
 :::
-
-```bash
-redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
-```
 
 ### Custom configuration file
 

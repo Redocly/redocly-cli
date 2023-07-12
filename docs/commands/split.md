@@ -2,9 +2,11 @@
 
 ## Introduction
 
-The `split` command takes an API definition file and creates a [multi-file structure](../../resources/multi-file-definitions.md) out of it by extracting referenced parts into standalone, separate files. Essentially, the `split` command does the opposite of the `bundle` command.
+The `split` command takes an API definition file and creates a [multi-file structure](../../resources/multi-file-definitions.md) out of it by extracting referenced parts into standalone, separate files. The advantage of this approach is making smaller files that are easier to manage and a structure that makes reviewing simpler.
 
-:::warning
+Use `bundle` and supply the main file as the entrypoint to get your OpenAPI description in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
+
+:::warning OpenAPI 3.x only
 The `split` command doesn't support OpenAPI 2.0 definitions.
 :::
 
@@ -18,14 +20,14 @@ redocly split --version
 
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.
---outDir | string | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.
---help | boolean | Show help.
---separator | string | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`).
---config | string | Specify path to the [config file](../configuration/index.mdx).
---version | boolean | Show version number.
+| Option      | Type    | Description                                                                                                                                                                              |
+| ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api         | string  | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure.                                                                                        |
+| --outDir    | string  | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.                                           |
+| --help      | boolean | Show help.                                                                                                                                                                               |
+| --separator | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
+| --config    | string  | Specify path to the [config file](../configuration/index.mdx).                                                                                                                           |
+| --version   | boolean | Show version number.                                                                                                                                                                     |
 
 ## Example
 

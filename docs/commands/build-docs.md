@@ -14,21 +14,20 @@ redocly build-docs <api> --template custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
-
 ## Options
 
-Option | Type | Description
--- | -- | --
-api | string | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.
---output, -o | string | Sets the path and name of the output file. The default value is `redoc-static.html`.
---title | string | Sets the page title.
---disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.
---template, -t | string | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.
---templateOptions | string | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.
---theme.openapi | string | Customizes your output using [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/).
---config | string | Specifies path to the [configuration file](#custom-configuration-file).
---help | boolean | Shows help.
---version | boolean | Shows version number.
+| Option              | Type    | Description                                                                                                                                                                                                                                             |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                 | string  | Path to the API definition filename or alias that you want to generate the build for. Refer to the [API examples](#api-examples) for more information.                                                                                                  |
+| --output, -o        | string  | Sets the path and name of the output file. The default value is `redoc-static.html`.                                                                                                                                                                    |
+| --title             | string  | Sets the page title.                                                                                                                                                                                                                                    |
+| --disableGoogleFont | boolean | Disables Google fonts. The default value is `false`.                                                                                                                                                                                                    |
+| --template, -t      | string  | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI definition.                                                                                                                                                        |
+| --templateOptions   | string  | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                                            |
+| --theme.openapi     | string  | Customizes your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/).                     |
+| --config            | string  | Specifies path to the [configuration file](#custom-configuration-file).                                                                                                                                                                                 |
+| --help              | boolean | Shows help.                                                                                                                                                                                                                                             |
+| --version           | boolean | Shows version number.                                                                                                                                                                                                                                   |
 
 ## Examples
 
@@ -88,25 +87,24 @@ redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescri
 Sample Handlebars template:
 
 ```handlebars
-<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf8" />
-        <title>{{title}}</title>
-        <!-- needed for adaptive design -->
-        <meta description="{{{templateOptions.metaDescription}}}">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            body {
-            padding: 0;
-            margin: 0;
-            }
-        </style>
-        {{{redocHead}}}
-        {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
-    </head>
-    <body>
-      {{{redocHTML}}}
-    </body>
+  <head>
+    <meta charset='utf8' />
+    <title>{{title}}</title>
+    <!-- needed for adaptive design -->
+    <meta description='{{{templateOptions.metaDescription}}}' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <style>
+      body { padding: 0; margin: 0; }
+    </style>
+    {{{redocHead}}}
+    {{#unless disableGoogleFont}}<link
+        href='https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700'
+        rel='stylesheet'
+      />{{/unless}}
+  </head>
+  <body>
+    {{{redocHTML}}}
+  </body>
 </html>
 ```
