@@ -31,7 +31,12 @@ export function commandWrapper<T extends CommandOptions>(
     } catch (err) {
       // Do nothing
     } finally {
-      if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
+      if (
+        process.env.REDOCLY_TELEMETRY !== 'off' &&
+        telemetry !== 'off' &&
+        !process.env.HTTP_PROXY &&
+        !process.env.HTTPS_PROXY
+      ) {
         await sendTelemetry(argv, code, hasConfig);
       }
       process.once('beforeExit', () => {
