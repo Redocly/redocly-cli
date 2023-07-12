@@ -22,14 +22,38 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-
       - name: Prepare Smoke
         run: bash ./scripts/prepare-smoke.sh
-
       - uses: actions/cache@v3
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+  run-smoke--npm--node-20:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--npm--node-20--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-18:
     needs: prepare-smoke
@@ -39,11 +63,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-18--redoc:
@@ -54,11 +76,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-16:
@@ -69,11 +89,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-16--redoc:
@@ -84,11 +102,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-14:
@@ -99,11 +115,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-14--redoc:
@@ -114,11 +128,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-12:
@@ -129,11 +141,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 12
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-12--redoc:
@@ -144,12 +154,36 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 12
-
       - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-20:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+
+  run-smoke--yarn--node-20--redoc:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--yarn--node-18:
     needs: prepare-smoke
@@ -159,11 +193,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--yarn--node-18--redoc:
@@ -174,11 +206,9 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--webpack--node-14:
@@ -189,13 +219,39 @@ jobs:
         with:
           path: __tests__/smoke/
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
-
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-
       - run: |
           cd __tests__/smoke/
           node bundle.js --version
           node bundle.js lint openapi.yaml --extends minimal
           node bundle.js bundle openapi.yaml
+
+  run-smoke--npm--node-18--windows:
+    needs: prepare-smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redocly-cli.tgz" "npm run"
+
+  run-smoke--yarn--node-18--windows:
+    needs: prepare-smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
+          enableCrossOsArchive: true
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
