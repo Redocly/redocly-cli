@@ -17,7 +17,7 @@ describe('fetchWithTimeout', () => {
     await fetchWithTimeout('url');
 
     expect(global.setTimeout).toHaveBeenCalledTimes(1);
-    expect(nodeFetch).toHaveBeenCalledWith('url', { signal:  (new AbortController()).signal });
+    expect(nodeFetch).toHaveBeenCalledWith('url', { signal: new AbortController().signal });
     expect(global.clearTimeout).toHaveBeenCalledTimes(1);
   });
 });
