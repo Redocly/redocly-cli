@@ -449,26 +449,53 @@ function groupStyleguideAssertionRules({
 
 function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinition) {
   for (const field of keysOf(assertion.assertions)) {
-    const [pluginId, fn] = field.split('/');
 
-    if (!pluginId || !fn) continue;
+    if (field.match('.*/.*')) {
+      const [pluginId, fn] = field.split('/');
 
-    const plugin = plugins.find((plugin) => plugin.id === pluginId);
+      if (!pluginId || !fn) continue;
 
-    if (!plugin) {
-      throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
-    }
+      const plugin = plugins.find((plugin) => plugin.id === pluginId);
 
-    if (!plugin.assertions || !plugin.assertions[fn]) {
-      throw Error(
-        `Plugin ${colorize.red(
-          pluginId
-        )} doesn't export assertions function with name ${colorize.red(fn)}.`
+      if (!plugin) {
+        throw Error(colorize.red(`Plugin ${colorize.blue(pluginId)} isn't found.`));
+      }
+
+      if (!plugin.assertions || !plugin.assertions[fn]) {
+        throw Error(
+            `Plugin ${colorize.red(
+                pluginId
+            )} doesn't export assertions function with name ${colorize.red(fn)}.`
+        );
+      }
+
+      (asserts as Asserts & { [name: string]: AssertionFn })[field] = buildAssertCustomFunction(
+          plugin.assertions[fn]
+      );
+    } else {
+      const plugin = findPluginByAssertion(plugins, field);
+      if (!plugin || !plugin.assertions) continue;
+
+      (asserts as Asserts & { [name: string]: AssertionFn })[field] = buildAssertCustomFunction(
+          plugin.assertions[field]
       );
     }
 
-    (asserts as Asserts & { [name: string]: AssertionFn })[field] = buildAssertCustomFunction(
-      plugin.assertions[fn]
-    );
   }
+}
+
+function findPluginByAssertion(plugins: Plugin[], assertionName: string) {
+  const foundPlugins = [];
+
+  for (const pluginElement of plugins) {
+    if (!pluginElement.assertions) {
+      continue;
+    }
+
+    const hasAssertion = Object.keys(pluginElement.assertions).some(keys => keys.includes(assertionName));
+    if (hasAssertion) foundPlugins.push(pluginElement);
+  }
+
+  if (foundPlugins.length > 1) throw new Error(`Found ${foundPlugins.length} plugins with ${assertionName} rule. Please specify plugin id`);
+  return foundPlugins[0];
 }

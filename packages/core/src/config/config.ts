@@ -198,7 +198,7 @@ export class StyleguideConfig {
   getRuleSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
-    const settings = this.rules[oasVersion][ruleId] || 'off';
+    const settings = this.getSettings(this.rules[oasVersion], ruleId);
     if (typeof settings === 'string') {
       return {
         severity: settings,
@@ -212,7 +212,7 @@ export class StyleguideConfig {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
 
-    const settings = this.preprocessors[oasVersion][ruleId] || 'off';
+    const settings = this.getSettings(this.preprocessors[oasVersion], ruleId);
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? 'error' : settings,
@@ -225,7 +225,7 @@ export class StyleguideConfig {
   getDecoratorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
-    const settings = this.decorators[oasVersion][ruleId] || 'off';
+    const settings = this.getSettings(this.decorators[oasVersion], ruleId);
     if (typeof settings === 'string') {
       return {
         severity: settings === 'on' ? 'error' : settings,
@@ -233,6 +233,22 @@ export class StyleguideConfig {
     } else {
       return { severity: 'error', ...settings };
     }
+  }
+
+  private getSettings<T>(
+    entity: Record<string, T>,
+    ruleId: string,
+  ) {
+    if (entity[ruleId]) return entity[ruleId];
+
+    if (ruleId.match('.*/.*')) {
+      const fullRuleName = Object.keys(entity).filter(
+        (key) => ruleId.split('/')[1] === key
+      );
+      return entity[fullRuleName[0]] || 'off';
+    }
+
+    return 'off';
   }
 
   getUnusedRules() {
