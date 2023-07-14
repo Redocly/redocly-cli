@@ -144,7 +144,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   for (const document of documents) {
     try {
       const version = detectOpenAPI(document.parsed);
-      if (version !== OasVersion.Version3_0) {
+      if (version !== OasVersion.Version3_0 && version !== OasVersion.Version3_1) {
         return exitWithError(
           `Only OpenAPI 3 is supported: ${blue(document.source.absoluteRef)} \n\n`
         );
