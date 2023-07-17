@@ -3,6 +3,13 @@ toc:
   maxDepth: 2
 ---
 
+
+# Redocly CLI changelog
+
+## 1.0.0-rc.1 (2023-07-17)
+
+No changes.
+
 # Redocly CLI changelog
 
 ## 1.0.0-beta.131 (2023-07-10)
