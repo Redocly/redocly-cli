@@ -126,6 +126,19 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 |                                        | `scalar-property-missing-example`             |
 |                                        | `spec-components-invalid-map-name`            |
 
+### Configurable and extensible rules
+
+If the built-in rules don't meet your requirements, don't worry! Redocly allows you to build any rule to meet your needs, using [configurable rules](../rules/configurable-rules.md). Declare which elements of the OpenAPI description should comply with the rule, and then define the criteria that it should be checked against.
+
+Build up the rulesets that work for your organization's API standards. These can be:
+ - using existing Redocly rulesets
+ - defining your own rulesets from built-in, configurable and/or custom rules
+ - combining rulesets from any source
+ - adding per-API additions or exceptions as required
+ - using an ignore file to overlook existing/historic incompatibilities while still enforcing rules for changed elements
+
+For some advanced use cases, the configurable rules can't cover all possibilities. If that happens, Redocly supports [adding rules in custom plugins](../resources/custom-plugins.md/#rules-in-plugins) so that you can use JavaScript to express any specialist rules you need.
+
 ## Explore tool functionality
 
 Redocly CLI supports multiple Redocly products and functions, so go ahead and [read more about Redocly CLI](../index.mdx).
