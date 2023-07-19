@@ -12,3 +12,4 @@ output/
 *.tsbuildinfo
 *.tgz
 redoc-static.html
+packages/cli/README.md

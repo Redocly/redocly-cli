@@ -3,9 +3,6 @@ name: Smoke tests
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - main
 
 env:
   CI: true
