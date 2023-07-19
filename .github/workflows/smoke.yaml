@@ -257,13 +257,24 @@ jobs:
     needs: prepare-smoke
     runs-on: ubuntu-latest
     name: Test Docker Image
-
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-
+      - uses: actions/cache@v3
+        with:
+          path: __tests__/smoke/
+          key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build docker image
         run: docker build -t redocly/cli:latest .
-
       - name: Run docker image
-        run: docker run --rm redocly/cli:latest --version
+        run: |
+          docker run --rm redocly/cli:latest --version
+          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest lint openapi.yaml
+          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest bundle openapi.yaml --ext json
+          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest build-docs openapi.yaml
+          # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073) 
+          if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
+            echo "Docs built correctly."
+          else
+            echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 317 lines in redoc-static.html)."
+            exit 1
+          fi
