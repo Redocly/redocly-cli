@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -34,7 +34,7 @@
     "Roman Hotsiy <roman@redoc.ly> (https://redoc.ly/)"
   ],
   "dependencies": {
-    "@redocly/openapi-core": "1.0.0-rc.1",
+    "@redocly/openapi-core": "1.0.0-rc.2",
     "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
