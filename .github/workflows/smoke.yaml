@@ -261,16 +261,17 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
-          path: __tests__/smoke/
+          path: __tests__/smoke
           key: cache-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build docker image
         run: docker build -t redocly/cli:latest .
       - name: Run docker image
         run: |
+          cd __tests__/smoke/
           docker run --rm redocly/cli:latest --version
-          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest lint openapi.yaml
-          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest bundle openapi.yaml --ext json
-          docker run --rm -v $PWD/__tests__/smoke:/spec redocly/cli:latest build-docs openapi.yaml
+          docker run --rm -v $PWD:/spec redocly/cli:latest lint openapi.yaml
+          docker run --rm -v $PWD:/spec redocly/cli:latest bundle openapi.yaml --ext json
+          docker run --rm -v $PWD:/spec redocly/cli:latest build-docs openapi.yaml
           # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073) 
           if [[ "$(wc -l redoc-static.html)" == "317 redoc-static.html" ]]; then
             echo "Docs built correctly."
