@@ -8,7 +8,7 @@ toc:
 
 ## 1.0.0-rc.2 (2023-07-19)
 
-No code changes.
+- Update package publishing process (no code changes)
 
 ## 1.0.0-rc.1 (2023-07-17)
 
