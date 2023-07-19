@@ -137,7 +137,7 @@ Build up the rulesets that work for your organization's API standards. These can
  - adding per-API additions or exceptions as required
  - using an ignore file to overlook existing/historic incompatibilities while still enforcing rules for changed elements
 
-For some advanced use cases, the configurable rules can't cover all possibilities. If that happens, Redocly supports [adding rules in custom plugins](../resources/custom-plugins.md/#rules-in-plugins) so that you can use JavaScript to express any specialist rules you need.
+For some advanced use cases, the configurable rules can't cover all possibilities. If that happens, Redocly supports [adding rules in custom plugins](../resources/custom-plugins.md#rules-in-plugins) so that you can use JavaScript to express any specialist rules you need.
 
 ## Explore tool functionality
 
