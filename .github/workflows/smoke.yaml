@@ -252,3 +252,17 @@ jobs:
         with:
           node-version: 18
       - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+
+  run-docker-image:
+    needs: prepare-smoke
+    runs-on: ubuntu-latest
+    name: Test Docker Image
+
+    steps:
+      - uses: actions/setup-node@v3
+
+      - name: Build docker image
+        run: docker build -t redocly/cli:latest .
+
+      - name: Run docker image
+        run: docker run --rm redocly/cli:latest --version
