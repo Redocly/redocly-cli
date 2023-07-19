@@ -259,6 +259,7 @@ jobs:
     name: Test Docker Image
 
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
 
       - name: Build docker image
