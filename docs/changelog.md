@@ -6,6 +6,10 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-rc.3 (2023-07-19)
+
+- Fixed issue with publishing to dockerhub (no code changes).
+
 ## 1.0.0-rc.2 (2023-07-19)
 
 - Update package publishing process (no code changes).
