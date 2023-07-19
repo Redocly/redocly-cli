@@ -6,11 +6,13 @@ toc:
 
 # Redocly CLI changelog
 
+## 1.0.0-rc.2 (2023-07-19)
+
+No code changes.
+
 ## 1.0.0-rc.1 (2023-07-17)
 
-No changes.
-
-# Redocly CLI changelog
+No code changes.
 
 ## 1.0.0-beta.131 (2023-07-10)
 
