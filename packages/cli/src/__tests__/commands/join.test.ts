@@ -1,7 +1,7 @@
 import { handleJoin } from '../../commands/join';
 import { exitWithError, writeYaml } from '../../utils';
 import { yellow } from 'colorette';
-import { detectOpenAPI } from '@redocly/openapi-core';
+import { detectSpec } from '@redocly/openapi-core';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 import { ConfigFixture } from '../fixtures/config';
 
@@ -81,7 +81,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should call writeYaml function', async () => {
-    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
@@ -107,7 +107,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should call writeYaml function with custom output file', async () => {
-    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
@@ -121,7 +121,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should call skipDecorators and skipPreprocessors', async () => {
-    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
@@ -136,7 +136,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should not call skipDecorators and skipPreprocessors', async () => {
-    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],

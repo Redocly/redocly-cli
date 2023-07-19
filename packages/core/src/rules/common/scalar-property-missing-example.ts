@@ -2,7 +2,7 @@ import type { Oas2Rule, Oas3Rule } from '../../visitors';
 import type { UserContext } from '../../walk';
 import type { Oas2Schema } from '../../typings/swagger';
 import type { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
-import { OasVersion } from '../../oas-types';
+import { SpecVersion } from '../../oas-types';
 
 const SCALAR_TYPES = ['string', 'integer', 'number', 'boolean', 'null'];
 
@@ -25,7 +25,7 @@ export const ScalarPropertyMissingExample: Oas3Rule | Oas2Rule = () => {
         ) {
           report({
             message: `Scalar property should have "example"${
-              oasVersion === OasVersion.Version3_1 ? ' or "examples"' : ''
+              oasVersion === SpecVersion.OAS3_1 ? ' or "examples"' : ''
             } defined.`,
             location: location.child(propName).key(),
           });

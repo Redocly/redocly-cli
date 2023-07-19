@@ -4,13 +4,10 @@ import {
   Config,
   StyleguideConfig,
   normalizeTypes,
-  Oas3Types,
-  Oas2Types,
   BaseResolver,
   resolveDocument,
-  detectOpenAPI,
-  OasMajorVersion,
-  openAPIMajor,
+  detectSpec,
+  getTypes,
   normalizeVisitors,
   walkDocument,
   Stats,
@@ -72,20 +69,16 @@ export async function handleStats(argv: StatsOptions, config: Config) {
   const externalRefResolver = new BaseResolver(config.resolve);
   const { bundle: document } = await bundle({ config, ref: path });
   const lintConfig: StyleguideConfig = config.styleguide;
-  const oasVersion = detectOpenAPI(document.parsed);
-  const oasMajorVersion = openAPIMajor(oasVersion);
+  const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(
-    lintConfig.extendTypes(
-      oasMajorVersion === OasMajorVersion.Version3 ? Oas3Types : Oas2Types,
-      oasVersion
-    ),
+    lintConfig.extendTypes(getTypes(specVersion), specVersion),
     lintConfig
   );
 
   const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: oasVersion,
+    oasVersion: specVersion,
     visitorsData: {},
   };
 

@@ -1,5 +1,5 @@
 import { Oas2Rule } from '../../visitors';
-import { OasSpec } from '../common/spec';
+import { Spec } from '../common/spec';
 import { NoInvalidSchemaExamples } from '../common/no-invalid-schema-examples';
 import { NoInvalidParameterExamples } from '../common/no-invalid-parameter-examples';
 import { InfoContact } from '../common/info-contact';
@@ -43,7 +43,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 
 export const rules = {
-  spec: OasSpec as Oas2Rule,
+  spec: Spec as Oas2Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,
   'info-contact': InfoContact as Oas2Rule,

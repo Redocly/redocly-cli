@@ -1,14 +1,18 @@
 import type { ProblemSeverity, UserContext } from '../walk';
 import type {
   Oas3PreprocessorsSet,
-  OasMajorVersion,
+  SpecMajorVersion,
   Oas3DecoratorsSet,
   Oas2RuleSet,
   Oas2PreprocessorsSet,
   Oas2DecoratorsSet,
   Oas3RuleSet,
-  OasVersion,
+  SpecVersion,
+  Async2PreprocessorsSet,
+  Async2DecoratorsSet,
+  Async2RuleSet,
 } from '../oas-types';
+
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
 import type { SkipFunctionContext } from '../visitors';
@@ -43,16 +47,19 @@ export type StyleguideRawConfig = {
   oas2Rules?: Record<string, RuleConfig>;
   oas3_0Rules?: Record<string, RuleConfig>;
   oas3_1Rules?: Record<string, RuleConfig>;
+  async2Rules?: Record<string, RuleConfig>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_0Preprocessors?: Record<string, PreprocessorConfig>;
   oas3_1Preprocessors?: Record<string, PreprocessorConfig>;
+  async2Preprocessors?: Record<string, PreprocessorConfig>;
 
   decorators?: Record<string, DecoratorConfig>;
   oas2Decorators?: Record<string, DecoratorConfig>;
   oas3_0Decorators?: Record<string, DecoratorConfig>;
   oas3_1Decorators?: Record<string, DecoratorConfig>;
+  async2Decorators?: Record<string, DecoratorConfig>;
 };
 
 export type ApiStyleguideRawConfig = Omit<StyleguideRawConfig, 'plugins'>;
@@ -68,23 +75,26 @@ export type ResolvedStyleguideConfig = PluginStyleguideConfig & {
 export type PreprocessorsConfig = {
   oas3?: Oas3PreprocessorsSet;
   oas2?: Oas2PreprocessorsSet;
+  async2?: Async2PreprocessorsSet;
 };
 
 export type DecoratorsConfig = {
   oas3?: Oas3DecoratorsSet;
   oas2?: Oas2DecoratorsSet;
+  async2?: Async2DecoratorsSet;
 };
 
 export type TypesExtensionFn = (
   types: Record<string, NodeType>,
-  oasVersion: OasVersion
+  oasVersion: SpecVersion
 ) => Record<string, NodeType>;
 
-export type TypeExtensionsConfig = Partial<Record<OasMajorVersion, TypesExtensionFn>>;
+export type TypeExtensionsConfig = Partial<Record<SpecMajorVersion, TypesExtensionFn>>;
 
 export type CustomRulesConfig = {
   oas3?: Oas3RuleSet;
   oas2?: Oas2RuleSet;
+  async2?: Async2RuleSet;
 };
 
 export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };

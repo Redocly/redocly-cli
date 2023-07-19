@@ -1,37 +1,40 @@
 import { NodeType, listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
-const responseCodeRegexp = /^[0-9][0-9Xx]{2}$/;
 
-const DefinitionRoot: NodeType = {
+const Root: NodeType = {
   properties: {
-    asyncapi: null, // done
-    info: 'Info', // done,
-    id: { type: 'string' }, // done
+    asyncapi: null,
+    info: 'Info',
+    id: { type: 'string' },
     servers: 'ServeMap',
     channels: 'ChannelMap',
     components: 'Components',
-    tags: listOf('Tag'),
+    tags: 'TagList',
     externalDocs: 'ExternalDocs',
+    defaultContentType: { type: 'string' },
   },
-  required: ['openapi', 'channels', 'info'],
+  required: ['asyncapi', 'channels', 'info'],
 };
-
 
 const Channel: NodeType = {
   properties: {
     description: { type: 'string' },
     subscribe: 'Operation',
     publish: 'Operation',
-    Parameter: mapOf('Parameter'),
-    bindings: mapOf('ChannelBinding'), // todo
+    parameters: 'ParametersMap',
+    bindings: 'ChannelBindingsMap',
+    servers: { type: 'array', items: { type: 'string' } },
   },
-}
-
+};
 
 const ChannelMap: NodeType = {
   properties: {},
   additionalProperties: 'Channel',
-}
+};
+
+const ChannelBinding: NodeType = {
+  properties: {},
+};
 
 const Tag: NodeType = {
   properties: {
@@ -92,7 +95,7 @@ const MqttServerBinding: NodeType = {
 const Mqtt5ServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
-const Nats5ServerBinding: NodeType = {
+const NatsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
 const JmsServerBinding: NodeType = {
@@ -113,8 +116,8 @@ const RedisServerBinding: NodeType = {
 
 const ServerBindings: NodeType = {
   properties: {
-    http: 'HTTPServerBinding',
-    ws: 'WSServerBinding',
+    http: 'HttpServerBinding',
+    ws: 'WsServerBinding',
     kafka: 'KafkaServerBinding',
     amqp: 'AmqpServerBinding',
     amqp1: 'Amqp1ServerBinding',
@@ -131,21 +134,20 @@ const ServerBindings: NodeType = {
 };
 
 const Server: NodeType = {
-  // done
   properties: {
     url: { type: 'string' },
     protocol: { type: 'string' },
     protocolVersion: { type: 'string' },
     description: { type: 'string' },
-    variables: mapOf('ServerVariable'),
-    security: listOf('SecurityRequirement'),
+    variables: 'ServerVariablesMap',
+    security: 'SecurityRequirementList',
     bindings: 'ServerBindings',
+    tags: 'TagList',
   },
   required: ['url', 'protocol'],
 };
 
 const ServeMap: NodeType = {
-  // done
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
@@ -165,7 +167,7 @@ const ServerVariable: NodeType = {
       items: { type: 'string' },
     },
   },
-  required: ['default'],
+  required: [],
 };
 
 const Info: NodeType = {
@@ -199,36 +201,55 @@ const License: NodeType = {
   required: ['name'],
 };
 
-const PathMap: NodeType = {
-  properties: {},
-  additionalProperties: (_value: any, key: string) =>
-    key.startsWith('/') ? 'PathItem' : undefined,
-};
-
-const PathItem: NodeType = {
-  properties: {
-    $ref: { type: 'string' }, // TODO: verify special $ref handling for Path Item
-    servers: listOf('Server'),
-    parameters: listOf('Parameter'),
-    summary: { type: 'string' },
-    description: { type: 'string' },
-    get: 'Operation',
-    put: 'Operation',
-    post: 'Operation',
-    delete: 'Operation',
-    options: 'Operation',
-    head: 'Operation',
-    patch: 'Operation',
-    trace: 'Operation',
-  },
-};
-
-const Parameter: NodeType = { // done
+const Parameter: NodeType = {
   properties: {
     description: { type: 'string' },
     schema: 'Schema',
     location: { type: 'string' },
   },
+};
+
+const CorrelationId: NodeType = {
+  properties: {}, // TODO
+  additionalProperties: {},
+}
+
+const Message: NodeType = {
+  properties: {
+    messageId: { type: 'string' },
+    headers: 'Schema',
+    // payload: 'Schema', // TODO
+    correlationId: 'CorrelationId',
+
+    schemaFormat: { type: 'string' }, // todo
+    contentType: { type: 'string' },
+    name: { type: 'string' },
+    title: { type: 'string' },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    tags: 'TagList',
+    externalDocs: 'ExternalDocs',
+    // bindings: 'MessageBindingsMap', TODO
+    // examples: 'MessageExampleList', // TODO
+    traits: 'MessageTraitList',
+     // TODO
+  },
+  additionalProperties: {},
+};
+
+const OperationBinding: NodeType = {
+  properties: {}, // TODO
+  additionalProperties: {},
+};
+
+const OperationTrait: NodeType = {
+  properties: {}, // TODO
+  additionalProperties: {},
+};
+
+const MessageTrait: NodeType = {
+  properties: {}, // TODO
+  additionalProperties: {},
 };
 
 const Operation: NodeType = {
@@ -241,18 +262,15 @@ const Operation: NodeType = {
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
     operationId: { type: 'string' },
-    parameters: listOf('Parameter'),
-    security: listOf('SecurityRequirement'),
-    servers: listOf('Server'),
-    requestBody: 'RequestBody',
-    responses: 'ResponsesMap',
-    deprecated: { type: 'boolean' },
-    callbacks: mapOf('Callback'),
-    'x-codeSamples': listOf('XCodeSample'),
-    'x-code-samples': listOf('XCodeSample'), // deprecated
-    'x-hideTryItPanel': { type: 'boolean' },
+    security: 'SecurityRequirementList',
+
+    bindings: 'OperationBindingsMap',
+    traits: 'OperationTraitList',
+    message: 'Message',
+
+    'x-codeSamples': 'XCodeSampleList',
   },
-  required: ['responses'],
+  required: [],
 };
 
 const XCodeSample: NodeType = {
@@ -262,83 +280,13 @@ const XCodeSample: NodeType = {
     source: { type: 'string' },
   },
 };
-
-const RequestBody: NodeType = {
+const MessageExample: NodeType = {
   properties: {
-    description: { type: 'string' },
-    required: { type: 'boolean' },
-    content: 'MediaTypeMap',
-  },
-  required: ['content'],
-};
-
-const MediaTypeMap: NodeType = {
-  properties: {},
-  additionalProperties: 'MediaType',
-};
-
-const MediaType: NodeType = {
-  properties: {
-    schema: 'Schema',
-    example: { isExample: true },
-    examples: mapOf('Example'),
-    encoding: mapOf('Encoding'),
-  },
-};
-
-const Example: NodeType = {
-  properties: {
-    value: { isExample: true },
+    payload: { isExample: true },
     summary: { type: 'string' },
-    description: { type: 'string' },
-    externalValue: { type: 'string' },
+    name: { type: 'string' },
+    headers: { type: 'object' },
   },
-};
-
-const Encoding: NodeType = {
-  properties: {
-    contentType: { type: 'string' },
-    headers: mapOf('Header'),
-    style: {
-      enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
-    },
-    explode: { type: 'boolean' },
-    allowReserved: { type: 'boolean' },
-  },
-};
-
-const Header: NodeType = {
-  properties: {
-    description: { type: 'string' },
-    required: { type: 'boolean' },
-    deprecated: { type: 'boolean' },
-    allowEmptyValue: { type: 'boolean' },
-    style: {
-      enum: ['form', 'simple', 'label', 'matrix', 'spaceDelimited', 'pipeDelimited', 'deepObject'],
-    },
-    explode: { type: 'boolean' },
-    allowReserved: { type: 'boolean' },
-    schema: 'Schema',
-    example: { isExample: true },
-    examples: mapOf('Example'),
-    content: 'MediaTypeMap',
-  },
-};
-
-const ResponsesMap: NodeType = {
-  properties: { default: 'Response' },
-  additionalProperties: (_v: any, key: string) =>
-    responseCodeRegexp.test(key) ? 'Response' : undefined,
-};
-
-const Response: NodeType = {
-  properties: {
-    description: { type: 'string' },
-    headers: mapOf('Header'),
-    content: 'MediaTypeMap',
-    links: mapOf('Link'),
-  },
-  required: ['description'],
 };
 
 const Link: NodeType = {
@@ -432,18 +380,24 @@ const Schema: NodeType = {
     default: null,
     readOnly: { type: 'boolean' },
     writeOnly: { type: 'boolean' },
-    xml: 'Xml',
+    // xml: 'Xml',
     examples: { type: 'array' },
     example: { isExample: true },
     deprecated: { type: 'boolean' },
     const: null,
     $comment: { type: 'string' },
+    dependencies: { type: 'object' }, // TODO
   },
 };
 
 const SchemaProperties: NodeType = {
   properties: {},
-  additionalProperties: 'Schema',
+  additionalProperties: (value: any) => {
+    if (typeof value === 'boolean') {
+      return { type: 'boolean' };
+    }
+    return 'Schema';
+  }
 };
 
 const DiscriminatorMapping: NodeType = {
@@ -467,15 +421,14 @@ const Discriminator: NodeType = {
 
 const Components: NodeType = {
   properties: {
+    messages: 'NamedMessages',
     parameters: 'NamedParameters',
     schemas: 'NamedSchemas',
-    responses: 'NamedResponses',
-    examples: 'NamedExamples',
-    requestBodies: 'NamedRequestBodies',
-    headers: 'NamedHeaders',
+    correlationIds: 'NamedCorrelationIds',
+    messageTraits: 'NamedMessageTraits',
+    operationTraits: 'NamedOperationTraits',
+    streamHeaders: 'NamedStreamHeaders',
     securitySchemes: 'NamedSecuritySchemes',
-    links: 'NamedLinks',
-    callbacks: 'NamedCallbacks',
   },
 };
 
@@ -527,10 +480,26 @@ const SecuritySchemeFlows: NodeType = {
 
 const SecurityScheme: NodeType = {
   properties: {
-    type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect'] },
+    type: {
+      enum: [
+        'userPassword',
+        'apiKey',
+        'X509',
+        'symmetricEncryption',
+        'asymmetricEncryption',
+        'httpApiKey',
+        'http',
+        'oauth2',
+        'openIdConnect',
+        'plain',
+        'scramSha256',
+        'scramSha512',
+        'gssapi',
+      ],
+    },
     description: { type: 'string' },
     name: { type: 'string' },
-    in: { type: 'string', enum: ['query', 'header', 'cookie'] },
+    in: { type: 'string', enum: ['query', 'header', 'cookie', 'user', 'password'] },
     scheme: { type: 'string' },
     bearerFormat: { type: 'string' },
     flows: 'SecuritySchemeFlows',
@@ -539,6 +508,8 @@ const SecurityScheme: NodeType = {
   required(value) {
     switch (value?.type) {
       case 'apiKey':
+        return ['type', 'in'];
+      case 'httpApiKey':
         return ['type', 'name', 'in'];
       case 'http':
         return ['type', 'scheme'];
@@ -567,45 +538,58 @@ const SecurityScheme: NodeType = {
   extensionsPrefix: 'x-',
 };
 
-export const Oas3Types: Record<string, NodeType> = {
-  DefinitionRoot,
+export const AsyncApi2Types: Record<string, NodeType> = {
+  Root,
   Tag,
+  TagList: listOf('Tag'),
+  ServeMap,
   ExternalDocs,
   Server,
   ServerVariable,
+  ServerVariablesMap: mapOf('ServerVariable'),
   SecurityRequirement,
+  SecurityRequirementList: listOf('SecurityRequirement'),
   Info,
   Contact,
   License,
-  PathMap,
-  PathItem,
+
+  HttpServerBinding,
+  WsServerBinding,
+  KafkaServerBinding,
+  AmqpServerBinding,
+  Amqp1ServerBinding,
+  MqttServerBindingLastWill,
+  MqttServerBinding,
+  Mqtt5ServerBinding,
+  NatsServerBinding,
+  JmsServerBinding,
+  SnsServerBinding,
+  SqsServerBinding,
+  StompServerBinding,
+  RedisServerBinding,
+  ServerBindings,
+  ChannelBinding,
+  ChannelMap,
+  Channel,
+  ChannelBindingsMap: mapOf('ChannelBinding'),
   Parameter,
+  ParametersMap: mapOf('Parameter'),
   Operation,
-  Callback: mapOf('PathItem'),
-  RequestBody,
-  MediaTypeMap,
-  MediaType,
-  Example,
-  Encoding,
-  Header,
-  ResponsesMap,
-  Response,
   Link,
   Schema,
-  Xml,
+  MessageExample,
   SchemaProperties,
   DiscriminatorMapping,
   Discriminator,
   Components,
   NamedSchemas: mapOf('Schema'),
-  NamedResponses: mapOf('Response'),
+  NamedMessages: mapOf('Message'),
+  NamedMessageTraits: mapOf('MessageTrait'),
+  NamedOperationTraits: mapOf('OperationTrait'),
   NamedParameters: mapOf('Parameter'),
-  NamedExamples: mapOf('Example'),
-  NamedRequestBodies: mapOf('RequestBody'),
-  NamedHeaders: mapOf('Header'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
-  NamedLinks: mapOf('Link'),
-  NamedCallbacks: mapOf('Callback'),
+  NamedCorrelationIds: mapOf('CorrelationId'),
+  NamedStreamHeaders: mapOf('StreamHeader'),
   ImplicitFlow,
   PasswordFlow,
   ClientCredentials,
@@ -613,5 +597,13 @@ export const Oas3Types: Record<string, NodeType> = {
   SecuritySchemeFlows,
   SecurityScheme,
   XCodeSample,
-  WebhooksMap,
+  XCodeSampleList: listOf('XCodeSample'),
+  Message,
+  OperationBinding,
+  OperationBindingsMap: mapOf('OperationBinding'),
+  OperationTrait,
+  OperationTraitList: listOf('OperationTrait'),
+  MessageTrait,
+  MessageTraitList: listOf('MessageTrait'),
+  CorrelationId,
 };

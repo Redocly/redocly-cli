@@ -1,16 +1,13 @@
 import { BaseResolver, resolveDocument, Document, makeDocumentFromString } from './resolve';
 import { normalizeVisitors } from './visitors';
-import { Oas3_1Types } from './types/oas3_1';
-import { Oas3Types } from './types/oas3';
-import { Oas2Types } from './types/oas2';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
-import { detectOpenAPI, Oas3RuleSet, OasMajorVersion, OasVersion, openAPIMajor } from './oas-types';
+import { Oas3RuleSet, SpecVersion, majorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
-import { OasSpec } from './rules/common/spec';
+import { Spec } from './rules/common/spec';
 
 export async function lint(opts: {
   ref: string;
@@ -54,29 +51,22 @@ export async function lintDocument(opts: {
   releaseAjvInstance(); // FIXME: preprocessors can modify nodes which are then cached to ajv-instance by absolute path
 
   const { document, customTypes, externalRefResolver, config } = opts;
-  const oasVersion = detectOpenAPI(document.parsed);
-  const oasMajorVersion = openAPIMajor(oasVersion);
-  const rules = config.getRulesForOasVersion(oasMajorVersion);
+  const specVersion = detectSpec(document.parsed);
+  const specMajorVersion = majorSpecVersion(specVersion);
+  const rules = config.getRulesForOasVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
-        ? oasVersion === OasVersion.Version3_1
-          ? Oas3_1Types
-          : Oas3Types
-        : Oas2Types,
-      oasVersion
-    ),
+    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
   );
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: oasVersion,
+    oasVersion: specVersion,
     visitorsData: {},
   };
 
-  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
-  const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', oasVersion);
+  const preprocessors = initRules(rules as any, config, 'preprocessors', specVersion);
+  const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', specVersion);
 
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,
@@ -117,7 +107,7 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
 
   const ctx: WalkContext = {
     problems: [],
-    oasVersion: OasVersion.Version3_0,
+    oasVersion: SpecVersion.OAS3_0,
     visitorsData: {},
   };
   const plugins = resolvePlugins([defaultPlugin]);
@@ -131,10 +121,11 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
     {
       severity: severity || 'error',
       ruleId: 'configuration spec',
-      visitor: OasSpec({ severity: 'error' }),
+      visitor: Spec({ severity: 'error' }),
     },
   ];
-  const normalizedVisitors = normalizeVisitors(rules, types);
+  // TODO: check why any is needed
+  const normalizedVisitors = normalizeVisitors(rules as any, types);
 
   walkDocument({
     document,

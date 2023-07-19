@@ -1,5 +1,5 @@
 import { Oas3RuleSet } from '../../oas-types';
-import { OasSpec } from '../common/spec';
+import { Spec } from '../common/spec';
 import { Operation2xxResponse } from '../common/operation-2xx-response';
 import { Operation4xxResponse } from '../common/operation-4xx-response';
 import { Assertions } from '../common/assertions';
@@ -54,7 +54,7 @@ import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { ComponentNameUnique } from './component-name-unique';
 
 export const rules = {
-  spec: OasSpec,
+  spec: Spec,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
   'info-license-url': InfoLicenseUrl,

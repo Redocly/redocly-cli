@@ -1,4 +1,4 @@
-import { OasVersion } from '../../oas-types';
+import { SpecVersion } from '../../oas-types';
 import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 import { doesYamlFileExist } from '../../utils';
@@ -279,19 +279,19 @@ describe('StyleguideConfig.extendTypes', () => {
   };
   it('should call only oas3 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, OasVersion.Version3_0);
+    styleguideConfig.extendTypes({}, SpecVersion.Version3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, OasVersion.Version2);
+    styleguideConfig.extendTypes({}, SpecVersion.Version2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
   it('should throw error if for oas version different from 2 and 3', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    expect(() => styleguideConfig.extendTypes({}, 'something else' as OasVersion)).toThrowError(
+    expect(() => styleguideConfig.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
       'Not implemented'
     );
   });

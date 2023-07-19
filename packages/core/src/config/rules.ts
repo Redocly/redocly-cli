@@ -1,4 +1,4 @@
-import { RuleSet, OasVersion } from '../oas-types';
+import { RuleSet, SpecVersion } from '../oas-types';
 import { StyleguideConfig } from './config';
 import { isDefined } from '../utils';
 import type { ProblemSeverity } from '../walk';
@@ -13,7 +13,7 @@ export function initRules<T extends Function, P extends RuleSet<T>>(
   rules: P[],
   config: StyleguideConfig,
   type: 'rules' | 'preprocessors' | 'decorators',
-  oasVersion: OasVersion
+  oasVersion: SpecVersion
 ): InitializedRule[] {
   return rules
     .flatMap((ruleset) =>

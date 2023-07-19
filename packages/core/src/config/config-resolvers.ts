@@ -151,6 +151,9 @@ export function resolvePlugins(
         if (pluginModule.rules.oas2) {
           plugin.rules.oas2 = prefixRules(pluginModule.rules.oas2, id);
         }
+        if (pluginModule.rules.async2) {
+          plugin.rules.async2 = prefixRules(pluginModule.rules.async2, id);
+        }
       }
       if (pluginModule.preprocessors) {
         if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
@@ -165,6 +168,9 @@ export function resolvePlugins(
         if (pluginModule.preprocessors.oas2) {
           plugin.preprocessors.oas2 = prefixRules(pluginModule.preprocessors.oas2, id);
         }
+        if (pluginModule.preprocessors.async2) {
+          plugin.preprocessors.async2 = prefixRules(pluginModule.preprocessors.async2, id);
+        }
       }
 
       if (pluginModule.decorators) {
@@ -177,6 +183,9 @@ export function resolvePlugins(
         }
         if (pluginModule.decorators.oas2) {
           plugin.decorators.oas2 = prefixRules(pluginModule.decorators.oas2, id);
+        }
+        if (pluginModule.decorators.async2) {
+          plugin.decorators.async2 = prefixRules(pluginModule.decorators.async2, id);
         }
       }
 
