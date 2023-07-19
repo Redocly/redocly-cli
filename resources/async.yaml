@@ -268,7 +268,7 @@ components:
         example:
           objectLinks: "lwm2m=1.1, </0/0>, </1/1>;ssid=1, </2>, </3/0>"
     turnOnOff:
-      name: turnOnOff
+      # name: turnOnOff
       title: Turn on/off
       summary: Command a particular streetlight to turn the lights on or off.
       payload:

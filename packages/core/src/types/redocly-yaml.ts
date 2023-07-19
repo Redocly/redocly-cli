@@ -121,6 +121,7 @@ const nodeTypesList = [
   'XCodeSampleList',
   'WebhooksMap',
   'SpecExtension',
+  'Message',
 ];
 
 const ConfigStyleguide: NodeType = {

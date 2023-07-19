@@ -5,3 +5,13 @@ apis:
     extends: []
 extends:
   - recommended
+rules:
+  rule/message-name-required:
+    subject:
+      type: Message
+      property: name
+    message: Message name should be defined, folks!
+    severity: error
+    assertions:
+      defined: true
+
