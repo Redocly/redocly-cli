@@ -167,7 +167,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--yarn--node-20--redoc:
     needs: prepare-smoke
@@ -180,7 +180,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--yarn--node-18:
     needs: prepare-smoke
@@ -193,7 +193,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--yarn--node-18--redoc:
     needs: prepare-smoke
@@ -206,7 +206,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add redoc ./redocly-cli.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-smoke--webpack--node-14:
     needs: prepare-smoke
@@ -251,7 +251,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli-clean.tgz" "yarn" # FIXME: Use actual openapi-core
+      - run: bash ./__tests__/smoke/run-smoke.sh "yarn add ./redocly-cli.tgz" "yarn" # FIXME: Use actual openapi-core
 
   run-docker-image:
     needs: prepare-smoke
