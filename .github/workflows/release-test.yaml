@@ -17,10 +17,12 @@ jobs:
         run: npm i -g @redocly/cli@latest
       - name: Test version from NPM
         run: |
-          if [[ "$(cat package.json | jq -r '.version')" == "$(redocly --version)" ]]; then
-            echo "The version is correct"
+          expected_version="$(cat package.json | jq -r '.version')"
+          actual_version="$(redocly --version)"
+          if [[ $expected_version == $actual_version  ]]; then
+            echo "The version is correct. Actual version: $actual_version"
           else
-            echo "The version is incorrect"
+            echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
             exit 1
           fi
           redocly lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
@@ -30,10 +32,12 @@ jobs:
         run: docker pull redocly/cli:latest
       - name: Test docker image
         run: |
-          if [[ "$(cat package.json | jq -r '.version')" == "$(docker run --rm redocly/cli --version)" ]]; then
-            echo "The version is correct"
+          expected_version="$(cat package.json | jq -r '.version')"
+          actual_version="$(docker run --rm redocly/cli --version)"
+          if [[ $expected_version == $actual_version  ]]; then
+            echo "The version is correct. Actual version: $actual_version"
           else
-            echo "The version is incorrect"
+            echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
             exit 1
           fi
           docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
