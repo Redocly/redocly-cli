@@ -15,17 +15,27 @@ jobs:
       - uses: actions/setup-node@v3
       - name: Install CLI from npm
         run: npm i -g @redocly/cli@latest
-      - name: Check version
-        run: | 
-          cd ..
-          if [[ "$(cat redocly-cli/package.json | jq -r '.version')" == "$(redocly --version)" ]]; then
-                      echo "The version is correct"
-                    else
-                      echo "The version is incorrect"
-                      exit 1
-                    fi
-      - name: Run CLI commands
+      - name: Test version from NPM
         run: |
-          redocly lint redocly-cli/resources/pets.yaml --extends minimal
-          redocly bundle redocly-cli/resources/pets.yaml --ext json
-          redocly build-docs redocly-cli/resources/pets.yaml
+          if [[ "$(cat package.json | jq -r '.version')" == "$(redocly --version)" ]]; then
+            echo "The version is correct"
+          else
+            echo "The version is incorrect"
+            exit 1
+          fi
+          redocly lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          redocly bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          redocly build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+      - name: Pull docker image
+        run: docker pull redocly/cli:latest
+      - name: Test docker image
+        run: |
+          if [[ "$(cat package.json | jq -r '.version')" == "$(docker run --rm redocly/cli --version)" ]]; then
+            echo "The version is correct"
+          else
+            echo "The version is incorrect"
+            exit 1
+          fi
+          docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          docker run --rm redocly/cli build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
