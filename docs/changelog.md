@@ -8,7 +8,14 @@ toc:
 
 ## 1.0.0-rc.3 (2023-07-20)
 
-- Fixed issue with publishing to dockerhub (no code changes).
+### Fixes
+
+- Fixed issue with publishing to Docker Hub (no code changes).
+- Fixed smoke tests in Yarn and Docker environments.
+
+### Changes
+
+- Added job for testing new version (no code changes).
 
 ## 1.0.0-rc.2 (2023-07-19)
 
