@@ -33,7 +33,7 @@
     "webpack-bundle": "webpack --config webpack.config.ts",
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
-    "pack:prepare": "bash scripts/local-pack.sh"
+    "pack:prepare": "./scripts/local-pack.sh"
   },
   "workspaces": [
     "packages/*"
