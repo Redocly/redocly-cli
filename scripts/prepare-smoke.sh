@@ -3,9 +3,6 @@
 # For Workflows (Webpack)
 npm run webpack-bundle 
 
-# For yarn (Doesn't support version changing)
-(cd packages/cli && cli=$(npm pack | tail -n 1) && mv $cli ../../__tests__/smoke/redocly-cli-clean.tgz) 
-
 # For npm (Mutates packages/cli/package.json)
 npm run pack:prepare
 
