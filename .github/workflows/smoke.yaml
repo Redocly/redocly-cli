@@ -255,7 +255,6 @@ jobs:
 
   run-smoke--docker-image:
     runs-on: ubuntu-latest
-    name: Test Docker Image
     steps:
       - uses: actions/checkout@v3
       - name: Build docker image
