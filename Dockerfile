@@ -7,7 +7,6 @@ COPY package.json package-lock.json /build/
 COPY packages/cli/package.json /build/packages/cli/
 COPY packages/core/package.json   /build/packages/core/
 COPY packages/cli/bin/ /build/packages/cli/bin/
-# COPY scripts/local-pack.sh /build/scripts/local-pack.sh
 
 RUN npm ci --no-optional --ignore-scripts
 
