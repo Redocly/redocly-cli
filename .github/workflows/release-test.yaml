@@ -1,0 +1,31 @@
+name: Test Released version
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+jobs:
+  test-released-version:
+    name: Test released version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install CLI from npm
+        run: npm i -g @redocly/cli@latest
+      - name: Check version
+        run: | 
+          cd ..
+          if [[ "$(cat redocly-cli/package.json | jq -r '.version')" == "$(redocly --version)" ]]; then
+                      echo "The version is correct"
+                    else
+                      echo "The version is incorrect"
+                      exit 1
+                    fi
+      - name: Run CLI commands
+        run: |
+          redocly lint redocly-cli/resources/pets.yaml --extends minimal
+          redocly bundle redocly-cli/resources/pets.yaml --ext json
+          redocly build-docs redocly-cli/resources/pets.yaml
