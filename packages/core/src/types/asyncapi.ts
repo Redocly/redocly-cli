@@ -95,6 +95,10 @@ const JmsChannelBinding: NodeType = {
   },
 };
 
+const SolaceChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
 const StompChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
@@ -120,6 +124,7 @@ const ChannelBindings: NodeType = {
     nats: 'NatsChannelBinding',
     jms: 'JmsChannelBinding',
     // TODO    sns: 'SnsChannelBinding',
+    solace: 'SolaceChannelBinding',
     // TODO    sqs: 'SqsChannelBinding',
     stomp: 'StompChannelBinding',
     redis: 'RedisChannelBinding',
@@ -199,6 +204,12 @@ const JmsServerBinding: NodeType = {
 const SnsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+const SolaceServerBinding: NodeType = {
+  properties: {
+    bindingVersion: { type: 'string' },
+    msgVpn: { type: 'string' },
+  },
+};
 const SqsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
@@ -225,6 +236,7 @@ const ServerBindings: NodeType = {
     nats: 'NatsServerBinding',
     jms: 'JmsServerBinding',
     sns: 'SnsServerBinding',
+    solace: 'SolaceServerBinding',
     sqs: 'SqsServerBinding',
     stomp: 'StompServerBinding',
     redis: 'RedisServerBinding',
@@ -655,6 +667,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   NatsServerBinding,
   JmsServerBinding,
   SnsServerBinding,
+  SolaceServerBinding,
   SqsServerBinding,
   StompServerBinding,
   RedisServerBinding,
@@ -671,6 +684,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   Mqtt5ChannelBinding,
   NatsChannelBinding,
   JmsChannelBinding,
+  SolaceChannelBinding,
   StompChannelBinding,
   RedisChannelBinding,
   MercureChannelBinding,
