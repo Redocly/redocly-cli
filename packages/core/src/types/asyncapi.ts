@@ -376,30 +376,12 @@ const Operation: NodeType = {
   required: [],
 };
 
-const XCodeSample: NodeType = {
-  properties: {
-    lang: { type: 'string' },
-    label: { type: 'string' },
-    source: { type: 'string' },
-  },
-};
 const MessageExample: NodeType = {
   properties: {
     payload: { isExample: true },
     summary: { type: 'string' },
     name: { type: 'string' },
     headers: { type: 'object' },
-  },
-};
-
-const Link: NodeType = {
-  properties: {
-    operationRef: { type: 'string' },
-    operationId: { type: 'string' },
-    parameters: null, // TODO: figure out how to describe/validate this
-    requestBody: null, // TODO: figure out how to describe/validate this
-    description: { type: 'string' },
-    server: 'Server',
   },
 };
 
@@ -699,7 +681,6 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   Parameter,
   ParametersMap: mapOf('Parameter'),
   Operation,
-  Link,
   Schema,
   MessageExample,
   SchemaProperties,
@@ -720,8 +701,6 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   AuthorizationCode,
   SecuritySchemeFlows,
   SecurityScheme,
-  XCodeSample,
-  XCodeSampleList: listOf('XCodeSample'),
   Message,
   OperationBinding,
   OperationBindingsMap: mapOf('OperationBinding'),
