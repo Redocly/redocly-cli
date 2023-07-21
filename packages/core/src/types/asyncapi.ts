@@ -3,7 +3,7 @@ import { isMappingRef } from '../ref-utils';
 
 const Root: NodeType = {
   properties: {
-    asyncapi: null,
+    asyncapi: null, // TODO validate semver format and supported version
     info: 'Info',
     id: { type: 'string' },
     servers: 'ServeMap',
@@ -310,8 +310,11 @@ const Parameter: NodeType = {
 };
 
 const CorrelationId: NodeType = {
-  properties: {}, // TODO
-  additionalProperties: {},
+  properties: {
+    description: { type: 'string' },
+    location: { type: 'string' },
+    },
+  required: ['location'],
 }
 
 const Message: NodeType = {
@@ -529,6 +532,11 @@ const Components: NodeType = {
     operationTraits: 'NamedOperationTraits',
     streamHeaders: 'NamedStreamHeaders',
     securitySchemes: 'NamedSecuritySchemes',
+    servers: 'ServeMap',
+    serverVariables: 'ServerVariablesMap',
+    channels: 'ChannelMap',
+    serverBindings: 'ServerBindings',
+    channelBindings: 'ChannelBindings',
   },
 };
 
