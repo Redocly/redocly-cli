@@ -22,7 +22,7 @@ const Channel: NodeType = {
     subscribe: 'Operation',
     publish: 'Operation',
     parameters: 'ParametersMap',
-    bindings: 'ChannelBindingsMap',
+    bindings: 'ChannelBindings',
     servers: { type: 'array', items: { type: 'string' } },
   },
 };
@@ -32,8 +32,100 @@ const ChannelMap: NodeType = {
   additionalProperties: 'Channel',
 };
 
-const ChannelBinding: NodeType = {
-  properties: {},
+const HttpChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const WsChannelBinding: NodeType = {
+  properties: {
+    method: { type: 'string' },
+    query: 'Schema',
+    headers: 'Schema',
+    bindingVersion: { type: 'string' },
+  },
+};
+
+const KafkaTopicConfiguration: NodeType = {
+  properties: {}, // TODO
+};
+
+const KafkaChannelBinding: NodeType = {
+  properties: {
+    topic: { type: 'string' },
+    partitions: { type: 'integer' },
+    replicas: { type: 'integer' },
+    topicConfiguration: 'KafkaTopicConfiguration',
+    bindingVersion: { type: 'string' },
+  },
+};
+
+const AnypointmqChannelBinding: NodeType = {
+  properties: {
+    destination: { type: 'string' },
+    destinationType: { type: 'string' },
+    bindingVersion: { type: 'string' },
+  },
+};
+
+const Amqp1ChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const MqttChannelBinding: NodeType = {
+  properties: {
+    qos: { type: 'integer' },
+    retain: { type: 'boolean' },
+    bindingVersion: { type: 'string' },
+  },
+};
+
+const Mqtt5ChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const NatsChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const JmsChannelBinding: NodeType = {
+  properties: {
+    destination: { type: 'string' },
+    destinationType: { type: 'string' },
+    bindingVersion: { type: 'string' },
+  },
+};
+
+const StompChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const RedisChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const MercureChannelBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+
+const ChannelBindings: NodeType = {
+  properties: {
+    http: 'HttpChannelBinding',
+    ws: 'WsChannelBinding',
+    kafka: 'KafkaChannelBinding',
+    anypointmq: 'AnypointmqChannelBinding',
+    // TODO    amqp: 'AmqpChannelBinding',
+    amqp1: 'Amqp1ChannelBinding',
+    mqtt: 'MqttChannelBinding',
+    mqtt5: 'Mqtt5ChannelBinding',
+    nats: 'NatsChannelBinding',
+    jms: 'JmsChannelBinding',
+    // TODO    sns: 'SnsChannelBinding',
+    // TODO    sqs: 'SqsChannelBinding',
+    stomp: 'StompChannelBinding',
+    redis: 'RedisChannelBinding',
+    mercure: 'MercureChannelBinding',
+  },
+  additionalProperties: { type: 'object' },
 };
 
 const Tag: NodeType = {
@@ -66,6 +158,9 @@ const WsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
 const KafkaServerBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
+const AnypointmqServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
 const AmqpServerBinding: NodeType = {
@@ -113,12 +208,16 @@ const StompServerBinding: NodeType = {
 const RedisServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+const MercureServerBinding: NodeType = {
+  properties: {}, // some way to enforce empty object
+};
 
 const ServerBindings: NodeType = {
   properties: {
     http: 'HttpServerBinding',
     ws: 'WsServerBinding',
     kafka: 'KafkaServerBinding',
+    anypointmq: 'AnypointmqServerBinding',
     amqp: 'AmqpServerBinding',
     amqp1: 'Amqp1ServerBinding',
     mqtt: 'MqttServerBinding',
@@ -129,6 +228,7 @@ const ServerBindings: NodeType = {
     sqs: 'SqsServerBinding',
     stomp: 'StompServerBinding',
     redis: 'RedisServerBinding',
+    mercure: 'MercureServerBinding',
   },
   additionalProperties: { type: 'object' },
 };
@@ -556,6 +656,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   HttpServerBinding,
   WsServerBinding,
   KafkaServerBinding,
+  AnypointmqServerBinding,
   AmqpServerBinding,
   Amqp1ServerBinding,
   MqttServerBindingLastWill,
@@ -567,11 +668,26 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   SqsServerBinding,
   StompServerBinding,
   RedisServerBinding,
+  MercureServerBinding,
   ServerBindings,
-  ChannelBinding,
+
+  KafkaTopicConfiguration,
+  HttpChannelBinding,
+  WsChannelBinding,
+  KafkaChannelBinding,
+  AnypointmqChannelBinding,
+  Amqp1ChannelBinding,
+  MqttChannelBinding,
+  Mqtt5ChannelBinding,
+  NatsChannelBinding,
+  JmsChannelBinding,
+  StompChannelBinding,
+  RedisChannelBinding,
+  MercureChannelBinding,
+  ChannelBindings,
+
   ChannelMap,
   Channel,
-  ChannelBindingsMap: mapOf('ChannelBinding'),
   Parameter,
   ParametersMap: mapOf('Parameter'),
   Operation,
