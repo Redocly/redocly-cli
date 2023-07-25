@@ -379,9 +379,7 @@ describe('E2E', () => {
 
     test('simple build-docs', () => {
       const testPath = join(folderPath, 'simple-build-docs');
-      const args = getParams('../../../packages/cli/src/index.ts', 'build-docs', [
-        'pets.yaml',
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'build-docs', ['pets.yaml']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
 
@@ -399,7 +397,7 @@ describe('E2E', () => {
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
 
       expect(fs.existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(38839)
+      expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(38839);
     });
   });
 });
