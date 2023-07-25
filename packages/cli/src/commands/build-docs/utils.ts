@@ -5,7 +5,7 @@ import { Config, isAbsoluteUrl } from '@redocly/openapi-core';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { compile } from 'handlebars';
-import { join } from 'path';
+import { dirname, join, resolve } from 'path';
 import { existsSync, lstatSync, readFileSync } from 'fs';
 
 import type { BuildDocsOptions } from './types';
@@ -57,9 +57,10 @@ export async function getPageHTML(
     templateOptions,
     redocOptions = {},
     redocCurrentVersion,
-  }: BuildDocsOptions
+  }: BuildDocsOptions,
+  configPath: string | undefined
 ) {
-  process.stderr.write('Prerendering docs');
+  process.stderr.write('Prerendering docs\n');
 
   const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
   const store = await createStore(api, apiUrl, redocOptions);
@@ -72,7 +73,7 @@ export async function getPageHTML(
   templateFileName = templateFileName
     ? templateFileName
     : redocOptions?.htmlTemplate
-    ? (redocOptions.htmlTemplate as string)
+    ? resolve(configPath ? dirname(configPath) : '', redocOptions.htmlTemplate)
     : join(__dirname, './template.hbs');
   const template = compile(readFileSync(templateFileName).toString());
   return template({

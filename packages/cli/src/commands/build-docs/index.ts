@@ -30,12 +30,13 @@ export const handlerBuildCommand = async (argv: BuildDocsArgv, configFromFile: C
   try {
     const elapsed = getExecutionTime(startedAt);
 
-    const api = await loadAndBundleSpec(
-      isAbsoluteUrl(pathToApi)
-        ? pathToApi
-        : resolve(argv.config ? dirname(argv.config) : '', pathToApi)
+    const api = await loadAndBundleSpec(isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi));
+    const pageHTML = await getPageHTML(
+      api,
+      pathToApi,
+      { ...options, redocCurrentVersion },
+      argv.config
     );
-    const pageHTML = await getPageHTML(api, pathToApi, { ...options, redocCurrentVersion });
 
     mkdirSync(dirname(options.output), { recursive: true });
     writeFileSync(options.output, pageHTML);
