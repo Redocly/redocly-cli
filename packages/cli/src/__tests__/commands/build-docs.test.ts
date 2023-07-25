@@ -32,15 +32,10 @@ jest.mock('mkdirp', () => ({
 
 describe('build-docs', () => {
   it('should return correct html and call function for ssr', async () => {
-    const result = await getPageHTML(
-      {},
-      '../some-path/openapi.yaml',
-      {
-        ...config,
-        redocCurrentVersion: '2.0.0',
-      },
-      undefined
-    );
+    const result = await getPageHTML({}, '../some-path/openapi.yaml', {
+      ...config,
+      redocCurrentVersion: '2.0.0',
+    });
     expect(renderToString).toBeCalledTimes(1);
     expect(createStore).toBeCalledTimes(1);
     expect(result).toBe('<html></html>');

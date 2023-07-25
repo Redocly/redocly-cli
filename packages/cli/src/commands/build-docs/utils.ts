@@ -58,7 +58,7 @@ export async function getPageHTML(
     redocOptions = {},
     redocCurrentVersion,
   }: BuildDocsOptions,
-  configPath: string | undefined
+  configPath?: string
 ) {
   process.stderr.write('Prerendering docs\n');
 
