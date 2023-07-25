@@ -26,7 +26,7 @@ Similar to Spectral, Redocly offers multiple output formats using the `--format`
 
 ### Resolvers
 
-If you use `--resolver` to handle how links and remote URLs are resolved, visit the [configuration documentation](../../configuration.md/#resolve-object) to see how to handle this with Redocly.
+If you use `--resolver` to handle how links and remote URLs are resolved, visit the [configuration documentation](../configuration/index.mdx#resolve-object) to see how to handle this with Redocly.
 
 ## Update configuration
 
@@ -57,7 +57,7 @@ rules:
     message: "Operation summary must not include the word test"
 ```
 
-It is also possible to configure additional rules for specific APIs using the [APIs object](../../configuration.md/#apis-object) to set per-API rules (or exceptions!).
+It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration/index.mdx#apis-object) to set per-API rules (or exceptions!).
 
 
 ### Redocly rules and Spectral equivalents
