@@ -141,14 +141,23 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
+  const seenVersions = new Set();
   for (const document of documents) {
     try {
       const version = detectOpenAPI(document.parsed);
+
       if (version !== OasVersion.Version3_0 && version !== OasVersion.Version3_1) {
         return exitWithError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
             document.source.absoluteRef
           )} \n\n`
+        );
+      }
+
+      seenVersions.add(version);
+      if (seenVersions.size > 1) {
+        return exitWithError(
+          `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)} \n\n`
         );
       }
     } catch (e) {

@@ -63,6 +63,23 @@ describe('handleJoin fails', () => {
     );
   });
 
+  it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
+    (detectOpenAPI as jest.Mock)
+      .mockImplementationOnce(() => 'oas3_0')
+      .mockImplementationOnce(() => 'oas3_1');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+      },
+      ConfigFixture as any,
+      'cli-version'
+    );
+
+    expect(exitWithError).toHaveBeenCalledWith(
+      'All APIs must use the same OpenAPI version: undefined \n\n'
+    );
+  });
+
   it('should call writeYaml function', async () => {
     (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
