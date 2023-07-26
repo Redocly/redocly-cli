@@ -50,7 +50,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call exitWithError because Only OpenAPI 3 is supported', async () => {
+  it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
@@ -58,11 +58,24 @@ describe('handleJoin fails', () => {
       ConfigFixture as any,
       'cli-version'
     );
-    expect(exitWithError).toHaveBeenCalledWith('Only OpenAPI 3 is supported: undefined \n\n');
+    expect(exitWithError).toHaveBeenCalledWith('Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n');
   });
 
   it('should call writeYaml function', async () => {
     (detectOpenAPI as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.yaml', 'second.yaml'],
+      },
+      ConfigFixture as any,
+      'cli-version'
+    );
+
+    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'openapi.yaml', expect.any(Boolean));
+  });
+
+  it('should call writeYaml function for OpenAPI 3.1', async () => {
+    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_1');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],
