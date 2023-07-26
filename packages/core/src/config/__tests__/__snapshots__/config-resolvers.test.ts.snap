@@ -36,7 +36,6 @@ Object {
   "preprocessors": Object {},
   "recommendedFallback": false,
   "rules": Object {
-    "assertions": "warn",
     "boolean-parameter-prefixes": "error",
     "component-name-unique": "off",
     "info-contact": "off",
