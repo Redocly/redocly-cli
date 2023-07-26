@@ -58,7 +58,9 @@ describe('handleJoin fails', () => {
       ConfigFixture as any,
       'cli-version'
     );
-    expect(exitWithError).toHaveBeenCalledWith('Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n');
+    expect(exitWithError).toHaveBeenCalledWith(
+      'Only OpenAPI 3.0 and OpenAPI 3.1 are supported: undefined \n\n'
+    );
   });
 
   it('should call writeYaml function', async () => {
