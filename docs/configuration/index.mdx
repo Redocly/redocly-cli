@@ -11,50 +11,27 @@ toc:
 
 import { JsonSchema } from '@redocly/developer-portal/ui';
 import Schema from './schema.yaml';
-import ApiSchema from './api.yaml';
 import MockServerSchema from './mockserver.yaml';
 import ResolveSchema from './resolve.yaml';
 import { StyledContent } from '../../components/styled.elements';
 
 # Redocly configuration file
 
-The Redocly configuration file is used by Redocly CLI and other Redocly apps to control their behavior — from the strictness of the `lint` command, to how Redocly renders your docs.
+You can configure all of your Redocly tools using a single `redocly.yaml` configuration file in the root of your project. Your `redocly.yaml` configurations can be used locally, in CI, or on our hosted platforms to specify the following behaviors:
 
-- Workflows uses it in the API registry to manage your APIs and control advanced features like region and link resolution.
-- Workflows and on-premise tools use it to apply your features and theme when building API docs.
-- Redocly's VS Code extension uses it for linting criteria, to apply custom settings for live documentation previews, and to identify the path API definition root files.
+- The rules to apply to your APIs and how strictly to `lint`.
+- The styles and features to use when rendering your API documentation.
+- Project-aware configuration for the VSCode extension.
 
-## Filename, location, and format
+Redocly CLI searches for the file in the local directory, or you can specify a configuration file with your command.
 
-The Redocly configuration file must be named either `redocly.yaml` or `.redocly.yaml`.
-It must be located in the root of your project directory, and it must be in the YAML format.
-If you cloned the `openapi-starter` project, this is already set up for you.
+Our starter projects like `openapi-starter` include the file for you to edit.
 
-Redocly CLI searches for the configuration file in the working directory.
+## Example Redocly configuration file
 
-:::warning
+An example is worth a thousand words, or so they say. Here's a simple configuration file showing some of the options available and how to use them.
 
-If you have a `redocly.yaml` and a `.redocly.yaml` file  in the same directory, Redocly shows a warning in the output and ask you to choose one file.
-
-:::
-
-
-## File structure
-
-### Fixed properties
-<StyledContent>
-  <JsonSchema
-    schema={Schema}
-    options={{
-      schemaExpansionLevel:0,
-    }}
-  />
-</StyledContent>
-
-### Example
 ```yaml
-organization: testing_redocly
-
 extends:
   - recommended
 
@@ -80,188 +57,9 @@ theme:
         - lang: Python
 ```
 
-### `extends` list
+Read on to learn more about the various configuration sections and what you can do with each one.
 
-Use `extends` to list built-in configurations and other configuration files as the base settings.
-If you don't [override this base configuration](#priority-and-overrides), it is used for all APIs specified in your configuration file.
-
-If you don't have a Redocly configuration file, Redocly CLI automatically uses the `recommended` configuration.
-To override the default settings, you can either configure different settings for specific rules in the `rules` object, or create your own configuration files and reference them in the `extends` list.
-
-
-:::warning Important
-
-The previous behavior (automatically defaulting to the `recommended` configuration) was deprecated since `v1.0.0-beta.113`.
-
-The `extends` field has to be explicitly defined in the main configuration file for any extended configuration to apply.
-
-:::
-
-
-The `extends` list is structured as an array of strings.
-It supports the following types of values:
-
-- Built-in configuration name (`minimal` or `recommended`)
-- A plugin's registered configuration name
-- Path or URL to another Redocly configuration file
-
-When providing values as URLs, they must be publicly accessible.
-
-```yaml
-extends:
-  - built-in-configuration-name
-  - local-plugin-name/configuration-name
-  - ./path/to/another/redocly-configuration.yaml
-  - https://url-to-remote/redocly.yaml
-```
-
-
-#### Nested configuration
-
-Other configuration files linked in the `extends` list of your main Redocly configuration file may contain their own `extends` list.
-
-Custom plugins can't contain the `extends` list because recursive extension is not supported in that case.
-
-The following examples illustrate configuration nesting with multiple configuration files.
-
-```yaml Main redocly.yaml
-extends:
-  - custom.yaml
-```
-
-```yaml custom.yaml
-extends:
-  - nested.yaml
-rules:
-  tags-alphabetical: error
-  paths-kebab-case: warn
-```
-
-```yaml nested.yaml
-rules:
-  path-parameters-defined: error
-  tag-description: warn
-```
-
-
-#### Priority and overrides
-
-In case of conflict, individual API settings specified in the `apis` object always override settings globally specified.
-
-Redocly CLI applies the `extends` configuration in the order in which items are listed, from top to bottom.
-The further down an item appears, the higher its priority.
-
-In case of conflicting settings, content in the `rules` and `decorators` objects always overrides any content in the `extends` list.
-
-In the following example, the `rules` object and another configuration file in the `extends` list configure the same rule (`tags-alphabetical`).
-Due to the conflict, priority goes to the inline `rules` over the `extends` list, and the `tags-alphabetical` has a resulting severity level of `error`.
-
-
-```yaml redocly.yaml
-extends:
-  - custom.yaml
-rules:
-  tags-alphabetical: error
-  paths-kebab-case: warn
-```
-
-```yaml custom.yaml
-rules:
-  tags-alphabetical: warn
-  path-parameters-defined: warn
-```
-
-
-The same approach applies within the `extends` list.
-If you have multiple configurations that try to configure the same rule, only the setting from the last configuration in the list applies.
-
-In the following example, Redocly CLI uses the setting for the conflicting `tags-alphabetical` rule from the `testing.yaml` file, because that file is further down in the `extends` list.
-
-This means you can control the priority of configurations by reordering them in the `extends` list, and override all lint configurations (custom and built-in) by specifying individual rule settings in the `rules` object.
-
-```yaml redocly.yaml
-extends:
-  - custom.yaml
-  - testing.yaml
-```
-
-```yaml custom.yaml
-rules:
-  tags-alphabetical: warn
-  paths-kebab-case: warn
-```
-
-```yaml testing.yaml
-rules:
-  tags-alphabetical: error
-  path-parameters-defined: warn
-```
-
-### `plugins` list
-
-Use this list to import local plugins.
-If you don't have any custom plugins, omit this list.
-
-To prevent malicious code execution, custom plugins can't be imported from URLs, only from local files.
-Find more information on the [Configs in plugins](../resources/custom-plugins.md#configs-in-plugins) page.
-
-- **type**: `array of strings`
-
-#### Examples
-
-```yaml Import a single plugin
-plugins:
-  - './local-plugin.js'
-```
-
-```yaml Import multiple plugins
-plugins:
-  - './local-plugin.js'
-  - './another-local-plugin.js'
-```
-
-### apis object
-
-The `apis` object is used to configure one or more APIs.
-Every API in the object is identified by its name and version in the format `name@version`.
-The version is optional, and when not provided, Redocly apps interpret it as `latest` by default.
-Every `name@version` combination listed in the object must be unique.
-
-For every API listed in the object, you must provide the path to the OpenAPI definition using the `root` property.
-
-If `rules`, `decorators`, or `preprocessors` aren't defined for an API, root settings are used.
-If `rules`, `decorators`, or `preprocessors` are defined for an API, its settings apply together with the root configuration.
-If per-API and root settings modify the same properties, per-API settings overrides root settings.
-
-
-#### Patterned properties
-
-<StyledContent>
-  <JsonSchema
-    schema={ApiSchema}
-    options={{
-      schemaExpansionLevel:2,
-    }}
-  />
-</StyledContent>
-
-#### Example
-```yaml
-apis:
-  name@version:
-    root: ./openapi/openapi.yaml
-    labels:
-      - production
-    theme:
-      openapi: {}
-```
-
-:::warning Important
-
-Per-API configurations take priority over global settings.
-
-:::
-
+## Using configuration with Redocly CLI
 
 Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API definitions.
 You can tell the `lint` command to validate specific API definitions by using their names from the `apis` object, like in the following example:
@@ -270,15 +68,57 @@ You can tell the `lint` command to validate specific API definitions by using th
 redocly lint core@v2
 ```
 
-On the other hand, if you run the command without specifying any aliases, it applies to all API definitions listed in the `apis` object:
+On the other hand, if you run the command without specifying any aliases, it applies to all API definitions listed in the `apis` object of the configuration file.
 
 ```shell
 redocly lint
 ```
 
-### theme object
+This runs the `lint` command for every API defined in the configuration file.
 
-The `theme` object configures OpenAPI features, mock server features, and others.
+## Configuration file overview
+
+Learn about the various sections of the config file, and follow the links for detailed documentation for each.
+
+<a id="extends-list"></a>
+
+### Expand existing configuration with `extends`
+
+Use `extends` to adopt an existing [ruleset](../rules.md#rulesets) such as the `recommended` or `minimal` standards.
+You can also define your own rulesets and refer to them here by file path or URL.
+
+While the order of the sections in the configuration file doesn't matter, usually `extends` is first, and any later rules, preprocessors or decorators defined in this file will override the base settings.
+
+Read the [detailed `extends` documentation](./extends.md) to see more information and examples.
+
+### Configure linting `rules`
+
+In the `rules` section, configure which rules apply, their severity levels, and any options that they support.
+Configurable rules, and rules from custom plugins are also configured here.
+
+Use this section to adjust the linting rules from the rulesets or other base configuration set in `extends`, and fine-tune it to meet the needs of your API. Here's an example `redocly.yaml`, changing some rule severity, and using some additional configuration for a rule.
+
+```yaml
+rules:
+  no-unused-components: error
+  operation-singular-tag: warn
+  boolean-parameter-prefixes:
+    severity: error
+    prefixes: ['can', 'is', 'has']
+```
+
+You can also define your [configurable rules](../rules/configurable-rules.md) here.
+
+For more information and examples, visit the [configuring rules documentation](./rules.md).
+
+<a id="theme-object"></a>
+
+### Configure OpenAPI features and documentation styles in `theme`
+
+The `theme` section includes configuration options for the following aspects of your API documentation:
+
+- `mockServer` settings if you use Redocly API registry.
+- styles and features of your API documentation (applies to Redocly API reference and Redoc) in `openapi`.
 
 #### mockServer object
 
@@ -292,15 +132,15 @@ The `mockServer` object is a property of the `theme` object and allows additiona
 This object is optional.
 
 #### Fixed properties
+
 <StyledContent>
   <JsonSchema
     schema={MockServerSchema}
     options={{
-      schemaExpansionLevel:1,
+      schemaExpansionLevel: 1,
     }}
   />
 </StyledContent>
-
 
 #### openapi object
 
@@ -310,8 +150,61 @@ If you need to apply different theming and functionality to individual APIs, add
 
 Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/functionality.mdx).
 
+<a id="apis-object"></a>
 
-### resolve object
+### Configure each of the `apis` independently
+
+For organizations with multiple APIs, versions or environments, having specific configuration for each is a powerful tool.
+All configuration options can be nested within a specific API entry.
+
+#### Example of `apis` configuration
+
+```yaml
+extends:
+  - recommended
+
+apis:
+  public@v2:
+    root: ./openapi/openapi.yaml
+    rules:
+      operation-4xx-response: off
+  internal@v1:
+    root: ./internal-openapi/openapi.yaml
+    rules:
+      security-defined: off
+      operation-4xx-response: off
+    decorators:
+      remove-x-internal: on
+```
+
+Visit the [per-API configuration page](./apis.mdx) for detailed documentation and more examples.
+
+<a id="plugins-list"></a>
+
+### Use custom `plugins`
+
+Use this list to import any custom plugins (omit this section if you have no plugins). Custom plugins are used to add any custom decorators or rules that you want to use, that aren't provided by the Redocly [built-in rules](../rules/built-in-rules.md), [configurable rules](../rules/configurable-rules.md), or existing [decorators](../decorators.md).
+
+Add each plugin by path, relative to the configuration file, to have the plugin contents available to configure.
+Importing by URL isn't supported, to reduce the risk of malicious code execution.
+
+Find more information on the [Configs in plugins](../resources/custom-plugins.md#configs-in-plugins) page.
+
+#### Plugin import example
+
+Use the `plugins` section to import as many plugins as you need to refer to in your config file.
+
+```yaml
+plugins:
+  - './local-plugin.js'
+  - './another-local-plugin.js'
+```
+
+The rules, decorators, pre-processors and configuration contained in the plugins will become available to your configuration file.
+
+<a id="resolve-object"></a>
+
+### Resolve non-public or non-remote URLs
 
 Redocly automatically resolves any API registry link or public URL in your API definitions.
 If you want to resolve links that are neither API registry links nor publicly accessible, set the `resolve` object in your configuration file.
@@ -319,15 +212,15 @@ If you want to resolve links that are neither API registry links nor publicly ac
 Redocly CLI supports one `http` header per URL.
 
 #### Fixed properties
+
 <StyledContent>
   <JsonSchema
     schema={ResolveSchema}
     options={{
-      schemaExpansionLevel:2,
+      schemaExpansionLevel: 2,
     }}
   />
 </StyledContent>
-
 
 #### Example
 
@@ -344,5 +237,6 @@ resolve:
         name: Authorization
         envVariable: SECRET_AUTH
 ```
+
 The first match takes priority when a URL matches multiple patterns.
 Therefore, only the header from the first match is used in the request.

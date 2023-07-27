@@ -124,5 +124,5 @@ additionalProperties:
           type: object
           description: >-
             Defines mock server behavior for an API definition.
-            Supports the same format and options as the [root `mockServer` object](#mockserver-object).
+            Supports the same format and options as the root `mockServer` object.
             API-level configuration always overrides the root configuration.

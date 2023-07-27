@@ -91,6 +91,13 @@ theme:
           main: '#ff00ff'
 ```
 
+Define the base customization; older versions of the tools defaulted to using `recommended`, but this is no longer assumed. Set it in `redocly.yaml` like this:
+
+```yaml
+extends:
+  - recommended
+```
+
 ## Next steps with Redocly CLI
 
 The newer tool has a lot more functionality than `redoc-cli` had, so explore the rest of the [Redocly CLI documentation](../index.mdx) to find out more about:
