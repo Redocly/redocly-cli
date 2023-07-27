@@ -141,7 +141,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  const seenVersions = new Set();
+  let oasVersion;
   for (const document of documents) {
     try {
       const version = detectOpenAPI(document.parsed);
@@ -154,8 +154,8 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
         );
       }
 
-      seenVersions.add(version);
-      if (seenVersions.size > 1) {
+      oasVersion = oasVersion ?? version;
+      if (oasVersion !== version) {
         return exitWithError(
           `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)} \n\n`
         );
