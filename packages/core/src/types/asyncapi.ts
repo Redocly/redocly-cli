@@ -32,9 +32,37 @@ const ChannelMap: NodeType = {
   additionalProperties: 'Channel',
 };
 
+const ChannelBindings: NodeType = {
+  properties: {
+  },
+  allowed() {
+    // allow all supported values, not all have deep linting
+    return [
+      'http',
+      'ws',
+      'kakfa',
+      'anypointmq',
+      'amqp',
+      'amqp1',
+      'mqtt',
+      'mqtt5',
+      'nats',
+      'jms',
+      'sns',
+      'solace',
+      'sqs',
+      'stomp',
+      'redis',
+      'mercure'
+    ];
+  },
+  additionalProperties: { type: 'object' },
+};
+
 const HttpChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.http = HttpChannelBinding;
 
 const WsChannelBinding: NodeType = {
   properties: {
@@ -44,11 +72,11 @@ const WsChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ChannelBindings.properties.ws = WsChannelBinding;
 
 const KafkaTopicConfiguration: NodeType = {
   properties: {}, // TODO
 };
-
 const KafkaChannelBinding: NodeType = {
   properties: {
     topic: { type: 'string' },
@@ -58,6 +86,7 @@ const KafkaChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ChannelBindings.properties.kafka = KafkaChannelBinding;
 
 const AnypointmqChannelBinding: NodeType = {
   properties: {
@@ -66,10 +95,12 @@ const AnypointmqChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ChannelBindings.properties.anypointmq = AnypointmqChannelBinding;
 
 const Amqp1ChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.amqp1 = Amqp1ChannelBinding;
 
 const MqttChannelBinding: NodeType = {
   properties: {
@@ -78,14 +109,17 @@ const MqttChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ChannelBindings.properties.mqtt = MqttChannelBinding;
 
 const Mqtt5ChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.mqtt5 = Mqtt5ChannelBinding;
 
 const NatsChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.nats = NatsChannelBinding;
 
 const JmsChannelBinding: NodeType = {
   properties: {
@@ -94,44 +128,27 @@ const JmsChannelBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ChannelBindings.properties.jms = JmsChannelBinding;
 
 const SolaceChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.solace = SolaceChannelBinding;
 
 const StompChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.stomp = StompChannelBinding;
 
 const RedisChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ChannelBindings.properties.redis = RedisChannelBinding;
 
 const MercureChannelBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
-
-const ChannelBindings: NodeType = {
-  properties: {
-    http: 'HttpChannelBinding',
-    ws: 'WsChannelBinding',
-    kafka: 'KafkaChannelBinding',
-    anypointmq: 'AnypointmqChannelBinding',
-    // TODO    amqp: 'AmqpChannelBinding',
-    amqp1: 'Amqp1ChannelBinding',
-    mqtt: 'MqttChannelBinding',
-    mqtt5: 'Mqtt5ChannelBinding',
-    nats: 'NatsChannelBinding',
-    jms: 'JmsChannelBinding',
-    // TODO    sns: 'SnsChannelBinding',
-    solace: 'SolaceChannelBinding',
-    // TODO    sqs: 'SqsChannelBinding',
-    stomp: 'StompChannelBinding',
-    redis: 'RedisChannelBinding',
-    mercure: 'MercureChannelBinding',
-  },
-  additionalProperties: { type: 'object' },
-};
+ChannelBindings.properties.mercure = MercureChannelBinding;
 
 const Tag: NodeType = {
   properties: {
@@ -156,24 +173,64 @@ const SecurityRequirement: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
+
+const ServerBindings: NodeType = {
+  properties: {
+  },
+  allowed() {
+    // allow all supported values, not all have deep linting
+    return [
+      'http',
+      'ws',
+      'kakfa',
+      'anypointmq',
+      'amqp',
+      'amqp1',
+      'mqtt',
+      'mqtt5',
+      'nats',
+      'jms',
+      'sns',
+      'solace',
+      'sqs',
+      'stomp',
+      'redis',
+      'mercure'
+    ];
+  },
+  additionalProperties: { type: 'object' },
+};
+
 const HttpServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.http = HttpServerBinding;
+
 const WsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.ws = WsServerBinding;
+
 const KafkaServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.kafka = KafkaServerBinding;
+
 const AnypointmqServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.anypointmq = AnypointmqServerBinding;
+
 const AmqpServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.amqp = AmqpServerBinding;
+
 const Amqp1ServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.amqp1 = Amqp1ServerBinding;
+
 const MqttServerBindingLastWill: NodeType = {
   properties: {
     topic: { type: 'string' },
@@ -182,7 +239,6 @@ const MqttServerBindingLastWill: NodeType = {
     retain: { type: 'boolean' },
   },
 };
-
 const MqttServerBinding: NodeType = {
   properties: {
     clientId: { type: 'string' },
@@ -192,58 +248,55 @@ const MqttServerBinding: NodeType = {
     bindingVersion: { type: 'string' },
   },
 };
+ServerBindings.properties.mqtt = MqttServerBinding;
+
 const Mqtt5ServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.mqtt5 = Mqtt5ServerBinding;
+
 const NatsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.nats = NatsServerBinding;
+
 const JmsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.jms = JmsServerBinding;
+
 const SnsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.sns = SnsServerBinding;
+
 const SolaceServerBinding: NodeType = {
   properties: {
     bindingVersion: { type: 'string' },
     msgVpn: { type: 'string' },
   },
 };
+ServerBindings.properties.solace = SolaceServerBinding;
+
 const SqsServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.sqs = SqsServerBinding;
+
 const StompServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.stomp = StompServerBinding;
+
 const RedisServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
+ServerBindings.properties.redis = RedisServerBinding;
+
 const MercureServerBinding: NodeType = {
   properties: {}, // some way to enforce empty object
 };
-
-const ServerBindings: NodeType = {
-  properties: {
-    http: 'HttpServerBinding',
-    ws: 'WsServerBinding',
-    kafka: 'KafkaServerBinding',
-    anypointmq: 'AnypointmqServerBinding',
-    amqp: 'AmqpServerBinding',
-    amqp1: 'Amqp1ServerBinding',
-    mqtt: 'MqttServerBinding',
-    mqtt5: 'Mqtt5ServerBinding',
-    nats: 'NatsServerBinding',
-    jms: 'JmsServerBinding',
-    sns: 'SnsServerBinding',
-    solace: 'SolaceServerBinding',
-    sqs: 'SqsServerBinding',
-    stomp: 'StompServerBinding',
-    redis: 'RedisServerBinding',
-    mercure: 'MercureServerBinding',
-  },
-  additionalProperties: { type: 'object' },
-};
+ServerBindings.properties.mercure = MercureServerBinding;
 
 const Server: NodeType = {
   properties: {
@@ -382,8 +435,6 @@ const Operation: NodeType = {
     bindings: 'OperationBindingsMap',
     traits: 'OperationTraitList',
     message: 'Message',
-
-    'x-codeSamples': 'XCodeSampleList',
   },
   required: [],
 };
