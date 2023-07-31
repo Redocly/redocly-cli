@@ -3,6 +3,7 @@ title: Custom plugins in Redocly
 redirectFrom:
   - /docs/cli/custom-rules/
   - /docs/cli/resources/custom-rules/
+  - /docs/cli/resources/custom-plugins/
 ---
 
 # Custom plugins
@@ -299,7 +300,7 @@ In order to create a preprocessor or decorators, the object that is exported fro
 
 ```js
 module.exports = {
-  id: 'my-local-plugin`,
+  id: 'my-local-plugin',
   preprocessors: {
     oas3: {
       "processor-id": () => {
