@@ -29,12 +29,12 @@ jobs:
         uses: RomanHotsiy/changesets-action@v1
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: echo "TESTING PUSHING TO NPM!!!"
+          publish: echo "TESTING PUSHING TO NPM!!!" # release
           commit: "chore: 🔖 release new versions"
           title: "chore: 🔖 release new versions"
           version: |
             npx changeset version
-            cd packages/core && npm i && cd ../.. && npm i
+            npm i
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
