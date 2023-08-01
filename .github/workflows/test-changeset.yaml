@@ -33,7 +33,7 @@ jobs:
         uses: RomanHotsiy/changesets-action@v1
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: changeset publish
+          publish: npm run release
           commit: "chore: 🔖 release new versions"
           title: "chore: 🔖 release new versions"
           version: |
