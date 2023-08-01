@@ -5,12 +5,16 @@ on:
     branches:
       - chore/add-chagesets
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -38,3 +42,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Check if changesets were published
+        if: steps.changesets.outputs.published == 'true'
+        run: echo "PUBLISHED -- FROM THE SAME JOB"
+
+  test-if-published:
+    needs: [release]
+    if: needs.release.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test if published
+        run: echo "PUBLISHED -- FROM A DIFFERENT JOB"
