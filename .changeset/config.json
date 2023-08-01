@@ -4,7 +4,7 @@
   "commit": false,
   "fixed": [],
   "linked": [["@redocly/cli", "@redocly/openapi-core"]],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "chore/add-chagesets",
   "updateInternalDependencies": "patch",
   "ignore": []
