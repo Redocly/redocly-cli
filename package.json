@@ -55,6 +55,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@types/jest": "^26.0.15",
     "@types/mark.js": "^8.11.5",
     "@types/marked": "^4.0.3",
