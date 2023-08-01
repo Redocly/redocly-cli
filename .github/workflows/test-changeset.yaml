@@ -33,7 +33,7 @@ jobs:
         uses: RomanHotsiy/changesets-action@v1
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
-          publish: echo "TESTING PUSHING TO NPM!!!" # release
+          publish: changeset publish
           commit: "chore: 🔖 release new versions"
           title: "chore: 🔖 release new versions"
           version: |
@@ -41,7 +41,7 @@ jobs:
             npm i
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: 'wrong-token' # ${{ secrets.NPM_TOKEN }}
 
       - name: Check if changesets were published
         if: steps.changesets.outputs.published == 'true'
