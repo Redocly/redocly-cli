@@ -31,7 +31,12 @@ export const RemoveUnusedComponents: Oas3Rule = () => {
         ) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
-          components.set(resolvedRef.location.absolutePointer, {
+
+          const [fileLocation, localPointer] = resolvedRef.location.absolutePointer.split('#', 2);
+          const componentLevelLocalPointer = localPointer.split('/').slice(0, 4).join('/');
+          const pointer = `${fileLocation}#${componentLevelLocalPointer}`;
+
+          components.set(pointer, {
             used: true,
             name: key.toString(),
           });
