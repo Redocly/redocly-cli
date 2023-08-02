@@ -91,13 +91,13 @@ rule/no-pdf-in-ok-response:
   where:
     - subject:
         type: Operation
-        filterByParentKeys:
+        filterInParentKeys:
           - put
       assertions:
         defined: true
     - subject:
         type: Response
-        filterByParentKeys:
+        filterInParentKeys:
           - '201'
           - '200'
       assertions:
