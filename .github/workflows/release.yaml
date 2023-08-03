@@ -39,6 +39,7 @@ jobs:
           version: |
             npx changeset version
             npm i
+            node scripts/post-changeset.js
             # TODO: MOVE CHANGELOGS + add frontmatters
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
