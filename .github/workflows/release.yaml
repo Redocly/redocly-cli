@@ -56,7 +56,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          REDOCLY_ROBOT_GH_PAT: ${{ secrets.REDOCLY_ROBOT_GH_PAT }}
 
   deploy:
     needs: [release]
