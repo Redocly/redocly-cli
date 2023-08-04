@@ -1,14 +1,6 @@
-import {
-    NewChangesetWithCommit,
-    VersionType,
-    ChangelogFunctions,
-    ModCompWithPackage,
-} from "@changesets/types";
-
-
 const getReleaseLine = async (
-    changeset: NewChangesetWithCommit,
-    _type: VersionType
+    changeset/* : NewChangesetWithCommit */,
+    _type/* : VersionType */
 ) => {
 
     const [firstLine, ...futureLines] = changeset.summary
@@ -26,17 +18,16 @@ const getReleaseLine = async (
 };
 
 const getDependencyReleaseLine = async (
-    changesets: NewChangesetWithCommit[],
-    dependenciesUpdated: ModCompWithPackage[]
+    changesets/* : NewChangesetWithCommit[] */,
+    dependenciesUpdated/* : ModCompWithPackage[] */
 ) => {
     if (dependenciesUpdated.length === 0) return "";
-
-    return `Bump version for: ${dependenciesUpdated[0].name}`;
+    return `- Updated ${dependenciesUpdated.at(-1).name} to v${dependenciesUpdated.at(-1).newVersion}.`;
 };
 
-const defaultChangelogFunctions: ChangelogFunctions = {
+const defaultChangelogFunctions/* : ChangelogFunctions */ = {
     getReleaseLine,
     getDependencyReleaseLine,
 };
 
-export default defaultChangelogFunctions;
+module.exports = defaultChangelogFunctions;
