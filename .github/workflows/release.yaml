@@ -1,10 +1,13 @@
-name: CD to NPM & AWS S3
+name: Release
 
 on:
   push:
-    tags:
-      - v[0-9]*.[0-9]*.[0-9]*
-      - v[0-9]+.[0-9]+.[0-9]+-[a-z]+.[0-9]+ # beta/rc releases
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -17,14 +20,52 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
+
+  release:
+    needs: [test]
+    name: Release
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: RomanHotsiy/changesets-action@v1
+        with:
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: npm run release
+          commit: 'chore: 🔖 release new versions'
+          title: 'chore: 🔖 release new versions'
+          version: |
+            npx changeset version
+            npm i
+            node scripts/post-changeset.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   deploy:
-    needs: test
+    needs: [release]
+    if: needs.release.outputs.published == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - run: npm ci
 
@@ -46,26 +87,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SANDBOX_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           AWS_S3_PATH: redocly-sandbox-openapi-cli-dist
-  publish:
-    needs: [test, deploy]
-    runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - run: npm ci
-
-      - name: Publish to NPM
-        run: cd packages/core && npm publish && cd ../cli && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   dockerhub:
-    needs: [publish]
+    needs: [release]
+    if: needs.release.outputs.published == 'true'
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -109,11 +134,11 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
-  test-released-version:
+
+  post-release-smoke-checks:
     needs:
-      - test
+      - release
       - deploy
-      - publish
       - dockerhub
     name: Test released version
     runs-on: ubuntu-latest
@@ -150,3 +175,20 @@ jobs:
           docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
           docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
           docker run --rm redocly/cli build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+
+  notify:
+    needs:
+      - release
+      - post-release-smoke-checks
+    if: needs.release.outputs.published == 'true'
+    name: Post the Release Message
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: C019K52TC0L #releases
+          slack-message: ${{ needs.release.outputs.publishedPackages }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}

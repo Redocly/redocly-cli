@@ -6,6 +6,8 @@ toc:
 
 # Redocly CLI changelog
 
+<!-- do-not-remove -->
+
 ## 1.0.0 (2023-07-25)
 
 This release marks the stable version 1.0. There are no changes from previous releases.

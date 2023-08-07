@@ -1,8 +1,7 @@
 coverage/
 dist/
-packages/cli/lib/
-packages/core/lib/
+lib/
+output/
 *snapshot.js
 packages/core/src/rules/__tests__/fixtures/invalid-yaml.yaml
-resources/output/invalid.json
 __tests__/webpack-bundle/bundle-workflows/metafile.json

@@ -26,6 +26,7 @@ Before submitting a pull request, please make sure the following is done:
 3. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
 4. Ensure the test suite passes (`npm test`). Tip: `npm test -- --watch TestName` is helpful in development.
 5. Format your code with prettier (`npm run prettier`).
+6. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
 
 ## Development Setup
 
@@ -89,20 +90,6 @@ To test local changes as a package, you can use the following steps:
 1. Copy **redocly-cli.tgz** file to a destination folder and then run `npm install redocly-cli.tgz` there to install Redocly CLI. To install `openapi-core` do the same but with **openapi-core.tgz** file.
 
 Don't forget to revert the changes to **package.json** files later.
-
-## Version updating
-
-Keep the same versions for both packages. To increase the version follow the steps below:
-
-1. First bump the version in **packages/core/package.json**.
-
-1. Run `npm install` in the repository root.
-
-1. Run `npm run compile` in the repository root.
-
-1. Bump the version in **packages/cli/package.json** and **package.json** (3 entries in total).
-
-1. Run `npm install` in the repository root.
 
 ## Contribute documentation
 
@@ -208,3 +195,7 @@ E2E tests are sensitive to any additional output (like `console.log`) in the sou
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
 - **`resources`**: contains some example API definitions and configuration files that might be useful for testing.
+
+## Release flow
+
+We use [Changesets](https://github.com/changesets/changesets) flow. After merging a PR with a changeset, the release PR is automatically created. Merging that PR triggers the release process.

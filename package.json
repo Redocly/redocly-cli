@@ -31,6 +31,7 @@
     "build-docs": "npm run cli build-docs resources/pets.yaml",
     "benchmark": "node --expose-gc --noconcurrent_sweeping --predictable packages/core/src/benchmark/benchmark.js",
     "webpack-bundle": "webpack --config webpack.config.ts",
+    "release": "changeset publish",
     "upload": "node scripts/archive-and-upload-bundle.js",
     "deploy-local": "npm run webpack-bundle && npm run compile && ENV=local npm run upload",
     "pack:prepare": "./scripts/local-pack.sh"
@@ -55,6 +56,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@types/jest": "^26.0.15",
     "@types/mark.js": "^8.11.5",
     "@types/marked": "^4.0.3",
