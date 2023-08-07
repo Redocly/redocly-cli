@@ -22,11 +22,11 @@ Hi! We're really excited that you are interested in contributing to Redocly CLI.
 Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
-2. Run `npm install` in the repository root.
-3. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
-4. Ensure the test suite passes (`npm test`). Tip: `npm test -- --watch TestName` is helpful in development.
-5. Format your code with prettier (`npm run prettier`).
-6. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
+1. Run `npm install` in the repository root.
+1. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
+1. Ensure the test suite passes (`npm test`). Tip: `npm test -- --watch TestName` is helpful in development.
+1. Format your code with prettier (`npm run prettier`).
+1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
 
 ## Development Setup
 
@@ -198,4 +198,7 @@ E2E tests are sensitive to any additional output (like `console.log`) in the sou
 
 ## Release flow
 
-We use [Changesets](https://github.com/changesets/changesets) flow. After merging a PR with a changeset, the release PR is automatically created. Merging that PR triggers the release process.
+We use [Changesets](https://github.com/changesets/changesets) flow.
+After merging a PR with a changeset, the release PR is automatically created.
+
+If the pipelines are not starting, close and reopen the PR. Merging that PR triggers the release process.
