@@ -8,6 +8,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.0.1 (2023-08-07)
+
+### Patch Changes
+
+- Fixed the build-docs command failing when running outside the root folder.
+- Updated @redocly/openapi-core to v1.0.1.
+
 ## 1.0.0 (2023-07-25)
 
 This release marks the stable version 1.0. There are no changes from previous releases.
