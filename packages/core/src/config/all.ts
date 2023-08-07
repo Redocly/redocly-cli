@@ -18,7 +18,6 @@ export default {
     'operation-description': 'error',
     'operation-2xx-response': 'error',
     'operation-4xx-response': 'error',
-    assertions: 'error',
     'operation-operationId': 'error',
     'operation-summary': 'error',
     'operation-operationId-unique': 'error',
