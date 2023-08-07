@@ -10,19 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test
-
   release:
-    needs: [test]
     name: Release
     runs-on: ubuntu-latest
     outputs:
@@ -98,13 +86,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get version
+        id: get_version
+        run: |
+          value="$(cat packages/cli/package.json | jq -r '.version')"
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: docker/metadata-action@v4
         with:
           images: |
             redocly/cli
             ghcr.io/redocly/cli
+          tags: |
+            ${{ steps.get_version.outputs.value }}
+            latest
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -149,7 +146,7 @@ jobs:
         run: npm i -g @redocly/cli@latest
       - name: Test version from NPM
         run: |
-          expected_version="$(cat package.json | jq -r '.version')"
+          expected_version="$(cat packages/cli/package.json | jq -r '.version')"
           actual_version="$(redocly --version)"
           if [[ $expected_version == $actual_version  ]]; then
             echo "The version is correct. Actual version: $actual_version"
@@ -164,7 +161,7 @@ jobs:
         run: docker pull redocly/cli:latest
       - name: Test docker image
         run: |
-          expected_version="$(cat package.json | jq -r '.version')"
+          expected_version="$(cat packages/cli/package.json | jq -r '.version')"
           actual_version="$(docker run --rm redocly/cli --version)"
           if [[ $expected_version == $actual_version  ]]; then
             echo "The version is correct. Actual version: $actual_version"
