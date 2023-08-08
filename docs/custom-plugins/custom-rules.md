@@ -1,0 +1,89 @@
+# Rules in plugins
+
+Rules are used to make sure that the API description is in the expected format and aligns with the expected API standards. Before you build any custom rules:
+
+* Learn more about [Redocly rules](../rules.md).
+* Check the list of [built-in rules](../rules/built-in-rules.md).
+* See if you can build a [configurable rule](../rules/configurable-rules.md) to meet your needs.
+
+Exhaust the above options first, because they are simpler and more maintainable than building a custom plugin. If you need to build your own rules though, then you're in the right place! Read on ...
+
+## Build the custom rule
+
+Each rule is a function that returns an object with methods that Redocly CLI calls to "visit" nodes while traversing the definition document. The object keys are the node types that are encountered in the document. In this simple example, the custom plugin holds a rule that fails if any `operationId` is set to "test".
+
+To keep the plugin code manageable, each rule can go in its own file. This example is in `plugins/rules/opid-not-test.js`:
+
+```js
+module.exports = OperationIdNotTest;
+
+function OperationIdNotTest() {
+  return {
+    Operation(operation, ctx) {
+      if (operation.operationId === 'test') {
+        ctx.report({
+          message: `operationId must be not "test"`,
+          location: ctx.location.child('operationId'),
+        });
+      }
+    },
+  };
+}
+
+```
+
+The `ctx` object here holds all the context, which can be used to give more situation-aware functionality to the rules you build. This is one of the main use cases for custom rules. The `report()` method is used to give information to return to the user if the node being visited doesn't comply with the rule.
+
+## Object references
+
+### The context object
+
+The context object contains additional functionality that is helpful for rules to do their jobs. As the name implies, the context object contains information that is relevant to the context of the rule. The context object has the following properties:
+
+- `location` - current location in the source document. See [Location Object](#location-object)
+- `parentLocations` - mapping of parent node to its location (only for nested visitors)
+- `type` - information about current type from type tree
+- `parent` - parent object or array
+- `key` - key in parent object or array
+- `oasVersion` specific OAS minor version of current document (can be `oas2`, `oas3` or `oas3_1`).
+
+The context object also offers some additional functionality that 
+- `resolve(node)` - synchronously dereferences $ref node to its value. Works only with $refs from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
+- `report(descriptor)` - reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context).
+
+<a id="context-report"></a>
+## Report rule context
+
+The main method used is `context.report()`, which publishes a warning or error (depending on the configuration being used). This method accepts a single argument, which is an object containing the following properties:
+
+- `message` - {string} the problem message.
+- `location` - {Location} (optional) an object specifying the location of the problem. Can be constructed using location object methods.
+- `suggest` - {string[]} (optional) - "did you mean" suggestion
+- `from` - {Location} (optional) - referenced by location
+
+You may use the message alone:
+
+```js
+context.report({
+  message: "Unexpected identifier"
+});
+```
+
+By default, the message is reported at the current node location.
+
+
+### Location object
+
+The Location class has the following fields:
+
+- `source` - current document source
+- `pointer` - pointer within the document to the node
+- `absolutePointer` - absolute pointer to the node (including source document absolute ref)
+
+and the following methods:
+
+- `key()` - returns new Location pointing to the current node key instead of value (used to highlight the key in codeframes)
+- `child(propName)` - returns new Location pointing to the `propName` of the current node. `propName` can be array of strings to point deep.
+
+You can use this information for more granular rule definitions.
+
