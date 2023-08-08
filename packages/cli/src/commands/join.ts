@@ -29,7 +29,7 @@ import {
   sortTopLevelKeysForOas,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
-import { Oas3Parameter, Oas3PathItem, Oas3Server } from '@redocly/openapi-core/lib/typings/openapi';
+import { Oas3Parameter, Oas3PathItem, Oas3Server, Oas3_1Definition } from '@redocly/openapi-core/lib/typings/openapi';
 import { OPENAPI3_METHOD } from './split/types';
 import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
@@ -141,12 +141,23 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
+  let oasVersion : OasVersion | null = null;
   for (const document of documents) {
     try {
       const version = detectOpenAPI(document.parsed);
-      if (version !== OasVersion.Version3_0) {
+
+      if (version !== OasVersion.Version3_0 && version !== OasVersion.Version3_1) {
         return exitWithError(
-          `Only OpenAPI 3 is supported: ${blue(document.source.absoluteRef)} \n\n`
+          `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
+            document.source.absoluteRef
+          )} \n\n`
+        );
+      }
+
+      oasVersion = oasVersion ?? version;
+      if (oasVersion !== version) {
+        return exitWithError(
+          `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)} \n\n`
         );
       }
     } catch (e) {
@@ -165,7 +176,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     tags: {},
     paths: {},
     components: {},
-    xWebhooks: {},
+    webhooks: {},
   };
 
   addInfoSectionAndSpecVersion(documents, prefixComponentsWithInfoProp);
@@ -200,7 +211,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     collectExternalDocs(openapi, context);
     collectPaths(openapi, context);
     collectComponents(openapi, context);
-    collectXWebhooks(openapi, context);
+    collectWebhooks(oasVersion!, openapi, context);
     if (componentsPrefix) {
       replace$Refs(openapi, componentsPrefix);
     }
@@ -573,32 +584,33 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  function collectXWebhooks(
-    openapi: Oas3Definition,
+  function collectWebhooks(
+    oasVersion: OasVersion,
+    openapi: Oas3_1Definition,
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
-    const xWebhooks = 'x-webhooks';
-    const openapiXWebhooks = openapi[xWebhooks];
-    if (openapiXWebhooks) {
-      if (!joinedDef.hasOwnProperty(xWebhooks)) {
-        joinedDef[xWebhooks] = {};
+    const webhooks = oasVersion === OasVersion.Version3_1 ? 'webhooks' : 'x-webhooks';
+    const openapiWebhooks = openapi[webhooks];
+    if (openapiWebhooks) {
+      if (!joinedDef.hasOwnProperty(webhooks)) {
+        joinedDef[webhooks] = {};
       }
-      for (const webhook of Object.keys(openapiXWebhooks)) {
-        joinedDef[xWebhooks][webhook] = openapiXWebhooks[webhook];
+      for (const webhook of Object.keys(openapiWebhooks)) {
+        joinedDef[webhooks][webhook] = openapiWebhooks[webhook];
 
-        if (!potentialConflicts.xWebhooks.hasOwnProperty(webhook)) {
-          potentialConflicts.xWebhooks[webhook] = {};
+        if (!potentialConflicts.webhooks.hasOwnProperty(webhook)) {
+          potentialConflicts.webhooks[webhook] = {};
         }
-        for (const operation of Object.keys(openapiXWebhooks[webhook])) {
-          potentialConflicts.xWebhooks[webhook][operation] = [
-            ...(potentialConflicts.xWebhooks[webhook][operation] || []),
+        for (const operation of Object.keys(openapiWebhooks[webhook])) {
+          potentialConflicts.webhooks[webhook][operation] = [
+            ...(potentialConflicts.webhooks[webhook][operation] || []),
             api,
           ];
         }
-        for (const operationKey of Object.keys(joinedDef[xWebhooks][webhook])) {
-          const { tags } = joinedDef[xWebhooks][webhook][operationKey];
+        for (const operationKey of Object.keys(joinedDef[webhooks][webhook])) {
+          const { tags } = joinedDef[webhooks][webhook][operationKey];
           if (tags) {
-            joinedDef[xWebhooks][webhook][operationKey].tags = tags.map((tag: string) =>
+            joinedDef[webhooks][webhook][operationKey].tags = tags.map((tag: string) =>
               addPrefix(tag, tagsPrefix)
             );
             populateTags({
