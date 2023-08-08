@@ -38,5 +38,5 @@ Severity settings determine how the rule is treated during the validation proces
 
 ## Rule ideas
 
-Redocly CLI supports [custom rules](./rules/configurable-rules.md) and [custom plugins](./resources/custom-plugins.md).
+Redocly CLI supports [configurable rules](./rules/configurable-rules.md) and [custom plugins](./resources/custom-plugins.md).
 However, if you have an idea for a built-in rule you believe benefits the greater API community, please [open an issue](https://github.com/Redocly/redocly-cli/issues/new) in the Redocly CLI repository.
