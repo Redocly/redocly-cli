@@ -23,7 +23,7 @@ extends:
   - https://url-to-remote/redocly.yaml
 ```
 
-**See also:** Visit the detailed documentation on how to [use custom plugins to set configuration](../resources/custom-plugins.md#configs-in-plugins).
+**See also:** Visit the detailed documentation on how to [use custom plugins to set configuration](../custom-plugins/custom-config.md).
 
 ## Nested configuration
 

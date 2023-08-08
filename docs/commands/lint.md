@@ -98,7 +98,7 @@ If you try to execute the `lint` command without apis when your project doesn't 
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](/docs/cli/configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 redocly lint --config=./another/directory/config.yaml
@@ -305,7 +305,7 @@ redocly lint --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
 
 :::success Tip
-To learn more about preprocessors and rules, refer to the [custom plugins](../resources/custom-plugins.md) page.
+To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../custom-plugins/index.md) page.
 :::
 
 ### Lint config file

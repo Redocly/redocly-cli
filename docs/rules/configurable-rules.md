@@ -200,7 +200,7 @@ Property | Type | Description
 -- | -- | --
 value | `string` \| [`string`] | Value that appears at the corresponding location.
 options | `object` | Options that is described in the configuration file.
-ctx | `object` | `ctx` object extends the [Context object](../resources/custom-plugins.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../resources/custom-plugins.md#location-object)). Raw value is the original assertion value.
+ctx | `object` | `ctx` object extends the [Context object](../custom-plugins/custom-rules.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../custom-plugins/custom-rules.md#location-object)). Raw value is the original assertion value.
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -208,7 +208,7 @@ problems | [`Problem`] | List of problems. An empty list means all checks are va
 Property | Type | Description
 -- | -- | --
 message | `string` \| [`string`] | Problem message that is displayed in the [lint command](../commands/lint.md) output.
-location | `Location Object` | Location in the source document. See [Location Object](../resources/custom-plugins.md#location-object)
+location | `Location Object` | Location in the source document. See [Location Object](../custom-plugins/custom-rules.md#location-object)
 
 `.redocly.yaml`
 ```yaml
