@@ -29,7 +29,12 @@ import {
   sortTopLevelKeysForOas,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
-import { Oas3Parameter, Oas3PathItem, Oas3Server, Oas3_1Definition } from '@redocly/openapi-core/lib/typings/openapi';
+import {
+  Oas3Parameter,
+  Oas3PathItem,
+  Oas3Server,
+  Oas3_1Definition,
+} from '@redocly/openapi-core/lib/typings/openapi';
 import { OPENAPI3_METHOD } from './split/types';
 import { BundleResult } from '@redocly/openapi-core/lib/bundle';
 
@@ -141,7 +146,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  let oasVersion : OasVersion | null = null;
+  let oasVersion: OasVersion | null = null;
   for (const document of documents) {
     try {
       const version = detectOpenAPI(document.parsed);
