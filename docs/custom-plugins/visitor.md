@@ -49,20 +49,18 @@ This works fine for most context-free rules which check basic things. If you nee
 
 ## Nested visitors
 
-
 Visitor object (if it is not `any` or `ref`) can define [nested visitors](#nested-visitors).
 
 Here is a basic example of a nested visitor:
 
 ```js
 function ExampleRule() {
-  const seen = {};
   return {
     Operation: {
-      // skip: (value, key) => ... // if needed
-      // enter(operation) {} // if needed
-      Schema(schema, ctx, parents) {
-        console.log(`type ${schema.type} from ${parents.Operation.operationId}`)
+      Schema: {
+        enter(schema, ctx, parents) {
+          console.log(`type ${schema.type} from ${parents.Operation.operationId}`)
+        }
       }
     }
   };
@@ -71,7 +69,7 @@ function ExampleRule() {
 
 The `Schema` **visitor function** is called by Redocly CLI only if the Schema Object is encountered while traversing a tree while the Operation Object is **entered**.
 
-As the third argument, the **visitor function** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
+As the third argument, `enter()` in a **nested visitor object** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
 <div class="attention"> It will be executed only for the first level of Schema Object.</div>
 
