@@ -32,7 +32,34 @@ function OperationIdNotTest() {
 
 ```
 
-The `ctx` object here holds all the context, which can be used to give more situation-aware functionality to the rules you build. This is one of the main use cases for custom rules. The `report()` method is used to give information to return to the user if the node being visited doesn't comply with the rule.
+The `ctx` object here holds all the context, which can be used to give more situation-aware functionality to the rules you build. This is one of the main use cases for custom rules. The `report()` method is used to give information to return to the user if the node being visited doesn't comply with the rule. You can read the [context](#the-context-object) and [location](#location-object) sections for more information.
+
+Adding this as part of a plugin requires you to add it to the `rules` part of the plugin object, under the relevant document type. The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
+
+```
+const OpIdNotTest = require('./rules/opid-not-test.js');
+
+module.exports = {
+  id: 'my-rules',
+  rules: {
+    oas3: {
+      'opid-not-test': OperationIdNotTest,
+    }
+  },
+};
+```
+
+To use the example rule, add the following to your `redocly.yaml` configuration file:
+
+```yaml
+plugins:
+  - 'plugins/my-rules.js'
+
+rules:
+  my-rules/opid-not-test: warn
+```
+
+Validate your OpenAPI document with `redocly lint openapi.yaml`. With this rule enabled as shown, any `operationId` fields that are "test" cause the validation step to emit a warning. You can use the example here as a basis for building your own rules, and many rules can be included in a single plugin.
 
 ## Object references
 
