@@ -1,13 +1,13 @@
-## Configuration in plugins
+# Configuration bundles in plugins
 
-Plugins can include configuration, under the `configs` key. This is
-useful when your plugin declares multiple rules or decorators, and you want to
+You can bundle configurations under the `configs` key in your plugin code. These configuration bundles are
+useful when you declare multiple rules or decorators in your plugin, and you want to
 define within the plugin how to combine them.  Each plugin can have multiple
-bundles of configuration, and the user can use any of them in their
+configuration bundles, and the user can use any of them in their `redocly.yaml`
 configuration file.
 
 
-Here's an example of configuration in a plugin, defining two bundles:
+The following is an example plugin, defining two configuration bundles:
 
 ```js
 module.exports = {
@@ -29,17 +29,17 @@ module.exports = {
 };
 ```
 
-With the example plugin above id as `my-local-plugin`, the `all` and `minimal`
-configurations become available in the user's configuration file as
+In the example, the plugin id is `my-local-plugin` and the `all` and `minimal` 
+configuration bundles are available in the user's `redocly.yaml` configuration file as
 `"my-local-plugin/all"` and `"my-local-plugin/minimal"`, respectively. Use
-these configurations by adding them under `extends:` in `redocly.yaml`.
+these configuration bundles by adding them under `extends:` in your `redocly.yaml` configuration file.
 
 ```yaml
 extends:
   - my-local-plugin/all
 ```
 
-Plugins can include rules, decorators and preprocessors in their configuration bundles.
+Plugins can include rules, decorators, and preprocessors in their configuration bundles.
 
 :::info Rulesets
 

@@ -2,10 +2,10 @@
 
 Decorators transform API descriptions, by adding, removing, or changing elements of the document. Before you build your own decorators:
 
-* [learn about Redocly decorators](../decorators.md)
-* [check the list of built-in decorators](../decorators.md#list-of-decorators)
+* [Learn about Redocly decorators](../decorators.md).
+* [Check the list of built-in decorators](../decorators.md#list-of-decorators).
 
-If you didn't find an existing decorator that fit your needs, then adding a decorator in a plugin is a good way to proceed.
+If you can't find an existing decorator that fits your needs, then you can add a decorator in a plugin.
 
 :::warning Preprocessors
 
@@ -15,7 +15,7 @@ Decorators and preprocessors are the same in structure, but preprocessors are ru
 
 ## Plugin structure
 
-In order to create a preprocessor or decorator, the object that is exported from your module has to conform to the following interface:
+To create a preprocessor or decorator, the object that is exported from your module has to conform to an interface such as the following example:
 
 ```js
 module.exports = {
@@ -37,7 +37,7 @@ module.exports = {
 }
 ```
 
-Each decorator or preprocessor is a function that returns an object. The object's keys are the node types in the document, and each of those can contain any or all of the `enter()`, `leave()` and `skip()` functions for that node type. More information and examples on the [visitor pattern page](./visitor.md).
+Each decorator or preprocessor is a function that returns an object. The object's keys are the node types in the document, and each of those can contain any or all of the `enter()`, `leave()` and `skip()` functions for that node type. Find more information and examples on the [visitor pattern page](./visitor.md).
 
 ## Decorator example
 
@@ -62,7 +62,7 @@ function OperationSparkle() {
 };
 ```
 
-Decorators use the [visitor pattern](./visitor.md) to run an operation on every node in the document. In this example, when the code does `leave()` of an `Operation` node, it checks if the node (passed as `target` in this example) has a description, and updates it if it does.
+Decorators use the [visitor pattern](./visitor.md) to run an operation on every node in the document. In this example, when the code executes the `leave()` function on the `Operation` node, it checks if the node (passed as `target` in this example) has a description, and updates it if it does.
 
 To use this decorator, add it to a plugin. In this example the main decorator file is `plugins/sparkle.js`:
 
@@ -153,6 +153,6 @@ See some more examples of decorators:
 
 ## Preprocessors
 
-Preprocessors follow the same structure and operation as decorators, but they are run before the validation/linting step. This makes them brittle because the document may not be valid, and the extra processing step can cause performance impacts. We recommend looking for alternative approaches to preprocessing.
+Preprocessors follow the same structure and operation as decorators, but they are run before the validation/linting step. Running before the validation/linting step makes them brittle because the document may not be valid, and the extra processing step can cause performance impacts. We recommend looking for alternative approaches to preprocessing.
 
 Some advanced use cases do require preprocessing, which is why the functionality is provided for those users.
