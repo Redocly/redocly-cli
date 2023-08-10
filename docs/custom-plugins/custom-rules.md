@@ -36,7 +36,7 @@ The `ctx` object here holds all the context, which can be used to give more situ
 
 Adding this as part of a plugin requires you to add it to the `rules` part of the plugin object, under the relevant document type. The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
 
-```
+```js
 const OpIdNotTest = require('./rules/opid-not-test.js');
 
 module.exports = {
@@ -67,26 +67,26 @@ Validate your OpenAPI document with `redocly lint openapi.yaml`. With this rule 
 
 The context object contains additional functionality that is helpful for rules to do their jobs. As the name implies, the context object contains information that is relevant to the context of the rule. The context object has the following properties:
 
-- `location` - current location in the source document. See [Location Object](#location-object)
-- `parentLocations` - mapping of parent node to its location (only for nested visitors)
-- `type` - information about current type from type tree
-- `parent` - parent object or array
-- `key` - key in parent object or array
-- `oasVersion` specific OAS minor version of current document (can be `oas2`, `oas3` or `oas3_1`).
+- `location` - Current location in the source document. See [Location Object](#location-object).
+- `parentLocations` - Mapping of the parent node to its location (only for nested visitors).
+- `type` - Information about the current type from the type tree.
+- `parent` - Parent object or array.
+- `key` - Key in the parent object or array.
+- `oasVersion` - Specific OAS minor version of the current document (can be `oas2`, `oas3` or `oas3_1`).
 
 The context object also offers some additional functionality that 
-- `resolve(node)` - synchronously dereferences $ref node to its value. Works only with $refs from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
-- `report(descriptor)` - reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context).
+- `resolve(node)` - Synchronously dereferences `$ref` node to its value. Works only with `$refs` from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
+- `report(descriptor)` - Reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context) for more information.
 
 <a id="context-report"></a>
 ## Report rule context
 
 The main method used is `context.report()`, which publishes a warning or error (depending on the configuration being used). This method accepts a single argument, which is an object containing the following properties:
 
-- `message` - {string} the problem message.
-- `location` - {Location} (optional) an object specifying the location of the problem. Can be constructed using location object methods.
-- `suggest` - {string[]} (optional) - "did you mean" suggestion
-- `from` - {Location} (optional) - referenced by location
+- `message` - {string} The problem message.
+- `location` - {Location} (optional) An object specifying the location of the problem. Can be constructed using location object methods.
+- `suggest` - {string[]} (optional) - "Did you mean" suggestion.
+- `from` - {Location} (optional) - Referenced by location.
 
 You may use the message alone:
 
@@ -103,14 +103,14 @@ By default, the message is reported at the current node location.
 
 The Location class has the following fields:
 
-- `source` - current document source
-- `pointer` - pointer within the document to the node
-- `absolutePointer` - absolute pointer to the node (including source document absolute ref)
+- `source` - Current document source.
+- `pointer` - Pointer within the document to the node.
+- `absolutePointer` - Absolute pointer to the node (including source document absolute ref).
 
 and the following methods:
 
-- `key()` - returns new Location pointing to the current node key instead of value (used to highlight the key in codeframes)
-- `child(propName)` - returns new Location pointing to the `propName` of the current node. `propName` can be array of strings to point deep.
+- `key()` - Returns the new Location pointing to the current node key instead of the value (used to highlight the key in codeframes).
+- `child(propName)` - Returns the new Location pointing to the `propName` of the current node. `propName` can be an array of strings to point deep.
 
 You can use this information for more granular rule definitions.
 
