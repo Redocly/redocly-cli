@@ -11,7 +11,7 @@ To understand how this applies to your API description, think of the document as
 In your plugin, create a JavaScript visitor object, and describe the functionality required for each type of node.
 
 Redocly CLI calls `enter()` while going down the tree and `leave()` going up the tree after processing the node and its children.
-`skip()` predicate is called and if it returns `true` the node is ignored for this visitor.
+If the `skip()` predicate is defined and returns `true` the node is ignored for this visitor.
 
 
 ```js

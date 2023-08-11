@@ -74,7 +74,8 @@ The context object contains additional functionality that is helpful for rules t
 - `key` - Key in the parent object or array.
 - `oasVersion` - Specific OAS minor version of the current document (can be `oas2`, `oas3` or `oas3_1`).
 
-The context object also offers some additional functionality that 
+The context object also offers some additional functionality to resolve references and to return information about a problem to the user. The methods available are as follows:
+
 - `resolve(node)` - Synchronously dereferences `$ref` node to its value. Works only with `$refs` from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
 - `report(descriptor)` - Reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context) for more information.
 
