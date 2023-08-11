@@ -4,7 +4,7 @@ redirectFrom:
 ---
 # Decorators
 
-Decorators are a way of changing an API description during bundling. This can be useful for many use cases:
+Decorators are a way of changing an API description during bundling. This updating during bundling can be useful for the following use cases:
 
 * removing some endpoints from an OpenAPI description before publishing
 * updating description fields

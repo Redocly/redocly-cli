@@ -49,7 +49,7 @@ This works fine for most context-free rules which check basic things. If you nee
 
 ## Nested visitors
 
-Visitor object (if it is not `any` or `ref`) can define [nested visitors](#nested-visitors).
+The visitor object (if it is not `any` or `ref`) can define [nested visitors](#nested-visitors).
 
 Here is a basic example of a nested visitor:
 
@@ -71,7 +71,7 @@ The `Schema` **visitor function** is called by Redocly CLI only if the Schema Ob
 
 As the third argument, `enter()` in a **nested visitor object** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
-<div class="attention"> It will be executed only for the first level of Schema Object.</div>
+<div class="attention"> It will be executed only for the first level of the Schema Object.</div>
 
 For the example document below:
 
