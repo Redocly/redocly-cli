@@ -82,7 +82,6 @@ describe('no-path-trailing-slash', () => {
     `);
   });
 
-
   it('should not report on if no trailing slash in path', async () => {
     const document = parseYamlToDocument(
       outdent`
