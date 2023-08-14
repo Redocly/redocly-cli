@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-      - run: node scripts/post-changeset.js
+      - run: node scripts/test.js
         id: changesets
 
       - run: echo "${{ steps.changesets.outputs.releaseMessage }}" 
