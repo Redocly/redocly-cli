@@ -189,6 +189,6 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C019K52TC0L #releases
-          slack-message: ${{ needs.release.outputs.releaseMessage }} 
+          slack-message: ${{ needs.release.outputs.releaseMessage }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
