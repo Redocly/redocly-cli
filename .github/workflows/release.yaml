@@ -16,6 +16,7 @@ jobs:
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
+      releaseMessage: ${{ steps.changesets.outputs.releaseMessage }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -41,6 +42,8 @@ jobs:
             npx changeset version
             npm i
             node scripts/post-changeset.js
+            releaseMessage="$(cat output/release-message.txt)"
+            echo "releaseMessage=$releaseMessage" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -154,8 +157,8 @@ jobs:
             echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
             exit 1
           fi
-          redocly lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-          redocly bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          redocly lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --format=stylish
+          redocly bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml -o bundled.json
           redocly build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
       - name: Pull docker image
         run: docker pull redocly/cli:latest
@@ -170,7 +173,7 @@ jobs:
             exit 1
           fi
           docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-          docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --output=bundled.yaml
           docker run --rm redocly/cli build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
 
   notify:
@@ -186,6 +189,6 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C019K52TC0L #releases
-          slack-message: ${{ needs.release.outputs.publishedPackages }}
+          slack-message: ${{ needs.release.outputs.releaseMessage }} 
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
