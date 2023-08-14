@@ -26,14 +26,14 @@ Define the type extension for the new `x-metadata` section, in this example, we 
 ```js
 const XMetaData = {
   properties: {
-    lifecycle: { type: 'string'},
+    lifecycle: { type: 'string', enum: ['development', 'staging', 'production']},
     'owner-team': { type: 'string'},
   },
   required: ['lifecycle']
 };
 ```
 
-Note the quotes around the `owner-team` key since it contains a hyphen `-`. These fields are strings but you can also define other datastructures if you need to represent something more complex. The [built-in type definitions](https://github.com/Redocly/redocly-cli/tree/main/packages/core/src) are a good place to look for examples.
+Note the quotes around the `owner-team` key since it contains a hyphen `-`. These fields are strings but you can also define other data structures if you need to represent something more complex. The [built-in type definitions](https://github.com/Redocly/redocly-cli/tree/main/packages/core/src/types) are a good place to look for examples.
 
 To include the new type in the type tree, the plugin must add the type and modify the parent type, which in this example is `info`. This is done by returning a `typeExtension` structure, as shown in the example below (this example is in `plugins/example-type-extension.js`, this filename is used again in the configuration example later):
 

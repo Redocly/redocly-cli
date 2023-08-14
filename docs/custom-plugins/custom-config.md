@@ -44,7 +44,7 @@ Plugins can include rules, decorators, and preprocessors in their configuration 
 :::info Rulesets
 
 If your configuration includes only Redocly built-in rules and decorators, try
-using a [ruleset](..//rules.md#rulesets) to achieve this (it's simpler than a
+using a [ruleset](../rules.md#rulesets) to achieve this (it's simpler than a
 plugin).
 
 :::

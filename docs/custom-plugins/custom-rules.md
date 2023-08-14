@@ -79,7 +79,6 @@ The context object also offers some additional functionality to resolve referenc
 - `resolve(node)` - Synchronously dereferences `$ref` node to its value. Works only with `$refs` from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
 - `report(descriptor)` - Reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context) for more information.
 
-<a id="context-report"></a>
 ## Report rule context
 
 The main method used is `context.report()`, which publishes a warning or error (depending on the configuration being used). This method accepts a single argument, which is an object containing the following properties:

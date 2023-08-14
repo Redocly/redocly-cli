@@ -4,7 +4,6 @@ _Visitor_ is a design pattern that allows operations to be performed on individu
 
 To understand how this applies to your API description, think of the document as a tree structure. The top level elements are entries like `info` and `components`. To examine the `description` field in the `info` section, the visitor goes to the `info` node first, then on to the `description` node. This pattern is repeated all over the document as the visitor pattern works its way around the document tree.
 
-<a id="visitor-object"></a><a id="format-of-visitor-object"></a>
 
 ## Structure of the visitor object
 
@@ -45,7 +44,7 @@ Top level **visitor functions** run only once for each node.
 If the same node is referenced by the $ref multiple times,
 top-level **visitor functions** are executed only once for this node.
 
-This works fine for most context-free rules which check basic things. If you need contextual info you should use [nested visitors](#nested-visitors).
+This works fine for most context-free rules. If you need contextual info you should use [nested visitors](#nested-visitors).
 
 ## Nested visitors
 
@@ -71,7 +70,9 @@ The `Schema` **visitor function** is called by Redocly CLI only if the Schema Ob
 
 As the third argument, `enter()` in a **nested visitor object** accepts the `parents` object with corresponding parent nodes as defined in the **visitor object**.
 
-<div class="attention"> It will be executed only for the first level of the Schema Object.</div>
+:::attention
+It is executed only for the first level of the Schema Object.
+:::
 
 For the example document below:
 
