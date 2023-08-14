@@ -32,7 +32,13 @@ jobs:
         env:
           CI: true
           REDOCLY_TELEMETRY: off
+      # Test:
+      - run: |
+          echo ${{ github.repository }}
+          echo ${{ github.event.repository.full_name }}
+
       - name: Comment PR
+        if: github.repository == github.event.repository.full_name
         uses: thollander/actions-comment-pull-request@v2
         with:
           filePath: benchmark_check.md
