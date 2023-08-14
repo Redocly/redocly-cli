@@ -26,7 +26,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-      - run: node scripts/test.js
+      - run: |
+          node scripts/test.js
+          cat output/release-message.txt
+          releaseMessage="$(cat output/release-message.txt)"
+          echo "releaseMessage=$releaseMessage" >> "$GITHUB_OUTPUT"
         id: changesets
 
       - run: echo "${{ steps.changesets.outputs.releaseMessage }}" 
