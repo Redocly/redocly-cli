@@ -41,6 +41,48 @@ describe('no-path-trailing-slash', () => {
     `);
   });
 
+  it('should report on trailing slash in path on key when referencing', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/bad/':
+            $ref: '#/components/pathItems/MyItem'
+        components:
+          pathItems:
+            MyItem:
+              get:
+                summary: List all pets
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-path-trailing-slash': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/paths/~1bad~1",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "\`/bad/\` should not have a trailing slash.",
+          "ruleId": "no-path-trailing-slash",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+
   it('should not report on if no trailing slash in path', async () => {
     const document = parseYamlToDocument(
       outdent`
