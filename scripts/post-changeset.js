@@ -9,7 +9,7 @@ const [, logCore] = generatedLogsCore.split('\n## ', 2);
 fs.writeFileSync(
   './output/release-message.txt',
   slackifyMarkdown(
-    `:bookmark: New @redocly/theme release ${logCli}\n\n:bookmark: New @redocly/theme release ${logCore}\n\n`
+    `:bookmark: New @redocly/cli release ${logCli}\n\n:bookmark: New @redocly/openapi-core release ${logCore}\n\n`
   )
 );
 
