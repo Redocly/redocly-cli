@@ -33,14 +33,8 @@ jobs:
           CI: true
           REDOCLY_TELEMETRY: off
 
-      # Test:
-      - run: |
-          echo ${{ github.repository }}
-          echo ${{ github.event.pull_request.head.repo.full_name }}
-          echo ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-
       - name: Comment PR
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}        
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: thollander/actions-comment-pull-request@v2
         with:
           filePath: benchmark_check.md
