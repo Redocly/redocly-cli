@@ -201,6 +201,6 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C019K52TC0L #releases
-          payload-file-path: "./output/release-message.json"
+          payload-file-path: './output/release-message.json'
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
