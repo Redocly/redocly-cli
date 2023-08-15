@@ -16,7 +16,6 @@ jobs:
     outputs:
       published: ${{ steps.changesets.outputs.published }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
-      releaseMessage: ${{ steps.changesets.outputs.releaseMessage }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -42,8 +41,6 @@ jobs:
             npx changeset version
             npm i
             node scripts/post-changeset.js
-            releaseMessage="$(cat output/release-message.txt)"
-            echo "releaseMessage=$releaseMessage" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -184,11 +181,26 @@ jobs:
     name: Post the Release Message
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Write release message to file
+        run: node scripts/write-release-message.js
+
       - name: Post to a Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: C019K52TC0L #releases
-          slack-message: ${{ needs.release.outputs.releaseMessage }}
+          payload-file-path: './output/release-message.json'
         env:
           SLACK_BOT_TOKEN: ${{ secrets.RELEASES_SLACK_BOT_TOKEN }}
