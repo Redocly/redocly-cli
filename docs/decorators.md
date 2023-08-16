@@ -4,22 +4,27 @@ redirectFrom:
 ---
 # Decorators
 
-All Redocly CLI decorators are listed on this page.
+Decorators are a way of changing an API description during bundling. This updating during bundling can be useful for the following use cases:
+
+* removing some endpoints from an OpenAPI description before publishing
+* updating description fields
+* adding extra elements, such as examples, or metadata for other tools to use
 
 To learn how to configure decorators, read more about their [configuration syntax](#decorator-configuration-syntax).
 
-Decorators run during the `bundle` command.
-They are commonly used to add, remove, or change content.
-
 ## List of decorators
 
+Some common decorator use cases are already built in to Redocly. Check the list below for the decorators you can use immediately.
+
 ### Update descriptions
+
 - [info-description-override](./decorators/info-description-override.md)
 - [info-override](./decorators/info-override.md)
 - [operation-description-override](./decorators/operation-description-override.md)
 - [tag-description-override](./decorators/tag-description-override.md)
 
 ### Change examples
+
 - [media-type-examples-override](./decorators/media-type-examples-override.md)
 
 ### Remove content
@@ -53,9 +58,5 @@ Optionally, you may specify `severity` as one of decorator options in the config
 
 ## Custom decorators
 
-You can create your own decorators using [custom plugins](./resources/custom-plugins.md).
+If you don't see the decorator you need, you can create your own decorators using [custom plugins](./custom-plugins/custom-decorators.md).
 
-For example, with custom decorators you can:
-
-- [replace your server URL](./guides/replace-servers-url.md)
-- [hide OpenAPI specification extensions](./guides/hide-specification-extensions.md)

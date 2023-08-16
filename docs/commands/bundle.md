@@ -179,6 +179,6 @@ redocly bundle --skip-decorator=generate-code-samples --skip-decorator=remove-in
 
 :::success Tip
 
-To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../resources/custom-plugins.md) page.
+To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../custom-plugins/index.md) page.
 
 :::

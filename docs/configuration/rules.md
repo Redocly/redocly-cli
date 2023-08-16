@@ -58,7 +58,7 @@ Visit the [configurable rules page](../rules/configurable-rules.md) for more det
 
 ## Rules from custom plugins
 
-If you create your own rules in [custom plugins](../resources/custom-plugins.md#rules-in-plugins), you can add these in the rules section of `redocly.yaml`. Make sure to import the plugin first, and then refer to the rule name prefixed with the plugin name:
+If you create your own rules in [custom plugins](../custom-plugins/custom-rules.md), you can add these in the rules section of `redocly.yaml`. Make sure to import the plugin first, and then refer to the rule name prefixed with the plugin name:
 
 ```yaml
 plugins:
