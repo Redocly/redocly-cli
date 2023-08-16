@@ -19,17 +19,18 @@ module.exports = OperationIdNotTest;
 
 function OperationIdNotTest() {
   return {
-    Operation(operation, ctx) {
-      if (operation.operationId === 'test') {
-        ctx.report({
-          message: `operationId must be not "test"`,
-          location: ctx.location.child('operationId'),
-        });
-      }
-    },
+    Operation: {
+      enter(operation, ctx) {
+        if (operation.operationId === 'test') {
+          ctx.report({
+            message: `operationId must be not "test"`,
+            location: ctx.location.child('operationId'),
+          });
+        }
+      },
+    }
   };
 }
-
 ```
 
 The `ctx` object here holds all the context, which can be used to give more situation-aware functionality to the rules you build. This is one of the main use cases for custom rules. The `report()` method is used to give information to return to the user if the node being visited doesn't comply with the rule. You can read the [context](#the-context-object) and [location](#location-object) sections for more information.
