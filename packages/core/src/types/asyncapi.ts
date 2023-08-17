@@ -733,40 +733,54 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   License,
 
   HttpServerBinding,
+  HttpChannelBinding,
+
   WsServerBinding,
+  WsChannelBinding,
+
   KafkaServerBinding,
+  KafkaTopicConfiguration,
+  KafkaChannelBinding,
+
   AnypointmqServerBinding,
+  AnypointmqChannelBinding,
+
   AmqpServerBinding,
+
   Amqp1ServerBinding,
+  Amqp1ChannelBinding,
+
   MqttServerBindingLastWill,
   MqttServerBinding,
-  Mqtt5ServerBinding,
-  NatsServerBinding,
-  JmsServerBinding,
-  SnsServerBinding,
-  SolaceServerBinding,
-  SqsServerBinding,
-  StompServerBinding,
-  RedisServerBinding,
-  MercureServerBinding,
-  ServerBindings,
-
-  KafkaTopicConfiguration,
-  HttpChannelBinding,
-  WsChannelBinding,
-  KafkaChannelBinding,
-  AnypointmqChannelBinding,
-  Amqp1ChannelBinding,
   MqttChannelBinding,
-  Mqtt5ChannelBinding,
-  NatsChannelBinding,
-  JmsChannelBinding,
-  SolaceChannelBinding,
-  StompChannelBinding,
-  RedisChannelBinding,
-  MercureChannelBinding,
-  ChannelBindings,
 
+  Mqtt5ServerBinding,
+  Mqtt5ChannelBinding,
+
+  NatsServerBinding,
+  NatsChannelBinding,
+
+  JmsServerBinding,
+  JmsChannelBinding,
+
+  SnsServerBinding,
+
+  SolaceServerBinding,
+  SolaceChannelBinding,
+
+  SqsServerBinding,
+
+  StompServerBinding,
+  StompChannelBinding,
+
+  RedisServerBinding,
+  RedisChannelBinding,
+
+  MercureServerBinding,
+  MercureChannelBinding,
+
+  ServerBindings,
+  ChannelBindings,
   ChannelMap,
   Channel,
   Parameter,
