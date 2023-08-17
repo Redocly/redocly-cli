@@ -6,7 +6,7 @@ const Root: NodeType = {
     asyncapi: null, // TODO validate semver format and supported version
     info: 'Info',
     id: { type: 'string' },
-    servers: 'ServeMap',
+    servers: 'ServerMap',
     channels: 'ChannelMap',
     components: 'Components',
     tags: 'TagList',
@@ -124,7 +124,7 @@ const Server: NodeType = {
   required: ['url', 'protocol'],
 };
 
-const ServeMap: NodeType = {
+const ServerMap: NodeType = {
   properties: {},
   additionalProperties: (_value: any, key: string) =>
     key.match(/^[A-Za-z0-9_\-]+$/) ? 'Server' : undefined,
@@ -389,7 +389,7 @@ const Components: NodeType = {
     operationTraits: 'NamedOperationTraits',
     streamHeaders: 'NamedStreamHeaders',
     securitySchemes: 'NamedSecuritySchemes',
-    servers: 'ServeMap',
+    servers: 'ServerMap',
     serverVariables: 'ServerVariablesMap',
     channels: 'ChannelMap',
     serverBindings: 'ServerBindings',
@@ -727,7 +727,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   Root,
   Tag,
   TagList: listOf('Tag'),
-  ServeMap,
+  ServerMap,
   ExternalDocs,
   Server,
   ServerVariable,
