@@ -40,7 +40,7 @@ const ChannelBindings: NodeType = {
     return [
       'http',
       'ws',
-      'kakfa',
+      'kafka',
       'anypointmq',
       'amqp',
       'amqp1',
@@ -91,7 +91,7 @@ const ServerBindings: NodeType = {
     return [
       'http',
       'ws',
-      'kakfa',
+      'kafka',
       'anypointmq',
       'amqp',
       'amqp1',
@@ -534,7 +534,13 @@ ServerBindings.properties.ws = WsServerBinding;
 
 // kafka
 const KafkaTopicConfiguration: NodeType = {
-  properties: {}, // TODO
+  properties: {
+    'cleanup.policy': { type: 'array', items: { enum: ['delete', 'compact'] }},
+    'retention.ms': { type: 'integer' },
+    'retention.bytes': {type: 'integer' },
+    'delete.retention.ms': {type: 'integer' },
+    'max.message.bytes': {type: 'integer' },
+  },
 };
 const KafkaChannelBinding: NodeType = {
   properties: {
