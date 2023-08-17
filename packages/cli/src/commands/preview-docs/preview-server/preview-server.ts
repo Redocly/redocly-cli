@@ -143,7 +143,7 @@ export default async function startPreviewServer(
     console.timeEnd(colorette.dim(`GET ${request.url}`));
   };
 
-  const wsPort = await getPort({ portRange: [32201, 32301 ] });
+  const wsPort = await getPort({ portRange: [32201, 32301] });
 
   const server = startHttpServer(port, host, handler);
   server.on('listening', () => {

@@ -9,9 +9,9 @@ try {
 
   if (!semver.satisfies(process.version, version)) {
     process.stderr.write(
-        yellow(
-            `\n⚠️ Warning: failed to satisfy expected node version. Expected: "${version}", Current "${process.version}"\n\n`
-        )
+      yellow(
+        `\n⚠️ Warning: failed to satisfy expected node version. Expected: "${version}", Current "${process.version}"\n\n`
+      )
     );
   }
 } catch (e) {
