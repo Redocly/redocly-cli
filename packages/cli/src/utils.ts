@@ -2,7 +2,7 @@ import fetch from './fetch-with-timeout';
 import { basename, dirname, extname, join, resolve, relative, isAbsolute } from 'path';
 import { blue, gray, green, red, yellow } from 'colorette';
 import { performance } from 'perf_hooks';
-import * as glob from 'glob-promise';
+import * as glob from 'glob'
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
@@ -96,7 +96,7 @@ async function expandGlobsInEntrypoints(args: string[], config: ConfigApis) {
     await Promise.all(
       (args as string[]).map(async (aliasOrPath) => {
         return glob.hasMagic(aliasOrPath) && !isAbsoluteUrl(aliasOrPath)
-          ? (await glob(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
+          ? (await glob.__promisify__(aliasOrPath)).map((g: string) => getAliasOrPath(config, g))
           : getAliasOrPath(config, aliasOrPath);
       })
     )
