@@ -204,7 +204,7 @@ const Message: NodeType = {
   properties: {
     messageId: { type: 'string' },
     headers: 'Schema',
-    // payload: 'Schema', // TODO
+    payload: 'Schema', // TODO strictly this does not cover all cases
     correlationId: 'CorrelationId',
 
     schemaFormat: { type: 'string' }, // todo
@@ -215,7 +215,7 @@ const Message: NodeType = {
     description: { type: 'string' },
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
-    bindings: 'MessageBindings', 
+    bindings: 'MessageBindings',
     // examples: 'MessageExampleList', // TODO
     traits: 'MessageTraitList',
   },
@@ -263,7 +263,22 @@ const OperationTrait: NodeType = {
 };
 
 const MessageTrait: NodeType = {
-  properties: {}, // TODO
+  properties: {
+    messageId: { type: 'string' },
+    headers: 'Schema',
+    correlationId: 'CorrelationId',
+
+    schemaFormat: { type: 'string' }, // todo
+    contentType: { type: 'string' },
+    name: { type: 'string' },
+    title: { type: 'string' },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    tags: 'TagList',
+    externalDocs: 'ExternalDocs',
+    bindings: 'MessageBindings',
+    // examples: 'MessageExampleList', // TODO
+  },
   additionalProperties: {},
 };
 
