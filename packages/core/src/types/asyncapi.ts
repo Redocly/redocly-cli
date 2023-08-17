@@ -252,14 +252,51 @@ const MessageBindings: NodeType = {
   additionalProperties: { type: 'object' },
 };
 
-const OperationBinding: NodeType = {
-  properties: {}, // TODO
-  additionalProperties: {},
+const OperationBindings: NodeType = {
+  properties: {
+  },
+  allowed() {
+    // allow all supported values, not all have deep linting
+    return [
+      'http',
+      'ws',
+      'kafka',
+      'anypointmq',
+      'amqp',
+      'amqp1',
+      'mqtt',
+      'mqtt5',
+      'nats',
+      'jms',
+      'sns',
+      'solace',
+      'sqs',
+      'stomp',
+      'redis',
+      'mercure',
+      'ibmmq',
+      'googlepubsub',
+      'pulsar',
+    ];
+  },
+  additionalProperties: { type: 'object' },
 };
 
 const OperationTrait: NodeType = {
-  properties: {}, // TODO
-  additionalProperties: {},
+  properties: {
+    tags: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    summary: { type: 'string' },
+    description: { type: 'string' },
+    externalDocs: 'ExternalDocs',
+    operationId: { type: 'string' },
+    security: 'SecurityRequirementList',
+
+    bindings: 'OperationBindings',
+  },
+  required: [],
 };
 
 const MessageTrait: NodeType = {
@@ -294,7 +331,7 @@ const Operation: NodeType = {
     operationId: { type: 'string' },
     security: 'SecurityRequirementList',
 
-    bindings: 'OperationBindingsMap',
+    bindings: 'OperationBindings',
     traits: 'OperationTraitList',
     message: 'Message',
   },
@@ -574,6 +611,16 @@ const HttpMessageBinding: NodeType = {
 }
 MessageBindings.properties.http = HttpMessageBinding;
 
+const HttpOperationBinding: NodeType = {
+  properties: {
+    type: { type: 'string' },
+    method: { type: 'string', enum: ['GET', 'POST', 'PUT','PATCH','DELETE','HEAD','OPTIONS','CONNECT','TRACE'] },
+    headers: 'Schema',
+    bindingVersion: { type: 'string' },
+  }
+}
+OperationBindings.properties.http = HttpOperationBinding;
+
 // ws
 const WsChannelBinding: NodeType = {
   properties: {
@@ -594,6 +641,11 @@ const WsMessageBinding: NodeType = {
   properties: {}, // empty object
 };
 MessageBindings.properties.ws = WsMessageBinding;
+
+const WsOperationBinding: NodeType = {
+  properties: {}, // empty object
+};
+OperationBindings.properties.ws = WsOperationBinding;
 
 // kafka
 const KafkaTopicConfiguration: NodeType = {
@@ -632,6 +684,15 @@ const KafkaMessageBinding: NodeType = {
 }
 MessageBindings.properties.kafka = KafkaMessageBinding;
 
+const KafkaOperationBinding: NodeType = {
+  properties: {
+    groupId: 'Schema',
+    clientId: 'Schema',
+    bindingVersion: { type: 'string' },
+  }
+}
+OperationBindings.properties.kafka = KafkaOperationBinding;
+
 // anypointmq
 const AnypointmqChannelBinding: NodeType = {
   properties: {
@@ -655,6 +716,11 @@ const AnypointmqMessageBinding: NodeType = {
 }
 MessageBindings.properties.anypointmq = AnypointmqMessageBinding;
 
+const AnypointmqOperationBinding: NodeType = {
+  properties: {}, // empty object
+};
+OperationBindings.properties.anypointmq = AnypointmqOperationBinding;
+
 // amqp
 const AmqpChannelBinding: NodeType = {
   properties: {}, // empty object
@@ -675,6 +741,23 @@ const AmqpMessageBinding: NodeType = {
 }
 MessageBindings.properties.amqp = AmqpMessageBinding;
 
+const AmqpOperationBinding: NodeType = { // TODO some fields are subscribe only
+  properties: {
+    expiration: { type: 'integer' },
+    userId: { type: 'string' },
+    cc: { type: 'array', items: { type: 'string' } },
+    priority: { type: 'integer' },
+    deliveryMode: { type: 'integer' }, // TODO enum: [1, 2]
+    mandatory: { type: 'boolean' },
+    bcc: { type: 'array', items: { type: 'string' } },
+    replyTo: { type: 'string' },
+    timestamp: { type: 'boolean' },
+    ack: { type: 'boolean' },
+    bindingVersion: { type: 'string' },
+  },
+};
+OperationBindings.properties.amqp = AmqpOperationBinding;
+
 // amqp1
 const Amqp1ChannelBinding: NodeType = {
   properties: {}, // empty object
@@ -690,6 +773,11 @@ const Amqp1MessageBinding: NodeType = {
   properties: {}, // empty object
 }
 MessageBindings.properties.amqp1 = Amqp1MessageBinding;
+
+const Amqp1OperationBinding: NodeType = {
+  properties: {}, // empty object
+}
+OperationBindings.properties.amqp1 = Amqp1OperationBinding;
 
 // mqtt
 const MqttChannelBinding: NodeType = {
@@ -727,6 +815,14 @@ const MqttMessageBinding: NodeType = {
 }
 MessageBindings.properties.mqtt = MqttMessageBinding;
 
+const MqttOperationBinding: NodeType = {
+  properties: {
+    qos: { type: 'integer' },
+    retain: { type: 'boolean' },
+    bindingVersion: { type: 'string' },
+  },
+};
+OperationBindings.properties.mqtt = MqttOperationBinding;
 
 // mqtt5
 const Mqtt5ChannelBinding: NodeType = {
@@ -744,6 +840,11 @@ const Mqtt5MessageBinding: NodeType = {
 }
 MessageBindings.properties.mqtt5 = Mqtt5MessageBinding;
 
+const Mqtt5OperationBinding: NodeType = {
+  properties: {}, // empty object
+}
+OperationBindings.properties.mqtt5 = Mqtt5OperationBinding;
+
 // nats
 const NatsChannelBinding: NodeType = {
   properties: {}, // empty object
@@ -759,6 +860,14 @@ const NatsMessageBinding: NodeType = {
   properties: {}, // empty object
 }
 MessageBindings.properties.nats = NatsMessageBinding;
+
+const NatsOperationBinding: NodeType = {
+  properties: {
+    queue: { type: 'string' },
+    bindingVersion: { type: 'string' },
+  }
+}
+OperationBindings.properties.nats = NatsOperationBinding;
 
 // jms
 const JmsChannelBinding: NodeType = {
@@ -783,6 +892,14 @@ const JmsMessageBinding: NodeType = {
 }
 MessageBindings.properties.jms = JmsMessageBinding;
 
+const JmsOperationBinding: NodeType = {
+  properties: {
+    headers: 'Schema',
+    bindingVersion: { type: 'string' },
+  }
+}
+OperationBindings.properties.jms = JmsOperationBinding;
+
 // sns
 
 // solace
@@ -804,6 +921,26 @@ const SolaceMessageBinding: NodeType = {
 }
 MessageBindings.properties.solace = SolaceMessageBinding;
 
+const SolaceDestination: NodeType = {
+  properties: {
+    destinationType: { type: 'string', enum: ['queue', 'topic'] },
+    deliveryMode: { type: 'string', enum: ['direct', 'persistent'] },
+    'queue.name': { type: 'string' },
+    'queue.topicSubscriptions': { type: 'array', items: { type: 'string' } },
+    'queue.accessType': { type: 'string', enum: ['exclusive', 'nonexclusive'] },
+    'queue.maxMsgSpoolSize': { type: 'string' },
+    'queue.maxTtl': { type: 'string' },
+    'topic.topicSubscriptions': { type: 'array', items: { type: 'string' } },
+  }
+}
+const SolaceOperationBinding: NodeType = {
+  properties: {
+    bindingVersion: { type: 'string' },
+    destinations: listOf('SolaceDestination'),
+  }
+}
+OperationBindings.properties.solace = SolaceOperationBinding;
+
 // sqs
 
 // stomp
@@ -822,6 +959,11 @@ const StompMessageBinding: NodeType = {
 }
 MessageBindings.properties.stomp = StompMessageBinding;
 
+const StompOperationBinding: NodeType = {
+  properties: {}, // empty object
+}
+OperationBindings.properties.stomp = StompOperationBinding;
+
 // redis
 const RedisChannelBinding: NodeType = {
   properties: {}, // empty object
@@ -838,6 +980,11 @@ const RedisMessageBinding: NodeType = {
 }
 MessageBindings.properties.redis = RedisMessageBinding;
 
+const RedisOperationBinding: NodeType = {
+  properties: {}, // empty object
+}
+OperationBindings.properties.redis = RedisOperationBinding;
+
 // mercure
 const MercureChannelBinding: NodeType = {
   properties: {}, // empty object
@@ -853,6 +1000,11 @@ const MercureMessageBinding: NodeType = {
   properties: {}, // empty object
 }
 MessageBindings.properties.mercure = MercureMessageBinding;
+
+const MercureOperationBinding: NodeType = {
+  properties: {}, // empty object
+}
+OperationBindings.properties.mercure = MercureOperationBinding;
 
 // ibmmq
 // googlepubsub
@@ -878,46 +1030,76 @@ export const AsyncApi2Types: Record<string, NodeType> = {
 
   HttpServerBinding,
   HttpChannelBinding,
+  HttpMessageBinding,
+  HttpOperationBinding,
 
   WsServerBinding,
   WsChannelBinding,
+  WsMessageBinding,
+  WsOperationBinding,
 
   KafkaServerBinding,
   KafkaTopicConfiguration,
   KafkaChannelBinding,
+  KafkaMessageBinding,
+  KafkaOperationBinding,
 
   AnypointmqServerBinding,
   AnypointmqChannelBinding,
+  AnypointmqMessageBinding,
+  AnypointmqOperationBinding,
 
   AmqpServerBinding,
+  AmqpChannelBinding,
+  AmqpMessageBinding,
+  AmqpOperationBinding,
 
   Amqp1ServerBinding,
   Amqp1ChannelBinding,
+  Amqp1MessageBinding,
+  Amqp1OperationBinding,
 
   MqttServerBindingLastWill,
   MqttServerBinding,
   MqttChannelBinding,
+  MqttMessageBinding,
+  MqttOperationBinding,
 
   Mqtt5ServerBinding,
   Mqtt5ChannelBinding,
+  Mqtt5MessageBinding,
+  Mqtt5OperationBinding,
 
   NatsServerBinding,
   NatsChannelBinding,
+  NatsMessageBinding,
+  NatsOperationBinding,
 
   JmsServerBinding,
   JmsChannelBinding,
+  JmsMessageBinding,
+  JmsOperationBinding,
 
   SolaceServerBinding,
   SolaceChannelBinding,
+  SolaceMessageBinding,
+  SolaceDestination,
+  SolaceOperationBinding,
 
   StompServerBinding,
   StompChannelBinding,
+  StompMessageBinding,
+  StompOperationBinding,
 
   RedisServerBinding,
   RedisChannelBinding,
+  RedisMessageBinding,
+  RedisOperationBinding,
 
   MercureServerBinding,
   MercureChannelBinding,
+  MercureMessageBinding,
+  MercureOperationBinding,
 
   ServerBindings,
   ChannelBindings,
@@ -948,8 +1130,7 @@ export const AsyncApi2Types: Record<string, NodeType> = {
   SecurityScheme,
   Message,
   MessageBindings,
-  OperationBinding,
-  OperationBindingsMap: mapOf('OperationBinding'),
+  OperationBindings,
   OperationTrait,
   OperationTraitList: listOf('OperationTrait'),
   MessageTrait,
