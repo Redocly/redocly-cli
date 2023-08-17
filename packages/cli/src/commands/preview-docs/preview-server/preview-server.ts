@@ -1,6 +1,6 @@
 import { compile } from 'handlebars';
 import * as colorette from 'colorette';
-import * as portfinder from 'portfinder';
+import { getPort } from 'get-port-please';
 import { readFileSync, promises as fsPromises } from 'fs';
 import * as path from 'path';
 
@@ -143,7 +143,7 @@ export default async function startPreviewServer(
     console.timeEnd(colorette.dim(`GET ${request.url}`));
   };
 
-  const wsPort = await portfinder.getPortPromise({ port: 32201 });
+  const wsPort = await getPort({ portRange: [32201, 32301] });
 
   const server = startHttpServer(port, host, handler);
   server.on('listening', () => {
