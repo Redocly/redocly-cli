@@ -5,7 +5,7 @@ import { lintFromString, lintConfig, lintDocument } from '../lint';
 import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
-import { detectDefinition } from '../oas-types';
+import { detectSpec } from '../oas-types';
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -304,7 +304,7 @@ describe('lint', () => {
       `,
       ''
     );
-    expect(() => detectDefinition(testDocument.parsed)).toThrow(
+    expect(() => detectSpec(testDocument.parsed)).toThrow(
       `Invalid OpenAPI version: should be a string but got "number"`
     );
   });

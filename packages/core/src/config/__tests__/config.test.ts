@@ -279,13 +279,13 @@ describe('StyleguideConfig.extendTypes', () => {
   };
   it('should call only oas3 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, SpecVersion.Version3_0);
+    styleguideConfig.extendTypes({}, SpecVersion.OAS3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, SpecVersion.Version2);
+    styleguideConfig.extendTypes({}, SpecVersion.OAS2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
