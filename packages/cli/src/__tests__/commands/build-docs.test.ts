@@ -26,10 +26,6 @@ jest.mock('handlebars', () => ({
   compile: jest.fn(() => jest.fn(() => '<html></html>')),
 }));
 
-jest.mock('mkdirp', () => ({
-  sync: jest.fn(),
-}));
-
 describe('build-docs', () => {
   it('should return correct html and call function for ssr', async () => {
     const result = await getPageHTML({}, '../some-path/openapi.yaml', {
