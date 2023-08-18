@@ -59,6 +59,7 @@ const builtInRulesList = [
   'required-string-property-missing-min-length',
   'spec-strict-refs',
   'component-name-unique',
+  'channels-kebab-case',
 ];
 
 const nodeTypesList = [
