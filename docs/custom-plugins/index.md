@@ -12,7 +12,7 @@ Custom plugins are a powerful way to extend Redocly. Use of custom plugins requi
 Custom plugins are recommended for advanced users who have exhausted the built-in options available, and who can develop JavaScript extensions themselves.
 Each plugin is a JavaScript module which can export custom rules, configurations, preprocessors, decorators or type tree extensions.
 
-:::Info
+:::info
 For many users, our highly [configurable rules](../rules/configurable-rules.md) cover their needs without needing a custom plugin.
 :::
 
