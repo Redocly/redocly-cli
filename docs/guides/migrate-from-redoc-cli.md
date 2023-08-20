@@ -41,9 +41,9 @@ redocly build-docs openapi.yaml
 
 This generates a zero-dependency HTML file with your docs in, named `redoc-static.html` by default.
 
-### Bundle OpenAPI description
+### Bundle OpenAPI definition
 
-If you have your OpenAPI description split between multiple files, replace `redoc-cli bundle` with `redocly bundle`:
+If you have your OpenAPI definition split between multiple files, replace `redoc-cli bundle` with `redocly bundle`:
 
 ```
 redocly bundle openapi.yaml -o all-in-one.yaml
@@ -104,7 +104,7 @@ The newer tool has a lot more functionality than `redoc-cli` had, so explore the
 
 - Ensuring API quality with linting
 - Managing large OpenAPI files
-- Enhancing an OpenAPI description with decorators
+- Enhancing an OpenAPI definition with decorators
 
 :::warning Uninstall
 It's recommended to uninstall `redoc-cli` now that it is no longer needed

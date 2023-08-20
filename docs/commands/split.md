@@ -4,7 +4,7 @@
 
 The `split` command takes an API definition file and creates a [multi-file structure](../../resources/multi-file-definitions.md) out of it by extracting referenced parts into standalone, separate files. The advantage of this approach is making smaller files that are easier to manage and a structure that makes reviewing simpler.
 
-Use `bundle` and supply the main file as the entrypoint to get your OpenAPI description in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
+Use `bundle` and supply the main file as the entrypoint to get your OpenAPI definition in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 
 :::warning OpenAPI 3.x only
 The `split` command doesn't support OpenAPI 2.0 definitions.

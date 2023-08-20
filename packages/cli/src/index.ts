@@ -32,7 +32,7 @@ yargs
   .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
   .command(
     'stats [api]',
-    'Show statistics for an API description.',
+    'Show statistics for an API definition.',
     (yargs) =>
       yargs.positional('api', { type: 'string' }).option({
         config: { description: 'Path to the config file.', type: 'string' },

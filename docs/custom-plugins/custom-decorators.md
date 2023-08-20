@@ -1,6 +1,6 @@
 # Decorators in plugins
 
-Decorators transform API descriptions, by adding, removing, or changing elements of the document. Before you build your own decorators:
+Decorators transform API definitions, by adding, removing, or changing elements of the document. Before you build your own decorators:
 
 * [Learn about Redocly decorators](../decorators.md).
 * [Check the list of built-in decorators](../decorators.md#list-of-decorators).

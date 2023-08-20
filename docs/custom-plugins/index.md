@@ -28,7 +28,7 @@ Custom plugins can extend the built-in functionality of Redocly in the following
 
 - **Extend existing standard definitions with additional type definitions**. Working with extensions to defined standards can be helped by [extending the supported types](./extended-types.md).
 
-- **Write custom decorators in JavaScript**. Not all API descriptions are exactly as we'd like them to be before passing them to the next stage of the API lifecycle. Redocly has a selection of [decorators available](../decorators), but if you need to build something more then [visit the documentation for building decorators in custom plugins](./custom-decorators.md).
+- **Write custom decorators in JavaScript**. Not all API definitions are exactly as we'd like them to be before passing them to the next stage of the API lifecycle. Redocly has a selection of [decorators available](../decorators), but if you need to build something more then [visit the documentation for building decorators in custom plugins](./custom-decorators.md).
 
 
 ### Order of execution

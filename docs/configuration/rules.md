@@ -38,7 +38,7 @@ rules:
 
 ## Configurable rules
 
-Configurable rules are your opportunity to customize the exact rules your API needs, by describing the conditions that the various API description fields should meet. Declare these alongside the built-in rules in your configuration file:
+Configurable rules are your opportunity to customize the exact rules your API needs, by describing the conditions that the various API definition fields should meet. Declare these alongside the built-in rules in your configuration file:
 
 ```yaml
 rules:

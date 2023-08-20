@@ -4,7 +4,7 @@ Take your first steps with the Redocly CLI by following the steps in this guide.
 
 Before you start:
 * [install the Redocly CLI](./installation.md) if you haven't already
-* if you have an OpenAPI description to use, have it handy (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
+* if you have an OpenAPI definition to use, have it handy (we assume it's called `openapi.yaml`), or [try our example](https://github.com/Redocly/openapi-starter/blob/main/openapi/openapi.yaml)
 
 :::attention
 There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) repository that you can clone and experiment with to get your bearings
@@ -12,7 +12,7 @@ There's also an [openapi-starter](https://github.com/Redocly/openapi-starter) re
 
 ### Preview API documentation
 
-Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc/) rendering your API docs, which updates when the API description updates.
+Redocly CLI has support for showing a preview of [Redoc](https://redocly.com/redoc/) rendering your API docs, which updates when the API definition updates.
 Run the command:
 
 ```bash
@@ -25,9 +25,9 @@ Open that URL in your browser, and admire your lovely API documentation!
 
 ![Preview of API documentation](./images/preview-docs.png)
 
-### Lint an OpenAPI description
+### Lint an OpenAPI definition
 
-The `lint` command is used to check that the OpenAPI description is compliant with a set of rules. You can define your own rules if you want to be specific, but to get started, try this:
+The `lint` command is used to check that the OpenAPI definition is compliant with a set of rules. You can define your own rules if you want to be specific, but to get started, try this:
 
 ```bash
 redocly lint --extends minimal openapi.yaml
