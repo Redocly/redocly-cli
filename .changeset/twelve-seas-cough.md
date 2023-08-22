@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-Updated minimal version of node.js to v14 and removed deprecated packages.
+Updated minimum required version of Node.js to v14 and removed deprecated packages.
