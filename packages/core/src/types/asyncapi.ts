@@ -579,6 +579,8 @@ const SecurityScheme: NodeType = {
   allowed(value) {
     switch (value?.type) {
       case 'apiKey':
+        return ['type', 'in', 'description'];
+      case 'httpApiKey':
         return ['type', 'name', 'in', 'description'];
       case 'http':
         return ['type', 'scheme', 'bearerFormat', 'description'];
