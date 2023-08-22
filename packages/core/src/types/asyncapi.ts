@@ -481,8 +481,11 @@ const Components: NodeType = {
     channels: 'ChannelMap',
     serverBindings: 'ServerBindings',
     channelBindings: 'ChannelBindings',
+    operationBindings: 'OperationBindings',
+    messageBindings: 'MessageBindings',
   },
 };
+
 
 const ImplicitFlow: NodeType = {
   properties: {
