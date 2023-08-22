@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
 
   run-smoke--npm--node-18:
     needs: prepare-smoke
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
 
   run-smoke--npm--node-16:
     needs: prepare-smoke
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
 
   run-smoke--npm--node-14:
     needs: prepare-smoke
