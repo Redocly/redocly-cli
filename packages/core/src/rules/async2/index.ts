@@ -6,6 +6,7 @@ import { OperationOperationId } from '../common/operation-operationId';
 import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
 import { ChannelsKebabCase } from './channels-kebab-case';
+import { NoChannelTrailingSlash } from './no-channel-trailing-slash';
 
 export const rules = {
   spec: Spec as Async2Rule,
@@ -13,6 +14,7 @@ export const rules = {
   'info-contact': InfoContact,
   'operation-operationId': OperationOperationId,
   'channels-kebab-case': ChannelsKebabCase,
+  'no-channel-trailing-slash': NoChannelTrailingSlash,
   'tag-description': TagDescription,
   'tags-alphabetical': TagsAlphabetical,
 };

@@ -60,6 +60,7 @@ const builtInRulesList = [
   'spec-strict-refs',
   'component-name-unique',
   'channels-kebab-case',
+  'no-channel-trailing-slash',
 ];
 
 const nodeTypesList = [
