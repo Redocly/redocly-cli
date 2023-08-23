@@ -397,7 +397,7 @@ describe('E2E', () => {
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
 
       expect(fs.existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-      expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(38998);
+      expect(fs.statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(33007);
     });
   });
 });
