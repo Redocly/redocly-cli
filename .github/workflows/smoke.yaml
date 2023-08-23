@@ -50,7 +50,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-18:
     needs: prepare-smoke
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-16:
     needs: prepare-smoke
@@ -102,7 +102,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz --legacy-peer-deps" "npm run"
+      - run: bash ./__tests__/smoke/run-smoke.sh "npm i redoc redocly-cli.tgz" "npm run"
 
   run-smoke--npm--node-14:
     needs: prepare-smoke
@@ -241,9 +241,9 @@ jobs:
           docker run --rm -v $PWD:/spec redocly/cli:latest bundle openapi.yaml --ext json
           docker run --rm -v $PWD:/spec redocly/cli:latest build-docs openapi.yaml
           # Check for broken styles (related issue: https://github.com/Redocly/redocly-cli/issues/1073) 
-          if [[ "$(wc -l redoc-static.html)" == "319 redoc-static.html" ]]; then
+          if [[ "$(wc -l redoc-static.html)" == "320 redoc-static.html" ]]; then
             echo "Docs built correctly."
           else
-            echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 319 lines in redoc-static.html)."
+            echo "Docs built incorrectly. Received lines: $(wc -l redoc-static.html) (expected 320 lines in redoc-static.html)."
             exit 1
           fi
