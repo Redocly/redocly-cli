@@ -20,6 +20,10 @@ import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 
+if (!('replaceAll' in String.prototype)) {
+  require('core-js/actual/string/replace-all');
+}
+
 cacheLatestVersion();
 
 yargs
