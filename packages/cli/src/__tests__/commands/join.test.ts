@@ -64,7 +64,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
-    (detectOpenAPI as jest.Mock)
+    (detectSpec as jest.Mock)
       .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1');
     await handleJoin(
@@ -94,7 +94,7 @@ describe('handleJoin fails', () => {
   });
 
   it('should call writeYaml function for OpenAPI 3.1', async () => {
-    (detectOpenAPI as jest.Mock).mockReturnValue('oas3_1');
+    (detectSpec as jest.Mock).mockReturnValue('oas3_1');
     await handleJoin(
       {
         apis: ['first.yaml', 'second.yaml'],

@@ -589,11 +589,11 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   }
 
   function collectWebhooks(
-    oasVersion: OasVersion,
+    oasVersion: SpecVersion,
     openapi: Oas3_1Definition,
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === OasVersion.Version3_1 ? 'webhooks' : 'x-webhooks';
+    const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {
