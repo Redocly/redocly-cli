@@ -13,7 +13,7 @@ Redocly CLI supports the following linting approaches with AsyncAPI documents:
   - earlier versions in the 2.x family may also validate successfully
 * Built-in rules for checking common standards requirements (see the [list of AsyncAPI rules](#asyncapi-rules)).
 * [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns
-* [Custom plugins](../custom-plugins.md) for advanced users that need additional functionality
+* [Custom plugins](../custom-plugins/index.md) for advanced users that need additional functionality
 
 ## Lint an existing AsyncAPI file
 
@@ -98,7 +98,7 @@ going!).
 :::info Custom plugins
 
 For those users with advanced requirements and JavaScript skills, the [custom
-plugins](../custom-plugins.md) feature offers some extension points if you need
+plugins](../custom-plugins/index.md) feature offers some extension points if you need
 them.
 
 :::
