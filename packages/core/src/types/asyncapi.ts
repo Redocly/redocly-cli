@@ -33,8 +33,7 @@ const ChannelMap: NodeType = {
 };
 
 const ChannelBindings: NodeType = {
-  properties: {
-  },
+  properties: {},
   allowed() {
     // allow all supported values, not all have deep linting
     return [
@@ -85,10 +84,8 @@ const SecurityRequirement: NodeType = {
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
 
-
 const ServerBindings: NodeType = {
-  properties: {
-  },
+  properties: {},
   allowed() {
     // allow all supported values, not all have deep linting
     return [
@@ -196,9 +193,9 @@ const CorrelationId: NodeType = {
   properties: {
     description: { type: 'string' },
     location: { type: 'string' },
-    },
+  },
   required: ['location'],
-}
+};
 
 const Message: NodeType = {
   properties: {
@@ -223,8 +220,7 @@ const Message: NodeType = {
 };
 
 const MessageBindings: NodeType = {
-  properties: {
-  },
+  properties: {},
   allowed() {
     // allow all supported values, not all have deep linting
     return [
@@ -253,8 +249,7 @@ const MessageBindings: NodeType = {
 };
 
 const OperationBindings: NodeType = {
-  properties: {
-  },
+  properties: {},
   allowed() {
     // allow all supported values, not all have deep linting
     return [
@@ -444,7 +439,7 @@ const SchemaProperties: NodeType = {
       return { type: 'boolean' };
     }
     return 'Schema';
-  }
+  },
 };
 
 const DiscriminatorMapping: NodeType = {
@@ -485,7 +480,6 @@ const Components: NodeType = {
     messageBindings: 'MessageBindings',
   },
 };
-
 
 const ImplicitFlow: NodeType = {
   properties: {
@@ -612,18 +606,21 @@ const HttpMessageBinding: NodeType = {
   properties: {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 MessageBindings.properties.http = HttpMessageBinding;
 
 const HttpOperationBinding: NodeType = {
   properties: {
     type: { type: 'string' },
-    method: { type: 'string', enum: ['GET', 'POST', 'PUT','PATCH','DELETE','HEAD','OPTIONS','CONNECT','TRACE'] },
+    method: {
+      type: 'string',
+      enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE'],
+    },
     headers: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 OperationBindings.properties.http = HttpOperationBinding;
 
 // ws
@@ -655,11 +652,11 @@ OperationBindings.properties.ws = WsOperationBinding;
 // kafka
 const KafkaTopicConfiguration: NodeType = {
   properties: {
-    'cleanup.policy': { type: 'array', items: { enum: ['delete', 'compact'] }},
+    'cleanup.policy': { type: 'array', items: { enum: ['delete', 'compact'] } },
     'retention.ms': { type: 'integer' },
-    'retention.bytes': {type: 'integer' },
-    'delete.retention.ms': {type: 'integer' },
-    'max.message.bytes': {type: 'integer' },
+    'retention.bytes': { type: 'integer' },
+    'delete.retention.ms': { type: 'integer' },
+    'max.message.bytes': { type: 'integer' },
   },
 };
 const KafkaChannelBinding: NodeType = {
@@ -685,8 +682,8 @@ const KafkaMessageBinding: NodeType = {
     schemaIdPayloadEncoding: { type: 'string' },
     schemaLookupStrategy: { type: 'string' },
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 MessageBindings.properties.kafka = KafkaMessageBinding;
 
 const KafkaOperationBinding: NodeType = {
@@ -694,8 +691,8 @@ const KafkaOperationBinding: NodeType = {
     groupId: 'Schema',
     clientId: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 OperationBindings.properties.kafka = KafkaOperationBinding;
 
 // anypointmq
@@ -717,8 +714,8 @@ const AnypointmqMessageBinding: NodeType = {
   properties: {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 MessageBindings.properties.anypointmq = AnypointmqMessageBinding;
 
 const AnypointmqOperationBinding: NodeType = {
@@ -742,11 +739,12 @@ const AmqpMessageBinding: NodeType = {
     contentEncoding: { type: 'string' },
     messageType: { type: 'string' },
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 MessageBindings.properties.amqp = AmqpMessageBinding;
 
-const AmqpOperationBinding: NodeType = { // TODO some fields are subscribe only
+const AmqpOperationBinding: NodeType = {
+  // TODO some fields are subscribe only
   properties: {
     expiration: { type: 'integer' },
     userId: { type: 'string' },
@@ -776,12 +774,12 @@ ServerBindings.properties.amqp1 = Amqp1ServerBinding;
 
 const Amqp1MessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.amqp1 = Amqp1MessageBinding;
 
 const Amqp1OperationBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 OperationBindings.properties.amqp1 = Amqp1OperationBinding;
 
 // mqtt
@@ -817,7 +815,7 @@ const MqttMessageBinding: NodeType = {
   properties: {
     bindingVersion: { type: 'string' },
   },
-}
+};
 MessageBindings.properties.mqtt = MqttMessageBinding;
 
 const MqttOperationBinding: NodeType = {
@@ -842,12 +840,12 @@ ServerBindings.properties.mqtt5 = Mqtt5ServerBinding;
 
 const Mqtt5MessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.mqtt5 = Mqtt5MessageBinding;
 
 const Mqtt5OperationBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 OperationBindings.properties.mqtt5 = Mqtt5OperationBinding;
 
 // nats
@@ -863,15 +861,15 @@ ServerBindings.properties.nats = NatsServerBinding;
 
 const NatsMessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.nats = NatsMessageBinding;
 
 const NatsOperationBinding: NodeType = {
   properties: {
     queue: { type: 'string' },
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 OperationBindings.properties.nats = NatsOperationBinding;
 
 // jms
@@ -893,16 +891,16 @@ const JmsMessageBinding: NodeType = {
   properties: {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 MessageBindings.properties.jms = JmsMessageBinding;
 
 const JmsOperationBinding: NodeType = {
   properties: {
     headers: 'Schema',
     bindingVersion: { type: 'string' },
-  }
-}
+  },
+};
 OperationBindings.properties.jms = JmsOperationBinding;
 
 // sns
@@ -923,7 +921,7 @@ ServerBindings.properties.solace = SolaceServerBinding;
 
 const SolaceMessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.solace = SolaceMessageBinding;
 
 const SolaceDestination: NodeType = {
@@ -936,14 +934,14 @@ const SolaceDestination: NodeType = {
     'queue.maxMsgSpoolSize': { type: 'string' },
     'queue.maxTtl': { type: 'string' },
     'topic.topicSubscriptions': { type: 'array', items: { type: 'string' } },
-  }
-}
+  },
+};
 const SolaceOperationBinding: NodeType = {
   properties: {
     bindingVersion: { type: 'string' },
     destinations: listOf('SolaceDestination'),
-  }
-}
+  },
+};
 OperationBindings.properties.solace = SolaceOperationBinding;
 
 // sqs
@@ -961,12 +959,12 @@ ServerBindings.properties.stomp = StompServerBinding;
 
 const StompMessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.stomp = StompMessageBinding;
 
 const StompOperationBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 OperationBindings.properties.stomp = StompOperationBinding;
 
 // redis
@@ -982,12 +980,12 @@ ServerBindings.properties.redis = RedisServerBinding;
 
 const RedisMessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.redis = RedisMessageBinding;
 
 const RedisOperationBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 OperationBindings.properties.redis = RedisOperationBinding;
 
 // mercure
@@ -1003,12 +1001,12 @@ ServerBindings.properties.mercure = MercureServerBinding;
 
 const MercureMessageBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 MessageBindings.properties.mercure = MercureMessageBinding;
 
 const MercureOperationBinding: NodeType = {
   properties: {}, // empty object
-}
+};
 OperationBindings.properties.mercure = MercureOperationBinding;
 
 // ibmmq
@@ -1016,7 +1014,6 @@ OperationBindings.properties.mercure = MercureOperationBinding;
 // pulsar
 
 // --- End per-protocol node types
-
 
 export const AsyncApi2Types: Record<string, NodeType> = {
   Root,
