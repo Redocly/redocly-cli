@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint /async2 1`] = `
+exports[`E2E lint async2 1`] = `
 
 validating /anyof.yml...
 /anyof.yml: validated in <test>ms
