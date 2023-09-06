@@ -6,7 +6,7 @@ npm run webpack-bundle
 # For npm (Mutates packages/cli/package.json)
 npm run pack:prepare
 
-cp ./redocly-cli.tgz ./openapi-core.tgz ./dist/bundle.js ./__tests__/smoke/
+cp ./redocly-cli.tgz ./openapi-core.tgz ./packages/cli/redoc-2.1.1.tgz ./dist/bundle.js ./__tests__/smoke/
 
 echo "Current directory:"
 pwd
