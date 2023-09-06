@@ -44,7 +44,7 @@
     "mobx": "^6.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "redoc": "^2.1.1",
+    "redoc": "./redoc-2.1.1.tgz",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
     "styled-components": "^6.0.7",
