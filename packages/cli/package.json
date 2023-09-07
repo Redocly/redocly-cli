@@ -42,8 +42,8 @@
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",
     "mobx": "^6.0.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^17.0.0 || ^18.2.0",
+    "react-dom": "^17.0.0 || ^18.2.0",
     "redoc": "./redoc-2.1.1.tgz",
     "semver": "^7.5.2",
     "simple-websocket": "^9.0.0",
@@ -53,8 +53,8 @@
   "devDependencies": {
     "@types/configstore": "^5.0.1",
     "@types/glob": "^8.1.0",
-    "@types/react": "^18.2.21",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "^17.0.0 || ^18.2.21",
+    "@types/react-dom": "^17.0.0 || ^18.2.7",
     "@types/semver": "^7.5.0",
     "@types/yargs": "17.0.5",
     "typescript": "^4.0.3"
