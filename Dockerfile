@@ -3,7 +3,7 @@ FROM node:alpine
 WORKDIR /build
 
 # Copy files required for npm install only
-COPY package.json package-lock.json /build/
+COPY package.json package-lock.json redoc-2.1.1.tgz /build/
 COPY packages/cli/package.json /build/packages/cli/
 COPY packages/cli/redoc-2.1.1.tgz /build/packages/cli/
 COPY packages/core/package.json   /build/packages/core/
