@@ -5,4 +5,3 @@
 !package-lock.json
 !packages/*
 !scripts/local-pack.sh
-!redoc-2.1.1.tgz
