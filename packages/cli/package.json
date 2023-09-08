@@ -35,7 +35,6 @@
   ],
   "dependencies": {
     "@redocly/openapi-core": "1.0.2",
-    "assert-node-version": "^1.0.3",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "get-port-please": "^3.0.1",
