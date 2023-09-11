@@ -309,6 +309,43 @@ describe('lint', () => {
     );
   });
 
+  it('detect unsupported OpenAPI version', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 1.0.4
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(
+      `Unsupported OpenAPI version: 1.0.4`
+    );
+  });
+
+  it('detect unsupported AsyncAPI version', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: 1.0.4
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(
+      `Unsupported AsyncAPI version: 1.0.4`
+    );
+  });
+
+  it('detect unsupported spec format', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        notapi: 3.1.0
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(
+      `Unsupported specification`
+    );
+  });
+
+
   it("spec rule shouldn't throw an error for named callback", async () => {
     const document = parseYamlToDocument(
       outdent`

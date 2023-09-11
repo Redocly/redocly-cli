@@ -66,7 +66,7 @@ export function detectSpec(root: any): SpecVersion {
 
   // if not detected yet
   if (root.openapi || root.swagger) {
-    throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
+    throw new Error(`Unsupported OpenAPI version: ${root.openapi || root.swagger}`);
   }
 
   if (root.asyncapi && root.asyncapi.startsWith('2.')) {
@@ -74,7 +74,7 @@ export function detectSpec(root: any): SpecVersion {
   }
 
   if (root.asyncapi) {
-    throw new Error(`Unsupported AsyncAPI Version: ${root.asyncapi}`);
+    throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
   }
 
   throw new Error(`Unsupported specification`);
