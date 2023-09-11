@@ -156,7 +156,7 @@ export function resolvePlugins(
         }
       }
       if (pluginModule.preprocessors) {
-        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
+        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2 && !pluginModule.preprocessors.async2) {
           throw new Error(
             `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`
           );
