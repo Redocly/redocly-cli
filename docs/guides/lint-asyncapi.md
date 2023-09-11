@@ -1,15 +1,23 @@
 ---
 title: Lint AsyncAPI
+seo:
+  title: Lint AsyncAPI with Redocly CLI
+  description: Unlock powerful linting capabilities for AsyncAPI documents. Use the Redocly CLI to enforce basic validation, configure rules, or even build custom plugins for AsyncAPI.
 ---
 
 # Lint AsyncAPI with Redocly CLI
 
+:::info Experimental AsyncAPI support
+
+This feature is at an early stage, please use with caution and send us lots of feedback!
+
+:::
+
 In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also has support for AsyncAPI.
 Redocly CLI supports the following linting approaches with AsyncAPI documents:
-
 * AsyncAPI document validation, including full binding validation for [supported protocols](#supported-protocols).
 * Supported versions:
-  - AsyncAPI 2.6
+  - [AsyncAPI 2.6](https://www.asyncapi.com/docs/reference/specification/v2.6.0)
   - earlier versions in the 2.x family may also validate successfully
 * Built-in rules for checking common standards requirements (see the [list of AsyncAPI rules](#asyncapi-rules)).
 * [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns
@@ -33,7 +41,7 @@ rulesets, but to emit an error if the `spec` rule finds any problem. This rule
 checks that the document structure matches what is expected by the AsyncAPI
 specification.
 
-With this configuration file, and your AsyncAPI description file, run the linting command:
+With this configuration file, and your AsyncAPI description file (or use one of the [existing examples](https://github.com/asyncapi/spec/tree/master/examples)), run the linting command:
 
 ```
 redocly lint asyncapi.yaml
@@ -49,10 +57,10 @@ some of the built-in rules. The currently-supported rules are:
 
 * `info-contact`: the `Info` section must contain a valid `Contact` field.
 * `operation-operationId`: every operation must have a valid `operationId`.
-* `channels-kebab-case`: channel names should be `kebab-case` (lowercase with hyphens)
-* `no-channel-trailing-slash`: channel names must not have trailing slashes in their names
-* `tag-description`: all tags require a description
-* `tags-alphabetical`: tags should be listed in the AsyncAPI file in alphabetical order
+* `channels-kebab-case`: channel names should be `kebab-case` (lowercase with hyphens).
+* `no-channel-trailing-slash`: channel names must not have trailing slashes in their names.
+* `tag-description`: all tags require a description.
+* `tags-alphabetical`: tags should be listed in the AsyncAPI file in alphabetical order.
 
 We expect the list to expand over time, so keep checking back - and let us know
 if you have any requests by [opening an issue on the GitHub
