@@ -2,7 +2,7 @@
 
 ## Introduction
 
-With this command, you can generate documentation previews for API definitions on your local machine.
+With this command, you can generate documentation previews for API descriptions on your local machine.
 
 If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise, it is a preview of [Redoc community edition](https://redocly.com/redoc/).
 
@@ -23,7 +23,7 @@ redocly preview-docs <api> --version
 
 | Option                  | Type     | Description                                                                                                                                                                |
 | ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                     | string   | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                 |
+| api                     | string   | Path to the API description filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                 |
 | --config                | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                      |
 | --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                            |
 | --help                  | boolean  | Show help.                                                                                                                                                                 |

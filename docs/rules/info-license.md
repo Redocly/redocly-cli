@@ -1,6 +1,6 @@
 # info-license
 
-Requires the license info in your API definitions.
+Requires the license info in your API descriptions.
 
 |OAS|Compatibility|
 |---|---|

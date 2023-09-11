@@ -1,6 +1,6 @@
 # no-unused-components
 
-Ensures that every component specified in your API definition is used at least once.
+Ensures that every component specified in your API description is used at least once.
 In this context, "used" means that a component defined in the `components` object is referenced elsewhere in the API document with `$ref`.
 
 |OAS|Compatibility|

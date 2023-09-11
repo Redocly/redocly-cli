@@ -12,7 +12,7 @@ Requires the `description` field for every operation in your API.
 ## API design principles
 
 Every operation should have a description to help your API consumers understand what it does and how to use it.
-Without a description, people who want to use your API have to guess what an operation does, or try to decipher it from other parts of your API definition, or from other documentation and external resources that may not be accurate. Your API definition should be the single source of truth about your API.
+Without a description, people who want to use your API have to guess what an operation does, or try to decipher it from other parts of your API description, or from other documentation and external resources that may not be accurate. Your API description should be the single source of truth about your API.
 Add the description field and delight both your (future) teammates and your API consumers.
 
 ## Configuration

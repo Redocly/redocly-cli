@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
+Redocly CLI can identify and report on problems found in OpenAPI descriptions. This helps you avoid bugs and make API descriptions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
@@ -26,7 +26,7 @@ redocly lint --version
 
 | Option                 | Type     | Description                                                                                                                                           |
 | ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                   | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
+| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
 | --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                 |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                          |
 | --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe`. |
@@ -88,7 +88,7 @@ apis:
     root: ./openapi/sandbox.yaml
 ```
 
-In this case, if no API definitions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
+In this case, if no API descriptions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
 
 :::warning Important
 

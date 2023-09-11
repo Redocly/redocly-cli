@@ -194,7 +194,7 @@ E2E tests are sensitive to any additional output (like `console.log`) in the sou
       - **`packages/core/src/types`**: contains the common types for several OpenAPI versions.
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
-- **`resources`**: contains some example API definitions and configuration files that might be useful for testing.
+- **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 
 ## Release flow
 

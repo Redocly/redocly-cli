@@ -2,16 +2,16 @@
 
 ## Introduction
 
-Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API definitions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
+Redocly Workflows integrates with [popular version control services](../../workflows/sources/index.md) and uses them as the source of your API descriptions to help you automatically validate, build, and deploy API reference docs and developer portals. This approach requires you to give Redocly Workflows access to your repositories.
 
-The Redocly CLI `push` command helps you automate API definition updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API definitions are generated automatically from code annotations in a CI/CD pipeline
+The Redocly CLI `push` command helps you automate API description updates without granting Redocly Workflows access to your repositories. This is useful when you can't or don't want to grant Redocly Workflows permissions to your repositories, or when your API descriptions are generated automatically from code annotations in a CI/CD pipeline
 
 This allows you to:
 
 - Benefit from using Redocly Workflows to preview documentation and portal builds.
 - Manage versions in the API registry.
 
-Apart from uploading your API definition file, the `push` command can automatically upload other files if they are detected or referenced in the API definition:
+Apart from uploading your API description file, the `push` command can automatically upload other files if they are detected or referenced in the API description:
 
 - the [Redocly configuration file](../configuration/index.mdx) and any configuration files referenced in the `extends` list.
 - the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows uses the `@redocly/cli` version specified in `package.json`.
@@ -25,11 +25,11 @@ Make sure that each plugin has all the required files in its folder; otherwise, 
 
 :::
 
-By default, the `push` command only updates an existing API definition version. If an API with the provided name and version doesn't exist in your organization, it isn't created automatically. For details on how to create an API, check the [Upsert an API with push](#upsert-an-api-with-push) section.
+By default, the `push` command only updates an existing API description version. If an API with the provided name and version doesn't exist in your organization, it isn't created automatically. For details on how to create an API, check the [Upsert an API with push](#upsert-an-api-with-push) section.
 
 :::warning
 
-Only API definitions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources fails with an error.
+Only API descriptions with a CI source can be updated with the `push` command. Attempting to update API descriptions created from other sources fails with an error.
 
 :::
 
@@ -78,14 +78,14 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/definition.yaml> 
 
 | Option           |   Type   | Description                                                                                                                                                                                                                                           |
 | ---------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api              |  string  | The API definition that you want to push to the Redocly API registry. Provide it as a path to the root API definition file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                              |
-| --destination    |  string  | The location in the API registry where you want to push or upsert your API definition. Provide it in the following format: `api-name@api-version`.                                                                                                    |
+| api              |  string  | The API description that you want to push to the Redocly API registry. Provide it as a path to the root API description file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                              |
+| --destination    |  string  | The location in the API registry where you want to push or upsert your API description. Provide it in the following format: `api-name@api-version`.                                                                                                    |
 | --organization   |  string  | ID of organization that the definition is being pushed to. Overrides the one defined in the config file.                                                                                                                                              |
-| --branch, -b     |  string  | The branch where your API definition is pushed or upserted. Default value is `main`.                                                                                                                                                                  |
+| --branch, -b     |  string  | The branch where your API description is pushed or upserted. Default value is `main`.                                                                                                                                                                  |
 | --job-id         |  string  | The ID of the CI job that the current push is associated with. See [the Job ID section](#job-id) for more information.                                                                                                                                |
 | --batch-size     |  number  | Number of CI pushes expected within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                        |
 | --help           | boolean  | Help output for the command.                                                                                                                                                                                                                          |
-| --public         | boolean  | Make API definitions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                   |
+| --public         | boolean  | Make API descriptions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                   |
 | --region,-r      |  string  | Which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value of the appropriate Redocly API. |
 | --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                  |
 | --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                               |
@@ -103,7 +103,7 @@ You can choose any of the following approaches:
 
 ### Destination
 
-To properly push your API definition to the Redocly API registry, you need the following information:
+To properly push your API description to the Redocly API registry, you need the following information:
 
 - [Organization ID](#organization-id)
 - [API name and version](#api-name-and-version)
@@ -160,7 +160,7 @@ The version of your API should contain only supported characters (`a-z`, `A-Z`, 
 
 ### Set options explicitly
 
-Provide the `api` as a path to the root API definition file, and specify the organization ID, API name and version.
+Provide the `api` as a path to the root API description file, and specify the organization ID, API name and version.
 
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org
@@ -176,7 +176,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 
 ### Set options in the configuration file
 
-Depending on the contents of your Redocly configuration file, you can use simplified `push` syntax instead of providing the full path to the API definition file.
+Depending on the contents of your Redocly configuration file, you can use simplified `push` syntax instead of providing the full path to the API description file.
 
 **Example configuration file**
 
@@ -264,7 +264,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 
 ### Public
 
-The `--public` option allows you to upload your API definition and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
+The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
 For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
 
 ```bash
@@ -298,5 +298,5 @@ files:
 The Redocly Workflows interface can help you get started with the `push` command.
 
 1. In **API registry**, select **Add API**.
-1. In the **Definition name** step, provide a name for your new API definition.
-1. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API definition file. Or use the `redocly push -u` command directly from the command-line interface.
+1. In the **Definition name** step, provide a name for your new API description.
+1. In the **Choose source** step, select **Upload from CI/CD**. This generates syntax for the `push` command that you can copy and use to upload a new API description file. Or use the `redocly push -u` command directly from the command-line interface.

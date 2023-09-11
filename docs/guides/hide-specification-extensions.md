@@ -6,7 +6,7 @@ in your API and want to hide their details as well. For this purpose, you need a
 
 ## Overview
 
-In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI definition.
+In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI description.
 Then generate an internal and an external version of the API.
 
 ```mermaid

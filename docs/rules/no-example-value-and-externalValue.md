@@ -31,7 +31,7 @@ style NamedExample fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 According to the OpenAPI specification, the `value` field and `externalValue` field are mutually exclusive.
 An object that contains both violates the specification.
-The intended use of the `value` field is to provide in-line example values, while the `externalValue` field is meant for URIs that reference examples stored outside of the API definition file.
+The intended use of the `value` field is to provide in-line example values, while the `externalValue` field is meant for URIs that reference examples stored outside of the API description file.
 
 ## Configuration
 

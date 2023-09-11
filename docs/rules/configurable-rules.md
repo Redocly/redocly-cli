@@ -17,7 +17,7 @@ rules:
     ...
 ```
 
-A configurable rule describes the contents that the linter expects to find in your API definition. During the validation process, the linter goes through your API definition and checks if its contents match the expectations. If something was described in a configurable rule, but the API definition doesn't correspond to the description, the linter shows you a warning or error message in the log.
+A configurable rule describes the contents that the linter expects to find in your API description. During the validation process, the linter goes through your API description and checks if its contents match the expectations. If something was described in a configurable rule, but the API description doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
 
 Pattern Property | Type | Description

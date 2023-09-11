@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `stats` command provides statistics about the structure of one or more API definition files. Statistics are calculated using the counting logic from the `StatsVisitor` module. The `stats` command can generate statistics for the following metrics:
+The `stats` command provides statistics about the structure of one or more API description files. Statistics are calculated using the counting logic from the `StatsVisitor` module. The `stats` command can generate statistics for the following metrics:
 
 - `References`
 - `External Documents`
@@ -25,7 +25,7 @@ redocly stats --version
 
 | Option    | Type    | Description                                                                                       |
 | --------- | ------- | ------------------------------------------------------------------------------------------------- |
-| api       | string  | **REQUIRED.** Path to the API definition file that you want to split into a multi-file structure. |
+| api       | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure. |
 | --config  | string  | Specify path to the [configuration file](#custom-configuration-file).                             |
 | --format  | string  | Format for the output.<br />**Possible values:** `stylish`, `json`.                               |
 | --help    | boolean | Show help.                                                                                        |

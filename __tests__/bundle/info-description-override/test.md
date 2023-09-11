@@ -1,4 +1,4 @@
-This is a test API definition.
+This is a test API description.
 
 # Heading test
 

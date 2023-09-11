@@ -13,7 +13,7 @@ Follow along using our sample API provided with this tutorial to hide APIs, and 
 
 ## Overview
 
-In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI definition.
+In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI description.
 Once the definition is complete, generate an internal and an external version of the API.
 
 ```mermaid
@@ -35,9 +35,9 @@ This tutorial is most effective when you follow along and complete the steps.
 - Download the [sample.yaml](https://gist.github.com/adamaltman/ee07bf94a967926ee0e54bcd56fdcdfb) file into a new directory named `hide-apis-demo`.
 - Use your favorite IDE for editing the YAML file (we use VS Code and have the [Redocly extension](../../redocly-openapi/index.md) installed).
 
-## Step 1: Add `x-internal` to the API definition
+## Step 1: Add `x-internal` to the API description
 
-In this step, mark which operations and properties of the API definition are for internal use.
+In this step, mark which operations and properties of the API description are for internal use.
 
 Open the `sample.yaml` file in your IDE. Changes are needed in a few places.
 
@@ -76,7 +76,7 @@ apis:
 Let's explain what's going on here.
 The `apis` object contains a collection of our APIs.
 The `internal@latest` matches the expected configuration `{name@version}` pattern for each API.
-The `root` is the path to the root of the API definition.
+The `root` is the path to the root of the API description.
 
 We only have one root API file (`sample.yaml`), but we want to generate two APIs from that SSOT.
 To do that, we add another API to the API section.

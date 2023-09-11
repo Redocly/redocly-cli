@@ -61,14 +61,14 @@ Read on to learn more about the various configuration sections and what you can 
 
 ## Using configuration with Redocly CLI
 
-Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API definitions.
-You can tell the `lint` command to validate specific API definitions by using their names from the `apis` object, like in the following example:
+Some of the Redocly CLI commands, such as the [lint command](../commands/lint.md), use the API names from the `apis` object as shortcuts for referencing API descriptions.
+You can tell the `lint` command to validate specific API descriptions by using their names from the `apis` object, like in the following example:
 
 ```shell
 redocly lint core@v2
 ```
 
-On the other hand, if you run the command without specifying any aliases, it applies to all API definitions listed in the `apis` object of the configuration file.
+On the other hand, if you run the command without specifying any aliases, it applies to all API descriptions listed in the `apis` object of the configuration file.
 
 ```shell
 redocly lint
@@ -144,7 +144,7 @@ This object is optional.
 
 #### openapi object
 
-The `openapi` object is a property of the `theme` object and configures features and theming for API documentation generated from OpenAPI definitions.
+The `openapi` object is a property of the `theme` object and configures features and theming for API documentation generated from OpenAPI descriptions.
 
 If you need to apply different theming and functionality to individual APIs, add the theme `openapi` property to the appropriate API in the `apis` and `theme` object, and use the same options as the global `openapi` object.
 
@@ -206,7 +206,7 @@ The rules, decorators, pre-processors and configuration contained in the plugins
 
 ### Resolve non-public or non-remote URLs
 
-Redocly automatically resolves any API registry link or public URL in your API definitions.
+Redocly automatically resolves any API registry link or public URL in your API descriptions.
 If you want to resolve links that are neither API registry links nor publicly accessible, set the `resolve` object in your configuration file.
 
 Redocly CLI supports one `http` header per URL.

@@ -2,9 +2,9 @@
 
 ## Introduction
 
-API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
+API descriptions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API description by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API description.
 
-Redocly CLI can help you combine separate API definition files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API description files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
@@ -43,15 +43,15 @@ redocly bundle --version
 
 ## Examples
 
-### Bundle a single API definition
+### Bundle a single API description
 
-This command creates a bundled file at the path `dist/openapi.json` starting from the root API definition file `openapi/openapi.yaml` and following the `$ref` to other files if appropriate. The bundled file is in JSON format.
+This command creates a bundled file at the path `dist/openapi.json` starting from the root API description file `openapi/openapi.yaml` and following the `$ref` to other files if appropriate. The bundled file is in JSON format.
 
 ```bash
 redocly bundle openapi/openapi.yaml --output dist/openapi.json
 ```
 
-### Bundle multiple API definitions
+### Bundle multiple API descriptions
 
 This command creates one bundled file for each of the specified apis in the `dist/` folder. Bundled files are in JSON format.
 

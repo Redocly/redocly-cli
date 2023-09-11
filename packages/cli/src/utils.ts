@@ -232,9 +232,9 @@ export function handleError(e: Error, ref: string) {
       throw e;
     }
     case ResolveError:
-      return exitWithError(`Failed to resolve api definition at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}.`);
     case YamlParseError:
-      return exitWithError(`Failed to parse api definition at ${ref}:\n\n  - ${e.message}.`);
+      return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}.`);
     // TODO: codeframe
     case CircularJSONNotSupportedError: {
       return exitWithError(

@@ -3,7 +3,7 @@
 Every API has a different purpose and therefore different standards apply.
 If you work in high security financial data, you may want a higher level of compliance with API standards than if you are creating a quick backend for a web application. Configuring an appropriate combination of rules is important;
 if the standards are too harsh, you risk ignoring errors and missing something important,
-but if they are too lax then your OpenAPI definition may be inconsistent or incomplete for your needs.
+but if they are too lax then your OpenAPI description may be inconsistent or incomplete for your needs.
 
 In this guide, learn how to choose and adapt the rules built into Redocly for your own needs.
 
@@ -83,7 +83,7 @@ Since multiple rulesets can be added, and you can adjust these settings for each
 
 ## Use configurable rules
 
-Assertions are a low-code way of creating targeted rules for specific situations in your use case. You specify which elements of the API definition that should be checked, and using features like `defined`, `nonEmpty`, and `pattern`, describe the expectations for that element.
+Assertions are a low-code way of creating targeted rules for specific situations in your use case. You specify which elements of the API description that should be checked, and using features like `defined`, `nonEmpty`, and `pattern`, describe the expectations for that element.
 
 Add your desired assertions to the `rules:` configuration in the Redocly configuration file. The example below creates a `version-semver` assertion, ensuring that theAPI version is in [Semantic Version](https://semver.org/) format with the major version set to 1:
 
@@ -150,7 +150,7 @@ There's a few things going on in the example, but let's look at each feature in 
 * No rules are defined at the top level, but since every API sets the `no-server-trailing-slash` rule to "off", this could be set at the top level.
 * Each API adds (or removes) the rules that fit their use case, including using the `version-semver` assertion.
 
-Configuring per-API means that there doesn't have to be compromise for the lowest standard that all APIs can meet. Especially when you are working on improving your APIs or API definitions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure standards only improve.
+Configuring per-API means that there doesn't have to be compromise for the lowest standard that all APIs can meet. Especially when you are working on improving your APIs or API descriptions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure standards only improve.
 
 ## Next steps
 

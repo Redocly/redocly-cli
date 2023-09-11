@@ -6,7 +6,7 @@ info:
   title: Example OpenAPI 3 definition.
   version: 1.0.0
   description: |
-    This is a test API definition.
+    This is a test API description.
 
     # Heading test
 

@@ -406,7 +406,7 @@ describe('handleErrors', () => {
     expect(() => handleError(resolveError, ref)).toThrowError(HandledError);
     expect(redColoretteMocks).toHaveBeenCalledTimes(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
-      `Failed to resolve api definition at openapi/test.yaml:\n\n  - File not found.\n\n`
+      `Failed to resolve API description at openapi/test.yaml:\n\n  - File not found.\n\n`
     );
   });
 
@@ -415,7 +415,7 @@ describe('handleErrors', () => {
     expect(() => handleError(yamlParseError, ref)).toThrowError(HandledError);
     expect(redColoretteMocks).toHaveBeenCalledTimes(1);
     expect(process.stderr.write).toHaveBeenCalledWith(
-      `Failed to parse api definition at openapi/test.yaml:\n\n  - Invalid yaml.\n\n`
+      `Failed to parse API description at openapi/test.yaml:\n\n  - Invalid yaml.\n\n`
     );
   });
 

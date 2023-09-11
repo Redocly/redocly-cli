@@ -12,7 +12,7 @@ Disallows use of tags in operations that aren't globally defined.
 ## API design principles
 
 OpenAPI tags can be used for different purposes.
-Tags are declared in the root of the OpenAPI definition.
+Tags are declared in the root of the OpenAPI description.
 Then, they are used in operations.
 
 This rule says that if an operation uses a tag, it must be defined in the root tags declaration.

@@ -1,6 +1,6 @@
 # Rules in plugins
 
-Rules are used to make sure that the API definition is in the expected format and aligns with the expected API standards. Before you build any custom rules:
+Rules are used to make sure that the API description is in the expected format and aligns with the expected API standards. Before you build any custom rules:
 
 * Learn more about [Redocly rules](../rules.md).
 * Check the list of [built-in rules](../rules/built-in-rules.md).

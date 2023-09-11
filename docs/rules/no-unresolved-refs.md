@@ -1,6 +1,6 @@
 # no-unresolved-refs
 
-Ensures that all `$ref` instances in your API definitions are resolved.
+Ensures that all `$ref` instances in your API descriptions are resolved.
 
 |OAS|Compatibility|
 |---|---|
@@ -11,7 +11,7 @@ Ensures that all `$ref` instances in your API definitions are resolved.
 
 ## API design principles
 
-The `$ref` (reference object) is useful for keeping your OpenAPI definitions DRY (don't repeat yourself).
+The `$ref` (reference object) is useful for keeping your OpenAPI descriptions DRY (don't repeat yourself).
 But if you make a typo, your `$ref` might not be resolvable.
 This rule prevents that from happening.
 

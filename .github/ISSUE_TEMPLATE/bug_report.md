@@ -26,9 +26,9 @@ Steps to reproduce the behavior:
 
 <!-- If applicable, add logs to help explain your problem. -->
 
-**OpenAPI definition**
+**OpenAPI description**
 
-<!-- If applicable, add an OpenAPI definition and `.redocly.yaml` configuration file that helps reproduce the problem.
+<!-- If applicable, add an OpenAPI description and `.redocly.yaml` configuration file that helps reproduce the problem.
 At a minimum, please state the specification version(s) you're using (e.g. 2.0, 3.0, 3.1). -->
 
 **Redocly Version(s)**

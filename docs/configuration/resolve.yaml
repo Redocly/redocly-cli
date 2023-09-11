@@ -1,7 +1,7 @@
 type: object
 title: Resolve object
 description: >-
-  All API registry links and public URLs in your API definitions automatically resolve.
+  All API registry links and public URLs in your API descriptions automatically resolve.
   If you want to resolve links that are neither API registry links nor publicly accessible, include this object to add an HTTP request header.
 
   If the URL matches multiple patterns, the first match takes priority.
@@ -13,7 +13,7 @@ properties:
     type: boolean
     description: >-
       You can stop `lint` from resolving `$refs` in examples by setting this configuration option to `true`.
-      This does not affect `$ref` resolution in other parts of the API definition.
+      This does not affect `$ref` resolution in other parts of the API description.
     default: false
   http:
     type: object

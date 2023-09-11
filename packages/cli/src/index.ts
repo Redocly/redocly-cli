@@ -32,7 +32,7 @@ yargs
   .parserConfiguration({ 'greedy-arrays': false, 'camel-case-expansion': false })
   .command(
     'stats [api]',
-    'Show statistics for an API definition.',
+    'Show statistics for an API description.',
     (yargs) =>
       yargs.positional('api', { type: 'string' }).option({
         config: { description: 'Path to the config file.', type: 'string' },
@@ -49,11 +49,11 @@ yargs
   )
   .command(
     'split [api]',
-    'Split an API definition into a multi-file structure.',
+    'Split an API description into a multi-file structure.',
     (yargs) =>
       yargs
         .positional('api', {
-          description: 'API definition file that you want to split',
+          description: 'API description file that you want to split',
           type: 'string',
         })
         .option({
@@ -133,7 +133,7 @@ yargs
 
   .command(
     'push [api] [maybeDestination] [maybeBranchName]',
-    'Push an API definition to the Redocly API registry.',
+    'Push an API description to the Redocly API registry.',
     (yargs) =>
       yargs
         .usage('push [api]')
@@ -188,7 +188,7 @@ yargs
             type: 'string',
           },
           public: {
-            description: 'Make the API definition available to the public',
+            description: 'Make the API description available to the public',
             type: 'boolean',
           },
           files: {
@@ -318,7 +318,7 @@ yargs
           type: 'string',
         },
         lint: {
-          description: 'Lint API definitions',
+          description: 'Lint API descriptions',
           type: 'boolean',
           default: false,
         },

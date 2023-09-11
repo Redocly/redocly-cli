@@ -1,6 +1,6 @@
 # info-license-url
 
-Requires the license URL in your API definitions.
+Requires the license URL in your API descriptions.
 
 |OAS|Compatibility|
 |---|---|

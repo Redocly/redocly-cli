@@ -11,7 +11,7 @@ Ensures that every operation in your API document has at least one successful (2
 
 ## API design principles
 
-One of the main goals of your API definition (and your API documentation) is to help consumers understand how your API behaves and what to expect when working with it.
+One of the main goals of your API description (and your API documentation) is to help consumers understand how your API behaves and what to expect when working with it.
 
 When designing your APIs, every operation should have a successful HTTP response.
 If it doesn't, what is the purpose of the operation?

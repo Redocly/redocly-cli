@@ -2,7 +2,7 @@
 
 _Visitor_ is a design pattern that allows operations to be performed on individual elements in a more complex structure. Redocly uses it as the basis for custom plugins where every node in a document must be evaluated, for example when applying rules or decorators.
 
-To understand how this applies to your API definition, think of the document as a tree structure. The top level elements are entries like `info` and `components`. To examine the `description` field in the `info` section, the visitor goes to the `info` node first, then on to the `description` node. This pattern is repeated all over the document as the visitor pattern works its way around the document tree.
+To understand how this applies to your API description, think of the document as a tree structure. The top level elements are entries like `info` and `components`. To examine the `description` field in the `info` section, the visitor goes to the `info` node first, then on to the `description` node. This pattern is repeated all over the document as the visitor pattern works its way around the document tree.
 
 
 ## Structure of the visitor object
