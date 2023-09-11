@@ -48,10 +48,6 @@ export function detectSpec(root: any): SpecVersion {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
   }
 
-  // if (!(root.openapi || root.swagger)) {
-  //   throw new Error('This doesn’t look like an OpenAPI document.\n');
-  // }
-
   if (root.openapi && typeof root.openapi !== 'string') {
     throw new Error(`Invalid OpenAPI version: should be a string but got "${typeof root.openapi}"`);
   }

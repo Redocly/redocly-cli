@@ -245,7 +245,6 @@ export function handleError(e: Error, ref: string) {
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     default: {
-      console.log(e);
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
     }
   }
