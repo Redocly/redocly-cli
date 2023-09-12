@@ -33,6 +33,7 @@ This rule is intended to prevent bikeshedding and diffuse tension between teamma
 |Option|Type|Description|
 |---|---|---|
 |severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+|ignoreCase|boolean|Possible values: `true`, `false`. Default `false` (in `recommended` configuration). |
 
 An example configuration:
 
