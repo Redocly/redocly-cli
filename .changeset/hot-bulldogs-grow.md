@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed an issue when the --remove-unused-components option was removing used components that were referenced as a child object.
+Fixed an issue where the `--remove-unused-components` option removed used components that were referenced as child objects.
