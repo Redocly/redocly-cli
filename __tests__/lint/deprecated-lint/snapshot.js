@@ -6,6 +6,8 @@ exports[`E2E lint deprecated-lint 1`] = `
 
 Property \`lint\` is not expected here.
 
+Did you mean: env ?
+
 5 |       rules:
 6 |         operation-4xx-response: error
 7 | lint:
