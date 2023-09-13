@@ -61,4 +61,62 @@ describe('Oas3 tags-alphabetical', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
   });
+
+  it('should report on tags object if not sorted alphabetically not ignoring case', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths: {}
+          tags:
+            - name: a
+            - name: B
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'tags-alphabetical': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/tags/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`tags\` array should be in alphabetical order.",
+          "ruleId": "tags-alphabetical",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on tags object if sorted alphabetically ignoring case', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+      openapi: 3.0.0
+      paths: {}
+      tags:
+        - name: a
+        - name: B
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'tags-alphabetical': { severity: 'error', ignoreCase: true } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
 });
