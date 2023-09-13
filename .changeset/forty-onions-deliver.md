@@ -1,6 +1,6 @@
 ---
-'@redocly/openapi-core': patch
-'@redocly/cli': patch
+'@redocly/openapi-core': minor
+'@redocly/cli': minor
 ---
 
-Added ignoreCase option for tags-alphabetical rule
+Added `ignoreCase` option for `tags-alphabetical` rule.
