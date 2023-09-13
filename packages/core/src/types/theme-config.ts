@@ -376,7 +376,7 @@ const catalogsConfigSchema = {
   },
 } as const;
 
-export const themeConfigSchema = { 
+export const themeConfigSchema = {
   type: 'object',
   properties: {
     imports: {

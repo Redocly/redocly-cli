@@ -247,7 +247,7 @@ const Rules: NodeType = {
         return 'ObjectRule';
       }
     } else if (key === 'metadata-schema' || key === 'custom-fields-schema') {
-      return 'Schema'
+      return 'Schema';
     }
     // Otherwise is considered as invalid
     return;
