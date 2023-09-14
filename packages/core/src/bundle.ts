@@ -3,7 +3,7 @@ import { BaseResolver, resolveDocument, Document, ResolvedRefMap, makeRefId } fr
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
-import { detectSpec, getTypes, majorSpecVersion, SpecMajorVersion } from './oas-types';
+import { detectSpec, getTypes, getMajorSpecVersion, SpecMajorVersion } from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -91,7 +91,7 @@ export async function bundleDocument(opts: {
     keepUrlRefs = false,
   } = opts;
   const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = majorSpecVersion(specVersion);
+  const specMajorVersion = getMajorSpecVersion(specVersion);
   const rules = config.getRulesForOasVersion(specMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),

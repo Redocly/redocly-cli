@@ -5,7 +5,7 @@ import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
-import { Oas3RuleSet, SpecVersion, majorSpecVersion, detectSpec, getTypes } from './oas-types';
+import { Oas3RuleSet, SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 
@@ -52,7 +52,7 @@ export async function lintDocument(opts: {
 
   const { document, customTypes, externalRefResolver, config } = opts;
   const specVersion = detectSpec(document.parsed);
-  const specMajorVersion = majorSpecVersion(specVersion);
+  const specMajorVersion = getMajorSpecVersion(specVersion);
   const rules = config.getRulesForOasVersion(specMajorVersion);
   const types = normalizeTypes(
     config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),

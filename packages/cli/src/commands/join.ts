@@ -150,7 +150,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   for (const document of documents) {
     try {
       const version = detectSpec(document.parsed);
-      if (version !== SpecVersion.OAS3_0 && version != SpecVersion.OAS3_1) {
+      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
         return exitWithError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
             document.source.absoluteRef

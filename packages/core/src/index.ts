@@ -52,7 +52,7 @@ export {
 } from './resolve';
 export { parseYaml, stringifyYaml } from './js-yaml';
 export { unescapePointer, isRef, isAbsoluteUrl } from './ref-utils';
-export { SpecMajorVersion, majorSpecVersion, SpecVersion, detectSpec, getTypes } from './oas-types';
+export { SpecMajorVersion, getMajorSpecVersion, SpecVersion, detectSpec, getTypes } from './oas-types';
 export { normalizeVisitors } from './visitors';
 
 export {

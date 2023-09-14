@@ -117,6 +117,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -127,6 +128,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -140,6 +142,9 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": Object {
+            "async2": Object {
+              "operation-summary": "warn",
+            },
             "oas2": Object {
               "operation-summary": "warn",
             },
@@ -217,6 +222,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -227,6 +233,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -242,6 +249,10 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": Object {
+            "async2": Object {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
             "oas2": Object {
               "no-empty-servers": "error",
               "operation-summary": "error",

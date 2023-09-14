@@ -80,7 +80,7 @@ export function detectSpec(root: any): SpecVersion {
   throw new Error(`Unsupported specification`);
 }
 
-export function majorSpecVersion(version: SpecVersion): SpecMajorVersion {
+export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
   if (version === SpecVersion.OAS2) {
     return SpecMajorVersion.OAS2;
   } else if (version === SpecVersion.Async2) {
