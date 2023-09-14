@@ -14,4 +14,3 @@ rules:
     severity: error
     assertions:
       defined: true
-

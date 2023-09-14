@@ -316,9 +316,7 @@ describe('lint', () => {
       `,
       ''
     );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(
-      `Unsupported OpenAPI version: 1.0.4`
-    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported OpenAPI version: 1.0.4`);
   });
 
   it('detect unsupported AsyncAPI version', () => {
@@ -328,9 +326,7 @@ describe('lint', () => {
       `,
       ''
     );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(
-      `Unsupported AsyncAPI version: 1.0.4`
-    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported AsyncAPI version: 1.0.4`);
   });
 
   it('detect unsupported spec format', () => {
@@ -340,11 +336,8 @@ describe('lint', () => {
       `,
       ''
     );
-    expect(() => detectSpec(testDocument.parsed)).toThrow(
-      `Unsupported specification`
-    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported specification`);
   });
-
 
   it("spec rule shouldn't throw an error for named callback", async () => {
     const document = parseYamlToDocument(

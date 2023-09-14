@@ -28,13 +28,13 @@ tags:
   - name: root-tag2
     description: Description 2
     externalDocs:
-      url: "https://www.asyncapi.com/"
+      url: 'https://www.asyncapi.com/'
   - name: root-tag3
   - name: root-tag4
     description: Description 4
   - name: root-tag5
     externalDocs:
-      url: "https://www.asyncapi.com/"
+      url: 'https://www.asyncapi.com/'
 externalDocs:
   description: Find more info here
   url: https://example.com
@@ -81,9 +81,9 @@ servers:
     security:
       - apiKey: []
       - supportedOauthFlows:
-        - streetlights:on
-        - streetlights:off
-        - streetlights:dim
+          - streetlights:on
+          - streetlights:off
+          - streetlights:dim
       - openIdConnectWellKnown: []
   dummy-mqtt:
     url: mqtt://localhost
@@ -120,7 +120,7 @@ servers:
     url: amqp://localhost:{port}
     protocol: amqp
     description: dummy AMQP broker
-    protocolVersion: "0.9.1"
+    protocolVersion: '0.9.1'
     variables:
       port:
         enum:
@@ -165,7 +165,7 @@ channels:
           query:
             type: object
             required:
-            - companyId
+              - companyId
             properties:
               companyId:
                 type: number
@@ -184,7 +184,7 @@ channels:
       operationId: turnOn
       security:
         - supportedOauthFlows:
-          - streetlights:on
+            - streetlights:on
       externalDocs:
         description: Find more info here
         url: https://example.com
@@ -226,13 +226,13 @@ components:
       summary: Inform about environmental lighting conditions for a particular streetlight.
       contentType: application/json
       correlationId:
-        $ref: "#/components/correlationIds/sentAtCorrelator"
+        $ref: '#/components/correlationIds/sentAtCorrelator'
       externalDocs:
-        url: "https://www.asyncapi.com/"
+        url: 'https://www.asyncapi.com/'
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/lightMeasuredPayload"
+        $ref: '#/components/schemas/lightMeasuredPayload'
       bindings:
         mqtt:
           bindingVersion: 0.1.0
@@ -241,12 +241,12 @@ components:
             my-app-header: 12
           payload:
             lumens: 1
-            sentAt: "2020-01-31T13:24:53Z"
+            sentAt: '2020-01-31T13:24:53Z'
         - headers:
             my-app-header: 13
         - payload:
             lumens: 3
-            sentAt: "2020-10-31T13:24:53Z"
+            sentAt: '2020-10-31T13:24:53Z'
       x-schema-extensions-as-object:
         type: object
         properties:
@@ -257,8 +257,8 @@ components:
             minimum: 0
       x-schema-extensions-as-primitive: dummy
       x-schema-extensions-as-array:
-        - "item1"
-        - "item2"
+        - 'item1'
+        - 'item2'
     LwM2mOjbects:
       payload:
         type: object
@@ -266,13 +266,13 @@ components:
           objectLinks:
             type: string
         example:
-          objectLinks: "lwm2m=1.1, </0/0>, </1/1>;ssid=1, </2>, </3/0>"
+          objectLinks: 'lwm2m=1.1, </0/0>, </1/1>;ssid=1, </2>, </3/0>'
     turnOnOff:
       # name: turnOnOff
       title: Turn on/off
       summary: Command a particular streetlight to turn the lights on or off.
       payload:
-        $ref: "#/components/schemas/turnOnOffPayload"
+        $ref: '#/components/schemas/turnOnOffPayload'
       headers:
         type: object
         properties:
@@ -282,9 +282,9 @@ components:
       title: Dim light
       summary: Command a particular streetlight to dim the lights.
       correlationId:
-        $ref: "#/components/correlationIds/sentAtCorrelator"
+        $ref: '#/components/correlationIds/sentAtCorrelator'
       externalDocs:
-        url: "https://www.asyncapi.com/"
+        url: 'https://www.asyncapi.com/'
       tags:
         - name: oparation-tag1
           externalDocs:
@@ -293,17 +293,17 @@ components:
         - name: oparation-tag2
           description: Description 2
           externalDocs:
-            url: "https://www.asyncapi.com/"
+            url: 'https://www.asyncapi.com/'
         - name: oparation-tag3
         - name: oparation-tag4
           description: Description 4
         - name: oparation-tag5
           externalDocs:
-            url: "https://www.asyncapi.com/"
+            url: 'https://www.asyncapi.com/'
       traits:
         - $ref: '#/components/messageTraits/commonHeaders'
       payload:
-        $ref: "#/components/schemas/dimLightPayload"
+        $ref: '#/components/schemas/dimLightPayload'
 
   schemas:
     lightMeasuredPayload:
@@ -319,9 +319,9 @@ components:
             - minimum: 10
               maximum: 20
           externalDocs:
-            url: "https://www.asyncapi.com/"
+            url: 'https://www.asyncapi.com/'
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
         ifElseThen:
           type: integer
           minimum: 1
@@ -336,7 +336,7 @@ components:
             then:
               multipleOf: 10
         dependencies:
-          $ref: "#/components/schemas/dependenciesObject"
+          $ref: '#/components/schemas/dependenciesObject'
         anySchema: true
         cannotBeDefined: false
         restrictedAny:
@@ -354,8 +354,8 @@ components:
             minimum: 0
       x-schema-extensions-as-primitive: dummy
       x-schema-extensions-as-array:
-        - "item1"
-        - "item2"
+        - 'item1'
+        - 'item2'
     turnOnOffPayload:
       type: object
       properties:
@@ -366,7 +366,7 @@ components:
             - off
           description: Whether to turn on or off the light.
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
         arrayRank:
           $ref: '#/components/schemas/arrayRank'
       additionalProperties:
@@ -382,7 +382,7 @@ components:
           maximum: 100
           readOnly: true
         sentAt:
-          $ref: "#/components/schemas/sentAt"
+          $ref: '#/components/schemas/sentAt'
         key:
           type: integer
           not:
@@ -414,16 +414,16 @@ components:
           format: time
     oneOfSchema:
       oneOf:
-        - $ref: "#/components/schemas/objectWithKey"
-        - $ref: "#/components/schemas/objectWithKey2"
+        - $ref: '#/components/schemas/objectWithKey'
+        - $ref: '#/components/schemas/objectWithKey2'
     anyOfSchema:
       anyOf:
-        - $ref: "#/components/schemas/objectWithKey"
-        - $ref: "#/components/schemas/objectWithKey2"
+        - $ref: '#/components/schemas/objectWithKey'
+        - $ref: '#/components/schemas/objectWithKey2'
     allOfSchema:
       allOf:
-        - $ref: "#/components/schemas/objectWithKey"
-        - $ref: "#/components/schemas/objectWithKey2"
+        - $ref: '#/components/schemas/objectWithKey'
+        - $ref: '#/components/schemas/objectWithKey2'
     arrayContains:
       type: array
       contains:
@@ -449,14 +449,14 @@ components:
             billing_address2:
               type: string
           required:
-          - billing_address
+            - billing_address
           dependencies:
             billing_address2:
               properties:
                 billing_address3:
                   type: string
               required:
-              - billing_address3
+                - billing_address3
 
     subscriptionStatus:
       type: object
@@ -580,7 +580,7 @@ components:
       description: The ID of the streetlight.
       schema:
         type: string
-      location: "$message.payload#/user/id"
+      location: '$message.payload#/user/id'
 
   correlationIds:
     sentAtCorrelator:

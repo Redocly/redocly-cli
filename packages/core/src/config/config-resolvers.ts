@@ -156,7 +156,11 @@ export function resolvePlugins(
         }
       }
       if (pluginModule.preprocessors) {
-        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2 && !pluginModule.preprocessors.async2) {
+        if (
+          !pluginModule.preprocessors.oas3 &&
+          !pluginModule.preprocessors.oas2 &&
+          !pluginModule.preprocessors.async2
+        ) {
           throw new Error(
             `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\` or \`async2\` preprocessors "${p}.`
           );
@@ -174,8 +178,14 @@ export function resolvePlugins(
       }
 
       if (pluginModule.decorators) {
-        if (!pluginModule.decorators.oas3 && !pluginModule.decorators.oas2 && !pluginModule.decorators.async2) {
-          throw new Error(`Plugin \`decorators\` must have \`oas3\`, \`oas2\` or \`async2\` decorators "${p}.`);
+        if (
+          !pluginModule.decorators.oas3 &&
+          !pluginModule.decorators.oas2 &&
+          !pluginModule.decorators.async2
+        ) {
+          throw new Error(
+            `Plugin \`decorators\` must have \`oas3\`, \`oas2\` or \`async2\` decorators "${p}.`
+          );
         }
         plugin.decorators = {};
         if (pluginModule.decorators.oas3) {
