@@ -1,15 +1,7 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
-import {
-  bundle,
-  ResolveError,
-  YamlParseError,
-  RedoclyClient,
-  getTotals,
-  getMergedConfig,
-  Config,
-} from '@redocly/openapi-core';
-import { getFallbackApisOrExit, loadConfigAndHandleErrors } from '../../utils';
+import { bundle, RedoclyClient, getTotals, getMergedConfig, Config } from '@redocly/openapi-core';
+import { getFallbackApisOrExit, handleError, loadConfigAndHandleErrors } from '../../utils';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from '../../types';
 
@@ -177,14 +169,4 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
 
     if (callNow) func.apply(context, args);
   };
-}
-
-function handleError(e: Error, ref: string) {
-  if (e instanceof ResolveError) {
-    process.stderr.write(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}.\n\n`);
-  } else if (e instanceof YamlParseError) {
-    process.stderr.write(`Failed to parse API description at ${ref}:\n\n  - ${e.message}.\n\n`);
-  } else {
-    process.stderr.write(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.\n\n`);
-  }
 }

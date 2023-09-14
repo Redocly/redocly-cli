@@ -235,7 +235,6 @@ export function handleError(e: Error, ref: string) {
       return exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}.`);
     case YamlParseError:
       return exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}.`);
-    // TODO: codeframe
     case CircularJSONNotSupportedError: {
       return exitWithError(
         `Detected circular reference which can't be converted to JSON.\n` +
@@ -269,7 +268,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
-      green(`Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n`)
+      green(`Woohoo! Your OpenAPI ${pluralize('description is', definitionsCount)} valid. 🎉\n`)
     );
     process.stderr.write(
       yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n${ignored}`)
@@ -277,7 +276,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   } else {
     process.stderr.write(
       green(
-        `Woohoo! Your OpenAPI ${pluralize('definition is', definitionsCount)} valid. 🎉\n${ignored}`
+        `Woohoo! Your OpenAPI ${pluralize('description is', definitionsCount)} valid. 🎉\n${ignored}`
       )
     );
   }

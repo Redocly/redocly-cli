@@ -7,7 +7,7 @@ index.ts split [api]
 Split an API description into a multi-file structure.
 
 Positionals:
-  api  API description file that you want to split            [string] [required]
+  api  API description file that you want to split           [string] [required]
 
 Options:
   --version    Show version number.                                    [boolean]
