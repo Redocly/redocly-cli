@@ -1,15 +1,7 @@
-import {
-  devOnboardingConfigSchema,
-  i18nConfigSchema,
-  mockServerConfigSchema,
-  rbacConfigSchema,
-  redirectConfigSchema,
-  responseHeaderSchema,
-  seoConfigSchema,
-  ssoConfigSchema,
-  themeConfigSchema,
-} from './config-external-schemas';
+import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema';
+import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
+import { Oas3_1Types } from './oas3_1';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 
 const builtInRulesList = [
@@ -68,6 +60,7 @@ const builtInRulesList = [
   'spec-strict-refs',
   'component-name-unique',
 ];
+
 const nodeTypesList = [
   'any',
   'Root',
@@ -165,12 +158,13 @@ const RootConfigStyleguide: NodeType = {
 
 const ConfigRoot: NodeType = {
   properties: {
-    organization: { type: 'string' },
-    apis: 'ConfigApis',
+    ...rootRedoclyConfigSchema.properties,
     ...RootConfigStyleguide.properties,
+    apis: 'ConfigApis',
     theme: 'ConfigRootTheme',
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
+    organization: { type: 'string' },
     region: { enum: ['us', 'eu'] },
     telemetry: { enum: ['on', 'off'] },
     resolve: {
@@ -185,15 +179,6 @@ const ConfigRoot: NodeType = {
         type: 'string',
       },
     },
-    redirects: { type: 'object', additionalProperties: redirectConfigSchema },
-    licenseKey: { type: 'string' },
-    seo: seoConfigSchema,
-    rbac: rbacConfigSchema,
-    responseHeaders: responseHeaderSchema,
-    mockServer: mockServerConfigSchema,
-    sso: ssoConfigSchema,
-    developerOnboarding: devOnboardingConfigSchema,
-    i18n: i18nConfigSchema,
   },
 };
 
@@ -204,6 +189,7 @@ const ConfigApis: NodeType = {
 
 const ConfigApisProperties: NodeType = {
   properties: {
+    ...apiConfigSchema.properties,
     root: { type: 'string' },
     labels: {
       type: 'array',
@@ -223,9 +209,6 @@ const ConfigApisProperties: NodeType = {
         type: 'string',
       },
     },
-    title: { type: 'string' },
-    rbac: { type: 'object' },
-    metadata: { type: 'object' },
   },
   required: ['root'],
 };
@@ -263,6 +246,8 @@ const Rules: NodeType = {
       } else {
         return 'ObjectRule';
       }
+    } else if (key === 'metadata-schema' || key === 'custom-fields-schema') {
+      return 'Schema';
     }
     // Otherwise is considered as invalid
     return;
@@ -572,7 +557,7 @@ const TryItButton: NodeType = {
   },
 };
 
-const Components: NodeType = {
+const ConfigThemeComponents: NodeType = {
   properties: {
     buttons: 'ButtonsConfig',
     httpBadges: 'HttpBadgesConfig',
@@ -619,7 +604,7 @@ const SchemaColorsConfig: NodeType = {
   },
 };
 
-const Schema: NodeType = {
+const ConfigThemeSchema: NodeType = {
   properties: {
     breakFieldNames: { type: 'boolean' },
     caretColor: { type: 'string' },
@@ -759,7 +744,7 @@ const CodeBlock: NodeType = {
   },
 };
 
-const Logo: NodeType = {
+const ConfigThemeLogo: NodeType = {
   properties: {
     gutter: { type: 'string' },
     maxHeight: { type: 'string' },
@@ -815,13 +800,13 @@ const ConfigTheme: NodeType = {
     breakpoints: 'Breakpoints',
     codeBlock: 'CodeBlock',
     colors: 'ThemeColors',
-    components: 'Components',
+    components: 'ConfigThemeComponents',
     layout: 'Layout',
-    logo: 'Logo',
+    logo: 'ConfigThemeLogo',
     fab: 'Fab',
     overrides: 'Overrides',
     rightPanel: 'RightPanel',
-    schema: 'Schema',
+    schema: 'ConfigThemeSchema',
     shape: 'Shape',
     sidebar: 'Sidebar',
     spacing: 'ThemeSpacing',
@@ -973,6 +958,7 @@ const ConfigMockServer: NodeType = {
 };
 
 export const ConfigTypes: Record<string, NodeType> = {
+  ...Oas3_1Types,
   Assert,
   ConfigRoot,
   ConfigApis,
@@ -1018,7 +1004,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   LinksConfig,
   TokenProps,
   CodeBlock,
-  Logo,
+  ConfigThemeLogo,
   Fab,
   ButtonOverrides,
   Overrides,
@@ -1029,9 +1015,9 @@ export const ConfigTypes: Record<string, NodeType> = {
   ThemeSpacing,
   GenerateCodeSamples,
   GroupItemsConfig,
-  Components,
+  ConfigThemeComponents,
   Layout,
-  Schema,
+  ConfigThemeSchema,
   Sidebar,
   Heading,
   Typography,

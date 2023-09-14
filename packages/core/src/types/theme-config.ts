@@ -1,271 +1,8 @@
-import {
-  ApigeeDevOnboardingIntegrationAuthType,
-  AuthProviderType,
-  DEFAULT_TEAM_CLAIM_NAME,
-} from '../config';
-
-const oidcIssuerMetadataSchema = {
-  type: 'object',
-  properties: {
-    end_session_endpoint: { type: 'string' },
-    token_endpoint: { type: 'string' },
-    authorization_endpoint: { type: 'string' },
-  },
-  required: ['token_endpoint', 'authorization_endpoint'],
-  additionalProperties: true,
-} as const;
-
-const oidcProviderConfigSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: AuthProviderType.OIDC },
-    title: { type: 'string' },
-    configurationUrl: { type: 'string', minLength: 1 },
-    configuration: oidcIssuerMetadataSchema,
-    clientId: { type: 'string', minLength: 1 },
-    clientSecret: { type: 'string', minLength: 1 },
-    teamsClaimName: { type: 'string' },
-    defaultTeams: { type: 'array', items: { type: 'string' } },
-    scopes: { type: 'array', items: { type: 'string' } },
-    tokenExpirationTime: { type: 'number' },
-    authorizationRequestCustomParams: { type: 'object', additionalProperties: { type: 'string' } },
-    tokenRequestCustomParams: { type: 'object', additionalProperties: { type: 'string' } },
-  },
-  required: ['type', 'clientId', 'clientSecret'],
-  oneOf: [{ required: ['configurationUrl'] }, { required: ['configuration'] }],
-  additionalProperties: false,
-} as const;
-
-const saml2ProviderConfigSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: AuthProviderType.SAML2 },
-    title: { type: 'string' },
-    issuerId: { type: 'string' },
-    entityId: { type: 'string' },
-    ssoUrl: { type: 'string' },
-    x509PublicCert: { type: 'string' },
-    teamsAttributeName: { type: 'string', default: DEFAULT_TEAM_CLAIM_NAME },
-    teamsAttributeMap: { type: 'object', additionalProperties: { type: 'string' } },
-    defaultTeams: { type: 'array', items: { type: 'string' } },
-  },
-  additionalProperties: false,
-  required: ['type', 'issuerId', 'ssoUrl', 'x509PublicCert'],
-} as const;
-
-const basicAuthProviderConfigSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: AuthProviderType.BASIC },
-    title: { type: 'string' },
-    credentials: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          username: { type: 'string' },
-          password: { type: 'string' },
-          passwordHash: { type: 'string' },
-          teams: { type: 'array', items: { type: 'string' } },
-        },
-        required: ['username'],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ['type', 'credentials'],
-  additionalProperties: false,
-} as const;
-
-const authProviderConfigSchema = {
-  oneOf: [oidcProviderConfigSchema, saml2ProviderConfigSchema, basicAuthProviderConfigSchema],
-  discriminator: { propertyName: 'type' },
-} as const;
-
-const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
-
-export const rbacConfigSchema = {
-  type: 'object',
-  properties: {
-    defaults: rbacScopeItemsSchema,
-  },
-  additionalProperties: rbacScopeItemsSchema,
-} as const;
-
-export const ssoConfigSchema = {
-  type: 'object',
-  additionalProperties: authProviderConfigSchema,
-} as const;
-
-export const redirectConfigSchema = {
-  type: 'object',
-  properties: {
-    to: { type: 'string' },
-    type: { type: 'number', default: 301 },
-  },
-  required: ['to'],
-  additionalProperties: false,
-} as const;
-
-export const seoConfigSchema = {
-  type: 'object',
-  properties: {
-    title: { type: 'string' },
-    description: { type: 'string' },
-    siteUrl: { type: 'string' },
-    image: { type: 'string' },
-    keywords: { type: 'array', items: { type: 'string' } },
-    lang: { type: 'string' },
-    jsonLd: { type: 'object' },
-    meta: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          content: { type: 'string' },
-        },
-        required: ['name', 'content'],
-        additionalProperties: false,
-      },
-    },
-  },
-  additionalProperties: false,
-} as const;
-
-const apigeeAdapterAuthOauth2Schema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: ApigeeDevOnboardingIntegrationAuthType.OAUTH2 },
-    tokenEndpoint: { type: 'string' },
-    clientId: { type: 'string' },
-    clientSecret: { type: 'string' },
-  },
-  additionalProperties: false,
-  required: ['type', 'tokenEndpoint', 'clientId', 'clientSecret'],
-} as const;
-
-const apigeeAdapterAuthServiceAccountSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: ApigeeDevOnboardingIntegrationAuthType.SERVICE_ACCOUNT },
-    serviceAccountEmail: { type: 'string' },
-    serviceAccountPrivateKey: { type: 'string' },
-  },
-  additionalProperties: false,
-  required: ['type', 'serviceAccountEmail', 'serviceAccountPrivateKey'],
-} as const;
-
-const apigeeXAdapterConfigSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: 'APIGEE_X' },
-    apiUrl: { type: 'string' },
-    stage: { type: 'string', default: 'non-production' },
-    organizationName: { type: 'string' },
-    ignoreApiProducts: { type: 'array', items: { type: 'string' } },
-    allowApiProductsOutsideCatalog: { type: 'boolean', default: false },
-    auth: {
-      type: 'object',
-      oneOf: [apigeeAdapterAuthOauth2Schema, apigeeAdapterAuthServiceAccountSchema],
-      discriminator: { propertyName: 'type' },
-    },
-  },
-  additionalProperties: false,
-  required: ['type', 'organizationName', 'auth'],
-} as const;
-
-const apigeeEdgeAdapterConfigSchema = {
-  ...apigeeXAdapterConfigSchema,
-  properties: {
-    ...apigeeXAdapterConfigSchema.properties,
-    type: { type: 'string', const: 'APIGEE_EDGE' },
-  },
-} as const;
-
-const graviteeAdapterConfigSchema = {
-  type: 'object',
-  properties: {
-    type: { type: 'string', const: 'GRAVITEE' },
-    apiBaseUrl: { type: 'string' },
-    env: { type: 'string' },
-    allowApiProductsOutsideCatalog: { type: 'boolean', default: false },
-    stage: { type: 'string', default: 'non-production' },
-
-    auth: { type: 'object', properties: { static: { type: 'string' } } },
-  },
-  additionalProperties: false,
-  required: ['type', 'apiBaseUrl'],
-} as const;
-
-const devOnboardingAdapterConfigSchema = {
-  type: 'object',
-  oneOf: [apigeeXAdapterConfigSchema, apigeeEdgeAdapterConfigSchema, graviteeAdapterConfigSchema],
-  discriminator: { propertyName: 'type' },
-} as const;
-
-export const devOnboardingConfigSchema = {
-  type: 'object',
-  required: ['adapters'],
-  additionalProperties: false,
-  properties: {
-    adapters: {
-      type: 'array',
-      items: devOnboardingAdapterConfigSchema,
-    },
-  },
-} as const;
-
-export const responseHeaderSchema = {
-  type: 'object',
-  properties: {
-    name: { type: 'string' },
-    value: { type: 'string' },
-  },
-  additionalProperties: false,
-  required: ['name', 'value'],
-} as const;
-
-export const i18nConfigSchema = {
-  type: 'object',
-  properties: {
-    defaultLocale: {
-      type: 'string',
-    },
-    locales: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          code: {
-            type: 'string',
-          },
-          name: {
-            type: 'string',
-          },
-        },
-        required: ['code'],
-      },
-    },
-  },
-  required: ['defaultLocale', 'locales'],
-} as const;
-
-export const mockServerConfigSchema = {
-  type: 'object',
-  properties: {
-    off: { type: 'boolean', default: false },
-    position: { type: 'string', enum: ['first', 'last', 'replace', 'off'], default: 'first' },
-    strictExamples: { type: 'boolean', default: false },
-    errorIfForcedExampleNotFound: { type: 'boolean', default: false },
-    description: { type: 'string' },
-  },
-} as const;
-
 const logoConfigSchema = {
   type: 'object',
   properties: {
     image: { type: 'string' },
+    srcSet: { type: 'string' },
     altText: { type: 'string' },
     link: { type: 'string' },
     favicon: { type: 'string' },
@@ -359,8 +96,6 @@ const markdownConfigSchema = {
       type: 'object',
       properties: {
         baseUrl: { type: 'string' },
-        icon: { type: 'string' },
-        text: { type: 'string', default: 'Edit this page' },
         ...hideConfigSchema.properties,
       },
       additionalProperties: false,
@@ -457,37 +192,17 @@ const googleAnalyticsConfigSchema = {
   properties: {
     includeInDevelopment: { type: 'boolean' },
     trackingId: { type: 'string' },
+
+    conversionId: { type: 'string' },
+    floodlightId: { type: 'string' },
+
     head: { type: 'boolean' },
     respectDNT: { type: 'boolean' },
-    anonymize: { type: 'boolean' },
     exclude: { type: 'array', items: { type: 'string' } },
+
     optimizeId: { type: 'string' },
-    experimentId: { type: 'string' },
-    variationId: { type: 'string' },
-    enableWebVitalsTracking: { type: 'boolean' },
-
-    defer: { type: 'boolean' },
-    sampleRate: { type: 'number' },
-    name: { type: 'string' },
-    clientId: { type: 'string' },
-    siteSpeedSampleRate: { type: 'number' },
-    alwaysSendReferrer: { type: 'boolean' },
-    allowAnchor: { type: 'boolean' },
-    cookieName: { type: 'string' },
-    cookieFlags: { type: 'string' },
-    cookieDomain: { type: 'string' },
+    anonymizeIp: { type: 'boolean' },
     cookieExpires: { type: 'number' },
-    storeGac: { type: 'boolean' },
-    legacyCookieDomain: { type: 'string' },
-    legacyHistoryImport: { type: 'boolean' },
-    allowLinker: { type: 'boolean' },
-    storage: { type: 'string' },
-
-    allowAdFeatures: { type: 'boolean' },
-    dataSource: { type: 'string' },
-    queueTime: { type: 'number' },
-    forceSSL: { type: 'boolean' },
-    transport: { type: 'string' },
   },
   additionalProperties: false,
   required: ['trackingId'],
@@ -513,6 +228,11 @@ const navItemSchema = {
     label: { type: 'string' },
     separator: { type: 'string' },
     separatorLine: { type: 'boolean' },
+    linePosition: {
+      type: 'string',
+      enum: ['top', 'bottom'],
+      default: 'top',
+    },
     version: { type: 'string' },
     menuStyle: { type: 'string', enum: ['drilldown'] },
     expanded: { type: 'string', const: 'always' },
@@ -579,6 +299,14 @@ const scorecardConfigSchema = {
   required: ['levels'],
   properties: {
     failBuildIfBelowMinimum: { type: 'boolean', default: false },
+    teamMetadataProperty: {
+      type: 'object',
+      properties: {
+        property: { type: 'string' },
+        label: { type: 'string' },
+        default: { type: 'string' },
+      },
+    },
     levels: {
       type: 'array',
       items: {
@@ -622,11 +350,15 @@ const scorecardConfigSchema = {
 const catalogSchema = {
   type: 'object',
   additionalProperties: true,
-  required: ['slug', 'filters', 'groupByFirstFilter', 'items'],
+  required: ['slug', 'items'],
   properties: {
     slug: { type: 'string' },
     filters: { type: 'array', items: catalogFilterSchema },
     groupByFirstFilter: { type: 'boolean' },
+    filterValuesCasing: {
+      type: 'string',
+      enum: ['sentence', 'original', 'lowercase', 'uppercase'],
+    },
     items: navItemsSchema,
     requiredPermission: { type: 'string' },
     separateVersions: { type: 'boolean' },
@@ -670,11 +402,30 @@ export const themeConfigSchema = {
       properties: {
         items: navItemsSchema,
         copyrightText: { type: 'string' },
+        logo: hideConfigSchema,
         ...hideConfigSchema.properties,
       },
       additionalProperties: false,
     },
-    sidebar: hideConfigSchema,
+    sidebar: {
+      type: 'object',
+      properties: {
+        separatorLine: { type: 'boolean' },
+        linePosition: {
+          type: 'string',
+          enum: ['top', 'bottom'],
+          default: 'bottom',
+        },
+        ...hideConfigSchema.properties,
+      },
+      additionalProperties: false,
+    },
+    seo: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+      },
+    },
     scripts: {
       type: 'object',
       properties: {
@@ -873,6 +624,15 @@ export const themeConfigSchema = {
       additionalProperties: false,
       default: {},
     },
+    versionPicker: {
+      type: 'object',
+      properties: {
+        hide: { type: 'boolean' },
+        showForUnversioned: {
+          type: 'boolean',
+        },
+      },
+    },
     breadcrumbs: {
       type: 'object',
       properties: {
@@ -915,3 +675,9 @@ export const productThemeOverrideSchema = {
   additionalProperties: true,
   default: {},
 } as const;
+
+export enum ScorecardStatus {
+  BelowMinimum = 'Below minimum',
+  Highest = 'Highest',
+  Minimum = 'Minimum',
+}

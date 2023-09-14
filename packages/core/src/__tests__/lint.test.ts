@@ -111,6 +111,7 @@ describe('lint', () => {
           "severity": "error",
           "suggest": Array [
             "theme",
+            "env",
             "seo",
             "sso",
           ],
@@ -178,6 +179,7 @@ describe('lint', () => {
             "apis",
             "seo",
             "sso",
+            "env",
           ],
         },
       ]
