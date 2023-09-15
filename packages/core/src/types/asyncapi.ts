@@ -3,7 +3,7 @@ import { isMappingRef } from '../ref-utils';
 
 const Root: NodeType = {
   properties: {
-    asyncapi: null, // TODO validate semver format and supported version
+    asyncapi: null, // TODO: validate semver format and supported version
     info: 'Info',
     id: { type: 'string' },
     servers: 'ServerMap',
@@ -79,7 +79,6 @@ const ExternalDocs: NodeType = {
 };
 
 const SecurityRequirement: NodeType = {
-  // done
   properties: {},
   additionalProperties: { type: 'array', items: { type: 'string' } },
 };
@@ -134,7 +133,6 @@ const ServerMap: NodeType = {
 };
 
 const ServerVariable: NodeType = {
-  // done
   properties: {
     enum: {
       type: 'array',
@@ -151,7 +149,6 @@ const ServerVariable: NodeType = {
 };
 
 const Info: NodeType = {
-  // done
   properties: {
     title: { type: 'string' },
     version: { type: 'string' },
@@ -164,7 +161,6 @@ const Info: NodeType = {
 };
 
 const Contact: NodeType = {
-  // done
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -173,7 +169,6 @@ const Contact: NodeType = {
 };
 
 const License: NodeType = {
-  // done
   properties: {
     name: { type: 'string' },
     url: { type: 'string' },
@@ -201,10 +196,10 @@ const Message: NodeType = {
   properties: {
     messageId: { type: 'string' },
     headers: 'Schema',
-    payload: 'Schema', // TODO strictly this does not cover all cases
+    payload: 'Schema', // TODO: strictly this does not cover all cases
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' }, // todo
+    schemaFormat: { type: 'string' }, // TODO: support official list of schema formats and custom values
     contentType: { type: 'string' },
     name: { type: 'string' },
     title: { type: 'string' },
@@ -213,7 +208,7 @@ const Message: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO
+    // examples: 'MessageExampleList', // TODO: add support for message examples
     traits: 'MessageTraitList',
   },
   additionalProperties: {},
@@ -300,7 +295,7 @@ const MessageTrait: NodeType = {
     headers: 'Schema',
     correlationId: 'CorrelationId',
 
-    schemaFormat: { type: 'string' }, // todo
+    schemaFormat: { type: 'string' },
     contentType: { type: 'string' },
     name: { type: 'string' },
     title: { type: 'string' },
@@ -309,7 +304,7 @@ const MessageTrait: NodeType = {
     tags: 'TagList',
     externalDocs: 'ExternalDocs',
     bindings: 'MessageBindings',
-    // examples: 'MessageExampleList', // TODO
+    // examples: 'MessageExampleList', // TODO: support examples for message traits
   },
   additionalProperties: {},
 };
@@ -677,7 +672,7 @@ ServerBindings.properties.kafka = KafkaServerBinding;
 
 const KafkaMessageBinding: NodeType = {
   properties: {
-    key: 'Schema', // TODO add avro support
+    key: 'Schema', // TODO: add avro support
     schemaIdLocation: { type: 'string' },
     schemaIdPayloadEncoding: { type: 'string' },
     schemaLookupStrategy: { type: 'string' },
@@ -744,13 +739,13 @@ const AmqpMessageBinding: NodeType = {
 MessageBindings.properties.amqp = AmqpMessageBinding;
 
 const AmqpOperationBinding: NodeType = {
-  // TODO some fields are subscribe only
+  // TODO: some fields are subscribe only
   properties: {
     expiration: { type: 'integer' },
     userId: { type: 'string' },
     cc: { type: 'array', items: { type: 'string' } },
     priority: { type: 'integer' },
-    deliveryMode: { type: 'integer' }, // TODO enum: [1, 2]
+    deliveryMode: { type: 'integer' }, // TODO: enum: [1, 2]
     mandatory: { type: 'boolean' },
     bcc: { type: 'array', items: { type: 'string' } },
     replyTo: { type: 'string' },
