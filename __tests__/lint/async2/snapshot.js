@@ -50,7 +50,7 @@ validating /streetlights-operation-security.yml...
 validating /websocket-gemini.yml...
 /websocket-gemini.yml: validated in <test>ms
 
-Woohoo! Your OpenAPI definitions are valid. 🎉
+Woohoo! Your OpenAPI descriptions are valid. 🎉
 
 
 `;
