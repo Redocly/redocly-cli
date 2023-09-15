@@ -218,7 +218,6 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
       switch (typeName) {
         case 'Schema':
           return 'schemas';
-        // TODO + verify
         case 'Parameter':
           return 'parameters';
         default:
