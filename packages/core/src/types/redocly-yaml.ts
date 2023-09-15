@@ -59,6 +59,8 @@ const builtInRulesList = [
   'required-string-property-missing-min-length',
   'spec-strict-refs',
   'component-name-unique',
+  'channels-kebab-case',
+  'no-channel-trailing-slash',
 ];
 
 const nodeTypesList = [
@@ -121,6 +123,7 @@ const nodeTypesList = [
   'XCodeSampleList',
   'WebhooksMap',
   'SpecExtension',
+  'Message',
 ];
 
 const ConfigStyleguide: NodeType = {

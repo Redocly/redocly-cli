@@ -460,6 +460,7 @@ describe('checkIfRulesetExist', () => {
       oas2: {},
       oas3_0: {},
       oas3_1: {},
+      async2: {},
     };
     expect(() => checkIfRulesetExist(rules)).toThrowError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'

@@ -5,7 +5,7 @@ import { lintFromString, lintConfig, lintDocument } from '../lint';
 import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
-import { detectOpenAPI } from '../oas-types';
+import { detectSpec } from '../oas-types';
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -61,12 +61,12 @@ describe('lint', () => {
           path-http-verbs-order: error
           boolean-parameter-prefixes: off
           rule/operation-summary-length:
-            subject: 
+            subject:
               type: Operation
               property: summary
             message: Operation summary should start with an active verb
             assertions:
-              local/checkWordsCount: 
+              local/checkWordsCount:
                 min: 3
       theme:
         openapi:
@@ -189,8 +189,8 @@ describe('lint', () => {
   it('lintConfig should work with legacy fields - referenceDocs', async () => {
     const document = parseYamlToDocument(
       outdent`
-        apis: 
-          entry: 
+        apis:
+          entry:
             root: ./file.yaml
         rules:
           operation-2xx-response: warn
@@ -304,9 +304,39 @@ describe('lint', () => {
       `,
       ''
     );
-    expect(() => detectOpenAPI(testDocument.parsed)).toThrow(
+    expect(() => detectSpec(testDocument.parsed)).toThrow(
       `Invalid OpenAPI version: should be a string but got "number"`
     );
+  });
+
+  it('detect unsupported OpenAPI version', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 1.0.4
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported OpenAPI version: 1.0.4`);
+  });
+
+  it('detect unsupported AsyncAPI version', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        asyncapi: 1.0.4
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported AsyncAPI version: 1.0.4`);
+  });
+
+  it('detect unsupported spec format', () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        notapi: 3.1.0
+      `,
+      ''
+    );
+    expect(() => detectSpec(testDocument.parsed)).toThrow(`Unsupported specification`);
   });
 
   it("spec rule shouldn't throw an error for named callback", async () => {

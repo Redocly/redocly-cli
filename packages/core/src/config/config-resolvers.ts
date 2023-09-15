@@ -141,8 +141,8 @@ export function resolvePlugins(
       };
 
       if (pluginModule.rules) {
-        if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2) {
-          throw new Error(`Plugin rules must have \`oas3\` or \`oas2\` rules "${p}.`);
+        if (!pluginModule.rules.oas3 && !pluginModule.rules.oas2 && !pluginModule.rules.async2) {
+          throw new Error(`Plugin rules must have \`oas3\`, \`oas2\` or \`async2\` rules "${p}.`);
         }
         plugin.rules = {};
         if (pluginModule.rules.oas3) {
@@ -151,11 +151,18 @@ export function resolvePlugins(
         if (pluginModule.rules.oas2) {
           plugin.rules.oas2 = prefixRules(pluginModule.rules.oas2, id);
         }
+        if (pluginModule.rules.async2) {
+          plugin.rules.async2 = prefixRules(pluginModule.rules.async2, id);
+        }
       }
       if (pluginModule.preprocessors) {
-        if (!pluginModule.preprocessors.oas3 && !pluginModule.preprocessors.oas2) {
+        if (
+          !pluginModule.preprocessors.oas3 &&
+          !pluginModule.preprocessors.oas2 &&
+          !pluginModule.preprocessors.async2
+        ) {
           throw new Error(
-            `Plugin \`preprocessors\` must have \`oas3\` or \`oas2\` preprocessors "${p}.`
+            `Plugin \`preprocessors\` must have \`oas3\`, \`oas2\` or \`async2\` preprocessors "${p}.`
           );
         }
         plugin.preprocessors = {};
@@ -165,11 +172,20 @@ export function resolvePlugins(
         if (pluginModule.preprocessors.oas2) {
           plugin.preprocessors.oas2 = prefixRules(pluginModule.preprocessors.oas2, id);
         }
+        if (pluginModule.preprocessors.async2) {
+          plugin.preprocessors.async2 = prefixRules(pluginModule.preprocessors.async2, id);
+        }
       }
 
       if (pluginModule.decorators) {
-        if (!pluginModule.decorators.oas3 && !pluginModule.decorators.oas2) {
-          throw new Error(`Plugin \`decorators\` must have \`oas3\` or \`oas2\` decorators "${p}.`);
+        if (
+          !pluginModule.decorators.oas3 &&
+          !pluginModule.decorators.oas2 &&
+          !pluginModule.decorators.async2
+        ) {
+          throw new Error(
+            `Plugin \`decorators\` must have \`oas3\`, \`oas2\` or \`async2\` decorators "${p}.`
+          );
         }
         plugin.decorators = {};
         if (pluginModule.decorators.oas3) {
@@ -177,6 +193,9 @@ export function resolvePlugins(
         }
         if (pluginModule.decorators.oas2) {
           plugin.decorators.oas2 = prefixRules(pluginModule.decorators.oas2, id);
+        }
+        if (pluginModule.decorators.async2) {
+          plugin.decorators.async2 = prefixRules(pluginModule.decorators.async2, id);
         }
       }
 

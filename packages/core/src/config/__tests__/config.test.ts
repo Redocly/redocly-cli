@@ -1,4 +1,4 @@
-import { OasVersion } from '../../oas-types';
+import { SpecVersion } from '../../oas-types';
 import { Config, StyleguideConfig } from '../config';
 import { getMergedConfig } from '../utils';
 import { doesYamlFileExist } from '../../utils';
@@ -117,6 +117,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -127,6 +128,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -140,6 +142,9 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": Object {
+            "async2": Object {
+              "operation-summary": "warn",
+            },
             "oas2": Object {
               "operation-summary": "warn",
             },
@@ -217,6 +222,7 @@ describe('getMergedConfig', () => {
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
           "decorators": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -227,6 +233,7 @@ describe('getMergedConfig', () => {
           "pluginPaths": Array [],
           "plugins": Array [],
           "preprocessors": Object {
+            "async2": Object {},
             "oas2": Object {},
             "oas3_0": Object {},
             "oas3_1": Object {},
@@ -242,6 +249,10 @@ describe('getMergedConfig', () => {
           },
           "recommendedFallback": false,
           "rules": Object {
+            "async2": Object {
+              "no-empty-servers": "error",
+              "operation-summary": "error",
+            },
             "oas2": Object {
               "no-empty-servers": "error",
               "operation-summary": "error",
@@ -279,19 +290,19 @@ describe('StyleguideConfig.extendTypes', () => {
   };
   it('should call only oas3 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, OasVersion.Version3_0);
+    styleguideConfig.extendTypes({}, SpecVersion.OAS3_0);
     expect(oas3).toHaveBeenCalledTimes(1);
     expect(oas2).toHaveBeenCalledTimes(0);
   });
   it('should call only oas2 types extension', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    styleguideConfig.extendTypes({}, OasVersion.Version2);
+    styleguideConfig.extendTypes({}, SpecVersion.OAS2);
     expect(oas3).toHaveBeenCalledTimes(0);
     expect(oas2).toHaveBeenCalledTimes(1);
   });
   it('should throw error if for oas version different from 2 and 3', () => {
     const styleguideConfig = new StyleguideConfig(testRawConfigStyleguide);
-    expect(() => styleguideConfig.extendTypes({}, 'something else' as OasVersion)).toThrowError(
+    expect(() => styleguideConfig.extendTypes({}, 'something else' as SpecVersion)).toThrowError(
       'Not implemented'
     );
   });

@@ -3,7 +3,13 @@ import * as path from 'path';
 import { parseYaml, stringifyYaml } from '../js-yaml';
 import { slash, doesYamlFileExist } from '../utils';
 import { NormalizedProblem } from '../walk';
-import { OasVersion, OasMajorVersion, Oas2RuleSet, Oas3RuleSet } from '../oas-types';
+import {
+  SpecVersion,
+  SpecMajorVersion,
+  Oas2RuleSet,
+  Oas3RuleSet,
+  Async2RuleSet,
+} from '../oas-types';
 import { isBrowser, env } from '../env';
 
 import type { NodeType } from '../types';
@@ -65,12 +71,12 @@ export class StyleguideConfig {
   plugins: Plugin[];
   ignore: Record<string, Record<string, Set<string>>> = {};
   doNotResolveExamples: boolean;
-  rules: Record<OasVersion, Record<string, RuleConfig>>;
-  preprocessors: Record<OasVersion, Record<string, PreprocessorConfig>>;
-  decorators: Record<OasVersion, Record<string, DecoratorConfig>>;
+  rules: Record<SpecVersion, Record<string, RuleConfig>>;
+  preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
+  decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
 
   private _usedRules: Set<string> = new Set();
-  private _usedVersions: Set<OasVersion> = new Set();
+  private _usedVersions: Set<SpecVersion> = new Set();
 
   recommendedFallback: boolean;
 
@@ -83,21 +89,24 @@ export class StyleguideConfig {
     this.recommendedFallback = rawConfig.recommendedFallback || false;
 
     this.rules = {
-      [OasVersion.Version2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
-      [OasVersion.Version3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
-      [OasVersion.Version3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
+      [SpecVersion.OAS2]: { ...rawConfig.rules, ...rawConfig.oas2Rules },
+      [SpecVersion.OAS3_0]: { ...rawConfig.rules, ...rawConfig.oas3_0Rules },
+      [SpecVersion.OAS3_1]: { ...rawConfig.rules, ...rawConfig.oas3_1Rules },
+      [SpecVersion.Async2]: { ...rawConfig.rules, ...rawConfig.async2Rules },
     };
 
     this.preprocessors = {
-      [OasVersion.Version2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
-      [OasVersion.Version3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
-      [OasVersion.Version3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
+      [SpecVersion.OAS2]: { ...rawConfig.preprocessors, ...rawConfig.oas2Preprocessors },
+      [SpecVersion.OAS3_0]: { ...rawConfig.preprocessors, ...rawConfig.oas3_0Preprocessors },
+      [SpecVersion.OAS3_1]: { ...rawConfig.preprocessors, ...rawConfig.oas3_1Preprocessors },
+      [SpecVersion.Async2]: { ...rawConfig.preprocessors, ...rawConfig.async2Preprocessors },
     };
 
     this.decorators = {
-      [OasVersion.Version2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
-      [OasVersion.Version3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
-      [OasVersion.Version3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
+      [SpecVersion.OAS2]: { ...rawConfig.decorators, ...rawConfig.oas2Decorators },
+      [SpecVersion.OAS3_0]: { ...rawConfig.decorators, ...rawConfig.oas3_0Decorators },
+      [SpecVersion.OAS3_1]: { ...rawConfig.decorators, ...rawConfig.oas3_1Decorators },
+      [SpecVersion.Async2]: { ...rawConfig.decorators, ...rawConfig.async2Decorators },
     };
 
     this.extendPaths = rawConfig.extendPaths || [];
@@ -173,19 +182,23 @@ export class StyleguideConfig {
       : problem;
   }
 
-  extendTypes(types: Record<string, NodeType>, version: OasVersion) {
+  extendTypes(types: Record<string, NodeType>, version: SpecVersion) {
     let extendedTypes = types;
     for (const plugin of this.plugins) {
       if (plugin.typeExtension !== undefined) {
         switch (version) {
-          case OasVersion.Version3_0:
-          case OasVersion.Version3_1:
+          case SpecVersion.OAS3_0:
+          case SpecVersion.OAS3_1:
             if (!plugin.typeExtension.oas3) continue;
             extendedTypes = plugin.typeExtension.oas3(extendedTypes, version);
             break;
-          case OasVersion.Version2:
+          case SpecVersion.OAS2:
             if (!plugin.typeExtension.oas2) continue;
             extendedTypes = plugin.typeExtension.oas2(extendedTypes, version);
+            break;
+          case SpecVersion.Async2:
+            if (!plugin.typeExtension.async2) continue;
+            extendedTypes = plugin.typeExtension.async2(extendedTypes, version);
             break;
           default:
             throw new Error('Not implemented');
@@ -195,7 +208,7 @@ export class StyleguideConfig {
     return extendedTypes;
   }
 
-  getRuleSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
+  getRuleSettings(ruleId: string, oasVersion: SpecVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.rules[oasVersion][ruleId] || 'off';
@@ -208,7 +221,7 @@ export class StyleguideConfig {
     }
   }
 
-  getPreprocessorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
+  getPreprocessorSettings(ruleId: string, oasVersion: SpecVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
 
@@ -222,7 +235,7 @@ export class StyleguideConfig {
     }
   }
 
-  getDecoratorSettings(ruleId: string, oasVersion: OasVersion): RuleSettings {
+  getDecoratorSettings(ruleId: string, oasVersion: SpecVersion): RuleSettings {
     this._usedRules.add(ruleId);
     this._usedVersions.add(oasVersion);
     const settings = this.decorators[oasVersion][ruleId] || 'off';
@@ -259,28 +272,39 @@ export class StyleguideConfig {
     };
   }
 
-  getRulesForOasVersion(version: OasMajorVersion) {
+  getRulesForOasVersion(version: SpecMajorVersion) {
     switch (version) {
-      case OasMajorVersion.Version3:
+      case SpecMajorVersion.OAS3:
         // eslint-disable-next-line no-case-declarations
         const oas3Rules: Oas3RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.preprocessors?.oas3 && oas3Rules.push(p.preprocessors.oas3));
         this.plugins.forEach((p) => p.rules?.oas3 && oas3Rules.push(p.rules.oas3));
         this.plugins.forEach((p) => p.decorators?.oas3 && oas3Rules.push(p.decorators.oas3));
         return oas3Rules;
-      case OasMajorVersion.Version2:
+      case SpecMajorVersion.OAS2:
         // eslint-disable-next-line no-case-declarations
         const oas2Rules: Oas2RuleSet[] = []; // default ruleset
         this.plugins.forEach((p) => p.preprocessors?.oas2 && oas2Rules.push(p.preprocessors.oas2));
         this.plugins.forEach((p) => p.rules?.oas2 && oas2Rules.push(p.rules.oas2));
         this.plugins.forEach((p) => p.decorators?.oas2 && oas2Rules.push(p.decorators.oas2));
         return oas2Rules;
+      case SpecMajorVersion.Async2:
+        // eslint-disable-next-line no-case-declarations
+        const asyncApiRules: Async2RuleSet[] = []; // default ruleset
+        this.plugins.forEach(
+          (p) => p.preprocessors?.async2 && asyncApiRules.push(p.preprocessors.async2)
+        );
+        this.plugins.forEach((p) => p.rules?.async2 && asyncApiRules.push(p.rules.async2));
+        this.plugins.forEach(
+          (p) => p.decorators?.async2 && asyncApiRules.push(p.decorators.async2)
+        );
+        return asyncApiRules;
     }
   }
 
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
-      for (const version of Object.values(OasVersion)) {
+      for (const version of Object.values(SpecVersion)) {
         if (this.rules[version][ruleId]) {
           this.rules[version][ruleId] = 'off';
         }
@@ -290,7 +314,7 @@ export class StyleguideConfig {
 
   skipPreprocessors(preprocessors?: string[]) {
     for (const preprocessorId of preprocessors || []) {
-      for (const version of Object.values(OasVersion)) {
+      for (const version of Object.values(SpecVersion)) {
         if (this.preprocessors[version][preprocessorId]) {
           this.preprocessors[version][preprocessorId] = 'off';
         }
@@ -300,7 +324,7 @@ export class StyleguideConfig {
 
   skipDecorators(decorators?: string[]) {
     for (const decoratorId of decorators || []) {
-      for (const version of Object.values(OasVersion)) {
+      for (const version of Object.values(SpecVersion)) {
         if (this.decorators[version][decoratorId]) {
           this.decorators[version][decoratorId] = 'off';
         }

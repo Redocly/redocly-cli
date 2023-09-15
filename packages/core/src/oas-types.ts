@@ -1,32 +1,51 @@
-import { Oas3Rule, Oas3Preprocessor, Oas2Rule, Oas2Preprocessor } from './visitors';
+import {
+  Oas3Rule,
+  Oas3Preprocessor,
+  Oas2Rule,
+  Oas2Preprocessor,
+  Async2Preprocessor,
+  Async2Rule,
+} from './visitors';
+import { Oas2Types } from './types/oas2';
+import { Oas3Types } from './types/oas3';
+import { Oas3_1Types } from './types/oas3_1';
+import { AsyncApi2Types } from './types/asyncapi';
 
 export type RuleSet<T> = Record<string, T>;
 
-export enum OasVersion {
-  Version2 = 'oas2',
-  Version3_0 = 'oas3_0',
-  Version3_1 = 'oas3_1',
+export enum SpecVersion {
+  OAS2 = 'oas2',
+  OAS3_0 = 'oas3_0',
+  OAS3_1 = 'oas3_1',
+  Async2 = 'async2', // todo split into 2.x maybe?
 }
 
-export enum OasMajorVersion {
-  Version2 = 'oas2',
-  Version3 = 'oas3',
+export enum SpecMajorVersion {
+  OAS2 = 'oas2',
+  OAS3 = 'oas3',
+  Async2 = 'async2',
 }
+
+const typesMap = {
+  [SpecVersion.OAS2]: Oas2Types,
+  [SpecVersion.OAS3_0]: Oas3Types,
+  [SpecVersion.OAS3_1]: Oas3_1Types,
+  [SpecVersion.Async2]: AsyncApi2Types,
+};
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 export type Oas2RuleSet = Record<string, Oas2Rule>;
+export type Async2RuleSet = Record<string, Async2Rule>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
+export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;
 export type Oas3DecoratorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2DecoratorsSet = Record<string, Oas2Preprocessor>;
+export type Async2DecoratorsSet = Record<string, Async2Preprocessor>;
 
-export function detectOpenAPI(root: any): OasVersion {
+export function detectSpec(root: any): SpecVersion {
   if (typeof root !== 'object') {
     throw new Error(`Document must be JSON object, got ${typeof root}`);
-  }
-
-  if (!(root.openapi || root.swagger)) {
-    throw new Error('This doesn’t look like an OpenAPI document.\n');
   }
 
   if (root.openapi && typeof root.openapi !== 'string') {
@@ -34,24 +53,43 @@ export function detectOpenAPI(root: any): OasVersion {
   }
 
   if (root.openapi && root.openapi.startsWith('3.0')) {
-    return OasVersion.Version3_0;
+    return SpecVersion.OAS3_0;
   }
 
   if (root.openapi && root.openapi.startsWith('3.1')) {
-    return OasVersion.Version3_1;
+    return SpecVersion.OAS3_1;
   }
 
   if (root.swagger && root.swagger === '2.0') {
-    return OasVersion.Version2;
+    return SpecVersion.OAS2;
   }
 
-  throw new Error(`Unsupported OpenAPI Version: ${root.openapi || root.swagger}`);
+  // if not detected yet
+  if (root.openapi || root.swagger) {
+    throw new Error(`Unsupported OpenAPI version: ${root.openapi || root.swagger}`);
+  }
+
+  if (root.asyncapi && root.asyncapi.startsWith('2.')) {
+    return SpecVersion.Async2;
+  }
+
+  if (root.asyncapi) {
+    throw new Error(`Unsupported AsyncAPI version: ${root.asyncapi}`);
+  }
+
+  throw new Error(`Unsupported specification`);
 }
 
-export function openAPIMajor(version: OasVersion): OasMajorVersion {
-  if (version === OasVersion.Version2) {
-    return OasMajorVersion.Version2;
+export function getMajorSpecVersion(version: SpecVersion): SpecMajorVersion {
+  if (version === SpecVersion.OAS2) {
+    return SpecMajorVersion.OAS2;
+  } else if (version === SpecVersion.Async2) {
+    return SpecMajorVersion.Async2;
   } else {
-    return OasMajorVersion.Version3;
+    return SpecMajorVersion.OAS3;
   }
+}
+
+export function getTypes(spec: SpecVersion) {
+  return typesMap[spec];
 }

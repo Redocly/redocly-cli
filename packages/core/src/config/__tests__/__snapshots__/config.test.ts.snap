@@ -6,6 +6,11 @@ StyleguideConfig {
   "_usedVersions": Set {},
   "configFile": undefined,
   "decorators": Object {
+    "async2": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
     "oas2": Object {
       "oas2": Object {},
       "oas3_0": Object {},
@@ -39,6 +44,11 @@ StyleguideConfig {
   "pluginPaths": Array [],
   "plugins": Array [],
   "preprocessors": Object {
+    "async2": Object {
+      "oas2": Object {},
+      "oas3_0": Object {},
+      "oas3_1": Object {},
+    },
     "oas2": Object {
       "oas2": Object {},
       "oas3_0": Object {},
@@ -97,6 +107,20 @@ StyleguideConfig {
   },
   "recommendedFallback": false,
   "rules": Object {
+    "async2": Object {
+      "oas2": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": Object {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
     "oas2": Object {
       "oas2": Object {
         "no-empty-servers": "error",

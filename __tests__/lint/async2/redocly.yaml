@@ -1,0 +1,36 @@
+apis:
+  anyof:
+    root: ./anyof.yml
+  application-headers:
+    root: ./application-headers.yml
+  correlation-id:
+    root: ./correlation-id.yml
+  gitter-streaming:
+    root: ./gitter-streaming.yml
+  mercure:
+    root: ./mercure.yml
+  not:
+    root: ./not.yml
+  oneof:
+    root: ./oneof.yml
+  operation-security:
+    root: ./operation-security.yml
+  rpc-client:
+    root: ./rpc-client.yml
+  rpc-server:
+    root: ./rpc-server.yml
+  simple:
+    root: ./simple.yml
+  slack-rtm:
+    root: ./slack-rtm.yml
+  streetlights-kafka:
+    root: ./streetlights-kafka.yml
+  streetlights-mqtt:
+    root: ./streetlights-mqtt.yml
+  streetlights-operation-security:
+    root: ./streetlights-operation-security.yml
+  websocket-gemini:
+    root: ./websocket-gemini.yml
+
+rules:
+  spec: error

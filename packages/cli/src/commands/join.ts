@@ -5,7 +5,7 @@ const isEqual = require('lodash.isequal');
 import {
   Config,
   Oas3Definition,
-  OasVersion,
+  SpecVersion,
   BaseResolver,
   Document,
   StyleguideConfig,
@@ -13,7 +13,7 @@ import {
   formatProblems,
   getTotals,
   lintDocument,
-  detectOpenAPI,
+  detectSpec,
   bundleDocument,
   Referenced,
   isRef,
@@ -146,12 +146,11 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  let oasVersion: OasVersion | null = null;
+  let oasVersion: SpecVersion | null = null;
   for (const document of documents) {
     try {
-      const version = detectOpenAPI(document.parsed);
-
-      if (version !== OasVersion.Version3_0 && version !== OasVersion.Version3_1) {
+      const version = detectSpec(document.parsed);
+      if (version !== SpecVersion.OAS3_0 && version !== SpecVersion.OAS3_1) {
         return exitWithError(
           `Only OpenAPI 3.0 and OpenAPI 3.1 are supported: ${blue(
             document.source.absoluteRef
@@ -590,11 +589,11 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   }
 
   function collectWebhooks(
-    oasVersion: OasVersion,
+    oasVersion: SpecVersion,
     openapi: Oas3_1Definition,
     { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
   ) {
-    const webhooks = oasVersion === OasVersion.Version3_1 ? 'webhooks' : 'x-webhooks';
+    const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
     if (openapiWebhooks) {
       if (!joinedDef.hasOwnProperty(webhooks)) {

@@ -1,12 +1,9 @@
 import isEqual = require('lodash.isequal');
 import { BaseResolver, resolveDocument, Document, ResolvedRefMap, makeRefId } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
-import { Oas3Types } from './types/oas3';
-import { Oas2Types } from './types/oas2';
-import { Oas3_1Types } from './types/oas3_1';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
-import { detectOpenAPI, openAPIMajor, OasMajorVersion } from './oas-types';
+import { detectSpec, getTypes, getMajorSpecVersion, SpecMajorVersion } from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -93,27 +90,20 @@ export async function bundleDocument(opts: {
     removeUnusedComponents = false,
     keepUrlRefs = false,
   } = opts;
-  const oasVersion = detectOpenAPI(document.parsed);
-  const oasMajorVersion = openAPIMajor(oasVersion);
-  const rules = config.getRulesForOasVersion(oasMajorVersion);
+  const specVersion = detectSpec(document.parsed);
+  const specMajorVersion = getMajorSpecVersion(specVersion);
+  const rules = config.getRulesForOasVersion(specMajorVersion);
   const types = normalizeTypes(
-    config.extendTypes(
-      customTypes ?? oasMajorVersion === OasMajorVersion.Version3
-        ? oasVersion === OasVersion.Version3_1
-          ? Oas3_1Types
-          : Oas3Types
-        : Oas2Types,
-      oasVersion
-    ),
+    config.extendTypes(customTypes ?? getTypes(specVersion), specVersion),
     config
   );
 
-  const preprocessors = initRules(rules as any, config, 'preprocessors', oasVersion);
-  const decorators = initRules(rules as any, config, 'decorators', oasVersion);
+  const preprocessors = initRules(rules as any, config, 'preprocessors', specVersion);
+  const decorators = initRules(rules as any, config, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
-    oasVersion: oasVersion,
+    oasVersion: specVersion,
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {},
   };
@@ -123,7 +113,7 @@ export async function bundleDocument(opts: {
       severity: 'error',
       ruleId: 'remove-unused-components',
       visitor:
-        oasMajorVersion === OasMajorVersion.Version2
+        specMajorVersion === SpecMajorVersion.OAS2
           ? RemoveUnusedComponentsOas2({})
           : RemoveUnusedComponentsOas3({}),
     });
@@ -157,7 +147,7 @@ export async function bundleDocument(opts: {
         severity: 'error',
         ruleId: 'bundler',
         visitor: makeBundleVisitor(
-          oasMajorVersion,
+          specMajorVersion,
           dereference,
           skipRedoclyRegistryRefs,
           document,
@@ -188,9 +178,9 @@ export async function bundleDocument(opts: {
   };
 }
 
-export function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
+export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
-    case OasMajorVersion.Version3:
+    case SpecMajorVersion.OAS3:
       switch (typeName) {
         case 'Schema':
           return 'schemas';
@@ -213,7 +203,7 @@ export function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
         default:
           return null;
       }
-    case OasMajorVersion.Version2:
+    case SpecMajorVersion.OAS2:
       switch (typeName) {
         case 'Schema':
           return 'definitions';
@@ -224,13 +214,22 @@ export function mapTypeToComponent(typeName: string, version: OasMajorVersion) {
         default:
           return null;
       }
+    case SpecMajorVersion.Async2:
+      switch (typeName) {
+        case 'Schema':
+          return 'schemas';
+        case 'Parameter':
+          return 'parameters';
+        default:
+          return null;
+      }
   }
 }
 
 // function oas3Move
 
 function makeBundleVisitor(
-  version: OasMajorVersion,
+  version: SpecMajorVersion,
   dereference: boolean,
   skipRedoclyRegistryRefs: boolean,
   rootDocument: Document,
@@ -282,16 +281,16 @@ function makeBundleVisitor(
     Root: {
       enter(root: any, ctx: any) {
         rootLocation = ctx.location;
-        if (version === OasMajorVersion.Version3) {
+        if (version === SpecMajorVersion.OAS3) {
           components = root.components = root.components || {};
-        } else if (version === OasMajorVersion.Version2) {
+        } else if (version === SpecMajorVersion.OAS2) {
           components = root;
         }
       },
     },
   };
 
-  if (version === OasMajorVersion.Version3) {
+  if (version === SpecMajorVersion.OAS3) {
     visitor.DiscriminatorMapping = {
       leave(mapping: Record<string, string>, ctx: any) {
         for (const name of Object.keys(mapping)) {
@@ -345,7 +344,7 @@ function makeBundleVisitor(
     components[componentType] = components[componentType] || {};
     const name = getComponentName(target, componentType, ctx);
     components[componentType][name] = target.node;
-    if (version === OasMajorVersion.Version3) {
+    if (version === SpecMajorVersion.OAS3) {
       return `#/components/${componentType}/${name}`;
     } else {
       return `#/${componentType}/${name}`;

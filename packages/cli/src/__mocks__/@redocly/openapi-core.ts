@@ -1,6 +1,7 @@
 import { ConfigFixture } from './../../__tests__/fixtures/config';
-import { Document } from '@redocly/openapi-core';
 import { firstDocument, secondDocument } from '../documents';
+
+import type { Document } from '@redocly/openapi-core';
 
 export const __redoclyClient = {
   isAuthorizedWithRedocly: jest.fn().mockResolvedValue(true),
@@ -28,7 +29,7 @@ export const slash = jest.fn();
 export const findConfig = jest.fn();
 export const doesYamlFileExist = jest.fn();
 export const bundleDocument = jest.fn(() => Promise.resolve({ problems: {} }));
-export const detectOpenAPI = jest.fn();
+export const detectSpec = jest.fn();
 export const isAbsoluteUrl = jest.fn();
 
 export class BaseResolver {
@@ -62,10 +63,11 @@ export class YamlParseError extends Error {
   }
 }
 
-export enum OasVersion {
-  Version2 = 'oas2',
-  Version3_0 = 'oas3_0',
-  Version3_1 = 'oas3_1',
+export enum SpecVersion {
+  OAS2 = 'oas2',
+  OAS3_0 = 'oas3_0',
+  OAS3_1 = 'oas3_1',
+  Async2 = 'async2',
 }
 
 export enum Oas3Operations {

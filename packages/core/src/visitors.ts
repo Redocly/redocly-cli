@@ -49,6 +49,7 @@ import { NormalizedNodeType, SpecExtension } from './types';
 import type { Stack } from './utils';
 import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
 import type { Location } from './ref-utils';
+import { Async2Definition } from './typings/asyncapi';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -206,6 +207,10 @@ type Oas2FlatVisitor = {
   SpecExtension?: VisitFunctionOrObject<unknown>;
 };
 
+type Async2FlatVisitor = {
+  Root?: VisitFunctionOrObject<Async2Definition>;
+};
+
 const legacyTypesMap = {
   Root: 'DefinitionRoot',
   ServerVariablesMap: 'ServerVariableMap',
@@ -232,6 +237,12 @@ type Oas2NestedVisitor = {
     : Oas2FlatVisitor[T] & NestedVisitor<Oas2NestedVisitor>;
 };
 
+type Async2NestedVisitor = {
+  [T in keyof Async2FlatVisitor]: Async2FlatVisitor[T] extends Function
+    ? Async2FlatVisitor[T]
+    : Async2FlatVisitor[T] & NestedVisitor<Async2NestedVisitor>;
+};
+
 export type Oas3Visitor = BaseVisitor &
   Oas3NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas3NestedVisitor>>;
@@ -240,12 +251,20 @@ export type Oas2Visitor = BaseVisitor &
   Oas2NestedVisitor &
   Record<string, VisitFunction<any> | NestedVisitObject<any, Oas2NestedVisitor>>;
 
+export type Async2Visitor = BaseVisitor &
+  Async2NestedVisitor &
+  Record<string, VisitFunction<any> | NestedVisitObject<any, Async2NestedVisitor>>;
+
 export type Oas3TransformVisitor = BaseVisitor &
   Oas3FlatVisitor &
   Record<string, VisitFunction<any> | VisitObject<any>>;
 
 export type Oas2TransformVisitor = BaseVisitor &
   Oas2FlatVisitor &
+  Record<string, VisitFunction<any> | VisitObject<any>>;
+
+export type Async2TransformVisitor = BaseVisitor &
+  Async2FlatVisitor &
   Record<string, VisitFunction<any> | VisitObject<any>>;
 
 export type NestedVisitor<T> = Exclude<T, 'any' | 'ref' | 'Root'>;
@@ -269,10 +288,13 @@ export type NormalizedOasVisitors<T extends BaseVisitor> = {
 
 export type Oas3Rule = (options: Record<string, any>) => Oas3Visitor | Oas3Visitor[];
 export type Oas2Rule = (options: Record<string, any>) => Oas2Visitor | Oas2Visitor[];
+export type Async2Rule = (options: Record<string, any>) => Async2Visitor | Async2Visitor[];
 export type Oas3Preprocessor = (options: Record<string, any>) => Oas3TransformVisitor;
 export type Oas2Preprocessor = (options: Record<string, any>) => Oas2TransformVisitor;
+export type Async2Preprocessor = (options: Record<string, any>) => Async2TransformVisitor;
 export type Oas3Decorator = (options: Record<string, any>) => Oas3TransformVisitor;
 export type Oas2Decorator = (options: Record<string, any>) => Oas2TransformVisitor;
+export type Async2Decorator = (options: Record<string, any>) => Async2TransformVisitor;
 
 // alias for the latest version supported
 // every time we update it - consider semver

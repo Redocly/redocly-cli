@@ -12,7 +12,7 @@ import type { RuleSeverity } from './config';
 import { Location, isRef } from './ref-utils';
 import { pushStack, popStack } from './utils';
 import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
-import { OasVersion } from './oas-types';
+import { SpecVersion } from './oas-types';
 import { isNamedType, SpecExtension } from './types';
 
 type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
@@ -33,7 +33,7 @@ export type UserContext = {
   type: NormalizedNodeType;
   key: string | number;
   parent: any;
-  oasVersion: OasVersion;
+  oasVersion: SpecVersion;
   getVisitorData: () => Record<string, unknown>;
 };
 
@@ -79,7 +79,7 @@ export type NormalizedProblem = {
 
 export type WalkContext = {
   problems: NormalizedProblem[];
-  oasVersion: OasVersion;
+  oasVersion: SpecVersion;
   visitorsData: Record<string, Record<string, unknown>>; // custom data store that visitors can use for various purposes
   refTypes?: Map<string, NormalizedNodeType>;
 };
