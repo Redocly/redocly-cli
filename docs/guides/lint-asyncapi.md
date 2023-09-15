@@ -30,8 +30,6 @@ is an example of a simple configuration file for validating an AsyncAPI file is
 in the expected format:
 
 ```yaml
-extends: []
-
 rules:
   spec: error
 ```

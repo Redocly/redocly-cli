@@ -32,7 +32,5 @@ apis:
   websocket-gemini:
     root: ./websocket-gemini.yml
 
-extends: []
-
 rules:
   spec: error
