@@ -8,6 +8,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.2.0 (2023-09-18)
+
+### Minor Changes
+
+- Added support for linting AsyncAPI v2 files, so that a wider range of API descriptions can use the Redocly linting workflow.
+
+### Patch Changes
+
+- Renamed API definition to API description for consistency.
+- Updated @redocly/openapi-core to v1.2.0.
+
 ## 1.1.0 (2023-09-14)
 
 ### Minor Changes
