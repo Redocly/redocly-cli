@@ -276,10 +276,7 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   } else {
     process.stderr.write(
       green(
-        `Woohoo! Your API ${pluralize(
-          'description is',
-          definitionsCount
-        )} valid. 🎉\n${ignored}`
+        `Woohoo! Your API ${pluralize('description is', definitionsCount)} valid. 🎉\n${ignored}`
       )
     );
   }
