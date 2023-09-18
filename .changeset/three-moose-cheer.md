@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Renamed API definition into API description for consistency.
+Renamed API definition to API description for consistency.
