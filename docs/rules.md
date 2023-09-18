@@ -31,8 +31,8 @@ You may then override the severity for any specific rule in the `rules` object.
 
 Severity settings determine how the rule is treated during the validation process.
 
-- `severity: error` - if the rule is triggered, the output displays an error message and the API definition doesn't pass validation.
-- `severity: warn` - if the rule is triggered, the output displays a warning message. Your API definition may still be valid if no other errors are detected.
+- `severity: error` - if the rule is triggered, the output displays an error message and the API description doesn't pass validation.
+- `severity: warn` - if the rule is triggered, the output displays a warning message. Your API description may still be valid if no other errors are detected.
 - `severity: off` - turns off the rule. The rule is skipped during validation.
 
 

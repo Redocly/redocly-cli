@@ -75,6 +75,6 @@ module.exports = {
 
 Everything that is exported from a plugin relates to one of the supported document formats, such as OpenAPI v3. Plugins work by exporting an object containing a key-value mapping from a document format and version (`oas2` or `oas3` are supported) to an extension object (rules, preprocessors, decorators).
 
-Before processing the definition document, Redocly CLI detects the document format and applies a corresponding set of extensions.
+Before processing the API description document, Redocly CLI detects the document format and applies a corresponding set of extensions.
 
 

@@ -47,11 +47,11 @@ Make sure that the @redocly/cli has version `1.0.0-beta.99` or later
 This guide is most effective when you follow along and complete the steps.
 :::
 
-## Case 0 - Check that the current OpenAPI definition is valid
+## Case 0 - Check that the current OpenAPI description is valid
 
 After downloading the `openapi-starter` repository, ensure that you installed the project's dependencies via `npm install`.
 
-Once completed, in the project folder, execute the `npx redocly lint` command. You should receive confirmation that the OpenAPI definition is valid:
+Once completed, in the project folder, execute the `npx redocly lint` command. You should receive confirmation that the OpenAPI description is valid:
 
 ```bash
 npx redocly lint
@@ -59,14 +59,14 @@ npx redocly lint
 validating /openapi/openapi.yaml...
 /openapi/openapi.yaml: validated in 39ms
 
-Woohoo! Your OpenAPI definition is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 ```
 
 Now you are ready to configure the rules.
 
 ## Case 1 - Single response containing one property
 
-Imagine that your API definition describes users' data, and it should have `user_id` as a part of
+Imagine that your API description describes users' data, and it should have `user_id` as a part of
 all successful (`200`) responses. Let's define this.
 
 1. Open the `.redocly.yaml` in the project folder
@@ -129,12 +129,12 @@ in the integrated terminal (Problems tab):
 As you can see from the output, the rule triggered an error in the `200.yaml` file
 indicating there is no `user_id` property for `200` responses.
 
-Three "copies" of the error mean that there are three $refs within the OpenAPI definition
+Three "copies" of the error mean that there are three $refs within the OpenAPI description
 that refer to the `200` response schema object.
 
 ## Case 2 - Multiple responses containing one property
 
-When you want to check that your OpenAPI definition contains property in all responses
+When you want to check that your OpenAPI description contains property in all responses
 of a specific [class](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes), you can use ranges.
 
 Let's modify the previous example to check that all `2xx` responses contain the `user_id` property.
@@ -214,7 +214,7 @@ in the integrated terminal (Problems tab):
 There are three `2xx` class responses defined for this guide, and you can see that the rule
 has successfully triggered errors with the missing `user_id` property for all of them.
 
-Yet, three $refs within the OpenAPI definition refer to the `200` response
+Yet, three $refs within the OpenAPI description refer to the `200` response
 schema object and one $ref refers to each of the `201` and `202` responses, resulting in
 5 errors in total
 

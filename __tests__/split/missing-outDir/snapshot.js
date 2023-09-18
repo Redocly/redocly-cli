@@ -4,10 +4,10 @@ exports[`E2E split without option: outDir 1`] = `
 
 index.ts split [api]
 
-Split an API definition into a multi-file structure.
+Split an API description into a multi-file structure.
 
 Positionals:
-  api  API definition file that you want to split            [string] [required]
+  api  API description file that you want to split           [string] [required]
 
 Options:
   --version    Show version number.                                    [boolean]

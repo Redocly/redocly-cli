@@ -1,6 +1,6 @@
 # no-ambiguous-paths
 
-Ensures there are no ambiguous paths in your API definitions.
+Ensures there are no ambiguous paths in your API descriptions.
 When this rule is enabled, templated paths that support the same HTTP methods should not have ambiguous resolution.
 
 According to the OpenAPI specification:

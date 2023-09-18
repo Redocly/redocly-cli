@@ -1,6 +1,6 @@
 # scalar-property-missing-example
 
-Requires that every scalar property in the API definition has either `example` or `examples`˙ defined.
+Requires that every scalar property in the API description has either `example` or `examples`˙ defined.
 Scalar properties are any of the following types: `string`, `number`, `null`, `boolean`, `integer`.
 
 |OAS|Compatibility|
@@ -11,9 +11,9 @@ Scalar properties are any of the following types: `string`, `number`, `null`, `b
 
 ## API design principles
 
-One of the main goals of your API definition (and your API documentation) is to help consumers understand how your API behaves and what to expect when working with it.
+One of the main goals of your API description (and your API documentation) is to help consumers understand how your API behaves and what to expect when working with it.
 
-Providing examples for properties in your API definition not only improves the developer and user experience of working with your APIs, but also makes the documentation more complete. Many API documentation tools are able to automatically extract such example values from the API definition, and let consumers use those values to test the APIs or send (mock) requests to the API directly from the documentation.
+Providing examples for properties in your API description not only improves the developer and user experience of working with your APIs, but also makes the documentation more complete. Many API documentation tools are able to automatically extract such example values from the API description, and let consumers use those values to test the APIs or send (mock) requests to the API directly from the documentation.
 
 ## Configuration
 

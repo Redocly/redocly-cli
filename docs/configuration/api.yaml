@@ -1,7 +1,7 @@
 type: object
 title: APIs object
 description: >-
-  Lets you configure one or more API definition files.
+  Lets you configure one or more API description files.
   This gives you the flexibility to reference specific files in commands, and configure each file at a granular level.
 additionalProperties:
   x-additionalPropertiesName: '{name}@{version}'
@@ -11,12 +11,12 @@ additionalProperties:
   required:
     - root
   description: >-
-    Specifies the name and version of an API associated with the root API definition with the pattern `{name}@{version}`.
+    Specifies the name and version of an API associated with the root API description with the pattern `{name}@{version}`.
     If the version is omitted, Redocly apps interpret it as 'latest' by default.
   properties:
     root:
       type: string
-      description: The path to the root API definition file of the specified API.
+      description: The path to the root API description file of the specified API.
     labels:
       type: array
       description: >-
@@ -117,12 +117,12 @@ additionalProperties:
         openapi:
           type: object
           description: >-
-            Defines theming and functionality for an API definition.
+            Defines theming and functionality for an API description.
             Supports the same format and options as the [root `openapi` object](https://redocly.com/docs/api-reference-docs/configuration/functionality/).
             API-level configuration always overrides the root configuration.
         mockServer:
           type: object
           description: >-
-            Defines mock server behavior for an API definition.
+            Defines mock server behavior for an API description.
             Supports the same format and options as the root `mockServer` object.
             API-level configuration always overrides the root configuration.

@@ -1,6 +1,6 @@
 # no-enum-type-mismatch
 
-Requires that the contents of every `enum` value in your API definition conform to the corresponding schema's specified `type`.
+Requires that the contents of every `enum` value in your API description conform to the corresponding schema's specified `type`.
 
 
 |OAS|Compatibility|

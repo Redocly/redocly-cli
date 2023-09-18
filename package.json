@@ -49,6 +49,7 @@
     "Swagger",
     "OpenAPI linter",
     "Swagger linter",
+    "AsyncAPI linter",
     "oas"
   ],
   "contributors": [

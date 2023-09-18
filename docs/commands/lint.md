@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Redocly CLI can identify and report on problems found in OpenAPI definitions. This helps you avoid bugs and make API definitions more consistent.
+Redocly CLI can identify and report on problems found in OpenAPI descriptions. This helps you avoid bugs and make API descriptions more consistent.
 
 The `lint` command reports on problems and executes preprocessors and rules. Unlike the `bundle` command, `lint` doesn't execute decorators.
 
@@ -26,7 +26,7 @@ redocly lint --version
 
 | Option                 | Type     | Description                                                                                                                                           |
 | ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                   | [string] | Array of API definition filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
+| apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
 | --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                 |
 | --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                          |
 | --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe`. |
@@ -50,7 +50,7 @@ The `lint` command behaves differently depending on how you pass apis to it and 
 redocly lint openapi/openapi.yaml
 ```
 
-In this case, `lint` validates the definition(s) passed to the command. If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used. If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
+In this case, `lint` validates the API description(s) passed to the command. If you have no configuration file defined, the [recommended ruleset](../rules/recommended.md) is used. If you have `extends` or `rules` defined in `redocly.yaml`, those are used when linting.
 
 The `apis` argument can also use any glob format supported by your file system. For example, `redocly lint ./root-documents/*.yaml`.
 
@@ -65,10 +65,10 @@ redocly lint core@v1
 ```yaml Configuration file
 apis:
   core@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
 ```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` validates the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `lint` validates the `api-description.json` file. The presence of the Redocly configuration file is mandatory.
 
 #### All configured APIs
 
@@ -81,14 +81,14 @@ redocly lint
 ```yaml Configuration file
 apis:
   core@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
   production:
     root: ./openapi/production.yaml
   sandbox:
     root: ./openapi/sandbox.yaml
 ```
 
-In this case, if no API definitions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
+In this case, if no API descriptions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
 
 :::warning Important
 
@@ -191,7 +191,7 @@ redocly lint --format=json
       "location": [
         {
           "source": {
-            "ref": "mydefinition.yaml"
+            "ref": "myapi.yaml"
           },
           "pointer": "#/paths/~1pathItem/post/operationIdentifier",
           "reportOnKey": true
@@ -205,7 +205,7 @@ redocly lint --format=json
       "location": [
         {
           "source": {
-            "ref": "mydefinition.yaml"
+            "ref": "myapi.yaml"
           },
           "pointer": "#/paths/~1pathItem/post/operationId",
           "reportOnKey": true
@@ -271,7 +271,7 @@ Generated ignore file with 3 problems.
 This command overwrites an existing ignore file.
 :::
 
-To generate an ignore file for multiple definitions, pass them as arguments:
+To generate an ignore file for multiple API descriptions, pass them as arguments:
 
 ```bash
 redocly lint v1.yaml v2.yaml --generate-ignore-file

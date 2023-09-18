@@ -22,7 +22,7 @@ The 'assert/' syntax in assert/path-item-mutually-required is deprecated. Update
 validating ../__fixtures__/valid-openapi.yaml...
 ../__fixtures__/valid-openapi.yaml: validated in <test>ms
 
-Woohoo! Your OpenAPI definition is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 
 
 `;

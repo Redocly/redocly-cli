@@ -2,9 +2,9 @@
 
 ## Introduction
 
-API definitions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API definition by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API definition.
+API descriptions can grow and become difficult to manage, especially if several teams are collaborating on them. It's a good practice to maintain the reusable parts as separate files, and include them in the main (root) API description by referencing them with `$ref`. However, most OpenAPI tools don't support that multi-file approach, and require a single-file API description.
 
-Redocly CLI can help you combine separate API definition files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API definition into a single file output in JSON or YAML format.
+Redocly CLI can help you combine separate API description files (such as if you used the `split` command) into one. The `bundle` command pulls the relevant parts of an API description into a single file output in JSON or YAML format.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
 
@@ -22,7 +22,7 @@ redocly bundle --version
 
 | Option                     | Type     | Description                                                                                                                                                                                                                                                     |
 | -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                       | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                    |
+| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                    |
 | --config                   | string   | Specify path to the [config file](#custom-configuration-file).                                                                                                                                                                                                  |
 | --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
 | --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
@@ -31,7 +31,7 @@ redocly bundle --version
 | --format                   | string   | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.                                                                                                                                       |
 | --help                     | boolean  | Show help.                                                                                                                                                                                                                                                      |
 | --keep-url-references, -k  | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
-| --lint                     | boolean  | Lint definition files. Default value is `false`.                                                                                                                                                                                                                |
+| --lint                     | boolean  | Lint API description files. Default value is `false`.                                                                                                                                                                                                                |
 | --max-problems             | integer  | Truncate output to display the specified maximum number of problems. Default value is `100`.                                                                                                                                                                    |
 | --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |
 | --output, -o               | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** |
@@ -43,15 +43,15 @@ redocly bundle --version
 
 ## Examples
 
-### Bundle a single API definition
+### Bundle a single API description
 
-This command creates a bundled file at the path `dist/openapi.json` starting from the root API definition file `openapi/openapi.yaml` and following the `$ref` to other files if appropriate. The bundled file is in JSON format.
+This command creates a bundled file at the path `dist/openapi.json` starting from the root API description file `openapi/openapi.yaml` and following the `$ref` to other files if appropriate. The bundled file is in JSON format.
 
 ```bash
 redocly bundle openapi/openapi.yaml --output dist/openapi.json
 ```
 
-### Bundle multiple API definitions
+### Bundle multiple API descriptions
 
 This command creates one bundled file for each of the specified apis in the `dist/` folder. Bundled files are in JSON format.
 
@@ -66,7 +66,7 @@ dist/petstore.json
 
 ### Create a fully dereferenced bundle
 
-A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the definition file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
+A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the API description file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
 
 ```bash
 redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml

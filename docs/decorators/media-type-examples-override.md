@@ -32,7 +32,7 @@ decorators:
 
 ## Examples 
 
-Given this definition with example:
+Given this API description with example:
 
 ```yaml
 openapi: 3.0.0

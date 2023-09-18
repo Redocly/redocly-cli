@@ -56,7 +56,7 @@ Learn more about [configuring Redocly CLI](../configuration/index.mdx) in the do
 
 ## Bundle OpenAPI/Swagger into a single file
 
-While the OpenAPI (and earlier Swagger) standards were designed to use `$ref` reference syntax and re-use definitions across mulitple files, not all tools support this. If there's a tool in your API lifecycle that needs a single file, you can still use mulitple files for the day-to-day work, and then "bundle" the API description into a single file for use by another tool.
+While the OpenAPI (and earlier Swagger) standards were designed to use `$ref` reference syntax and re-use elements of API descriptions across mulitple files, not all tools support this. If there's a tool in your API lifecycle that needs a single file, you can still use mulitple files for the day-to-day work, and then "bundle" the API description into a single file for use by another tool.
 
 With `swagger-cli` the command would be something like this:
 

@@ -21,7 +21,7 @@ The original file is unchanged, but look in the directory named by the `--outDir
 * A `paths/` directory, with a file for each of the URLs in the API. All verbs for that endpoint are in this file.
 * A `components/` directory containing subdirectories for each of the top-level keys, such as `schema`, and files for the individual data structures described in each section.
 
-By keeping your API in this format, managing changes can be easier since it's clear which file (or files) have changed, making it easier to review as things change. Many common operations can be performed on the API description in this format, such as linting. Some tools prefer a single bundled OpenAPI definition, and it's common to bundle during CI (continuous integration) before doing other automated operations.
+By keeping your API in this format, managing changes can be easier since it's clear which file (or files) have changed, making it easier to review as things change. Many common operations can be performed on the API description in this format, such as linting. Some tools prefer a single bundled OpenAPI description, and it's common to bundle during CI (continuous integration) before doing other automated operations.
 
 ## Bundle OpenAPI to a single file
 
@@ -47,7 +47,7 @@ Pass `--lint` to the bundle command to have Redocly CLI check your API meets the
 This feature is experimental, and supports OpenAPI 3.x only
 :::
 
-When you have multiple APIs but want to publish a single definition file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
+When you have multiple APIs but want to publish a single API description file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
 
 Use the command to combine files like this:
 

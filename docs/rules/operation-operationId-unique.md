@@ -12,7 +12,7 @@ Requires unique `operationId` values for each operation.
 
 The `operationId` is used by tooling to identify operations (which are otherwise done through scary looking JSON pointers).
 
-The `operationId` should be unique (used only once in an OpenAPI definition).
+The `operationId` should be unique (used only once in an OpenAPI description).
 
 This rule is unopinionated.
 

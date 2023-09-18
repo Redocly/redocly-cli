@@ -2,7 +2,7 @@
 
 Ensures that all tag `name` fields in the `tags` object are listed in alphabetical order.
 Note that this rule does not automatically sort your tags if they are not in alphabetical order.
-The rule only produces a warning or an error, and expects you to modify your API definitions.
+The rule only produces a warning or an error, and expects you to modify your API descriptions.
 
 |OAS|Compatibility|
 |---|---|
@@ -14,7 +14,7 @@ The rule only produces a warning or an error, and expects you to modify your API
 ## API design principles
 
 Information architecture is important. Among other benefits, it improves the efficiency and speed with which people discover information in the resources you provide.
-When deciding how to organize tags in your API definitions and documentation, you can try different approaches through tree testing (we did some tree testing on Redocly documentation navigation).
+When deciding how to organize tags in your API descriptions and documentation, you can try different approaches through tree testing (we did some tree testing on Redocly documentation navigation).
 However, sometimes it's easier to keep things simple, and go alphabetical. If you've already decided to alphabetize, this rule keeps it alphabetized.
 
 We've been here and it's ugly:

@@ -15,7 +15,7 @@ This is an essential rule that should not be turned off except in rare and speci
 
 ## API design principles
 
-It's important to conform to the specification so that tools work with your API document. Doing so makes writing and maintenance of API definitions easier.
+It's important to conform to the specification so that tools work with your API document. Doing so makes writing and maintenance of API descriptions easier.
 
 ## Configuration
 

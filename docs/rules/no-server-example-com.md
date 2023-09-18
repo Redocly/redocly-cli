@@ -1,6 +1,6 @@
 # no-server-example.com
 
-Prevents using `example.com` as the value of the `servers.url` fields in your API definitions.
+Prevents using `example.com` as the value of the `servers.url` fields in your API descriptions.
 The rule checks for all URL schemes (`http`, `https`...).
 
 |OAS|Compatibility|

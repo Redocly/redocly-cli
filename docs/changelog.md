@@ -13,7 +13,7 @@ toc:
 ### Minor Changes
 
 - Added `ignoreCase` option for `tags-alphabetical` rule.
-- Added `join` support for OAS 3.1 definitions.
+- Added `join` support for OAS 3.1 descriptions.
 - Added support for Redoc v2.1.2, and aligned the dependencies for both projects.
 
 ### Patch Changes
@@ -150,7 +150,7 @@ No code changes.
 
 - Fixed a bug with OAS (`x-`) specification extensions that contain an array.
 - Display an error if the API path refers to a folder.
-- Fixed the `push` command not recognizing API definitions with spaces.
+- Fixed the `push` command not recognizing API descriptions with spaces.
 - Defined default `allowedValues` in the `all` ruleset for mime-type rules.
 
 ### Changes
@@ -164,7 +164,7 @@ No code changes.
 
 ### Features
 
-- Added the [required-min-length-string-type-property](./rules/required-string-property-missing-min-length.md) rule that requires required properties in the API definition with type `string` to have a `minLength`.
+- Added the [required-min-length-string-type-property](./rules/required-string-property-missing-min-length.md) rule that requires required properties in the API description with type `string` to have a `minLength`.
 
 ### Fixes
 
@@ -231,7 +231,7 @@ theme:
 
 ### Fixes
 
-- Fixed an issue where the `spec` rule showed an error for `x-logo` properties in the 3.1 OpenAPI definition.
+- Fixed an issue where the `spec` rule showed an error for `x-logo` properties in the 3.1 OpenAPI description.
 
 ## 1.0.0-beta.118 (2022-12-29)
 
@@ -239,7 +239,7 @@ theme:
 
 - Enabled removing unused components in the config to use within the bundle command.
 - Implemented special SpecExtension type `VendorExtension`.
-- Added an error handler for the case when the definition or a plugin does not exist.
+- Added an error handler for the case when the API description file or a plugin does not exist.
 - Added `media-type-examples-override` decorator.
 
 ### Fixes
@@ -467,7 +467,7 @@ Broken release.
 
 ### Features
 
-- Added the `--public` option to the `push` command. With this option, you can upload OpenAPI definitions and make them publicly accessible.
+- Added the `--public` option to the `push` command. With this option, you can upload OpenAPI descriptions and make them publicly accessible.
 - Changed assertions syntax to this pattern: `assert/{assert name}`
 
 ### Fixes
@@ -595,7 +595,7 @@ rules:
 
 ### Fixes
 
-- Fixed an issue with the `lint` command highlighting the entire file when `servers` are missing in OAS3. Now it highlights only the `openapi` field, indicating an incorrect OpenAPI definition.
+- Fixed an issue with the `lint` command highlighting the entire file when `servers` are missing in OAS3. Now it highlights only the `openapi` field, indicating an incorrect OpenAPI description.
 - Fixed an issue with the `lint` command highlighting all parent values when one of the child fields has an empty value instead of highlighting the field itself.
 
 ---
@@ -631,7 +631,7 @@ rules:
 
 ### Fixes
 
-- Fixed an issue with the `lint` command crashing when the `servers.url` field is empty in the OpenAPI definition.
+- Fixed an issue with the `lint` command crashing when the `servers.url` field is empty in the OpenAPI description.
 - Fixed an issue with the `lint` command crashing when an `enum` value is invalid.
 
 ---
@@ -785,7 +785,7 @@ rules:
 - Fixed an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
 - Fixed an issue with page refresh when pagination is set to `item` or `section`.
 - Fixed an issue with inlining external schema when components' names match.
-- Fixed an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Fixed an issue with fetching hosted schema on Windows when bundling OpenAPI descriptions.
 - Fixed an issue for `no-server-trailing-slash` when server url is a root.
 
 ---
@@ -822,7 +822,7 @@ rules:
 
 ### Features
 
-- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API definitions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content replaces any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API descriptions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content replaces any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
 
 The following examples show how to add the decorators to the `.redocly.yaml` file:
 
@@ -863,7 +863,7 @@ lint:
 
 - Fixed an issue with the `--format` option not working with the `bundle` command.
 
-- Fixed a validation issue with the non-string `openapi` value in API definitions. The `lint` command now warns if the value is not string instead of crashing.
+- Fixed a validation issue with the non-string `openapi` value in API descriptions. The `lint` command now warns if the value is not string instead of crashing.
 
 ---
 
@@ -1029,7 +1029,7 @@ lint:
 
 ### Features
 
-- Implemented support for [OpenAPI 3.1](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.1.0). You can now lint, validate, and bundle your OAS 3.1 definitions with OpenAPI CLI.
+- Implemented support for [OpenAPI 3.1](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.1.0). You can now lint, validate, and bundle your OAS 3.1 descriptions with OpenAPI CLI.
 
 ---
 
@@ -1053,7 +1053,7 @@ lint:
 
 ### Fixes
 
-- The root API definition document is now parsed in all cases, even if it doesn't report the correct MIME type or doesn't use any of the supported file extensions.
+- The root API description document is now parsed in all cases, even if it doesn't report the correct MIME type or doesn't use any of the supported file extensions.
 
 ---
 
@@ -1085,7 +1085,7 @@ lint:
 
 ### Fixes
 
-- Resolved a hot-reloading issue with the `preview-docs` command. It now automatically reloads the docs in the browser when you make live changes to an OpenAPI definition.
+- Resolved a hot-reloading issue with the `preview-docs` command. It now automatically reloads the docs in the browser when you make live changes to an OpenAPI description.
 
 ---
 
@@ -1183,7 +1183,7 @@ lint:
 
 ### Features
 
-- A new command called `push` is now supported by OpenAPI CLI. With this command, you can upload your API definitions and associated files, and set up your own CI pipeline for updating API definitions without granting Redocly Workflows access to your repositories.
+- A new command called `push` is now supported by OpenAPI CLI. With this command, you can upload your API descriptions and associated files, and set up your own CI pipeline for updating API descriptions without granting Redocly Workflows access to your repositories.
 
 ### Fixes
 
@@ -1197,7 +1197,7 @@ lint:
 
 - Resolved an issue with `assert-node-version` using the wrong path.
 
-- OpenAPI CLI bundles the API definition before gathering stats.
+- OpenAPI CLI bundles the API description before gathering stats.
 
 ---
 
@@ -1215,7 +1215,7 @@ lint:
 
 ### Features
 
-- A new command called `join` is now available in OpenAPI CLI. Use it to combine two or more API definition files into one. The resulting file optionally helps distinguish the origin of OpenAPI objects and properties by appending custom prefixes to them. Note that this command is considered experimental; meaning, it's still a work in progress.
+- A new command called `join` is now available in OpenAPI CLI. Use it to combine two or more API description files into one. The resulting file optionally helps distinguish the origin of OpenAPI objects and properties by appending custom prefixes to them. Note that this command is considered experimental; meaning, it's still a work in progress.
 
 ---
 
@@ -1231,7 +1231,7 @@ lint:
 
 ### Features
 
-- OpenAPI CLI now supports the `split` command, which you can use to create a multi-file structure out of an API definition file by extracting referenced parts into standalone, separate files. The command doesn't support OAS 2.
+- OpenAPI CLI now supports the `split` command, which you can use to create a multi-file structure out of an API description file by extracting referenced parts into standalone, separate files. The command doesn't support OAS 2.
 
 ### Fixes
 
@@ -1243,7 +1243,7 @@ lint:
 
 ### Features
 
-- A new command called `stats` has been implemented. It provides statistics about the structure of one or more API definition files, and lets you choose the format in which the statistics are presented.
+- A new command called `stats` has been implemented. It provides statistics about the structure of one or more API description files, and lets you choose the format in which the statistics are presented.
 
 ### Fixes
 
@@ -1375,7 +1375,7 @@ lint:
 
 - Resolved an issue with detecting output file extension without an entrypoint.
 
-- Resolved an issue with the `preview-docs` command failing to automatically select the first definition from the `apiDefinitions` section of the configuration file when used without arguments.
+- Resolved an issue with the `preview-docs` command failing to automatically select the first description from the `apiDefinitions` section of the configuration file when used without arguments.
 
 - Fixed an issue with relative paths for entrypoints from external configuration files.
 

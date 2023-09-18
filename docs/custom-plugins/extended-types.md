@@ -1,7 +1,7 @@
 # Type extensions in plugins
 
-Redocly CLI in its core has a type tree which defines the structure of the API definition.
-Redocly CLI then uses it to do a type-aware traversal of an OpenAPI definition.
+Redocly CLI in its core has a type tree which defines the structure of the API description.
+Redocly CLI then uses it to do a type-aware traversal of an OpenAPI description.
 
 The type tree is built from top level `Types` which can link to child types. For example, here is a [visual reference to the OpenAPI types structure](../../openapi-visual-reference/openapi-node-types.md). You can also check [the code itself](https://github.com/Redocly/redocly-cli/tree/main/packages/core/src/types) for information about specific versions of OpenAPI and other supported document types.
 
@@ -70,5 +70,5 @@ rules:
   spec: warn
 ```
 
-Now lint your API definition with `redocly lint openapi.yaml` and try removing the `lifecycle` field from within the `x-metadata` section. It's a required field, so you see an error if it's missing.
+Now lint your API description with `redocly lint openapi.yaml` and try removing the `lifecycle` field from within the `x-metadata` section. It's a required field, so you see an error if it's missing.
 

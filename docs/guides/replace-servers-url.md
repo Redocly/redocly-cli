@@ -6,7 +6,7 @@ redirectFrom:
 ---
 # Replace servers URL in different environments
 
-Redocly allows you to use [custom decorators](../custom-plugins/custom-decorators.md) to modify content in the API definition during the bundling process.
+Redocly allows you to use [custom decorators](../custom-plugins/custom-decorators.md) to modify content in the API description during the bundling process.
 
 This page describes how to replace the server URL with a decorator for a given environment.
 

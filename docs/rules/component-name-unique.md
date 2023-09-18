@@ -11,7 +11,7 @@ Verifies component names are unique.
 
 ## API design principles
 
-When generating code based on an OpenAPI definition, there are various different problems when component names are not
+When generating code based on an OpenAPI description, there are various different problems when component names are not
 unique through the whole spec.
 
 - schema: The code generator creates a class for each schema.

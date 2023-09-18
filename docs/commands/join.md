@@ -10,19 +10,19 @@ tocMaxDepth: 3
 
 The `join` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
 
-The `join` command supports OpenAPI 3.x definitions only.
+The `join` command supports OpenAPI 3.x descriptions only.
 
 :::
 
-Maintainers of multiple API definitions can benefit from storing each endpoint as a standalone API definition file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API definition file.
+Maintainers of multiple API descriptions can benefit from storing each endpoint as a standalone API description file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API description file.
 
-With Redocly CLI, you can solve this problem by using the `join` command that can combine two or more API definition files into a single one.
+With Redocly CLI, you can solve this problem by using the `join` command that can combine two or more API description files into a single one.
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 
 The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten.
 
-Apart from providing individual API definition files as the input, you can also specify the path to a folder that contains multiple API definition files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combines them into one file.
+Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combines them into one file.
 
 ### Usage
 
@@ -43,9 +43,9 @@ redocly join --version
 
 | Option                             | Type     | Description                                                                                                                                                                                              |
 | ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                               | [string] | **REQUIRED.** 1. Array of paths to API definition files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API definition files within a specific folder. |
+| apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
 | --help                             | boolean  | Show help.                                                                                                                                                                                               |
-| --lint                             | boolean  | Lint definition files.                                                                                                                                                                                   |
+| --lint                             | boolean  | Lint API description files.                                                                                                                                                                              |
 | --decorate                         | boolean  | Run decorators.                                                                                                                                                                                          |
 | --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                       |
 | --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                           |
@@ -72,7 +72,7 @@ openapi.yaml: join processed in 56ms
 
 The command creates the output `openapi.yaml` file in the working directory.
 
-The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API definition are always taken only from the first input file:
+The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API description are always taken only from the first input file:
 
 ```yaml
 info:
@@ -185,7 +185,7 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 
 ### without-x-tag-groups
 
-If you have the same tags in multiple API definitions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
+If you have the same tags in multiple API descriptions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
 
 #### Usage
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-With this command, you can generate documentation previews for API definitions on your local machine.
+With this command, you can generate documentation previews for API descriptions on your local machine.
 
 If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise, it is a preview of [Redoc community edition](https://redocly.com/redoc/).
 
@@ -23,7 +23,7 @@ redocly preview-docs <api> --version
 
 | Option                  | Type     | Description                                                                                                                                                                |
 | ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                     | string   | Path to the API definition filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                 |
+| api                     | string   | Path to the API description filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                 |
 | --config                | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                      |
 | --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                            |
 | --help                  | boolean  | Show help.                                                                                                                                                                 |
@@ -46,7 +46,7 @@ The command behaves differently depending on how you pass the api to it, and whe
 redocly preview-docs openapi/openapi.yaml
 ```
 
-In this case, `preview-docs` previews the definition that was passed to the command. The configuration file is ignored.
+In this case, `preview-docs` previews the API description that was passed to the command. The configuration file is ignored.
 
 #### Pass api alias
 
@@ -59,10 +59,10 @@ redocly preview-docs core@v1
 ```yaml Configuration file
 apis:
   core@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
 ```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `definition.json` file. For this approach, the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 
