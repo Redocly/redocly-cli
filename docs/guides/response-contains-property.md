@@ -59,7 +59,7 @@ npx redocly lint
 validating /openapi/openapi.yaml...
 /openapi/openapi.yaml: validated in 39ms
 
-Woohoo! Your OpenAPI description is valid. 🎉
+Woohoo! Your API description is valid. 🎉
 ```
 
 Now you are ready to configure the rules.
