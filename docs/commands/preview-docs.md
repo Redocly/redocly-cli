@@ -46,7 +46,7 @@ The command behaves differently depending on how you pass the api to it, and whe
 redocly preview-docs openapi/openapi.yaml
 ```
 
-In this case, `preview-docs` previews the definition that was passed to the command. The configuration file is ignored.
+In this case, `preview-docs` previews the API description that was passed to the command. The configuration file is ignored.
 
 #### Pass api alias
 
@@ -59,10 +59,10 @@ redocly preview-docs core@v1
 ```yaml Configuration file
 apis:
   core@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
 ```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `definition.json` file. For this approach, the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 

@@ -43,7 +43,7 @@ The `stats` command behaves differently depending on how you pass the api to it 
 redocly stats openapi/openapi.yaml
 ```
 
-In this case, `stats` shows statistics for the definition that was passed to the command. The configuration file is ignored.
+In this case, `stats` shows statistics for the API description that was passed to the command. The configuration file is ignored.
 
 #### Pass api via configuration file
 
@@ -56,10 +56,10 @@ redocly stats core@v1
 ```yaml Configuration file
 apis:
   core@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
 ```
 
-In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `definition.json` file. The presence of the Redocly configuration file is mandatory.
+In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `api-description.json` file. The presence of the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 

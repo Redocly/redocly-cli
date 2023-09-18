@@ -10,7 +10,7 @@ tocMaxDepth: 3
 
 The `join` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
 
-The `join` command supports OpenAPI 3.x definitions only.
+The `join` command supports OpenAPI 3.x descriptions only.
 
 :::
 
@@ -45,7 +45,7 @@ redocly join --version
 | ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
 | --help                             | boolean  | Show help.                                                                                                                                                                                               |
-| --lint                             | boolean  | Lint definition files.                                                                                                                                                                                   |
+| --lint                             | boolean  | Lint API description files.                                                                                                                                                                              |
 | --decorate                         | boolean  | Run decorators.                                                                                                                                                                                          |
 | --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                       |
 | --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                           |

@@ -13,7 +13,7 @@ toc:
 ### Minor Changes
 
 - Added `ignoreCase` option for `tags-alphabetical` rule.
-- Added `join` support for OAS 3.1 definitions.
+- Added `join` support for OAS 3.1 descriptions.
 - Added support for Redoc v2.1.2, and aligned the dependencies for both projects.
 
 ### Patch Changes
@@ -239,7 +239,7 @@ theme:
 
 - Enabled removing unused components in the config to use within the bundle command.
 - Implemented special SpecExtension type `VendorExtension`.
-- Added an error handler for the case when the definition or a plugin does not exist.
+- Added an error handler for the case when the API description file or a plugin does not exist.
 - Added `media-type-examples-override` decorator.
 
 ### Fixes
@@ -785,7 +785,7 @@ rules:
 - Fixed an issue with hot reloading when running a preview of reference docs with `openapi preview-docs`.
 - Fixed an issue with page refresh when pagination is set to `item` or `section`.
 - Fixed an issue with inlining external schema when components' names match.
-- Fixed an issue with fetching hosted schema on Windows when bundling OAS definitions.
+- Fixed an issue with fetching hosted schema on Windows when bundling OpenAPI descriptions.
 - Fixed an issue for `no-server-trailing-slash` when server url is a root.
 
 ---
@@ -1029,7 +1029,7 @@ lint:
 
 ### Features
 
-- Implemented support for [OpenAPI 3.1](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.1.0). You can now lint, validate, and bundle your OAS 3.1 definitions with OpenAPI CLI.
+- Implemented support for [OpenAPI 3.1](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.1.0). You can now lint, validate, and bundle your OAS 3.1 descriptions with OpenAPI CLI.
 
 ---
 
@@ -1375,7 +1375,7 @@ lint:
 
 - Resolved an issue with detecting output file extension without an entrypoint.
 
-- Resolved an issue with the `preview-docs` command failing to automatically select the first definition from the `apiDefinitions` section of the configuration file when used without arguments.
+- Resolved an issue with the `preview-docs` command failing to automatically select the first description from the `apiDefinitions` section of the configuration file when used without arguments.
 
 - Fixed an issue with relative paths for entrypoints from external configuration files.
 

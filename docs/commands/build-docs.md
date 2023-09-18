@@ -55,7 +55,7 @@ redocly build-docs games@v1
 ```yaml Configuration file
 apis:
   games@v1:
-    root: ./openapi/definition.json
+    root: ./openapi/api-description.json
 ```
 
 The `build-docs` command uses any additional configurations provided in the file.

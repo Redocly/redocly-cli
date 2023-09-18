@@ -31,7 +31,7 @@ redocly lint path-to-root-file.yaml
 ### Docker
 
 To give the Docker container access to the OpenAPI description files, you need to
-mount the containing directory as a volume. Assuming the OAS definition is rooted
+mount the containing directory as a volume. Assuming the API description is rooted
 in the current working directory, you need the following command:
 
 ```
@@ -93,7 +93,7 @@ This tool [collects data](./docs/usage-data.md) to help Redocly improve our prod
 
 ## Credits
 
-Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the definition traversal approach and to [Swagger](https://github.com/swagger-api/swagger-editor), [Spectral](https://github.com/stoplightio/spectral), and [OAS-Kit](https://github.com/Mermade/oas-kit) for inspiring the recommended ruleset.
+Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https://github.com/eslint/eslint) for inspiration of the API description traversal approach and to [Swagger](https://github.com/swagger-api/swagger-editor), [Spectral](https://github.com/stoplightio/spectral), and [OAS-Kit](https://github.com/Mermade/oas-kit) for inspiring the recommended ruleset.
 
 ## Development
 

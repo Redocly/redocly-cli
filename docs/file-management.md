@@ -47,7 +47,7 @@ Pass `--lint` to the bundle command to have Redocly CLI check your API meets the
 This feature is experimental, and supports OpenAPI 3.x only
 :::
 
-When you have multiple APIs but want to publish a single definition file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
+When you have multiple APIs but want to publish a single API description file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
 
 Use the command to combine files like this:
 

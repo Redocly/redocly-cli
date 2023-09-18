@@ -14,7 +14,7 @@ Follow along using our sample API provided with this tutorial to hide APIs, and 
 ## Overview
 
 In this tutorial, see how to maintain a single source of truth (SSOT) OpenAPI description.
-Once the definition is complete, generate an internal and an external version of the API.
+Once the API description is complete, generate an internal and an external version of the API.
 
 ```mermaid
 graph TD

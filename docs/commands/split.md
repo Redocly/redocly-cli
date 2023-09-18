@@ -7,7 +7,7 @@ The `split` command takes an API description file and creates a [multi-file stru
 Use `bundle` and supply the main file as the entrypoint to get your OpenAPI description in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 
 :::warning OpenAPI 3.x only
-The `split` command doesn't support OpenAPI 2.0 definitions.
+The `split` command doesn't support OpenAPI 2.0 descriptions.
 :::
 
 ## Usage
@@ -42,4 +42,4 @@ Document: pet.yaml is successfully split
 pet.yaml: split processed in 33ms
 ```
 
-In the `openapi` directory, the `split` command "unbundles" the specified API description. Code samples, components, and paths are split from the root definition into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.
+In the `openapi` directory, the `split` command "unbundles" the specified API description. Code samples, components, and paths are split from the root API description into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.

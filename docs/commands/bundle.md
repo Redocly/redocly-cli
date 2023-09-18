@@ -22,7 +22,7 @@ redocly bundle --version
 
 | Option                     | Type     | Description                                                                                                                                                                                                                                                     |
 | -------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apis                       | [string] | List of API root definition filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                    |
+| apis                       | [string] | List of API description root filenames or names assigned in the `apis` section of your Redocly configuration file. Default values are all names defined in the `apis` section within your configuration file.                                                    |
 | --config                   | string   | Specify path to the [config file](#custom-configuration-file).                                                                                                                                                                                                  |
 | --dereferenced, -d         | boolean  | Generate fully dereferenced bundle.                                                                                                                                                                                                                             |
 | --ext                      | string   | Specify bundled file extension. Possible values are `json`, `yaml`, or `yml`. Default value is `yaml`.                                                                                                                                                          |
@@ -31,7 +31,7 @@ redocly bundle --version
 | --format                   | string   | Format for the output. Possible values are `codeframe`, `stylish`, `json`, or `checkstyle`. Default value is `codeframe`.                                                                                                                                       |
 | --help                     | boolean  | Show help.                                                                                                                                                                                                                                                      |
 | --keep-url-references, -k  | boolean  | Keep absolute url references.                                                                                                                                                                                                                                   |
-| --lint                     | boolean  | Lint definition files. Default value is `false`.                                                                                                                                                                                                                |
+| --lint                     | boolean  | Lint API description files. Default value is `false`.                                                                                                                                                                                                                |
 | --max-problems             | integer  | Truncate output to display the specified maximum number of problems. Default value is `100`.                                                                                                                                                                    |
 | --metafile                 | string   | Path for the bundle metadata file.                                                                                                                                                                                                                              |
 | --output, -o               | string   | Name or folder for the bundle file. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **If the file specified as the bundler's output already exists, it's overwritten.** |
@@ -66,7 +66,7 @@ dist/petstore.json
 
 ### Create a fully dereferenced bundle
 
-A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the definition file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
+A fully dereferenced bundle does not use `$ref` at all, all the references are resolved and placed into the API description file. This can be useful if you need to prepare an OpenAPI file to be used by another tool that does not understand the `$ref` syntax.
 
 ```bash
 redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml

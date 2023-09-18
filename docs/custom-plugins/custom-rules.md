@@ -10,7 +10,7 @@ Exhaust the above options first, because they are simpler and more maintainable 
 
 ## Build the custom rule
 
-Each rule is a function that returns an object with methods that Redocly CLI calls to "visit" nodes while traversing the definition document. The object keys are the node types that are encountered in the document. In this simple example, the custom plugin holds a rule that fails if any `operationId` is set to "test".
+Each rule is a function that returns an object with methods that Redocly CLI calls to "visit" nodes while traversing the API description document. The object keys are the node types that are encountered in the document. In this simple example, the custom plugin holds a rule that fails if any `operationId` is set to "test".
 
 To keep the plugin code manageable, each rule can go in its own file. This example is in `plugins/rules/opid-not-test.js`:
 
@@ -78,7 +78,7 @@ The context object contains additional functionality that is helpful for rules t
 The context object also offers some additional functionality to resolve references and to return information about a problem to the user. The methods available are as follows:
 
 - `resolve(node)` - Synchronously dereferences `$ref` node to its value. Works only with `$refs` from the original document. If you need to resolve a reference from another source, you can use the optional second parameter: `resolve(node, from: string)`.
-- `report(descriptor)` - Reports a problem in the definition and returns information to the user. See [Report rule context](#report-rule-context) for more information.
+- `report(descriptor)` - Reports a problem in the API description and returns information to the user. See [Report rule context](#report-rule-context) for more information.
 
 ## Report rule context
 

@@ -71,7 +71,7 @@ To authenticate to the API registry, you can use several approaches:
 ```bash
 redocly push [api] [--destination] [--organization]
 redocly push
-redocly push [-u] [--job-id id] [--batch-size number] <path/to/definition.yaml> [--destination] [--organization] [--branch]
+redocly push [-u] [--job-id id] [--batch-size number] <path/to/api-description.yaml> [--destination] [--organization] [--branch]
 ```
 
 ## Options
@@ -80,7 +80,7 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/definition.yaml> 
 | ---------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api              |  string  | The API description that you want to push to the Redocly API registry. Provide it as a path to the root API description file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                              |
 | --destination    |  string  | The location in the API registry where you want to push or upsert your API description. Provide it in the following format: `api-name@api-version`.                                                                                                    |
-| --organization   |  string  | ID of organization that the definition is being pushed to. Overrides the one defined in the config file.                                                                                                                                              |
+| --organization   |  string  | ID of organization that the API description is being pushed to. Overrides the one defined in the config file.                                                                                                                                              |
 | --branch, -b     |  string  | The branch where your API description is pushed or upserted. Default value is `main`.                                                                                                                                                                  |
 | --job-id         |  string  | The ID of the CI job that the current push is associated with. See [the Job ID section](#job-id) for more information.                                                                                                                                |
 | --batch-size     |  number  | Number of CI pushes expected within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                        |
@@ -166,9 +166,9 @@ Provide the `api` as a path to the root API description file, and specify the or
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org
 ```
 
-In this case, `push` uploads only the definition that was passed to the command. The configuration file is ignored.
+In this case, `push` uploads only the API description that was passed to the command. The configuration file is ignored.
 
-To push the definition to a particular branch, specify the branch name.
+To push the API description to a particular branch, specify the branch name.
 
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org -b develop
@@ -184,7 +184,7 @@ Depending on the contents of your Redocly configuration file, you can use simpli
 organization: organization-id
 apis:
   api-name@api-version:
-    root: path/to/root/definition.yaml
+    root: path/to/root/api-description.yaml
   another-api:
     root: openapi/openapi.yaml
 ```
@@ -223,7 +223,7 @@ redocly push -u --destination=test-api@v1
 redocly push -u
 ```
 
-To upsert the definition to a particular branch, specify the branch name with `--branch` or `-b`.
+To upsert the API description to a particular branch, specify the branch name with `--branch` or `-b`.
 
 ```bash Set options explicitly
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org -b develop
@@ -264,7 +264,7 @@ redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=
 
 ### Public
 
-The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, definitions uploaded with the `push` command are not available to the public.
+The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, API descriptions uploaded with the `push` command are not available to the public.
 For more information on how to configure access to your APIs, check the [registry access](../../../api-registry/settings/manage-access/#set-up-access-to-api-registry) section.
 
 ```bash

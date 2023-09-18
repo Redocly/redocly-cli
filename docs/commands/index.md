@@ -6,19 +6,19 @@ tocMaxDepth: 2
 
 Documentation commands:
 
-- [`preview-docs`](preview-docs.md) Preview API reference docs for the specified definition.
-- [`build-docs`](build-docs.md) Build definition into an HTML file.
+- [`preview-docs`](preview-docs.md) Preview API reference docs for the specified API description.
+- [`build-docs`](build-docs.md) Build API description into an HTML file.
 
 API management commands:
 
 - [`stats`](stats.md) Gathering statistics for a document.
-- [`bundle`](bundle.md) Bundle definition.
-- [`split`](split.md) Split definition into a multi-file structure.
-- [`join`](join.md) Join definitions [experimental feature].
+- [`bundle`](bundle.md) Bundle API description.
+- [`split`](split.md) Split API description into a multi-file structure.
+- [`join`](join.md) Join API descriptions [experimental feature].
 
 Linting commands:
 
-- [`lint`](lint.md) Lint definition.
+- [`lint`](lint.md) Lint API description.
 
 Redocly platform commands:
 

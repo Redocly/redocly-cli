@@ -48,7 +48,7 @@ docker pull redocly/cli
 docker pull ghcr.io/redocly/cli
 ```
 
-To give a Docker container access to your OpenAPI description files, you need to mount the containing directory as a volume. Assuming the definition is in the current working directory, the command to use is:
+To give a Docker container access to your OpenAPI description files, you need to mount the containing directory as a volume. Assuming the API description is in the current working directory, the command to use is:
 
 ```shell Example with lint command
 docker run --rm -v $PWD:/spec redocly/cli lint petstore.yaml
