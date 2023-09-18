@@ -124,6 +124,7 @@ OpenTracing
 Operator
 OperatorHub
 OpenAPI
+AsyncAPI
 osd
 PHP
 PostgreSQL
