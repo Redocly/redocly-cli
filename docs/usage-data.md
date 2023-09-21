@@ -13,7 +13,7 @@ When a command is run, the following data is collected:
  * command exit code
  * values from `REDOCLY_ENVIRONMENT`
  * CLI version
- * NodeJS version
+ * Node.js and NPM versions
 
 Values such as file names, organization IDs, and URLs are removed, replaced by just "URL" or "file", etc.
 
