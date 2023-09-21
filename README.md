@@ -28,7 +28,7 @@ Then you can use it as `redocly [command] [options]`, for example:
 redocly lint path-to-root-file.yaml
 ```
 
-Minimal required versions of Node.js and NPM are 14 and 7 respectively.
+Minimal required versions of Node.js and NPM are 14.19.0 and 7.0.0 respectively.
 
 ### Docker
 
