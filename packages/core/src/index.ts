@@ -2,6 +2,7 @@ export { BundleOutputFormat, readFileFromUrl, slash, doesYamlFileExist, isTruthy
 export { Oas3_1Types } from './types/oas3_1';
 export { Oas3Types } from './types/oas3';
 export { Oas2Types } from './types/oas2';
+export { AsyncApi2Types } from './types/asyncapi';
 export { ConfigTypes } from './types/redocly-yaml';
 export type {
   Oas3Definition,

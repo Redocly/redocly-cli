@@ -32,7 +32,7 @@ toc:
 - Fixed an issue where the `--remove-unused-components` option removed used components that were referenced as child objects.
 - Updated Redocly config validation.
 - Fixed the location pointer when reporting on the `no-path-trailing-slash` rule.
-- Updated minimum required version of Node.js to v14 and removed deprecated packages.
+- Updated minimum required version of Node.js to v14, NPM to v7, and removed deprecated packages.
 - Updated @redocly/openapi-core to v1.1.0.
 
 ## 1.0.2 (2023-08-07)

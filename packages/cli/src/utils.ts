@@ -6,6 +6,7 @@ import * as glob from 'glob';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import { Writable } from 'stream';
+import { execSync } from 'child_process';
 import {
   BundleOutputFormat,
   StyleguideConfig,
@@ -503,6 +504,7 @@ export async function sendTelemetry(
       command,
       arguments: cleanArgs(args),
       node_version: process.version,
+      npm_version: execSync('npm -v').toString().replace('\n', ''),
       version,
       exit_code,
       environment: process.env.REDOCLY_ENVIRONMENT,
@@ -531,6 +533,7 @@ export type Analytics = {
   command: string | number;
   arguments: Record<string, unknown>;
   node_version: string;
+  npm_version: string;
   version: string;
   exit_code: ExitCode;
   environment?: string;
