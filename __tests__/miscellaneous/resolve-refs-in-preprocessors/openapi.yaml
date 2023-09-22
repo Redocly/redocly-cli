@@ -1,6 +1,6 @@
 openapi: 3.0.1
 servers:
-  - url: http://localhost:8080
+  - url: http://redocly-example.com:8080
 info:
   title: Test
   version: 1.0.0

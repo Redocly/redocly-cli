@@ -8,7 +8,7 @@ info:
   description: This is an example API.
   version: 1.0.0
 servers:
-  - url: https://example.com/api
+  - url: https://redocly-example.com/api
 tags:
   - name: foo_other
     x-displayName: other

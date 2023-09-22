@@ -13,7 +13,7 @@ tags:
   - name: Gameplay
     description: gameplay tag
 servers:
-  - url: https://example.com/{var}
+  - url: https://redocly-example.com/{var}
     variables:
       var:
         enum:

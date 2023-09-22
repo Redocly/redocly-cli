@@ -14,8 +14,8 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: http://localhost:8081
-  - url: http://localhost:8080
+  - url: http://redocly-example.com:8081
+  - url: http://redocly-example.com:8080
 tags:
   - name: user
     x-displayName: user
