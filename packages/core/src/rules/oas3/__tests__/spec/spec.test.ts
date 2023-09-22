@@ -17,7 +17,7 @@ describe('Oas3 Structural visitor basic', () => {
             - 25.3
             - test
           servers:
-          - url: 'http://example.com'
+          - url: 'http://redocly-example.com'
             variables:
               a:
                 default: test

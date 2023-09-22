@@ -20,7 +20,7 @@ describe('lint', () => {
           license: Fail
 
         servers:
-          - url: http://example.com
+          - url: http://redocly-example.com
         paths: {}
     `,
       config: await loadConfig(),

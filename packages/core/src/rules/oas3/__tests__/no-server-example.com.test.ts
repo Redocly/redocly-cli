@@ -30,7 +30,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Server \`url\` should not point at example.com.",
+          "message": "Server \`url\` should not point to example.com or localhost.",
           "ruleId": "no-server-example.com",
           "severity": "error",
           "suggest": Array [],
@@ -56,5 +56,40 @@ describe('Oas3 oas3-no-server-example.com', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+  });
+
+  it('oas3-no-server-example.com: should report on server object with "foo.example.com" url', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          servers:
+            - url: foo.example.com
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-server-example.com': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "location": Array [
+            Object {
+              "pointer": "#/servers/0/url",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Server \`url\` should not point to example.com or localhost.",
+          "ruleId": "no-server-example.com",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
   });
 });

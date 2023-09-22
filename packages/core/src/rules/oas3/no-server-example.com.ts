@@ -3,9 +3,10 @@ import { Oas3Rule } from '../../visitors';
 export const NoServerExample: Oas3Rule = () => {
   return {
     Server(server, { report, location }) {
-      if (['example.com', 'localhost'].indexOf(server.url) !== -1) {
+      const pattern = /^(.*[\/.])?(example\.com|localhost)([\/:?].*|$)/;
+      if (server.url && pattern.test(server.url)) {
         report({
-          message: 'Server `url` should not point at example.com.',
+          message: 'Server `url` should not point to example.com or localhost.',
           location: location.child(['url']),
         });
       }
