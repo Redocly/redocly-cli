@@ -1,6 +1,6 @@
 # operation-4xx-problem-details-rfc7807
 
-Ensures that every operation with (400-499) HTTP response has content-type `application/problem+json` and fields `title` and `type`.
+Ensures that every operation with (400-499) HTTP response has content-type `application/problem+json` and fields `type`, `title`, `status`, `detail`, and `instance`.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -14,7 +14,7 @@ Problem Details for HTTP APIs are a way to carry machine-
 readable details of errors in a HTTP response to avoid the need to
 define new error response formats for HTTP APIs.
 
-Every operation with (400-499) HTTP response should have content-type `application/problem+json` and fields `title` and `type` according to the [specification](https://datatracker.ietf.org/doc/html/rfc7807).
+Every operation with (400-499) HTTP response should have content-type `application/problem+json` and fields `type`, `title`, `status`, `detail`, and `instance` according to the [specification](https://datatracker.ietf.org/doc/html/rfc7807).
 
 ## Configuration
 
@@ -71,6 +71,12 @@ post:
               type:
                 type: string
               title:
+                type: string
+              status:
+                type: string
+              detail:
+                type: string
+              instance:
                 type: string
 ```
 
