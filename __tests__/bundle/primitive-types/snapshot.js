@@ -10,7 +10,7 @@ info:
   description: Description
   version: 1.0.0
 servers:
-  - url: https://api.example.com/v1
+  - url: https://api.redocly-example.com/v1
 security: []
 paths:
   /my_post:

@@ -27,7 +27,7 @@ paths:
       description: summary example
       externalDocs:
         description: 'Find more info here'
-        url: 'https://example.com'
+        url: 'https://redocly-example.com'
       requestBody:
         content:
           application/json:

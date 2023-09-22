@@ -8,7 +8,7 @@ tags:
   - name: sometag
     description: sometag
 servers:
-  - url: https://example.com
+  - url: https://redocly-example.com
 security: []
 paths:
   /someGet:
