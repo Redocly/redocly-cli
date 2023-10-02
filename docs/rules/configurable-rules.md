@@ -488,7 +488,7 @@ rules:
   rule/operation-summary-contains-test:
     subject:
       type: Operation
-      property: The summary
+      property: summary
     assertions:
       notPattern: /^The/
 ```
