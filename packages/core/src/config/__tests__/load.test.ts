@@ -73,8 +73,8 @@ describe('findConfig', () => {
       .spyOn(fs, 'existsSync')
       .mockImplementation((name) => name === 'redocly.yaml' || name === '.redocly.yaml');
     expect(findConfig).toThrow(`
-      Multiple configuration files are not allowed. 
-      Found the following files: redocly.yaml, .redocly.yaml. 
+      Multiple configuration files are not allowed.
+      Found the following files: redocly.yaml, .redocly.yaml.
       Please use 'redocly.yaml' instead.
     `);
   });
