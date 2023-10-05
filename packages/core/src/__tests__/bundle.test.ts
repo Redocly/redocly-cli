@@ -188,6 +188,7 @@ describe('bundle', () => {
     expect(parsedMeta).toMatchSnapshot();
   });
 
+  // This test seems invalid, the bundle result looks wrong
   it('should bundle refs using $anchors', async () => {
     const testDocument = parseYamlToDocument(
       outdent`
@@ -230,6 +231,64 @@ describe('bundle', () => {
           UserProfile:
             $anchor: user-profile
             type: string
+
+    `);
+  });
+
+  it('should bundle refs following $id resolution rules', async () => {
+    const testDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            Local:
+              type: string
+            LocalRef:
+              $ref: "#/components/schemas/Local"
+            External:
+              $id: "http://example.com/external.yaml"
+              $defs:
+                Id:
+                  type: string
+                  format: uuid
+              properties:
+                foo:
+                  $ref: "#/$defs/Id"
+      `,
+      ''
+    );
+
+    const config = await makeConfig({});
+
+    debugger;
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundleDocument({
+      document: testDocument,
+      config: config,
+      externalRefResolver: new BaseResolver(),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toMatchInlineSnapshot(`
+      openapi: 3.0.0
+      components:
+        schemas:
+          Local:
+            type: string
+          LocalRef:
+            $ref: '#/components/schemas/Local'
+          External:
+            $id: http://example.com/external.yaml
+            $defs:
+              Id: &ref_0
+                type: string
+                format: uuid
+            properties:
+              foo:
+                $ref: '#/components/schemas/Id'
+          Id: *ref_0
 
     `);
   });

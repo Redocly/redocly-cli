@@ -251,6 +251,19 @@ export async function resolveDocument(opts: {
         return;
       }
 
+      if (node.$id && node.$id !== nodeAbsoluteRef) {
+        const nestedDocument = {
+          source: new Source(
+            node.$id,
+            rootNodeDocument.source.body,
+            rootNodeDocument.source.mimeType
+          ),
+          parsed: node,
+        };
+        resolveRefsInParallel(node, nestedDocument, '', type);
+        return;
+      }
+
       const nodeId = `${type.name}::${nodeAbsoluteRef}`;
       if (seedNodes.has(nodeId)) {
         return;
