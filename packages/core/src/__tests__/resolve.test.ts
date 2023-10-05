@@ -472,8 +472,8 @@ describe('collect refs', () => {
     ]);
 
     expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([
-      {type: 'string'},
-      {type: 'string', format: 'uuid'},
+      { type: 'string' },
+      { type: 'string', format: 'uuid' },
       undefined, // unresolved ref
     ]);
   });
