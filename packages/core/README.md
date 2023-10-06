@@ -16,7 +16,7 @@ See https://github.com/Redocly/redocly-cli
 import { lint, loadConfig } from '@redocly/openapi-core';
 
 const pathToApi = 'openapi.yaml';
-const config = loadConfig({ configPath: 'optional/path/to/redocly.yaml' });
+const config = await loadConfig({ configPath: 'optional/path/to/redocly.yaml' });
 const lintResults = await lint({ ref: pathToApi, config });
 ```
 
@@ -26,7 +26,7 @@ const lintResults = await lint({ ref: pathToApi, config });
 import { bundle, loadConfig } from '@redocly/openapi-core';
 
 const pathToApi = 'openapi.yaml';
-const config = loadConfig({ configPath: 'optional/path/to/redocly.yaml' });
+const config = await loadConfig({ configPath: 'optional/path/to/redocly.yaml' });
 const { bundle, problems } = await bundle({ ref: pathToApi, config });
 ```
 
@@ -69,7 +69,7 @@ const CustomRule = (ruleOptions) => {
   };
 };
 
-const config = createConfig({
+const config = await createConfig({
   extends: ['recommended'],
   plugins: [
     {
