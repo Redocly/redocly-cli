@@ -129,7 +129,7 @@ import { bundleFromString, createConfig } from '@redocly/openapi-core';
 
 const config = await createConfig({}); // create empty config
 const source = stringifyYaml({ openapi: '3.0.1' /* ... */ }); // you can also use JSON.stringify
-const { bundle, problems } = await bundleFromString({
+const bundleResults = await bundleFromString({
   source,
   // optionally pass path to the file for resolving $refs and proper error locations
   absoluteRef: 'optional/path/to/openapi.yaml',
