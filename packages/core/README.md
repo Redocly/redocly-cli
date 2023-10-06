@@ -2,15 +2,17 @@
 
 See https://github.com/Redocly/redocly-cli
 
-> **Important:**
-> The openapi-core package exports a bunch of functions but some of them are intended for internal use only.
-> Additionally, some of the function arguments are not documented below because they are not intended for public use.
-> Avoid using any functions that are not documented below.
-> If your use case is not documented below, please open an issue.
+> [!IMPORTANT]
+The `openapi-core package` is designed for our internal use; the interfaces that are considered safe to use are documented below.
+Some of the function arguments are not documented below because they are not intended for public use.
+Avoid using any functions or features that are not documented below.
+If your use case is not documented below, please open an issue.
 
 ## Basic usage
 
 ### Lint from file system
+
+[Lint](https://redocly.com/docs/cli/commands/lint/) a file, optionally with a [config file](https://redocly.com/docs/cli/configuration/).
 
 ```js
 import { lint, loadConfig } from '@redocly/openapi-core';
@@ -20,17 +22,28 @@ const config = await loadConfig({ configPath: 'optional/path/to/redocly.yaml' })
 const lintResults = await lint({ ref: pathToApi, config });
 ```
 
+The content of `lintResults` describes any errors or warnings found during linting; an empty array means no problems were found.
+For each problem, the rule, severity, feedback message and a location object are provided.
+To learn more, [check the `lint` function section](#lint).
+
 ### Bundle from file system
+
+[Bundle](https://redocly.com/docs/cli/commands/bundle/) an API description into a single structure, optionally with a [config file](https://redocly.com/docs/cli/configuration/).
 
 ```js
 import { bundle, loadConfig } from '@redocly/openapi-core';
 
 const pathToApi = 'openapi.yaml';
 const config = await loadConfig({ configPath: 'optional/path/to/redocly.yaml' });
-const { bundle, problems } = await bundle({ ref: pathToApi, config });
+const bundleResults = await bundle({ ref: pathToApi, config });
 ```
 
-### Lint from from memory
+In `bundleResults`, the `bundle.parsed` field has the bundled API description.
+For more information, [check the `bundle` function section](#bundle).
+
+### Lint from memory with config
+
+[Lint](https://redocly.com/docs/cli/commands/lint/) an API description, with configuration defined. This is useful if the API description you're working with isn't a file on disk.
 
 ```js
 import { lintFromString, createConfig, stringifyYaml } from '@redocly/openapi-core';
@@ -56,7 +69,9 @@ const lintResults = await lintFromString({
 });
 ```
 
-### Lint from from memory with a custom rule
+### Lint from memory with a custom plugin
+
+[Lint](https://redocly.com/docs/cli/commands/lint/) an API description, with configuration including a [custom plugin](https://redocly.com/docs/cli/custom-plugins/) to define a rule.
 
 ```js
 import { lintFromString, createConfig, stringifyYaml } from '@redocly/openapi-core';
@@ -107,6 +122,8 @@ const lintResults = await lintFromString({
 
 ### Bundle from memory
 
+[Bundle](https://redocly.com/docs/cli/commands/bundle/) an API description into a single structure, using default configuration.
+
 ```js
 import { bundleFromString, createConfig } from '@redocly/openapi-core';
 
@@ -141,7 +158,7 @@ async function createConfig(
 ### `loadConfig`
 
 Loads a config object from a file system. If `configPath` is not provided,
-it will try to find `redocly.yaml` in the current working directory.
+it tries to find `redocly.yaml` in the current working directory.
 
 ```ts
 async function loadConfig(options?: {
@@ -167,7 +184,7 @@ async function lint(options: {
 
 ### `lintFromString`
 
-Lint an OpenAPI document from the string.
+Lint an OpenAPI document from a string.
 
 ```ts
 async function lintFromString(options: {
@@ -212,7 +229,7 @@ async function bundle(options: {
 
 ### `bundleFromString`
 
-Bundle an OpenAPI document from the string.
+Bundle an OpenAPI document from a string.
 
 ```ts
 async function bundleFromString(options: {
