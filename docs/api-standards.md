@@ -1,5 +1,6 @@
 ---
-title: API standards
+seo:
+  title: API standards
 ---
 
 # API standards and governance

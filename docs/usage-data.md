@@ -1,5 +1,6 @@
 ---
-title: Usage data
+seo:
+  title: Usage data
 ---
 
 # Usage data and product metrics

@@ -1,5 +1,4 @@
 ---
-title: Lint AsyncAPI
 seo:
   title: Lint AsyncAPI with Redocly CLI
   description: Unlock powerful linting capabilities for AsyncAPI documents. Use the Redocly CLI to enforce basic validation, configure rules, or even build custom plugins for AsyncAPI.

@@ -1,6 +1,7 @@
 ---
-title: Redocly CLI configuration
-description: Learn how to configure Redocly CLI
+seo:
+  title: Redocly CLI configuration
+  description: Learn how to configure Redocly CLI
 redirects:
   '/docs/cli/configuration/configuration-file/':
     to: '/docs/cli/configuration/'

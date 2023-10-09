@@ -1,5 +1,6 @@
 ---
-title: Custom plugins in Redocly
+seo:
+  title: Custom plugins in Redocly
 redirects:
   '/docs/cli/custom-rules/':
     to: '/docs/cli/custom-plugins/'

@@ -1,5 +1,6 @@
 ---
-title: Rules
+seo:
+  title: Rules
 ---
 
 # Rules to describe API standards

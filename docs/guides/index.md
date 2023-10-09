@@ -1,6 +1,7 @@
 ---
-title: Redocly CLI guides
-description: Browse how-to guides for working with Redocly CLI
+seo:
+  title: Redocly CLI guides
+  description: Browse how-to guides for working with Redocly CLI
 content:
   cards:
     - header: Redocly CLI quickstart

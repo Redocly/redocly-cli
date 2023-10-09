@@ -1,5 +1,6 @@
 ---
-title: OpenAPI file management
+seo:
+  title: OpenAPI file management
 ---
 
 # OpenAPI file management
