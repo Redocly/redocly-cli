@@ -157,7 +157,7 @@ export class BaseResolver {
 
     const cachedDocument = this.cache.get(absoluteRef);
     if (cachedDocument) {
-      return cachedDocument;
+      return cachedDocument.then((document) => JSON.parse(JSON.stringify(document)));
     }
 
     const doc = this.loadExternalRef(absoluteRef).then((source) => {

@@ -162,6 +162,7 @@ describe('E2E', () => {
         'multiple-tags-in-same-files',
         'references-in-parameters',
         'ignore-decorators',
+        'multi-references-to-one-file',
       ];
 
       test.each(testDirNames)('test: %s', (dir) => {
