@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/response-contains-header
+---
 # response-contains-header
 
 Requires that response objects with specific HTTP status codes or ranges contain specified response headers.

@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/no-invalid-parameter-examples
+---
+
 # no-invalid-parameter-examples
 
 Disallow invalid parameter examples.

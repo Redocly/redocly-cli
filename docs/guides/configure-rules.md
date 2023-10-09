@@ -9,7 +9,7 @@ In this guide, learn how to choose and adapt the rules built into Redocly for yo
 
 ## Pick an existing ruleset
 
-To get started, try one of the existing rulesets and see if it meets your needs. 
+To get started, try one of the existing rulesets and see if it meets your needs.
 
 * The [`recommended`](../rules/recommended.md) ruleset has a good basic set of rules for a consistent, user-friendly API.
 * Or try the [`minimal`](../rules/minimal.md) ruleset which shows some warnings, but far fewer errors that would cause the lint to fail.
@@ -35,9 +35,9 @@ extends:
 
 The configuration here is _very_ minimal with only the ruleset defined so far. Your config file also holds settings for themes, much more detailed configuration for linting and decorating, and custom plugins.
 
-:::attention
+{% admonition type="attention" %}
 You can also define rulesets and other linting details differently for each API if you need to.
-:::
+{% /admonition %}
 
 ## Adjust the rules in use
 

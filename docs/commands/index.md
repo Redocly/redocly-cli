@@ -58,4 +58,4 @@ You can also specify a config file to most commands using `--config myconfig.yam
 redocly lint --config redocly-official.yaml openapi.yaml
 ```
 
-For more information, refer to the [Redocly configuration file](../configuration/index.mdx) docs.
+For more information, refer to the [Redocly configuration file](../configuration/index.md) docs.

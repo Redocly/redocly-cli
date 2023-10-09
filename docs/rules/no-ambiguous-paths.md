@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-ambiguous-path
+---
 # no-ambiguous-paths
 
 Ensures there are no ambiguous paths in your API descriptions.

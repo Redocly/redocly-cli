@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/component-name-unique
+---
+
 # component-name-unique
 
 Verifies component names are unique.

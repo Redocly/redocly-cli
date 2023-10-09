@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/no-invalid-media-type-examples
+---
+
 # no-invalid-media-type-examples
 
 Disallow invalid media type examples by ensuring they comply with the corresponding schema definitions.

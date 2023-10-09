@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/path-not-include-query
+---
 # path-not-include-query
 
 Path should not include query parameters.

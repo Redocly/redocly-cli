@@ -12,11 +12,9 @@ If you're having issues with the `login` command, use the `--verbose` option to 
 
 ## Usage
 
-:::warning Note
-
+{% admonition type="warning" name="Note" %}
 Go ahead and [generate a personal API key](../../settings/personal-api-keys.md); this key is needed to log in.
-
-:::
+{% /admonition %}
 
 ```bash
 redocly login [--help] [--verbose] [--version]
@@ -29,25 +27,29 @@ redocly login --verbose
 | Option       | Type    | Description                                                                                                                                      |
 | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | --help       | boolean | Show help.                                                                                                                                       |
-| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.mdx). |
+| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.md). |
 | --verbose    | boolean | Include additional output.                                                                                                                       |
 | --version    | boolean | Show version number.                                                                                                                             |
-| --config     | string  | Specify path to the [config file](../configuration/index.mdx).                                                                                   |
+| --config     | string  | Specify path to the [config file](../configuration/index.md).                                                                                   |
 
 ## Examples
-
-```bash Successful login
+{% tabs %}
+{% tab label="Successful login" %}
+```bash
 redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...
   Authorization confirmed. ✅
 ```
-
-```bash Failed login
+{% /tab  %}
+{% tab label="Failed login" %}
+```bash
 redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
 
   Logging in...
   Authorization failed. Please check if you entered a valid API key.
 ```
+{% /tab  %}
+{% /tabs  %}

@@ -1,7 +1,8 @@
 ---
 tocMaxDepth: 3
-redirectFrom:
-  - /docs/resources/response-contains-property/
+redirects:
+  '/docs/resources/response-contains-property/':
+    to: '/docs/cli/guides/response-contains-property/'
 ---
 
 # Enforce response contents with the `response-contains-property` rule
@@ -21,7 +22,7 @@ Let's get started!
 
 - [Use the openapi-starter repository](../openapi-starter.md) to set up a basic project for use with this guide.
 - [Download the modified project files](https://gist.github.com/bandantonio/c6047e3ee70c90da013a2f8e6757edb0) and use them to
-replace the corresponding files in the `openapi` folder:
+  replace the corresponding files in the `openapi` folder:
 
 ```bash
 .
@@ -37,15 +38,15 @@ replace the corresponding files in the `openapi` folder:
         └── users_{username}.yaml
 ```
 
-:::note
+{% admonition type="note" %}
 Make sure that the @redocly/cli has version `1.0.0-beta.99` or later
-:::
+{% /admonition %}
 
 - If you're using VS Code as your favorite code editor, we recommend you install the [Redocly OpenAPI VS Code extension](../../redocly-openapi/index.md).
 
-:::note We do, You do
+{% admonition type="note" name="We do, You do" %}
 This guide is most effective when you follow along and complete the steps.
-:::
+{% /admonition %}
 
 ## Case 0 - Check that the current OpenAPI description is valid
 
@@ -208,7 +209,7 @@ If you're using the Redocly OpenAPI extension for VS Code, this is how the lint 
 in the integrated terminal (Problems tab):
 
 ![Response contains property problem in VS Code](./images/response-contains-property-range.png)
- 
+
 **What does the lint output mean**
 
 There are three `2xx` class responses defined for this guide, and you can see that the rule
@@ -235,7 +236,6 @@ rules:
         - created_at
         - ref_id
 ```
-
 
 ```bash npx redocly lint
 npx redocly lint

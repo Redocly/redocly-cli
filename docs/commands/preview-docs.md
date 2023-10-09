@@ -6,9 +6,9 @@ With this command, you can generate documentation previews for API descriptions 
 
 If you have a license key or API key configured, the output is a preview of the premium [Redocly API reference docs](https://redocly.com/reference/). Otherwise, it is a preview of [Redoc community edition](https://redocly.com/redoc/).
 
-:::success Tip
+{% admonition type="success" name="Tip" %}
 To preview docs using the premium Redocly API reference docs, you must first authenticate to the API registry with the [`login`](./login.md) command.
-:::
+{% /admonition %}
 
 ## Usage
 
@@ -51,22 +51,26 @@ In this case, `preview-docs` previews the API description that was passed to the
 #### Pass api alias
 
 Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly preview-docs core@v1
 ```
-
-```yaml Configuration file
+{% /tab  %}
+{% tab label="Configuration file" %}
+```yaml
 apis:
   core@v1:
     root: ./openapi/api-description.json
 ```
+{% /tab  %}
+{% /tabs  %}
 
 In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `preview-docs` generates a preview of the `api-description.json` file. For this approach, the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 redocly preview-docs --config=./another/directory/config.yaml
@@ -77,14 +81,18 @@ redocly preview-docs --config=./another/directory/config.yaml
 By default, without using the `port` option, the preview starts on port `8080`, so you can access the docs at `http://localhost:8080`
 
 To specify a custom port for the preview, pass the desired value using either short or long option format:
-
-```bash Short format
+{% tabs %}
+{% tab label="Short format" %}
+```bash
 redocly preview-docs -p 8888 openapi/openapi.yaml
 ```
-
-```bash Long format
+{% /tab  %}
+{% tab label="Long format" %}
+```bash
 redocly preview-docs -port 8888 openapi/openapi.yaml
 ```
+{% /tab  %}
+{% /tabs  %}
 
 Both commands start the preview on port `8888`, so you can access the docs at `http://localhost:8888`.
 
@@ -93,25 +101,33 @@ Both commands start the preview on port `8888`, so you can access the docs at `h
 By default, without using the `host` option, the preview starts on host `127.0.0.1`, so you can access the docs at `http://127.0.0.1:8080` or `http://localhost:8080`.
 
 To specify a custom host for the preview, pass the desired value using either short or long option format:
-
-```bash Short format
+{% tabs %}
+{% tab label="Short format" %}
+```bash
 redocly preview-docs -h 0.0.0.0 openapi/openapi.yaml
 ```
-
-```bash Long format
+{% /tab  %}
+{% tab label="Long format" %}
+```bash
 redocly preview-docs --host 0.0.0.0 openapi/openapi.yaml
 ```
+{% /tab  %}
+{% /tabs  %}
 
 Both commands start the preview on host `0.0.0.0`, so you can access the docs at `http://0.0.0.0:8080`
 
 ### Skip preprocessor or decorator
 
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
-
-```bash Skip preprocessors
+{% tabs %}
+{% tab label="Skip preprocessors" %}
+```bash
 redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
-
-```bash Skip decorators
+{% /tab  %}
+{% tab label="Skip decorators" %}
+```bash
 redocly preview-docs --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```
+{% /tab  %}
+{% /tabs  %}

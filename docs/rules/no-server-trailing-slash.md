@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-server-trailing-slash
+---
 # no-server-trailing-slash
 
 Disallow servers with a trailing slash.

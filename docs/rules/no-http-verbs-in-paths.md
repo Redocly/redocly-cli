@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/no-http-verbs-in-paths
+---
+
 # no-http-verbs-in-paths
 
 Disallows HTTP verbs used in paths.

@@ -29,7 +29,7 @@ module.exports = {
 };
 ```
 
-In the example, the plugin id is `my-local-plugin` and the `all` and `minimal` 
+In the example, the plugin id is `my-local-plugin` and the `all` and `minimal`
 configuration bundles are available in the user's `redocly.yaml` configuration file as
 `"my-local-plugin/all"` and `"my-local-plugin/minimal"`, respectively. Use
 these configuration bundles by adding them under `extends:` in your `redocly.yaml` configuration file.
@@ -41,11 +41,9 @@ extends:
 
 Plugins can include rules, decorators, and preprocessors in their configuration bundles.
 
-:::info Rulesets
-
+{% admonition type="info" name="Rulesets" %}
 If your configuration includes only Redocly built-in rules and decorators, try
 using a [ruleset](../rules.md#rulesets) to achieve this (it's simpler than a
 plugin).
-
-:::
+{% /admonition %}
 

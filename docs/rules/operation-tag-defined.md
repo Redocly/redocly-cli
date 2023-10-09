@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-tag-defined
+---
 # operation-tag-defined
 
 Disallows use of tags in operations that aren't globally defined.

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/required-string-property-missing-min-length
+---
 # required-string-property-missing-min-length
 
 Requires that every required property in the API description with type `string` has a `minLength`. 
@@ -54,12 +57,12 @@ schemas:
   User:
     type: object
     required:
-        - name 
+        - name
     properties:
       name:
         description: User name
         type: string
-        
+
 ```
 
 Example of a **correct** schema:
@@ -70,7 +73,7 @@ schemas:
   User:
     type: object
     required:
-        - name 
+        - name
     properties:
       name:
         description: User name

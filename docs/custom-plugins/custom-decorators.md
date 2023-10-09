@@ -7,11 +7,9 @@ Decorators transform API descriptions, by adding, removing, or changing elements
 
 If you can't find an existing decorator that fits your needs, then you can add a decorator in a plugin.
 
-:::warning Preprocessors
-
+{% admonition type="warning" name="Preprocessors" %}
 Decorators and preprocessors are the same in structure, but preprocessors are run _before_ linting, and decorators are run after. We always recommend using decorators where possible, since the document might not be valid or structured as expected if the linting step hasn't run yet.
-
-:::
+{% /admonition %}
 
 ## Plugin structure
 

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/spec
+---
 # spec
 
 Ensures that your API document conforms to the [OpenAPI specification](https://spec.openapis.org/oas/v3.1.0.html).

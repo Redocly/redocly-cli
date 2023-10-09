@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/np-empty-servers
+---
 # no-empty-servers
 
 Requires the `servers` list is defined in your API.

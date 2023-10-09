@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/info-contact
+---
+
 # info-contact
 
 Requires the `Contact` info object defined in your API.

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-operationId-url-safe
+---
 # operation-operationId-url-safe
 
 Requires the `operationId` value to be URL safe.

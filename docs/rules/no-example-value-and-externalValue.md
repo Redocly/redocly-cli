@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/no-example-value-and-externalValue
+---
+
 # no-example-value-and-externalValue
 
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.

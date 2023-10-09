@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-path-trailing-slash
+---
 # no-path-trailing-slash
 
 Ensures that paths in your API do not end with a trailing slash (`/`).

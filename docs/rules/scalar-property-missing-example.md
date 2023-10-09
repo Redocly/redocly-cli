@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/scalar-property-missing-example
+---
 # scalar-property-missing-example
 
 Requires that every scalar property in the API description has either `example` or `examples`˙ defined.

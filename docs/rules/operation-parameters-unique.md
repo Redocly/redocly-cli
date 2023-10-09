@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-parameters-unique
+---
 # operation-parameters-unique
 
 Verifies parameters are unique for any given operation.

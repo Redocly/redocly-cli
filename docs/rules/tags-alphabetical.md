@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/tags-alphabetical
+---
 # tags-alphabetical
 
 Ensures that all tag `name` fields in the `tags` object are listed in alphabetical order.

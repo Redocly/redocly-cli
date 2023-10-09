@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-unresolved
+---
 # no-unresolved-refs
 
 Ensures that all `$ref` instances in your API descriptions are resolved.

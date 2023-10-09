@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-summary
+---
 # operation-summary
 
 Enforce that every operation has a summary.

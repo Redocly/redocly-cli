@@ -1,17 +1,19 @@
 ---
-redirectFrom:
-  - /docs/cli/rules/no-empty-enum-servers/
+redirects:
+  '/docs/cli/rules/no-empty-enum-servers/':
+    to: '/docs/cli/rules/no-server-variables-empty-enum/'
+slug: /docs/cli/rules/no-server-variables-empty-enum
 ---
+
 # no-server-variables-empty-enum
 
 Disallow server variables without enum list defined.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -24,6 +26,7 @@ style ServerVariables fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ## API design principles
 
 If you use server variables, there are generally two kinds:
+
 - tenant-driven
 - environment-driven
 
@@ -31,9 +34,9 @@ In the case of environment-driven variables, you may want to predefine all of th
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

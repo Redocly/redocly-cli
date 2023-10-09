@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/boolean-parameter-prefixes
+---
+
 # boolean-parameter-prefixes
 
 Enforces specific and consistent naming for request parameters with `boolean` type.

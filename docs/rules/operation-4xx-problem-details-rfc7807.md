@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-4xx-problem-details-rfc7807
+---
 # operation-4xx-problem-details-rfc7807
 
 Ensures that every operation with (400-499) HTTP response has content-type `application/problem+json` and fields `title` and `type`.

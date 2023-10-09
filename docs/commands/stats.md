@@ -49,21 +49,26 @@ In this case, `stats` shows statistics for the API description that was passed t
 
 Instead of full paths, you can use API names from the `apis` section of your Redocly configuration file.
 
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly stats core@v1
 ```
-
-```yaml Configuration file
+{% /tab  %}
+{% tab label="Configuration file" %}
+```yaml
 apis:
   core@v1:
     root: ./openapi/api-description.json
 ```
+{% /tab  %}
+{% /tabs  %}
 
 In this case, after resolving the path behind the `core@v1` name (see the `Configuration file` tab), `stats` displays statistics for the `api-description.json` file. The presence of the Redocly configuration file is mandatory.
 
 ### Custom configuration file
 
-By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.mdx) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
+By default, the CLI tool looks for the [Redocly configuration file](../configuration/index.md) in the current working directory. Use the optional `--config` argument to provide an alternative path to a configuration file.
 
 ```bash
 redocly stats --config=./another/directory/config.yaml
@@ -72,12 +77,14 @@ redocly stats --config=./another/directory/config.yaml
 ### Format
 
 #### Stylish (default)
-
-```bash Request
+{% tabs %}
+{% tab label="Request" %}
+```bash
 redocly stats pet.yaml
 ```
-
-```bash Output
+{% /tab  %}
+{% tab label="Output" %}
+```bash
 Document: pet.yaml stats:
 
 🚗 References: 3
@@ -91,15 +98,18 @@ Document: pet.yaml stats:
 
 pet.yaml: stats processed in 6ms
 ```
-
+{% /tab  %}
+{% /tabs  %}
 In this format, `stats` shows the statistics for the metrics mentioned in the [Introduction section](#introduction) in condensed output with colored text and an icon at the beginning of each line.
 
 #### JSON
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly stats pet.yaml --format=json
 ```
-
+{% /tab  %}
+{% tab label="Output" %}
 ```bash Output
 Document: pet.yaml stats:
 
@@ -139,5 +149,6 @@ Document: pet.yaml stats:
 }
 pet.yaml: stats processed in 6ms
 ```
-
+{% /tab  %}
+{% /tabs  %}
 In this format, `stats` shows the statistics for the metrics mentioned in the [Introduction section](#introduction) in JSON-like output.

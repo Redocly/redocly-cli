@@ -1,0 +1,33 @@
+---
+title: Redocly CLI guides
+description: Browse how-to guides for working with Redocly CLI
+content:
+  cards:
+    - header: Redocly CLI quickstart
+      link: docs/api-registry/cli/quickstart
+      text: Take your first steps with Redocly CLI.
+    - header: OpenAPI starter project
+      link: docs/api-registry/cli/openapi-starter
+      text: Get started with OpenAPI and Redocly, using this sample project.
+    - header: Enforce response contents
+      link: docs/api-registry/cli/guides/response-contains-property
+      text: How to create a custom rule to enforce response contents.
+    - header: Hide internal APIs
+      link: docs/api-registry/cli/guides/hide-apis
+      text: How to hide internal APIs.
+    - header: Replace the server URL
+      link: docs/api-registry/cli/guides/replace-servers-url
+      text: How to replace the server URL in different environments.
+    - header: Change the OAuth2 token URL
+      link: docs/api-registry/cli/guides/change-token-url
+      text: How to change the OAuth2 token URL.
+    - header: Hide OpenAPI specification extensions
+      link: docs/api-registry/cli/guides/hide-specification-extensions
+      text: How to create a custom decorator to hide OpenAPI specification extensions.
+---
+
+# Redocly CLI guides
+
+A selection of guides to common tasks with Redocly CLI.
+
+{% wideTileCards content=$frontmatter.content /%}

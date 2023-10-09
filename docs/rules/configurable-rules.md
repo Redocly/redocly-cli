@@ -1,90 +1,92 @@
 ---
-redirectFrom:
-  - /docs/cli/resources/rules/assertions/
-  - /docs/cli/rules/assertions/
-  - /docs/cli/rules/custom-rules/
+redirects:
+  '/docs/cli/resources/rules/assertions/':
+    to: '/docs/cli/rules/configurable-rules/'
+  '/docs/cli/rules/assertions/':
+    to: '/docs/cli/rules/configurable-rules/'
+  '/docs/cli/rules/custom-rules/':
+    to: '/docs/cli/rules/configurable-rules/'
+slug: /docs/cli/rules/configurable-rules
 ---
-# Configurable rules
 
+# Configurable rules
 
 Configure flexible rules to meet any situation not covered by the [built-in rules](./built-in-rules.md) by adding to the `rules` map in the Redocly configuration file.
 
 ```yaml
 rules:
-  rule/my-rule-name:
-    ...
-  rule/one-more-rule-name:
-    ...
+  rule/my-rule-name: ...
+  rule/one-more-rule-name: ...
 ```
 
 A configurable rule describes the contents that the linter expects to find in your API description. During the validation process, the linter goes through your API description and checks if its contents match the expectations. If something was described in a configurable rule, but the API description doesn't correspond to the description, the linter shows you a warning or error message in the log.
 
-
-Pattern Property | Type | Description
--- | -- | --
-rule/{string} | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `rule/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions.
+| Pattern Property | Type                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rule/{string}    | [Configurable rule object](#configurable-rule-object) | Configurable rule definitions enforce your custom API design standards. Add or edit your configurable rules in the configuration file. A configurable rule is a rule that starts with a `rule/` prefix followed by a unique rule name. Rule names display in the lint log if the assertions fail. More than one configurable rule may be defined, and any configurable rule may have multiple assertions. |
 
 ## Configurable rule object
 
-Property | Type | Description
--- | -- | --
-subject | [Subject object](#subject-object) | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.
-assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.
-where | [Where object](#where-object) | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.
-message | string | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem.
-suggest | [string] | List of suggestions to display if the problem occurs.
-severity | string | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.
+| Property   | Type                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| subject    | [Subject object](#subject-object)     | **REQUIRED.** Locates the specific [OpenAPI node type](#subject-node-types-and-properties) or `any` (see [example](#any-example)) and possible properties and values that the [lint command](../commands/lint.md) evaluates. Use with `where` to narrow further.                                                                                                                                                                                                                                                                             |
+| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Flags a problem when a defined assertion evaluates false. There are a variety of built-in assertions included. You may also create plugins with custom functions and use them as assertions.                                                                                                                                                                                                                                                                                                                                   |
+| where      | [Where object](#where-object)         | Narrows subjects by evaluating the where list first in the order defined (from top to bottom). The resolution of reference objects is done at the `where` level. See [where example](#where-example). The `where` evaluation itself does not result in any problems.                                                                                                                                                                                                                                                                         |
+| message    | string                                | Problem message displayed if the assertion is false. If omitted, the default message is: "{{assertionName}} failed because the {{subject}} {{property}} didn't meet the assertions: {{problems}}" is displayed. The available placeholders are displayed in that message. In the case there are multiple properties, the `{{property}}` placeholder produces a comma and space separate list of properties. In case there are multiple problems, the `{{problems}}` placeholder produces a bullet-list with a new line between each problem. |
+| suggest    | [string]                              | List of suggestions to display if the problem occurs.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| severity   | string                                | Configure the severity level of the problem if the assertion is false. It must be one of these values: `error`, `warn`, `off`. Default value is `error`.                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ## Subject object
 
-Property | Type | Description
--- | -- | --
-type | string |  **REQUIRED.** Locates the [OpenAPI node type](#subject-node-types-and-properties) that the [lint command](../commands/lint.md) evaluates.
-property | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#subject-node-types-and-properties). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example).
-filterInParentKeys | [string] | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).
-filterOutParentKeys | [string] | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.
-matchParentKeys | string | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.
+| Property            | Type                       | Description                                                                                                                                                                                                                                                                                                                            |
+| ------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| type                | string                     | **REQUIRED.** Locates the [OpenAPI node type](#subject-node-types-and-properties) that the [lint command](../commands/lint.md) evaluates.                                                                                                                                                                                              |
+| property            | string \| [string] \| null | Property name corresponding to the [OpenAPI node type](#subject-node-types-and-properties). If a list of properties is provided, assertions evaluate against each property in the sequence. If not provided (or null), assertions evaluate against the key names for the subject node type. See [property example](#property-example). |
+| filterInParentKeys  | [string]                   | The name of the subject's parent key that locates where assertions run. An example value given the subject `Operation` could be `filterInParentKeys: [get, put]` means that only `GET` and `PUT` operations are evaluated for the assertions. See [example](#mutuallyrequired-example).                                                |
+| filterOutParentKeys | [string]                   | The name of the subject's parent key that excludes where assertions run. An example value given the subject `Operation` could be `filterOutParentKeys: [delete]` means that all operations except `DELETE` operations are evaluated for the assertions.                                                                                |
+| matchParentKeys     | string                     | Applies a regex pattern to the subject's parent keys to determine where assertions run. An example value given the subject `Operation` could be `matchParentKeys: /^p/` means that `POST`, `PUT`, and `PATCH` operations are evaluated for the assertions.                                                                             |
 
 ## Assertion object
 
 A minimum of one assertion property is required to be defined.
 
-Property | Type | Description
--- | -- | --
-casing | string | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).
-const | string | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example](#const-example).
-defined | boolean | Asserts a property is defined. See [defined example](#defined-example).
-disallowed | [string] | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).
-enum | [string] | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).
-maxLength | integer | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).
-minLength | integer | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).
-mutuallyExclusive | [string] | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).
-mutuallyRequired | [string] | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).
-nonEmpty | boolean | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).
-notPattern | string | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).
-pattern | string | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).
-ref | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example).|
-required | [string] | Asserts all listed values are defined. See [required example](#required-example).
-requireAny | [string] | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).
-`{pluginId}/{functionName}` | object | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).
+| Property                    | Type              | Description                                                                                                                                                                                                                                                                                                                                                                                              |
+| --------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| casing                      | string            | Asserts a casing style. Supported styles are: `camelCase`, `kebab-case`, `snake_case`, `PascalCase`, `MACRO_CASE`, `COBOL-CASE`, `flatcase`. See [casing example](#casing-example).                                                                                                                                                                                                                      |
+| const                       | string            | Asserts equality of a value. The behavior is the same as the `enum` assertion with exactly one value. See [const example](#const-example).                                                                                                                                                                                                                                                               |
+| defined                     | boolean           | Asserts a property is defined. See [defined example](#defined-example).                                                                                                                                                                                                                                                                                                                                  |
+| disallowed                  | [string]          | Asserts all listed values are not defined. See [disallowed example](#disallowed-example).                                                                                                                                                                                                                                                                                                                |
+| enum                        | [string]          | Asserts a value is within a predefined list of values. Providing a single value in a list is an equality check. See [enum example](#enum-example).                                                                                                                                                                                                                                                       |
+| maxLength                   | integer           | Asserts a maximum length (exclusive) of a string or list (array). See [maxLength example](#maxlength-example).                                                                                                                                                                                                                                                                                           |
+| minLength                   | integer           | Asserts a minimum length (inclusive) of a string or list (array). See [minLength example](#minlength-example).                                                                                                                                                                                                                                                                                           |
+| mutuallyExclusive           | [string]          | Asserts that listed properties (key names only) are mutually exclusive. See [mutuallyExclusive example](#mutuallyexclusive-example).                                                                                                                                                                                                                                                                     |
+| mutuallyRequired            | [string]          | Asserts that listed properties (key names only) are mutually required. See [mutuallyRequired example](#mutuallyrequired-example).                                                                                                                                                                                                                                                                        |
+| nonEmpty                    | boolean           | Asserts a property is not empty. See [nonEmpty example](#nonempty-example).                                                                                                                                                                                                                                                                                                                              |
+| notPattern                  | string            | Asserts a value doesn't match a regex pattern. See [regex notPattern example](#notpattern-example).                                                                                                                                                                                                                                                                                                      |
+| pattern                     | string            | Asserts a value matches a regex pattern. See [regex pattern example](#pattern-example).                                                                                                                                                                                                                                                                                                                  |
+| ref                         | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example). |
+| required                    | [string]          | Asserts all listed values are defined. See [required example](#required-example).                                                                                                                                                                                                                                                                                                                        |
+| requireAny                  | [string]          | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).                                                                                                                                                                                                                                                                           |
+| `{pluginId}/{functionName}` | object            | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).                                                                                                                                                                                                                                               |
 
 ## Where object
 
 The `where` object is part of a `where` list which must be defined in order from the root node.
 Nodes may be skipped in between the subject node types of the where list and those defined in the root subject type.
 
-Property | Type | Description
--- | -- | --
-subject | [Subject object](#subject-object) | **REQUIRED.** Narrows the subject further.
-assertions | [Assertion object](#assertion-object) | **REQUIRED.** Applies assertions to determine if the subject should continue towards evaluating the main assertions. If an assertion fails, it narrows that from downstream subject evaluation and does not report a problem.
+| Property   | Type                                  | Description                                                                                                                                                                                                                   |
+| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| subject    | [Subject object](#subject-object)     | **REQUIRED.** Narrows the subject further.                                                                                                                                                                                    |
+| assertions | [Assertion object](#assertion-object) | **REQUIRED.** Applies assertions to determine if the subject should continue towards evaluating the main assertions. If an assertion fails, it narrows that from downstream subject evaluation and does not report a problem. |
 
 ### `where` example
 
 The following example asserts that PUT responses with HTTP status 200 or 201 cannot return an `application/pdf`content type.
 Without the `where`, the assertion would evaluate every `MediaTypesMap` property including:
+
 - Responses with all codes, including codes other than 200 or 201.
 - Responses for all HTTP methods, including DELETE, GET, POST, and more.
-To restrict the evaluation, use the `where` feature to limit what is evaluated.
+  To restrict the evaluation, use the `where` feature to limit what is evaluated.
 
 ```yaml
 rule/no-pdf-in-ok-response:
@@ -132,11 +134,13 @@ rule/limit-is-integer:
 The following example shows four assertions with multiple asserts in each one (`defined`, `minLength`, `maxLength`, `pattern`).
 
 The `Operation`, `Tag`, and `Info` properties must:
+
 - be defined
 - have at least 30 characters
 - end with a _full stop_.
 
 In addition, the `Operation` summary property must:
+
 - be defined
 - be between 20 and 60 characters
 - not end with a _full stop_.
@@ -196,11 +200,12 @@ In `plugin.js` each functions retrieves its options, checks for problems, and re
 
 Each function is called with the following parameters:
 
-Property | Type | Description
--- | -- | --
-value | `string` \| [`string`] | Value that appears at the corresponding location.
-options | `object` | Options that is described in the configuration file.
-ctx | `object` | `ctx` object extends the [Context object](../custom-plugins/custom-rules.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../custom-plugins/custom-rules.md#location-object)). Raw value is the original assertion value.
+| Property | Type                   | Description                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| value    | `string` \| [`string`] | Value that appears at the corresponding location.                                                                                                                                                                                                                                                                                                                              |
+| options  | `object`               | Options that is described in the configuration file.                                                                                                                                                                                                                                                                                                                           |
+| ctx      | `object`               | `ctx` object extends the [Context object](../custom-plugins/custom-rules.md#the-context-object) with two properties: `baseLocation`, and `rawValue`. Base location (`baseLocation`) contains the location in the source document for current assertion. (See [Location Object](../custom-plugins/custom-rules.md#location-object)). Raw value is the original assertion value. |
+
 **Return**
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
@@ -211,6 +216,7 @@ message | `string` \| [`string`] | Problem message that is displayed in the [lin
 location | `Location Object` | Location in the source document. See [Location Object](../custom-plugins/custom-rules.md#location-object)
 
 `.redocly.yaml`
+
 ```yaml
 rule/operation-summary-check:
   subject:
@@ -232,7 +238,9 @@ rule/operation-summary-check:
     local/checkWordsCount:
       min: 3
 ```
+
 `plugin.js`
+
 ```js
 module.exports = {
   id: 'local',
@@ -245,8 +253,8 @@ module.exports = {
       return [
         {
           message: 'Operation summary should start with an active verb',
-          location: ctx.baseLocation
-        }
+          location: ctx.baseLocation,
+        },
       ];
     },
     checkWordsCount: (value, options, ctx) => {
@@ -257,8 +265,8 @@ module.exports = {
       return [
         {
           message: `Operation summary should contain at least ${options.min} words`,
-          location: ctx.baseLocation
-        }
+          location: ctx.baseLocation,
+        },
       ];
     },
   },
@@ -281,6 +289,7 @@ rules:
 ```
 
 Casing supports the following styles:
+
 - camelCase
 - COBOL-CASE
 - flatcase
@@ -532,7 +541,6 @@ rules:
       ref: /^(\.\/)?components\/.*\.yaml$/
 ```
 
-
 ### `required` example
 
 The following example asserts that `PUT` requests have both `200` and `201` responses defined.
@@ -651,4 +659,3 @@ rules:
         - name
         - description
 ```
-

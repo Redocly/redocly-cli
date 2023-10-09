@@ -7,11 +7,9 @@ seo:
 
 # Lint AsyncAPI with Redocly CLI
 
-:::info Experimental AsyncAPI support
-
+{% admonition type="info" name="Experimental AsyncAPI support" %}
 This feature is at an early stage, please use with caution and send us lots of feedback!
-
-:::
+{% /admonition %}
 
 In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also has support for AsyncAPI.
 Redocly CLI supports the following linting approaches with AsyncAPI documents:

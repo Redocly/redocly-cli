@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/paths-kebab-case
+---
 # paths-kebab-case
 
 Require kebab-case in paths instead of camelCase or snake_case.

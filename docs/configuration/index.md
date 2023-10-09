@@ -1,19 +1,16 @@
 ---
 title: Redocly CLI configuration
 description: Learn how to configure Redocly CLI
-redirectFrom:
-  - /docs/cli/configuration/configuration-file/
-  - /docs/cli/guides/lint/
-  - /docs/cli/configuration/lint/
+redirects:
+  '/docs/cli/configuration/configuration-file/':
+    to: '/docs/cli/configuration/'
+  '/docs/cli/guides/lint/':
+    to: '/docs/cli/configuration/'
+  '/docs/cli/configuration/lint/':
+    to: '/docs/cli/configuration/'
 toc:
   maxDepth: 3
 ---
-
-import { JsonSchema } from '@redocly/developer-portal/ui';
-import Schema from './schema.yaml';
-import MockServerSchema from './mockserver.yaml';
-import ResolveSchema from './resolve.yaml';
-import { StyledContent } from '../../components/styled.elements';
 
 # Redocly configuration file
 
@@ -133,14 +130,12 @@ This object is optional.
 
 #### Fixed properties
 
-<StyledContent>
-  <JsonSchema
-    schema={MockServerSchema}
-    options={{
-      schemaExpansionLevel: 1,
-    }}
-  />
-</StyledContent>
+{% json-schema
+  schemaFilePath="./mockserver.yaml"
+   options={
+    schemaExpansionLevel: 1,
+  }
+/%}
 
 #### openapi object
 
@@ -148,7 +143,7 @@ The `openapi` object is a property of the `theme` object and configures features
 
 If you need to apply different theming and functionality to individual APIs, add the theme `openapi` property to the appropriate API in the `apis` and `theme` object, and use the same options as the global `openapi` object.
 
-Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/functionality.mdx).
+Find the full list of supported options on the [Reference docs configuration page](../../api-reference-docs/configuration/functionality.md).
 
 <a id="apis-object"></a>
 
@@ -177,7 +172,7 @@ apis:
       remove-x-internal: on
 ```
 
-Visit the [per-API configuration page](./apis.mdx) for detailed documentation and more examples.
+Visit the [per-API configuration page](./apis.md) for detailed documentation and more examples.
 
 <a id="plugins-list"></a>
 
@@ -213,14 +208,12 @@ Redocly CLI supports one `http` header per URL.
 
 #### Fixed properties
 
-<StyledContent>
-  <JsonSchema
-    schema={ResolveSchema}
-    options={{
-      schemaExpansionLevel: 2,
-    }}
-  />
-</StyledContent>
+{% json-schema
+  schemaFilePath="./resolve.yaml"
+   options={
+    schemaExpansionLevel: 2,
+  }
+/%}
 
 #### Example
 

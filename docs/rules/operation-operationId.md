@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-operationId
+---
 # operation-operationId
 
 Requires each operation to have an `operationId` defined.

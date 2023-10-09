@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-server-example-com
+---
 # no-server-example.com
 
 Prevents using `example.com` as the value of the `servers.url` fields in your API descriptions.

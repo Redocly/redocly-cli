@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-unused-components
+---
 # no-unused-components
 
 Ensures that every component specified in your API description is used at least once.

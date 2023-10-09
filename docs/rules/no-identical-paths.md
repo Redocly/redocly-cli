@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-identical-paths
+---
 # no-identical-paths
 
 Ensures there are no identical paths in your API descriptions even when they have different path parameter names.

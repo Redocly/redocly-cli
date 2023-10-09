@@ -1,18 +1,12 @@
----
-tocMaxDepth: 3
----
-
 # `join`
 
 ## Introduction
 
-:::warning Important
-
+{% admonition type="warning" name="Important" %}
 The `join` command is considered an experimental feature. This means it's still a work in progress and may go through major changes.
 
 The `join` command supports OpenAPI 3.x descriptions only.
-
-:::
+{% /admonition %}
 
 Maintainers of multiple API descriptions can benefit from storing each endpoint as a standalone API description file. However, this approach is not supported by the majority of OpenAPI tools, as they require a single API description file.
 
@@ -41,35 +35,38 @@ redocly join --version
 
 ## Options
 
-| Option                             | Type     | Description                                                                                                                                                                                              |
-| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option                             | Type     | Description                                                                                                                                                                                                |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apis                               | [string] | **REQUIRED.** 1. Array of paths to API description files that you want to join. At least two input files are required.<br />2. A wildcard pattern to match API description files within a specific folder. |
-| --help                             | boolean  | Show help.                                                                                                                                                                                               |
-| --lint                             | boolean  | Lint API description files.                                                                                                                                                                              |
-| --decorate                         | boolean  | Run decorators.                                                                                                                                                                                          |
-| --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                       |
-| --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                           |
-| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                     |
-| --prefix-tags-with-info-prop       | boolean  | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.                                                                             |
-| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.                                                                                                    |
-| --version                          | boolean  | Show version number.                                                                                                                                                                                     |
-| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                           |
-| --config                           | string   | Specify path to the [config file](../configuration/index.mdx).                                                                                                                                           |
+| --help                             | boolean  | Show help.                                                                                                                                                                                                 |
+| --lint                             | boolean  | Lint API description files.                                                                                                                                                                                |
+| --decorate                         | boolean  | Run decorators.                                                                                                                                                                                            |
+| --preprocess                       | boolean  | Run preprocessors.                                                                                                                                                                                         |
+| --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                             |
+| --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                       |
+| --prefix-tags-with-info-prop       | boolean  | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.                                                                               |
+| --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [without-x-tag-groups](#without-x-tag-groups) section.                                                                                                      |
+| --version                          | boolean  | Show version number.                                                                                                                                                                                       |
+| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                             |
+| --config                           | string   | Specify path to the [config file](../configuration/index.md).                                                                                                                                              |
 
 ## Examples
 
 ### Array of paths
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly join first-api.yaml second-api.json
 ```
-
-```bash Output
+{% /tab %}
+{% tab label="Output" %}
+```bash
 redocly join first-api.yaml second-api.json
 
 openapi.yaml: join processed in 56ms
 ```
-
+{% /tab %}
+{% /tabs %}
 The command creates the output `openapi.yaml` file in the working directory.
 
 The order of input files affects how their content is processed. The first provided file is always treated as the "main" file, and its content has precedence over other input files when combining them. Specifically, the following properties of the API description are always taken only from the first input file:
@@ -101,13 +98,12 @@ x-tagGroups:
     description: 'Text from info: description of the second input file'
 ```
 
-:::info
-
+{% admonition type="info" %}
 If some operations in an input file don't have a tag assigned to them, the `join` command automatically adds the `other` tag to those operations in the output file. The `other` tag is also included in the `x-tagGroups` object.
 
 If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
 
-:::
+{% /admonition %}
 
 The `servers` object combines the content from all input files, starting with the content from the first file. Commented lines are not included in the output file.
 
@@ -133,11 +129,9 @@ Please fix conflicts before running join.
 
 Use the [`--without-x-tag-groups`](#without-x-tag-groups) option to skip the creation and population of `x-tagGroups` in the output file.
 
-:::warning
-
+{% admonition type="warning" %}
 These options are mutually exclusive: `without-x-tag-groups`, `prefix-tags-with-filename`, and `prefix-tags-with-info-prop`.
-
-:::
+{% /admonition %}
 
 ### prefix-tags-with-info-prop
 
@@ -146,12 +140,14 @@ If any of the input files contain the `tags` object, tags in the output file are
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
 #### Usage
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
-
-```yaml Output file example
+{% /tab  %}
+{% tab label="Output file example" %}
+```yaml
 - name: First Document title_endpoints
   description: endpoints tag description
   x-displayName: endpoints
@@ -160,7 +156,8 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
   description: pets tag description
   x-displayName: pets
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ### prefix-tags-with-filename
 
 If any of the input files contain the `tags` object, tags in the output file are prefixed by the filename of the corresponding input file.
@@ -168,12 +165,14 @@ If any of the input files contain the `tags` object, tags in the output file are
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
 #### Usage
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
-
-```yaml Output file example
+{% /tab  %}
+{% tab label="Output file example" %}
+```yaml
 - name: first-api_endpoints
   description: endpoints tag description
   x-displayName: endpoints
@@ -182,7 +181,8 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
   description: pets tag description
   x-displayName: pets
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ### without-x-tag-groups
 
 If you have the same tags in multiple API descriptions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
@@ -206,12 +206,14 @@ openapi.yaml: join processed in 69ms
 If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
 
 #### Usage
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly join first-api.yaml second-api.json --prefix-components-with-info-prop version
 ```
-
-```yaml Output file example
+{% /tab  %}
+{% tab label="Output file example" %}
+```yaml
 components:
   schemas:
     1.0.1_Pet:
@@ -244,7 +246,8 @@ components:
               type: integer
               format: int64
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ### Custom output file
 
 By default, the CLI tool writes the joined file as `openapi.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
