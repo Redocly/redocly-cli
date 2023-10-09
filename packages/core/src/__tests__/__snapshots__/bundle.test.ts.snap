@@ -308,7 +308,7 @@ components:
 
 `;
 
-exports[`bundle should not place referened schema inline when component in question is not of type "schemas" 1`] = `
+exports[`bundle should not place referenced schema inline when component in question is not of type "schemas" 1`] = `
 openapi: 3.0.0
 paths:
   /pet:

@@ -1,9 +1,9 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { bundleDocument, bundle } from '../bundle';
+import { bundleDocument, bundle, bundleFromString } from '../bundle';
 import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { StyleguideConfig, Config, ResolvedConfig } from '../config';
+import { StyleguideConfig, Config, ResolvedConfig, createConfig } from '../config';
 import { BaseResolver } from '../resolve';
 
 describe('bundle', () => {
@@ -97,7 +97,7 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should not place referened schema inline when component in question is not of type "schemas"', async () => {
+  it('should not place referenced schema inline when component in question is not of type "schemas"', async () => {
     const { bundle: res, problems } = await bundle({
       config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
@@ -232,5 +232,32 @@ describe('bundle', () => {
             type: string
 
     `);
+  });
+
+  it('should throw an error when there is no document to bundle', () => {
+    const wrapper = () =>
+      bundle({
+        config: new Config({} as ResolvedConfig),
+      });
+
+    expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');
+  });
+
+  it('should bundle with a doc provided', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundle({
+      config: await createConfig(`
+        extends:
+        - recommended
+      `),
+      doc: testDocument,
+    });
+
+    const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toEqual(origCopy);
   });
 });

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { outdent } from 'outdent';
 
-import { lintFromString, lintConfig, lintDocument } from '../lint';
+import { lintFromString, lintConfig, lintDocument, lint } from '../lint';
 import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
@@ -35,6 +35,34 @@ describe('lint', () => {
               "pointer": "#/info/license",
               "reportOnKey": false,
               "source": "/test/spec.yaml",
+            },
+          ],
+          "message": "Expected type \`License\` (object) but got \`string\`",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": Array [],
+        },
+      ]
+    `);
+  });
+
+  it('lint should work', async () => {
+    const results = await lint({
+      ref: path.join(__dirname, 'fixtures/lint/openapi.yaml'),
+      config: await loadConfig({
+        configPath: path.join(__dirname, 'fixtures/lint/redocly.yaml'),
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, path.join(__dirname, 'fixtures/lint/'))).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "from": undefined,
+          "location": Array [
+            Object {
+              "pointer": "#/info/license",
+              "reportOnKey": false,
+              "source": "openapi.yaml",
             },
           ],
           "message": "Expected type \`License\` (object) but got \`string\`",

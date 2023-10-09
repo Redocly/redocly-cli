@@ -56,7 +56,7 @@ export async function bundle(
   }
 
   const document =
-    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+    doc === undefined ? await externalRefResolver.resolveDocument(base, ref!, true) : doc;
 
   if (document instanceof Error) {
     throw document;
