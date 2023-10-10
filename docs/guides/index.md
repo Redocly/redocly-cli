@@ -5,25 +5,25 @@ seo:
 content:
   cards:
     - header: Redocly CLI quickstart
-      link: docs/api-registry/cli/quickstart
+      link: docs/cli/quickstart
       text: Take your first steps with Redocly CLI.
     - header: OpenAPI starter project
-      link: docs/api-registry/cli/openapi-starter
+      link: docs/cli/openapi-starter
       text: Get started with OpenAPI and Redocly, using this sample project.
     - header: Enforce response contents
-      link: docs/api-registry/cli/guides/response-contains-property
+      link: docs/cli/guides/response-contains-property
       text: How to create a custom rule to enforce response contents.
     - header: Hide internal APIs
-      link: docs/api-registry/cli/guides/hide-apis
+      link: docs/cli/guides/hide-apis
       text: How to hide internal APIs.
     - header: Replace the server URL
-      link: docs/api-registry/cli/guides/replace-servers-url
+      link: docs/cli/guides/replace-servers-url
       text: How to replace the server URL in different environments.
     - header: Change the OAuth2 token URL
-      link: docs/api-registry/cli/guides/change-token-url
+      link: docs/cli/guides/change-token-url
       text: How to change the OAuth2 token URL.
     - header: Hide OpenAPI specification extensions
-      link: docs/api-registry/cli/guides/hide-specification-extensions
+      link: docs/cli/guides/hide-specification-extensions
       text: How to create a custom decorator to hide OpenAPI specification extensions.
 ---
 
