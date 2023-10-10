@@ -112,18 +112,10 @@ describe('printConfigLintTotals', () => {
     expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
   });
 
-  it('should print warnign and error', () => {
-    printConfigLintTotals({ ...totalProblemsMock, warnings: 2 });
-    expect(process.stderr.write).toHaveBeenCalledWith(
-      '❌ Your config has 1 error and 2 warnings.\n'
-    );
-    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error and 2 warnings.\n');
-  });
-
   it('should print warnign if no error', () => {
     printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
-    expect(process.stderr.write).toHaveBeenCalledWith('You have 2 warnings.\n');
-    expect(yellowColoretteMocks).toHaveBeenCalledWith('You have 2 warnings.\n');
+    expect(process.stderr.write).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
+    expect(yellowColoretteMocks).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
   });
 
   it('should print nothing if no error and no warnings', () => {

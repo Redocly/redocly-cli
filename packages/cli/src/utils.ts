@@ -294,17 +294,11 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 export function printConfigLintTotals(totals: Totals): void {
   if (totals.errors > 0) {
     process.stderr.write(
-      red(
-        `❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}${
-          totals.warnings > 0
-            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
-            : ''
-        }.\n`
-      )
+      red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`)
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
+      yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
     );
   }
 }
