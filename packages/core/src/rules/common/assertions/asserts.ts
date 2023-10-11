@@ -242,6 +242,7 @@ export const asserts: Asserts = {
       MACRO_CASE: /^([A-Z][A-Z0-9]*)(_[A-Z0-9]+)*$/g,
       'COBOL-CASE': /^([A-Z][A-Z0-9]*)(-[A-Z0-9]+)*$/g,
       flatcase: /^[a-z][a-z0-9]+$/g,
+      Sentencecase: /^[A-Z]*[^A-Z]+$/g,
     };
     return values
       .map(

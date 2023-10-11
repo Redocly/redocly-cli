@@ -298,6 +298,7 @@ const AssertionDefinitionAssertions: NodeType = {
         'MACRO_CASE',
         'COBOL-CASE',
         'flatcase',
+        'Sentencecase'
       ],
     },
     mutuallyExclusive: { type: 'array', items: { type: 'string' } },

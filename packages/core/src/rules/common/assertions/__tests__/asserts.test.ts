@@ -605,6 +605,46 @@ describe('oas3 assertions', () => {
       });
     });
 
+    it('value should be Sentencecase', () => {
+      expect(asserts.casing('Capitalized sentence', 'Sentencecase', assertionProperties)).toEqual([]);
+      expect(
+        asserts.casing(['Capitalized sentence', 'Another sentence yay'], 'Sentencecase', assertionProperties)
+      ).toEqual([]);
+      expect(
+        asserts.casing(['Capitalized sentence ', 'another Sentence yay'], 'Sentencecase', assertionProperties)
+      ).toEqual([
+        {
+          message: '"another Sentence yay" should use Sentencecase',
+          location: baseLocation.child('another Sentence yay').key(),
+        },
+      ]);
+      expect(asserts.casing('Multiple Capital Letters', 'Sentencecase', assertionProperties)).toEqual([
+        {
+          message: '"Multiple Capital Letters" should use Sentencecase',
+          location: baseLocation,
+        },
+      ]);
+      expect(asserts.casing('multiple Capitals After', 'Sentencecase', assertionProperties)).toEqual([
+        {
+          message: '"multiple Capitals After" should use Sentencecase',
+          location: baseLocation,
+        },
+      ]);
+      expect(asserts.casing('Test-example with capitals', 'Sentencecase', assertionProperties)).toEqual([]);
+      expect(asserts.casing('test-example with Capitals', 'Sentencecase', assertionProperties)).toEqual([
+        {
+          message: '"test-example with Capitals" should use Sentencecase',
+          location: baseLocation,
+        },
+      ]);
+      expect(asserts.casing('Test_example with capitals', 'Sentencecase', assertionProperties)).toEqual([]);
+      expect(asserts.casing('test_example with Capitals', 'Sentencecase', assertionProperties)).toEqual([
+        {
+          message: '"test_example with Capitals" should use Sentencecase',
+          location: baseLocation,
+        },
+      ]);
+    });
     describe('sortOrder', () => {
       it('value should be ordered in ASC direction', () => {
         expect(asserts.sortOrder(['example', 'foo', 'test'], 'asc', assertionProperties)).toEqual(
