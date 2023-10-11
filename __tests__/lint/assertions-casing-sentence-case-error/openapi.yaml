@@ -1,0 +1,33 @@
+openapi: 3.1.0
+servers:
+  - url: http://example.xyz
+info:
+  license:
+    name: test licence
+    url: http://example.xyz
+  title: Example OpenAPI 3 definition.
+  description: Example description
+  version: '1.0'
+  contact:
+    name: qa
+    url: https://swagger.io/specification/#definitions
+    email: email@redoc.ly
+
+paths:
+  /pet/findByStatus:
+    post:
+      operationId: post-ExampleId
+      summary: A Summary Example
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description
+    delete: 
+      operationId: delete-ExampleId
+      summary: a third summary Example
+      responses:
+        '200':
+          description: example description
+        '404':
+          description: example description

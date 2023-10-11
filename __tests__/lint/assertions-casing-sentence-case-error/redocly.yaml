@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/summary-sentence-case:
+    subject:
+      type: Operation
+      property: summary
+    assertions:
+      casing: Sentencecase
+    message: Summary should be Sentencecase
