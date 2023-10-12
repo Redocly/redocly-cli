@@ -124,6 +124,39 @@ describe('createConfig', () => {
       overridesRules: rawConfig.rules as Record<string, RuleConfig>,
     });
   });
+
+  it('should create config from object with a custom plugin', async () => {
+    const testCustomRule = jest.fn();
+    const rawConfig: FlatRawConfig = {
+      extends: [],
+      plugins: [
+        {
+          id: 'my-plugin',
+          rules: {
+            oas3: {
+              'test-rule': testCustomRule,
+            },
+          },
+        },
+      ],
+      rules: {
+        'my-plugin/test-rule': 'error',
+      },
+    };
+    const config = await createConfig(rawConfig);
+
+    expect(config.styleguide.plugins[0]).toEqual({
+      id: 'my-plugin',
+      rules: {
+        oas3: {
+          'my-plugin/test-rule': testCustomRule,
+        },
+      },
+    });
+    expect(config.styleguide.rules.oas3_0).toEqual({
+      'my-plugin/test-rule': 'error',
+    });
+  });
 });
 
 function verifyExtendedConfig(

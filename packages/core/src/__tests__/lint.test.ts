@@ -50,7 +50,7 @@ describe('lint', () => {
     const results = await lint({
       ref: path.join(__dirname, 'fixtures/lint/openapi.yaml'),
       config: await loadConfig({
-        configPath: path.join(__dirname, 'fixtures/lint/redocly.yaml'),
+        configPath: path.join(__dirname, 'fixtures/redocly.yaml'),
       }),
     });
 

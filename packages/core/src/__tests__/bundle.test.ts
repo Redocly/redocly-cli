@@ -3,8 +3,29 @@ import * as path from 'path';
 
 import { bundleDocument, bundle, bundleFromString } from '../bundle';
 import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { StyleguideConfig, Config, ResolvedConfig, createConfig } from '../config';
+import { StyleguideConfig, Config, ResolvedConfig, createConfig, loadConfig } from '../config';
 import { BaseResolver } from '../resolve';
+
+const stringDocument = outdent`
+  openapi: 3.0.0
+  paths:
+    /pet:
+      get:
+        operationId: get
+        parameters:
+          - $ref: '#/components/parameters/shared_a'
+          - name: get_b
+      post:
+        operationId: post
+        parameters:
+          - $ref: '#/components/parameters/shared_a'
+  components:
+    parameters:
+      shared_a:
+        name: shared-a
+`;
+
+const testDocument = parseYamlToDocument(stringDocument, '');
 
 describe('bundle', () => {
   const fetchMock = jest.fn(() =>
@@ -18,28 +39,6 @@ describe('bundle', () => {
   );
 
   expect.addSnapshotSerializer(yamlSerializer);
-
-  const testDocument = parseYamlToDocument(
-    outdent`
-      openapi: 3.0.0
-      paths:
-        /pet:
-          get:
-            operationId: get
-            parameters:
-              - $ref: '#/components/parameters/shared_a'
-              - name: get_b
-          post:
-            operationId: post
-            parameters:
-              - $ref: '#/components/parameters/shared_a'
-      components:
-        parameters:
-          shared_a:
-            name: shared-a
-    `,
-    ''
-  );
 
   it('change nothing with only internal refs', async () => {
     const { bundle, problems } = await bundleDocument({
@@ -248,10 +247,7 @@ describe('bundle', () => {
       bundle: { parsed },
       problems,
     } = await bundle({
-      config: await createConfig(`
-        extends:
-        - recommended
-      `),
+      config: await loadConfig({ configPath: path.join(__dirname, 'fixtures/redocly.yaml') }),
       doc: testDocument,
     });
 
@@ -259,5 +255,23 @@ describe('bundle', () => {
 
     expect(problems).toHaveLength(0);
     expect(parsed).toEqual(origCopy);
+  });
+});
+
+describe('bundleFromString', () => {
+  it('should bundle from string using bundleFromString', async () => {
+    const {
+      bundle: { parsed, ...rest },
+      problems,
+    } = await bundleFromString({
+      config: await createConfig(`
+        extends:
+        - recommended
+      `),
+      source: testDocument.source.body,
+    });
+    console.log(rest);
+    expect(problems).toHaveLength(0);
+    expect(rest.source.body).toEqual(stringDocument);
   });
 });
