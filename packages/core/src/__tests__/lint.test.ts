@@ -54,7 +54,8 @@ describe('lint', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, path.join(__dirname, 'fixtures/lint/'))).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(results, path.join(__dirname, 'fixtures/lint/')))
+      .toMatchInlineSnapshot(`
       Array [
         Object {
           "from": undefined,
