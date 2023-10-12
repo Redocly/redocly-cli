@@ -270,7 +270,6 @@ describe('bundleFromString', () => {
       `),
       source: testDocument.source.body,
     });
-    console.log(rest);
     expect(problems).toHaveLength(0);
     expect(rest.source.body).toEqual(stringDocument);
   });
