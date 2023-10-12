@@ -209,8 +209,33 @@ export function readYaml(filename: string) {
   return parseYaml(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
+export function writeFileByExt(data: unknown, fileName: string, ext = 'yaml') {
+  if (ext === 'json') {
+    writeJson(data, fileName);
+    return;
+  }
+
+  if (!['yaml', 'yml'].includes(ext)) {
+    process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
+  }
+
+    writeYaml(data, fileName);
+
+}
+
 export function writeYaml(data: any, filename: string, noRefs = false) {
   const content = stringifyYaml(data, { noRefs });
+
+  if (process.env.NODE_ENV === 'test') {
+    process.stderr.write(content);
+    return;
+  }
+  fs.mkdirSync(dirname(filename), { recursive: true });
+  fs.writeFileSync(filename, content);
+}
+
+export function writeJson(data: unknown, filename: string) {
+  const content = JSON.stringify(data, null, 2);
 
   if (process.env.NODE_ENV === 'test') {
     process.stderr.write(content);
