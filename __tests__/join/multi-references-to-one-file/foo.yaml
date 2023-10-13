@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  description: My sample api
+  version: 0.0.1
+  license:
+    name: 'Internal'
+    url: 'https://mycompany.com/license'
+tags:
+  - name: GetSingleFoo
+    description: Get a single foo
+  - name: Foo
+    description: All foo operations
+paths:
+  /foo/{id}:
+    get:
+      summary: Returns a single foo
+      operationId: getFoo
+      responses:
+        '200':
+          description: One single Food
+          content:
+            application/json:
+              schema:
+                $ref: './nested/Response.yaml'

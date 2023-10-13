@@ -124,7 +124,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       bundleDocument({
         document,
         config: config.styleguide,
-        externalRefResolver,
+        externalRefResolver: new BaseResolver(config.resolve),
       }).catch((e) => {
         exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
       })
