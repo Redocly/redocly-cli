@@ -185,6 +185,9 @@ export type RawConfig = {
   telemetry?: Telemetry;
 } & ThemeConfig;
 
+// RawConfig is legacy, use RawUniversalConfig in public APIs
+export type RawUniversalConfig = Omit<RawConfig, 'styleguide'> & StyleguideRawConfig;
+
 export type FlatApi = Omit<Api, 'styleguide'> &
   Omit<ApiStyleguideRawConfig, 'doNotResolveExamples'>;
 

@@ -1,5 +1,12 @@
 import isEqual = require('lodash.isequal');
-import { BaseResolver, resolveDocument, Document, ResolvedRefMap, makeRefId } from './resolve';
+import {
+  BaseResolver,
+  resolveDocument,
+  Document,
+  ResolvedRefMap,
+  makeRefId,
+  makeDocumentFromString,
+} from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
@@ -22,10 +29,7 @@ export enum OasVersion {
   Version3_0 = 'oas3_0',
   Version3_1 = 'oas3_1',
 }
-
-export async function bundle(opts: {
-  ref?: string;
-  doc?: Document;
+export type BundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
@@ -33,7 +37,14 @@ export async function bundle(opts: {
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
-}) {
+};
+
+export async function bundle(
+  opts: {
+    ref?: string;
+    doc?: Document;
+  } & BundleOptions
+) {
   const {
     ref,
     doc,
@@ -45,7 +56,7 @@ export async function bundle(opts: {
   }
 
   const document =
-    doc !== undefined ? doc : await externalRefResolver.resolveDocument(base, ref!, true);
+    doc === undefined ? await externalRefResolver.resolveDocument(base, ref!, true) : doc;
 
   if (document instanceof Error) {
     throw document;
@@ -56,6 +67,23 @@ export async function bundle(opts: {
     ...opts,
     config: opts.config.styleguide,
     externalRefResolver,
+  });
+}
+
+export async function bundleFromString(
+  opts: {
+    source: string;
+    absoluteRef?: string;
+  } & BundleOptions
+) {
+  const { source, absoluteRef, externalRefResolver = new BaseResolver(opts.config.resolve) } = opts;
+  const document = makeDocumentFromString(source, absoluteRef || '/');
+
+  return bundleDocument({
+    document,
+    ...opts,
+    externalRefResolver,
+    config: opts.config.styleguide,
   });
 }
 

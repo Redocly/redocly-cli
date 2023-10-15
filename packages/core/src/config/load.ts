@@ -7,7 +7,13 @@ import { Config, DOMAINS } from './config';
 import { transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
-import type { DeprecatedInRawConfig, FlatRawConfig, RawConfig, Region } from './types';
+import type {
+  DeprecatedInRawConfig,
+  FlatRawConfig,
+  RawConfig,
+  RawUniversalConfig,
+  Region,
+} from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 
 async function addConfigMetadata({
@@ -101,8 +107,8 @@ export function findConfig(dir?: string): string | undefined {
   ).filter(fs.existsSync);
   if (existingConfigFiles.length > 1) {
     throw new Error(`
-      Multiple configuration files are not allowed. 
-      Found the following files: ${existingConfigFiles.join(', ')}. 
+      Multiple configuration files are not allowed.
+      Found the following files: ${existingConfigFiles.join(', ')}.
       Please use 'redocly.yaml' instead.
     `);
   }
@@ -129,10 +135,11 @@ export async function getConfig(
 type CreateConfigOptions = {
   extends?: string[];
   tokens?: RegionalTokenWithValidity[];
+  configPath?: string;
 };
 
 export async function createConfig(
-  config: string | RawConfig,
+  config: string | RawUniversalConfig,
   options?: CreateConfigOptions
 ): Promise<Config> {
   return addConfigMetadata({

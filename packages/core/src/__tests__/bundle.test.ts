@@ -1,10 +1,31 @@
 import outdent from 'outdent';
 import * as path from 'path';
 
-import { bundleDocument, bundle } from '../bundle';
+import { bundleDocument, bundle, bundleFromString } from '../bundle';
 import { parseYamlToDocument, yamlSerializer, makeConfig } from '../../__tests__/utils';
-import { StyleguideConfig, Config, ResolvedConfig } from '../config';
+import { StyleguideConfig, Config, ResolvedConfig, createConfig, loadConfig } from '../config';
 import { BaseResolver } from '../resolve';
+
+const stringDocument = outdent`
+  openapi: 3.0.0
+  paths:
+    /pet:
+      get:
+        operationId: get
+        parameters:
+          - $ref: '#/components/parameters/shared_a'
+          - name: get_b
+      post:
+        operationId: post
+        parameters:
+          - $ref: '#/components/parameters/shared_a'
+  components:
+    parameters:
+      shared_a:
+        name: shared-a
+`;
+
+const testDocument = parseYamlToDocument(stringDocument, '');
 
 describe('bundle', () => {
   const fetchMock = jest.fn(() =>
@@ -18,28 +39,6 @@ describe('bundle', () => {
   );
 
   expect.addSnapshotSerializer(yamlSerializer);
-
-  const testDocument = parseYamlToDocument(
-    outdent`
-      openapi: 3.0.0
-      paths:
-        /pet:
-          get:
-            operationId: get
-            parameters:
-              - $ref: '#/components/parameters/shared_a'
-              - name: get_b
-          post:
-            operationId: post
-            parameters:
-              - $ref: '#/components/parameters/shared_a'
-      components:
-        parameters:
-          shared_a:
-            name: shared-a
-    `,
-    ''
-  );
 
   it('change nothing with only internal refs', async () => {
     const { bundle, problems } = await bundleDocument({
@@ -97,7 +96,7 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
-  it('should not place referened schema inline when component in question is not of type "schemas"', async () => {
+  it('should not place referenced schema inline when component in question is not of type "schemas"', async () => {
     const { bundle: res, problems } = await bundle({
       config: new Config({} as ResolvedConfig),
       ref: path.join(__dirname, 'fixtures/refs/external-request-body.yaml'),
@@ -232,5 +231,46 @@ describe('bundle', () => {
             type: string
 
     `);
+  });
+
+  it('should throw an error when there is no document to bundle', () => {
+    const wrapper = () =>
+      bundle({
+        config: new Config({} as ResolvedConfig),
+      });
+
+    expect(wrapper()).rejects.toThrowError('Document or reference is required.\n');
+  });
+
+  it('should bundle with a doc provided', async () => {
+    const {
+      bundle: { parsed },
+      problems,
+    } = await bundle({
+      config: await loadConfig({ configPath: path.join(__dirname, 'fixtures/redocly.yaml') }),
+      doc: testDocument,
+    });
+
+    const origCopy = JSON.parse(JSON.stringify(testDocument.parsed));
+
+    expect(problems).toHaveLength(0);
+    expect(parsed).toEqual(origCopy);
+  });
+});
+
+describe('bundleFromString', () => {
+  it('should bundle from string using bundleFromString', async () => {
+    const {
+      bundle: { parsed, ...rest },
+      problems,
+    } = await bundleFromString({
+      config: await createConfig(`
+        extends:
+        - recommended
+      `),
+      source: testDocument.source.body,
+    });
+    expect(problems).toHaveLength(0);
+    expect(rest.source.body).toEqual(stringDocument);
   });
 });

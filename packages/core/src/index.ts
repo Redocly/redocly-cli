@@ -27,6 +27,7 @@ export {
   Config,
   StyleguideConfig,
   RawConfig,
+  RawUniversalConfig,
   IGNORE_FILE,
   Region,
   getMergedConfig,
@@ -75,4 +76,4 @@ export {
 export { getAstNodeByPointer, getLineColLocation } from './format/codeframes';
 export { formatProblems, OutputFormat, getTotals, Totals } from './format/format';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint';
-export { bundle, bundleDocument, mapTypeToComponent } from './bundle';
+export { bundle, bundleDocument, mapTypeToComponent, bundleFromString } from './bundle';
