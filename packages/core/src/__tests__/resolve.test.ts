@@ -428,4 +428,53 @@ describe('collect refs', () => {
 
     expect(Array.from(resolvedRefs.values()).pop()!.error).toBeInstanceOf(Error);
   });
+
+  it('should handle $id correctly', async () => {
+    const cwd = path.join(__dirname, 'fixtures/resolve');
+    const rootDocument = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        components:
+          schemas:
+            Local:
+              type: string
+            LocalRef:
+              $ref: "#/components/schemas/Local"
+            External:
+              $id: "http://example.com/external.yaml"
+              $defs:
+                Id:
+                  type: string
+                  format: uuid
+              properties:
+                foo:
+                  $ref: "#/$defs/Id"
+                bar:
+                  $ref: "test.yaml"
+      `,
+      path.join(cwd, 'foobar')
+    );
+
+    const resolvedRefs = await resolveDocument({
+      rootDocument,
+      externalRefResolver: new BaseResolver(),
+      rootType: normalizeTypes(Oas3Types).Root,
+    });
+
+    expect(
+      Array.from(resolvedRefs.keys()).map(
+        (ref) => (ref.startsWith('http:') && ref) || ref.substring(cwd.length + 1)
+      )
+    ).toEqual([
+      'foobar::#/components/schemas/Local',
+      'http://example.com/external.yaml::#/$defs/Id',
+      'http://example.com/external.yaml::test.yaml',
+    ]);
+
+    expect(Array.from(resolvedRefs.values()).map((info) => info.node)).toEqual([
+      { type: 'string' },
+      { type: 'string', format: 'uuid' },
+      undefined, // unresolved ref
+    ]);
+  });
 });

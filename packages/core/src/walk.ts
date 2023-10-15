@@ -125,7 +125,7 @@ export function walkDocument<T>(opts: {
     key: string | number
   ) {
     const resolve: ResolveFn = (ref, from = currentLocation.source.absoluteRef) => {
-      if (!isRef(ref)) return { location, node: ref };
+      if (!isRef(ref)) return { location: currentLocation, node: ref };
       const refId = makeRefId(from, ref.$ref);
       const resolvedRef = resolvedRefMap.get(refId);
       if (!resolvedRef) {
@@ -147,6 +147,14 @@ export function walkDocument<T>(opts: {
 
     const rawLocation = location;
     let currentLocation = location;
+
+    if (node?.$id) {
+      currentLocation = new Location(
+        new Source(node.$id, location.source.body, location.source.mimeType),
+        location.pointer
+      );
+    }
+
     const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
