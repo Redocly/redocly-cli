@@ -137,7 +137,13 @@ const Schema: NodeType = {
     maxContains: { type: 'integer', minimum: 0 },
     patternProperties: { type: 'object' },
     propertyNames: 'Schema',
-    unevaluatedItems: 'Schema',
+    unevaluatedItems: (value: unknown) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return 'Schema';
+      }
+    },
     unevaluatedProperties: (value: unknown) => {
       if (typeof value === 'boolean') {
         return { type: 'boolean' };
