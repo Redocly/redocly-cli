@@ -1,0 +1,16 @@
+openapi: 3.0.3
+tags:
+  - name: CreateBar
+    description: Create a new Bar
+paths:
+  /bar/:
+    post:
+      summary: Create a single bar
+      operationId: createBar
+      responses:
+        '200':
+          description: One single bar
+          content:
+            application/json:
+              schema:
+                $ref: './nested/Response.yaml'

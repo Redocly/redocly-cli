@@ -1,7 +1,10 @@
 ---
-redirectFrom:
-  - /docs/cli/built-in-rules/
-  - /docs/cli/resources/built-in-rules/
+redirects:
+  '/docs/cli/built-in-rules/':
+    to: '/docs/cli/rules/built-in-rules/'
+  '/docs/cli/resources/built-in-rules/':
+    to: '/docs/cli/rules/built-in-rules/'
+slug: /docs/cli/rules/built-in-rules
 ---
 
 # Built-in rules
@@ -9,11 +12,11 @@ redirectFrom:
 The built-in rules are the ones we use ourselves and think apply to the majority of APIs. Some have some additional [configuration](#rule-configuration-syntax), but otherwise all you need to do is decide whether each rule should `error`, `warn` or be `off`.
 
 All the built-in rules are listed here, roughly grouped by the OpenAPI object they apply to.
-The *Special rules* group contains rules that may apply to multiple objects or to the entire OpenAPI document.
+The _Special rules_ group contains rules that may apply to multiple objects or to the entire OpenAPI document.
 
-:::info
+{% admonition type="info" %}
 Build [configurable rules](./configurable-rules.md) if the rule you need isn't listed.
-:::
+{% /admonition %}
 
 ### Special rules
 
@@ -89,7 +92,6 @@ Build [configurable rules](./configurable-rules.md) if the rule you need isn't l
 - [tag-description](./tag-description.md): Tags must have descriptions
 - [tags-alphabetical](./tags-alphabetical.md): Tags in the top-level `tags` section must appear alphabetically
 
-
 ## Rule configuration syntax
 
 To change your settings for any given rule, add or modify its corresponding entry in your Redocly configuration file.
@@ -128,6 +130,5 @@ rules:
 
 ## Next steps
 
-* Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
-* If you didn't find the rule you need, build a [configurable rule](./configurable-rules.md) for a perfect linting fit.
-
+- Learn more about [API linting](../api-standards.md), or follow the [guide to configuring a ruleset](../guides/configure-rules.md).
+- If you didn't find the rule you need, build a [configurable rule](./configurable-rules.md) for a perfect linting fit.

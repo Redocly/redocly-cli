@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/no-invalid-schema-examples
+---
+
 # no-invalid-schema-examples
 
 Disallow invalid schema examples.

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/spec-components-invalid-map-name
+---
 # spec-components-invalid-map-name
 
 Requires that specific objects inside `components` MUST use keys that match the regular expression: `^[a-zA-Z0-9\.\-_]+$`.
@@ -69,7 +72,7 @@ components:
   examples:
     invalid identifier:
       description: invalid identifier
-      value: 21     
+      value: 21
 ```
 
 Example of **correct** operation response:
@@ -79,7 +82,7 @@ components:
   examples:
     valid_identifier:
       description: valid identifier
-      value: 21 
+      value: 21
 ```
 
 ## Related rules

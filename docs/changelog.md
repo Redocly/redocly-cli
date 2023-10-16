@@ -492,8 +492,7 @@ Technical release for changing the package name from `@redocly/openapi-cli` to `
 
 ## 1.0.0-beta.95 (2022-05-04)
 
-:::warning Product name change
-
+{% admonition type="warning" name="Product name change" %}
 The product name has changed from OpenAPI CLI to **Redocly CLI**.
 
 This change is reflected in all Redocly product documentation, in the npm package name (more on that in the "Deprecated" section),
@@ -504,7 +503,7 @@ The change also affects the CLI commands. The legacy name `openapi` is supported
 
 If you encounter any issues and suspect they may be related to this change, let us know by [reporting an issue](https://github.com/Redocly/redocly-cli/issues).
 
-:::
+{% /admonition %}
 
 ### Features
 
@@ -769,7 +768,7 @@ rules:
 
 ### Features
 
-- Added support for the [region](./configuration/index.mdx) option with the `login`, `push`, and other commands.
+- Added support for the [region](./configuration/index.md) option with the `login`, `push`, and other commands.
 - Added two new built-in rules:
   - [no-invalid-schema-examples](./rules/no-invalid-schema-examples.md)
   - [no-invalid-parameter-examples](./rules/no-invalid-parameter-examples.md)
@@ -950,7 +949,7 @@ lint:
 
 ### Features
 
-- Updated and improved the [introductory content](index.mdx) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
+- Updated and improved the [introductory content](index.md) and [installation instructions](installation.md) for OpenAPI CLI as part of our Google Season of Docs 2021 project.
 
 - Implemented improvements to the internal CD process.
 

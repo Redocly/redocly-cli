@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/minimal
+---
 # Minimal ruleset
 
 The rules contained in the minimal ruleset:

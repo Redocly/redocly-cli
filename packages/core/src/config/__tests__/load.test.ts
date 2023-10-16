@@ -73,8 +73,8 @@ describe('findConfig', () => {
       .spyOn(fs, 'existsSync')
       .mockImplementation((name) => name === 'redocly.yaml' || name === '.redocly.yaml');
     expect(findConfig).toThrow(`
-      Multiple configuration files are not allowed. 
-      Found the following files: redocly.yaml, .redocly.yaml. 
+      Multiple configuration files are not allowed.
+      Found the following files: redocly.yaml, .redocly.yaml.
       Please use 'redocly.yaml' instead.
     `);
   });
@@ -122,6 +122,39 @@ describe('createConfig', () => {
     verifyExtendedConfig(config, {
       extendsRuleSet: 'minimal',
       overridesRules: rawConfig.rules as Record<string, RuleConfig>,
+    });
+  });
+
+  it('should create config from object with a custom plugin', async () => {
+    const testCustomRule = jest.fn();
+    const rawConfig: FlatRawConfig = {
+      extends: [],
+      plugins: [
+        {
+          id: 'my-plugin',
+          rules: {
+            oas3: {
+              'test-rule': testCustomRule,
+            },
+          },
+        },
+      ],
+      rules: {
+        'my-plugin/test-rule': 'error',
+      },
+    };
+    const config = await createConfig(rawConfig);
+
+    expect(config.styleguide.plugins[0]).toEqual({
+      id: 'my-plugin',
+      rules: {
+        oas3: {
+          'my-plugin/test-rule': testCustomRule,
+        },
+      },
+    });
+    expect(config.styleguide.rules.oas3_0).toEqual({
+      'my-plugin/test-rule': 'error',
     });
   });
 });

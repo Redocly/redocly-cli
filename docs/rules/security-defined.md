@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/security-defined
+---
 # security-defined
 
 Verifies every operation or global security is defined.
@@ -53,7 +56,7 @@ rules:
 Example of **incorrect** security definition due to mismatching security and security schemes:
 
 ```yaml
-security: 
+security:
   - OAuth: []
 components:
   securitySchemes:
@@ -66,7 +69,7 @@ components:
 Example of **correct** security definition:
 
 ```yaml
-security: 
+security:
   - JWT: []
 components:
   securitySchemes:

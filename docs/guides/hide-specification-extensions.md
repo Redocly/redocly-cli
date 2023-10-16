@@ -19,9 +19,9 @@ For this tutorial, we've prepared a sample containing OpenAPI specification exte
 
 ## Prerequisites
 
-:::note We do, You do
+{% admonition type="note" name="We do, You do" %}
 This tutorial is most effective when you follow along and complete the steps.
-:::
+{% /admonition %}
 
 - [Install @redocly/cli](../installation.md) with version 1.0.0-beta.117 or later (we use 1.0.0-beta.117 in this tutorial).
 - Download the [sample.yaml](https://gist.github.com/bandantonio/e1331ba5afd24485de5e6229c91d25ed) file into a new directory named `hide-openapi-extensions`.
@@ -52,9 +52,9 @@ In this step, create a custom plugin and define the decorator dependency.
 
 1. Save the file.
 
-:::attention
+{% admonition type="attention" %}
 You can name the plugins directory and the file anything you want. Make sure you use the correct name in the Redocly configuration file (Step 3 below).
-:::
+{% /admonition %}
 
 ## Step 2: Add a decorator and associate it with an environment variable
 
@@ -86,9 +86,9 @@ You can name the plugins directory and the file anything you want. Make sure you
 
 1. Save the file.
 
-:::attention
+{% admonition type="attention" %}
 You can name the decorators directory anything you want. Make sure you use the correct directory name in the line 1 of the `plugin.js` file (Step 1 above).
-:::
+{% /admonition %}
 
 ## Step 3: Configure the plugin for use
 
@@ -133,7 +133,7 @@ In this step, two API snapshots are produced from the single source of truth. To
     // or
     npx @redocly/cli bundle external@latest -o dist/bundle-external.yaml
     ```
-    
+
     Inspect the file at `dist/external.yaml`.
     Confirm that all the occurrences of `x-amazon-apigateway` are removed.
 

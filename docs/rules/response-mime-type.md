@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/response-mime-type
+---
 # response-mime-type
 
 |OAS|Compatibility|

@@ -2,11 +2,9 @@
 
 Redocly CLI is the recommended replacement for the deprecated [swagger-cli](https://www.npmjs.com/package/swagger-cli) package. This guide shows you how to replace the old commands with Redocly CLI commands. Redocly CLI is built for OpenAPI but you can assume that Swagger 2.0 is also supported when the documentation refers to an OpenAPI description. We know those existing APIs are still working hard in many places!
 
-:::success Modern API tooling
-
+{% admonition type="success" name="Modern API tooling" %}
 Redocly CLI is open source and actively maintained, supporting newer versions of OpenAPI (3.1) and continuing to evolve. It also provides extensive [linting](../api-standards.md) options, easy and beautiful [API reference documentation](../api-docs.md), and plenty of extensibility with [custom plugins](../custom-plugins/index.md).
-
-:::
+{% /admonition %}
 
 ## Validate OpenAPI/Swagger files
 
@@ -48,11 +46,13 @@ redocly lint openapi.yml
 
 You can add more [built-in rules](../rules/built-in-rules.md) by adding them in the configuration file, and adjust the level of the messages by using `warn` rather than `error`.
 
-:::info Redocly configuration
+<!-- :::info Redocly configuration -->
 
-Learn more about [configuring Redocly CLI](../configuration/index.mdx) in the documentation.
+<!-- :::info Redocly configuration -->
 
-:::
+Learn more about [configuring Redocly CLI](../configuration/index.md) in the documentation.
+
+<!-- ::: -->
 
 ## Bundle OpenAPI/Swagger into a single file
 
@@ -78,4 +78,4 @@ Both commands have additional options; here's a quick reference on how to replac
 
 ## Get the best from Redocly CLI
 
-Redocly CLI has more functionality than `swagger-cli` did, so if that sounds interesting you should [visit the main docs](../index.mdx) and see if there's anything you'd like to add to your own workflows.
+Redocly CLI has more functionality than `swagger-cli` did, so if that sounds interesting you should [visit the main docs](../index.md) and see if there's anything you'd like to add to your own workflows.

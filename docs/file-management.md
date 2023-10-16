@@ -1,5 +1,6 @@
 ---
-title: OpenAPI file management
+seo:
+  title: OpenAPI file management
 ---
 
 # OpenAPI file management
@@ -37,15 +38,15 @@ redocly bundle openapi.yaml -o bundled.yaml
 
 All the references are brought into a single file, that you can then pass on to other tools in your API workflow.
 
-:::info
+{% admonition type="info" %}
 Pass `--lint` to the bundle command to have Redocly CLI check your API meets the expected standards before bundling. [Learn more about API standards and linting](./api-standards.md)
-:::
+{% /admonition %}
 
 ## Combine OpenAPI files
 
-:::warning
+{% admonition type="warning" %}
 This feature is experimental, and supports OpenAPI 3.x only
-:::
+{% /admonition %}
 
 When you have multiple APIs but want to publish a single API description file, the [`join`](./commands/join.md) may meet your needs. This can be useful when you are providing a combined offering and want to create unified documentation, or use a single input to other tools.
 

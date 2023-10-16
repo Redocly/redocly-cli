@@ -1,5 +1,6 @@
 ---
-title: API docs
+seo:
+  title: API docs
 ---
 
 # API documentation

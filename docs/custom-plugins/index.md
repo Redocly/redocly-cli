@@ -1,9 +1,13 @@
 ---
-title: Custom plugins in Redocly
-redirectFrom:
-  - /docs/cli/custom-rules/
-  - /docs/cli/resources/custom-rules/
-  - /docs/cli/resources/custom-plugins/
+seo:
+  title: Custom plugins in Redocly
+redirects:
+  '/docs/cli/custom-rules/':
+    to: '/docs/cli/custom-plugins/'
+  '/docs/cli/resources/custom-rules/':
+    to: '/docs/cli/custom-plugins/'
+  '/docs/cli/resources/custom-plugins/':
+    to: '/docs/cli/custom-plugins/'
 ---
 
 # Custom plugins
@@ -12,9 +16,9 @@ Custom plugins are a powerful way to extend Redocly. Use of custom plugins requi
 Custom plugins are recommended for advanced users who have exhausted the built-in options available, and who can develop JavaScript extensions themselves.
 Each plugin is a JavaScript module which can export custom rules, configurations, preprocessors, decorators or type tree extensions.
 
-:::info
+{% admonition type="info" %}
 For many users, our highly [configurable rules](../rules/configurable-rules.md) cover their needs without needing a custom plugin.
-:::
+{% /admonition %}
 
 Custom plugins use the [visitor pattern](./visitor.md) to traverse the document structure and apply the rules and decorators (and preprocessors if you have them) to each element. Rules defined in custom plugins may need additional context available, and this can be achieved using the [nested visitor approach](./visitor.md#nested-visitors) (please note that nested visitors are not available for decorators or preprocessors).
 
@@ -30,7 +34,6 @@ Custom plugins can extend the built-in functionality of Redocly in the following
 
 - **Write custom decorators in JavaScript**. Not all API descriptions are exactly as we'd like them to be before passing them to the next stage of the API lifecycle. Redocly has a selection of [decorators available](../decorators), but if you need to build something more then [visit the documentation for building decorators in custom plugins](./custom-decorators.md).
 
-
 ### Order of execution
 
 Some commands, such as using `bundle` with `--lint`, may execute more than one type of functionality. The order is preprocessors first, then linting rules, and finally the decorators are applied.
@@ -44,15 +47,13 @@ graph LR
     style V fill:#codaf9,stroke:#0044d4,stroke-width:4px
 ```
 
-
 ## Add custom plugins to your project
 
-Each plugin can contain any or many of each type of extension (rules, configuration, decorators, etc). 
+Each plugin can contain any or many of each type of extension (rules, configuration, decorators, etc).
 
 Define the plugins to include in the `redocly.yaml` configuration file, in the `plugins` section:
 
 ```yaml
-
 plugins:
   - plugins/my-best-plugin.js
   - plugins/another-plugin.js
@@ -60,15 +61,14 @@ plugins:
 
 The paths are relative to the configuration file location. Where there are multiple features that happen at the same time, such as decorators, the plugins loaded first in the `plugins` section are processed first.
 
-
 ### Plugin structure
 
 The minimal plugin should export an `id` string that is used to refer to the contents of the plugin in the `redocly.yaml` configuration file:
 
 ```js
 module.exports = {
-  id: 'my-local-plugin'
-}
+  id: 'my-local-plugin',
+};
 ```
 
 ## Supported formats

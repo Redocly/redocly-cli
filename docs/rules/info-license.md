@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/info-license
+---
 # info-license
 
 Requires the license info in your API descriptions.

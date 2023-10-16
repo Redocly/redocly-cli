@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-operationId-unique
+---
 # operation-operationId-unique
 
 Requires unique `operationId` values for each operation.

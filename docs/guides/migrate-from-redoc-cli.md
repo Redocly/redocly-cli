@@ -12,7 +12,7 @@ Visit the [installation page](../installation.md) to find and use an installatio
 
 ## Replace old commands with new ones
 
-All Redocly CLI commands use a common configuration file. For theme options, linting rules, and other configuration, check out the [configuration documentation](../configuration/index.mdx) for all the details.
+All Redocly CLI commands use a common configuration file. For theme options, linting rules, and other configuration, check out the [configuration documentation](../configuration/index.md) for all the details.
 
 ### Developing documentation
 
@@ -27,9 +27,9 @@ By default the documentation is available on `http://127.0.0.1:8080` but this is
 
 The `--use-community-edition` parameter is needed for the tool to use Redoc to generate the docs; otherwise it generates the preview for our hosted [API reference docs](https://redocly.com/reference/)
 
-:::success Command reference
+{% admonition type="success" name="Command reference" %}
 Visit the [`preview-docs` documentation](../commands/preview-docs.md) for more information and examples
-:::
+{% /admonition %}
 
 ### Publishing documentation
 
@@ -49,9 +49,9 @@ If you have your OpenAPI description split between multiple files, replace `redo
 redocly bundle openapi.yaml -o all-in-one.yaml
 ```
 
-:::success Command reference
+{% admonition type="success" name="Command reference" %}
 Details and examples of using `bundle` are on the [`bundle` command page](../commands/bundle.md). Learn more about bundling, dereferencing, and handling unused components.
-:::
+{% /admonition %}
 
 ## Update configuration settings
 
@@ -78,7 +78,7 @@ redocly build-docs --theme.openapi.theme.sidebar.width='300px' openapi.yaml
 
 ### Update configuration file
 
-Configuration belongs in a file named `redocly.yaml`, or in a file name specified with the `--config` command-line parameter. You can read more about the [configuration file structure](../configuration/index.mdx) in the documentation, and changes between this and older versions are listed here.
+Configuration belongs in a file named `redocly.yaml`, or in a file name specified with the `--config` command-line parameter. You can read more about the [configuration file structure](../configuration/index.md) in the documentation, and changes between this and older versions are listed here.
 
 Options named `features.openapi.*` should be re-prefixed to `theme.openapi.*`, either at the top level of the configuration, or per API. So a configuration file to change one of the colours to a rather lurid purple would look something like the example below:
 
@@ -100,12 +100,12 @@ extends:
 
 ## Next steps with Redocly CLI
 
-The newer tool has a lot more functionality than `redoc-cli` had, so explore the rest of the [Redocly CLI documentation](../index.mdx) to find out more about:
+The newer tool has a lot more functionality than `redoc-cli` had, so explore the rest of the [Redocly CLI documentation](../index.md) to find out more about:
 
 - Ensuring API quality with linting
 - Managing large OpenAPI files
 - Enhancing an OpenAPI description with decorators
 
-:::warning Uninstall
+{% admonition type="warning" name="Uninstall" %}
 It's recommended to uninstall `redoc-cli` now that it is no longer needed
-:::
+{% /admonition %}

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-singular-tag
+---
 # operation-singular-tag
 
 Disallows multiple tags for an operation.

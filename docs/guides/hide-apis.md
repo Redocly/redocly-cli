@@ -1,8 +1,10 @@
 ---
 tocMaxDepth: 3
-redirectFrom:
-  - /docs/resources/hide-apis/
+redirects:
+  '/docs/resources/hide-apis/':
+    to: '/docs/cli/guides/hide-apis/'
 ---
+
 # Hide your internal APIs
 
 Several times a month, a variation of this question comes up:
@@ -27,9 +29,9 @@ The following image highlights what is to be removed in this tutorial.
 
 ## Prerequisites
 
-:::note We do, You do
+{% admonition type="note" name="We do, You do" %}
 This tutorial is most effective when you follow along and complete the steps.
-:::
+{% /admonition %}
 
 - [Install @redocly/cli](../installation.md) with version 1.0.0-beta.90 or later (we use 1.0.0-beta.94 in this tutorial).
 - Download the [sample.yaml](https://gist.github.com/adamaltman/ee07bf94a967926ee0e54bcd56fdcdfb) file into a new directory named `hide-apis-demo`.
@@ -42,21 +44,21 @@ In this step, mark which operations and properties of the API description are fo
 Open the `sample.yaml` file in your IDE. Changes are needed in a few places.
 
 1. Go to line 22 and add a new line between `post` and `operationId`.
-  The indentation is important.
-  Type `x-internal: true` on that line.
-  The space after the colon is important too.
-  It should look like the following example.
-    ```yaml
-        post:
-          x-internal: true
-          operationId: postStars
-    ```
+   The indentation is important.
+   Type `x-internal: true` on that line.
+   The space after the colon is important too.
+   It should look like the following example.
+   ```yaml
+   post:
+     x-internal: true
+     operationId: postStars
+   ```
 1. Go to line 52 and add a new line between `hasPlanets` and `type`, like we did previously. The following example shows how it should look.
-    ```yaml
-            hasPlanets:
-              x-internal: true
-              type: boolean
-    ```
+   ```yaml
+   hasPlanets:
+     x-internal: true
+     type: boolean
+   ```
 1. Save the file.
 
 ## Step 2: Add a Redocly configuration file
@@ -88,6 +90,7 @@ apis:
   external@latest:
     root: ./sample.yaml
 ```
+
 Finally, we want the [remove-x-internal](../decorators/remove-x-internal.md) decorator to be applied to the external API.
 To accomplish that, add the last three lines as shown in the following example.
 
@@ -114,34 +117,37 @@ This can be done in two ways:
 ### Option A: Redocly's API registry bundles automatically
 
 1. Add the APIs to the API registry.
-  This process varies depending on the source type you use.
-  If using the CICD `push` command, it can push all APIs or the API you specify by the API `name@version`.
-  If using a git-based integration, select the appropriate API in the path to your root file.
+   This process varies depending on the source type you use.
+   If using the CICD `push` command, it can push all APIs or the API you specify by the API `name@version`.
+   If using a git-based integration, select the appropriate API in the path to your root file.
 
-    ![path to root file](./images/hide-apis-path-to-root-file.png)
+   ![path to root file](./images/hide-apis-path-to-root-file.png)
 
 1. Confirm the API in the registry has the appropriate content.
 
 1. Repeat this step for each API.
+
 ### Option B: Use your machine and the `bundle` command
 
 1. Bundle the `external@latest` API.
-    ```shell
-    redocly bundle external@latest --output dist/external.yaml
-    ```
+   ```shell
+   redocly bundle external@latest --output dist/external.yaml
+   ```
 1. Inspect the file at `dist/external.yaml`.
-  Confirm the following:
-    - The `postStars` operation is removed.
-    - The `hasPlanets` property is removed.
+   Confirm the following:
+   - The `postStars` operation is removed.
+   - The `hasPlanets` property is removed.
 1. Bundle the `internal@latest` API.
 
-    ```shell
-    redocly bundle internal@latest --output dist/internal.yaml
-    ```
-    Inspect the file at `dist/internal.yaml`.
-    Confirm the following:
-      - The `postStars` operation is **not** removed.
-      - The `hasPlanets` property is **not** removed.
+   ```shell
+   redocly bundle internal@latest --output dist/internal.yaml
+   ```
+
+   Inspect the file at `dist/internal.yaml`.
+   Confirm the following:
+
+   - The `postStars` operation is **not** removed.
+   - The `hasPlanets` property is **not** removed.
 
 ## Next steps
 
@@ -150,7 +156,7 @@ Be sure to tag `@Redocly` as it lets us know how we're doing and where we can im
 
 Try this technique with your own APIs to accomplish the use case demonstrated above.
 
-:::danger Security through obscurity
+{% admonition type="danger" name="Security through obscurity" %}
 If an endpoint is discovered, your API authentication mechanism **must** prevent unauthorized access.
 Removing APIs from documentation is not a security mechanism. Use access controls for your internal API documentation as well.
-:::
+{% /admonition %}

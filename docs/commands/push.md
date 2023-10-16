@@ -13,25 +13,21 @@ This allows you to:
 
 Apart from uploading your API description file, the `push` command can automatically upload other files if they are detected or referenced in the API description:
 
-- the [Redocly configuration file](../configuration/index.mdx) and any configuration files referenced in the `extends` list.
+- the [Redocly configuration file](../configuration/index.md) and any configuration files referenced in the `extends` list.
 - the `package.json` file (if it exists) from the folder where you're executing the `push` command. Redocly Workflows uses the `@redocly/cli` version specified in `package.json`.
 - the HTML template and the full contents of the folder specified as the `theme.openapi.htmlTemplate` parameter in the Redocly configuration file.
 
-:::attention
-
+{% admonition type="attention" %}
 If a plugin is referenced in the Redocly configuration file, the `push` command recursively scans the folder containing the plugin and uploads all `.js`, `.json`, `.mjs` and `.ts` files.
 
 Make sure that each plugin has all the required files in its folder; otherwise, they are not uploaded.
-
-:::
+{% /admonition %}
 
 By default, the `push` command only updates an existing API description version. If an API with the provided name and version doesn't exist in your organization, it isn't created automatically. For details on how to create an API, check the [Upsert an API with push](#upsert-an-api-with-push) section.
 
-:::warning
-
-Only API descriptions with a CI source can be updated with the `push` command. Attempting to update API descriptions created from other sources fails with an error.
-
-:::
+{% admonition type="warning" %}
+Only API descriptions with a CI source can be updated with the `push` command. Attempting to update API definitions created from other sources fails with an error.
+{% /admonition %}
 
 ## Prerequisites
 
@@ -122,11 +118,9 @@ To find your organization ID required for the command:
 
 For example, if the URL is `app.redocly.com/org/test_docs`, the organization ID is `test_docs`. When using the `push` command, you would provide this ID as `--organization=test_docs`.
 
-:::warning Note
-
+{% admonition type="warning" name="Note" %}
 The organization ID can differ from the organization name. Owners can change the organization name at any time in the Workflows **Settings** page, but the organization ID cannot be changed.
-
-:::
+{% /admonition %}
 
 #### API name and version
 
@@ -137,11 +131,9 @@ To find your API name required for the command:
 1. Check the list of APIs displayed on this page.
 1. Inspect the title of each list item to the left of the **New version** and **Edit API** action buttons. This title is an API name.
 
-:::attention
-
+{% admonition type="attention" %}
 The name of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
-
-:::
+{% /admonition %}
 
 To find your API version required for the command:
 
@@ -152,11 +144,9 @@ To find your API version required for the command:
 
 When using the `push` command, you would provide the API name and version separated with the "at" symbol (`@`). For example: `--destination=petstore-api@v1`.
 
-:::attention
-
+{% admonition type="attention" %}
 The version of your API should contain only supported characters (`a-z`, `A-Z`, `0-9`, `-`, `.`). Using a restricted character results in an error, and your API doesn't get created.
-
-:::
+{% /admonition %}
 
 ### Set options explicitly
 
@@ -210,29 +200,36 @@ In this case, you don't have to specify the organization ID in the configuration
 ### Upsert an API with push
 
 To upsert an API in the registry with the `push` command, use the `--upsert` or `-u` option. The upsert creates the destination if it doesn't exist, or updates it if it does.
-
-```bash Set options explicitly
+{% tabs %}
+{% tab label="Set options explicitly" %}
+```bash
 redocly push -u test-api-v1.yaml --destination=test-api@v1 --organization=redocly
 ```
-
-```bash Use config file
+{% /tab  %}
+{% tab label="Use config file" %}
+```bash
 redocly push -u --destination=test-api@v1
 ```
-
-```bash Upsert all APIs from config file
+{% /tab  %}
+{% tab label="Upsert all APIs from config file" %}
+```bash
 redocly push -u
 ```
-
+{% /tab  %}
+{% /tabs  %}
 To upsert the API description to a particular branch, specify the branch name with `--branch` or `-b`.
-
-```bash Set options explicitly
+{% tabs %}
+{% tab label="Set options explicitly" %}
+```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org -b develop
 ```
-
+{% /tab  %}
+{% tab label="Use config file" %}
 ```bash Use config file
 redocly push -u test-api@v1 -b develop
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ### Job ID
 
 The `--job-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job.
@@ -253,15 +250,18 @@ Must be used only in combination with the `--job-id` option. Must be an integer 
 ### Skip decorator
 
 You may want to skip specific decorators upon running the command.
-
-```bash Skip a decorator
+{% tabs %}
+{% tab label="Skip a decorator" %}
+```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --skip-decorator=test/remove-internal-operations
 ```
-
-```bash Skip multiple decorators
+{% /tab  %}
+{% tab label="Skip multiple decorators" %}
+```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ### Public
 
 The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, API descriptions uploaded with the `push` command are not available to the public.

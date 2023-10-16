@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/path-excludes-patterns
+---
 # path-excludes-patterns
 
 Disallow patterns from paths.

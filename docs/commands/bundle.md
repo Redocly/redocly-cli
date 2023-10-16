@@ -72,11 +72,9 @@ A fully dereferenced bundle does not use `$ref` at all, all the references are r
 redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml openapi/petstore.yaml
 ```
 
-:::warning Note
-
+{% admonition type="warning" name="Note" %}
 JSON output only works when there are no circular references.
-
-:::
+{% /admonition %}
 
 ### Custom configuration file
 
@@ -111,11 +109,14 @@ The compressed output omits other contexts and suggestions.
 
 #### JSON
 
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly bundle pet.yaml store.yaml -o ./bundled --format=json
 ```
-
-```bash Output
+{% /tab  %}
+{% tab label="Output" %}
+```bash
 bundling pet.yaml...
 {
   "totals": {
@@ -137,16 +138,20 @@ bundling store.yaml...
   "problems": []
 }📦 Created a bundle for store.yaml at bundled/store.yaml 15ms.
 ```
+{% /tab  %}
+{% /tabs  %}
 
 In this format, `bundle` shows the result of bundling (including the number of errors and warnings and their descriptions) in JSON-like output.
 
 #### Checkstyle
-
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly bundle pet.yaml -o ./bundled --lint --format=checkstyle
 ```
-
-```bash Output
+{% /tab  %}
+{% tab label="Output" %}
+```bash
 bundling pet.yaml...
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="4.3">
@@ -155,7 +160,8 @@ bundling pet.yaml...
 </checkstyle>
 📦 Created a bundle for pet.yaml at bundled/pet.yaml 35ms.
 ```
-
+{% /tab  %}
+{% /tabs  %}
 In this format, `bundle` uses the [Checkstyle](https://checkstyle.org/) XML report format.
 Due to the limitations of this format, the output _only_ includes the filename, line, column, severity,
 and rule ID (in the `source` attribute).
@@ -164,21 +170,23 @@ All other information is omitted.
 ### Skip preprocessor, rule, or decorator
 
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
-
-```bash Skip preprocessors
+{% tabs %}
+{% tab label="Skip preprocessors" %}
+```bash
 redocly bundle --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
-
-```bash Skip rules
+{% /tab  %}
+{% tab label="Skip rules" %}
+```bash
 redocly bundle --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
-
-```bash Skip decorators
+{% /tab  %}
+{% tab label="Skip decorators" %}
+```bash
 redocly bundle --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```
-
-:::success Tip
-
+{% /tab  %}
+{% /tabs  %}
+{% admonition type="success" name="Tip" %}
 To learn more about preprocessors, rules, and decorators, refer to the [custom plugins](../custom-plugins/index.md) page.
-
-:::
+{% /admonition %}

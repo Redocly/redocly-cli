@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/tag-description
+---
 # tag-description
 
 Requires that the tags all have a non-empty `description`.

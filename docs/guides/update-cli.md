@@ -1,6 +1,7 @@
 ---
-redirectFrom:
- - /docs/cli/update-cli/
+redirects:
+  '/docs/cli/update-cli/':
+    to: '/docs/cli/guides/update-cli'
 ---
 
 # Update Redocly CLI

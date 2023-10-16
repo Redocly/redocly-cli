@@ -1,3 +1,7 @@
+---
+slug: /docs/cli/rules/operation-2xx-response
+---
+
 # operation-2xx-response
 
 Ensures that every operation in your API document has at least one successful (200-299) HTTP response defined.
@@ -36,7 +40,7 @@ The following example enables validation of responses inside webhooks:
 
 ```yaml
 rules:
-  operation-2xx-response: 
+  operation-2xx-response:
     severity: error
     validateWebhooks: true
 ```

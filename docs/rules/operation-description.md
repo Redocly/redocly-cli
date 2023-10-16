@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/operation-description
+---
 # operation-description
 
 Requires the `description` field for every operation in your API.

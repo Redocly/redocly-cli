@@ -6,9 +6,9 @@ The `split` command takes an API description file and creates a [multi-file stru
 
 Use `bundle` and supply the main file as the entrypoint to get your OpenAPI description in one file. Many OpenAPI tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 
-:::warning OpenAPI 3.x only
+{% admonition type="warning" name="OpenAPI 3.x only" %}
 The `split` command doesn't support OpenAPI 2.0 descriptions.
-:::
+{% /admonition %}
 
 ## Usage
 
@@ -26,20 +26,25 @@ redocly split --version
 | --outDir    | string  | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.                                           |
 | --help      | boolean | Show help.                                                                                                                                                                               |
 | --separator | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
-| --config    | string  | Specify path to the [config file](../configuration/index.mdx).                                                                                                                           |
+| --config    | string  | Specify path to the [config file](../configuration/index.md).                                                                                                                           |
 | --version   | boolean | Show version number.                                                                                                                                                                     |
 
 ## Example
 
-```bash Command
+{% tabs %}
+{% tab label="Command" %}
+```bash
 redocly split pet.yaml --outDir=openapi
 ```
-
-```bash Output
+{% /tab  %}
+{% tab label="Output" %}
+```bash
 Document: pet.yaml is successfully split
  and all related files are saved to the directory: openapi
 
 pet.yaml: split processed in 33ms
 ```
+{% /tab  %}
+{% /tabs  %}
 
 In the `openapi` directory, the `split` command "unbundles" the specified API description. Code samples, components, and paths are split from the root API description into separate files and folders. The structure of the unbundled directory corresponds to the structure created by our [openapi-starter](https://github.com/Redocly/openapi-starter) tool.

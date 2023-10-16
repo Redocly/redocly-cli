@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/path-declaration-must-exist
+---
 # path-declaration-must-exist
 
 Requires definition of all path template variables.

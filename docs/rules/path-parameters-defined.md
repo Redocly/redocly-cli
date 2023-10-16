@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/path-parameters-defined
+---
 # path-parameters-defined
 
 Requires all path template variables are defined as path parameters.

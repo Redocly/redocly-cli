@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/parameter-description
+---
 # parameter-description
 
 Ensure that every parameter has a description.

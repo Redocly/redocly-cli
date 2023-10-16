@@ -1,14 +1,16 @@
 ---
-redirectFrom:
-  - /docs/cli/resources/built-in-decorators/
+redirects:
+  '/docs/cli/resources/built-in-decorators/':
+    to: '/docs/cli/decorators'
 ---
+
 # Decorators
 
 Decorators are a way of changing an API description during bundling. This updating during bundling can be useful for the following use cases:
 
-* removing some endpoints from an OpenAPI description before publishing
-* updating description fields
-* adding extra elements, such as examples, or metadata for other tools to use
+- removing some endpoints from an OpenAPI description before publishing
+- updating description fields
+- adding extra elements, such as examples, or metadata for other tools to use
 
 To learn how to configure decorators, read more about their [configuration syntax](#decorator-configuration-syntax).
 
@@ -40,7 +42,7 @@ Open a [GitHub issue](https://github.com/Redocly/redocly-cli/issues/new?assignee
 
 ## Decorator configuration syntax
 
-The following example shows how to configure a decorator in the [Redocly configuration file](./configuration/index.mdx).
+The following example shows how to configure a decorator in the [Redocly configuration file](./configuration/index.md).
 
 ```yaml
 apis:
@@ -59,4 +61,3 @@ Optionally, you may specify `severity` as one of decorator options in the config
 ## Custom decorators
 
 If you don't see the decorator you need, you can create your own decorators using [custom plugins](./custom-plugins/custom-decorators.md).
-

@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/no-undefined-server-variable
+---
 # no-undefined-server-variable
 
 Disallow undefined server variables.

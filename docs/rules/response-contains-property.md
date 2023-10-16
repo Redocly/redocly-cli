@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/response-contains-property
+---
 # response-contains-property
 
 Enforces definition of specific response properties based on HTTP status code or HTTP status code range. A specific status code takes priority over the status code range.

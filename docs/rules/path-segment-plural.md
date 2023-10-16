@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/path-segment-plural
+---
 # path-segment-plural
 
 Enforces plural path segments.

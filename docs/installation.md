@@ -8,46 +8,57 @@ Choose the most appropriate installation method for your needs:
 
 ## Install globally
 
-:::success Tip
+{% admonition type="success" name="Tip" %}
 Make sure you have the newest version of `npm`/`yarn` before you begin.
-:::
+{% /admonition %}
 
-```shell npm
+{% tabs %}
+{% tab label="npm" %}
+```shell
 npm i -g @redocly/cli@latest
 ```
-
-```shell yarn
+{% /tab  %}
+{% tab label="yarn" %}
+```shell
 yarn global add @redocly/cli
 ```
+{% /tab  %}
+{% /tabs  %}
 
 Running `redocly --version` confirms that the installation was successful, and the currently-installed version of the tool.
 
 ## Use `npx` at runtime
 
 [npx](https://docs.npmjs.com/cli/v9/commands/npx/) is npm's package runner. It installs and runs a command without installing it globally. You might use this where you can't install a new command, or in a CI context where the command is only used a handful of times.
-
-```shell Command
+{% tabs %}
+{% tab label="Command" %}
+```shell
 npx @redocly/cli <command> [options]
 ```
-
-```shell Example with lint command
+{% /tab  %}
+{% tab label="Example with lint command" %}
+```shell
 npx @redocly/cli@latest lint petstore.yaml
 ```
-
+{% /tab  %}
+{% /tabs  %}
 ## <a id="docker"></a>Run commands inside Docker
 
 Redocly CLI is available as a pre-built Docker image in [Docker Hub](https://hub.docker.com/r/redocly/cli) and [GitHub Packages](https://github.com/Redocly/redocly-cli/pkgs/container/cli).
 
 Install [Docker](https://docs.docker.com/get-docker/) if you don't have it already, then pull the image with the following command:
-
-```shell Docker Hub
+{% tabs %}
+{% tab label="Docker Hub" %}
+```shell
 docker pull redocly/cli
 ```
-
-```shell GitHub Packages
+{% /tab  %}
+{% tab label="GitHub Packages" %}
+```shell
 docker pull ghcr.io/redocly/cli
 ```
-
+{% /tab  %}
+{% /tabs  %}
 To give a Docker container access to your OpenAPI description files, you need to mount the containing directory as a volume. Assuming the API description is in the current working directory, the command to use is:
 
 ```shell Example with lint command

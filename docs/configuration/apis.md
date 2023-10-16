@@ -1,7 +1,3 @@
-import { JsonSchema } from '@redocly/developer-portal/ui';
-import ApiSchema from './api.yaml';
-import { StyledContent } from '../../components/styled.elements';
-
 # Per-API configuration
 
 The `apis` object is used to configure one or more APIs.
@@ -17,14 +13,12 @@ If per-API and root settings modify the same properties, per-API settings overri
 
 ## Patterned properties
 
-<StyledContent>
-  <JsonSchema
-    schema={ApiSchema}
-    options={{
-      schemaExpansionLevel: 2,
-    }}
-  />
-</StyledContent>
+{% json-schema
+  schemaFilePath="./api.yaml"
+   options={
+    schemaExpansionLevel: 2,
+  }
+/%}
 
 ## Example
 
@@ -38,8 +32,6 @@ apis:
       openapi: {}
 ```
 
-:::warning Important
-
+{% admonition type="warning" name="Important" %}
 Per-API configurations take priority over global settings.
-
-:::
+{% /admonition %}

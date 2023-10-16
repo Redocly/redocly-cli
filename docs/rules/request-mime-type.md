@@ -1,3 +1,6 @@
+---
+slug: /docs/cli/rules/request-mine-type
+---
 # request-mime-type
 
 |OAS|Compatibility|
