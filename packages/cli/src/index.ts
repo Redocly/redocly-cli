@@ -73,6 +73,11 @@ yargs
             requiresArg: true,
             type: 'string',
           },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
         })
         .demandOption('api'),
     (argv) => {
@@ -123,6 +128,11 @@ yargs
             description: 'Path to the config file.',
             requiresArg: true,
             type: 'string',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
         }),
     (argv) => {
@@ -195,6 +205,11 @@ yargs
             description: 'List of other folders and files to upload',
             array: true,
             type: 'string',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
         })
         .deprecateOption('batch-id', 'use --job-id')
@@ -342,6 +357,11 @@ yargs
           type: 'boolean',
           alias: 'k',
         },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'bundle';
@@ -426,6 +446,11 @@ yargs
           description: 'Path to the config file.',
           type: 'string',
         },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'preview-docs';
@@ -470,6 +495,11 @@ yargs
           config: {
             describe: 'Path to the config file.',
             type: 'string',
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
         })
         .check((argv: any) => {

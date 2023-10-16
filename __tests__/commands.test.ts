@@ -60,8 +60,8 @@ describe('E2E', () => {
       { dirName: 'invalid-config--lint-config-error', option: 'error' },
       { dirName: 'invalid-lint-config-severity', option: 'something' },
       { dirName: 'invalid-config--no-option', option: null },
-      { dirName: 'invalid-config-assertation-name', option: 'error' },
-      { dirName: 'invalid-config-assertation-config-type', option: 'error' },
+      { dirName: 'invalid-config-assertation-name', option: 'warn' },
+      { dirName: 'invalid-config-assertation-config-type', option: 'warn' },
       { dirName: 'invalid-config-format-json', option: 'warn', format: 'json' },
     ];
 

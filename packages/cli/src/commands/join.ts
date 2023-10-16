@@ -17,6 +17,7 @@ import {
   bundleDocument,
   Referenced,
   isRef,
+  RuleSeverity,
 } from '@redocly/openapi-core';
 
 import {
@@ -64,7 +65,7 @@ export type JoinOptions = {
   output?: string;
   config?: string;
   extends?: undefined;
-  'lint-config'?: undefined;
+  'lint-config'?: RuleSeverity;
 };
 
 export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
