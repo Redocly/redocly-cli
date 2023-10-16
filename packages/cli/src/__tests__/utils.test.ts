@@ -110,7 +110,7 @@ describe('printConfigLintTotals', () => {
     try {
       printConfigLintTotals(totalProblemsMock);
     } catch (e) {
-      expect(e.message).toEqual('❌ Your config has 1 error.\n');
+      expect(e.message).toEqual('❌ Your config has 1 error.');
     }
   });
 
