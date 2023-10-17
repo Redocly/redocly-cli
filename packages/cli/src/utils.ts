@@ -29,6 +29,7 @@ import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -253,7 +254,6 @@ export function handleError(e: Error, ref: string) {
 }
 
 export class HandledError extends Error {}
-export class ConfigValidationError extends Error {}
 
 export function printLintTotals(totals: Totals, definitionsCount: number) {
   const ignored = totals.ignored
@@ -296,8 +296,8 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 
 export function printConfigLintTotals(totals: Totals): void {
   if (totals.errors > 0) {
-    throw new ConfigValidationError(
-      `❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`
+    process.stderr.write(
+      red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`)
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
@@ -394,11 +394,6 @@ export async function loadConfigAndHandleErrors(
   try {
     return await loadConfig(options);
   } catch (e) {
-    const rootErrorMessage = e.message.split(': ').pop();
-    if (rootErrorMessage.includes('Your config has')) {
-      handleError(new ConfigValidationError(rootErrorMessage), '');
-      return;
-    }
     handleError(e, '');
   }
 }

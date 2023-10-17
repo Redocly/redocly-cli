@@ -85,15 +85,29 @@ describe('E2E', () => {
       (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
 
-    test('invalid-definition-and-config', () => {
-      const folderPath = join(__dirname, 'lint-config/invalid-definition-and-config');
+    const configSeverityOptions: { dirName: string; option: string | null; snapshot: string }[] = [
+      {
+        dirName: 'invalid-definition-and-config',
+        option: 'error',
+        snapshot: 'config-with-error.snapshot.js',
+      },
+      {
+        dirName: 'invalid-definition-and-config',
+        option: 'warn',
+        snapshot: 'config-with-warn.snapshot.js',
+      },
+    ];
+
+    test.each(configSeverityOptions)('invalid-definition-and-config: %s', (severityOption) => {
+      const { dirName, option, snapshot } = severityOption;
+      const folderPath = join(__dirname, `lint-config/${dirName}`);
       const relativeInvalidOpenapiFile = relative(folderPath, invalidOpenapiFile);
-      const args = [relativeInvalidOpenapiFile, `--lint-config=error`];
+      const args = [relativeInvalidOpenapiFile, `--lint-config=${option}`];
       const passedArgs = getParams('../../../packages/cli/src/index.ts', 'lint', args);
 
       const result = getCommandOutput(passedArgs, folderPath);
 
-      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+      (expect(result) as any).toMatchSpecificSnapshot(join(folderPath, snapshot));
     });
   });
 

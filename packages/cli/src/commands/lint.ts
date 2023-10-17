@@ -24,6 +24,7 @@ import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@re
 import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 export type LintOptions = {
   apis?: string[];
@@ -147,5 +148,9 @@ export function lintConfigCallback(
     });
 
     printConfigLintTotals(fileTotals);
+
+    if (fileTotals.errors > 0) {
+      throw new ConfigValidationError();
+    }
   };
 }

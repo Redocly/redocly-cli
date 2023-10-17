@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint-config invalid-definition-and-config 1`] = `
+exports[`E2E lint-config invalid-definition-and-config: {
+  dirName: 'invalid-definition-and-config',
+  option: 'error',
+  snapshot: 'config-with-error.snapshot.js'
+} 1`] = `
 
 [1] .redocly.yaml:5:3 at #/rules/context
 

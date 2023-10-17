@@ -4,7 +4,7 @@ import { RedoclyClient } from '../redocly';
 import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
-import { transformConfig } from './utils';
+import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
 
 import type {
@@ -128,6 +128,9 @@ export async function getConfig(
     }
     return transformConfig(rawConfig);
   } catch (e) {
+    if (e instanceof ConfigValidationError) {
+      throw e;
+    }
     throw new Error(`Error parsing config file at '${configPath}': ${e.message}`);
   }
 }

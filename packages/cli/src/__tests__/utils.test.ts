@@ -106,12 +106,10 @@ describe('printConfigLintTotals', () => {
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
-  it('should throw an error with message if errors exist', () => {
-    try {
-      printConfigLintTotals(totalProblemsMock);
-    } catch (e) {
-      expect(e.message).toEqual('❌ Your config has 1 error.');
-    }
+  it('should print errors if such exist', () => {
+    printConfigLintTotals(totalProblemsMock);
+    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
+    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
   });
 
   it('should print warnign if no error', () => {
