@@ -1,0 +1,21 @@
+openapi: 3.1.0
+paths:
+  /one:
+    description: A correct path item name
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              enum:
+                - Correct
+                - Wrong
+  /two/test:
+    description: A wrong path item name
+  /two/ref:
+    $ref: '#/components/paths/'
+components:
+  pathItems:
+    ReferencedPathItem:
+      description: Referenced from a wrong path item name

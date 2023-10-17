@@ -66,7 +66,11 @@ export const runOnValuesSet = new Set<keyof Asserts>([
 ]);
 
 export const asserts: Asserts = {
-  pattern: (value: string | string[], condition: string, { baseLocation }: AssertionFnContext) => {
+  pattern: (
+    value: string | string[],
+    condition: string,
+    { baseLocation, rawValue }: AssertionFnContext
+  ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
     const regex = regexFromString(condition);
@@ -76,7 +80,11 @@ export const asserts: Asserts = {
         (_val) =>
           !regex?.test(_val) && {
             message: `"${_val}" should match a regex ${condition}`,
-            location: runOnValue(value) ? baseLocation : baseLocation.key(),
+            location: runOnValue(value)
+              ? baseLocation
+              : isPlainObject(rawValue)
+              ? baseLocation.child(_val).key()
+              : baseLocation.key(),
           }
       )
       .filter(isTruthy);
@@ -84,7 +92,7 @@ export const asserts: Asserts = {
   notPattern: (
     value: string | string[],
     condition: string,
-    { baseLocation }: AssertionFnContext
+    { baseLocation, rawValue }: AssertionFnContext
   ) => {
     if (typeof value === 'undefined' || isPlainObject(value)) return []; // property doesn't exist or is an object, no need to lint it with this assert
     const values = Array.isArray(value) ? value : [value];
@@ -95,7 +103,11 @@ export const asserts: Asserts = {
         (_val) =>
           regex?.test(_val) && {
             message: `"${_val}" should not match a regex ${condition}`,
-            location: runOnValue(value) ? baseLocation : baseLocation.key(),
+            location: runOnValue(value)
+              ? baseLocation
+              : isPlainObject(rawValue)
+              ? baseLocation.child(_val).key()
+              : baseLocation.key(),
           }
       )
       .filter(isTruthy);
