@@ -10,17 +10,10 @@ rules:
       notPattern: '/[^{/}]+/[^{/}]+/'
     message: Two consecutive path segments don't have a variable
 
-  rule/path-starts-from-correct:
+  rule/parameters-name:
     subject:
-      type: Paths
-    assertions:
-      pattern: /^\/two/
-    message: Path item should start with the `two` prefix
-
-  rule/enums:
-    subject:
-      type: Schema
-      property: enum
+      type: Parameter
+      property: name
     assertions:
       pattern: /Correct/
-    message: Enums should contain the `Correct` word
+    message: Parameters name should contain the `Correct` word

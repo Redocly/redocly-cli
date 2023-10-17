@@ -2,15 +2,12 @@ openapi: 3.1.0
 paths:
   /one:
     description: A correct path item name
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-              enum:
-                - Correct
-                - Wrong
+    get:
+      parameters:
+        - name: Correct
+          in: header
+        - name: Wrong
+          in: header
   /two/test:
     description: A wrong path item name
   /two/ref:
