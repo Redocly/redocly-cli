@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 1.2.1
+
+### Patch Changes
+
+- Fixed an issue with nested refs in the `join` command.
+- Fixed pattern for no-server-example.com rule to improve detection accuracy.
+- Changed the report location for `pattern` and `notPattern` assertions to be more precise.
+- Updated `unevaluatedItems` type definition to resolve either boolean or object schema per JSON Schema 2019-09 specification.
+- Enhanced public API by small typescript typing fix and exporting new function `bundleFromString`.
+
 ## 1.2.0
 
 ### Minor Changes

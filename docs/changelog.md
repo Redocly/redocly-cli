@@ -8,6 +8,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.2.1 (2023-10-17)
+
+### Patch Changes
+
+- Fixed an issue with nested refs in the `join` command.
+- Fixed pattern for no-server-example.com rule to improve detection accuracy.
+- Changed the report location for `pattern` and `notPattern` assertions to be more precise.
+- Updated `unevaluatedItems` type definition to resolve either boolean or object schema per JSON Schema 2019-09 specification.
+- Updated @redocly/openapi-core to v1.2.1.
+
 ## 1.2.0 (2023-09-18)
 
 ### Minor Changes
