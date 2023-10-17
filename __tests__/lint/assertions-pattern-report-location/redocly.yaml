@@ -1,0 +1,19 @@
+apis:
+  main:
+    root: ./openapi.yaml
+
+rules:
+  rule/restful-paths:
+    subject:
+      type: Paths
+    assertions:
+      notPattern: '/[^{/}]+/[^{/}]+/'
+    message: Two consecutive path segments don't have a variable
+
+  rule/parameters-name:
+    subject:
+      type: Parameter
+      property: name
+    assertions:
+      pattern: /Correct/
+    message: Parameters name should contain the `Correct` word

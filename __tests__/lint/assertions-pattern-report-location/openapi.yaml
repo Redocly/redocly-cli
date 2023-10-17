@@ -1,0 +1,18 @@
+openapi: 3.1.0
+paths:
+  /one:
+    description: A correct path item name
+    get:
+      parameters:
+        - name: Correct
+          in: header
+        - name: Wrong
+          in: header
+  /two/test:
+    description: A wrong path item name
+  /two/ref:
+    $ref: '#/components/paths/'
+components:
+  pathItems:
+    ReferencedPathItem:
+      description: Referenced from a wrong path item name
