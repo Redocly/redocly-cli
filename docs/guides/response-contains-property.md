@@ -1,8 +1,5 @@
 ---
 tocMaxDepth: 3
-redirects:
-  '/docs/resources/response-contains-property/':
-    to: '/docs/cli/guides/response-contains-property/'
 ---
 
 # Enforce response contents with the `response-contains-property` rule

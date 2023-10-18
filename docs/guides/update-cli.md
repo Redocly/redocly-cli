@@ -1,9 +1,3 @@
----
-redirects:
-  '/docs/cli/update-cli/':
-    to: '/docs/cli/guides/update-cli'
----
-
 # Update Redocly CLI
 
 If you've already installed Redocly CLI, it is good practice to keep it as up to date as possible. Staying on top of versions ensures that you get the latest functionality and bug fixes.

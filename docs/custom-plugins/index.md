@@ -1,13 +1,6 @@
 ---
 seo:
   title: Custom plugins in Redocly
-redirects:
-  '/docs/cli/custom-rules/':
-    to: '/docs/cli/custom-plugins/'
-  '/docs/cli/resources/custom-rules/':
-    to: '/docs/cli/custom-plugins/'
-  '/docs/cli/resources/custom-plugins/':
-    to: '/docs/cli/custom-plugins/'
 ---
 
 # Custom plugins

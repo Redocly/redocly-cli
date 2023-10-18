@@ -1,11 +1,4 @@
 ---
-redirects:
-  '/docs/cli/resources/rules/assertions/':
-    to: '/docs/cli/rules/configurable-rules/'
-  '/docs/cli/rules/assertions/':
-    to: '/docs/cli/rules/configurable-rules/'
-  '/docs/cli/rules/custom-rules/':
-    to: '/docs/cli/rules/configurable-rules/'
 slug: /docs/cli/rules/configurable-rules
 ---
 

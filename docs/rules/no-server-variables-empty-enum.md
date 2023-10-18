@@ -1,7 +1,4 @@
 ---
-redirects:
-  '/docs/cli/rules/no-empty-enum-servers/':
-    to: '/docs/cli/rules/no-server-variables-empty-enum/'
 slug: /docs/cli/rules/no-server-variables-empty-enum
 ---
 

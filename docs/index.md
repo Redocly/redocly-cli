@@ -1,8 +1,5 @@
 ---
 tocMaxDepth: 2
-redirects:
-  '/docs/cli/resources/':
-    to: '/docs/cli/'
 content:
   cards:
     - header: Great API docs

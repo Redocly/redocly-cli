@@ -1,9 +1,3 @@
----
-redirects:
-  '/docs/cli/resources/built-in-decorators/':
-    to: '/docs/cli/decorators'
----
-
 # Decorators
 
 Decorators are a way of changing an API description during bundling. This updating during bundling can be useful for the following use cases:

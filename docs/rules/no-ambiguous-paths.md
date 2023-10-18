@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/rules/no-ambiguous-path
+slug: /docs/cli/rules/no-ambiguous-paths/
 ---
 # no-ambiguous-paths
 
