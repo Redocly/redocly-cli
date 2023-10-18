@@ -36,6 +36,11 @@ yargs
     (yargs) =>
       yargs.positional('api', { type: 'string' }).option({
         config: { description: 'Path to the config file.', type: 'string' },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
         format: {
           description: 'Use a specific output format.',
           choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,

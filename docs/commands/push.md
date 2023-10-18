@@ -72,21 +72,22 @@ redocly push [-u] [--job-id id] [--batch-size number] <path/to/api-description.y
 
 ## Options
 
-| Option           |   Type   | Description                                                                                                                                                                                                                                           |
-| ---------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api              |  string  | The API description that you want to push to the Redocly API registry. Provide it as a path to the root API description file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                              |
-| --destination    |  string  | The location in the API registry where you want to push or upsert your API description. Provide it in the following format: `api-name@api-version`.                                                                                                    |
-| --organization   |  string  | ID of organization that the API description is being pushed to. Overrides the one defined in the config file.                                                                                                                                              |
-| --branch, -b     |  string  | The branch where your API description is pushed or upserted. Default value is `main`.                                                                                                                                                                  |
-| --job-id         |  string  | The ID of the CI job that the current push is associated with. See [the Job ID section](#job-id) for more information.                                                                                                                                |
-| --batch-size     |  number  | Number of CI pushes expected within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                        |
-| --help           | boolean  | Help output for the command.                                                                                                                                                                                                                          |
-| --public         | boolean  | Make API descriptions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                   |
+| Option           |   Type   | Description                                                                                                                                                                                                                                              |
+| ---------------- | :------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api              |  string  | The API description that you want to push to the Redocly API registry. Provide it as a path to the root API description file (or as an alias). See [Set options explicitly](#set-options-explicitly) for more information.                               |
+| --destination    |  string  | The location in the API registry where you want to push or upsert your API description. Provide it in the following format: `api-name@api-version`.                                                                                                      |
+| --organization   |  string  | ID of organization that the API description is being pushed to. Overrides the one defined in the config file.                                                                                                                                            |
+| --branch, -b     |  string  | The branch where your API description is pushed or upserted. Default value is `main`.                                                                                                                                                                    |
+| --job-id         |  string  | The ID of the CI job that the current push is associated with. See [the Job ID section](#job-id) for more information.                                                                                                                                   |
+| --batch-size     |  number  | Number of CI pushes expected within one batch. See [the Batch Size section](#batch-size) for more information.                                                                                                                                           |
+| --help           | boolean  | Help output for the command.                                                                                                                                                                                                                             |
+| --public         | boolean  | Make API descriptions publicly accessible from the API Registry. Read more about [using the public option](#public).                                                                                                                                     |
 | --region,-r      |  string  | Which region to use when logging in. Supported values: `us`, `eu`. The `eu` region is limited to enterprise customers. Default value is `us`. Alternatively, set an environment variable `REDOCLY_DOMAIN` with the value of the appropriate Redocly API. |
-| --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                  |
-| --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                               |
-| --version        | boolean  | Show version number.                                                                                                                                                                                                                                  |
-| --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                      |
+| --skip-decorator | [string] | Ignore one or more decorators. See the [Skip decorator section](#skip-decorator) for usage examples.                                                                                                                                                     |
+| --upsert, -u     | boolean  | Create a new version of an API when pushing to the API registry if the version doesn't exist. See [the Upsert an API with push section](#upsert-an-api-with-push) for more information.                                                                  |
+| --version        | boolean  | Show version number.                                                                                                                                                                                                                                     |
+| --files          | [string] | List of other folders and files to upload. See [the Files section](#files) for more information.                                                                                                                                                         |
+| --lint-config    |  string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                       |
 
 ## Examples
 
@@ -202,34 +203,45 @@ In this case, you don't have to specify the organization ID in the configuration
 To upsert an API in the registry with the `push` command, use the `--upsert` or `-u` option. The upsert creates the destination if it doesn't exist, or updates it if it does.
 {% tabs %}
 {% tab label="Set options explicitly" %}
+
 ```bash
 redocly push -u test-api-v1.yaml --destination=test-api@v1 --organization=redocly
 ```
+
 {% /tab  %}
 {% tab label="Use config file" %}
+
 ```bash
 redocly push -u --destination=test-api@v1
 ```
+
 {% /tab  %}
 {% tab label="Upsert all APIs from config file" %}
+
 ```bash
 redocly push -u
 ```
+
 {% /tab  %}
 {% /tabs  %}
 To upsert the API description to a particular branch, specify the branch name with `--branch` or `-b`.
 {% tabs %}
 {% tab label="Set options explicitly" %}
+
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org -b develop
 ```
+
 {% /tab  %}
 {% tab label="Use config file" %}
+
 ```bash Use config file
 redocly push -u test-api@v1 -b develop
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### Job ID
 
 The `--job-id` option can be used by Redocly Workflows to associate multiple pushes with a single CI job.
@@ -252,16 +264,21 @@ Must be used only in combination with the `--job-id` option. Must be an integer 
 You may want to skip specific decorators upon running the command.
 {% tabs %}
 {% tab label="Skip a decorator" %}
+
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --skip-decorator=test/remove-internal-operations
 ```
+
 {% /tab  %}
 {% tab label="Skip multiple decorators" %}
+
 ```bash
 redocly push openapi/petstore.yaml --destination=petstore-api@v1 --organization=openapi-org --skip-decorator=test/remove-internal-operations --skip-decorator=test/remove-internal-schemas
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### Public
 
 The `--public` option allows you to upload your API description and make it publicly accessible from the API Registry. By default, API descriptions uploaded with the `push` command are not available to the public.

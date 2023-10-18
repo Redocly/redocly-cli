@@ -23,13 +23,14 @@ redocly stats --version
 
 ## Options
 
-| Option    | Type    | Description                                                                                       |
-| --------- | ------- | ------------------------------------------------------------------------------------------------- |
-| api       | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure. |
-| --config  | string  | Specify path to the [configuration file](#custom-configuration-file).                             |
-| --format  | string  | Format for the output.<br />**Possible values:** `stylish`, `json`.                               |
-| --help    | boolean | Show help.                                                                                        |
-| --version | boolean | Show version number.                                                                              |
+| Option        | Type    | Description                                                                                                                        |
+| ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                 |
+| --config      | string  | Specify path to the [configuration file](#custom-configuration-file).                                                              |
+| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
+| --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`.                                                                |
+| --help        | boolean | Show help.                                                                                                                         |
+| --version     | boolean | Show version number.                                                                                                               |
 
 ## Examples
 
@@ -51,16 +52,20 @@ Instead of full paths, you can use API names from the `apis` section of your Red
 
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly stats core@v1
 ```
+
 {% /tab  %}
 {% tab label="Configuration file" %}
+
 ```yaml
 apis:
   core@v1:
     root: ./openapi/api-description.json
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -77,13 +82,17 @@ redocly stats --config=./another/directory/config.yaml
 ### Format
 
 #### Stylish (default)
+
 {% tabs %}
 {% tab label="Request" %}
+
 ```bash
 redocly stats pet.yaml
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 Document: pet.yaml stats:
 
@@ -98,18 +107,23 @@ Document: pet.yaml stats:
 
 pet.yaml: stats processed in 6ms
 ```
+
 {% /tab  %}
 {% /tabs  %}
 In this format, `stats` shows the statistics for the metrics mentioned in the [Introduction section](#introduction) in condensed output with colored text and an icon at the beginning of each line.
 
 #### JSON
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly stats pet.yaml --format=json
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash Output
 Document: pet.yaml stats:
 
@@ -149,6 +163,7 @@ Document: pet.yaml stats:
 }
 pet.yaml: stats processed in 6ms
 ```
+
 {% /tab  %}
 {% /tabs  %}
 In this format, `stats` shows the statistics for the metrics mentioned in the [Introduction section](#introduction) in JSON-like output.

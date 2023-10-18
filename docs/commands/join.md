@@ -49,22 +49,28 @@ redocly join --version
 | --version                          | boolean  | Show version number.                                                                                                                                                                                       |
 | --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                             |
 | --config                           | string   | Specify path to the [config file](../configuration/index.md).                                                                                                                                              |
+| --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                         |
 
 ## Examples
 
 ### Array of paths
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly join first-api.yaml second-api.json
 ```
+
 {% /tab %}
 {% tab label="Output" %}
+
 ```bash
 redocly join first-api.yaml second-api.json
 
 openapi.yaml: join processed in 56ms
 ```
+
 {% /tab %}
 {% /tabs %}
 The command creates the output `openapi.yaml` file in the working directory.
@@ -140,13 +146,17 @@ If any of the input files contain the `tags` object, tags in the output file are
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
 #### Usage
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
 ```
+
 {% /tab  %}
 {% tab label="Output file example" %}
+
 ```yaml
 - name: First Document title_endpoints
   description: endpoints tag description
@@ -156,8 +166,10 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-info-prop title
   description: pets tag description
   x-displayName: pets
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### prefix-tags-with-filename
 
 If any of the input files contain the `tags` object, tags in the output file are prefixed by the filename of the corresponding input file.
@@ -165,13 +177,17 @@ If any of the input files contain the `tags` object, tags in the output file are
 The output file preserves the original tag names as the value of the `x-displayName` property for each tag.
 
 #### Usage
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
 ```
+
 {% /tab  %}
 {% tab label="Output file example" %}
+
 ```yaml
 - name: first-api_endpoints
   description: endpoints tag description
@@ -181,8 +197,10 @@ redocly join first-api.yaml second-api.json --prefix-tags-with-filename true
   description: pets tag description
   x-displayName: pets
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### without-x-tag-groups
 
 If you have the same tags in multiple API descriptions, you can allow tag duplication by using the `without-x-tag-groups` option. In this case, the `x-tagGroups` property is not created in the joined file.
@@ -206,13 +224,17 @@ openapi.yaml: join processed in 69ms
 If any of the input files have conflicting component names, this option can be used to resolve that issue and generate the output file. All component names in the output file are prefixed by the selected property from the `info` object of the corresponding input file(s).
 
 #### Usage
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly join first-api.yaml second-api.json --prefix-components-with-info-prop version
 ```
+
 {% /tab  %}
 {% tab label="Output file example" %}
+
 ```yaml
 components:
   schemas:
@@ -246,8 +268,10 @@ components:
               type: integer
               format: int64
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### Custom output file
 
 By default, the CLI tool writes the joined file as `openapi.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.

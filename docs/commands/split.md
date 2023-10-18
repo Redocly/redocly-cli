@@ -20,30 +20,35 @@ redocly split --version
 
 ## Options
 
-| Option      | Type    | Description                                                                                                                                                                              |
-| ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api         | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                        |
-| --outDir    | string  | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.                                           |
-| --help      | boolean | Show help.                                                                                                                                                                               |
-| --separator | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
-| --config    | string  | Specify path to the [config file](../configuration/index.md).                                                                                                                           |
-| --version   | boolean | Show version number.                                                                                                                                                                     |
+| Option        | Type    | Description                                                                                                                                                                              |
+| ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                       |
+| --outDir      | string  | **REQUIRED.** Path to the directory where you want to save split files. If the specified directory doesn't exist, it is created automatically.                                           |
+| --help        | boolean | Show help.                                                                                                                                                                               |
+| --separator   | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`). |
+| --config      | string  | Specify path to the [config file](../configuration/index.md).                                                                                                                            |
+| --version     | boolean | Show version number.                                                                                                                                                                     |
+| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                       |
 
 ## Example
 
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly split pet.yaml --outDir=openapi
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 Document: pet.yaml is successfully split
  and all related files are saved to the directory: openapi
 
 pet.yaml: split processed in 33ms
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
