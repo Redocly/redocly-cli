@@ -575,7 +575,7 @@ describe('cleanRawInput', () => {
     });
   });
 
-  describe('writeFileByExt', () => {
+  describe('writeToFileByExtension', () => {
     beforeEach(() => {
       jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
       (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
@@ -587,15 +587,6 @@ describe('cleanRawInput', () => {
 
     it('should call stringifyYaml function', () => {
       writeToFileByExtension('test data', 'test.yaml');
-      expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
-      expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
-    });
-
-    it('should call stringifyYaml function and print warning message', () => {
-      writeToFileByExtension('test data', 'test.xml');
-      expect(process.stderr.write).toHaveBeenCalledWith(
-        `Unsupported file extension: xml. Using yaml.\n`
-      );
       expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
       expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
     });

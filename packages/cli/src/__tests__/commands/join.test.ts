@@ -98,7 +98,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call writeFileByExt function for OpenAPI 3.1', async () => {
+  it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_1');
     await handleJoin(
       {
@@ -115,7 +115,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call writeFileByExt function with custom output file', async () => {
+  it('should call writeToFileByExtension function with custom output file', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
@@ -133,7 +133,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call writeFileByExt function with json file extension', async () => {
+  it('should call writeToFileByExtension function with json file extension', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
