@@ -1,9 +1,4 @@
 ---
-redirects:
-  '/docs/cli/built-in-rules/':
-    to: '/docs/cli/rules/built-in-rules/'
-  '/docs/cli/resources/built-in-rules/':
-    to: '/docs/cli/rules/built-in-rules/'
 slug: /docs/cli/rules/built-in-rules
 ---
 

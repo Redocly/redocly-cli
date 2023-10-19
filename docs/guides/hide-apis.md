@@ -1,8 +1,5 @@
 ---
 tocMaxDepth: 3
-redirects:
-  '/docs/resources/hide-apis/':
-    to: '/docs/cli/guides/hide-apis/'
 ---
 
 # Hide your internal APIs

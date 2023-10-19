@@ -1,11 +1,4 @@
 ---
-redirects:
-  '/docs/cli/resources/rules/assertions/':
-    to: '/docs/cli/rules/configurable-rules/'
-  '/docs/cli/rules/assertions/':
-    to: '/docs/cli/rules/configurable-rules/'
-  '/docs/cli/rules/custom-rules/':
-    to: '/docs/cli/rules/configurable-rules/'
 slug: /docs/cli/rules/configurable-rules
 ---
 
@@ -492,10 +485,10 @@ The following example asserts that the operation summary doesn't start with "The
 
 ```yaml
 rules:
-  rule/operation-summary-contains-test:
+  rule/operation-summary-does-not-start-with-the:
     subject:
       type: Operation
-      property: The summary
+      property: summary
     assertions:
       notPattern: /^The/
 ```

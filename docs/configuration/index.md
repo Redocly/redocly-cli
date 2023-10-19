@@ -2,13 +2,6 @@
 seo:
   title: Redocly CLI configuration
   description: Learn how to configure Redocly CLI
-redirects:
-  '/docs/cli/configuration/configuration-file/':
-    to: '/docs/cli/configuration/'
-  '/docs/cli/guides/lint/':
-    to: '/docs/cli/configuration/'
-  '/docs/cli/configuration/lint/':
-    to: '/docs/cli/configuration/'
 toc:
   maxDepth: 3
 ---

@@ -1,11 +1,3 @@
----
-redirects:
-  '/docs/workflows/guides/replace-server-url/':
-    to: '/docs/cli/guides/replace-servers-url/'
-  '/docs/cli/guides/replace-server-url/':
-    to: '/docs/cli/guides/replace-servers-url/'
----
-
 # Replace servers URL in different environments
 
 Redocly allows you to use [custom decorators](../custom-plugins/custom-decorators.md) to modify content in the API description during the bundling process.
