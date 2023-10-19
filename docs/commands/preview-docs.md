@@ -23,11 +23,12 @@ redocly preview-docs <api> --version
 
 | Option                  | Type     | Description                                                                                                                                                                |
 | ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                     | string   | Path to the API description filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                 |
+| api                     | string   | Path to the API description filename or alias that you want to generate the preview for. Refer to [the api section](#api) for more options.                                |
 | --config                | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                                      |
 | --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                            |
 | --help                  | boolean  | Show help.                                                                                                                                                                 |
 | --host, -h              | string   | The host where the documentation preview can be accessed. The default value is `127.0.0.1`.                                                                                |
+| --lint-config           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                         |
 | --port, -p              | integer  | The port where the documentation preview can be accessed. You can set any port number over 1024 as long as it is not already being used. The default value is port `8080`. |
 | --skip-decorator        | [string] | Ignore [certain decorators](#skip-preprocessor-or-decorator).                                                                                                              |
 | --skip-preprocessor     | [string] | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).                                                                                                           |
@@ -53,16 +54,20 @@ In this case, `preview-docs` previews the API description that was passed to the
 Instead of a full path, you can use an API name from the `apis` section of your Redocly configuration file.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly preview-docs core@v1
 ```
+
 {% /tab  %}
 {% tab label="Configuration file" %}
+
 ```yaml
 apis:
   core@v1:
     root: ./openapi/api-description.json
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -83,14 +88,18 @@ By default, without using the `port` option, the preview starts on port `8080`, 
 To specify a custom port for the preview, pass the desired value using either short or long option format:
 {% tabs %}
 {% tab label="Short format" %}
+
 ```bash
 redocly preview-docs -p 8888 openapi/openapi.yaml
 ```
+
 {% /tab  %}
 {% tab label="Long format" %}
+
 ```bash
 redocly preview-docs -port 8888 openapi/openapi.yaml
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -103,14 +112,18 @@ By default, without using the `host` option, the preview starts on host `127.0.0
 To specify a custom host for the preview, pass the desired value using either short or long option format:
 {% tabs %}
 {% tab label="Short format" %}
+
 ```bash
 redocly preview-docs -h 0.0.0.0 openapi/openapi.yaml
 ```
+
 {% /tab  %}
 {% tab label="Long format" %}
+
 ```bash
 redocly preview-docs --host 0.0.0.0 openapi/openapi.yaml
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -121,13 +134,17 @@ Both commands start the preview on host `0.0.0.0`, so you can access the docs at
 You may want to skip specific preprocessors, rules, or decorators upon running the command.
 {% tabs %}
 {% tab label="Skip preprocessors" %}
+
 ```bash
 redocly preview-docs --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
+
 {% /tab  %}
 {% tab label="Skip decorators" %}
+
 ```bash
 redocly preview-docs --skip-decorator=generate-code-samples --skip-decorator=remove-internal-operations
 ```
+
 {% /tab  %}
 {% /tabs  %}

@@ -9,6 +9,7 @@ import {
   makeDocumentFromString,
   stringifyYaml,
 } from '@redocly/openapi-core';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -134,7 +135,7 @@ export function lintConfigCallback(
     const configContent = makeDocumentFromString(stringYaml, configPath);
     const problems = await lintConfig({
       document: configContent,
-      severity: argv['lint-config'] as ProblemSeverity,
+      severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
     });
 
     const fileTotals = getTotals(problems);
@@ -147,5 +148,9 @@ export function lintConfigCallback(
     });
 
     printConfigLintTotals(fileTotals);
+
+    if (fileTotals.errors > 0) {
+      throw new ConfigValidationError();
+    }
   };
 }

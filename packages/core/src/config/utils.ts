@@ -347,3 +347,5 @@ export function getUniquePlugins(plugins: Plugin[]): Plugin[] {
   }
   return results;
 }
+
+export class ConfigValidationError extends Error {}

@@ -24,6 +24,7 @@ import {
   Oas2Definition,
   RedoclyClient,
 } from '@redocly/openapi-core';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
@@ -244,6 +245,8 @@ export function handleError(e: Error, ref: string) {
     }
     case SyntaxError:
       return exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
+    case ConfigValidationError:
+      return exitWithError(e.message);
     default: {
       exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}.`);
     }
@@ -294,17 +297,11 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
 export function printConfigLintTotals(totals: Totals): void {
   if (totals.errors > 0) {
     process.stderr.write(
-      red(
-        `❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}${
-          totals.warnings > 0
-            ? ` and ${totals.warnings} ${pluralize('warning', totals.warnings)}`
-            : ''
-        }.\n`
-      )
+      red(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.`)
     );
   } else if (totals.warnings > 0) {
     process.stderr.write(
-      yellow(`You have ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
+      yellow(`⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`)
     );
   }
 }
