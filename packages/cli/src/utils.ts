@@ -246,7 +246,7 @@ export function writeJson(data: unknown, filename: string) {
   fs.writeFileSync(filename, content);
 }
 
-export function getAndValidateFileExtension(fileName: string): string {
+export function getAndValidateFileExtension(fileName: string): 'yaml' | 'yml' | 'json' {
   const ext = fileName.split('.').pop();
 
   if (['yaml', 'yml', 'json'].includes(ext!)) {
