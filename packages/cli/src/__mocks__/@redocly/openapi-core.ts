@@ -31,6 +31,7 @@ export const doesYamlFileExist = jest.fn();
 export const bundleDocument = jest.fn(() => Promise.resolve({ problems: {} }));
 export const detectSpec = jest.fn();
 export const isAbsoluteUrl = jest.fn();
+export const stringifyYaml = jest.fn((data) => data);
 
 export class BaseResolver {
   cache = new Map<string, Promise<Document | ResolveError>>();

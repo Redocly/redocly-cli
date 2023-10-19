@@ -13,7 +13,8 @@ import {
   exitWithError,
   escapeLanguageName,
   langToExt,
-  writeFileByExt,
+  writeToFileByExtension,
+  getAndValidateFileExtension,
 } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
@@ -46,7 +47,7 @@ export async function handleSplit(argv: SplitOptions) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);
-  const ext = validateFileExtension(api.split('.').pop());
+  const ext = getAndValidateFileExtension(api);
   const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
   splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
@@ -54,15 +55,6 @@ export async function handleSplit(argv: SplitOptions) {
     and all related files are saved to the directory: ${blue(outDir)} \n`
   );
   printExecutionTime('split', startedAt, api!);
-}
-
-function validateFileExtension(ext?: string): string {
-  if (['yaml', 'yml', 'json'].includes(ext!)) {
-    return ext as string;
-  } else if (ext) {
-    process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
-  }
-  return 'yaml';
 }
 
 function splitDefinition(
@@ -81,8 +73,8 @@ function splitDefinition(
     path.join(openapiDir, 'paths'),
     componentsFiles,
     pathSeparator,
-      undefined,
-      ext
+    undefined,
+    ext
   );
   const webhooks =
     (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
@@ -94,11 +86,11 @@ function splitDefinition(
     componentsFiles,
     pathSeparator,
     'webhook_',
-      ext
+    ext
   );
 
   replace$Refs(openapi, openapiDir, componentsFiles);
-  writeFileByExt(openapi, path.join(openapiDir, `openapi.${ext}`), ext);
+  writeToFileByExtension(openapi, path.join(openapiDir, `openapi.${ext}`));
 }
 
 function isStartsWithComponents(node: string) {
@@ -128,13 +120,13 @@ function validateDefinitionFileName(fileName: string) {
   return true;
 }
 
-function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object, ext: string) {
+function traverseDirectoryDeep(directory: string, callback: any, componentsFiles: object) {
   if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) return;
   const files = fs.readdirSync(directory);
   for (const f of files) {
     const filename = path.join(directory, f);
     if (fs.statSync(filename).isDirectory()) {
-      traverseDirectoryDeep(filename, callback, componentsFiles, ext);
+      traverseDirectoryDeep(filename, callback, componentsFiles);
     } else {
       callback(filename, directory, componentsFiles);
     }
@@ -144,13 +136,12 @@ function traverseDirectoryDeep(directory: string, callback: any, componentsFiles
 function traverseDirectoryDeepCallback(
   filename: string,
   directory: string,
-  componentsFiles: object,
-  ext: string
+  componentsFiles: object
 ) {
   if (isNotYaml(filename)) return;
   const pathData = readYaml(filename);
   replace$Refs(pathData, directory, componentsFiles);
-  writeFileByExt(pathData, filename, ext);
+  writeToFileByExtension(pathData, filename);
 }
 
 function crawl(object: any, visitor: any) {
@@ -330,12 +321,12 @@ function iteratePathItems(
         };
       }
     }
-    writeFileByExt(pathData, pathFile, ext);
+    writeToFileByExtension(pathData, pathFile);
     pathItems[pathName] = {
       $ref: slash(path.relative(openapiDir, pathFile)),
     };
 
-    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles, ext);
+    traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
 }
 
@@ -386,7 +377,7 @@ function iterateComponents(
             )
           );
         } else {
-          writeFileByExt(componentData, filename, ext);
+          writeToFileByExtension(componentData, filename);
         }
 
         if (isNotSecurityComponentType(componentType)) {

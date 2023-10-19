@@ -209,9 +209,11 @@ export function readYaml(filename: string) {
   return parseYaml(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
-export function writeFileByExt(data: unknown, fileName: string, ext = 'yaml') {
+export function writeToFileByExtension(data: unknown, filePath: string, noRefs?: boolean) {
+  const ext = getAndValidateFileExtension(filePath);
+
   if (ext === 'json') {
-    writeJson(data, fileName);
+    writeJson(data, filePath);
     return;
   }
 
@@ -219,8 +221,7 @@ export function writeFileByExt(data: unknown, fileName: string, ext = 'yaml') {
     process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
   }
 
-    writeYaml(data, fileName);
-
+  writeYaml(data, filePath, noRefs);
 }
 
 export function writeYaml(data: any, filename: string, noRefs = false) {
@@ -243,6 +244,16 @@ export function writeJson(data: unknown, filename: string) {
   }
   fs.mkdirSync(dirname(filename), { recursive: true });
   fs.writeFileSync(filename, content);
+}
+
+export function getAndValidateFileExtension(fileName: string): string {
+  const ext = fileName.split('.').pop();
+
+  if (['yaml', 'yml', 'json'].includes(ext!)) {
+    return ext as string;
+  }
+  process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
+  return 'yaml';
 }
 
 export function pluralize(label: string, num: number) {

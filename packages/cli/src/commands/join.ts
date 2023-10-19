@@ -25,9 +25,10 @@ import {
   printExecutionTime,
   handleError,
   printLintTotals,
-  writeYaml,
   exitWithError,
   sortTopLevelKeysForOas,
+  getAndValidateFileExtension,
+  writeToFileByExtension,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import {
@@ -70,16 +71,19 @@ export type JoinOptions = {
 
 export async function handleJoin(argv: JoinOptions, config: Config, packageVersion: string) {
   const startedAt = performance.now();
+
   if (argv.apis.length < 2) {
     return exitWithError(`At least 2 apis should be provided. \n\n`);
   }
+
+  const fileExtension = getAndValidateFileExtension(argv.output || argv.apis[0]);
 
   const {
     'prefix-components-with-info-prop': prefixComponentsWithInfoProp,
     'prefix-tags-with-filename': prefixTagsWithFilename,
     'prefix-tags-with-info-prop': prefixTagsWithInfoProp,
     'without-x-tag-groups': withoutXTagGroups,
-    output: specFilename = 'openapi.yaml',
+    output: specFilename = `openapi.${fileExtension}`,
   } = argv;
 
   const usedTagsOptions = [
@@ -229,7 +233,8 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
   }
 
-  writeYaml(sortTopLevelKeysForOas(joinedDef), specFilename, noRefs);
+  writeToFileByExtension(sortTopLevelKeysForOas(joinedDef), specFilename, noRefs);
+
   printExecutionTime('join', startedAt, specFilename);
 
   function populateTags({

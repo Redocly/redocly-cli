@@ -17,3 +17,5 @@ export const writeYaml = jest.fn();
 export const loadConfigAndHandleErrors = jest.fn(() => ConfigFixture);
 export const checkIfRulesetExist = jest.fn();
 export const sortTopLevelKeysForOas = jest.fn((document) => document);
+export const getAndValidateFileExtension = jest.fn((fileName: string) => fileName.split('.').pop());
+export const writeToFileByExtension = jest.fn();
