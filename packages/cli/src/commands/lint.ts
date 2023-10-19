@@ -9,6 +9,7 @@ import {
   makeDocumentFromString,
   stringifyYaml,
 } from '@redocly/openapi-core';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import {
   checkIfRulesetExist,
   exitWithError,
@@ -24,7 +25,6 @@ import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@re
 import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 export type LintOptions = {
   apis?: string[];

@@ -24,12 +24,12 @@ import {
   Oas2Definition,
   RedoclyClient,
 } from '@redocly/openapi-core';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,

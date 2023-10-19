@@ -1,5 +1,7 @@
 ---
-'@redocly/cli': patch
+'@redocly/cli': minor
+'@redocly/openapi-core': minor
 ---
 
-Set default severity for the config validation.
+Added the possibility to configure the linting severity level of the configuration file for all CLI commands.
+Now, Redocly CLI will exit with an error if there are any issues with the configuration file, and the severity is set to `error`.
