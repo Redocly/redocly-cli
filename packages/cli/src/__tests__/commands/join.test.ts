@@ -81,7 +81,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call writeFileByExt function', async () => {
+  it('should call writeToFileByExtension function', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
