@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`E2E join files with different extensions test with option: {
-  name: 'json output option',
+  name: 'json output file',
   folder: 'yaml-input-and-json-output',
   entrypoints: [Array],
   output: 'openapi.json',

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`E2E join files with different extensions test with option: {
-  name: 'first entrypoint is json file',
+  name: 'first entrypoint is a json file',
   folder: 'json-and-yaml-input',
   entrypoints: [Array],
   snapshot: 'json-output.snapshot.js'
