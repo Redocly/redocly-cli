@@ -27,9 +27,9 @@ redocly stats --version
 | ------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                 |
 | --config      | string  | Specify path to the [configuration file](#custom-configuration-file).                                                              |
-| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
 | --format      | string  | Format for the output.<br />**Possible values:** `stylish`, `json`.                                                                |
 | --help        | boolean | Show help.                                                                                                                         |
+| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
 | --version     | boolean | Show version number.                                                                                                               |
 
 ## Examples

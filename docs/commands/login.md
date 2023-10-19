@@ -24,17 +24,19 @@ redocly login --verbose
 
 ## Options
 
-| Option       | Type    | Description                                                                                                                                      |
-| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| --help       | boolean | Show help.                                                                                                                                       |
-| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.md). |
-| --verbose    | boolean | Include additional output.                                                                                                                       |
-| --version    | boolean | Show version number.                                                                                                                             |
+| Option       | Type    | Description                                                                                                                                     |
+| ------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | --config     | string  | Specify path to the [config file](../configuration/index.md).                                                                                   |
+| --help       | boolean | Show help.                                                                                                                                      |
+| --region, -r | string  | Specify which region to use when logging in. Supported values: `us`, `eu`. Read more about [configuring the region](../configuration/index.md). |
+| --verbose    | boolean | Include additional output.                                                                                                                      |
+| --version    | boolean | Show version number.                                                                                                                            |
 
 ## Examples
+
 {% tabs %}
 {% tab label="Successful login" %}
+
 ```bash
 redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
@@ -42,8 +44,10 @@ redocly login
   Logging in...
   Authorization confirmed. ✅
 ```
+
 {% /tab  %}
 {% tab label="Failed login" %}
+
 ```bash
 redocly login
   🔑 Copy your API key from https://app.redocly.com/profile and paste it below:
@@ -51,5 +55,6 @@ redocly login
   Logging in...
   Authorization failed. Please check if you entered a valid API key.
 ```
+
 {% /tab  %}
 {% /tabs  %}

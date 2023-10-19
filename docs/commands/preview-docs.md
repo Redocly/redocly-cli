@@ -28,12 +28,12 @@ redocly preview-docs <api> --version
 | --force, -f             | boolean  | Generate preview output even when errors occur.                                                                                                                            |
 | --help                  | boolean  | Show help.                                                                                                                                                                 |
 | --host, -h              | string   | The host where the documentation preview can be accessed. The default value is `127.0.0.1`.                                                                                |
+| --lint-config           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                         |
 | --port, -p              | integer  | The port where the documentation preview can be accessed. You can set any port number over 1024 as long as it is not already being used. The default value is port `8080`. |
 | --skip-decorator        | [string] | Ignore [certain decorators](#skip-preprocessor-or-decorator).                                                                                                              |
 | --skip-preprocessor     | [string] | Ignore [certain preprocessors](#skip-preprocessor-or-decorator).                                                                                                           |
 | --use-community-edition | boolean  | Use Redoc Community Edition for docs preview.                                                                                                                              |
 | --version               | boolean  | Show version number.                                                                                                                                                       |
-| --lint-config           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                         |
 
 ## Examples
 
