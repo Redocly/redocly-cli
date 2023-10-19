@@ -485,7 +485,7 @@ The following example asserts that the operation summary doesn't start with "The
 
 ```yaml
 rules:
-  rule/operation-summary-contains-test:
+  rule/operation-summary-does-not-start-with-the:
     subject:
       type: Operation
       property: summary
