@@ -1,6 +1,6 @@
 import type { PluginStyleguideConfig } from './types';
 
-export default {
+const all: PluginStyleguideConfig<'built-in'> = {
   rules: {
     'info-contact': 'error',
     'info-license': 'error',
@@ -28,13 +28,24 @@ export default {
     'operation-singular-tag': 'error',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',
-    'boolean-parameter-prefixes': 'error',
     'paths-kebab-case': 'error',
     'no-http-verbs-in-paths': 'error',
     'path-excludes-patterns': {
       severity: 'error',
       patterns: [],
     },
+    spec: 'error',
+    'no-invalid-schema-examples': 'error',
+    'no-invalid-parameter-examples': 'error',
+    'scalar-property-missing-example': 'error',
+    'spec-strict-refs': 'error',
+    'path-http-verbs-order': 'off',
+    'path-params-defined': 'off',
+    'required-string-property-missing-min-length': 'off',
+    'response-contains-header': 'off',
+  },
+  oas2Rules: {
+    'boolean-parameter-prefixes': 'error',
     'request-mime-type': {
       severity: 'error',
       allowedValues: ['application/json'],
@@ -43,12 +54,7 @@ export default {
       severity: 'error',
       allowedValues: ['application/json'],
     },
-    spec: 'error',
-    'no-invalid-schema-examples': 'error',
-    'no-invalid-parameter-examples': 'error',
-    'scalar-property-missing-example': 'error',
-    'spec-strict-refs': 'error',
-    'component-name-unique': 'error',
+    'response-contains-property': 'off',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',
@@ -60,8 +66,21 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
     'operation-4xx-problem-details-rfc7807': 'error',
+    'boolean-parameter-prefixes': 'error',
+    'request-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json'],
+    },
+    'response-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json'],
+    },
+    'component-name-unique': 'error',
+    'response-contains-property': 'off',
+    'spec-components-invalid-map-name': 'off',
   },
   oas3_1Rules: {
+    'no-invalid-media-type-examples': 'error',
     'no-server-example.com': 'error',
     'no-server-trailing-slash': 'error',
     'no-empty-servers': 'error',
@@ -70,5 +89,19 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
     'operation-4xx-problem-details-rfc7807': 'error',
+    'boolean-parameter-prefixes': 'error',
+    'request-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json'],
+    },
+    'response-mime-type': {
+      severity: 'error',
+      allowedValues: ['application/json'],
+    },
+    'component-name-unique': 'error',
+    'response-contains-property': 'off',
+    'spec-components-invalid-map-name': 'off',
   },
-} as PluginStyleguideConfig;
+};
+
+export default all;

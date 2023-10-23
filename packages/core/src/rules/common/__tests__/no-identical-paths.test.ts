@@ -38,10 +38,10 @@ describe('no-identical-paths', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1good~1{hash}",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -50,7 +50,7 @@ describe('no-identical-paths', () => {
           "message": "The path already exists which differs only by path parameter name(s): \`/good/{id}\` and \`/good/{hash}\`.",
           "ruleId": "no-identical-paths",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

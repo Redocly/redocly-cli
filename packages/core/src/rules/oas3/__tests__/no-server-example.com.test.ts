@@ -21,10 +21,10 @@ describe('Oas3 oas3-no-server-example.com', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/servers/0/url",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -33,7 +33,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
           "message": "Server \`url\` should not point to example.com or localhost.",
           "ruleId": "no-server-example.com",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -55,7 +55,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
       config: await makeConfig({ 'no-server-example.com': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('oas3-no-server-example.com: should report on server object with "foo.example.com" url', async () => {
@@ -75,10 +75,10 @@ describe('Oas3 oas3-no-server-example.com', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/servers/0/url",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -87,7 +87,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
           "message": "Server \`url\` should not point to example.com or localhost.",
           "ruleId": "no-server-example.com",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

@@ -9,8 +9,8 @@ describe('ref-utils', () => {
   it(`should unescape refs with '/'`, () => {
     const reference = 'somefile.yaml#/components/schemas/scope~1domain-schema';
     expect(parseRef(reference)).toMatchInlineSnapshot(`
-      Object {
-        "pointer": Array [
+      {
+        "pointer": [
           "components",
           "schemas",
           "scope/domain-schema",
@@ -23,8 +23,8 @@ describe('ref-utils', () => {
   it(`should unescape refs with '~'`, () => {
     const reference = 'somefile.yaml#/components/schemas/complex~0name';
     expect(parseRef(reference)).toMatchInlineSnapshot(`
-      Object {
-        "pointer": Array [
+      {
+        "pointer": [
           "components",
           "schemas",
           "complex~name",
@@ -37,8 +37,8 @@ describe('ref-utils', () => {
   it(`should unescape complex urlencoded paths`, () => {
     const referene = 'somefile.yaml#/components/schemas/scope%2Fcomplex~name';
     expect(parseRef(referene)).toMatchInlineSnapshot(`
-      Object {
-        "pointer": Array [
+      {
+        "pointer": [
           "components",
           "schemas",
           "scope/complex~name",
@@ -93,7 +93,7 @@ describe('ref-utils', () => {
       config: new StyleguideConfig({}),
     });
 
-    expect(result).toMatchInlineSnapshot(`Array []`);
+    expect(result).toMatchInlineSnapshot(`[]`);
   });
 
   describe('refBaseName', () => {

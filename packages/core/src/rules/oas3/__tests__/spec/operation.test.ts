@@ -24,7 +24,7 @@ it('should not report if summary field is valid', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });
 
 it('should report if summary field is not string ', async () => {
@@ -51,8 +51,8 @@ it('should report if summary field is not string ', async () => {
       spec: 'error',
     })
   ).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "location": "#/paths/~1ping/summary",
         "message": "Expected type \`string\` but got \`null\`.",
       },
@@ -83,7 +83,7 @@ it('should not report if description field is valid', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });
 
 it('should report if description field is not string', async () => {
@@ -110,8 +110,8 @@ it('should report if description field is not string', async () => {
       spec: 'error',
     })
   ).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "location": "#/paths/~1ping/description",
         "message": "Expected type \`string\` but got \`null\`.",
       },
@@ -141,7 +141,7 @@ it('should not report of a valid GET operation object', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });
 
 it('should not report of a valid PUT operation object', async () => {
@@ -171,7 +171,7 @@ it('should not report of a valid PUT operation object', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });
 
 it('should not report of a valid Post operation object', async () => {
@@ -209,7 +209,7 @@ it('should not report of a valid Post operation object', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });
 
 it('should not report of a valid delete operation object', async () => {
@@ -249,5 +249,5 @@ it('should not report of a valid delete operation object', async () => {
     await validateDoc(source, {
       spec: 'error',
     })
-  ).toMatchInlineSnapshot(`Array []`);
+  ).toMatchInlineSnapshot(`[]`);
 });

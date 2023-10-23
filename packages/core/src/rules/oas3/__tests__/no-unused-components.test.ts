@@ -46,84 +46,84 @@ describe('Oas3 no-unused-components', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"unused\\" is never used.",
+          "message": "Component: "unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/schemas/Unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"Unused\\" is never used.",
+          "message": "Component: "Unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/responses/unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"unused\\" is never used.",
+          "message": "Component: "unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/examples/unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"unused\\" is never used.",
+          "message": "Component: "unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"unused\\" is never used.",
+          "message": "Component: "unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/headers/unused",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Component: \\"unused\\" is never used.",
+          "message": "Component: "unused" is never used.",
           "ruleId": "no-unused-components",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

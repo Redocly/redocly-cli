@@ -32,7 +32,7 @@ describe('Oas3 typed enum', () => {
       config: await makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on enum object if all items match type and enum is nullable', async () => {
@@ -65,7 +65,7 @@ describe('Oas3 typed enum', () => {
       config: await makeConfig({ 'no-enum-type-mismatch': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on enum object if not all items match type', async () => {
@@ -96,19 +96,19 @@ describe('Oas3 typed enum', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected \\"integer\\" but received \\"string\\".",
+          "message": "All values of \`enum\` field must be of the same type as the \`type\` field: expected "integer" but received "string".",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -144,10 +144,10 @@ describe('Oas3 typed enum', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -156,7 +156,7 @@ describe('Oas3 typed enum', () => {
           "message": "Enum value \`string\` must be of allowed types: \`integer,array\`.",
           "ruleId": "no-enum-type-mismatch",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -189,11 +189,11 @@ describe('Oas3 typed enum', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -202,7 +202,7 @@ describe('Oas3 typed enum', () => {
           "message": "Expected type \`Schema\` (object) but got \`null\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

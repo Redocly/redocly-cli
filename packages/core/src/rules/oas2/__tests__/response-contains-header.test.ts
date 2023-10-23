@@ -36,10 +36,10 @@ describe('Oas2 response-contains-header', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/201/headers",
               "reportOnKey": true,
               "source": Source {
@@ -66,14 +66,14 @@ describe('Oas2 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"Content-Length\\" header.",
+          "message": "Response object must contain a "Content-Length" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/404/headers",
               "reportOnKey": true,
               "source": Source {
@@ -100,10 +100,10 @@ describe('Oas2 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"Content-Length\\" header.",
+          "message": "Response object must contain a "Content-Length" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -142,7 +142,7 @@ describe('Oas2 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report a response object when there is no `names` section defined', async () => {
@@ -169,6 +169,6 @@ describe('Oas2 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 });

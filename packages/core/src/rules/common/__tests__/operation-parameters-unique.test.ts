@@ -26,10 +26,10 @@ describe('Oas3 operation-parameters-unique', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/parameters/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -39,7 +39,7 @@ describe('Oas3 operation-parameters-unique', () => {
       Repeats of \`in:query\` + \`name:a\`.",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -68,7 +68,7 @@ describe('Oas3 operation-parameters-unique', () => {
       config: await makeConfig({ 'operation-parameters-unique': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report when operation with duplicated params', async () => {
@@ -99,10 +99,10 @@ describe('Oas3 operation-parameters-unique', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/parameters/2",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -111,7 +111,7 @@ describe('Oas3 operation-parameters-unique', () => {
           "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`.",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -147,10 +147,10 @@ describe('Oas3 operation-parameters-unique', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/parameters/2",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -159,7 +159,7 @@ describe('Oas3 operation-parameters-unique', () => {
           "message": "Operations must have unique \`name\` + \`in\` parameters. Repeats of \`in:query\` + \`name:a\`.",
           "ruleId": "operation-parameters-unique",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

@@ -5,7 +5,7 @@ import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
-import { Oas3RuleSet, SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
+import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 
@@ -65,8 +65,8 @@ export async function lintDocument(opts: {
     visitorsData: {},
   };
 
-  const preprocessors = initRules(rules as any, config, 'preprocessors', specVersion);
-  const regularRules = initRules(rules as Oas3RuleSet[], config, 'rules', specVersion);
+  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+  const regularRules = initRules(rules, config, 'rules', specVersion);
 
   let resolvedRefMap = await resolveDocument({
     rootDocument: document,

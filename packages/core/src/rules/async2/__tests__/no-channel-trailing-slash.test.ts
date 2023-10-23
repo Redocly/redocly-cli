@@ -27,10 +27,10 @@ describe('no-channel-trailing-slash', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/channels/~1trailing~1",
               "reportOnKey": true,
               "source": "asyncapi.yaml",
@@ -39,7 +39,7 @@ describe('no-channel-trailing-slash', () => {
           "message": "\`/trailing/\` should not have a trailing slash.",
           "ruleId": "no-channel-trailing-slash",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -67,7 +67,7 @@ describe('no-channel-trailing-slash', () => {
       config: await makeConfig({ 'no-channel-trailing-slash': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on trailing slash in path if the path is root', async () => {
@@ -92,6 +92,6 @@ describe('no-channel-trailing-slash', () => {
       config: await makeConfig({ 'no-channel-trailing-slash': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

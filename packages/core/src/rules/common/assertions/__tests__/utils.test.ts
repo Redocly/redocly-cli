@@ -59,11 +59,11 @@ describe('Oas3 assertions', () => {
         );
 
         expect(visitors).toMatchInlineSnapshot(`
-          Object {
-            "Foo": Object {
-              "Bar": Object {
-                "Roof": Object {
-                  "Bar": Object {
+          {
+            "Foo": {
+              "Bar": {
+                "Roof": {
+                  "Bar": {
                     "enter": [Function],
                   },
                   "skip": [Function],
@@ -100,10 +100,10 @@ describe('Oas3 assertions', () => {
         );
 
         expect(visitors).toMatchInlineSnapshot(`
-          Object {
-            "Operation": Object {
-              "Responses": Object {
-                "MediaTypesMap": Object {
+          {
+            "Operation": {
+              "Responses": {
+                "MediaTypesMap": {
                   "enter": [Function],
                 },
                 "skip": [Function],

@@ -172,17 +172,21 @@ function verifyExtendedConfig(
   const recommendedRules = defaultPlugin?.configs?.[extendsRuleSet];
   expect(recommendedRules).toBeDefined();
 
-  verifyOasRules(config.styleguide.rules.oas2, overridesRules, recommendedRules?.rules || {});
   verifyOasRules(
-    config.styleguide.rules.oas3_0,
+    config.styleguide.rules.oas2,
     overridesRules,
-    Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_0Rules)
+    { ...recommendedRules?.rules, ...recommendedRules?.oas2Rules } || {}
   );
-  verifyOasRules(
-    config.styleguide.rules.oas3_1,
-    overridesRules,
-    Object.assign({}, recommendedRules?.rules, recommendedRules?.oas3_1Rules)
-  );
+
+  verifyOasRules(config.styleguide.rules.oas3_0, overridesRules, {
+    ...recommendedRules?.rules,
+    ...recommendedRules?.oas3_0Rules,
+  });
+
+  verifyOasRules(config.styleguide.rules.oas3_1, overridesRules, {
+    ...recommendedRules?.rules,
+    ...recommendedRules?.oas3_1Rules,
+  });
 }
 
 function verifyOasRules(

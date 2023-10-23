@@ -26,10 +26,10 @@ describe('Oas3 paths-kebab-case', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1someTest",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -38,7 +38,7 @@ describe('Oas3 paths-kebab-case', () => {
           "message": "\`/someTest\` does not use kebab-case.",
           "ruleId": "paths-kebab-case",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -65,10 +65,10 @@ describe('Oas3 paths-kebab-case', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some_test",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -77,7 +77,7 @@ describe('Oas3 paths-kebab-case', () => {
           "message": "\`/some_test\` does not use kebab-case.",
           "ruleId": "paths-kebab-case",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -103,6 +103,6 @@ describe('Oas3 paths-kebab-case', () => {
         'no-path-trailing-slash': 'off',
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

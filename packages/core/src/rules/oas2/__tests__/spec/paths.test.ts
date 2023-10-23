@@ -21,7 +21,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report if Path object is empty ', async () => {
@@ -38,7 +38,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if Path object is not present ', async () => {
@@ -54,8 +54,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/",
           "message": "The field \`paths\` must be present on this level.",
         },
@@ -77,7 +77,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   //Check: no error
@@ -101,8 +101,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/paths/ping",
           "message": "Property \`ping\` is not expected here.",
         },
@@ -134,7 +134,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         'paths-identical': 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report valid matching URLs', async () => {
@@ -161,7 +161,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report in case of ambiguous matching ', async () => {
@@ -188,7 +188,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report if Path Item is empty ', async () => {
@@ -206,7 +206,7 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report of a valid Parameter Object', async () => {
@@ -240,6 +240,6 @@ describe('OpenAPI Schema', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 });

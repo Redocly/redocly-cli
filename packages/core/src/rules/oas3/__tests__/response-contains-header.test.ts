@@ -34,10 +34,10 @@ describe('Oas3 response-contains-header', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/headers",
               "reportOnKey": true,
               "source": Source {
@@ -61,10 +61,10 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"Content-Length\\" header.",
+          "message": "Response object must contain a "Content-Length" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -117,10 +117,10 @@ describe('Oas3 response-contains-header', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/headers",
               "reportOnKey": true,
               "source": Source {
@@ -159,14 +159,14 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"x-request-id\\" header.",
+          "message": "Response object must contain a "x-request-id" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/400/headers",
               "reportOnKey": true,
               "source": Source {
@@ -205,10 +205,10 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"Content-Length\\" header.",
+          "message": "Response object must contain a "Content-Length" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -268,7 +268,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report response object containing header name upper cased', async () => {
@@ -300,7 +300,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report response object containing header name in the rule upper cased', async () => {
@@ -332,7 +332,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report even if the response is null', async () => {
@@ -360,10 +360,10 @@ describe('Oas3 response-contains-header', () => {
     });
 
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test~1/put/responses/200/headers",
               "reportOnKey": true,
               "source": Source {
@@ -378,10 +378,10 @@ describe('Oas3 response-contains-header', () => {
               },
             },
           ],
-          "message": "Response object must contain a \\"X-Test-Header\\" header.",
+          "message": "Response object must contain a "X-Test-Header" header.",
           "ruleId": "response-contains-header",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

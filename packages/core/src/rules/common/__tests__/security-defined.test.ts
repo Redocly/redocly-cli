@@ -23,10 +23,10 @@ describe('Oas3 security-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get/security/0/some",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -35,7 +35,7 @@ describe('Oas3 security-defined', () => {
           "message": "There is no \`some\` security scheme defined.",
           "ruleId": "security-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -56,7 +56,7 @@ describe('Oas3 security-defined', () => {
       config: await makeConfig({ 'security-defined': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if security not defined at all', async () => {
@@ -77,10 +77,10 @@ describe('Oas3 security-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -89,7 +89,7 @@ describe('Oas3 security-defined', () => {
           "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -116,10 +116,10 @@ describe('Oas3 security-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get/security/0/some",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -128,11 +128,11 @@ describe('Oas3 security-defined', () => {
           "message": "There is no \`some\` security scheme defined.",
           "ruleId": "security-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1cats/get",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -141,7 +141,7 @@ describe('Oas3 security-defined', () => {
           "message": "Every operation should have security defined on it or on the root level.",
           "ruleId": "security-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -170,6 +170,6 @@ describe('Oas3 security-defined', () => {
       config: await makeConfig({ 'security-defined': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

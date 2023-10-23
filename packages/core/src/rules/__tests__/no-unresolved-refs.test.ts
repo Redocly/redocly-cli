@@ -27,10 +27,10 @@ describe('oas3 boolean-parameter-prefixes', () => {
     });
 
     expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/requestBody",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -39,7 +39,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
           "message": "Can't resolve $ref: ENOENT: no such file or directory 'invalid.yaml'",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -67,36 +67,36 @@ describe('oas3 boolean-parameter-prefixes', () => {
     });
 
     expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": undefined,
               "reportOnKey": false,
               "source": "fixtures/invalid-yaml.yaml",
-              "start": Object {
+              "start": {
                 "col": 1,
                 "line": 2,
               },
             },
           ],
-          "message": "Failed to parse: unexpected end of the stream within a single quoted scalar in \\"fixtures/invalid-yaml.yaml\\" (2:1)",
+          "message": "Failed to parse: unexpected end of the stream within a single quoted scalar in "fixtures/invalid-yaml.yaml" (2:1)",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/requestBody",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Can't resolve $ref: unexpected end of the stream within a single quoted scalar in \\"fixtures/invalid-yaml.yaml\\" (2:1)",
+          "message": "Can't resolve $ref: unexpected end of the stream within a single quoted scalar in "fixtures/invalid-yaml.yaml" (2:1)",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -123,7 +123,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on unresolved localr ref', async () => {
@@ -148,10 +148,10 @@ describe('oas3 boolean-parameter-prefixes', () => {
     });
 
     expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/requestBody",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -160,7 +160,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
           "message": "Can't resolve $ref",
           "ruleId": "no-unresolved-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -194,7 +194,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on nested refs inside specification extensions', async () => {
@@ -223,7 +223,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on nested refs inside specification extensions for 3.1', async () => {
@@ -252,6 +252,6 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
   });
 });

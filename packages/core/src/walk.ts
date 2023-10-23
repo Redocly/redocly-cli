@@ -4,6 +4,9 @@ import type {
   NormalizedOasVisitors,
   VisitorSkippedLevelContext,
   VisitFunction,
+  BaseVisitor,
+  NormalizeVisitor,
+  VisitorNode,
 } from './visitors';
 import type { ResolvedRefMap, Document } from './resolve';
 import type { NormalizedNodeType } from './types';
@@ -15,13 +18,23 @@ import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
 import { SpecVersion } from './oas-types';
 import { isNamedType, SpecExtension } from './types';
 
-type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
+export type NonUndefined =
+  | string
+  | number
+  | boolean
+  | symbol
+  | bigint
+  | object
+  | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
   | { node: T; location: Location; error?: ResolveError | YamlParseError }
   | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
 
-export type ResolveFn = <T>(node: Referenced<T>, from?: string) => ResolveResult<T>;
+export type ResolveFn = <T extends NonUndefined>(
+  node: Referenced<T>,
+  from?: string
+) => ResolveResult<T>;
 
 export type UserContext = {
   report(problem: Problem): void;
@@ -104,7 +117,7 @@ function collectParentsLocations(ctx: VisitorLevelContext) {
   return locations;
 }
 
-export function walkDocument<T>(opts: {
+export function walkDocument<T extends BaseVisitor>(opts: {
   document: Document;
   rootType: NormalizedNodeType;
   normalizedVisitors: NormalizedOasVisitors<T>;
@@ -185,7 +198,7 @@ export function walkDocument<T>(opts: {
 
       const anyEnterVisitors = normalizedVisitors.any.enter;
       const currentEnterVisitors = anyEnterVisitors.concat(
-        normalizedVisitors[type.name]?.enter || []
+        (normalizedVisitors[type.name]?.enter as NormalizeVisitor<VisitorNode<any>[]>) || []
       );
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];

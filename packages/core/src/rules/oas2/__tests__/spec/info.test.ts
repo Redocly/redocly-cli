@@ -22,8 +22,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/title",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -52,8 +52,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/description",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -82,8 +82,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/termsOfService",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -115,7 +115,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if in the Contact Object in URL field is not string', async () => {
@@ -142,8 +142,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/contact/url",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -175,8 +175,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/contact/email",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -206,7 +206,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if the License Object missing field Name', async () => {
@@ -231,8 +231,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/license",
           "message": "The field \`name\` must be present on this level.",
         },
@@ -263,8 +263,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/license/url",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -293,7 +293,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if the Version field is not provided', async () => {
@@ -315,8 +315,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info",
           "message": "The field \`version\` must be present on this level.",
         },
@@ -344,8 +344,8 @@ describe('OpenAPI Schema 2.0', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/info/version",
           "message": "Expected type \`string\` but got \`null\`.",
         },

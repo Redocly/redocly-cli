@@ -28,10 +28,10 @@ describe('Oas3 operation-singular-tag', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some/get/tags",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -40,7 +40,7 @@ describe('Oas3 operation-singular-tag', () => {
           "message": "Operation \`tags\` object should have only one tag.",
           "ruleId": "operation-singular-tag",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -67,6 +67,6 @@ describe('Oas3 operation-singular-tag', () => {
       config: await makeConfig({ 'operation-singular-tag': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

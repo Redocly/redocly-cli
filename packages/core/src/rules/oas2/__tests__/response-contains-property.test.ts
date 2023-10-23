@@ -42,10 +42,10 @@ describe('Oas2 response-contains-property', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1accounts~1{accountId}/get/responses/200/schema/properties",
               "reportOnKey": true,
               "source": Source {
@@ -78,10 +78,10 @@ describe('Oas2 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must contain a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level "id" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -123,7 +123,7 @@ describe('Oas2 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report a response object when there is no `names` section defined', async () => {
@@ -150,6 +150,6 @@ describe('Oas2 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 });

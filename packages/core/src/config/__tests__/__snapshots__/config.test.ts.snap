@@ -5,160 +5,160 @@ StyleguideConfig {
   "_usedRules": Set {},
   "_usedVersions": Set {},
   "configFile": undefined,
-  "decorators": Object {
-    "async2": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+  "decorators": {
+    "async2": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas2": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas2": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas3_0": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas3_0": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas3_1": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas3_1": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
   },
   "doNotResolveExamples": false,
-  "extendPaths": Array [],
-  "ignore": Object {
-    "https://some-path.yaml": Object {
+  "extendPaths": [],
+  "ignore": {
+    "https://some-path.yaml": {
       "no-unused-components": Set {
         "#/components/schemas/Foo",
       },
     },
-    "some-path/openapi.yaml": Object {
+    "some-path/openapi.yaml": {
       "no-unused-components": Set {
         "#/components/schemas/Foo",
       },
     },
   },
-  "pluginPaths": Array [],
-  "plugins": Array [],
-  "preprocessors": Object {
-    "async2": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+  "pluginPaths": [],
+  "plugins": [],
+  "preprocessors": {
+    "async2": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas2": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas2": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas3_0": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas3_0": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "oas3_1": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "oas3_1": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
   },
-  "rawConfig": Object {
+  "rawConfig": {
     "_usedRules": Set {},
     "_usedVersions": Set {},
     "configFile": "redocly.yaml",
-    "decorators": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "decorators": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
     "doNotResolveExamples": false,
-    "ignore": Object {},
-    "plugins": Array [],
-    "preprocessors": Object {
-      "oas2": Object {},
-      "oas3_0": Object {},
-      "oas3_1": Object {},
+    "ignore": {},
+    "plugins": [],
+    "preprocessors": {
+      "oas2": {},
+      "oas3_0": {},
+      "oas3_1": {},
     },
-    "rawConfig": Object {
-      "plugins": Array [],
-      "rules": Object {
+    "rawConfig": {
+      "plugins": [],
+      "rules": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
     },
     "recommendedFallback": false,
-    "rules": Object {
-      "oas2": Object {
+    "rules": {
+      "oas2": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_0": Object {
+      "oas3_0": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_1": Object {
+      "oas3_1": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
     },
   },
   "recommendedFallback": false,
-  "rules": Object {
-    "async2": Object {
-      "oas2": Object {
+  "rules": {
+    "async2": {
+      "oas2": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_0": Object {
+      "oas3_0": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_1": Object {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-    },
-    "oas2": Object {
-      "oas2": Object {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_0": Object {
-        "no-empty-servers": "error",
-        "operation-summary": "error",
-      },
-      "oas3_1": Object {
+      "oas3_1": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
     },
-    "oas3_0": Object {
-      "oas2": Object {
+    "oas2": {
+      "oas2": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_0": Object {
+      "oas3_0": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_1": Object {
+      "oas3_1": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
     },
-    "oas3_1": Object {
-      "oas2": Object {
+    "oas3_0": {
+      "oas2": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_0": Object {
+      "oas3_0": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },
-      "oas3_1": Object {
+      "oas3_1": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+    },
+    "oas3_1": {
+      "oas2": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_0": {
+        "no-empty-servers": "error",
+        "operation-summary": "error",
+      },
+      "oas3_1": {
         "no-empty-servers": "error",
         "operation-summary": "error",
       },

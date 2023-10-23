@@ -23,10 +23,10 @@ describe('Oas3 tags-alphabetical', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/tags/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -35,7 +35,7 @@ describe('Oas3 tags-alphabetical', () => {
           "message": "The \`tags\` array should be in alphabetical order.",
           "ruleId": "tags-alphabetical",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -59,7 +59,7 @@ describe('Oas3 tags-alphabetical', () => {
       config: await makeConfig({ 'tags-alphabetical': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on tags object if not sorted alphabetically not ignoring case', async () => {
@@ -81,10 +81,10 @@ describe('Oas3 tags-alphabetical', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/tags/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -93,7 +93,7 @@ describe('Oas3 tags-alphabetical', () => {
           "message": "The \`tags\` array should be in alphabetical order.",
           "ruleId": "tags-alphabetical",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -117,6 +117,6 @@ describe('Oas3 tags-alphabetical', () => {
       config: await makeConfig({ 'tags-alphabetical': { severity: 'error', ignoreCase: true } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

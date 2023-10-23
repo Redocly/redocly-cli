@@ -22,10 +22,10 @@ describe('Oas3 license-url', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/info/license/url",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -34,7 +34,7 @@ describe('Oas3 license-url', () => {
           "message": "License object should contain \`url\` field.",
           "ruleId": "info-license-url",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -58,6 +58,6 @@ describe('Oas3 license-url', () => {
       config: await makeConfig({ 'info-license-url': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

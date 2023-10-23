@@ -37,14 +37,14 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "from": Object {
+      [
+        {
+          "from": {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/example/a",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -53,15 +53,15 @@ describe('no-invalid-media-type-examples', () => {
           "message": "Example value must conform to the schema: \`a\` property type must be string.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "from": Object {
+        {
+          "from": {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/example/b",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -70,7 +70,7 @@ describe('no-invalid-media-type-examples', () => {
           "message": "Example value must conform to the schema: \`b\` property type must be number.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -115,14 +115,14 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "from": Object {
+      [
+        {
+          "from": {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/example/c",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -131,7 +131,7 @@ describe('no-invalid-media-type-examples', () => {
           "message": "Example value must conform to the schema: must NOT have unevaluated properties \`c\`.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -174,7 +174,7 @@ describe('no-invalid-media-type-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on valid example with allowAdditionalProperties and allOf and $ref', async () => {
@@ -223,7 +223,7 @@ describe('no-invalid-media-type-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not on invalid examples', async () => {
@@ -274,14 +274,14 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "from": Object {
+      [
+        {
+          "from": {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/examples/test/value/a",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -290,7 +290,7 @@ describe('no-invalid-media-type-examples', () => {
           "message": "Example value must conform to the schema: \`a\` property type must be string.",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -321,7 +321,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report if no schema', async () => {
@@ -353,7 +353,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should work with cross-file $ref', async () => {
@@ -388,7 +388,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not throw for ajv throw', async () => {
@@ -417,23 +417,23 @@ describe('no-invalid-media-type-examples', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "from": Object {
+      [
+        {
+          "from": {
             "pointer": "#/paths/~1pet/get/responses/200/content/application~1json",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/responses/200/content/application~1json/schema",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Example validation errored: \\"nullable\\" cannot be used without \\"type\\".",
+          "message": "Example validation errored: "nullable" cannot be used without "type".",
           "ruleId": "no-invalid-media-type-examples",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -468,6 +468,6 @@ describe('no-invalid-media-type-examples', () => {
       config: await makeConfig({ 'no-invalid-media-type-examples': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

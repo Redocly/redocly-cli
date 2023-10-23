@@ -12,6 +12,9 @@ export default async (url: string, options = {}) => {
       controller.abort();
     }, TIMEOUT);
 
+    // FIXME: fix this
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const res = await nodeFetch(url, { signal: controller.signal, ...options });
     clearTimeout(timeout);
     return res;

@@ -27,7 +27,7 @@ describe('Oas3 path-params-defined', () => {
       config: await makeConfig({ 'path-params-defined': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on undefined param params', async () => {
@@ -56,10 +56,10 @@ describe('Oas3 path-params-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets~1{a}~1{b}/get/parameters",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -68,7 +68,7 @@ describe('Oas3 path-params-defined', () => {
           "message": "The operation does not define the path parameter \`{b}\` expected by path \`/pets/{a}/{b}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -100,10 +100,10 @@ describe('Oas3 path-params-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets~1{a}/parameters/1/name",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -112,11 +112,11 @@ describe('Oas3 path-params-defined', () => {
           "message": "Path parameter \`d\` is not used in the path \`/pets/{a}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets~1{a}/get/parameters/0/name",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -125,7 +125,7 @@ describe('Oas3 path-params-defined', () => {
           "message": "Path parameter \`c\` is not used in the path \`/pets/{a}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -154,10 +154,10 @@ describe('Oas3 path-params-defined', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets~1{a}/post/parameters",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -166,7 +166,7 @@ describe('Oas3 path-params-defined', () => {
           "message": "The operation does not define the path parameter \`{a}\` expected by path \`/pets/{a}\`.",
           "ruleId": "path-params-defined",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -197,6 +197,6 @@ describe('Oas3 path-params-defined', () => {
       config: await makeConfig({ 'path-params-defined': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

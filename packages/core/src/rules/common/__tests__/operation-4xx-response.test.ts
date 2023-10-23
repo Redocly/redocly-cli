@@ -25,10 +25,10 @@ describe('Oas3 operation-4xx-response', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/responses",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -37,7 +37,7 @@ describe('Oas3 operation-4xx-response', () => {
           "message": "Operation must have at least one \`4XX\` response.",
           "ruleId": "operation-4xx-response",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -63,7 +63,7 @@ describe('Oas3 operation-4xx-response', () => {
       config: await makeConfig({ 'operation-4xx-response': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report for present 4XX response', async () => {
@@ -86,7 +86,7 @@ describe('Oas3 operation-4xx-response', () => {
       config: await makeConfig({ 'operation-4xx-response': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if default is present but missing 4xx response', async () => {
@@ -110,10 +110,10 @@ describe('Oas3 operation-4xx-response', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test~1/put/responses",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -122,7 +122,7 @@ describe('Oas3 operation-4xx-response', () => {
           "message": "Operation must have at least one \`4XX\` response.",
           "ruleId": "operation-4xx-response",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -147,10 +147,10 @@ describe('Oas3 operation-4xx-response', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test~1/put/responses",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -159,7 +159,7 @@ describe('Oas3 operation-4xx-response', () => {
           "message": "Operation must have at least one \`2XX\` response.",
           "ruleId": "operation-2xx-response",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -188,10 +188,10 @@ describe('Oas3 operation-4xx-response', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/webhooks/~1test~1/put/responses",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -200,7 +200,7 @@ describe('Oas3 operation-4xx-response', () => {
           "message": "Operation must have at least one \`4XX\` response.",
           "ruleId": "operation-4xx-response",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -226,6 +226,6 @@ describe('Oas3 operation-4xx-response', () => {
       config: await makeConfig({ 'operation-4xx-response': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

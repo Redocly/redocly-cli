@@ -35,10 +35,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get/responses/400",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -47,7 +47,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
           "message": "Response \`4xx\` must have content-type \`application/problem+json\`.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -82,10 +82,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema/properties/type",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -94,7 +94,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
           "message": "SchemaProperties object should contain \`type\` field.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -125,10 +125,10 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       config: await makeConfig({ 'operation-4xx-problem-details-rfc7807': 'error' }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pets/get/responses/400/content/application~1problem+json/schema",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -137,7 +137,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
           "message": "MediaType object should contain \`schema\` field.",
           "ruleId": "operation-4xx-problem-details-rfc7807",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

@@ -21,10 +21,10 @@ describe('Oas3 info-license', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/info",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -33,7 +33,7 @@ describe('Oas3 info-license', () => {
           "message": "Info object should contain \`license\` field.",
           "ruleId": "info-license",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -57,6 +57,6 @@ describe('Oas3 info-license', () => {
       config: await makeConfig({ 'info-license': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

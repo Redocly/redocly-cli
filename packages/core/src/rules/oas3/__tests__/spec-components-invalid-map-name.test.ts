@@ -36,10 +36,10 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     });
 
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/my Param",
               "reportOnKey": true,
               "source": Source {
@@ -68,14 +68,14 @@ describe('Oas3 spec-components-invalid-map-name', () => {
               },
             },
           ],
-          "message": "The map key in parameters \\"my Param\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
+          "message": "The map key in parameters "my Param" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/schemas/first schema",
               "reportOnKey": true,
               "source": Source {
@@ -104,14 +104,14 @@ describe('Oas3 spec-components-invalid-map-name', () => {
               },
             },
           ],
-          "message": "The map key in schemas \\"first schema\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
+          "message": "The map key in schemas "first schema" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/responses/400 status",
               "reportOnKey": true,
               "source": Source {
@@ -140,14 +140,14 @@ describe('Oas3 spec-components-invalid-map-name', () => {
               },
             },
           ],
-          "message": "The map key in responses \\"400 status\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
+          "message": "The map key in responses "400 status" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/examples/invalid identifier",
               "reportOnKey": true,
               "source": Source {
@@ -176,10 +176,10 @@ describe('Oas3 spec-components-invalid-map-name', () => {
               },
             },
           ],
-          "message": "The map key in examples \\"invalid identifier\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
+          "message": "The map key in examples "invalid identifier" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -212,7 +212,7 @@ describe('Oas3 spec-components-invalid-map-name', () => {
       }),
     });
 
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report invalid keys inside nested examples', async () => {
@@ -240,10 +240,10 @@ describe('Oas3 spec-components-invalid-map-name', () => {
     });
 
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/my Param",
               "reportOnKey": true,
               "source": Source {
@@ -265,10 +265,10 @@ describe('Oas3 spec-components-invalid-map-name', () => {
               },
             },
           ],
-          "message": "The map key in parameters \\"my Param\\" does not match the regular expression \\"^[a-zA-Z0-9\\\\.\\\\-_]+$\\"",
+          "message": "The map key in parameters "my Param" does not match the regular expression "^[a-zA-Z0-9\\.\\-_]+$"",
           "ruleId": "spec-components-invalid-map-name",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

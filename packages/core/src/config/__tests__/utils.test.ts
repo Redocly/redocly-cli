@@ -78,25 +78,25 @@ describe('transformConfig', () => {
       makeTestRawConfig('styleguide', 'styleguide')
     );
     expect(transformedRawConfig).toMatchInlineSnapshot(`
-      Object {
-        "apis": Object {
-          "test@v1": Object {
+      {
+        "apis": {
+          "test@v1": {
             "root": "root.yaml",
-            "styleguide": Object {
-              "rules": Object {
+            "styleguide": {
+              "rules": {
                 "operation-2xx-response": "error",
               },
             },
           },
         },
-        "styleguide": Object {
-          "rules": Object {
+        "styleguide": {
+          "rules": {
             "operation-4xx-response": "warn",
           },
         },
-        "theme": Object {
-          "mockServer": Object {},
-          "openapi": Object {},
+        "theme": {
+          "mockServer": {},
+          "openapi": {},
         },
       }
     `);
@@ -111,20 +111,20 @@ describe('transformConfig', () => {
     testRawConfig.apis = undefined;
     testRawConfig.apiDefinitions = { legacyApiDefinition: 'file.yaml' };
     expect(utils.transformConfig(testRawConfig)).toMatchInlineSnapshot(`
-      Object {
-        "apis": Object {
-          "legacyApiDefinition": Object {
+      {
+        "apis": {
+          "legacyApiDefinition": {
             "root": "file.yaml",
           },
         },
-        "styleguide": Object {
-          "rules": Object {
+        "styleguide": {
+          "rules": {
             "operation-4xx-response": "warn",
           },
         },
-        "theme": Object {
-          "mockServer": Object {},
-          "openapi": Object {},
+        "theme": {
+          "mockServer": {},
+          "openapi": {},
         },
       }
     `);

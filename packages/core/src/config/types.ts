@@ -16,6 +16,12 @@ import type {
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
 import type { SkipFunctionContext } from '../visitors';
+import {
+  BuiltInCommonOASRuleId,
+  BuiltInCommonRuleId,
+  BuiltInOAS2RuleId,
+  BuiltInOAS3RuleId,
+} from '../types/redocly-yaml';
 
 export type RuleSeverity = ProblemSeverity | 'off';
 
@@ -37,16 +43,24 @@ export type PreprocessorConfig =
 
 export type DecoratorConfig = PreprocessorConfig;
 
-export type StyleguideRawConfig = {
+export type StyleguideRawConfig<T = undefined> = {
   plugins?: (string | Plugin)[];
   extends?: string[];
   doNotResolveExamples?: boolean;
   recommendedFallback?: boolean;
 
-  rules?: Record<string, RuleConfig>;
-  oas2Rules?: Record<string, RuleConfig>;
-  oas3_0Rules?: Record<string, RuleConfig>;
-  oas3_1Rules?: Record<string, RuleConfig>;
+  rules?: T extends 'built-in'
+    ? { [key in BuiltInCommonRuleId | BuiltInCommonOASRuleId]: RuleConfig }
+    : Record<string, RuleConfig>;
+  oas2Rules?: T extends 'built-in'
+    ? { [key in BuiltInOAS2RuleId]: RuleConfig }
+    : Record<string, RuleConfig>;
+  oas3_0Rules?: T extends 'built-in'
+    ? { [key in BuiltInOAS3RuleId]: RuleConfig }
+    : Record<string, RuleConfig>;
+  oas3_1Rules?: T extends 'built-in'
+    ? { [key in BuiltInOAS3RuleId]: RuleConfig }
+    : Record<string, RuleConfig>;
   async2Rules?: Record<string, RuleConfig>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
@@ -118,7 +132,10 @@ export type Plugin = {
   assertions?: AssertionsConfig;
 };
 
-export type PluginStyleguideConfig = Omit<StyleguideRawConfig, 'plugins' | 'extends'>;
+export type PluginStyleguideConfig<T = undefined> = Omit<
+  StyleguideRawConfig<T>,
+  'plugins' | 'extends'
+>;
 
 export type ResolveHeader =
   | {

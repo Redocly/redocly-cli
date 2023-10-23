@@ -33,7 +33,7 @@ describe('collect refs', () => {
     expect(Array.from(resolvedRefs.keys())).toMatchInlineSnapshot(
       [`foobar.yaml::#/defs/info`],
       `
-      Array [
+      [
         "foobar.yaml::#/defs/info",
       ]
     `
@@ -198,7 +198,7 @@ describe('collect refs', () => {
         .map((ref) => ref.substring(cwd.length + 1))
         .sort()
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         "openapi-with-back.yaml::./schemas/type-a.yaml#/",
         "openapi-with-back.yaml::./schemas/type-b.yaml#/",
         "schemas/type-a.yaml::../openapi-with-back.yaml#/components/schemas/TypeB",
@@ -214,19 +214,19 @@ describe('collect refs', () => {
           return getKey(firstEl).localeCompare(getKey(secondEl));
         })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "allOf": Array [
-            Object {
-              "properties": Object {
-                "integration_type": Object {
+      [
+        {
+          "allOf": [
+            {
+              "properties": {
+                "integration_type": {
                   "$ref": "../openapi-with-back.yaml#/components/schemas/TypeB",
                 },
-                "name": Object {
+                "name": {
                   "type": "string",
                 },
               },
-              "required": Array [
+              "required": [
                 "name",
                 "integration_type",
               ],
@@ -234,8 +234,8 @@ describe('collect refs', () => {
             },
           ],
         },
-        Object {
-          "enum": Array [
+        {
+          "enum": [
             "webhook",
             "api_key",
             "sftp",
@@ -243,8 +243,8 @@ describe('collect refs', () => {
           ],
           "type": "string",
         },
-        Object {
-          "enum": Array [
+        {
+          "enum": [
             "webhook",
             "api_key",
             "sftp",
@@ -270,7 +270,7 @@ describe('collect refs', () => {
     expect(resolvedRefs).toBeDefined();
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
       .toMatchInlineSnapshot(`
-      Array [
+      [
         "openapi.yaml::#/components/schemas/Local",
         "openapi.yaml::#/components/schemas/Local/properties/string",
         "openapi.yaml::./External.yaml#/properties/string",
@@ -281,62 +281,62 @@ describe('collect refs', () => {
     `);
 
     expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "properties": Object {
-            "localCircular": Object {
+      [
+        {
+          "properties": {
+            "localCircular": {
               "$ref": "#/components/schemas/Local",
             },
-            "number": Object {
+            "number": {
               "type": "number",
             },
-            "string": Object {
+            "string": {
               "type": "string",
             },
           },
         },
-        Object {
+        {
           "type": "string",
         },
-        Object {
+        {
           "type": "string",
         },
-        Object {
-          "properties": Object {
-            "external": Object {
+        {
+          "properties": {
+            "external": {
               "$ref": "./External2.yaml",
             },
-            "number": Object {
+            "number": {
               "type": "number",
             },
-            "string": Object {
+            "string": {
               "type": "string",
             },
-            "unknown": Object {
+            "unknown": {
               "type": "string",
             },
           },
           "type": "object",
         },
-        Object {
-          "properties": Object {
-            "circularParent": Object {
+        {
+          "properties": {
+            "circularParent": {
               "$ref": "./External.yaml#/properties",
             },
           },
           "type": "object",
         },
-        Object {
-          "external": Object {
+        {
+          "external": {
             "$ref": "./External2.yaml",
           },
-          "number": Object {
+          "number": {
             "type": "number",
           },
-          "string": Object {
+          "string": {
             "type": "string",
           },
-          "unknown": Object {
+          "unknown": {
             "type": "string",
           },
         },
@@ -366,12 +366,12 @@ describe('collect refs', () => {
     // expect(resolvedRefs.size).toEqual(2);
     expect(Array.from(resolvedRefs.keys()).map((ref) => ref.substring(cwd.length + 1)))
       .toMatchInlineSnapshot(`
-      Array [
+      [
         "openapi-with-md-description.yaml::./description.md",
       ]
     `);
     expect(Array.from(resolvedRefs.values()).map((val) => val.node)).toMatchInlineSnapshot(`
-      Array [
+      [
         "# Hello World
 
       Lorem ipsum

@@ -28,10 +28,10 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/servers",
               "reportOnKey": true,
               "source": "",
@@ -40,11 +40,11 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
           "message": "Server variable with \`enum\` must be a non-empty array.",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/servers",
               "reportOnKey": true,
               "source": "",
@@ -53,7 +53,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
           "message": "Server variable define \`enum\` and \`default\`. \`enum\` must include default value",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -82,10 +82,10 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/servers",
               "reportOnKey": true,
               "source": "",
@@ -94,7 +94,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
           "message": "Server variable with \`enum\` must be a non-empty array.",
           "ruleId": "no-server-variables-empty-enum",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -120,7 +120,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
       config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('oas3-no-server-variables-empty-enum: should be success because variable is empty object', async () => {
@@ -144,7 +144,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
       config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
@@ -171,7 +171,7 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
       config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('oas3-no-server-variables-empty-enum: should be success because enum contains default value', async () => {
@@ -200,6 +200,6 @@ describe('Oas3 as3-no-server-variables-empty-enum', () => {
       config: await makeConfig({ 'no-server-variables-empty-enum': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

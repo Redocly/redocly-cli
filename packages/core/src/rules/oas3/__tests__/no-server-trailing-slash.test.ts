@@ -21,10 +21,10 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/servers/0/url",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -33,7 +33,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
           "message": "Server \`url\` should not have a trailing slash.",
           "ruleId": "no-server-trailing-slash",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -55,7 +55,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
       config: await makeConfig({ 'no-server-trailing-slash': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('oas3-no-server-trailing-slash: should not report on server object with no trailing slash if the url is root', async () => {
@@ -74,6 +74,6 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
       config: await makeConfig({ 'no-server-trailing-slash': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
