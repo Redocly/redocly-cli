@@ -14,9 +14,9 @@ With Redocly CLI, you can solve this problem by using the `join` command that ca
 
 To easily distinguish the origin of OpenAPI objects and properties, you can optionally instruct the `join` command to append custom prefixes to them.
 
-The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` file. Setting a custom name for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten.
+The `join` command accepts both YAML and JSON files, which you can mix in the resulting `openapi.yaml` or `openapi.json` file. Setting a custom name and extension for this file can be achieved by providing it through the `--output` argument. Any existing file is overwritten. If the `--output` option is not provided, the command uses the extension of the first entry point file.
 
-Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.yaml`). The `join` command collects all matching files and combines them into one file.
+Apart from providing individual API description files as the input, you can also specify the path to a folder that contains multiple API description files and match them with a wildcard (for example, `myproject/openapi/*.(yaml/json)`). The `join` command collects all matching files and combines them into one file.
 
 ### Usage
 
@@ -43,7 +43,7 @@ redocly join --version
 | --help                             | boolean  | Show help.                                                                                                                                                                                                 |
 | --lint                             | boolean  | Lint API description files.                                                                                                                                                                                |
 | --lint-config                      | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                         |
-| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml`. **If the file already exists, it's overwritten.**                                                                                             |
+| --output, -o                       | string   | Name for the joined output file. Defaults to `openapi.yaml` or `openapi.json` (Depends on the extension of the first input file). **If the file already exists, it's overwritten.**                        |
 | --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [prefix-components-with-info-prop section](#prefix-components-with-info-prop) below.                                                       |
 | --prefix-tags-with-filename        | string   | Prefix tags with property value from file name. See the [prefix-tags-with-filename section](#prefix-tags-with-filename) below.                                                                             |
 | --prefix-tags-with-info-prop       | boolean  | Prefix tags with property value from info object. See the [prefix-tags-with-info-prop](#prefix-tags-with-info-prop) section.                                                                               |
@@ -274,7 +274,7 @@ components:
 
 ### Custom output file
 
-By default, the CLI tool writes the joined file as `openapi.yaml` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
+By default, the CLI tool writes the joined file as `openapi.yaml` or `openapi.json` in the current working directory. Use the optional `--output` argument to provide an alternative output file path.
 
 ```bash Command
 redocly join --output=openapi-custom.yaml
