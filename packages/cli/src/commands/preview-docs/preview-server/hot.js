@@ -14,12 +14,12 @@
     }
 
     // Other IPv6 addresses must be wrapped in brackets
-    if (host.includes("::")) {
-      return `[${host}]`
+    if (host.includes('::')) {
+      return `[${host}]`;
     }
 
     // Otherwise return as-is
-    return host
+    return host;
   }
 
   function reconnect() {
@@ -52,7 +52,7 @@
     });
 
     socket.on('error', () => {
-      console.log('[hot] Error connecting to hot reloading server')
+      console.log('[hot] Error connecting to hot reloading server');
       socket.destroy();
     });
   }
