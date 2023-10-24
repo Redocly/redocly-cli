@@ -12,7 +12,8 @@ function getPageHTML(
   htmlTemplate: string,
   redocOptions: object = {},
   useRedocPro: boolean,
-  wsPort: number
+  wsPort: number,
+  host: string
 ) {
   let templateSrc = readFileSync(htmlTemplate, 'utf-8');
 
@@ -28,6 +29,7 @@ function getPageHTML(
   <script>
     window.__REDOC_EXPORT = '${useRedocPro ? 'RedoclyReferenceDocs' : 'Redoc'}';
     window.__OPENAPI_CLI_WS_PORT = ${wsPort};
+    window.__OPENAPI_CLI_WS_HOST = "${host}";
   </script>
   <script src="/simplewebsocket.min.js"></script>
   <script src="/hot.js"></script>
@@ -67,7 +69,7 @@ export default async function startPreviewServer(
 
     if (request.url?.endsWith('/') || path.extname(request.url!) === '') {
       respondWithGzip(
-        getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort),
+        getPageHTML(htmlTemplate || defaultTemplate, getOptions(), useRedocPro, wsPort, host),
         request,
         response,
         {
@@ -143,7 +145,7 @@ export default async function startPreviewServer(
     console.timeEnd(colorette.dim(`GET ${request.url}`));
   };
 
-  const wsPort = await getPort({ portRange: [32201, 32301] });
+  const wsPort = await getPort({ port: 32201, portRange: [32201, 32301], host });
 
   const server = startHttpServer(port, host, handler);
   server.on('listening', () => {
@@ -152,5 +154,5 @@ export default async function startPreviewServer(
     );
   });
 
-  return startWsServer(wsPort);
+  return startWsServer(wsPort, host);
 }
