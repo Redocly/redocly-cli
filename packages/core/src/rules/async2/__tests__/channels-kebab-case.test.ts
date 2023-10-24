@@ -27,10 +27,10 @@ describe('Async2 channels-kebab-case', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/channels/NOT_A_KEBAB",
               "reportOnKey": true,
               "source": "asyncapi.yaml",
@@ -39,7 +39,7 @@ describe('Async2 channels-kebab-case', () => {
           "message": "\`NOT_A_KEBAB\` does not use kebab-case.",
           "ruleId": "channels-kebab-case",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -68,10 +68,10 @@ describe('Async2 channels-kebab-case', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/channels/snake_kebab",
               "reportOnKey": true,
               "source": "asyncapi.yaml",
@@ -80,7 +80,7 @@ describe('Async2 channels-kebab-case', () => {
           "message": "\`snake_kebab\` does not use kebab-case.",
           "ruleId": "channels-kebab-case",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -110,7 +110,7 @@ describe('Async2 channels-kebab-case', () => {
         'no-path-trailing-slash': 'off',
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('words with hyphens are allowed with "channels-kebab-case" rule', async () => {
@@ -136,6 +136,6 @@ describe('Async2 channels-kebab-case', () => {
         'paths-kebab-case': 'error',
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

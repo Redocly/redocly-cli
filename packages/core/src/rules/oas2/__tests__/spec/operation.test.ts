@@ -21,7 +21,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report of a valid PUT operation object', async () => {
@@ -48,7 +48,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report of a valid Post operation object', async () => {
@@ -82,7 +82,7 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report of a valid delete operation object', async () => {
@@ -118,6 +118,6 @@ describe('OpenAPI Schema 2.0', () => {
       await lintDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 });

@@ -50,10 +50,10 @@ describe('no-ambiguous-paths', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1{id}~1ambiguous",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -62,11 +62,11 @@ describe('no-ambiguous-paths', () => {
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/good/{id}\` and \`/{id}/ambiguous\`.",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1ambiguous~1{id}",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -75,11 +75,11 @@ describe('no-ambiguous-paths', () => {
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/{id}/ambiguous\` and \`/ambiguous/{id}\`.",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1{entity}~1{id}~1last",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -88,7 +88,7 @@ describe('no-ambiguous-paths', () => {
           "message": "Paths should resolve unambiguously. Found two ambiguous paths: \`/good/{id}/{pet}\` and \`/{entity}/{id}/last\`.",
           "ruleId": "no-ambiguous-paths",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

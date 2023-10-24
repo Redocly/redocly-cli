@@ -58,39 +58,39 @@ describe('Oas3 assertions', () => {
   it('should return the right visitor structure', () => {
     const visitors = Assertions(opts as any);
     expect(visitors).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "Operation": Object {
+      [
+        {
+          "Operation": {
             "enter": [Function],
           },
         },
-        Object {
-          "Operation": Object {
-            "PathItem": Object {
+        {
+          "Operation": {
+            "PathItem": {
               "enter": [Function],
             },
             "skip": [Function],
           },
         },
-        Object {
-          "Operation": Object {
-            "PathItem": Object {
+        {
+          "Operation": {
+            "PathItem": {
               "enter": [Function],
             },
             "skip": [Function],
           },
         },
-        Object {
-          "Bar": Object {
-            "Baz": Object {
-              "Foo": Object {
+        {
+          "Bar": {
+            "Baz": {
+              "Foo": {
                 "enter": [Function],
               },
             },
           },
         },
-        Object {
-          "any": Object {
+        {
+          "any": {
             "enter": [Function],
           },
         },

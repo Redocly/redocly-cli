@@ -69,95 +69,95 @@ describe('getMergedConfig', () => {
   it('should get styleguide defined in "apis" section', () => {
     expect(getMergedConfig(testConfig, 'test@v1')).toMatchInlineSnapshot(`
       Config {
-        "apis": Object {
-          "test@v1": Object {
+        "apis": {
+          "test@v1": {
             "root": "resources/pets.yaml",
-            "styleguide": Object {
-              "rules": Object {
+            "styleguide": {
+              "rules": {
                 "operation-summary": "warn",
               },
             },
           },
         },
         "configFile": "redocly.yaml",
-        "files": Array [],
+        "files": [],
         "organization": "redocly-test",
-        "rawConfig": Object {
-          "apis": Object {
-            "test@v1": Object {
+        "rawConfig": {
+          "apis": {
+            "test@v1": {
               "root": "resources/pets.yaml",
-              "styleguide": Object {
-                "rules": Object {
+              "styleguide": {
+                "rules": {
                   "operation-summary": "warn",
                 },
               },
             },
           },
-          "files": Array [],
+          "files": [],
           "organization": "redocly-test",
-          "styleguide": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "rules": Object {
+          "styleguide": {
+            "extendPaths": [],
+            "pluginPaths": [],
+            "rules": {
               "operation-summary": "warn",
             },
           },
           "telemetry": "on",
-          "theme": Object {},
+          "theme": {},
         },
         "region": undefined,
-        "resolve": Object {
-          "http": Object {
+        "resolve": {
+          "http": {
             "customFetch": undefined,
-            "headers": Array [],
+            "headers": [],
           },
         },
         "styleguide": StyleguideConfig {
           "_usedRules": Set {},
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
-          "decorators": Object {
-            "async2": Object {},
-            "oas2": Object {},
-            "oas3_0": Object {},
-            "oas3_1": Object {},
+          "decorators": {
+            "async2": {},
+            "oas2": {},
+            "oas3_0": {},
+            "oas3_1": {},
           },
           "doNotResolveExamples": false,
-          "extendPaths": Array [],
-          "ignore": Object {},
-          "pluginPaths": Array [],
-          "plugins": Array [],
-          "preprocessors": Object {
-            "async2": Object {},
-            "oas2": Object {},
-            "oas3_0": Object {},
-            "oas3_1": Object {},
+          "extendPaths": [],
+          "ignore": {},
+          "pluginPaths": [],
+          "plugins": [],
+          "preprocessors": {
+            "async2": {},
+            "oas2": {},
+            "oas3_0": {},
+            "oas3_1": {},
           },
-          "rawConfig": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "rules": Object {
+          "rawConfig": {
+            "extendPaths": [],
+            "pluginPaths": [],
+            "rules": {
               "operation-summary": "warn",
             },
           },
           "recommendedFallback": false,
-          "rules": Object {
-            "async2": Object {
+          "rules": {
+            "async2": {
               "operation-summary": "warn",
             },
-            "oas2": Object {
+            "oas2": {
               "operation-summary": "warn",
             },
-            "oas3_0": Object {
+            "oas3_0": {
               "operation-summary": "warn",
             },
-            "oas3_1": Object {
+            "oas3_1": {
               "operation-summary": "warn",
             },
           },
         },
         "telemetry": "on",
-        "theme": Object {},
+        "theme": {},
       }
     `);
   });
@@ -172,103 +172,103 @@ describe('getMergedConfig', () => {
   it('should handle wrong alias - return the same styleguide, empty features', () => {
     expect(getMergedConfig(testConfig, 'wrong-alias')).toMatchInlineSnapshot(`
       Config {
-        "apis": Object {
-          "test@v1": Object {
+        "apis": {
+          "test@v1": {
             "root": "resources/pets.yaml",
-            "styleguide": Object {
-              "rules": Object {
+            "styleguide": {
+              "rules": {
                 "operation-summary": "warn",
               },
             },
           },
         },
         "configFile": "redocly.yaml",
-        "files": Array [],
+        "files": [],
         "organization": "redocly-test",
-        "rawConfig": Object {
-          "apis": Object {
-            "test@v1": Object {
+        "rawConfig": {
+          "apis": {
+            "test@v1": {
               "root": "resources/pets.yaml",
-              "styleguide": Object {
-                "rules": Object {
+              "styleguide": {
+                "rules": {
                   "operation-summary": "warn",
                 },
               },
             },
           },
-          "files": Array [],
+          "files": [],
           "organization": "redocly-test",
-          "styleguide": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "plugins": Array [],
-            "rules": Object {
+          "styleguide": {
+            "extendPaths": [],
+            "pluginPaths": [],
+            "plugins": [],
+            "rules": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
           },
           "telemetry": "on",
-          "theme": Object {},
+          "theme": {},
         },
         "region": undefined,
-        "resolve": Object {
-          "http": Object {
+        "resolve": {
+          "http": {
             "customFetch": undefined,
-            "headers": Array [],
+            "headers": [],
           },
         },
         "styleguide": StyleguideConfig {
           "_usedRules": Set {},
           "_usedVersions": Set {},
           "configFile": "redocly.yaml",
-          "decorators": Object {
-            "async2": Object {},
-            "oas2": Object {},
-            "oas3_0": Object {},
-            "oas3_1": Object {},
+          "decorators": {
+            "async2": {},
+            "oas2": {},
+            "oas3_0": {},
+            "oas3_1": {},
           },
           "doNotResolveExamples": false,
-          "extendPaths": Array [],
-          "ignore": Object {},
-          "pluginPaths": Array [],
-          "plugins": Array [],
-          "preprocessors": Object {
-            "async2": Object {},
-            "oas2": Object {},
-            "oas3_0": Object {},
-            "oas3_1": Object {},
+          "extendPaths": [],
+          "ignore": {},
+          "pluginPaths": [],
+          "plugins": [],
+          "preprocessors": {
+            "async2": {},
+            "oas2": {},
+            "oas3_0": {},
+            "oas3_1": {},
           },
-          "rawConfig": Object {
-            "extendPaths": Array [],
-            "pluginPaths": Array [],
-            "plugins": Array [],
-            "rules": Object {
+          "rawConfig": {
+            "extendPaths": [],
+            "pluginPaths": [],
+            "plugins": [],
+            "rules": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
           },
           "recommendedFallback": false,
-          "rules": Object {
-            "async2": Object {
+          "rules": {
+            "async2": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
-            "oas2": Object {
+            "oas2": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
-            "oas3_0": Object {
+            "oas3_0": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
-            "oas3_1": Object {
+            "oas3_1": {
               "no-empty-servers": "error",
               "operation-summary": "error",
             },
           },
         },
         "telemetry": "on",
-        "theme": Object {},
+        "theme": {},
       }
     `);
   });

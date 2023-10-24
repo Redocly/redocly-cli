@@ -10,6 +10,13 @@ import { Oas2Types } from './types/oas2';
 import { Oas3Types } from './types/oas3';
 import { Oas3_1Types } from './types/oas3_1';
 import { AsyncApi2Types } from './types/asyncapi';
+import {
+  BuiltInAsync2RuleId,
+  BuiltInCommonOASRuleId,
+  BuiltInCommonRuleId,
+  BuiltInOAS2RuleId,
+  BuiltInOAS3RuleId,
+} from './types/redocly-yaml';
 
 export type RuleSet<T> = Record<string, T>;
 
@@ -33,9 +40,25 @@ const typesMap = {
   [SpecVersion.Async2]: AsyncApi2Types,
 };
 
-export type Oas3RuleSet = Record<string, Oas3Rule>;
-export type Oas2RuleSet = Record<string, Oas2Rule>;
-export type Async2RuleSet = Record<string, Async2Rule>;
+export type RuleMap<Key extends string, RuleConfig, T> = Record<
+  T extends 'built-in' ? Key : string,
+  RuleConfig
+>;
+export type Oas3RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInCommonOASRuleId | BuiltInOAS3RuleId | 'assertions',
+  Oas3Rule,
+  T
+>;
+export type Oas2RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInCommonOASRuleId | BuiltInOAS2RuleId | 'assertions',
+  Oas2Rule,
+  T
+>;
+export type Async2RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInAsync2RuleId | 'assertions',
+  Async2Rule,
+  T
+>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;

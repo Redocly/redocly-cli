@@ -4,6 +4,9 @@ import type {
   NormalizedOasVisitors,
   VisitorSkippedLevelContext,
   VisitFunction,
+  BaseVisitor,
+  NormalizeVisitor,
+  VisitorNode,
 } from './visitors';
 import type { ResolvedRefMap, Document } from './resolve';
 import type { NormalizedNodeType } from './types';
@@ -15,13 +18,23 @@ import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
 import { SpecVersion } from './oas-types';
 import { isNamedType, SpecExtension } from './types';
 
-type NonUndefined = string | number | boolean | symbol | bigint | object | Record<string, any>;
+export type NonUndefined =
+  | string
+  | number
+  | boolean
+  | symbol
+  | bigint
+  | object
+  | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
   | { node: T; location: Location; error?: ResolveError | YamlParseError }
   | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
 
-export type ResolveFn = <T>(node: Referenced<T>, from?: string) => ResolveResult<T>;
+export type ResolveFn = <T extends NonUndefined>(
+  node: Referenced<T>,
+  from?: string
+) => ResolveResult<T>;
 
 export type UserContext = {
   report(problem: Problem): void;
@@ -85,7 +98,7 @@ export type WalkContext = {
 };
 
 function collectParents(ctx: VisitorLevelContext) {
-  const parents: Record<string, any> = {};
+  const parents: Record<string, unknown> = {};
   while (ctx.parent) {
     parents[ctx.parent.type.name] = ctx.parent.activatedOn?.value.node;
     ctx = ctx.parent;
@@ -104,7 +117,7 @@ function collectParentsLocations(ctx: VisitorLevelContext) {
   return locations;
 }
 
-export function walkDocument<T>(opts: {
+export function walkDocument<T extends BaseVisitor>(opts: {
   document: Document;
   rootType: NormalizedNodeType;
   normalizedVisitors: NormalizedOasVisitors<T>;
@@ -112,7 +125,7 @@ export function walkDocument<T>(opts: {
   ctx: WalkContext;
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
-  const seenNodesPerType: Record<string, Set<any>> = {};
+  const seenNodesPerType: Record<string, Set<unknown>> = {};
   const ignoredNodes = new Set<string>();
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
@@ -185,7 +198,7 @@ export function walkDocument<T>(opts: {
 
       const anyEnterVisitors = normalizedVisitors.any.enter;
       const currentEnterVisitors = anyEnterVisitors.concat(
-        normalizedVisitors[type.name]?.enter || []
+        (normalizedVisitors[type.name]?.enter as NormalizeVisitor<VisitorNode<unknown>[]>) || []
       );
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
@@ -328,7 +341,7 @@ export function walkDocument<T>(opts: {
         if (context.isSkippedLevel) {
           context.seen.delete(resolvedNode);
         } else {
-          context.activatedOn = popStack(context.activatedOn) as any;
+          context.activatedOn = popStack(context.activatedOn);
           if (context.parent) {
             let ctx: VisitorLevelContext | null = context.parent;
             while (ctx) {
@@ -378,9 +391,9 @@ export function walkDocument<T>(opts: {
 
     // returns true ignores all the next visitors on the specific node
     function visitWithContext(
-      visit: VisitFunction<any>,
-      resolvedNode: any,
-      node: any,
+      visit: VisitFunction<unknown>,
+      resolvedNode: unknown,
+      node: unknown,
       context: VisitorLevelContext,
       ruleId: string,
       severity: ProblemSeverity

@@ -188,7 +188,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter param path-param",
         "leave param path-param",
         "enter operation: get",
@@ -268,7 +268,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter param path-param",
         "leave param path-param",
         "enter operation: get",
@@ -349,7 +349,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter operation: get",
         "enter operation get > param shared-a",
         "enter param shared-a",
@@ -421,7 +421,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter path pet > param path-param",
         "enter path pet > param shared-a",
         "enter path pet > param get_b",
@@ -493,7 +493,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter path pet > param path-param",
         "enter operation get > param shared-a",
         "enter operation get > param get_b",
@@ -560,7 +560,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter path pet > param path-param",
         "leave path pet > param path-param",
         "enter path pet > op get",
@@ -614,7 +614,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter schema shared_a",
         "enter schema nested",
       ]
@@ -670,7 +670,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter param a > schema shared_a",
         "enter param b > schema shared_a",
       ]
@@ -712,7 +712,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter operation get",
         "leave operation get",
       ]
@@ -767,7 +767,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter operation get > param shared-a",
         "enter operation get > param get_b",
         "enter operation get > param get_c",
@@ -853,7 +853,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter path pet > param path-param",
         "leave path pet > param path-param",
         "enter operation get > param shared-a",
@@ -932,7 +932,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter nested schema inline-top > inline-top",
         "enter nested schema inline-top > inline-nested",
         "enter nested schema inline-nested > inline-nested-nested",
@@ -1004,7 +1004,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter $ref #/components/parameters/shared_b with target shared-b",
         "enter $ref #/components/parameters/shared_b with target shared-b",
         "enter $ref #/components/parameters/shared_a with target shared-a",
@@ -1048,7 +1048,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter schema a: string",
         "enter schema b: number",
       ]
@@ -1113,7 +1113,7 @@ describe('walk order', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter Root",
         "enter Paths",
         "enter PathItem",
@@ -1202,10 +1202,10 @@ describe('context.report', () => {
 
     expect(results).toHaveLength(3);
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/parameters/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -1214,11 +1214,11 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: get_a",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1pet/get/parameters/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -1227,11 +1227,11 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: get_b",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/shared_a",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -1240,7 +1240,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: shared_a",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -1282,10 +1282,10 @@ describe('context.report', () => {
 
     expect(results).toHaveLength(4);
     expect(replaceSourceWithRef(results, cwd)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/path-param",
               "reportOnKey": false,
               "source": "openapi-with-external-refs.yaml",
@@ -1294,11 +1294,11 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: path_param",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/parameters/param-a",
               "reportOnKey": false,
               "source": "openapi-with-external-refs.yaml",
@@ -1307,11 +1307,11 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_a",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": false,
               "source": "param-c.yaml",
@@ -1320,11 +1320,11 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_c",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": false,
               "source": "param-b.yaml",
@@ -1333,7 +1333,7 @@ describe('context.report', () => {
           "message": "Parameter name shouldn't contain '_: param_b",
           "ruleId": "test/test",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -1350,7 +1350,7 @@ describe('context.resolve', () => {
               expect(schema.properties.a.$ref).toBeDefined();
               const { location, node } = resolve(schema.properties.a);
               expect(node).toMatchInlineSnapshot(`
-                Object {
+                {
                   "type": "string",
                 }
               `);
@@ -1460,7 +1460,7 @@ describe('type extensions', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter Root",
         "enter XWebHooks",
         "enter hook test",
@@ -1532,7 +1532,7 @@ describe('ignoreNextRules', () => {
     });
 
     expect(calls).toMatchInlineSnapshot(`
-      Array [
+      [
         "enter and skip operation get",
         "leave skipped operation get",
         "enter and not skip operation put",

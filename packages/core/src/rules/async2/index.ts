@@ -7,8 +7,9 @@ import { TagDescription } from '../common/tag-description';
 import { TagsAlphabetical } from '../common/tags-alphabetical';
 import { ChannelsKebabCase } from './channels-kebab-case';
 import { NoChannelTrailingSlash } from './no-channel-trailing-slash';
+import type { Async2RuleSet } from '../../oas-types';
 
-export const rules = {
+export const rules: Async2RuleSet<'built-in'> = {
   spec: Spec as Async2Rule,
   assertions: Assertions,
   'info-contact': InfoContact,

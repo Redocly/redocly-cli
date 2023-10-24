@@ -26,10 +26,10 @@ describe('oas3 boolean-parameter-prefixes', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/parameters/0/name",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -38,7 +38,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
           "message": "Boolean parameter \`a\` should have \`is\` or \`has\` prefix.",
           "ruleId": "boolean-parameter-prefixes",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -77,7 +77,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       config: await makeConfig({ 'boolean-parameter-prefixes': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on boolean param with custom prefix', async () => {
@@ -106,6 +106,6 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

@@ -48,25 +48,25 @@ describe('Resolve http-headers', () => {
 
     expect(fetchMock).toBeCalledTimes(3);
     expect(fetchMock.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
+      [
+        [
           "https://example.com/test.yaml",
-          Object {
-            "headers": Object {
+          {
+            "headers": {
               "X_TEST": "123",
             },
           },
         ],
-        Array [
+        [
           "https://sample.com/test.yaml",
-          Object {
-            "headers": Object {},
+          {
+            "headers": {},
           },
         ],
-        Array [
+        [
           "https://sample.com/test/a/test.yaml",
-          Object {
-            "headers": Object {
+          {
+            "headers": {
               "X_TEST": "321",
             },
           },

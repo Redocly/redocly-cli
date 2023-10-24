@@ -1,4 +1,10 @@
-import { normalizeVisitors, VisitorLevelContext } from '../visitors';
+import {
+  BaseVisitor,
+  NestedVisitObject,
+  normalizeVisitors,
+  RuleInstanceConfig,
+  VisitorLevelContext,
+} from '../visitors';
 import { Oas3RuleSet } from '../oas-types';
 import { Oas3Types } from '../types/oas3';
 import { normalizeTypes } from '../types';
@@ -25,7 +31,10 @@ describe('Normalize visitors', () => {
       }))
     );
 
-    const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
+    const normalized = normalizeVisitors(
+      visitors as (RuleInstanceConfig & { visitor: NestedVisitObject<any, BaseVisitor> })[],
+      normalizeTypes(Oas3Types)
+    );
     expect(normalized).toBeDefined();
     expect(normalized.Schema.enter).toHaveLength(1);
     expect(normalized.Schema.enter[0].visit).toEqual(schemaEnter);
@@ -69,7 +78,10 @@ describe('Normalize visitors', () => {
       }))
     );
 
-    const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
+    const normalized = normalizeVisitors(
+      visitors as (RuleInstanceConfig & { visitor: NestedVisitObject<any, BaseVisitor> })[],
+      normalizeTypes(Oas3Types)
+    );
     expect(normalized).toBeDefined();
     expect(normalized.Info.enter).toHaveLength(1);
 
@@ -107,7 +119,10 @@ describe('Normalize visitors', () => {
       }))
     );
 
-    const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
+    const normalized = normalizeVisitors(
+      visitors as (RuleInstanceConfig & { visitor: NestedVisitObject<any, BaseVisitor> })[],
+      normalizeTypes(Oas3Types)
+    );
     expect(normalized).toBeDefined();
     expect(normalized.PathItem.enter).toHaveLength(1);
     expect(normalized.Operation.enter).toHaveLength(1);
@@ -142,7 +157,10 @@ describe('Normalize visitors', () => {
       }))
     );
 
-    const normalized = normalizeVisitors(visitors, normalizeTypes(Oas3Types));
+    const normalized = normalizeVisitors(
+      visitors as (RuleInstanceConfig & { visitor: NestedVisitObject<any, BaseVisitor> })[],
+      normalizeTypes(Oas3Types)
+    );
     expect(normalized).toBeDefined();
     expect(normalized.Parameter.enter).toHaveLength(2);
     expect(normalized.Parameter.enter[0].visit).toStrictEqual(operationParam);

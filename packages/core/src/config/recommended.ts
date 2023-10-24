@@ -1,6 +1,6 @@
 import type { PluginStyleguideConfig } from './types';
 
-export default {
+const recommended: PluginStyleguideConfig<'built-in'> = {
   rules: {
     'info-contact': 'off',
     'info-license': 'warn',
@@ -27,11 +27,25 @@ export default {
     'operation-singular-tag': 'off',
     'no-unresolved-refs': 'error',
     'no-enum-type-mismatch': 'error',
-    'boolean-parameter-prefixes': 'off',
     'paths-kebab-case': 'off',
     spec: 'error',
     'spec-strict-refs': 'off',
-    'component-name-unique': 'off',
+    'no-http-verbs-in-paths': 'off',
+    'no-invalid-parameter-examples': 'off',
+    'no-invalid-schema-examples': 'off',
+    'path-excludes-patterns': 'off',
+    'path-http-verbs-order': 'off',
+    'path-params-defined': 'off',
+    'path-segment-plural': 'off',
+    'required-string-property-missing-min-length': 'off',
+    'response-contains-header': 'off',
+    'scalar-property-missing-example': 'off',
+  },
+  oas2Rules: {
+    'boolean-parameter-prefixes': 'off',
+    'request-mime-type': 'off',
+    'response-contains-property': 'off',
+    'response-mime-type': 'off',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': {
@@ -46,6 +60,12 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
     'spec-components-invalid-map-name': 'error',
+    'boolean-parameter-prefixes': 'off',
+    'component-name-unique': 'off',
+    'operation-4xx-problem-details-rfc7807': 'off',
+    'request-mime-type': 'off',
+    'response-contains-property': 'off',
+    'response-mime-type': 'off',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'warn',
@@ -57,5 +77,17 @@ export default {
     'no-undefined-server-variable': 'error',
     'no-server-variables-empty-enum': 'error',
     'spec-components-invalid-map-name': 'error',
+    'boolean-parameter-prefixes': 'off',
+    'component-name-unique': 'off',
+    'operation-4xx-problem-details-rfc7807': 'off',
+    'request-mime-type': 'off',
+    'response-contains-property': 'off',
+    'response-mime-type': 'off',
   },
-} as PluginStyleguideConfig;
+  async2Rules: {
+    'channels-kebab-case': 'off',
+    'no-channel-trailing-slash': 'off',
+  },
+};
+
+export default recommended;

@@ -2,7 +2,7 @@ import { Oas3Decorator } from '../../visitors';
 import { Oas3Operation, Oas3RequestBody, Oas3Response } from '../../typings/openapi';
 import { yamlAndJsonSyncReader } from '../../utils';
 import { isRef } from '../../ref-utils';
-import { ResolveFn, UserContext } from '../../walk';
+import { NonUndefined, ResolveFn, UserContext } from '../../walk';
 
 export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   return {
@@ -69,7 +69,7 @@ export const MediaTypeExamplesOverride: Oas3Decorator = ({ operationIds }) => {
   };
 };
 
-function checkAndResolveRef<T>(node: any, resolver: ResolveFn): T | undefined {
+function checkAndResolveRef<T extends NonUndefined>(node: any, resolver: ResolveFn): T | undefined {
   if (!isRef(node)) {
     return node;
   }

@@ -23,10 +23,10 @@ describe('Oas3 tag-description', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/tags/0/description",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -35,7 +35,7 @@ describe('Oas3 tag-description', () => {
           "message": "Tag object should contain \`description\` field.",
           "ruleId": "tag-description",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -60,6 +60,6 @@ describe('Oas3 tag-description', () => {
       config: await makeConfig({ 'tag-description': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

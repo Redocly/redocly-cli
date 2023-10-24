@@ -23,10 +23,10 @@ describe('Oas3 path-not-include-query', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some?input",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -35,7 +35,7 @@ describe('Oas3 path-not-include-query', () => {
           "message": "Don't put query string items in the path, they belong in parameters with \`in: query\`.",
           "ruleId": "path-not-include-query",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -59,6 +59,6 @@ describe('Oas3 path-not-include-query', () => {
       config: await makeConfig({ 'path-not-include-query': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

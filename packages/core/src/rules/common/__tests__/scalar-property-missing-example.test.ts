@@ -28,19 +28,19 @@ describe('Oas3 scalar-property-missing-example', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/schemas/User/properties/email",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Scalar property should have \\"example\\" defined.",
+          "message": "Scalar property should have "example" defined.",
           "ruleId": "scalar-property-missing-example",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -72,19 +72,19 @@ describe('Oas3.1 scalar-property-missing-example', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/schemas/User/properties/email",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Scalar property should have \\"example\\" or \\"examples\\" defined.",
+          "message": "Scalar property should have "example" or "examples" defined.",
           "ruleId": "scalar-property-missing-example",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -114,7 +114,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on a scalar property with an examples', async () => {
@@ -143,7 +143,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on a non-scalar property missing an example', async () => {
@@ -177,7 +177,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on a scalar property of binary format missing an example', async () => {
@@ -202,7 +202,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on a scalar property of falsy values', async () => {
@@ -233,7 +233,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report on a nullable scalar property values', async () => {
@@ -259,6 +259,6 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await makeConfig({ 'scalar-property-missing-example': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

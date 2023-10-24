@@ -27,10 +27,10 @@ describe('Common path-http-verbs-order', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some/post",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -39,11 +39,11 @@ describe('Common path-http-verbs-order', () => {
           "message": "Operation http verbs must be ordered.",
           "ruleId": "path-http-verbs-order",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1some/get",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -52,7 +52,7 @@ describe('Common path-http-verbs-order', () => {
           "message": "Operation http verbs must be ordered.",
           "ruleId": "path-http-verbs-order",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -90,6 +90,6 @@ describe('Common path-http-verbs-order', () => {
       config: await makeConfig({ 'path-http-verbs-order': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

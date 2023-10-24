@@ -42,7 +42,9 @@ import { ScalarPropertyMissingExample } from '../common/scalar-property-missing-
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 
-export const rules = {
+import type { Oas2RuleSet } from 'core/src/oas-types';
+
+export const rules: Oas2RuleSet<'built-in'> = {
   spec: Spec as Oas2Rule,
   'no-invalid-schema-examples': NoInvalidSchemaExamples,
   'no-invalid-parameter-examples': NoInvalidParameterExamples,

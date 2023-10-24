@@ -21,6 +21,7 @@ rules:
   '@typescript-eslint/no-empty-function': off
   '@typescript-eslint/no-inferrable-types': off
   '@typescript-eslint/ban-types': warn
+  '@typescript-eslint/no-explicit-any': warn # TODO: make it error!
   no-prototype-builtins: off
   no-useless-escape: warn
 ignorePatterns:

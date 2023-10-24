@@ -25,10 +25,10 @@ describe('Oas3 operation-operationId-url-safe', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test/put/operationId",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -37,7 +37,7 @@ describe('Oas3 operation-operationId-url-safe', () => {
           "message": "Operation \`operationId\` should not have URL invalid characters.",
           "ruleId": "operation-operationId-url-safe",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

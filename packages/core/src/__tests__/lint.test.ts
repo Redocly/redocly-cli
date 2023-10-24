@@ -27,11 +27,11 @@ describe('lint', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/license",
               "reportOnKey": false,
               "source": "/test/spec.yaml",
@@ -40,7 +40,7 @@ describe('lint', () => {
           "message": "Expected type \`License\` (object) but got \`string\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -56,11 +56,11 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results, path.join(__dirname, 'fixtures/lint/')))
       .toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/license",
               "reportOnKey": false,
               "source": "openapi.yaml",
@@ -69,7 +69,7 @@ describe('lint', () => {
           "message": "Expected type \`License\` (object) but got \`string\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -125,11 +125,11 @@ describe('lint', () => {
     const results = await lintConfig({ document });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/eme",
               "reportOnKey": true,
               "source": "",
@@ -138,17 +138,17 @@ describe('lint', () => {
           "message": "Property \`eme\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [
+          "suggest": [
             "theme",
             "env",
             "seo",
             "sso",
           ],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/openapi",
               "reportOnKey": true,
               "source": "",
@@ -157,12 +157,12 @@ describe('lint', () => {
           "message": "Property \`openapi\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/apis",
               "reportOnKey": false,
               "source": "",
@@ -171,7 +171,7 @@ describe('lint', () => {
           "message": "Expected type \`ConfigApis\` (object) but got \`string\`",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -191,11 +191,11 @@ describe('lint', () => {
     const results = await lintConfig({ document });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/api",
               "reportOnKey": true,
               "source": "",
@@ -204,7 +204,7 @@ describe('lint', () => {
           "message": "Property \`api\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [
+          "suggest": [
             "apis",
             "seo",
             "sso",
@@ -231,11 +231,11 @@ describe('lint', () => {
     const results = await lintConfig({ document });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/referenceDocs",
               "reportOnKey": true,
               "source": "",
@@ -244,7 +244,7 @@ describe('lint', () => {
           "message": "Property \`referenceDocs\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -266,11 +266,11 @@ describe('lint', () => {
     const results = await lintConfig({ document });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/apis/main/plugins",
               "reportOnKey": true,
               "source": "",
@@ -279,7 +279,7 @@ describe('lint', () => {
           "message": "Property \`plugins\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -323,7 +323,7 @@ describe('lint', () => {
       config: await makeConfig({ spec: 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('detect OpenAPI should throw an error when version is not string', () => {
@@ -402,7 +402,7 @@ describe('lint', () => {
       config: await makeConfig({ spec: 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should ignore error because ignore file passed', async () => {

@@ -4,64 +4,96 @@ import { NodeType, listOf } from '.';
 import { Oas3_1Types } from './oas3_1';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 
-const builtInRulesList = [
+const builtInCommonRules = [
   'spec',
   'info-contact',
-  'info-license',
+  'operation-operationId',
+  'tag-description',
+  'tags-alphabetical',
+] as const;
+
+export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
+
+const builtInCommonOASRules = [
   'info-license-url',
+  'info-license',
+  'no-ambiguous-paths',
+  'no-enum-type-mismatch',
+  'no-http-verbs-in-paths',
+  'no-identical-paths',
+  'no-invalid-parameter-examples',
+  'no-invalid-schema-examples',
+  'no-path-trailing-slash',
   'operation-2xx-response',
   'operation-4xx-response',
-  'operation-4xx-problem-details-rfc7807',
-  'assertions',
-  'operation-operationId-unique',
-  'operation-parameters-unique',
-  'path-parameters-defined',
-  'operation-tag-defined',
-  'no-example-value-and-externalValue',
-  'no-enum-type-mismatch',
-  'no-path-trailing-slash',
-  'no-empty-servers',
-  'path-declaration-must-exist',
-  'operation-operationId-url-safe',
-  'operation-operationId',
-  'operation-summary',
-  'tags-alphabetical',
-  'no-server-example.com',
-  'no-server-trailing-slash',
-  'tag-description',
   'operation-description',
-  'no-unused-components',
+  'operation-operationId-unique',
+  'operation-operationId-url-safe',
+  'operation-parameters-unique',
+  'operation-singular-tag',
+  'operation-summary',
+  'operation-tag-defined',
+  'parameter-description',
+  'path-declaration-must-exist',
+  'path-excludes-patterns',
+  'path-http-verbs-order',
   'path-not-include-query',
   'path-params-defined',
-  'parameter-description',
-  'operation-singular-tag',
-  'security-defined',
-  'no-unresolved-refs',
-  'paths-kebab-case',
-  'boolean-parameter-prefixes',
-  'path-http-verbs-order',
-  'no-invalid-media-type-examples',
-  'no-identical-paths',
-  'no-ambiguous-paths',
-  'no-undefined-server-variable',
-  'no-server-variables-empty-enum',
-  'no-http-verbs-in-paths',
-  'path-excludes-patterns',
-  'request-mime-type',
-  'response-mime-type',
+  'path-parameters-defined',
   'path-segment-plural',
-  'no-invalid-schema-examples',
-  'no-invalid-parameter-examples',
-  'response-contains-header',
-  'response-contains-property',
-  'scalar-property-missing-example',
-  'spec-components-invalid-map-name',
+  'paths-kebab-case',
   'required-string-property-missing-min-length',
+  'response-contains-header',
+  'scalar-property-missing-example',
+  'security-defined',
   'spec-strict-refs',
+  'no-unresolved-refs',
+] as const;
+
+export type BuiltInCommonOASRuleId = typeof builtInCommonOASRules[number];
+
+const builtInOAS2Rules = [
+  'boolean-parameter-prefixes',
+  'request-mime-type',
+  'response-contains-property',
+  'response-mime-type',
+] as const;
+
+export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
+
+const builtInOAS3Rules = [
+  'boolean-parameter-prefixes',
   'component-name-unique',
-  'channels-kebab-case',
-  'no-channel-trailing-slash',
-];
+  'no-empty-servers',
+  'no-example-value-and-externalValue',
+  'no-invalid-media-type-examples',
+  'no-server-example.com',
+  'no-server-trailing-slash',
+  'no-server-variables-empty-enum',
+  'no-undefined-server-variable',
+  'no-unused-components',
+  'operation-4xx-problem-details-rfc7807',
+  'request-mime-type',
+  'response-contains-property',
+  'response-mime-type',
+  'spec-components-invalid-map-name',
+] as const;
+
+export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
+
+const builtInAsync2Rules = ['channels-kebab-case', 'no-channel-trailing-slash'] as const;
+
+export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
+
+const builtInRules = [
+  ...builtInCommonRules,
+  ...builtInCommonOASRules,
+  ...builtInOAS2Rules,
+  ...builtInOAS3Rules,
+  ...builtInAsync2Rules,
+] as const;
+
+type BuiltInRuleId = typeof builtInRules[number];
 
 const nodeTypesList = [
   'any',
@@ -138,14 +170,17 @@ const ConfigStyleguide: NodeType = {
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
     oas3_1Rules: 'Rules',
+    async2Rules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
     oas3_1Preprocessors: { type: 'object' },
+    async2Preprocessors: { type: 'object' },
     decorators: { type: 'object' },
     oas2Decorators: { type: 'object' },
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
+    async2Decorators: { type: 'object' },
   },
 };
 
@@ -243,7 +278,7 @@ const Rules: NodeType = {
     } else if (key.startsWith('assert/')) {
       // keep the old assert/ prefix as an alias
       return 'Assert';
-    } else if (builtInRulesList.includes(key) || isCustomRuleId(key)) {
+    } else if (builtInRules.includes(key as BuiltInRuleId) || isCustomRuleId(key)) {
       if (typeof value === 'string') {
         return { enum: ['error', 'warn', 'off'] };
       } else {

@@ -73,11 +73,11 @@ type VisitObject<T> = {
   skip?: SkipFunction<T>;
 };
 
-type NestedVisitObject<T, P> = VisitObject<T> & NestedVisitor<P>;
+export type NestedVisitObject<T, P> = VisitObject<T> & NestedVisitor<P>;
 
 type VisitFunctionOrObject<T> = VisitFunction<T> | VisitObject<T>;
 
-type VisitorNode<T> = {
+export type VisitorNode<T> = {
   ruleId: string;
   severity: ProblemSeverity;
   context: VisitorLevelContext | VisitorSkippedLevelContext;
@@ -113,7 +113,7 @@ export type VisitorSkippedLevelContext = {
   seen: Set<any>;
 };
 
-type NormalizeVisitor<Fn> = Fn extends VisitFunction<infer T> ? VisitorNode<T> : never;
+export type NormalizeVisitor<Fn> = Fn extends VisitFunction<infer T> ? VisitorNode<T> : never;
 
 export type BaseVisitor = {
   any?:

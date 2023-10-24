@@ -36,10 +36,10 @@ describe('Oas3 spec-strict-refs', () => {
       config: await makeConfig({ 'spec-strict-refs': 'error' }),
     });
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/info/$ref",
               "reportOnKey": true,
               "source": "",
@@ -48,11 +48,11 @@ describe('Oas3 spec-strict-refs', () => {
           "message": "Field $ref is not expected here.",
           "ruleId": "spec-strict-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/201/content/application~1json/schema/properties/$ref",
               "reportOnKey": true,
               "source": "",
@@ -61,7 +61,7 @@ describe('Oas3 spec-strict-refs', () => {
           "message": "Field $ref is not expected here.",
           "ruleId": "spec-strict-refs",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

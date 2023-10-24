@@ -30,10 +30,10 @@ describe('Oas3 operation-operationId-unique', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1test2/post/test2",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -42,7 +42,7 @@ describe('Oas3 operation-operationId-unique', () => {
           "message": "Every operation must have a unique \`operationId\`.",
           "ruleId": "operation-operationId-unique",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -71,6 +71,6 @@ describe('Oas3 operation-operationId-unique', () => {
       config: await makeConfig({ 'peration-operationId-unique': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

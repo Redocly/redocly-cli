@@ -53,7 +53,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { ComponentNameUnique } from './component-name-unique';
 
-export const rules = {
+export const rules: Oas3RuleSet<'built-in'> = {
   spec: Spec,
   'info-contact': InfoContact,
   'info-license': InfoLicense,
@@ -64,7 +64,6 @@ export const rules = {
   assertions: Assertions,
   'operation-operationId-unique': OperationIdUnique,
   'operation-parameters-unique': OperationParametersUnique,
-  'path-parameters-defined': PathParamsDefined,
   'operation-tag-defined': OperationTagDefined,
   'no-example-value-and-externalValue': NoExampleValueAndExternalValue,
   'no-enum-type-mismatch': NoEnumTypeMismatch,
@@ -81,6 +80,7 @@ export const rules = {
   'operation-description': OperationDescription,
   'no-unused-components': NoUnusedComponents,
   'path-not-include-query': PathNotIncludeQuery,
+  'path-parameters-defined': PathParamsDefined,
   'path-params-defined': PathParamsDefined,
   'parameter-description': ParameterDescription,
   'operation-singular-tag': OperationSingularTag,
@@ -108,6 +108,6 @@ export const rules = {
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
   'spec-strict-refs': SpecStrictRefs,
   'component-name-unique': ComponentNameUnique,
-} as Oas3RuleSet;
+};
 
 export const preprocessors = {};

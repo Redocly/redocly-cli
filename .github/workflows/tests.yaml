@@ -29,7 +29,6 @@ jobs:
         env:
           CI: true
 
-  # FIXME: fix this so the `cli` package includes the corresponding `core`
   cli-package-test:
     runs-on: ubuntu-latest
     steps:

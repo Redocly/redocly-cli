@@ -45,11 +45,11 @@ describe('Oas3 Structural visitor basic', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/contact/url",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -58,12 +58,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`string\` but got \`array\`.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/contact/email",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -72,12 +72,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`string\` but got \`boolean\`.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/license",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -86,15 +86,15 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`License\` (object) but got \`string\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "from": Object {
+        {
+          "from": {
             "pointer": "#/servers/0/url",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/servers/0/variables/a",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -103,12 +103,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "The \`a\` variable is not used in the server's \`url\` field.",
           "ruleId": "no-undefined-server-variable",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/servers/0/variables/a/enum/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -117,12 +117,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`string\` but got \`integer\`.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/tags/0",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -131,12 +131,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`Tag\` (object) but got \`number\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/tags/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -145,7 +145,7 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Expected type \`Tag\` (object) but got \`string\`",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -179,11 +179,11 @@ describe('Oas3 Structural visitor basic', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components1",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -192,13 +192,13 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Property \`components1\` is not expected here.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [
+          "suggest": [
             "components",
           ],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/openapi",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -207,12 +207,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Servers must be present.",
           "ruleId": "no-empty-servers",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info/contact/test",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -221,7 +221,7 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Property \`test\` is not expected here.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -250,11 +250,11 @@ describe('Oas3 Structural visitor basic', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -263,11 +263,11 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "The field \`paths\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/openapi",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -276,12 +276,12 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "Servers must be present.",
           "ruleId": "no-empty-servers",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -290,7 +290,7 @@ describe('Oas3 Structural visitor basic', () => {
           "message": "The field \`title\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

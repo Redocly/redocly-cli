@@ -24,10 +24,10 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/components/examples/some/value",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -36,7 +36,7 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
           "message": "Example object can have either \`value\` or \`externalValue\` fields.",
           "ruleId": "no-example-value-and-externalValue",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -60,6 +60,6 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
       config: await makeConfig({ 'no-example-value-and-externalValue': 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`Array []`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });

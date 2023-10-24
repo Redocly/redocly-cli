@@ -29,11 +29,11 @@ describe('Oas3 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -42,12 +42,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`info\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/paths/~1test/get/parameters/0",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -56,7 +56,7 @@ describe('Oas3 spec', () => {
           "message": "Must contain at least one of the following fields: schema, content.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -89,11 +89,11 @@ describe('Oas3 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -102,12 +102,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`paths\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -116,15 +116,15 @@ describe('Oas3 spec', () => {
           "message": "The field \`info\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "from": Object {
+        {
+          "from": {
             "pointer": "#/components/schemas/TestSchema/allOf/0",
             "source": "foobar.yaml",
           },
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/TestRequestBody/content",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -133,7 +133,7 @@ describe('Oas3 spec', () => {
           "message": "Property \`content\` is not expected here.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -161,11 +161,11 @@ describe('Oas3 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -174,12 +174,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`paths\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -188,11 +188,11 @@ describe('Oas3 spec', () => {
           "message": "The field \`info\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -201,7 +201,7 @@ describe('Oas3 spec', () => {
           "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -235,11 +235,11 @@ describe('Oas3 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -248,12 +248,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`paths\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -262,11 +262,11 @@ describe('Oas3 spec', () => {
           "message": "The field \`info\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/TestRequestBody/content/application~1json/schema/nullable",
               "reportOnKey": false,
               "source": "foobar.yaml",
@@ -275,12 +275,12 @@ describe('Oas3 spec', () => {
           "message": "The \`type\` field must be defined when the \`nullable\` field is used.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/schemas",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -289,12 +289,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`content\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/requestBodies/schemas/TestSchema",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -303,7 +303,7 @@ describe('Oas3 spec', () => {
           "message": "Property \`TestSchema\` is not expected here.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -326,11 +326,11 @@ describe('Oas3 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -339,12 +339,12 @@ describe('Oas3 spec', () => {
           "message": "The field \`paths\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -353,7 +353,7 @@ describe('Oas3 spec', () => {
           "message": "The field \`info\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -388,20 +388,20 @@ describe('Oas3.1 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/schemas/TestSchema/type",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "message": "\`type\` can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -436,20 +436,20 @@ describe('Oas3.1 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/schemas/TestSchema/type/1",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "message": "\`type\` can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -490,20 +490,20 @@ describe('Oas3.1 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/schemas/WrongType/type",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "message": "\`type\` can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [
+          "suggest": [
             "object",
             "array",
             "string",
@@ -513,19 +513,19 @@ describe('Oas3.1 spec', () => {
             "null",
           ],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/components/schemas/WrongArrayType/type/0",
               "reportOnKey": false,
               "source": "",
             },
           ],
-          "message": "\`type\` can be one of the following only: \\"object\\", \\"array\\", \\"string\\", \\"number\\", \\"integer\\", \\"boolean\\", \\"null\\".",
+          "message": "\`type\` can be one of the following only: "object", "array", "string", "number", "integer", "boolean", "null".",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [
+          "suggest": [
             "object",
             "array",
             "string",
@@ -561,11 +561,11 @@ describe('Oas3.1 spec', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -574,12 +574,12 @@ describe('Oas3.1 spec', () => {
           "message": "Must contain at least one of the following fields: paths, components, webhooks.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -588,12 +588,12 @@ describe('Oas3.1 spec', () => {
           "message": "The field \`title\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
+        {
           "from": undefined,
-          "location": Array [
-            Object {
+          "location": [
+            {
               "pointer": "#/info",
               "reportOnKey": true,
               "source": "foobar.yaml",
@@ -602,7 +602,7 @@ describe('Oas3.1 spec', () => {
           "message": "The field \`version\` must be present on this level.",
           "ruleId": "spec",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

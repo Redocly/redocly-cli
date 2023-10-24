@@ -34,10 +34,10 @@ describe('Oas3 response-contains-property', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/201/content/application~1json/schema/properties",
               "reportOnKey": true,
               "source": Source {
@@ -62,10 +62,10 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must contain a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level "id" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -110,10 +110,10 @@ describe('Oas3 response-contains-property', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/201/content/application~1json/schema/properties",
               "reportOnKey": true,
               "source": Source {
@@ -147,14 +147,14 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must contain a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level "id" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
-        Object {
-          "location": Array [
-            Object {
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/400/content/application~1json/schema/properties",
               "reportOnKey": true,
               "source": Source {
@@ -188,10 +188,10 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must contain a top-level \\"error\\" property.",
+          "message": "Response object must contain a top-level "error" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);
@@ -237,7 +237,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report a response object when schema type is not object', async () => {
@@ -265,7 +265,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report response objects when there is no `names` field specified', async () => {
@@ -305,7 +305,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report response objects for 204 status code', async () => {
@@ -337,7 +337,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`Array []`);
+    expect(results).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report response objects when there are no properties', async () => {
@@ -367,10 +367,10 @@ describe('Oas3 response-contains-property', () => {
       }),
     });
     expect(results).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "location": Array [
-            Object {
+      [
+        {
+          "location": [
+            {
               "pointer": "#/paths/~1store~1subscribe/post/responses/200/content/application~1json/schema/properties",
               "reportOnKey": true,
               "source": Source {
@@ -392,10 +392,10 @@ describe('Oas3 response-contains-property', () => {
               },
             },
           ],
-          "message": "Response object must contain a top-level \\"id\\" property.",
+          "message": "Response object must contain a top-level "id" property.",
           "ruleId": "response-contains-property",
           "severity": "error",
-          "suggest": Array [],
+          "suggest": [],
         },
       ]
     `);

@@ -25,7 +25,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report on empty server URL', async () => {
@@ -51,8 +51,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/url",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -83,8 +83,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0",
           "message": "The field \`url\` must be present on this level.",
         },
@@ -116,8 +116,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/description",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -147,7 +147,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if fields type in servers are not array', async () => {
@@ -173,8 +173,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers",
           "message": "Expected type \`ServerList\` (array) but got \`object\`",
         },
@@ -209,7 +209,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report if variables are used for a server configuration', async () => {
@@ -244,7 +244,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report if array in enum is empty', async () => {
@@ -279,8 +279,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/variables/port/enum",
           "message": "Expected type \`array\` but got \`null\`.",
         },
@@ -319,8 +319,8 @@ describe('OpenAPI Schema', () => {
         'no-undefined-server-variable': 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/url",
           "message": "The \`basePath\` variable is not defined in the \`variables\` objects.",
         },
@@ -359,12 +359,12 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/variables/username",
           "message": "The field \`default\` must be present on this level.",
         },
-        Object {
+        {
           "location": "#/servers/0/variables/port",
           "message": "The field \`default\` must be present on this level.",
         },
@@ -405,8 +405,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/variables/username/default",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -448,8 +448,8 @@ describe('OpenAPI Schema', () => {
         spec: 'error',
       })
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "location": "#/servers/0/variables/username/description",
           "message": "Expected type \`string\` but got \`null\`.",
         },
@@ -476,7 +476,7 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   it('should not report if servers property is an empty array', async () => {
@@ -500,6 +500,6 @@ describe('OpenAPI Schema', () => {
       await validateDoc(source, {
         spec: 'error',
       })
-    ).toMatchInlineSnapshot(`Array []`);
+    ).toMatchInlineSnapshot(`[]`);
   });
 });
