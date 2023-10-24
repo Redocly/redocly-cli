@@ -171,14 +171,17 @@ const ConfigStyleguide: NodeType = {
     oas2Rules: 'Rules',
     oas3_0Rules: 'Rules',
     oas3_1Rules: 'Rules',
+    async2Rules: 'Rules',
     preprocessors: { type: 'object' },
     oas2Preprocessors: { type: 'object' },
     oas3_0Preprocessors: { type: 'object' },
     oas3_1Preprocessors: { type: 'object' },
+    async2Preprocessors: { type: 'object' },
     decorators: { type: 'object' },
     oas2Decorators: { type: 'object' },
     oas3_0Decorators: { type: 'object' },
     oas3_1Decorators: { type: 'object' },
+    async2Decorators: { type: 'object' },
   },
 };
 

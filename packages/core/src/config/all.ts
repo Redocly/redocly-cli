@@ -102,6 +102,10 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'response-contains-property': 'error',
     'spec-components-invalid-map-name': 'error',
   },
+  async2Rules: {
+    'channels-kebab-case': 'error',
+    'no-channel-trailing-slash': 'error',
+  },
 };
 
 export default all;

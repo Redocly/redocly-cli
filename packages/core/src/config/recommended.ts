@@ -84,6 +84,10 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'response-contains-property': 'off',
     'response-mime-type': 'off',
   },
+  async2Rules: {
+    'channels-kebab-case': 'off',
+    'no-channel-trailing-slash': 'off',
+  },
 };
 
 export default recommended;

@@ -40,27 +40,25 @@ const typesMap = {
   [SpecVersion.Async2]: AsyncApi2Types,
 };
 
-export type Oas3RuleSet<T = undefined> = T extends 'built-in'
-  ? {
-      [key in
-        | BuiltInCommonRuleId
-        | BuiltInCommonOASRuleId
-        | BuiltInOAS3RuleId
-        | 'assertions']: Oas3Rule;
-    }
-  : Record<string, Oas3Rule>;
-export type Oas2RuleSet<T = undefined> = T extends 'built-in'
-  ? {
-      [key in
-        | BuiltInCommonRuleId
-        | BuiltInCommonOASRuleId
-        | BuiltInOAS2RuleId
-        | 'assertions']: Oas2Rule;
-    }
-  : Record<string, Oas2Rule>;
-export type Async2RuleSet<T = undefined> = T extends 'built-in'
-  ? { [key in BuiltInCommonRuleId | BuiltInAsync2RuleId | 'assertions']: Async2Rule }
-  : Record<string, Async2Rule>;
+export type RuleMap<Key extends string, RuleConfig, T> = Record<
+  T extends 'built-in' ? Key : string,
+  RuleConfig
+>;
+export type Oas3RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInCommonOASRuleId | BuiltInOAS3RuleId | 'assertions',
+  Oas3Rule,
+  T
+>;
+export type Oas2RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInCommonOASRuleId | BuiltInOAS2RuleId | 'assertions',
+  Oas2Rule,
+  T
+>;
+export type Async2RuleSet<T = undefined> = RuleMap<
+  BuiltInCommonRuleId | BuiltInAsync2RuleId | 'assertions',
+  Async2Rule,
+  T
+>;
 export type Oas3PreprocessorsSet = Record<string, Oas3Preprocessor>;
 export type Oas2PreprocessorsSet = Record<string, Oas2Preprocessor>;
 export type Async2PreprocessorsSet = Record<string, Async2Preprocessor>;

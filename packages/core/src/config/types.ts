@@ -11,12 +11,14 @@ import type {
   Async2PreprocessorsSet,
   Async2DecoratorsSet,
   Async2RuleSet,
+  RuleMap,
 } from '../oas-types';
 
 import type { NodeType } from '../types';
 import { Location } from '../ref-utils';
 import type { SkipFunctionContext } from '../visitors';
 import {
+  BuiltInAsync2RuleId,
   BuiltInCommonOASRuleId,
   BuiltInCommonRuleId,
   BuiltInOAS2RuleId,
@@ -49,19 +51,11 @@ export type StyleguideRawConfig<T = undefined> = {
   doNotResolveExamples?: boolean;
   recommendedFallback?: boolean;
 
-  rules?: T extends 'built-in'
-    ? { [key in BuiltInCommonRuleId | BuiltInCommonOASRuleId]: RuleConfig }
-    : Record<string, RuleConfig>;
-  oas2Rules?: T extends 'built-in'
-    ? { [key in BuiltInOAS2RuleId]: RuleConfig }
-    : Record<string, RuleConfig>;
-  oas3_0Rules?: T extends 'built-in'
-    ? { [key in BuiltInOAS3RuleId]: RuleConfig }
-    : Record<string, RuleConfig>;
-  oas3_1Rules?: T extends 'built-in'
-    ? { [key in BuiltInOAS3RuleId]: RuleConfig }
-    : Record<string, RuleConfig>;
-  async2Rules?: Record<string, RuleConfig>;
+  rules?: RuleMap<BuiltInCommonRuleId | BuiltInCommonOASRuleId, RuleConfig, T>;
+  oas2Rules?: RuleMap<BuiltInOAS2RuleId, RuleConfig, T>;
+  oas3_0Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
+  oas3_1Rules?: RuleMap<BuiltInOAS3RuleId, RuleConfig, T>;
+  async2Rules?: RuleMap<BuiltInAsync2RuleId, RuleConfig, T>;
 
   preprocessors?: Record<string, PreprocessorConfig>;
   oas2Preprocessors?: Record<string, PreprocessorConfig>;
