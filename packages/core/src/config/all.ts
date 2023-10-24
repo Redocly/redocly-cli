@@ -39,10 +39,10 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'no-invalid-parameter-examples': 'error',
     'scalar-property-missing-example': 'error',
     'spec-strict-refs': 'error',
-    'path-http-verbs-order': 'off',
-    'path-params-defined': 'off',
-    'required-string-property-missing-min-length': 'off',
-    'response-contains-header': 'off',
+    'path-http-verbs-order': 'error',
+    'path-params-defined': 'error',
+    'required-string-property-missing-min-length': 'error',
+    'response-contains-header': 'error',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'error',
@@ -54,7 +54,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
       severity: 'error',
       allowedValues: ['application/json'],
     },
-    'response-contains-property': 'off',
+    'response-contains-property': 'error',
   },
   oas3_0Rules: {
     'no-invalid-media-type-examples': 'error',
@@ -76,8 +76,8 @@ const all: PluginStyleguideConfig<'built-in'> = {
       allowedValues: ['application/json'],
     },
     'component-name-unique': 'error',
-    'response-contains-property': 'off',
-    'spec-components-invalid-map-name': 'off',
+    'response-contains-property': 'error',
+    'spec-components-invalid-map-name': 'error',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'error',
@@ -99,8 +99,8 @@ const all: PluginStyleguideConfig<'built-in'> = {
       allowedValues: ['application/json'],
     },
     'component-name-unique': 'error',
-    'response-contains-property': 'off',
-    'spec-components-invalid-map-name': 'off',
+    'response-contains-property': 'error',
+    'spec-components-invalid-map-name': 'error',
   },
 };
 
