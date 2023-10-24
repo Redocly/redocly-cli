@@ -181,6 +181,18 @@ const Schema: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+const SchemaProperties: NodeType = {
+  properties: {
+    propertyName: (value: any) => {
+      if (typeof value === 'boolean') {
+        return { type: 'boolean' };
+      } else {
+        return 'Schema';
+      }
+    },
+  },
+};
+
 const SecurityScheme: NodeType = {
   properties: {
     type: { enum: ['apiKey', 'http', 'oauth2', 'openIdConnect', 'mutualTLS'] },
@@ -256,6 +268,7 @@ export const Oas3_1Types: Record<string, NodeType> = {
   Info,
   Root,
   Schema,
+  SchemaProperties,
   License,
   Components,
   NamedPathItems: mapOf('PathItem'),
