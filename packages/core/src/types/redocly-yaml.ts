@@ -91,7 +91,6 @@ const builtInRules = [
   ...builtInOAS2Rules,
   ...builtInOAS3Rules,
   ...builtInAsync2Rules,
-  'remove-unused-components',
 ] as const;
 
 type BuiltInRuleId = typeof builtInRules[number];
