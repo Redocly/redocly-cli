@@ -98,7 +98,7 @@ export type WalkContext = {
 };
 
 function collectParents(ctx: VisitorLevelContext) {
-  const parents: Record<string, any> = {};
+  const parents: Record<string, unknown> = {};
   while (ctx.parent) {
     parents[ctx.parent.type.name] = ctx.parent.activatedOn?.value.node;
     ctx = ctx.parent;
@@ -125,7 +125,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
   ctx: WalkContext;
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
-  const seenNodesPerType: Record<string, Set<any>> = {};
+  const seenNodesPerType: Record<string, Set<unknown>> = {};
   const ignoredNodes = new Set<string>();
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
@@ -198,7 +198,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       const anyEnterVisitors = normalizedVisitors.any.enter;
       const currentEnterVisitors = anyEnterVisitors.concat(
-        (normalizedVisitors[type.name]?.enter as NormalizeVisitor<VisitorNode<any>[]>) || []
+        (normalizedVisitors[type.name]?.enter as NormalizeVisitor<VisitorNode<unknown>[]>) || []
       );
 
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
@@ -341,7 +341,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         if (context.isSkippedLevel) {
           context.seen.delete(resolvedNode);
         } else {
-          context.activatedOn = popStack(context.activatedOn) as any;
+          context.activatedOn = popStack(context.activatedOn);
           if (context.parent) {
             let ctx: VisitorLevelContext | null = context.parent;
             while (ctx) {
@@ -391,9 +391,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     // returns true ignores all the next visitors on the specific node
     function visitWithContext(
-      visit: VisitFunction<any>,
-      resolvedNode: any,
-      node: any,
+      visit: VisitFunction<unknown>,
+      resolvedNode: unknown,
+      node: unknown,
       context: VisitorLevelContext,
       ruleId: string,
       severity: ProblemSeverity
