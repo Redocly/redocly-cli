@@ -72,7 +72,7 @@ servers:
 ## Related rules
 
 - [no-empty-servers](./no-empty-servers.md)
-- [no-server-example-com](./no-server-example-com.md)
+- [no-server-example.com](./no-server-example-com.md)
 
 ## Resources
 
