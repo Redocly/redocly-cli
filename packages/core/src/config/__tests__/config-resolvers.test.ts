@@ -1,9 +1,11 @@
 import { colorize } from '../../logger';
 import { Asserts, asserts } from '../../rules/common/assertions/asserts';
 import { resolveStyleguideConfig, resolveApis, resolveConfig } from '../config-resolvers';
+import recommended from '../recommended';
+
 const path = require('path');
 
-import type { StyleguideRawConfig, RawConfig } from '../types';
+import type { StyleguideRawConfig, RawConfig, PluginStyleguideConfig } from '../types';
 
 const configPath = path.join(__dirname, 'fixtures/resolve-config/redocly.yaml');
 const baseStyleguideConfig: StyleguideRawConfig = {
@@ -219,6 +221,33 @@ describe('resolveStyleguideConfig', () => {
       'resolve-config/redocly.yaml',
     ]);
     expect(styleguide.pluginPaths!.map(removeAbsolutePath)).toEqual([]);
+  });
+  it('should resolve `recommended-strict` ruleset correctly', async () => {
+    const expectedStrict = JSON.parse(
+      JSON.stringify(recommended)
+    ) as PluginStyleguideConfig<'built-in'>;
+    for (const section of Object.values(expectedStrict)) {
+      for (let ruleName in section as any) {
+        // @ts-ignore
+        if (section[ruleName] === 'warn') {
+          // @ts-ignore
+          section[ruleName] = 'error';
+        }
+        // @ts-ignore
+        if (section[ruleName]?.severity === 'warn') {
+          // @ts-ignore
+          section[ruleName].severity = 'error';
+        }
+      }
+    }
+    const recommendedStrictPreset = JSON.parse(
+      JSON.stringify(
+        await resolveStyleguideConfig({
+          styleguideConfig: { extends: ['recommended-strict'] },
+        })
+      )
+    );
+    expect(recommendedStrictPreset).toMatchObject(expectedStrict);
   });
 });
 

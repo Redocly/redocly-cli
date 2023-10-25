@@ -55,16 +55,19 @@ function extractFlatConfig<
   oas2Rules,
   oas3_0Rules,
   oas3_1Rules,
+  async2Rules,
 
   preprocessors,
   oas2Preprocessors,
   oas3_0Preprocessors,
   oas3_1Preprocessors,
+  async2Preprocessors,
 
   decorators,
   oas2Decorators,
   oas3_0Decorators,
   oas3_1Decorators,
+  async2Decorators,
 
   ...rawConfigRest
 }: T): {
@@ -79,16 +82,19 @@ function extractFlatConfig<
     oas2Rules,
     oas3_0Rules,
     oas3_1Rules,
+    async2Rules,
 
     preprocessors,
     oas2Preprocessors,
     oas3_0Preprocessors,
     oas3_1Preprocessors,
+    async2Preprocessors,
 
     decorators,
     oas2Decorators,
     oas3_0Decorators,
     oas3_1Decorators,
+    async2Decorators,
 
     doNotResolveExamples: rawConfigRest.resolve?.doNotResolveExamples,
   };
@@ -145,16 +151,19 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     oas2Rules: {},
     oas3_0Rules: {},
     oas3_1Rules: {},
+    async2Rules: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
     oas3_0Preprocessors: {},
     oas3_1Preprocessors: {},
+    async2Preprocessors: {},
 
     decorators: {},
     oas2Decorators: {},
     oas3_0Decorators: {},
     oas3_1Decorators: {},
+    async2Decorators: {},
 
     plugins: [],
     pluginPaths: [],
@@ -175,6 +184,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignExisting(result.oas3_0Rules, rulesConf.rules || {});
     Object.assign(result.oas3_1Rules, rulesConf.oas3_1Rules);
     assignExisting(result.oas3_1Rules, rulesConf.rules || {});
+    Object.assign(result.async2Rules, rulesConf.async2Rules);
+    assignExisting(result.async2Rules, rulesConf.rules || {});
 
     Object.assign(result.preprocessors, rulesConf.preprocessors);
     Object.assign(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -183,6 +194,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignExisting(result.oas3_0Preprocessors, rulesConf.preprocessors || {});
     Object.assign(result.oas3_1Preprocessors, rulesConf.oas3_1Preprocessors);
     assignExisting(result.oas3_1Preprocessors, rulesConf.preprocessors || {});
+    Object.assign(result.async2Preprocessors, rulesConf.async2Preprocessors);
+    assignExisting(result.async2Preprocessors, rulesConf.preprocessors || {});
 
     Object.assign(result.decorators, rulesConf.decorators);
     Object.assign(result.oas2Decorators, rulesConf.oas2Decorators);
@@ -191,6 +204,8 @@ export function mergeExtends(rulesConfList: ResolvedStyleguideConfig[]) {
     assignExisting(result.oas3_0Decorators, rulesConf.decorators || {});
     Object.assign(result.oas3_1Decorators, rulesConf.oas3_1Decorators);
     assignExisting(result.oas3_1Decorators, rulesConf.decorators || {});
+    Object.assign(result.async2Decorators, rulesConf.async2Decorators);
+    assignExisting(result.async2Decorators, rulesConf.decorators || {});
 
     result.plugins!.push(...(rulesConf.plugins || []));
     result.pluginPaths!.push(...(rulesConf.pluginPaths || []));

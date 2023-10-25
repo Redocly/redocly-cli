@@ -232,14 +232,17 @@ export type RulesFields =
   | 'oas2Rules'
   | 'oas3_0Rules'
   | 'oas3_1Rules'
+  | 'async2Rules'
   | 'preprocessors'
   | 'oas2Preprocessors'
   | 'oas3_0Preprocessors'
   | 'oas3_1Preprocessors'
+  | 'async2Preprocessors'
   | 'decorators'
   | 'oas2Decorators'
   | 'oas3_0Decorators'
-  | 'oas3_1Decorators';
+  | 'oas3_1Decorators'
+  | 'async2Decorators';
 
 export enum AuthProviderType {
   OIDC = 'OIDC',
