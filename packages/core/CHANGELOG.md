@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.4.0
+
+### Minor Changes
+
+- Added `recommended-strict` ruleset which uses the same rules as `recommended` but with the severity level set to `error` for all rules.
+
 ## 1.3.0
 
 ### Minor Changes

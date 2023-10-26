@@ -8,6 +8,18 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.4.0 (2023-10-26)
+
+### Minor Changes
+
+- Added `recommended-strict` ruleset which uses the same rules as `recommended` but with the severity level set to `error` for all rules.
+- Add JSON output support to the `split` and `join` commands.
+
+### Patch Changes
+
+- The `--host/-h` argument in the `preview-docs` command is now also used by the WebSocket server for hot reloading.
+- Updated @redocly/openapi-core to v1.4.0.
+
 ## 1.3.0 (2023-10-19)
 
 ### Minor Changes
