@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-The --host/-h argument provided for the preview http server, is now also used by the ws server.
+The `--host/-h` argument in the `preview-docs` command is now also used by the WebSocket server for hot reloading.
