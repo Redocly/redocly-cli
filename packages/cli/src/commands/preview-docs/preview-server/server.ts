@@ -62,8 +62,8 @@ export function startHttpServer(port: number, host: string, handler: http.Reques
   return http.createServer(handler).listen(port, host);
 }
 
-export function startWsServer(port: number) {
-  const socketServer = new SocketServer({ port, clientTracking: true });
+export function startWsServer(port: number, host: string) {
+  const socketServer = new SocketServer({ port, host, clientTracking: true });
 
   socketServer.on('connection', (socket: any) => {
     socket.on('data', (data: string) => {
