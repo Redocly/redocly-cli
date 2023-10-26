@@ -2,6 +2,12 @@
 
 exports[`resolveConfig should ignore minimal from the root and read local file 1`] = `
 {
+  "async2Decorators": {},
+  "async2Preprocessors": {},
+  "async2Rules": {
+    "channels-kebab-case": "off",
+    "no-channel-trailing-slash": "off",
+  },
   "decorators": {},
   "doNotResolveExamples": undefined,
   "oas2Decorators": {},
@@ -100,6 +106,12 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
 
 exports[`resolveStyleguideConfig should resolve extends with local file config which contains path to nested config 1`] = `
 {
+  "async2Decorators": {},
+  "async2Preprocessors": {},
+  "async2Rules": {
+    "channels-kebab-case": "off",
+    "no-channel-trailing-slash": "off",
+  },
   "decorators": {},
   "doNotResolveExamples": undefined,
   "oas2Decorators": {},

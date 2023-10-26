@@ -34,9 +34,13 @@ Warnings:
 * [info-license](./info-license.md)
 * [no-ambiguous-paths](./no-ambiguous-paths.md)
 * [no-invalid-media-type-examples](./no-invalid-media-type-examples.md)
-* [no-server-example-com](./no-server-example-com.md)
+* [no-server-example.com](./no-server-example-com.md)
 * [no-unused-components](./no-unused-components.md)
 * [operation-2xx-response](./operation-2xx-response.md)
 * [operation-4xx-response](./operation-4xx-response.md)
 * [operation-operationId](./operation-operationId.md)
 * [tag-description](./tag-description.md)
+
+## Recommended strict ruleset
+
+There is also a `recommended-strict` version of `recommended`, which elevates all warnings to errors.

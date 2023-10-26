@@ -1,4 +1,5 @@
 import recommended from './recommended';
+import recommendedStrict from './recommended-strict';
 import all from './all';
 import minimal from './minimal';
 import { rules as oas3Rules } from '../rules/oas3';
@@ -13,6 +14,7 @@ import type { CustomRulesConfig, StyleguideRawConfig, Plugin } from './types';
 
 export const builtInConfigs: Record<string, StyleguideRawConfig> = {
   recommended,
+  'recommended-strict': recommendedStrict,
   minimal,
   all,
   'redocly-registry': {

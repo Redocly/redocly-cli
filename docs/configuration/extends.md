@@ -9,7 +9,7 @@ To override the default settings, you can either configure different settings fo
 The `extends` list is structured as an array of strings.
 It supports the following types of values:
 
-- Built-in ruleset name (`minimal` or `recommended`)
+- Built-in ruleset name (`minimal`, `recommended` or `recommended-strict`)
 - A plugin's registered configuration name
 - Path or URL to another Redocly configuration file containing rules, preprocessors, decorators or custom plugins.
 
