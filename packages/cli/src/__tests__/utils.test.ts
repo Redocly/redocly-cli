@@ -12,6 +12,10 @@ import {
   HandledError,
   cleanArgs,
   cleanRawInput,
+  getAndValidateFileExtension,
+  writeYaml,
+  writeJson,
+  writeToFileByExtension,
 } from '../utils';
 import {
   ResolvedApi,
@@ -19,11 +23,13 @@ import {
   isAbsoluteUrl,
   ResolveError,
   YamlParseError,
+  stringifyYaml,
 } from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
-import { existsSync, statSync } from 'fs';
+import { existsSync, statSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
+import * as utils from '../utils';
 
 jest.mock('os');
 jest.mock('colorette');
@@ -553,5 +559,43 @@ describe('cleanRawInput', () => {
     expect(cleanRawInput(rawInput)).toEqual(
       'redocly lint file-json --format stylish --extends=minimal --skip-rule operation-4xx-response'
     );
+  });
+
+  describe('validateFileExtension', () => {
+    it('should return current file extension', () => {
+      expect(getAndValidateFileExtension('test.json')).toEqual('json');
+    });
+
+    it('should return yaml and print warning if file extension does not supported', () => {
+      const stderrMock = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+      (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
+
+      expect(getAndValidateFileExtension('test.xml')).toEqual('yaml');
+      expect(stderrMock).toHaveBeenCalledWith(`Unsupported file extension: xml. Using yaml.\n`);
+    });
+  });
+
+  describe('writeToFileByExtension', () => {
+    beforeEach(() => {
+      jest.spyOn(process.stderr, 'write').mockImplementation(jest.fn());
+      (yellow as jest.Mock<any, any>).mockImplementation((text: string) => text);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should call stringifyYaml function', () => {
+      writeToFileByExtension('test data', 'test.yaml');
+      expect(stringifyYaml).toHaveBeenCalledWith('test data', { noRefs: false });
+      expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
+    });
+
+    it('should call JSON.stringify function', () => {
+      const stringifySpy = jest.spyOn(JSON, 'stringify').mockImplementation((data) => data);
+      writeToFileByExtension('test data', 'test.json');
+      expect(stringifySpy).toHaveBeenCalledWith('test data', null, 2);
+      expect(process.stderr.write).toHaveBeenCalledWith(`test data`);
+    });
   });
 });

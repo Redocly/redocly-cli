@@ -25,7 +25,14 @@ import {
   RedoclyClient,
 } from '@redocly/openapi-core';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
-import { Totals, outputExtensions, Entrypoint, ConfigApis, CommandOptions } from './types';
+import {
+  Totals,
+  outputExtensions,
+  Entrypoint,
+  ConfigApis,
+  CommandOptions,
+  OutputExtensions,
+} from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
@@ -209,6 +216,17 @@ export function readYaml(filename: string) {
   return parseYaml(fs.readFileSync(filename, 'utf-8'), { filename });
 }
 
+export function writeToFileByExtension(data: unknown, filePath: string, noRefs?: boolean) {
+  const ext = getAndValidateFileExtension(filePath);
+
+  if (ext === 'json') {
+    writeJson(data, filePath);
+    return;
+  }
+
+  writeYaml(data, filePath, noRefs);
+}
+
 export function writeYaml(data: any, filename: string, noRefs = false) {
   const content = stringifyYaml(data, { noRefs });
 
@@ -218,6 +236,27 @@ export function writeYaml(data: any, filename: string, noRefs = false) {
   }
   fs.mkdirSync(dirname(filename), { recursive: true });
   fs.writeFileSync(filename, content);
+}
+
+export function writeJson(data: unknown, filename: string) {
+  const content = JSON.stringify(data, null, 2);
+
+  if (process.env.NODE_ENV === 'test') {
+    process.stderr.write(content);
+    return;
+  }
+  fs.mkdirSync(dirname(filename), { recursive: true });
+  fs.writeFileSync(filename, content);
+}
+
+export function getAndValidateFileExtension(fileName: string): NonNullable<OutputExtensions> {
+  const ext = fileName.split('.').pop();
+
+  if (['yaml', 'yml', 'json'].includes(ext!)) {
+    return ext as NonNullable<OutputExtensions>;
+  }
+  process.stderr.write(yellow(`Unsupported file extension: ${ext}. Using yaml.\n`));
+  return 'yaml';
 }
 
 export function pluralize(label: string, num: number) {

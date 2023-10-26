@@ -161,6 +161,19 @@ describe('E2E', () => {
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
+
+    test('openapi json file', () => {
+      const folderPath = join(__dirname, `split/openapi-json-file`);
+      const file = '../../../__tests__/split/openapi-json-file/openapi.json';
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        file,
+        '--outDir=output',
+      ]);
+
+      const result = getCommandOutput(args, folderPath);
+      (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
   });
 
   describe('join', () => {
@@ -213,6 +226,46 @@ describe('E2E', () => {
       ]);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
+    });
+
+    describe('files with different extensions', () => {
+      const joinParameters: {
+        name: string;
+        folder: string;
+        entrypoints: string[];
+        snapshot: string;
+        output?: string;
+      }[] = [
+        {
+          name: 'first entrypoint is a json file',
+          folder: 'json-and-yaml-input',
+          entrypoints: ['foo.json', 'bar.yaml'],
+          snapshot: 'json-output.snapshot.js',
+        },
+        {
+          name: 'first entrypoint is a yaml file',
+          folder: 'json-and-yaml-input',
+          entrypoints: ['bar.yaml', 'foo.json'],
+          snapshot: 'yaml-output.snapshot.js',
+        },
+        {
+          name: 'json output file',
+          folder: 'yaml-input-and-json-output',
+          entrypoints: ['foo.yaml', 'bar.yaml'],
+          output: 'openapi.json',
+          snapshot: 'snapshot.js',
+        },
+      ];
+
+      test.each(joinParameters)('test with option: %s', (parameters) => {
+        const testPath = join(__dirname, `join/${parameters.folder}`);
+        const argsWithOption = parameters.output
+          ? [...parameters.entrypoints, ...[`-o=${parameters.output}`]]
+          : parameters.entrypoints;
+        const args = getParams('../../../packages/cli/src/index.ts', 'join', argsWithOption);
+        const result = getCommandOutput(args, testPath);
+        (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, parameters.snapshot));
+      });
     });
   });
 

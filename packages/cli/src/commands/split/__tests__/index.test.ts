@@ -3,12 +3,13 @@ import * as path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
 import { ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
+import { writeToFileByExtension } from '../../../utils';
 
 const utils = require('../../../utils');
 
 jest.mock('../../../utils', () => ({
   ...jest.requireActual('../../../utils'),
-  writeYaml: jest.fn(),
+  writeToFileByExtension: jest.fn(),
 }));
 
 jest.mock('@redocly/openapi-core', () => ({
@@ -65,7 +66,9 @@ describe('#split', () => {
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
-      '_'
+      '_',
+      undefined,
+      'yaml'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
@@ -82,7 +85,9 @@ describe('#split', () => {
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
-      'webhook_'
+      'webhook_',
+      undefined,
+      'yaml'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
@@ -99,7 +104,9 @@ describe('#split', () => {
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
-      'webhook_'
+      'webhook_',
+      undefined,
+      'yaml'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
@@ -118,7 +125,9 @@ describe('#split', () => {
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
-      '_'
+      '_',
+      undefined,
+      'yaml'
     );
 
     expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');

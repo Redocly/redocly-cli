@@ -127,7 +127,6 @@ yargs
             describe: 'Output file',
             alias: 'o',
             type: 'string',
-            default: 'openapi.yaml',
           },
           config: {
             description: 'Path to the config file.',

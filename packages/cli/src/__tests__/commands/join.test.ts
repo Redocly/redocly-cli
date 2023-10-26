@@ -1,11 +1,12 @@
 import { handleJoin } from '../../commands/join';
-import { exitWithError, writeYaml } from '../../utils';
+import { exitWithError, writeToFileByExtension, writeYaml } from '../../utils';
 import { yellow } from 'colorette';
 import { detectSpec } from '@redocly/openapi-core';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 import { ConfigFixture } from '../fixtures/config';
 
 jest.mock('../../utils');
+
 jest.mock('colorette');
 
 describe('handleJoin fails', () => {
@@ -80,7 +81,7 @@ describe('handleJoin fails', () => {
     );
   });
 
-  it('should call writeYaml function', async () => {
+  it('should call writeToFileByExtension function', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
@@ -90,10 +91,14 @@ describe('handleJoin fails', () => {
       'cli-version'
     );
 
-    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'openapi.yaml', expect.any(Boolean));
+    expect(writeToFileByExtension).toHaveBeenCalledWith(
+      expect.any(Object),
+      'openapi.yaml',
+      expect.any(Boolean)
+    );
   });
 
-  it('should call writeYaml function for OpenAPI 3.1', async () => {
+  it('should call writeToFileByExtension function for OpenAPI 3.1', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_1');
     await handleJoin(
       {
@@ -103,10 +108,14 @@ describe('handleJoin fails', () => {
       'cli-version'
     );
 
-    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'openapi.yaml', expect.any(Boolean));
+    expect(writeToFileByExtension).toHaveBeenCalledWith(
+      expect.any(Object),
+      'openapi.yaml',
+      expect.any(Boolean)
+    );
   });
 
-  it('should call writeYaml function with custom output file', async () => {
+  it('should call writeToFileByExtension function with custom output file', async () => {
     (detectSpec as jest.Mock).mockReturnValue('oas3_0');
     await handleJoin(
       {
@@ -117,7 +126,28 @@ describe('handleJoin fails', () => {
       'cli-version'
     );
 
-    expect(writeYaml).toHaveBeenCalledWith(expect.any(Object), 'output.yml', expect.any(Boolean));
+    expect(writeToFileByExtension).toHaveBeenCalledWith(
+      expect.any(Object),
+      'output.yml',
+      expect.any(Boolean)
+    );
+  });
+
+  it('should call writeToFileByExtension function with json file extension', async () => {
+    (detectSpec as jest.Mock).mockReturnValue('oas3_0');
+    await handleJoin(
+      {
+        apis: ['first.json', 'second.yaml'],
+      },
+      ConfigFixture as any,
+      'cli-version'
+    );
+
+    expect(writeToFileByExtension).toHaveBeenCalledWith(
+      expect.any(Object),
+      'openapi.json',
+      expect.any(Boolean)
+    );
   });
 
   it('should call skipDecorators and skipPreprocessors', async () => {

@@ -10,10 +10,11 @@ import {
   printExecutionTime,
   pathToFilename,
   readYaml,
-  writeYaml,
   exitWithError,
   escapeLanguageName,
   langToExt,
+  writeToFileByExtension,
+  getAndValidateFileExtension,
 } from '../../utils';
 import { isString, isObject, isEmptyObject } from '../../js-utils';
 import {
@@ -46,8 +47,9 @@ export async function handleSplit(argv: SplitOptions) {
   const startedAt = performance.now();
   const { api, outDir, separator } = argv;
   validateDefinitionFileName(api!);
+  const ext = getAndValidateFileExtension(api);
   const openapi = readYaml(api!) as Oas3Definition | Oas3_1Definition;
-  splitDefinition(openapi, outDir, separator);
+  splitDefinition(openapi, outDir, separator, ext);
   process.stderr.write(
     `🪓 Document: ${blue(api!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(outDir)} \n`
@@ -58,18 +60,21 @@ export async function handleSplit(argv: SplitOptions) {
 function splitDefinition(
   openapi: Oas3Definition | Oas3_1Definition,
   openapiDir: string,
-  pathSeparator: string
+  pathSeparator: string,
+  ext: string
 ) {
   fs.mkdirSync(openapiDir, { recursive: true });
 
   const componentsFiles: ComponentsFiles = {};
-  iterateComponents(openapi, openapiDir, componentsFiles);
+  iterateComponents(openapi, openapiDir, componentsFiles, ext);
   iteratePathItems(
     openapi.paths,
     openapiDir,
     path.join(openapiDir, 'paths'),
     componentsFiles,
-    pathSeparator
+    pathSeparator,
+    undefined,
+    ext
   );
   const webhooks =
     (openapi as Oas3_1Definition).webhooks || (openapi as Oas3Definition)['x-webhooks'];
@@ -80,11 +85,12 @@ function splitDefinition(
     path.join(openapiDir, 'webhooks'),
     componentsFiles,
     pathSeparator,
-    'webhook_'
+    'webhook_',
+    ext
   );
 
   replace$Refs(openapi, openapiDir, componentsFiles);
-  writeYaml(openapi, path.join(openapiDir, 'openapi.yaml'));
+  writeToFileByExtension(openapi, path.join(openapiDir, `openapi.${ext}`));
 }
 
 function isStartsWithComponents(node: string) {
@@ -135,7 +141,7 @@ function traverseDirectoryDeepCallback(
   if (isNotYaml(filename)) return;
   const pathData = readYaml(filename);
   replace$Refs(pathData, directory, componentsFiles);
-  writeYaml(pathData, filename);
+  writeToFileByExtension(pathData, filename);
 }
 
 function crawl(object: any, visitor: any) {
@@ -251,8 +257,8 @@ function extractFileNameFromPath(filename: string) {
   return path.basename(filename, path.extname(filename));
 }
 
-function getFileNamePath(componentDirPath: string, componentName: string) {
-  return path.join(componentDirPath, componentName) + '.yaml';
+function getFileNamePath(componentDirPath: string, componentName: string, ext: string) {
+  return path.join(componentDirPath, componentName) + `.${ext}`;
 }
 
 function gatherComponentsFiles(
@@ -278,13 +284,14 @@ function iteratePathItems(
   outDir: string,
   componentsFiles: object,
   pathSeparator: string,
-  codeSamplesPathPrefix: string = ''
+  codeSamplesPathPrefix: string = '',
+  ext: string
 ) {
   if (!pathItems) return;
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const pathName of Object.keys(pathItems)) {
-    const pathFile = `${path.join(outDir, pathToFilename(pathName, pathSeparator))}.yaml`;
+    const pathFile = `${path.join(outDir, pathToFilename(pathName, pathSeparator))}.${ext}`;
     const pathData = pathItems[pathName] as Oas3PathItem;
 
     if (isRef(pathData)) continue;
@@ -314,7 +321,7 @@ function iteratePathItems(
         };
       }
     }
-    writeYaml(pathData, pathFile);
+    writeToFileByExtension(pathData, pathFile);
     pathItems[pathName] = {
       $ref: slash(path.relative(openapiDir, pathFile)),
     };
@@ -326,7 +333,8 @@ function iteratePathItems(
 function iterateComponents(
   openapi: Oas3Definition | Oas3_1Definition,
   openapiDir: string,
-  componentsFiles: ComponentsFiles
+  componentsFiles: ComponentsFiles,
+  ext: string
 ) {
   const { components } = openapi;
   if (components) {
@@ -340,7 +348,7 @@ function iterateComponents(
     function iterateAndGatherComponentsFiles(componentType: Oas3ComponentName) {
       const componentDirPath = path.join(componentsDir, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
-        const filename = getFileNamePath(componentDirPath, componentName);
+        const filename = getFileNamePath(componentDirPath, componentName, ext);
         gatherComponentsFiles(components!, componentsFiles, componentType, componentName, filename);
       }
     }
@@ -350,7 +358,7 @@ function iterateComponents(
       const componentDirPath = path.join(componentsDir, componentType);
       createComponentDir(componentDirPath, componentType);
       for (const componentName of Object.keys(components?.[componentType] || {})) {
-        const filename = getFileNamePath(componentDirPath, componentName);
+        const filename = getFileNamePath(componentDirPath, componentName, ext);
         const componentData = components?.[componentType]?.[componentName];
         replace$Refs(componentData, path.dirname(filename), componentsFiles);
         implicitlyReferenceDiscriminator(
@@ -369,7 +377,7 @@ function iterateComponents(
             )
           );
         } else {
-          writeYaml(componentData, filename);
+          writeToFileByExtension(componentData, filename);
         }
 
         if (isNotSecurityComponentType(componentType)) {
