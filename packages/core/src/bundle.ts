@@ -17,8 +17,8 @@ import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject, isTruthy } from './utils';
 import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './rules/oas2/remove-unused-components';
-import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './rules/oas3/remove-unused-components';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
+import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 
 import type { Config, StyleguideConfig } from './config';
 

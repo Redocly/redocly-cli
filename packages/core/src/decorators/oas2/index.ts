@@ -7,6 +7,7 @@ import { InfoOverride } from '../common/info-override';
 import { RemoveXInternal } from '../common/remove-x-internal';
 import { FilterIn } from '../common/filters/filter-in';
 import { FilterOut } from '../common/filters/filter-out';
+import { RemoveUnusedComponents } from './remove-unused-components';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas2Decorator,
@@ -17,4 +18,6 @@ export const decorators = {
   'remove-x-internal': RemoveXInternal as Oas2Decorator,
   'filter-in': FilterIn as Oas2Decorator,
   'filter-out': FilterOut as Oas2Decorator,
+  'remove-unused-components': RemoveUnusedComponents
+  
 };
