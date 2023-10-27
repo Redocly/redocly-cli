@@ -402,7 +402,24 @@ describe('lint', () => {
       config: await makeConfig({ spec: 'error' }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/components/callbacks/resultCallback/{$url}/post/requestBody/content/application~1json/schema/properties/test",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Property \`test\` is not expected here.",
+          "ruleId": "spec",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should ignore error because ignore file passed', async () => {
