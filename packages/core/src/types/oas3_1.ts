@@ -182,14 +182,13 @@ const Schema: NodeType = {
 };
 
 const SchemaProperties: NodeType = {
-  properties: {
-    propertyName: (value: any) => {
-      if (typeof value === 'boolean') {
-        return { type: 'boolean' };
-      } else {
-        return 'Schema';
-      }
-    },
+  properties: {},
+  additionalProperties: (value: any) => {
+    if (typeof value === 'boolean') {
+      return { type: 'boolean' };
+    } else {
+      return 'Schema';
+    }
   },
 };
 
