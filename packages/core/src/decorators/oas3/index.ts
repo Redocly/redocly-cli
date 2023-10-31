@@ -8,7 +8,6 @@ import { RemoveXInternal } from '../common/remove-x-internal';
 import { FilterIn } from '../common/filters/filter-in';
 import { FilterOut } from '../common/filters/filter-out';
 import { MediaTypeExamplesOverride } from '../common/media-type-examples-override';
-import { RemoveUnusedComponents } from './remove-unused-components';
 
 export const decorators = {
   'registry-dependencies': RegistryDependencies as Oas3Decorator,
@@ -20,5 +19,4 @@ export const decorators = {
   'filter-in': FilterIn as Oas3Decorator,
   'filter-out': FilterOut as Oas3Decorator,
   'media-type-examples-override': MediaTypeExamplesOverride as Oas3Decorator,
-  'remove-unused-components': RemoveUnusedComponents,
 };

@@ -126,8 +126,8 @@ export async function bundleDocument(opts: {
     config
   );
 
-  const preprocessors = initRules(rules as any, config, 'preprocessors', specVersion);
-  const decorators = initRules(rules as any, config, 'decorators', specVersion);
+  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+  const decorators = initRules(rules, config, 'decorators', specVersion);
 
   const ctx: BundleContext = {
     problems: [],
