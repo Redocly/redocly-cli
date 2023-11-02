@@ -1,6 +1,6 @@
 import type { Oas2Decorator } from '../../visitors';
 import { Location } from '../../ref-utils';
-import { Oas2Components } from '../../typings/swagger';
+import type { Oas2Components } from '../../typings/swagger';
 import { isEmptyObject } from '../../utils';
 
 export const RemoveUnusedComponents: Oas2Decorator = () => {
