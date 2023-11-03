@@ -208,7 +208,7 @@ Property | Type | Description
 message | `string` \| [`string`] | Problem message that is displayed in the [lint command](../commands/lint.md) output.
 location | `Location Object` | Location in the source document. See [Location Object](../custom-plugins/custom-rules.md#location-object)
 
-`.redocly.yaml`
+`redocly.yaml`
 
 ```yaml
 rule/operation-summary-check:

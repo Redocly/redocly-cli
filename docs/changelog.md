@@ -656,7 +656,7 @@ rules:
 
 ### Features
 
-- Allowed to name the config file either `.redocly.yaml` or `redocly.yaml`.
+- Allowed to name the config file either `.redocly.yaml` (deprecated) or `redocly.yaml`.
 
 ### Fixes
 
@@ -865,9 +865,9 @@ rules:
 
 ### Features
 
-- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API descriptions during the bundling process. Use these decorators in the `lint` section of your `.redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content replaces any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
+- Added three built-in decorators - `info-description-override`, `tag-description-override`, `operation-description-override` - that let you modify your API descriptions during the bundling process. Use these decorators in the `lint` section of your `redocly.yaml` file to point OpenAPI CLI to Markdown files with custom content. That custom content replaces any existing content in the `info.description` field, and in `tags.description` and `operation.description` fields for specified tag names and operation IDs.
 
-The following examples show how to add the decorators to the `.redocly.yaml` file:
+The following examples show how to add the decorators to the `redocly.yaml` file:
 
 ```yaml info-description-override
 lint:
@@ -972,7 +972,7 @@ lint:
 
 ### Features
 
-- Added a function for linting the `.redocly.yaml` configuration file.
+- Added a function for linting the `redocly.yaml` configuration file.
 
 - Published [the OpenAPI CLI quickstart guide](quickstart.md) as part of our Google Season of Docs 2021 project.
 

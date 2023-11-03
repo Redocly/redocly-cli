@@ -67,10 +67,10 @@ Now you are ready to configure the rules.
 Imagine that your API description describes users' data, and it should have `user_id` as a part of
 all successful (`200`) responses. Let's define this.
 
-1. Open the `.redocly.yaml` in the project folder
+1. Open the `redocly.yaml` in the project folder
 1. After the line 9, add the rule configuration block:
 
-```yaml .redocly.yaml
+```yaml redocly.yaml
 rules:
   no-unused-components: error
   response-contains-property:
@@ -137,7 +137,7 @@ of a specific [class](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes), 
 
 Let's modify the previous example to check that all `2xx` responses contain the `user_id` property.
 
-```yaml .redocly.yaml
+```yaml redocly.yaml
 rules:
   no-unused-components: error
   response-contains-property:
@@ -221,7 +221,7 @@ schema object and one $ref refers to each of the `201` and `202` responses, resu
 Imagine that your API evolves, and in addition to `user_id` for successful (`200`) responses, it
 should have `created_at` and `ref_id` properties for all other `2xx` responses. Let's define this.
 
-```yaml .redocly.yaml
+```yaml redocly.yaml
 rules:
   no-unused-components: error
   response-contains-property:
