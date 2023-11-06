@@ -4,9 +4,9 @@ import { Location } from '../../ref-utils';
 export const NoUnusedComponents: Oas3Rule = () => {
   const components = new Map<string, { used: boolean; location: Location; name: string }>();
 
-  function registerComponent(location: Location, name: string): void {
+  function registerComponent(location: Location, name: string, used = false): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used || false,
+      used: components.get(location.absolutePointer)?.used || used,
       location,
       name,
     });
@@ -39,11 +39,12 @@ export const NoUnusedComponents: Oas3Rule = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          // FIXME: find a better way to detect possible discriminator
-          registerComponent(location, key.toString());
-        }
+      Schema(schema, { location, key, resolve }) {
+        registerComponent(
+          location,
+          key.toString(),
+          schema.allOf && schema.allOf.some((v) => v.$ref && resolve(v).node?.discriminator)
+        );
       },
     },
     NamedParameters: {

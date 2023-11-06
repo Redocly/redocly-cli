@@ -12,10 +12,11 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
   function registerComponent(
     location: Location,
     componentType: keyof Oas2Components,
-    name: string
+    name: string,
+    used = false
   ): void {
     components.set(location.absolutePointer, {
-      used: components.get(location.absolutePointer)?.used || false,
+      used: components.get(location.absolutePointer)?.used || used,
       componentType,
       name,
     });
@@ -61,10 +62,13 @@ export const RemoveUnusedComponents: Oas2Rule = () => {
       },
     },
     NamedSchemas: {
-      Schema(schema, { location, key }) {
-        if (!schema.allOf) {
-          registerComponent(location, 'definitions', key.toString());
-        }
+      Schema(schema, { location, key, resolve }) {
+        registerComponent(
+          location,
+          'definitions',
+          key.toString(),
+          schema.allOf && schema.allOf.some((v) => v.$ref && resolve(v).node?.discriminator)
+        );
       },
     },
     NamedParameters: {
