@@ -1,6 +1,6 @@
 # Redocly CLI
 
-[@Redocly](https://redocly.com) CLI is your all-in-one OpenAPI sidekiq. It can help you build, manage, improve, and quality-check your OpenAPI descriptions, all of which comes in handy for various phases of the API Lifecycle. Create API Style guides to make API governance easy, and publish beautiful API reference documentation. Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger).
+[@Redocly](https://redocly.com) CLI is your all-in-one OpenAPI utility. It builds, manages, improves, and quality-checks your OpenAPI descriptions, all of which comes in handy for various phases of the API Lifecycle. Create your own rulesets to make API governance easy, and publish beautiful API reference documentation. Supports OpenAPI 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger).
 
 ![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
@@ -61,13 +61,13 @@ Your API reference docs are in `redoc-static.html` by default. You can customize
 
 > :bulb: Redocly also has [hosted API reference docs](https://redocly.com/docs/api-registry/guides/api-registry-quickstart/), a (commercial) alternative to Redoc. Both Redoc and Redocly API reference docs can be worked on locally using the `preview-docs` command.
 
-### Bundling multiple OpenAPI documents
+### Bundle multiple OpenAPI documents
 
-We know having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref`, or don't support multiple documents?! Well fear not, because Redocly has a `bundle` command you can use to recombine all of those documents back into one single document. And, unlike the now-deprecated Swagger CLI, the bundled output Redocly CLI provides is clean, tidy, and looks like a human made it. 
+Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref`, or don't support multiple documents?! Well fear not, because Redocly has a `bundle` command you can use to recombine all of those documents back into one single document. The bundled output Redocly CLI provides is clean, tidy, and looks like a human made it.
 
-### Automate API Style Guides with Linting
+### Automate API guidelines with Linting
 
-Check your API matches your API Style Guide using the `lint` command. An API style guide is an important piece of API Governance, it helps to keep APIs consistent (enforcing the same standards and naming conventions) but can also guide API teams through potential security hazards and other pitfalls. Automating an API Style Guide means you can not just keep APIs consistent and secure throughout their lifecycle, but you can shape the design of the API before it even exists if you combine an automated API Style Guide with the API Design-first workflow!
+Check your API matches the expected API guidelines by using the `lint` command. API guidelines are an important piece of API governance, it helps to keep APIs consistent (enforcing the same standards and naming conventions) but can also guide API teams through potential security hazards and other pitfalls. Automating API guidelines means you can keep APIs consistent and secure throughout their lifecycle. Even better, you can shape the design of the API before it even exists if you combine API linting with a design-first API workflow!
 
 Our API linter is designed for speed on even large documents, and it's easy to run locally, in CI, or anywhere you need it. It's also designed for humans, with meaningful error messages to help you get your API right every time.
 
@@ -77,11 +77,11 @@ Try it like this:
 redocly lint openapi.yaml
 ```
 
-**Configure the rules** as you wish. Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the OpenAPI structure. You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API style guide, or break out the tools to build your own.
+**Configure the rules** as you wish. Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the OpenAPI structure. You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to build your own.
 
 **Format the output** in whatever way you need, the `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, the lint command can output those too.
 
-**Multiple files supported** so you don't need to bundle your API description to lint it, just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it will handle the rest.
+**Multiple files supported** so you don't need to bundle your API description to lint it, just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
