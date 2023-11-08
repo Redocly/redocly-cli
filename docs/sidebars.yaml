@@ -1,0 +1,148 @@
+- group: Redocly CLI
+  page: index.md
+  items:
+    - label: Installation
+      page: installation.md
+    - label: Changelog
+      page: changelog.md
+    - group: Commands
+      page: commands/index.md
+      items:
+        - label: build-docs
+          page: commands/build-docs.md
+        - label: bundle
+          page: commands/bundle.md
+        - label: join
+          page: commands/join.md
+        - label: lint
+          page: commands/lint.md
+        - label: login
+          page: commands/login.md
+        - label: logout
+          page: commands/logout.md
+        - label: preview-docs
+          page: commands/preview-docs.md
+        - label: push
+          page: commands/push.md
+        - label: split
+          page: commands/split.md
+        - label: stats
+          page: commands/stats.md
+    - group: Guides
+      page: guides/index.md
+      items:
+        - label: Quickstart
+          page: quickstart.md
+        - label: Use openapi-starter
+          page: openapi-starter.md
+        - page: guides/configure-rules.md
+        - label: Hide internal APIs
+          page: guides/hide-apis.md
+        - label: Replace the servers URL
+          page: guides/replace-servers-url.md
+        - label: Enforce response contents
+          page: guides/response-contains-property.md
+        - page: guides/lint-asyncapi.md
+        - label: Change the OAuth2 token URL
+          page: guides/change-token-url.md
+        - label: Hide OpenAPI specification extensions
+          page: guides/hide-specification-extensions.md
+        - page: guides/autocomplete.md
+        - page: guides/migrate-from-redoc-cli.md
+        - page: guides/migrate-from-openapi-cli.md
+        - page: guides/migrate-from-spectral.md
+        - page: guides/migrate-from-swagger-cli.md
+    - page: api-docs.md
+      label: API docs
+    - group: API governance
+      page: api-standards.md
+      items:
+        - page: rules.md
+          label: Rules
+        - group: Built-in rules
+          page: rules/built-in-rules.md
+          items:
+          - page: rules/boolean-parameter-prefixes.md
+          - page: rules/component-name-unique.md
+          - page: rules/info-contact.md
+          - page: rules/info-license.md
+          - page: rules/info-license-url.md
+          - page: rules/no-ambiguous-paths.md
+          - page: rules/no-empty-servers.md
+          - page: rules/no-enum-type-mismatch.md
+          - page: rules/no-example-value-and-externalValue.md
+          - page: rules/no-http-verbs-in-paths.md
+          - page: rules/no-identical-paths.md
+          - page: rules/no-invalid-media-type-examples.md
+          - page: rules/no-invalid-parameter-examples.md
+          - page: rules/no-invalid-schema-examples.md
+          - page: rules/no-path-trailing-slash.md
+          - page: rules/no-server-example-com.md
+          - page: rules/no-server-trailing-slash.md
+          - page: rules/no-server-variables-empty-enum.md
+          - page: rules/no-undefined-server-variable.md
+          - page: rules/no-unresolved-refs.md
+          - page: rules/no-unused-components.md
+          - page: rules/operation-2xx-response.md
+          - page: rules/operation-4xx-problem-details-rfc7807.md
+          - page: rules/operation-4xx-response.md
+          - page: rules/operation-description.md
+          - page: rules/operation-operationId.md
+          - page: rules/operation-operationId-unique.md
+          - page: rules/operation-operationId-url-safe.md
+          - page: rules/operation-parameters-unique.md
+          - page: rules/operation-singular-tag.md
+          - page: rules/operation-summary.md
+          - page: rules/operation-tag-defined.md
+          - page: rules/parameter-description.md
+          - page: rules/path-declaration-must-exist.md
+          - page: rules/path-excludes-patterns.md
+          - page: rules/path-not-include-query.md
+          - page: rules/path-parameters-defined.md
+          - page: rules/path-segment-plural.md
+          - page: rules/paths-kebab-case.md
+          - page: rules/request-mime-type.md
+          - page: rules/required-string-property-missing-min-length.md
+          - page: rules/response-contains-header.md
+          - page: rules/response-contains-property.md
+          - page: rules/response-mime-type.md
+          - page: rules/scalar-property-missing-example.md
+          - page: rules/security-defined.md
+          - page: rules/spec-components-invalid-map-name.md
+          - page: rules/spec.md
+          - page: rules/spec-strict-refs.md
+          - page: rules/tag-description.md
+          - page: rules/tags-alphabetical.md
+        - page: rules/configurable-rules.md
+        - group: Decorators
+          page: decorators.md
+          items:
+            - page: decorators/filter-in.md
+            - page: decorators/filter-out.md
+            - page: decorators/info-description-override.md
+            - page: decorators/info-override.md
+            - page: decorators/media-type-examples-override.md
+            - page: decorators/operation-description-override.md
+            - page: decorators/remove-unused-components.md
+            - page: decorators/remove-x-internal.md
+            - page: decorators/tag-description-override.md
+    - page: file-management.md
+    - group: Configuration
+      page: configuration/index.md
+      items:
+        - page: configuration/extends.md
+        - page: configuration/rules.md
+        - page: configuration/apis.md
+    - group: Custom plugins
+      page: custom-plugins/index.md
+      items:
+        - label: Custom rules
+          page: custom-plugins/custom-rules.md
+        - label: Custom decorators
+          page: custom-plugins/custom-decorators.md
+        - label: Custom config
+          page: custom-plugins/custom-config.md
+        - label: Extended types
+          page: custom-plugins/extended-types.md
+        - label: Visitor pattern
+          page: custom-plugins/visitor.md
