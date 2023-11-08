@@ -41,7 +41,7 @@ export {
   ResolvedApi,
 } from './config';
 
-export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
+export { RedoclyClient, isRedoclyRegistryURL, BlueHarvest } from './redocly';
 
 export {
   Source,

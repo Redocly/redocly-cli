@@ -9,6 +9,7 @@ import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
 import { handlePush, transformPush } from './commands/push';
+import { handleBhPush } from './commands/push-bh';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
@@ -224,6 +225,61 @@ yargs
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
       commandWrapper(transformPush(handlePush))(argv);
+    }
+  )
+  .command(
+    'push-bh <files..>',
+    'Push files to the Redocly BlueHarvest.',
+    (yargs) =>
+      yargs
+        .positional('files', {
+          type: 'string',
+          array: true,
+          required: true,
+          default: [],
+          description: 'List of files and folders (or glob) to upload',
+        })
+        .option({
+          organization: {
+            description: 'Name of the organization to push to.',
+            type: 'string',
+            alias: 'o',
+          },
+          project: {
+            description: 'Name of the project to push to.',
+            type: 'string',
+            required: true,
+            alias: 'p',
+          },
+          mountPath: {
+            description: 'The path files should be pushed to.',
+            type: 'string',
+            required: true,
+            alias: 'mp',
+          },
+          branch: {
+            description: 'Branch name files are pushed from.',
+            type: 'string',
+            required: true,
+            alias: 'b',
+          },
+          author: {
+            description: 'Author of the commit.',
+            type: 'string',
+            required: true,
+            alias: 'a',
+          },
+          message: {
+            description: 'Commit messsage.',
+            type: 'string',
+            required: true,
+            alias: 'm',
+          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+        }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'push-bh';
+      commandWrapper(handleBhPush)(argv);
     }
   )
   .command(
