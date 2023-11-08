@@ -8,6 +8,7 @@ import type { StatsOptions } from './commands/stats';
 import type { SplitOptions } from './commands/split';
 import type { PreviewDocsOptions } from './commands/preview-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import type { PushBhOptions } from './commands/push-bh';
 
 export type Totals = {
   errors: number;
@@ -26,6 +27,7 @@ export type CommandOptions =
   | SplitOptions
   | JoinOptions
   | PushOptions
+  | PushBhOptions
   | LintOptions
   | BundleOptions
   | LoginOptions
