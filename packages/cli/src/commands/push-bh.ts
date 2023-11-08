@@ -16,6 +16,7 @@ export type PushBhOptions = {
   files: string[];
 
   domain?: string;
+  config?: string;
 };
 
 type FileToUpload = { path: string };
