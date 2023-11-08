@@ -276,6 +276,11 @@ yargs
             alias: 'm',
           },
           domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          config: {
+            description: 'Path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-bh';
