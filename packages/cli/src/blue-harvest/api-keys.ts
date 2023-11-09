@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import { homedir } from 'os';
-import { isNotEmptyObject } from '../../utils';
 import { existsSync, readFileSync } from 'fs';
-import { env } from '../../env';
+
+import { isNotEmptyObject } from '@redocly/openapi-core/src/utils';
 
 const TOKEN_FILENAME = '.redocly-config.json';
 
@@ -11,12 +11,14 @@ function readCredentialsFile(credentialsPath: string) {
 }
 
 export function getApiKeys(domain: string) {
+  const apiKey = process.env.REDOCLY_AUTHORIZATION;
+
+  if (apiKey) {
+    return apiKey;
+  }
+
   const credentialsPath = resolve(homedir(), TOKEN_FILENAME);
   const credentials = readCredentialsFile(credentialsPath);
-
-  if (env.REDOCLY_AUTHORIZATION) {
-    return env.REDOCLY_AUTHORIZATION;
-  }
 
   if (isNotEmptyObject(credentials) && credentials[domain]) {
     return credentials[domain];

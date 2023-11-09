@@ -9,7 +9,7 @@ import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
 import { handlePush, transformPush } from './commands/push';
-import { handleBhPush } from './commands/push-bh';
+import { handlePush as handleBhPush } from './blue-harvest/commands/push';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';

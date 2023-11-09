@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { BlueHarvest, Config } from '@redocly/openapi-core';
+import { Config, BlueHarvestApiClient } from '@redocly/openapi-core';
 import * as pluralize from 'pluralize';
-import { exitWithError, printExecutionTime } from '../utils';
+import { exitWithError, printExecutionTime } from '../../utils';
 import { green } from 'colorette';
+import { getDomain } from '../domains';
+import { getApiKeys } from '../api-keys';
 
-export type PushBhOptions = {
+export type PushOptions = {
   organization?: string;
   project: string;
   mountPath: string;
@@ -21,7 +23,7 @@ export type PushBhOptions = {
 
 type FileToUpload = { path: string };
 
-export async function handleBhPush(argv: PushBhOptions, config: Config) {
+export async function handlePush(argv: PushOptions, config: Config) {
   const startedAt = performance.now();
   const { organization, project: projectId, mountPath } = argv;
 
@@ -33,7 +35,7 @@ export async function handleBhPush(argv: PushBhOptions, config: Config) {
     );
   }
 
-  const domain = argv.domain || BlueHarvest.getDomain();
+  const domain = argv.domain || getDomain();
 
   if (!domain) {
     return exitWithError(
@@ -43,14 +45,14 @@ export async function handleBhPush(argv: PushBhOptions, config: Config) {
 
   try {
     const author = parseCommitAuthor(argv.author);
-    const apiKey = BlueHarvest.getApiKeys(domain);
+    const apiKey = getApiKeys(domain);
     const filesToUpload = collectFilesToPush(argv.files);
 
     if (!filesToUpload.length) {
       return printExecutionTime('push-bh', startedAt, `No files to upload`);
     }
 
-    const client = new BlueHarvest.ApiClient(domain, apiKey);
+    const client = new BlueHarvestApiClient(domain, apiKey);
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,

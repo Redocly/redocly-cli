@@ -8,7 +8,7 @@ import type { StatsOptions } from './commands/stats';
 import type { SplitOptions } from './commands/split';
 import type { PreviewDocsOptions } from './commands/preview-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import type { PushBhOptions } from './commands/push-bh';
+import type { PushOptions as PushBhOptions } from './blue-harvest/commands/push';
 
 export type Totals = {
   errors: number;

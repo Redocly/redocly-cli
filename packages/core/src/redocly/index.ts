@@ -8,7 +8,7 @@ import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types
 import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 
-export * from './bh';
+export * from './blue-harvest';
 
 import type { AccessTokens, Region } from '../config/types';
 
