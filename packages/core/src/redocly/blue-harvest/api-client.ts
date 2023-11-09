@@ -1,4 +1,3 @@
-import * as path from 'path';
 import fetch from 'node-fetch';
 import * as FormData from 'form-data';
 
@@ -117,9 +116,7 @@ class RemotesApiClient {
     formData.append('commit[branchName]', payload.commit.branchName);
 
     for (const file of files) {
-      const parsedFilePath = path.parse(file.path);
-
-      formData.append(`files[${parsedFilePath.base}]`, file.stream, parsedFilePath.name);
+      formData.append(`files[${file.path}]`, file.stream);
     }
 
     const response = await fetch(

@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, BlueHarvestApiClient } from '@redocly/openapi-core';
+import { Config, BlueHarvestApiClient, slash } from '@redocly/openapi-core';
 import * as pluralize from 'pluralize';
 import { exitWithError, printExecutionTime } from '../../utils';
-import { green } from 'colorette';
+import { green, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 
@@ -21,7 +21,7 @@ export type PushOptions = {
   config?: string;
 };
 
-type FileToUpload = { path: string };
+type FileToUpload = { name: string; path: string };
 
 export async function handlePush(argv: PushOptions, config: Config) {
   const startedAt = performance.now();
@@ -74,11 +74,11 @@ export async function handlePush(argv: PushOptions, config: Config) {
           branchName: argv.branch,
         },
       },
-      filesToUpload.map((f) => ({ path: f.path, stream: fs.createReadStream(f.path) }))
+      filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
 
     filesToUpload.forEach((f) => {
-      process.stdout.write(green(`✓ ${path.relative(process.cwd(), f.path)}\n`));
+      process.stdout.write(green(`✓ ${f.name}\n`));
     });
 
     printExecutionTime(
@@ -111,23 +111,36 @@ function parseCommitAuthor(author: string): { name: string; email: string } {
 }
 
 function collectFilesToPush(files: string[]): FileToUpload[] {
-  const collectedFiles = new Set<string>();
+  const collectedFiles: Record<string, string> = {}; 
 
   for (const file of files) {
     if (fs.statSync(file).isDirectory()) {
-      const fileList = getFilesList(file, []);
-      fileList.forEach((f) => collectedFiles.add(f));
+      const dir = file;
+      const fileList = getFilesList(dir, []);
+      
+      fileList.forEach((f) => addFile(f, dir));
     } else {
-      collectedFiles.add(file);
+      addFile(file, path.dirname(file));
     }
   }
 
-  return Array.from(collectedFiles).map((f) => getFileEntry(f));
+  function addFile (filePath: string, fileDir: string) {
+    const fileName = path.relative(fileDir, filePath);
+    
+    if (collectedFiles[fileName]) {
+      process.stdout.write(yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`));
+    }
+
+    collectedFiles[fileName] = filePath;
+  }
+
+  return Object.entries(collectedFiles).map(([name, filePath]) => getFileEntry(name, filePath));
 }
 
-function getFileEntry(filename: string): FileToUpload {
+function getFileEntry(name: string, filePath: string): FileToUpload {
   return {
-    path: path.resolve(filename),
+    name,
+    path: path.resolve(filePath),
   };
 }
 
