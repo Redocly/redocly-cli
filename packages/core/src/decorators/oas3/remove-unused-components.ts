@@ -1,9 +1,9 @@
-import { Oas3Rule } from '../../visitors';
+import type { Oas3Decorator } from '../../visitors';
 import { Location } from '../../ref-utils';
-import { Oas3Components } from '../../typings/openapi';
+import type { Oas3Components } from '../../typings/openapi';
 import { isEmptyObject } from '../../utils';
 
-export const RemoveUnusedComponents: Oas3Rule = () => {
+export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<
     string,
     { used: boolean; componentType?: keyof Oas3Components; name: string }
