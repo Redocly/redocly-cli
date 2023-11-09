@@ -29,9 +29,6 @@ rules:
     severity: error
 ```
 
-## Configuration
-
-
 |Option|Type|Description|
 |---|---|---|
 |severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |

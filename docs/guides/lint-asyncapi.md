@@ -38,7 +38,7 @@ specification.
 
 With this configuration file, and your AsyncAPI description file (or use one of the [existing examples](https://github.com/asyncapi/spec/tree/master/examples)), run the linting command:
 
-```
+```sh
 redocly lint asyncapi.yaml
 ```
 

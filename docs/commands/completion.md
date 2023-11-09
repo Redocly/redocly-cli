@@ -22,7 +22,7 @@ redocly completion
 
 Outputs something like this:
 
-```
+```sh
 ###-begin-redocly-completions-###
 #
 # yargs command completion script

@@ -30,7 +30,7 @@ decorators:
             application/json: ./pet-errors-examples.yaml
 ```
 
-## Examples 
+## Examples
 
 Given this API description with example:
 

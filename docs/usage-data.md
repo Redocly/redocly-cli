@@ -10,11 +10,11 @@ Redocly CLI sends a small set of anonymized data to help us understand how the t
 ## What data is collected
 
 When a command is run, the following data is collected:
- * the command being run
- * command exit code
- * values from `REDOCLY_ENVIRONMENT`
- * CLI version
- * Node.js and NPM versions
+* the command being run
+* command exit code
+* values from `REDOCLY_ENVIRONMENT`
+* CLI version
+* Node.js and NPM versions
 
 Values such as file names, organization IDs, and URLs are removed, replaced by just "URL" or "file", etc.
 

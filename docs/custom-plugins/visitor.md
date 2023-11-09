@@ -103,7 +103,7 @@ put:
 
 The visitor above logs the following:
 
-```
+```sh
 type string from getOp
 type object from getOp
 type number from putOp

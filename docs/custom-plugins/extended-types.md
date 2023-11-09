@@ -7,7 +7,7 @@ The type tree is built from top level `Types` which can link to child types. For
 
 The type tree can be extended by exporting the `typeExtension` function from a custom plugin.
 
-# Type extension example
+## Type extension example
 
 Consider an OpenAPI that uses an (imaginary) specification extension `x-metadata` which must contain information about the lifecycle state of the API, and which team owns the API. A snippet of the OpenAPI to show the example clearly:
 
@@ -71,4 +71,3 @@ rules:
 ```
 
 Now lint your API description with `redocly lint openapi.yaml` and try removing the `lifecycle` field from within the `x-metadata` section. It's a required field, so you see an error if it's missing.
-
