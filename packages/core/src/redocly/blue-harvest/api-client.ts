@@ -106,7 +106,7 @@ class RemotesApiClient {
         };
       };
     },
-    files: { path: string; stream: ReadStream }[]
+    files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
     const formData = new FormData();
 
