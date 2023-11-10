@@ -111,24 +111,26 @@ function parseCommitAuthor(author: string): { name: string; email: string } {
 }
 
 function collectFilesToPush(files: string[]): FileToUpload[] {
-  const collectedFiles: Record<string, string> = {}; 
+  const collectedFiles: Record<string, string> = {};
 
   for (const file of files) {
     if (fs.statSync(file).isDirectory()) {
       const dir = file;
       const fileList = getFilesList(dir, []);
-      
+
       fileList.forEach((f) => addFile(f, dir));
     } else {
       addFile(file, path.dirname(file));
     }
   }
 
-  function addFile (filePath: string, fileDir: string) {
+  function addFile(filePath: string, fileDir: string) {
     const fileName = path.relative(fileDir, filePath);
-    
+
     if (collectedFiles[fileName]) {
-      process.stdout.write(yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`));
+      process.stdout.write(
+        yellow(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`)
+      );
     }
 
     collectedFiles[fileName] = filePath;
