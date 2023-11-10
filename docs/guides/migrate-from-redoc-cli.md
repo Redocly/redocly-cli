@@ -18,7 +18,7 @@ All Redocly CLI commands use a common configuration file. For theme options, lin
 
 Replace the old `redoc-cli serve` with:
 
-```
+```sh
 redocly preview-docs --use-community-edition openapi.yaml
 ```
 
@@ -35,7 +35,7 @@ Visit the [`preview-docs` documentation](../commands/preview-docs.md) for more i
 
 Replace existing `redoc-cli build` commands with:
 
-```
+```sh
 redocly build-docs openapi.yaml
 ```
 
@@ -45,7 +45,7 @@ This generates a zero-dependency HTML file with your docs in, named `redoc-stati
 
 If you have your OpenAPI description split between multiple files, replace `redoc-cli bundle` with `redocly bundle`:
 
-```
+```sh
 redocly bundle openapi.yaml -o all-in-one.yaml
 ```
 
@@ -72,7 +72,7 @@ Replace your existing `--options.theme.*` settings with a new prefix: `--theme.o
 
 For example if you used `redoc-cli build --options.theme.sidebar.width='300px' openapi.yaml` then the new command would be:
 
-```
+```sh
 redocly build-docs --theme.openapi.theme.sidebar.width='300px' openapi.yaml
 ```
 

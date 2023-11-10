@@ -13,13 +13,13 @@ While you have multiple options for [using Redocly CLI for better API standards]
 
 If the old command was:
 
-```
+```sh
 swagger-cli validate openapi.yml
 ```
 
 Then the new command is:
 
-```
+```sh
 redocly lint --extends=minimal openapi.yml
 ```
 
@@ -40,7 +40,7 @@ rule:
 
 Redocly CLI will automatically detect the configuration file, so your command should be:
 
-```
+```sh
 redocly lint openapi.yml
 ```
 
@@ -60,13 +60,13 @@ While the OpenAPI (and earlier Swagger) standards were designed to use `$ref` re
 
 With `swagger-cli` the command would be something like this:
 
-```
+```sh
 swagger-cli bundle openapi.yml
 ```
 
 With Redocly CLI the command to create a single file is:
 
-```
+```sh
 redocly bundle openapi.yml
 ```
 

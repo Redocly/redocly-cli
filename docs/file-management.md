@@ -13,7 +13,7 @@ OpenAPI is designed with support for `$ref` syntax, allowing parts of an API des
 
 If you have one large single file, split it up like this:
 
-```
+```sh
 redocly split openapi.yaml --outDir myApi
 ```
 
@@ -32,7 +32,7 @@ Some tools require one file, so it's likely that you may need this step at some 
 
 Use the bundle command like this:
 
-```
+```sh
 redocly bundle openapi.yaml -o bundled.yaml
 ```
 
@@ -52,7 +52,7 @@ When you have multiple APIs but want to publish a single API description file, t
 
 Use the command to combine files like this:
 
-```
+```sh
 redocly join api1.yaml api2.yaml -o apis-combined.yaml
 ```
 
@@ -62,7 +62,7 @@ Supply as many API descriptions as you need to; the first one is used for the `i
 
 It's sometimes nice to get an overall view of complex API descriptions. Redocly CLI has a [`stats`](./commands/stats.md) command that gives a simple overview of what's in a file.
 
-```
+```sh
 redocly stats openapi.yaml
 ```
 

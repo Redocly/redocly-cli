@@ -3,7 +3,7 @@ slug: /docs/cli/rules/required-string-property-missing-min-length
 ---
 # required-string-property-missing-min-length
 
-Requires that every required property in the API description with type `string` has a `minLength`. 
+Requires that every required property in the API description with type `string` has a `minLength`.
 
 |OAS|Compatibility|
 |---|---|
@@ -25,9 +25,6 @@ rules:
   required-string-property-missing-min-length:
     severity: error
 ```
-
-## Configuration
-
 
 |Option|Type|Description|
 |---|---|---|

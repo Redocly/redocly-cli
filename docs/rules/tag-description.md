@@ -48,8 +48,6 @@ rules:
   info-contact: error
 ```
 
-## Configuration
-
 
 |Option|Type|Description|
 |---|---|---|
@@ -59,7 +57,7 @@ An example configuration:
 
 ```yaml
 rules:
-  : error
+  tag-description: error
 ```
 
 ## Examples
@@ -69,7 +67,7 @@ Given this configuration:
 
 ```yaml
 rules:
-  : error
+  tag-description: error
 ```
 
 Example of **incorrect** tags:

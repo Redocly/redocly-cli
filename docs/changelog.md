@@ -345,10 +345,10 @@ theme:
 ### Changes
 
 - Renamed four type names for alignment with the OpenAPI specification.
-    - `PathsMap` to `Paths`
-    - `ResponsesMap` to `Responses`
-    - `EncodingsMap` to `EncodingMap`
-    - `SecuritySchemeFlows` to `OAuth2Flows`
+  - `PathsMap` to `Paths`
+  - `ResponsesMap` to `Responses`
+  - `EncodingsMap` to `EncodingMap`
+  - `SecuritySchemeFlows` to `OAuth2Flows`
 
 ### Features
 
@@ -602,7 +602,7 @@ rules:
 
 ### Features
 
-- Added the `--separator` option to the `split` command. Use it to change the separator character that's used instead of whitespace in file names. The default is `_ `, which means that after splitting, path file names look like this: "user_login.yaml", "user_logout", etc.
+- Added the `--separator` option to the `split` command. Use it to change the separator character that's used instead of whitespace in file names. The default is `_`, which means that after splitting, path file names look like this: "user_login.yaml", "user_logout", etc.
 
 ### Fixes
 
