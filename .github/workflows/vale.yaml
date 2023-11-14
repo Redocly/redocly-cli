@@ -12,3 +12,4 @@ jobs:
       - uses: errata-ai/vale-action@reviewdog
         with:
           files: '["README.md", "docs"]'
+          filter_mode: file
