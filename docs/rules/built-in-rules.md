@@ -13,6 +13,10 @@ The _Special rules_ group contains rules that may apply to multiple objects or t
 Build [configurable rules](./configurable-rules.md) if the rule you need isn't listed.
 {% /admonition %}
 
+## List of available rules
+
+Details of all the rules available "out of the box" with Redocly CLI are listed below. Visit each individual page for details of what the rule does, additional configuration options, and examples of it in use.
+
 ### Special rules
 
 - [no-unresolved-refs](./no-unresolved-refs.md): Every `$ref` must exist
