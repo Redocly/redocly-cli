@@ -107,5 +107,5 @@ The newer tool has a lot more functionality than `redoc-cli` had, so explore the
 - Enhancing an OpenAPI description with decorators
 
 {% admonition type="warning" name="Uninstall" %}
-It's recommended to uninstall `redoc-cli` now that it is no longer needed
+We recommend you uninstall `redoc-cli` now that it is no longer needed.
 {% /admonition %}
