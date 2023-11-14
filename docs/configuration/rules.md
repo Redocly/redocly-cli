@@ -1,4 +1,4 @@
-# Configuring rules
+# Configure your linting rules
 
 Use individual rules to make the API linting fit your API needs. Start with the [recommended](../rules/recommended.md) or [minimal](../rules/minimal.md) ruleset, then adjust as needed.
 

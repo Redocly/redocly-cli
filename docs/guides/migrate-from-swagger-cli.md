@@ -27,7 +27,7 @@ You can run these commands locally, as part of your CI (continuous integration) 
 
 ### Structure validation only
 
-In some cases, the additional rules from linting won't be useful. For instance, in the case of legacy APIs that won't be updated to meet more modern API expectations. To restrict Redocly to only checking that the API description meets the expected structure for OpenAPI, use a `redocly.yaml` file to configure a ruleset that contains only the `spec` rule.
+In some cases, checking additional rules during lint is less useful. For instance, in the case of legacy APIs that are no longer updated to meet more modern API expectations. To restrict Redocly to only checking that the API description meets the expected structure for OpenAPI, use a `redocly.yaml` file to configure a ruleset that contains only the `spec` rule.
 
 The configuration in the `redocly.yaml` file should look like this:
 
@@ -38,7 +38,7 @@ rule:
   spec: error
 ```
 
-Redocly CLI will automatically detect the configuration file, so your command should be:
+Redocly CLI automatically detects the `redocly.yaml` configuration file, so your command should be:
 
 ```sh
 redocly lint openapi.yml
