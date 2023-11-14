@@ -12,5 +12,3 @@ jobs:
       - uses: errata-ai/vale-action@reviewdog
         with:
           files: '["README.md", "docs"]'
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
