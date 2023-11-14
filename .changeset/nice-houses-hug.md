@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-Add explicit node-fetch dependency
+Fixed an issue with resolving node-fetch dependency.
