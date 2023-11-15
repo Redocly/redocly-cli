@@ -1,3 +1,0 @@
-Redocly/docs:
-  - source: docs/
-    dest: docs/cli/
