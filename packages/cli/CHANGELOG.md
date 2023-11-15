@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.4.1
+
+### Patch Changes
+
+- Fixed an issue with resolving the `node-fetch` package by explicitly adding the missing dependency.
+- Updated @redocly/openapi-core to v1.4.1.
+
 ## 1.4.0
 
 ### Minor Changes

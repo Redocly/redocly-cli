@@ -8,6 +8,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.4.1 (2023-11-15)
+
+### Patch Changes
+
+- Fixed an issue with resolving the `node-fetch` package by explicitly adding the missing dependency.
+- Updated @redocly/openapi-core to v1.4.1.
+
 ## 1.4.0 (2023-10-26)
 
 ### Minor Changes
