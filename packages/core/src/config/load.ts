@@ -15,6 +15,7 @@ import type {
   Region,
 } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
+import { bundleConfig } from '../bundle';
 
 async function addConfigMetadata({
   rawConfig,
@@ -123,6 +124,7 @@ export async function getConfig(
   try {
     const rawConfig =
       (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
+    bundleConfig({ref: configPath, config: {} as any});
     if (typeof processRawConfig === 'function') {
       await processRawConfig(rawConfig);
     }

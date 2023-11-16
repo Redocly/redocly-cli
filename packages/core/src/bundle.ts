@@ -10,7 +10,13 @@ import {
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
-import { detectSpec, getTypes, getMajorSpecVersion, SpecMajorVersion } from './oas-types';
+import {
+  detectSpec,
+  getTypes,
+  getMajorSpecVersion,
+  SpecMajorVersion,
+  SpecVersion,
+} from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
@@ -20,7 +26,8 @@ import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 
-import type { Config, StyleguideConfig } from './config';
+import { Config, StyleguideConfig } from './config';
+import { ConfigTypes } from './types/redocly-yaml';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -38,6 +45,168 @@ export type BundleOptions = {
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
 };
+
+export async function bundleConfig(
+  opts: {
+    ref?: string;
+    doc?: Document;
+  } & BundleOptions
+) {
+  const {
+    ref,
+    doc,
+    externalRefResolver = new BaseResolver(/* opts.config.resolve */),
+    base = null,
+  } = opts;
+  if (!(ref || doc)) {
+    throw new Error('Document or reference is required.\n');
+  }
+
+  const document =
+    doc === undefined ? await externalRefResolver.resolveDocument(base, ref!, true) : doc;
+  console.log(11111, document);
+  if (document instanceof Error) {
+    throw document;
+  }
+
+  // return bundleDocument({
+  //   document,
+  //   ...opts,
+  //   config: opts.config.styleguide,
+  //   externalRefResolver,
+  // });
+
+  // const {
+  //   // document,
+  //   // config,
+  //   // customTypes,
+  //   // externalRefResolver,
+  //   // dereference = false,
+  //   // skipRedoclyRegistryRefs = false,
+  //   // removeUnusedComponents = false,
+  //   // keepUrlRefs = false,
+  // } = opts;
+  const config = new StyleguideConfig({} as any); // FIXME: <--
+  const customTypes = ConfigTypes;
+  // const specVersion = detectSpec(document.parsed);
+  // const specMajorVersion = getMajorSpecVersion(specVersion);
+  // const rules = config.getRulesForOasVersion(specMajorVersion);
+  const types = normalizeTypes(config.extendTypes(customTypes, SpecVersion.OAS3_0), config);
+
+  // const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+  // const decorators = initRules(rules, config, 'decorators', specVersion);
+
+  const ctx: BundleContext = {
+    problems: [],
+    oasVersion: SpecVersion.OAS3_0,
+    refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
+  };
+
+  // if (removeUnusedComponents) {
+  //   decorators.push({
+  //     severity: 'error',
+  //     ruleId: 'remove-unused-components',
+  //     visitor:
+  //       specMajorVersion === SpecMajorVersion.OAS2
+  //         ? RemoveUnusedComponentsOas2({})
+  //         : RemoveUnusedComponentsOas3({}),
+  //   });
+  // }
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  console.log(222222, resolvedRefMap);
+  // if (preprocessors.length > 0) {
+  //   // Make additional pass to resolve refs defined in preprocessors.
+  //   walkDocument({
+  //     document,
+  //     rootType: types.Root as NormalizedNodeType,
+  //     normalizedVisitors: normalizeVisitors(preprocessors, types),
+  //     resolvedRefMap,
+  //     ctx,
+  //   });
+  //   resolvedRefMap = await resolveDocument({
+  //     rootDocument: document,
+  //     rootType: types.Root,
+  //     externalRefResolver,
+  //   });
+  // }
+
+  const bundleVisitor = normalizeVisitors(
+    [
+      {
+        severity: 'error',
+        ruleId: 'bundler',
+        visitor: {
+          ref: {
+            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+              console.log(-111111, node, ctx, resolved);
+              //   if (!resolved.location || resolved.node === undefined) {
+              //     reportUnresolvedRef(resolved, ctx.report, ctx.location);
+              //     return;
+              //   }
+              //   if (
+              //     resolved.location.source === rootDocument.source &&
+              //     resolved.location.source === ctx.location.source &&
+              //     ctx.type.name !== 'scalar' &&
+              //     !dereference
+              //   ) {
+              //     return;
+              //   }
+
+              //   // do not bundle registry URL before push, otherwise we can't record dependencies
+              //   if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+              //     return;
+              //   }
+
+              //   if (keepUrlRefs && isAbsoluteUrl(node.$ref)) {
+              //     return;
+              //   }
+
+              //   const componentType = mapTypeToComponent(ctx.type.name, version);
+              //   if (!componentType) {
+              //     replaceRef(node, resolved, ctx);
+              //   } else {
+              //     if (dereference) {
+              //       saveComponent(componentType, resolved, ctx);
+              //       replaceRef(node, resolved, ctx);
+              //     } else {
+              //       node.$ref = saveComponent(componentType, resolved, ctx);
+              //       resolveBundledComponent(node, resolved, ctx);
+              //     }
+              //   }
+              // },
+            },
+          },
+        },
+      },
+    ],
+    types
+  );
+console.log('bundleVisitor', bundleVisitor)
+  walkDocument({
+    document,
+    rootType: types.Root as NormalizedNodeType,
+    normalizedVisitors: bundleVisitor,
+    resolvedRefMap,
+    ctx,
+  });
+
+  console.log(33333, document);
+  return {
+    bundle: document,
+    // problems: ctx.problems,//.map((problem) => config.addProblemToIgnore(problem)),
+    // fileDependencies: externalRefResolver.getFiles(),
+    // rootType: types.Root,
+    // refTypes: ctx.refTypes,
+    // visitorsData: ctx.visitorsData,
+  };
+}
 
 export async function bundle(
   opts: {
