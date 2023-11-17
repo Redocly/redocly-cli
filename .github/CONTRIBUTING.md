@@ -35,7 +35,7 @@ Before submitting a pull request, please make sure the following is done:
 After forking the repo, run:
 
 ```bash
-$ npm install # or npm i
+npm install # or npm i
 ```
 
 ### Commonly used NPM scripts
@@ -97,17 +97,23 @@ Don't forget to revert the changes to **package.json** files later.
 
 We are proud of our docs. When you open a pull request, we lint the prose using [Vale](https://vale.sh/). You can also install this tool locally and run it from the root of the project with:
 
-```
+```bash
 vale docs/
 ```
 
 The configuration is in `.vale.ini` in the root of the project.
 
+### Markdown linting
+
+We use [Markdownlint](https://github.com/DavidAnson/markdownlint) to check that the Markdown in our docs is well formatted. The checks run as part of the pull request, and you can also run this tool locally. Follow the instructions from the markdownlint project page, and then run `markdownlint docs/` in the top-level folder of this repository.
+
+> Note that prettier also runs and reformats Markdown files. Use `npm run prettier` from the root of the project.
+
 ### Markdown link checking
 
 We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder. This tool runs automatically on every pull request, but you can also run it locally if you want to. Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
 
-```
+```bash
 mlc docs/
 ```
 
