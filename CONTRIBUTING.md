@@ -93,6 +93,16 @@ Don't forget to revert the changes to **package.json** files later.
 
 ## Contribute documentation
 
+Additions and updates to our documentation are very welcome. You can find the documentation in the `docs/` folder, and this is published to https://redocly.com/docs/cli/ as part of our main website.
+
+To preview your changes locally, run this command from the `docs/` folder:
+
+```bash
+https://redocly.com/docs/cli/
+```
+
+> Please note that currently the custom markdoc tags used in the main website are not available in the local preview version, and links that point to the wider website do show as errors when using a local platform. The pull request workflows generate a full preview, so rest assured that you are able to check everything is in good shape before we review and merge your changes.
+
 ### Prose linting
 
 We are proud of our docs. When you open a pull request, we lint the prose using [Vale](https://vale.sh/). You can also install this tool locally and run it from the root of the project with:
