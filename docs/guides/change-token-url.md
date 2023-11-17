@@ -7,8 +7,9 @@ Estimated time: 15 minutes
 ## Step-by-step instructions
 
 1. Add this code to your repo with the API (the Redocly configuration file is an example).
-{% tabs %}
-{% tab label="redocly.yaml" %}
+   {% tabs %}
+   {% tab label="redocly.yaml" %}
+
    ```yaml
    extends:
      - recommended
@@ -18,8 +19,10 @@ Estimated time: 15 minutes
      plugin/change-token-url:
        tokenUrl: 'https://token.example.com/url'
    ```
-{% /tab  %}
-{% tab label="acme-plugin.js" %}
+
+   {% /tab  %}
+   {% tab label="acme-plugin.js" %}
+
    ```js
    const ChangeTokenUrl = require('./decorators/change-token-url');
    const id = 'plugin';
@@ -36,8 +39,10 @@ Estimated time: 15 minutes
      decorators,
    };
    ```
-{% /tab  %}
-{% tab label="decorators/change-token-url.js" %}
+
+   {% /tab  %}
+   {% tab label="decorators/change-token-url.js" %}
+
    ```js
    module.exports = ChangeTokenUrl;
 
@@ -54,5 +59,6 @@ Estimated time: 15 minutes
      };
    }
    ```
-{% /tab  %}
-{% /tabs  %}
+
+   {% /tab  %}
+   {% /tabs  %}

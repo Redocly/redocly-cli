@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-tag-defined
 ---
+
 # operation-tag-defined
 
 Disallows use of tags in operations that aren't globally defined.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -23,10 +23,9 @@ This rule helps prevent typos and tag explosion.
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -36,7 +35,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

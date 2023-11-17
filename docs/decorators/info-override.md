@@ -8,12 +8,11 @@ Sometimes developers generate OpenAPI and the info object need to be improved af
 This generally happens when you have no permission to edit the source.
 This decorator provides a way to "overlay" a new info section over the source so that as the source changes, the modifications can be reapplied.
 
-
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|_additionalProperties_|any|**REQUIRED.** Any properties from the OpenAPI info object.|
+| Option                 | Type | Description                                                |
+| ---------------------- | ---- | ---------------------------------------------------------- |
+| _additionalProperties_ | any  | **REQUIRED.** Any properties from the OpenAPI info object. |
 
 Example of a configuration:
 

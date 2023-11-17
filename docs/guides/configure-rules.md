@@ -11,9 +11,9 @@ In this guide, learn how to choose and adapt the rules built into Redocly for yo
 
 To get started, try one of the existing rulesets and see if it meets your needs.
 
-* The [`recommended`](../rules/recommended.md) ruleset has a good basic set of rules for a consistent, user-friendly API.
-* The [recommended-strict](../rules/recommended.md#recommended-strict-ruleset) ruleset is identical to the `recommended`, except it elevates all warnings to errors so that you don't miss the warnings, i.e. in a CI pipeline.
-* Or try the [`minimal`](../rules/minimal.md) ruleset which shows some warnings, but far fewer errors that would cause the lint to fail.
+- The [`recommended`](../rules/recommended.md) ruleset has a good basic set of rules for a consistent, user-friendly API.
+- The [recommended-strict](../rules/recommended.md#recommended-strict-ruleset) ruleset is identical to the `recommended`, except it elevates all warnings to errors so that you don't miss the warnings, i.e. in a CI pipeline.
+- Or try the [`minimal`](../rules/minimal.md) ruleset which shows some warnings, but far fewer errors that would cause the lint to fail.
 
 You can specify the ruleset with the `lint` command in Redocly CLI like this:
 
@@ -147,13 +147,14 @@ apis:
 ```
 
 There's a few things going on in the example, but let's look at each feature in turn:
-* The first section configures `recommended` as the default ruleset for all APIs. The "newsletter" API overrides this by declaring `minimal` for itself, but the others inherit the top-level setting.
-* No rules are defined at the top level, but since every API sets the `no-server-trailing-slash` rule to "off", this could be set at the top level.
-* Each API adds (or removes) the rules that fit their use case, including using the `version-semver` assertion.
+
+- The first section configures `recommended` as the default ruleset for all APIs. The "newsletter" API overrides this by declaring `minimal` for itself, but the others inherit the top-level setting.
+- No rules are defined at the top level, but since every API sets the `no-server-trailing-slash` rule to "off", this could be set at the top level.
+- Each API adds (or removes) the rules that fit their use case, including using the `version-semver` assertion.
 
 Configuring per-API means that there doesn't have to be compromise for the lowest standard that all APIs can meet. Especially when you are working on improving your APIs or API descriptions, setting the desired ruleset and adding exceptions until the API meets all requirements in full is a good way to ensure standards only improve.
 
 ## Next steps
 
-* Check out the detailed reference documentation for the [built-in rules](../rules/built-in-rules.md) and [configurable rules](../rules/configurable-rules.md).
-* If nothing there meets your needs, you can create your own rules by creating [custom plugins](../custom-plugins/index.md) with JavaScript.
+- Check out the detailed reference documentation for the [built-in rules](../rules/built-in-rules.md) and [configurable rules](../rules/configurable-rules.md).
+- If nothing there meets your needs, you can create your own rules by creating [custom plugins](../custom-plugins/index.md) with JavaScript.

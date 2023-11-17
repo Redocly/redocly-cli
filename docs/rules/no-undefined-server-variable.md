@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/no-undefined-server-variable
 ---
+
 # no-undefined-server-variable
 
 Disallow undefined server variables.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -28,9 +28,9 @@ It is important to fix these errors to help clients consume APIs.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

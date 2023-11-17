@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-description
 ---
+
 # operation-description
 
 Requires the `description` field for every operation in your API.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,9 +20,9 @@ Add the description field and delight both your (future) teammates and your API 
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -41,6 +41,7 @@ rules:
 ```
 
 Example of an **incorrect** operation:
+
 ```yaml
 get:
   responses:

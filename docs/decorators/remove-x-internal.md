@@ -10,9 +10,9 @@ This is a mechanism that can be used to maintain them together but generate two 
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|internalFlagProperty|string|The property name used for evaluation. Default value: `x-internal`|
+| Option               | Type   | Description                                                        |
+| -------------------- | ------ | ------------------------------------------------------------------ |
+| internalFlagProperty | string | The property name used for evaluation. Default value: `x-internal` |
 
 Example of a configuration that uses `x-internal` as the flag property:
 

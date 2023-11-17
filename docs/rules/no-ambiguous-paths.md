@@ -1,6 +1,7 @@
 ---
 slug: /docs/cli/rules/no-ambiguous-paths/
 ---
+
 # no-ambiguous-paths
 
 Ensures there are no ambiguous paths in your API descriptions.
@@ -18,11 +19,11 @@ According to the OpenAPI specification:
 >      /{entity}/me
 >      /books/{id}
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -46,9 +47,9 @@ Such paths are considered ambiguous and should be avoided, because API users and
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 

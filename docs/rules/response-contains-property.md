@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/response-contains-property
 ---
+
 # response-contains-property
 
 Enforces definition of specific response properties based on HTTP status code or HTTP status code range. A specific status code takes priority over the status code range.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -18,11 +18,10 @@ In some cases, it is important to design an API so that it consistently returns 
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|**REQUIRED.** Possible values: `off`, `warn`, `error`.|
-|names|Map (HTTP response code or range, [string])|**REQUIRED.** For a given HTTP response code or range, the corresponding list of expected response properties.|
+| Option   | Type                                        | Description                                                                                                    |
+| -------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| severity | string                                      | **REQUIRED.** Possible values: `off`, `warn`, `error`.                                                         |
+| names    | Map (HTTP response code or range, [string]) | **REQUIRED.** For a given HTTP response code or range, the corresponding list of expected response properties. |
 
 An example configuration:
 
@@ -39,7 +38,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

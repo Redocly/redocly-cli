@@ -1,6 +1,7 @@
 ---
 slug: /docs/cli/rules/spec-strict-refs
 ---
+
 # spec-strict-refs
 
 Checks that `$ref` is only used in the locations permitted by the OpenAPI specification.

@@ -6,11 +6,11 @@ slug: /docs/cli/rules/no-example-value-and-externalValue
 
 Ensures that `examples` object properties `externalValue` and `value` are mutually exclusive.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -39,9 +39,9 @@ The intended use of the `value` field is to provide in-line example values, whil
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -53,12 +53,14 @@ rules:
 ## Examples
 
 Given this configuration:
+
 ```yaml
 rules:
   no-example-value-and-externalValue: error
 ```
 
 Example of an **incorrect** example object:
+
 ```yaml Bad example
 requestBody:
   content:

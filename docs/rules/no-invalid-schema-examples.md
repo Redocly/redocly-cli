@@ -6,11 +6,11 @@ slug: /docs/cli/rules/no-invalid-schema-examples
 
 Disallow invalid schema examples.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -34,6 +34,7 @@ style Example fill:#codaf9,stroke:#0044d4,stroke-width:5px
 style Schema fill:#codaf9,stroke:#0044d4,stroke-width:5px
 style NamedSchema fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
+
 ## API design principles
 
 If your schema and example conflict, there is a problem in the definition of the schema or the example.
@@ -41,10 +42,10 @@ Solve it before you ship it.
 
 ## Configuration
 
-|Option|Type| Description                                                                   |
-|---|---|-------------------------------------------------------------------------------|
-|severity|string| Possible values: `off`, `warn`, `error`. Default `warn`.                      |
-|allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
+| Option                    | Type    | Description                                                                   |
+| ------------------------- | ------- | ----------------------------------------------------------------------------- |
+| severity                  | string  | Possible values: `off`, `warn`, `error`. Default `warn`.                      |
+| allowAdditionalProperties | boolean | Determines if additional properties are allowed in examples. Default `false`. |
 
 An example configuration:
 

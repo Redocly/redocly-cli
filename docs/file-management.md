@@ -18,9 +18,10 @@ redocly split openapi.yaml --outDir myApi
 ```
 
 The original file is unchanged, but look in the directory named by the `--outDir` parameter. It now contains:
-* An `openapi.yaml` file, which is the entry point of the API and includes the `info` section and other metadata. This file also contains the bare bones of the API description, with all the details moved to dedicated files.
-* A `paths/` directory, with a file for each of the URLs in the API. All verbs for that endpoint are in this file.
-* A `components/` directory containing subdirectories for each of the top-level keys, such as `schema`, and files for the individual data structures described in each section.
+
+- An `openapi.yaml` file, which is the entry point of the API and includes the `info` section and other metadata. This file also contains the bare bones of the API description, with all the details moved to dedicated files.
+- A `paths/` directory, with a file for each of the URLs in the API. All verbs for that endpoint are in this file.
+- A `components/` directory containing subdirectories for each of the top-level keys, such as `schema`, and files for the individual data structures described in each section.
 
 By keeping your API in this format, managing changes can be easier since it's clear which file (or files) have changed, making it easier to review as things change. Many common operations can be performed on the API description in this format, such as linting. Some tools prefer a single bundled OpenAPI description, and it's common to bundle during CI (continuous integration) before doing other automated operations.
 
@@ -70,6 +71,5 @@ Gives a summary of the API, including the number of operations, tags, schemas, a
 
 ## Further reading
 
-* See [all Redocly CLI commands](./commands/index.md)
-* Learn how to [filter out internal API endpoints before publishing](./guides/hide-apis.md) if you have more detailed API descriptions than you want to pass to another stage of the API workflow
-
+- See [all Redocly CLI commands](./commands/index.md)
+- Learn how to [filter out internal API endpoints before publishing](./guides/hide-apis.md) if you have more detailed API descriptions than you want to pass to another stage of the API workflow

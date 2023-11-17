@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-operationId-unique
 ---
+
 # operation-operationId-unique
 
 Requires unique `operationId` values for each operation.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principle
 
@@ -21,9 +22,9 @@ This rule is unopinionated.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -42,6 +43,7 @@ rules:
 ```
 
 Example of **incorrect** operations:
+
 ```yaml
 paths:
   /cars:
@@ -54,6 +56,7 @@ paths:
 ```
 
 Example of **correct** operations:
+
 ```yaml
 paths:
   /cars:

@@ -1,17 +1,17 @@
 ---
 slug: /docs/cli/rules/no-server-example-com
 ---
+
 # no-server-example.com
 
 Prevents using `example.com` as the value of the `servers.url` fields in your API descriptions.
 The rule checks for all URL schemes (`http`, `https`...).
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -31,9 +31,9 @@ If you can't reveal a production server, consider a [Redocly mock server](/docs/
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -71,7 +71,6 @@ servers:
 
 - [no-empty-servers](./no-empty-servers.md)
 - [no-server-trailing-slash](./no-server-trailing-slash.md)
-
 
 ## Resources
 

@@ -2,9 +2,9 @@
 
 Rules are used to make sure that the API description is in the expected format and aligns with the expected API standards. Before you build any custom rules:
 
-* Learn more about [Redocly rules](../rules.md).
-* Check the list of [built-in rules](../rules/built-in-rules.md).
-* See if you can build a [configurable rule](../rules/configurable-rules.md) to meet your needs.
+- Learn more about [Redocly rules](../rules.md).
+- Check the list of [built-in rules](../rules/built-in-rules.md).
+- See if you can build a [configurable rule](../rules/configurable-rules.md) to meet your needs.
 
 Exhaust the above options first, because they are simpler and more maintainable than building a custom plugin. If you need to build your own rules though, then you're in the right place! Read on ...
 
@@ -99,7 +99,6 @@ context.report({
 
 By default, the message is reported at the current node location.
 
-
 ### Location object
 
 The Location class has the following fields:
@@ -114,4 +113,3 @@ and the following methods:
 - `child(propName)` - Returns the new Location pointing to the `propName` of the current node. `propName` can be an array of strings to point deep.
 
 You can use this information for more granular rule definitions.
-

@@ -7,10 +7,10 @@ seo:
 
 Redocly uses rules to describe all the different aspects of API behavior that we check for during linting. Rules come in different levels of complexity, and can also be grouped for reuse. Here's an overview of what is available:
 
-* **Rulesets** are groups of rules that can be applied to any API. This is a good way to build up a ruleset that you can use locally or with your CI. Multiple rulesets can be used at once, so feel free to make smaller ones and compose the rulesets that fit each API.
-* **Built-in rules:** for the most common use cases, the rules are already made for you, all you need to do is choose if they should cause an `error`, simply `warn` of a problem, or be turned `off`. [See the built-in rules documentation](./rules/built-in-rules.md) for more information and examples.
-* **Configurable rules** allow powerful describing of API standards without needing to write code. Create a configurable rule, choose which parts of the OpenAPI description it applies to, and what the criteria for success are. The linting tool does the rest. With plenty of examples, the [configurable rules](./rules/configurable-rules.md) helps you to describe your API standards easily and well.
-* **Custom code rules** if none of the above exactly fits your needs, then a [custom code plugin](./custom-plugins/index.md) is an extensible way to bring some custom JavaScript to build on Redocly's existing features.
+- **Rulesets** are groups of rules that can be applied to any API. This is a good way to build up a ruleset that you can use locally or with your CI. Multiple rulesets can be used at once, so feel free to make smaller ones and compose the rulesets that fit each API.
+- **Built-in rules:** for the most common use cases, the rules are already made for you, all you need to do is choose if they should cause an `error`, simply `warn` of a problem, or be turned `off`. [See the built-in rules documentation](./rules/built-in-rules.md) for more information and examples.
+- **Configurable rules** allow powerful describing of API standards without needing to write code. Create a configurable rule, choose which parts of the OpenAPI description it applies to, and what the criteria for success are. The linting tool does the rest. With plenty of examples, the [configurable rules](./rules/configurable-rules.md) helps you to describe your API standards easily and well.
+- **Custom code rules** if none of the above exactly fits your needs, then a [custom code plugin](./custom-plugins/index.md) is an extensible way to bring some custom JavaScript to build on Redocly's existing features.
 
 ## Rulesets
 
@@ -36,7 +36,6 @@ Severity settings determine how the rule is treated during the validation proces
 - `severity: error` - if the rule is triggered, the output displays an error message and the API description doesn't pass validation.
 - `severity: warn` - if the rule is triggered, the output displays a warning message. Your API description may still be valid if no other errors are detected.
 - `severity: off` - turns off the rule. The rule is skipped during validation.
-
 
 ## Rule ideas
 

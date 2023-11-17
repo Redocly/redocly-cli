@@ -1,16 +1,17 @@
 ---
 slug: /docs/cli/rules/path-not-include-query
 ---
+
 # path-not-include-query
 
 Path should not include query parameters.
 The query parameters should be defined on the `PathItem` or `Operation`.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,10 +21,9 @@ Its root cause is inexperience with OpenAPI (no holy war here).
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -33,7 +33,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

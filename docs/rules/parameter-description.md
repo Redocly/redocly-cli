@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/parameter-description
 ---
+
 # parameter-description
 
 Ensure that every parameter has a description.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,10 +20,9 @@ Document it!
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -33,7 +32,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

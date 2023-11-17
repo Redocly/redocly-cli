@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/spec
 ---
+
 # spec
 
 Ensures that your API document conforms to the [OpenAPI specification](https://spec.openapis.org/oas/v3.1.0.html).
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 The default setting for this rule (in the `recommended` and `minimal` configuration) is `error`.
 
@@ -22,9 +22,9 @@ It's important to conform to the specification so that tools work with your API 
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

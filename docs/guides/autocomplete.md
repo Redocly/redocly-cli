@@ -7,6 +7,7 @@ Generation the completion script:
 ```shell Command
 redocly completion
 ```
+
 The command output contains installation instructions. For example, to install the completion script in `bash`, use:
 
 ```shell Command
@@ -14,4 +15,3 @@ redocly completion >> ~/.bashrc
 ```
 
 The approach is similar for other shells. After the installation, restart your terminal for the changes to take effect.
-

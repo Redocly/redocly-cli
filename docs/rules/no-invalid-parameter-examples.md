@@ -6,11 +6,11 @@ slug: /docs/cli/rules/no-invalid-parameter-examples
 
 Disallow invalid parameter examples.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -40,10 +40,10 @@ Solve it before you ship it.
 
 ## Configuration
 
-|Option|Type| Description                                                                   |
-|---|---|-------------------------------------------------------------------------------|
-|severity|string| Possible values: `off`, `warn`, `error`. Default `warn`.                      |
-|allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
+| Option                    | Type    | Description                                                                   |
+| ------------------------- | ------- | ----------------------------------------------------------------------------- |
+| severity                  | string  | Possible values: `off`, `warn`, `error`. Default `warn`.                      |
+| allowAdditionalProperties | boolean | Determines if additional properties are allowed in examples. Default `false`. |
 
 ```yaml
 rules:

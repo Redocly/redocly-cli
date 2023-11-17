@@ -17,9 +17,9 @@ Choose between one of the existing rulesets, or compile your own. There are some
 
 Once the ruleset is created, use it with your API and Redocly in any or all of these ways:
 
-* every update to an API in the API registry is linted with the rules for that API
-* use Redocly CLI to lint APIs as part of your continuous integration setup, such as in GitHub Actions
-* during development, check the API you are working on using Redocly CLI on your local machine
+- every update to an API in the API registry is linted with the rules for that API
+- use Redocly CLI to lint APIs as part of your continuous integration setup, such as in GitHub Actions
+- during development, check the API you are working on using Redocly CLI on your local machine
 
 By establishing good standards and making them part of your development workflow, keeping the APIs as you would like them becomes painless good practice, even when there are many changes being worked on.
 

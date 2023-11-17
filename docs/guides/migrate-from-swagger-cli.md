@@ -72,9 +72,9 @@ redocly bundle openapi.yml
 
 Both commands have additional options; here's a quick reference on how to replace the old with the new:
 
-* Keep `-o` or replace `--outfile` with `--output` to direct the command output to a filename.
-* Replace the `-t` or `--type` argument with `--ext` for the file type to output. Redocly CLI also detects the correct format from the output filename, so this option isn't needed for file output, but can be useful if outputting to stdout.
-* Replace `-r` or `--dereference` with `-r` or `--dereferenced` to output a file with all `$ref`s resolved.
+- Keep `-o` or replace `--outfile` with `--output` to direct the command output to a filename.
+- Replace the `-t` or `--type` argument with `--ext` for the file type to output. Redocly CLI also detects the correct format from the output filename, so this option isn't needed for file output, but can be useful if outputting to stdout.
+- Replace `-r` or `--dereference` with `-r` or `--dereferenced` to output a file with all `$ref`s resolved.
 
 ## Get the best from Redocly CLI
 

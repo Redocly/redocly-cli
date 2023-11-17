@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-summary
 ---
+
 # operation-summary
 
 Enforce that every operation has a summary.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -19,10 +19,9 @@ Redocly uses the summary as the header for the operation, as well as the sidebar
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

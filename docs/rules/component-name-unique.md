@@ -6,12 +6,11 @@ slug: /docs/cli/rules/component-name-unique
 
 Verifies component names are unique.
 
-|OAS|Compatibility|
-|---|--|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -31,13 +30,13 @@ This clearly is not optimal. Having unique component names prevents these proble
 
 ## Configuration
 
-| Option        |Type| Description                                                                              |
-|---------------|---|------------------------------------------------------------------------------------------|
-| severity      |string| Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
-| schemas       |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| parameters    |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| responses     |string| Possible values: `off`, `warn`, `error`. Default: not set. |
-| requestBodies |string| Possible values: `off`, `warn`, `error`. Default: not set. |
+| Option        | Type   | Description                                                                              |
+| ------------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity      | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| schemas       | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
+| parameters    | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
+| responses     | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
+| requestBodies | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
 
 An example configuration:
 
@@ -52,7 +51,6 @@ rules:
 
 ## Examples
 
-
 Given this configuration:
 
 ```yaml
@@ -63,6 +61,7 @@ rules:
 ### Example of **incorrect** schema files
 
 file1.yaml:
+
 ```yaml
 components:
   schemas:
@@ -74,6 +73,7 @@ components:
 ```
 
 file2.yaml:
+
 ```yaml
 components:
   schemas:
@@ -87,6 +87,7 @@ components:
 ### Example of **correct** schema files
 
 file1.yaml:
+
 ```yaml
 components:
   schemas:
@@ -98,6 +99,7 @@ components:
 ```
 
 file2.yaml:
+
 ```yaml
 components:
   schemas:

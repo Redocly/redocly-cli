@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/paths-kebab-case
 ---
+
 # paths-kebab-case
 
 Require kebab-case in paths instead of camelCase or snake_case.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -29,10 +29,9 @@ We don't want to say we told ya so!
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -42,7 +41,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

@@ -1,13 +1,14 @@
 ---
 slug: /docs/cli/rules/request-mine-type
 ---
+
 # request-mime-type
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -25,11 +26,10 @@ It doesn't matter to me... keep it consistent across your entire API if possible
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|**REQUIRED.** Possible values: `off`, `warn`, `error`.|
-|allowedValues|[string]|**REQUIRED.** List of allowed request mime types.|
+| Option        | Type     | Description                                            |
+| ------------- | -------- | ------------------------------------------------------ |
+| severity      | string   | **REQUIRED.** Possible values: `off`, `warn`, `error`. |
+| allowedValues | [string] | **REQUIRED.** List of allowed request mime types.      |
 
 An example configuration:
 
