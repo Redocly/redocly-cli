@@ -49,52 +49,26 @@ export type BundleOptions = {
 export async function bundleConfig(
   opts: {
     ref?: string;
-    doc?: Document;
   } & BundleOptions
 ) {
   const {
     ref,
-    doc,
     externalRefResolver = new BaseResolver(/* opts.config.resolve */),
     base = null,
   } = opts;
-  if (!(ref || doc)) {
+  if (!(ref)) {
     throw new Error('Document or reference is required.\n');
   }
 
-  const document =
-    doc === undefined ? await externalRefResolver.resolveDocument(base, ref!, true) : doc;
-  console.log(11111, document);
+  const document = await externalRefResolver.resolveDocument(base, ref!, true)
+
   if (document instanceof Error) {
     throw document;
   }
 
-  // return bundleDocument({
-  //   document,
-  //   ...opts,
-  //   config: opts.config.styleguide,
-  //   externalRefResolver,
-  // });
+  const types = normalizeTypes(ConfigTypes);
 
-  // const {
-  //   // document,
-  //   // config,
-  //   // customTypes,
-  //   // externalRefResolver,
-  //   // dereference = false,
-  //   // skipRedoclyRegistryRefs = false,
-  //   // removeUnusedComponents = false,
-  //   // keepUrlRefs = false,
-  // } = opts;
-  const config = new StyleguideConfig({} as any); // FIXME: <--
-  const customTypes = ConfigTypes;
-  // const specVersion = detectSpec(document.parsed);
-  // const specMajorVersion = getMajorSpecVersion(specVersion);
-  // const rules = config.getRulesForOasVersion(specMajorVersion);
-  const types = normalizeTypes(config.extendTypes(customTypes, SpecVersion.OAS3_0), config);
-
-  // const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
-  // const decorators = initRules(rules, config, 'decorators', specVersion);
+  console.log('TYPES', types.ConfigRoot);
 
   const ctx: BundleContext = {
     problems: [],
@@ -103,84 +77,21 @@ export async function bundleConfig(
     visitorsData: {},
   };
 
-  // if (removeUnusedComponents) {
-  //   decorators.push({
-  //     severity: 'error',
-  //     ruleId: 'remove-unused-components',
-  //     visitor:
-  //       specMajorVersion === SpecMajorVersion.OAS2
-  //         ? RemoveUnusedComponentsOas2({})
-  //         : RemoveUnusedComponentsOas3({}),
-  //   });
-  // }
-
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
-    rootType: types.Root,
+    rootType: types.ConfigRoot,
     externalRefResolver,
   });
-
-  console.log(222222, resolvedRefMap);
-  // if (preprocessors.length > 0) {
-  //   // Make additional pass to resolve refs defined in preprocessors.
-  //   walkDocument({
-  //     document,
-  //     rootType: types.Root as NormalizedNodeType,
-  //     normalizedVisitors: normalizeVisitors(preprocessors, types),
-  //     resolvedRefMap,
-  //     ctx,
-  //   });
-  //   resolvedRefMap = await resolveDocument({
-  //     rootDocument: document,
-  //     rootType: types.Root,
-  //     externalRefResolver,
-  //   });
-  // }
 
   const bundleVisitor = normalizeVisitors(
     [
       {
         severity: 'error',
-        ruleId: 'bundler',
+        ruleId: 'configBundler',
         visitor: {
           ref: {
             leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              console.log(-111111, node, ctx, resolved);
-              //   if (!resolved.location || resolved.node === undefined) {
-              //     reportUnresolvedRef(resolved, ctx.report, ctx.location);
-              //     return;
-              //   }
-              //   if (
-              //     resolved.location.source === rootDocument.source &&
-              //     resolved.location.source === ctx.location.source &&
-              //     ctx.type.name !== 'scalar' &&
-              //     !dereference
-              //   ) {
-              //     return;
-              //   }
-
-              //   // do not bundle registry URL before push, otherwise we can't record dependencies
-              //   if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
-              //     return;
-              //   }
-
-              //   if (keepUrlRefs && isAbsoluteUrl(node.$ref)) {
-              //     return;
-              //   }
-
-              //   const componentType = mapTypeToComponent(ctx.type.name, version);
-              //   if (!componentType) {
-              //     replaceRef(node, resolved, ctx);
-              //   } else {
-              //     if (dereference) {
-              //       saveComponent(componentType, resolved, ctx);
-              //       replaceRef(node, resolved, ctx);
-              //     } else {
-              //       node.$ref = saveComponent(componentType, resolved, ctx);
-              //       resolveBundledComponent(node, resolved, ctx);
-              //     }
-              //   }
-              // },
+              replaceRef(node, resolved, ctx);
             },
           },
         },
@@ -188,24 +99,17 @@ export async function bundleConfig(
     ],
     types
   );
-console.log('bundleVisitor', bundleVisitor)
+
+  console.log('types.ConfigRoot', types.ConfigRoot);
   walkDocument({
     document,
-    rootType: types.Root as NormalizedNodeType,
+    rootType: types.ConfigRoot as NormalizedNodeType,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,
   });
 
-  console.log(33333, document);
-  return {
-    bundle: document,
-    // problems: ctx.problems,//.map((problem) => config.addProblemToIgnore(problem)),
-    // fileDependencies: externalRefResolver.getFiles(),
-    // rootType: types.Root,
-    // refTypes: ctx.refTypes,
-    // visitorsData: ctx.visitorsData,
-  };
+  return document.parsed;
 }
 
 export async function bundle(
@@ -423,6 +327,19 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
   }
 }
 
+function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+  if (!isPlainObject(resolved.node)) {
+    ctx.parent[ctx.key] = resolved.node;
+  } else {
+    // TODO: why $ref isn't optional in OasRef?
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete ref.$ref;
+    const obj = Object.assign({}, resolved.node, ref);
+    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
+  }
+}
+
 // function oas3Move
 
 function makeBundleVisitor(
@@ -518,19 +435,6 @@ function makeBundleVisitor(
       nodePointer: node.$ref,
       resolved: true,
     });
-  }
-
-  function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    if (!isPlainObject(resolved.node)) {
-      ctx.parent[ctx.key] = resolved.node;
-    } else {
-      // TODO: why $ref isn't optional in OasRef?
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      delete ref.$ref;
-      const obj = Object.assign({}, resolved.node, ref);
-      Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
-    }
   }
 
   function saveComponent(

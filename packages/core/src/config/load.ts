@@ -122,9 +122,10 @@ export async function getConfig(
 ): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    const rawConfig =
-      (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
-    bundleConfig({ref: configPath, config: {} as any});
+    // const rawConfig =
+    //   (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
+    const rawConfig = await bundleConfig({ref: configPath, config: {} as any});
+    console.log('rawConfig', rawConfig);
     if (typeof processRawConfig === 'function') {
       await processRawConfig(rawConfig);
     }

@@ -124,7 +124,7 @@ const metadataConfigSchema = {
   additionalProperties: true,
 } as const;
 
-const seoConfigSchema = {
+export const seoConfigSchema = {
   type: 'object',
   properties: {
     title: { type: 'string' },
