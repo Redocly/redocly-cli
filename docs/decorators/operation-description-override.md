@@ -8,12 +8,11 @@ Sometimes developers generate OpenAPI and the descriptions need to be improved a
 This generally happens when you have no permission to edit the source.
 This decorator provides a way to "overlay" a new description over the source so that as the source changes, the modification can be reapplied
 
-
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|operationIds|object|**REQUIRED.** List of key values pairs with operationIds as the key and paths to Markdown files as the value.|
+| Option       | Type   | Description                                                                                                   |
+| ------------ | ------ | ------------------------------------------------------------------------------------------------------------- |
+| operationIds | object | **REQUIRED.** List of key values pairs with operationIds as the key and paths to Markdown files as the value. |
 
 Example of a configuration:
 
@@ -28,7 +27,6 @@ decorators:
 ## Examples
 
 ![operation-description-override](https://user-images.githubusercontent.com/1161871/140233186-50d4cf13-46bc-4414-8231-35f87179825e.png)
-
 
 See a repository with [info, operation, and tag description overrides](https://github.com/redocly-demo/decorators-demo).
 

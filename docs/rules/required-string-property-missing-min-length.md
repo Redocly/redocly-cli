@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/required-string-property-missing-min-length
 ---
+
 # required-string-property-missing-min-length
 
 Requires that every required property in the API description with type `string` has a `minLength`.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -26,9 +27,9 @@ rules:
     severity: error
 ```
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -38,7 +39,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 
@@ -63,7 +63,6 @@ schemas:
 ```
 
 Example of a **correct** schema:
-
 
 ```yaml Good example
 schemas:

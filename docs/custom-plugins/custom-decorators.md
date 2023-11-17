@@ -2,8 +2,8 @@
 
 Decorators transform API descriptions, by adding, removing, or changing elements of the document. Before you build your own decorators:
 
-* [Learn about Redocly decorators](../decorators.md).
-* [Check the list of built-in decorators](../decorators.md#list-of-decorators).
+- [Learn about Redocly decorators](../decorators.md).
+- [Check the list of built-in decorators](../decorators.md#list-of-decorators).
 
 If you can't find an existing decorator that fits your needs, then you can add a decorator in a plugin.
 
@@ -146,6 +146,7 @@ With this configuration, an `operationId` called `GetAllItems` would be rewritte
 ## Further examples of custom decorators
 
 See some more examples of decorators:
+
 - Follow our [replace-servers-url tutorial](../guides/replace-servers-url.md).
 - Change your [OAuth2 token URL](../guides/change-token-url.md).
 

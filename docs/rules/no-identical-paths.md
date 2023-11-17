@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/no-identical-paths
 ---
+
 # no-identical-paths
 
 Ensures there are no identical paths in your API descriptions even when they have different path parameter names.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 According to the OpenAPI specification:
 
@@ -33,9 +34,9 @@ Minimize it in APIs to make them as easy as possible to use.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -52,7 +53,6 @@ Given this configuration:
 rules:
   no-identical-paths: error
 ```
-
 
 Example of **incorrect** paths:
 
@@ -78,6 +78,7 @@ paths:
 
 - [no-ambiguous-paths](./no-ambiguous-paths.md)
 - [spec](./spec.md)
+
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/no-identical-paths.ts)

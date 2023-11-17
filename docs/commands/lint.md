@@ -22,19 +22,19 @@ redocly lint --version
 
 ## Options
 
-| Option                 | Type     | Description                                                                                                                                           |
-| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option                 | Type     | Description                                                                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | apis                   | [string] | Array of API description filenames that need to be linted. See [the Apis section](#apis) for more options.                                             |
-| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                 |
-| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                          |
+| --config               | string   | Specify path to the [configuration file](#custom-configuration-file).                                                                                  |
+| --extends              | [string] | [Extend a specific configuration](#extend-configuration) (defaults or config file settings).                                                           |
 | --format               | string   | Format for the output.<br />**Possible values:** `codeframe`, `stylish`, `json`, `checkstyle`, `codeclimate`, `summary`. Default value is `codeframe`. |
-| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                        |
-| --help                 | boolean  | Show help.                                                                                                                                            |
-| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                    |
-| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                           |
-| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                          |
-| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                  |
-| --version              | boolean  | Show version number.                                                                                                                                  |
+| --generate-ignore-file | boolean  | [Generate ignore file](#generate-ignore-file).                                                                                                         |
+| --help                 | boolean  | Show help.                                                                                                                                             |
+| --lint-config          | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                     |
+| --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#max-problems). Default value is 100.                                            |
+| --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                           |
+| --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                   |
+| --version              | boolean  | Show version number.                                                                                                                                   |
 
 ## Examples
 
@@ -57,16 +57,20 @@ The `apis` argument can also use any glob format supported by your file system. 
 Instead of full paths, you can use names listed in the `apis` section of your Redocly configuration file.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint core@v1
 ```
+
 {% /tab  %}
 {% tab label="Configuration file" %}
+
 ```yaml
 apis:
   core@v1:
     root: ./openapi/api-description.json
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -77,11 +81,14 @@ In this case, after resolving the path behind the `core@v1` name (see the `Confi
 You can omit apis completely when executing the `lint` command to check all APIs defined in the configuration file.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint
 ```
+
 {% /tab  %}
 {% tab label="Configuration file" %}
+
 ```yaml
 apis:
   core@v1:
@@ -91,6 +98,7 @@ apis:
   sandbox:
     root: ./openapi/sandbox.yaml
 ```
+
 {% /tab  %}
 {% /tabs  %}
 In this case, if no API descriptions are specified, `lint` validates all apis listed under `apis` in your Redocly configuration file. The presence of the configuration file is mandatory.
@@ -125,14 +133,18 @@ Some formats, such as CheckStyle or JSON, don't work well when mulitple APIs are
 {% /admonition %}
 
 #### Codeframe (default)
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint --format=codeframe
 ## equivalent to: redocly lint
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 [1] resources/petstore-with-errors.yaml:16:3 at #/paths/~1pets?id
 
@@ -147,6 +159,7 @@ Don't put query string items in the path, they belong in parameters with `in: qu
 
 Error was generated by the path-not-include-query rule.
 ```
+
 {% /tab  %}
 {% /tabs  %}
 Note that the problems are displayed in the following format: `file:line:column`. For example, `petstore-with-errors.yaml:16:3`.
@@ -154,19 +167,24 @@ Note that the problems are displayed in the following format: `file:line:column`
 Depending on the terminal emulator you use, it may be possible to directly click this indicator to edit the file in place.
 
 #### Stylish
+
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint --format=stylish
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 openapi/core.yaml:
   15:7   error    spec                   Property `operationIds` is not expected here.
   22:11  error    spec                   Property `require` is not expected here.
   14:7   warning  operation-operationId  Operation object should contain `operationId` field.
 ```
+
 {% /tab  %}
 {% /tabs  %}
 In this format, `lint` shows the file name, line number, and column where the problem occurred. However, the output is compressed and omits other contexts and suggestions.
@@ -176,11 +194,14 @@ In this format, `lint` shows the file name, line number, and column where the pr
 It can be useful to get the output in JSON format to be processed by other tools.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint --format=json
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 {
   "totals": {
@@ -223,18 +244,23 @@ redocly lint --format=json
   ]
 }
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 #### Checkstyle
 
 The `lint` command also supports the [Checkstyle](https://checkstyle.org/) XML report format.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint --format=checkstyle
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="4.3">
@@ -245,6 +271,7 @@ redocly lint --format=checkstyle
 </file>
 </checkstyle>
 ```
+
 {% /tab  %}
 {% /tabs  %}
 Due to the limitations of this format, only file name, line, column, severity,
@@ -256,17 +283,22 @@ omitted.
 With the `--max-problems` option, you can limit the number of problems displayed in the command output. If the number of detected problems exceeds the specified threshold, the remaining problems are hidden under the "spoiler message" that lets you know how many problems were hidden.
 {% tabs %}
 {% tab label="Command" %}
+
 ```bash
 redocly lint --max-problems 200
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 ...
 < ... 2 more problems hidden > increase with `--max-problems N`
 ```
+
 {% /tab  %}
 {% /tabs  %}
+
 ### Generate ignore file
 
 With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppress error and warning severity problems in the output. You still receive visual feedback to let you know how many problems were ignored.
@@ -274,15 +306,19 @@ With this option, you can generate the `.redocly.lint-ignore.yaml` file to suppr
 This option is useful when you have an API design standard, but have some exceptions to the rule (for example, a legacy API operation). It allows for highly granular control.
 {% tabs %}
 {% tab label="Command" %}
+
 ```shell
 redocly lint openapi/petstore.yaml --generate-ignore-file
 ```
+
 {% /tab  %}
 {% tab label="Output" %}
+
 ```bash
 ...
 Generated ignore file with 3 problems.
 ```
+
 {% /tab  %}
 {% /tabs  %}
 
@@ -316,14 +352,18 @@ The rule in the example is named `spec`, which indicates compliance with the Ope
 You may want to skip specific preprocessors or rules upon running the command.
 {% tabs %}
 {% tab label="Skip preprocessors" %}
+
 ```bash
 redocly lint --skip-preprocessor=discriminator-mapping-to-one-of --skip-preprocessor=another-example
 ```
+
 {% /tab  %}
 {% tab label="Skip rules" %}
+
 ```bash
 redocly lint --skip-rule=no-sibling-refs --skip-rule=no-parent-tags
 ```
+
 {% /tab  %}
 {% /tabs  %}
 

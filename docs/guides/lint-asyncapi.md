@@ -12,13 +12,14 @@ This feature is at an early stage, please use with caution and send us lots of f
 
 In addition to providing lint functionality for multiple OpenAPI formats, Redocly CLI also has support for AsyncAPI.
 Redocly CLI supports the following linting approaches with AsyncAPI documents:
-* AsyncAPI document validation, including full binding validation for [supported protocols](#supported-protocols).
-* Supported versions:
+
+- AsyncAPI document validation, including full binding validation for [supported protocols](#supported-protocols).
+- Supported versions:
   - [AsyncAPI 2.6](https://www.asyncapi.com/docs/reference/specification/v2.6.0)
   - earlier versions in the 2.x family may also validate successfully
-* Built-in rules for checking common standards requirements (see the [list of AsyncAPI rules](#asyncapi-rules)).
-* [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns
-* [Custom plugins](../custom-plugins/index.md) for advanced users that need additional functionality
+- Built-in rules for checking common standards requirements (see the [list of AsyncAPI rules](#asyncapi-rules)).
+- [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns
+- [Custom plugins](../custom-plugins/index.md) for advanced users that need additional functionality
 
 ## Lint an existing AsyncAPI file
 
@@ -44,18 +45,17 @@ redocly lint asyncapi.yaml
 
 The output describes any structural problems with the document, or reports that it is valid.
 
-
 ## AsyncAPI rules
 
 To expand the linting checks for an AsyncAPI description, start by enabling
 some of the built-in rules. The currently-supported rules are:
 
-* `info-contact`: the `Info` section must contain a valid `Contact` field.
-* `operation-operationId`: every operation must have a valid `operationId`.
-* `channels-kebab-case`: channel names should be `kebab-case` (lowercase with hyphens).
-* `no-channel-trailing-slash`: channel names must not have trailing slashes in their names.
-* `tag-description`: all tags require a description.
-* `tags-alphabetical`: tags should be listed in the AsyncAPI file in alphabetical order.
+- `info-contact`: the `Info` section must contain a valid `Contact` field.
+- `operation-operationId`: every operation must have a valid `operationId`.
+- `channels-kebab-case`: channel names should be `kebab-case` (lowercase with hyphens).
+- `no-channel-trailing-slash`: channel names must not have trailing slashes in their names.
+- `tag-description`: all tags require a description.
+- `tags-alphabetical`: tags should be listed in the AsyncAPI file in alphabetical order.
 
 We expect the list to expand over time, so keep checking back - and let us know
 if you have any requests by [opening an issue on the GitHub
@@ -110,22 +110,22 @@ them.
 
 AsyncAPI supports an ever-expanding list of protocols, here's the list of what's currently supported:
 
-* `http`
-* `ws`
-* `kafka`
-* `anypointmq`
-* `amqp`
-* `amqp1`
-* `mqtt`
-* `mqtt5`
-* `nats`
-* `jms`
-* `sns`
-* `solace`
-* `sqs`
-* `stomp`
-* `redis`
-* `mercure`
+- `http`
+- `ws`
+- `kafka`
+- `anypointmq`
+- `amqp`
+- `amqp1`
+- `mqtt`
+- `mqtt5`
+- `nats`
+- `jms`
+- `sns`
+- `solace`
+- `sqs`
+- `stomp`
+- `redis`
+- `mercure`
 
 If you're using other protocols, you can still use Redocly CLI to lint an
 AsyncAPI description, but the details of those protocol bindings aren't

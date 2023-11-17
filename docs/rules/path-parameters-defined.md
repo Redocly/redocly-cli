@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/path-parameters-defined
 ---
+
 # path-parameters-defined
 
 Requires all path template variables are defined as path parameters.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,10 +20,9 @@ This rule verifies the path parameters are defined.
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -33,7 +32,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

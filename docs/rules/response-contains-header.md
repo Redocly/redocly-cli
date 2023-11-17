@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/response-contains-header
 ---
+
 # response-contains-header
 
 Requires that response objects with specific HTTP status codes or ranges contain specified response headers.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -17,11 +18,10 @@ In some cases, it is important to design an API so that it consistently returns 
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|**REQUIRED.** Possible values: `off`, `warn`, `error`.|
-|names|Map (HTTP response code or range, [string])|**REQUIRED.** For a given HTTP response code or range, the corresponding list of expected HTTP response headers.|
+| Option   | Type                                        | Description                                                                                                      |
+| -------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| severity | string                                      | **REQUIRED.** Possible values: `off`, `warn`, `error`.                                                           |
+| names    | Map (HTTP response code or range, [string]) | **REQUIRED.** For a given HTTP response code or range, the corresponding list of expected HTTP response headers. |
 
 An example configuration:
 

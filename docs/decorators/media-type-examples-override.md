@@ -10,9 +10,9 @@ This decorator provides a way to "overlay" a new examples over the source so tha
 
 ## Configuration
 
-|Option|Type| Description                                                                                                                                                  |
-|---|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|operationIds|object| **REQUIRED.** Object consisting of operationIds as keys, and object as a value that containing the request and responses keys and example`s paths as values. |
+| Option       | Type   | Description                                                                                                                                                  |
+| ------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| operationIds | object | **REQUIRED.** Object consisting of operationIds as keys, and object as a value that containing the request and responses keys and example`s paths as values. |
 
 Example of a configuration:
 
@@ -96,6 +96,7 @@ paths:
                   value:
                     name: example
 ```
+
 ## Related decorators
 
 - [operation-description-override](./operation-description-override.md)

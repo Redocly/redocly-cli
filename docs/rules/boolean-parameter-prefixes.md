@@ -7,12 +7,11 @@ slug: /docs/cli/rules/boolean-parameter-prefixes
 Enforces specific and consistent naming for request parameters with `boolean` type.
 When this rule is enabled, the `name` fields of all `boolean` parameters in your API must contain one of the configured prefixes.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -45,20 +44,23 @@ If you saw an API with these parameters, you could identify the boolean paramete
 - customerReference
 
 The nuance of being able to identify the boolean parameters helps developers produce and consume APIs.
+
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off`. |
-|prefixes|[string]|List of allowed boolean parameter prefixes. Default values are `is` and `has`. |
+| Option   | Type     | Description                                                                    |
+| -------- | -------- | ------------------------------------------------------------------------------ |
+| severity | string   | Possible values: `off`, `warn`, `error`. Default `off`.                        |
+| prefixes | [string] | List of allowed boolean parameter prefixes. Default values are `is` and `has`. |
 
 An example configuration:
+
 ```yaml
 rules:
   boolean-parameter-prefixes: error
 ```
 
 The following example configures prefixes:
+
 ```yaml
 rules:
   boolean-parameter-prefixes:
@@ -93,6 +95,7 @@ schema:
 ```
 
 ## Related rules
+
 - [configurable rules](./configurable-rules.md)
 - [no-invalid-parameter-examples](./no-invalid-parameter-examples.md)
 - [parameter-description](./parameter-description.md)

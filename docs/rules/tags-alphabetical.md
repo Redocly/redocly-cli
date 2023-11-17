@@ -1,18 +1,18 @@
 ---
 slug: /docs/cli/rules/tags-alphabetical
 ---
+
 # tags-alphabetical
 
 Ensures that all tag `name` fields in the `tags` object are listed in alphabetical order.
 Note that this rule does not automatically sort your tags if they are not in alphabetical order.
 The rule only produces a warning or an error, and expects you to modify your API descriptions.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -32,11 +32,10 @@ This rule is intended to prevent bikeshedding and diffuse tension between teamma
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
-|ignoreCase|boolean|Possible values: `true`, `false`. Default `false` (in `recommended` configuration). |
+| Option     | Type    | Description                                                                              |
+| ---------- | ------- | ---------------------------------------------------------------------------------------- |
+| severity   | string  | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| ignoreCase | boolean | Possible values: `true`, `false`. Default `false` (in `recommended` configuration).      |
 
 An example configuration:
 

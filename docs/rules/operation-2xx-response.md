@@ -6,12 +6,11 @@ slug: /docs/cli/rules/operation-2xx-response
 
 Ensures that every operation in your API document has at least one successful (200-299) HTTP response defined.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -24,10 +23,10 @@ You can greatly improve the developer and user experience of your APIs by making
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-|validateWebhooks|boolean|Determines if responses inside webhooks are validated. Default `false`. |
+| Option           | Type    | Description                                                                               |
+| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
+| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                   |
 
 An example configuration:
 
@@ -55,6 +54,7 @@ rules:
 ```
 
 Example of **incorrect** operation response:
+
 ```yaml
 post:
   responses:

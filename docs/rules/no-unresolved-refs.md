@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/no-unresolved
 ---
+
 # no-unresolved-refs
 
 Ensures that all `$ref` instances in your API descriptions are resolved.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,10 +20,9 @@ This rule prevents that from happening.
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -93,4 +92,3 @@ components:
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/no-unresolved-refs.ts)
 - Read our guide on [how to use JSON references ($refs)](/docs/resources/ref-guide.md)
-

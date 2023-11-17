@@ -6,12 +6,11 @@ slug: /docs/cli/rules/info-contact
 
 Requires the `Contact` info object defined in your API.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -28,9 +27,9 @@ If they need help to purchase, integrate, or troubleshoot, your contact info sho
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off`. |
+| Option   | Type   | Description                                             |
+| -------- | ------ | ------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off`. |
 
 An example configuration:
 
@@ -42,12 +41,14 @@ rules:
 ## Examples
 
 Given this configuration:
+
 ```yaml
 rules:
   info-contact: error
 ```
 
 Example of **incorrect** contact:
+
 ```yaml Incorrect example
 info:
   version: 1.0.0
@@ -59,6 +60,7 @@ info:
 ```
 
 Example of **correct** contact:
+
 ```yaml Correct example
 info:
   contact:

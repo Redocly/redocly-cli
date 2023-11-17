@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/spec-components-invalid-map-name
 ---
+
 # spec-components-invalid-map-name
 
 Requires that specific objects inside `components` MUST use keys that match the regular expression: `^[a-zA-Z0-9\.\-_]+$`.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -46,9 +47,9 @@ All the fixed fields declared below are objects that MUST use keys that match th
 
 ## Configuration
 
-|Option|Type| Description                                                                                |
-|---|---|--------------------------------------------------------------------------------------------|
-|severity|string| Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -67,6 +68,7 @@ rules:
 ```
 
 Example of **incorrect** operation response:
+
 ```yaml
 components:
   examples:

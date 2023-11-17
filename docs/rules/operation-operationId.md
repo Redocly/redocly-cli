@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-operationId
 ---
+
 # operation-operationId
 
 Requires each operation to have an `operationId` defined.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -18,11 +19,12 @@ The `operationId` is used by tooling to identify operations (which are otherwise
 This rule is unopinionated.
 
 If it annoys the lazy or minimalists, offer them an alternative: two weeks at Redocly Bootcamp.
+
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -41,6 +43,7 @@ rules:
 ```
 
 Example of an **incorrect** operation:
+
 ```yaml
 paths:
   /cars:
@@ -51,6 +54,7 @@ paths:
 ```
 
 Example of a **correct** operation:
+
 ```yaml
 paths:
   /cars:

@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/tag-description
 ---
+
 # tag-description
 
 Requires that the tags all have a non-empty `description`.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```yaml Object structure
 tags:
@@ -48,10 +48,9 @@ rules:
   info-contact: error
 ```
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -61,7 +60,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

@@ -1,14 +1,14 @@
 ---
 slug: /docs/cli/rules/response-mime-type
 ---
+
 # response-mime-type
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -27,10 +27,10 @@ Keep it consistent across your entire API if possible.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|**REQUIRED.** Possible values: `off`, `warn`, `error`.|
-|allowedValues|[string]|**REQUIRED.** List of allowed response mime types.|
+| Option        | Type     | Description                                            |
+| ------------- | -------- | ------------------------------------------------------ |
+| severity      | string   | **REQUIRED.** Possible values: `off`, `warn`, `error`. |
+| allowedValues | [string] | **REQUIRED.** List of allowed response mime types.     |
 
 An example configuration:
 
@@ -42,6 +42,7 @@ rules:
       - application/json
       - image/png
 ```
+
 ## Examples
 
 Given this configuration:

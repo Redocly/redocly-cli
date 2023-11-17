@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/no-server-trailing-slash
 ---
+
 # no-server-trailing-slash
 
 Disallow servers with a trailing slash.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -33,9 +33,9 @@ Hands-down a good rule for every API designer.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 

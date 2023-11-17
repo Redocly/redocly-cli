@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/np-empty-servers
 ---
+
 # no-empty-servers
 
 Requires the `servers` list is defined in your API.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -19,11 +19,12 @@ root ==> ServersList
 
 style ServersList fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
+
 ## API design principles
 
 An empty `servers` list defaults to `localhost`, which is not practical for your API consumers.
 An API cannot be used without a server.
-Define servers so that the *Try it* and code sample generator features in OpenAPI tools (including Redocly) can produce functional API requests.
+Define servers so that the _Try it_ and code sample generator features in OpenAPI tools (including Redocly) can produce functional API requests.
 
 If you don't have a server because the consumer is responsible for setting up their own server, you can still describe the server with server variables.
 The following code sample shows declaration of a server variable.
@@ -39,9 +40,9 @@ servers:
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -74,6 +75,7 @@ servers:
 ```
 
 ## Related rules
+
 - [no-server-example.com](./no-server-example-com.md)
 - [no-server-trailing-slash](./no-server-trailing-slash.md)
 

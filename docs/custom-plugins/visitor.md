@@ -4,14 +4,12 @@ _Visitor_ is a design pattern that allows operations to be performed on individu
 
 To understand how this applies to your API description, think of the document as a tree structure. The top level elements are entries like `info` and `components`. To examine the `description` field in the `info` section, the visitor goes to the `info` node first, then on to the `description` node. This pattern is repeated all over the document as the visitor pattern works its way around the document tree.
 
-
 ## Structure of the visitor object
 
 In your plugin, create a JavaScript visitor object, and describe the functionality required for each type of node.
 
 Redocly CLI calls `enter()` while going down the tree and `leave()` going up the tree after processing the node and its children.
 If the `skip()` predicate is defined and returns `true` the node is ignored for this visitor.
-
 
 ```js
 function ExampleRule() {
@@ -36,7 +34,6 @@ Keys of the object are one of the following:
 - document-specific node types, such as the [OpenAPI node types](../../openapi-visual-reference/openapi-node-types.md).
 - `any` - visitor is called on every node.
 - `ref` - visitor is called on $ref nodes.
-
 
 ## Visitors execution and $ref
 
@@ -108,5 +105,3 @@ type string from getOp
 type object from getOp
 type number from putOp
 ```
-
-

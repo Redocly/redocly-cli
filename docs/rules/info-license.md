@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/info-license
 ---
+
 # info-license
 
 Requires the license info in your API descriptions.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -30,9 +30,9 @@ By being upfront with the API license, you can reduce friction and encourage API
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -44,6 +44,7 @@ rules:
 ## Examples
 
 Given the following configuration:
+
 ```yaml
 rules:
   info-license: error

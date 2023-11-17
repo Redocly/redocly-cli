@@ -3,7 +3,6 @@ toc:
   maxDepth: 2
 ---
 
-
 # Redocly CLI changelog
 
 <!-- do-not-remove -->
@@ -164,7 +163,7 @@ No code changes.
 ### Features
 
 - Resolve `$ref`s in preprocessors.
-- Create the `spec-strict-refs` rule to ensure  `$ref` usage is in accordance with the OpenAPI specification.
+- Create the `spec-strict-refs` rule to ensure `$ref` usage is in accordance with the OpenAPI specification.
 
 ### Fixes
 
@@ -209,7 +208,6 @@ No code changes.
 - Display an error if apis or rules for the `lint` command are not provided.
 - Stopped executing decorators and preprocessors upon the `join` command.
 - Sort top-level OAS3 keys in `bundle` and `join` commands.
-
 
 ## 1.0.0-beta.125 (2023-04-06)
 
@@ -260,12 +258,14 @@ No code changes.
 - Moved and renamed the `features.openapi` and `features.mockServer` into the `theme` object with the names `openapi` and `mockServer`.
 
 Before:
+
 ```yaml
 features.openapi: {}
 features.mockServer: {}
 ```
 
 After:
+
 ```yaml
 theme:
   openapi: {}
@@ -383,13 +383,13 @@ theme:
 - Fixed incorrect behavior for the `no-invalid-media-type-examples` rule in combination with the `allOf` keyword.
 
 ## 1.0.0-beta.109 (2022-09-08)
+
 ### Features
 
 - Added rfc7807 problem details rule.
 - Improved error messages by adding `referenced from` information.
 - Added the [`spec-components-invalid-map-name`](./rules/spec-components-invalid-map-name.md) rule for component map names validation.
 - Added a new lint `--format` option: `summary`.
-
 
 ### Fixes
 
@@ -423,7 +423,6 @@ theme:
 - Fixed docs for `no-server-example.com`.
 - Incorrect schema description dereferenced.
 
-
 ## 1.0.0-beta.107 (2022-08-16)
 
 ### Changes
@@ -433,7 +432,6 @@ theme:
 ### Fixes
 
 - Introduced severity level `off` for assertions.
-
 
 ## 1.0.0-beta.106 (2022-08-09)
 

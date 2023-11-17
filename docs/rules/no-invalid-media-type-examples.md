@@ -6,11 +6,11 @@ slug: /docs/cli/rules/no-invalid-media-type-examples
 
 Disallow invalid media type examples by ensuring they comply with the corresponding schema definitions.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|❌|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ❌            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ```mermaid
 flowchart TD
@@ -40,12 +40,13 @@ Most likely there is either a mistake with the example or the schema (or both).
 
 Trust us.
 It's much nicer to get this alert from Redocly before you ship than from your biggest customer three months later.
+
 ## Configuration
 
-|Option|Type| Description                                                                   |
-|---|---|-------------------------------------------------------------------------------|
-|severity|string| Possible values: `off`, `warn`, `error`. Default `warn`.                      |
-|allowAdditionalProperties|boolean| Determines if additional properties are allowed in examples. Default `false`. |
+| Option                    | Type    | Description                                                                   |
+| ------------------------- | ------- | ----------------------------------------------------------------------------- |
+| severity                  | string  | Possible values: `off`, `warn`, `error`. Default `warn`.                      |
+| allowAdditionalProperties | boolean | Determines if additional properties are allowed in examples. Default `false`. |
 
 An example configuration:
 
@@ -91,8 +92,8 @@ post:
               model: Y
               year: '2022'
 ```
-> This example produces an error because the year is a string instead of an integer.
 
+> This example produces an error because the year is a string instead of an integer.
 
 Example of a **correct** media type example:
 

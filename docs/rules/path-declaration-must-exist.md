@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/path-declaration-must-exist
 ---
+
 # path-declaration-must-exist
 
 Requires definition of all path template variables.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -20,10 +20,9 @@ This rule is not opinionated.
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -33,7 +32,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

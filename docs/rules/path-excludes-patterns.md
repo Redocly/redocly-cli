@@ -1,17 +1,16 @@
 ---
 slug: /docs/cli/rules/path-excludes-patterns
 ---
+
 # path-excludes-patterns
 
 Disallow patterns from paths.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -25,12 +24,10 @@ Other ideas are around casing (other than kebab-case, which is a common approach
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration).
-|patterns|[string]|List of patterns to match. For example, `^\/[a-z]`.
-
+| Option   | Type     | Description                                                                              |
+| -------- | -------- | ---------------------------------------------------------------------------------------- |
+| severity | string   | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| patterns | [string] | List of patterns to match. For example, `^\/[a-z]`.                                      |
 
 An example configuration:
 

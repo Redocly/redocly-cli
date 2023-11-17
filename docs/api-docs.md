@@ -17,10 +17,10 @@ This option is ideal for teams that want **hassle-free hosting**, lots of **them
 
 Get started with Redocly API reference:
 
-* [Sign up for Workflows](https://app.redocly.com/signup) and add your OpenAPI description to the registry to get started immediately.
-* Check out the [documentation for using the API registry](https://redocly.com/docs/api-registry/guides/api-registry-quickstart/) to learn more.
-* Use Redocly CLI for [local preview of API documentation](./commands/preview-docs.md) while you're making changes to the API description or docs configuration.
-* Add the [Redocly VS Code extension](https://redocly.com/docs/redocly-openapi/) to your IDE for better OpenAPI editing support and autocomplete on Redocly configuration settings.
+- [Sign up for Workflows](https://app.redocly.com/signup) and add your OpenAPI description to the registry to get started immediately.
+- Check out the [documentation for using the API registry](https://redocly.com/docs/api-registry/guides/api-registry-quickstart/) to learn more.
+- Use Redocly CLI for [local preview of API documentation](./commands/preview-docs.md) while you're making changes to the API description or docs configuration.
+- Add the [Redocly VS Code extension](https://redocly.com/docs/redocly-openapi/) to your IDE for better OpenAPI editing support and autocomplete on Redocly configuration settings.
 
 ## Redoc
 
@@ -32,8 +32,7 @@ Use this option if you plan to host your API reference documentation yourself, o
 
 Get started with Redoc:
 
-* Visit the [Redoc section of the docs](https://redocly.com/docs/redoc/quickstart/) to learn more about redoc
-* Check out the project and community [on GitHub](https://github.com/redocly/redoc).
-* Use Redocly CLI for [local preview of API documentation](./commands/preview-docs.md) while you're making changes to the API description or docs configuration, and to [build your API docs](./commands/build-docs.md).
-* Add the [Redocly VS Code extension](https://redocly.com/docs/redocly-openapi/) to your IDE for better OpenAPI editing support and autocomplete on Redocly configuration settings.
-
+- Visit the [Redoc section of the docs](https://redocly.com/docs/redoc/quickstart/) to learn more about redoc
+- Check out the project and community [on GitHub](https://github.com/redocly/redoc).
+- Use Redocly CLI for [local preview of API documentation](./commands/preview-docs.md) while you're making changes to the API description or docs configuration, and to [build your API docs](./commands/build-docs.md).
+- Add the [Redocly VS Code extension](https://redocly.com/docs/redocly-openapi/) to your IDE for better OpenAPI editing support and autocomplete on Redocly configuration settings.

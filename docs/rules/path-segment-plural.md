@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/path-segment-plural
 ---
+
 # path-segment-plural
 
 Enforces plural path segments.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -27,12 +27,11 @@ Nothing wrong with that.
 
 ## Configuration
 
-
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
-|ignoreLastPathSegment|boolean|Ignores the last path segment if true. Default value: `false`.|
-|exceptions|[string]|List of strings to exclude when checking path segments, for example, `v1`.|
+| Option                | Type     | Description                                                                              |
+| --------------------- | -------- | ---------------------------------------------------------------------------------------- |
+| severity              | string   | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| ignoreLastPathSegment | boolean  | Ignores the last path segment if true. Default value: `false`.                           |
+| exceptions            | [string] | List of strings to exclude when checking path segments, for example, `v1`.               |
 
 An example configuration:
 

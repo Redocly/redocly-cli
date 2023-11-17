@@ -34,21 +34,21 @@ In this step, create a custom plugin and define the decorator dependency.
 1. Create a new directory called `plugins`.
 1. In the `plugins` directory, create a `plugin.js` file with the following code:
 
-    ```js
-    const hideOpenapiExtensions = require('./decorators/hide-openapi-extensions');
-    const id = 'plugin';
+   ```js
+   const hideOpenapiExtensions = require('./decorators/hide-openapi-extensions');
+   const id = 'plugin';
 
-    const decorators = {
-      oas3: {
-        'hide-openapi-extensions': hideOpenapiExtensions,
-      },
-    };
+   const decorators = {
+     oas3: {
+       'hide-openapi-extensions': hideOpenapiExtensions,
+     },
+   };
 
-    module.exports = {
-      id,
-      decorators,
-    };
-    ```
+   module.exports = {
+     id,
+     decorators,
+   };
+   ```
 
 1. Save the file.
 
@@ -61,28 +61,28 @@ You can name the plugins directory and the file anything you want. Make sure you
 1. In the `plugins` directory, create a new directory called `decorators`.
 1. In the `decorators` directory, create a `hide-openapi-extensions.js` file with the following code:
 
-    ```js
-    module.exports = hideOpenapiExtensions;
+   ```js
+   module.exports = hideOpenapiExtensions;
 
-    /** @type {import('@redocly/cli').OasDecorator} */
+   /** @type {import('@redocly/cli').OasDecorator} */
 
-    function hideOpenapiExtensions({ pattern }) {
-      return {
-        any: {
-          enter: node => {
-            pattern.forEach(item => {
-              Object.keys(node).forEach(key => {
-                const regex = new RegExp(item, 'i');
-                if (regex.test(key)) {
-                  delete node[key];
-                }
-              });
-            });
-          }
-        }
-      }
-    }
-    ```
+   function hideOpenapiExtensions({ pattern }) {
+     return {
+       any: {
+         enter: node => {
+           pattern.forEach(item => {
+             Object.keys(node).forEach(key => {
+               const regex = new RegExp(item, 'i');
+               if (regex.test(key)) {
+                 delete node[key];
+               }
+             });
+           });
+         }
+       }
+     }
+   }
+   ```
 
 1. Save the file.
 
@@ -128,25 +128,25 @@ In this step, two API snapshots are produced from the single source of truth. To
 
 1. Bundle the `external@latest` API.
 
-    ```bash
-    redocly bundle external@latest -o dist/bundle-external.yaml
-    // or
-    npx @redocly/cli bundle external@latest -o dist/bundle-external.yaml
-    ```
+   ```bash
+   redocly bundle external@latest -o dist/bundle-external.yaml
+   // or
+   npx @redocly/cli bundle external@latest -o dist/bundle-external.yaml
+   ```
 
-    Inspect the file at `dist/external.yaml`.
-    Confirm that all the occurrences of `x-amazon-apigateway` are removed.
+   Inspect the file at `dist/external.yaml`.
+   Confirm that all the occurrences of `x-amazon-apigateway` are removed.
 
 1. Bundle the `internal@latest` API.
 
-    ```bash
-    redocly bundle internal@latest -o dist/bundle-internal.yaml
-    // or
-    npx @redocly/cli bundle internal@latest -o dist/bundle-internal.yaml
-    ```
+   ```bash
+   redocly bundle internal@latest -o dist/bundle-internal.yaml
+   // or
+   npx @redocly/cli bundle internal@latest -o dist/bundle-internal.yaml
+   ```
 
-    Inspect the file at `dist/internal.yaml`.
-    Confirm that all the occurrences of `x-amazon-apigateway` are **not** removed.
+   Inspect the file at `dist/internal.yaml`.
+   Confirm that all the occurrences of `x-amazon-apigateway` are **not** removed.
 
 ## Advanced usage
 

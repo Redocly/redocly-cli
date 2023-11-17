@@ -34,9 +34,9 @@ The configuration formats are a little different between the tools.
 
 Redocly uses a configuration file called `redocly.yaml`, the main controls for linting are:
 
-* Specify a [ruleset](../rules.md#rulesets).
-* Add configuration for the [rules](../rules.md) accordingly. They can be set to error, warn, or off.
-* Expand the collection with any [configurable rules](../rules/configurable-rules.md) that fit your standard.
+- Specify a [ruleset](../rules.md#rulesets).
+- Add configuration for the [rules](../rules.md) accordingly. They can be set to error, warn, or off.
+- Expand the collection with any [configurable rules](../rules/configurable-rules.md) that fit your standard.
 
 ### Example Redocly configuration file
 
@@ -59,14 +59,12 @@ rules:
 
 It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration/index.md#apis-object) to set per-API rules (or exceptions!).
 
-
 ### Redocly rules and Spectral equivalents
 
 Included here is an attempt to map the simliar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues/new)?
 
-
 | Spectral rules                         | Redocly rules                                 |
-|----------------------------------------|-----------------------------------------------|
+| -------------------------------------- | --------------------------------------------- |
 | `duplicated-entry-in-enum`             |                                               |
 | `info-contact`                         | `info-contact`                                |
 | `info-description`                     |                                               |
@@ -131,6 +129,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 If the built-in rules don't meet your requirements, don't worry! Redocly allows you to build any rule to meet your needs, using [configurable rules](../rules/configurable-rules.md). Declare which elements of the OpenAPI description should comply with the rule, and then define the criteria that it should be checked against.
 
 Build up the rulesets that work for your organization's API standards. These can be:
+
 - using existing Redocly rulesets
 - defining your own rulesets from built-in, configurable and/or custom rules
 - combining rulesets from any source

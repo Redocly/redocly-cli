@@ -27,7 +27,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --template, -t      | string  | Uses custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI description.                                                                                                                                   |
 | --templateOptions   | string  | Adds template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                        |
 | --theme.openapi     | string  | Customizes your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/). |
-| --title             | string  | Sets the page title.                                                                                                                                                                                                              |
+| --title             | string  | Sets the page title.                                                                                                                                                                                                                |
 | --version           | boolean | Shows version number.                                                                                                                                                                                                               |
 
 ## Examples

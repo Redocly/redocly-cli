@@ -2,10 +2,9 @@
 
 You can bundle configurations under the `configs` key in your plugin code. These configuration bundles are
 useful when you declare multiple rules or decorators in your plugin, and you want to
-define within the plugin how to combine them.  Each plugin can have multiple
+define within the plugin how to combine them. Each plugin can have multiple
 configuration bundles, and the user can use any of them in their `redocly.yaml`
 configuration file.
-
 
 The following is an example plugin, defining two configuration bundles:
 
@@ -46,4 +45,3 @@ If your configuration includes only Redocly built-in rules and decorators, try
 using a [ruleset](../rules.md#rulesets) to achieve this (it's simpler than a
 plugin).
 {% /admonition %}
-

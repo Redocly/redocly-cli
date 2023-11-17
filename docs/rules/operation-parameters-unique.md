@@ -1,16 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-parameters-unique
 ---
+
 # operation-parameters-unique
 
 Verifies parameters are unique for any given operation.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
-
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -21,9 +21,9 @@ Solve it before you ship it.
 
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -33,7 +33,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 

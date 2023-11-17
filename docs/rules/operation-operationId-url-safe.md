@@ -1,15 +1,16 @@
 ---
 slug: /docs/cli/rules/operation-operationId-url-safe
 ---
+
 # operation-operationId-url-safe
 
 Requires the `operationId` value to be URL safe.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -18,11 +19,12 @@ Some tooling may use it in a URL path.
 This rule makes it possible to use the `operationId` in URLs without any transformation of the `operationId`.
 
 This rule is unopinionated.
+
 ## Configuration
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -41,6 +43,7 @@ rules:
 ```
 
 Example of an **incorrect** operation:
+
 ```yaml
 paths:
   /cars:
@@ -50,6 +53,7 @@ paths:
 ```
 
 Example of a **correct** operation:
+
 ```yaml
 paths:
   /cars:

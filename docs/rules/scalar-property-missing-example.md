@@ -1,16 +1,17 @@
 ---
 slug: /docs/cli/rules/scalar-property-missing-example
 ---
+
 # scalar-property-missing-example
 
 Requires that every scalar property in the API description has either `example` or `examples`˙ defined.
 Scalar properties are any of the following types: `string`, `number`, `null`, `boolean`, `integer`.
 
-|OAS|Compatibility|
-|---|---|
-|2.0|✅|
-|3.0|✅|
-|3.1|✅|
+| OAS | Compatibility |
+| --- | ------------- |
+| 2.0 | ✅            |
+| 3.0 | ✅            |
+| 3.1 | ✅            |
 
 ## API design principles
 
@@ -29,9 +30,9 @@ rules:
     severity: error
 ```
 
-|Option|Type|Description|
-|---|---|---|
-|severity|string|Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 
@@ -41,7 +42,6 @@ rules:
 ```
 
 ## Examples
-
 
 Given this configuration:
 
@@ -64,7 +64,6 @@ schemas:
 ```
 
 Example of a **correct** schema:
-
 
 ```yaml Good example
 schemas:
