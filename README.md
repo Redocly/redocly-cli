@@ -12,19 +12,19 @@
 
 ### Node
 
-```
+```sh
 npx @redocly/cli lint path-to-root-file.yaml
 ```
 
 Alternatively, install it globally with `npm`:
 
-```
+```sh
 npm install @redocly/cli -g
 ```
 
 Then you can use it as `redocly [command] [options]`, for example:
 
-```
+```sh
 redocly lint path-to-root-file.yaml
 ```
 
@@ -36,13 +36,13 @@ To give the Docker container access to the OpenAPI description files, you need t
 mount the containing directory as a volume. Assuming the API description is rooted
 in the current working directory, you need the following command:
 
-```
+```sh
 docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
 
 To build and run with a local image, run the following from the project root:
 
-```
+```sh
 docker build -t redocly/cli .
 docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
@@ -53,7 +53,7 @@ docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 
 Redocly CLI is a great way to render API reference documentation. It uses open source [Redoc](https://github.com/redocly/redoc) to build your documentation. Use a command like this:
 
-```
+```sh
 redocly build-docs openapi.yaml
 ```
 
@@ -73,7 +73,7 @@ Our API linter is designed for speed on even large documents, and it's easy to r
 
 Try it like this:
 
-```
+```sh
 redocly lint openapi.yaml
 ```
 

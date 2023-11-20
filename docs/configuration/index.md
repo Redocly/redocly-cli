@@ -78,7 +78,7 @@ Learn about the various sections of the config file, and follow the links for de
 Use `extends` to adopt an existing [ruleset](../rules.md#rulesets) such as the `recommended` or `minimal` standards.
 You can also define your own rulesets and refer to them here by file path or URL.
 
-While the order of the sections in the configuration file doesn't matter, usually `extends` is first, and any later rules, preprocessors or decorators defined in this file will override the base settings.
+While the order of the sections in the configuration file doesn't matter, usually `extends` is first, and any later rules, preprocessors or decorators defined in this file then override the base settings.
 
 Read the [detailed `extends` documentation](./extends.md) to see more information and examples.
 

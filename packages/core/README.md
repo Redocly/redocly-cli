@@ -3,10 +3,10 @@
 See https://github.com/Redocly/redocly-cli
 
 > [!IMPORTANT]
-The `openapi-core package` is designed for our internal use; the interfaces that are considered safe to use are documented below.
-Some of the function arguments are not documented below because they are not intended for public use.
-Avoid using any functions or features that are not documented below.
-If your use case is not documented below, please open an issue.
+> The `openapi-core package` is designed for our internal use; the interfaces that are considered safe to use are documented below.
+> Some of the function arguments are not documented below because they are not intended for public use.
+> Avoid using any functions or features that are not documented below.
+> If your use case is not documented below, please open an issue.
 
 ## Basic usage
 
