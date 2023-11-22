@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added new rule `array-parameter-serialization` to enforce array parameters format.
+Added new rule `array-parameter-serialization` to require that serialization parameters `style` and `explode` are present on array parameters.
