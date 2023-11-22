@@ -156,6 +156,7 @@ export interface Oas3Schema {
 export type Oas3_1Schema = Oas3Schema & {
   type?: string | string[];
   examples?: any[];
+  prefixItems?: Oas3_1Schema[];
 };
 
 export interface Oas3_1Definition extends Oas3Definition {

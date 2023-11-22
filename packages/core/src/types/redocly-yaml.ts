@@ -77,6 +77,7 @@ const builtInOAS3Rules = [
   'response-contains-property',
   'response-mime-type',
   'spec-components-invalid-map-name',
+  'array-parameter-serialization',
 ] as const;
 
 export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];

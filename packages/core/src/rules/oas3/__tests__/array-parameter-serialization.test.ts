@@ -1,0 +1,210 @@
+import { outdent } from 'outdent';
+import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
+import { lintDocument } from '../../../lint';
+import { BaseResolver } from '../../../resolve';
+
+describe('oas3 array-parameter-serialization', () => {
+  it('should report on array parameter without style and explode', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              schema:
+                type: array
+                items:
+                  type: string
+            - name: b
+              in: header
+              schema:
+                type: array
+                items:
+                  type: string     
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/parameters/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "ruleId": "array-parameter-serialization",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report on array parameter with style but without explode', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              style: form
+              schema:
+                type: array
+                items:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/parameters/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "ruleId": "array-parameter-serialization",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report on array parameter with style and explode', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              style: form
+              explode: true
+              schema:
+                type: array
+                items:
+                  type: string
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report non-array parameter without style and explode', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              schema:
+                type: string
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it("should report all array parameter without style and explode if property 'in' not defined ", async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              schema:
+                type: array
+                items:
+                  type: string
+            - name: b
+              in: header
+              schema:
+                type: array
+                items:
+                  type: string     
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error' },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/parameters/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "ruleId": "array-parameter-serialization",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/parameters/1",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Parameter \`b\` should have \`style\` and \`explode \` fields",
+          "ruleId": "array-parameter-serialization",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+});
