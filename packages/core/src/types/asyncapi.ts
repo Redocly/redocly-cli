@@ -274,10 +274,7 @@ const OperationBindings: NodeType = {
 
 const OperationTrait: NodeType = {
   properties: {
-    tags: {
-      type: 'array',
-      items: { type: 'string' },
-    },
+    tags: 'TagList',
     summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
@@ -311,10 +308,7 @@ const MessageTrait: NodeType = {
 
 const Operation: NodeType = {
   properties: {
-    tags: {
-      type: 'array',
-      items: { type: 'string' },
-    },
+    tags: 'TagList',
     summary: { type: 'string' },
     description: { type: 'string' },
     externalDocs: 'ExternalDocs',
