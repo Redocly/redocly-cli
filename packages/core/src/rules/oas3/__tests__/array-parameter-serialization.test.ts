@@ -98,22 +98,28 @@ describe('oas3 array-parameter-serialization', () => {
   it('should report on parameter without type but with items', async () => {
     const document = parseYamlToDocument(
       outdent`
-        openapi: 3.0.0
-        paths:
-          '/test':
-            parameters:
-            - name: a
-              in: query
-              schema:
-                items:
-                  type: string
-            - name: b
-              in: header
-              schema:
-                type: array
-                items:
-                  type: string     
-      `,
+        openapi: 3.1.0
+        paths: 
+          /test:
+            parameters: 
+              - name: test only type, path level
+                in: query
+                schema:
+                  type: array # no items
+            get: 
+              parameters: 
+                - name: test only items, operation level
+                  in: header
+                  items: # no type
+                    type: string
+        components: 
+          parameters:
+            TestParameter: 
+              in: cookie
+              name: test only prefixItems, components level
+              prefixItems: # no type or items
+                - type: number    
+              `,
       'foobar.yaml'
     );
     const results = await lintDocument({
@@ -133,7 +139,7 @@ describe('oas3 array-parameter-serialization', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "message": "Parameter \`test only type, path level\` should have \`style\` and \`explode \` fields",
           "ruleId": "array-parameter-serialization",
           "severity": "error",
           "suggest": [],
