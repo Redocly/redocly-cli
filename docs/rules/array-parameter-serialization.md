@@ -105,6 +105,5 @@ paths:
 
 ## Resources
 
-- [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/boolean-parameter-prefixes.ts)
-- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/boolean-parameter-prefixes.ts)
+- [Rule source for OAS 3.0 and 3.1](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/array-parameter-serialization.ts)
 - [OpenAPI Parameter](https://redocly.com/docs/openapi-visual-reference/parameter/) docs

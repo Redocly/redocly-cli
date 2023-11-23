@@ -37,7 +37,7 @@ function shouldReportMissingStyleAndExplode(
 ) {
   return (
     (schema.type === 'array' || schema.items || schema.prefixItems) &&
-    (!node.style || !node.explode) &&
+    (node.style === undefined || node.explode === undefined) &&
     (!options.in || (node.in && options.in?.includes(node.in)))
   );
 }

@@ -95,6 +95,53 @@ describe('oas3 array-parameter-serialization', () => {
     `);
   });
 
+  it('should report on parameter without type but with items', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        paths:
+          '/test':
+            parameters:
+            - name: a
+              in: query
+              schema:
+                items:
+                  type: string
+            - name: b
+              in: header
+              schema:
+                type: array
+                items:
+                  type: string     
+      `,
+      'foobar.yaml'
+    );
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({
+        'array-parameter-serialization': { severity: 'error', in: ['query'] },
+      }),
+    });
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/parameters/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Parameter \`a\` should have \`style\` and \`explode \` fields",
+          "ruleId": "array-parameter-serialization",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report on array parameter with style and explode', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -105,7 +152,7 @@ describe('oas3 array-parameter-serialization', () => {
             - name: a
               in: query
               style: form
-              explode: true
+              explode: false
               schema:
                 type: array
                 items:
