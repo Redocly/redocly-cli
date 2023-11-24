@@ -52,6 +52,7 @@ import { Operation4xxProblemDetailsRfc7807 } from './operation-4xx-problem-detai
 import { RequiredStringPropertyMissingMinLength } from '../common/required-string-property-missing-min-length';
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { ComponentNameUnique } from './component-name-unique';
+import { ArrayParameterSerialization } from './array-parameter-serialization';
 
 export const rules: Oas3RuleSet<'built-in'> = {
   spec: Spec,
@@ -108,6 +109,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'required-string-property-missing-min-length': RequiredStringPropertyMissingMinLength,
   'spec-strict-refs': SpecStrictRefs,
   'component-name-unique': ComponentNameUnique,
+  'array-parameter-serialization': ArrayParameterSerialization,
 };
 
 export const preprocessors = {};

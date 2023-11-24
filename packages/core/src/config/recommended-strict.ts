@@ -66,6 +66,7 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'request-mime-type': 'off',
     'response-contains-property': 'off',
     'response-mime-type': 'off',
+    'array-parameter-serialization': 'off',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'error',
@@ -83,6 +84,7 @@ const recommendedStrict: PluginStyleguideConfig<'built-in'> = {
     'request-mime-type': 'off',
     'response-contains-property': 'off',
     'response-mime-type': 'off',
+    'array-parameter-serialization': 'off',
   },
   async2Rules: {
     'channels-kebab-case': 'off',

@@ -21,6 +21,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "oas3_0Decorators": {},
   "oas3_0Preprocessors": {},
   "oas3_0Rules": {
+    "array-parameter-serialization": "off",
     "boolean-parameter-prefixes": "error",
     "component-name-unique": "off",
     "no-empty-servers": "error",
@@ -40,6 +41,7 @@ exports[`resolveConfig should ignore minimal from the root and read local file 1
   "oas3_1Decorators": {},
   "oas3_1Preprocessors": {},
   "oas3_1Rules": {
+    "array-parameter-serialization": "off",
     "boolean-parameter-prefixes": "error",
     "component-name-unique": "off",
     "no-empty-servers": "error",
@@ -125,6 +127,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "oas3_0Decorators": {},
   "oas3_0Preprocessors": {},
   "oas3_0Rules": {
+    "array-parameter-serialization": "off",
     "boolean-parameter-prefixes": "error",
     "component-name-unique": "off",
     "no-empty-servers": "error",
@@ -144,6 +147,7 @@ exports[`resolveStyleguideConfig should resolve extends with local file config w
   "oas3_1Decorators": {},
   "oas3_1Preprocessors": {},
   "oas3_1Rules": {
+    "array-parameter-serialization": "off",
     "boolean-parameter-prefixes": "error",
     "component-name-unique": "off",
     "no-empty-servers": "error",

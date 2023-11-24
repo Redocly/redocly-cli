@@ -78,6 +78,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'component-name-unique': 'error',
     'response-contains-property': 'error',
     'spec-components-invalid-map-name': 'error',
+    'array-parameter-serialization': 'error',
   },
   oas3_1Rules: {
     'no-invalid-media-type-examples': 'error',
@@ -101,6 +102,7 @@ const all: PluginStyleguideConfig<'built-in'> = {
     'component-name-unique': 'error',
     'response-contains-property': 'error',
     'spec-components-invalid-map-name': 'error',
+    'array-parameter-serialization': 'error',
   },
   async2Rules: {
     'channels-kebab-case': 'error',
