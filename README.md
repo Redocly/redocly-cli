@@ -107,4 +107,4 @@ Thanks to [graphql-js](https://github.com/graphql/graphql-js) and [eslint](https
 
 ## Development
 
-Contributions are welcome! All the information you need is in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+Contributions are welcome! All the information you need is in [CONTRIBUTING.md](CONTRIBUTING.md).
