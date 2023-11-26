@@ -57,7 +57,7 @@ export async function bundleConfig(
     base = null,
   } = opts;
   if (!(ref)) {
-    throw new Error('Document or reference is required.\n');
+    throw new Error('Reference to a config is required.\n');
   }
 
   const document = await externalRefResolver.resolveDocument(base, ref!, true)
@@ -68,7 +68,7 @@ export async function bundleConfig(
 
   const types = normalizeTypes(ConfigTypes);
 
-  console.log('TYPES', types.ConfigRoot);
+  // console.log('TYPES', types.ConfigRoot);
 
   const ctx: BundleContext = {
     problems: [],
@@ -91,7 +91,7 @@ export async function bundleConfig(
         visitor: {
           ref: {
             leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx);
+              replaceRef(node, resolved, ctx); // <--
             },
           },
         },
@@ -100,16 +100,15 @@ export async function bundleConfig(
     types
   );
 
-  console.log('types.ConfigRoot', types.ConfigRoot);
   walkDocument({
     document,
-    rootType: types.ConfigRoot as NormalizedNodeType,
+    rootType: types.ConfigRoot ,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,
   });
 
-  return document.parsed;
+  return { parsed: document.parsed,  resolvedRefMap };
 }
 
 export async function bundle(
@@ -331,7 +330,6 @@ function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext)
   if (!isPlainObject(resolved.node)) {
     ctx.parent[ctx.key] = resolved.node;
   } else {
-    // TODO: why $ref isn't optional in OasRef?
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     delete ref.$ref;

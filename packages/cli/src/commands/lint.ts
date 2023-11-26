@@ -25,6 +25,7 @@ import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@re
 import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
 
 export type LintOptions = {
   apis?: string[];
@@ -129,13 +130,15 @@ export function lintConfigCallback(
     return;
   }
 
-  return async (config: RawConfig) => {
+  return async (config: RawConfig, resolvedRefMap?: ResolvedRefMap) => {
     const configPath = findConfig(argv.config) || '';
     const stringYaml = stringifyYaml(config);
     const configContent = makeDocumentFromString(stringYaml, configPath);
+    
     const problems = await lintConfig({
       document: configContent,
       severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
+      resolvedRefMap,
     });
 
     const fileTotals = getTotals(problems);

@@ -6,7 +6,6 @@ import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
-
 import type {
   DeprecatedInRawConfig,
   FlatRawConfig,
@@ -16,6 +15,7 @@ import type {
 } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import { bundleConfig } from '../bundle';
+import type { ResolvedRefMap } from '../resolve';
 
 async function addConfigMetadata({
   rawConfig,
@@ -78,7 +78,7 @@ export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
     files?: string[];
     region?: Region;
   } = {}
@@ -118,16 +118,15 @@ export function findConfig(dir?: string): string | undefined {
 
 export async function getConfig(
   configPath: string | undefined = findConfig(),
-  processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>
+  processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>
 ): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     // const rawConfig =
     //   (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
-    const rawConfig = await bundleConfig({ref: configPath, config: {} as any});
-    console.log('rawConfig', rawConfig);
+    const {parsed: rawConfig, resolvedRefMap} = await bundleConfig({ref: configPath, config: {} as any});
     if (typeof processRawConfig === 'function') {
-      await processRawConfig(rawConfig);
+      await processRawConfig(rawConfig, resolvedRefMap);
     }
     return transformConfig(rawConfig);
   } catch (e) {

@@ -1,4 +1,4 @@
-import { BaseResolver, resolveDocument, Document, makeDocumentFromString } from './resolve';
+import { BaseResolver, resolveDocument, Document, makeDocumentFromString, ResolvedRefMap } from './resolve';
 import { normalizeVisitors } from './visitors';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
@@ -102,7 +102,7 @@ export async function lintDocument(opts: {
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
-export async function lintConfig(opts: { document: Document; severity?: ProblemSeverity }) {
+export async function lintConfig(opts: { document: Document; severity?: ProblemSeverity ; resolvedRefMap?: ResolvedRefMap}) {
   const { document, severity } = opts;
 
   const ctx: WalkContext = {
@@ -126,12 +126,11 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
   ];
   // TODO: check why any is needed
   const normalizedVisitors = normalizeVisitors(rules as any, types);
-
   walkDocument({
     document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
-    resolvedRefMap: new Map(),
+    resolvedRefMap: opts.resolvedRefMap ||    new Map(),
     ctx,
   });
 

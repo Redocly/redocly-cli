@@ -1,7 +1,6 @@
 import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema';
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
-import { Oas3_1Types } from './oas3_1';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
 import { seoConfigSchema } from "./portal-config-schema";
 
@@ -1000,7 +999,6 @@ const ConfigMockServer: NodeType = {
 
 
 export const ConfigTypes: Record<string, NodeType> = {
-  ...Oas3_1Types,
   Assert,
   ConfigRoot,
   ConfigApis,

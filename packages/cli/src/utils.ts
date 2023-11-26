@@ -37,6 +37,7 @@ import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
+import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -425,7 +426,7 @@ export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
     files?: string[];
     region?: Region;
   } = {}
