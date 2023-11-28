@@ -1,13 +1,10 @@
 import {
   Config,
-  findConfig,
   formatProblems,
   getMergedConfig,
   getTotals,
   lint,
   lintConfig,
-  makeDocumentFromString,
-  stringifyYaml,
 } from '@redocly/openapi-core';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import {
@@ -21,7 +18,7 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils';
-import type { OutputFormat, ProblemSeverity, RawConfig, RuleSeverity } from '@redocly/openapi-core';
+import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
 import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
@@ -130,13 +127,13 @@ export function lintConfigCallback(
     return;
   }
 
-  return async (config: RawConfig, resolvedRefMap?: ResolvedRefMap) => {
-    const configPath = findConfig(argv.config) || '';
-    const stringYaml = stringifyYaml(config);
-    const configContent = makeDocumentFromString(stringYaml, configPath);
+  return async (config: Document, resolvedRefMap?: ResolvedRefMap) => {
+    // const configPath = findConfig(argv.config) || '';
+    // const stringYaml = stringifyYaml(config);
+    // const configContent = makeDocumentFromString(stringYaml, configPath);
     
     const problems = await lintConfig({
-      document: configContent,
+      document: config,
       severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
       resolvedRefMap,
     });

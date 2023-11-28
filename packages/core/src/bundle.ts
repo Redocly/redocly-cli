@@ -46,16 +46,16 @@ export type BundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-export async function bundleConfig(
-  opts: {
-    ref?: string;
-  } & BundleOptions
-) {
+
+export async function resolveConfigFile(opts: {
+  ref?: string;
+} & BundleOptions) {
   const {
     ref,
     externalRefResolver = new BaseResolver(/* opts.config.resolve */),
     base = null,
   } = opts;
+
   if (!(ref)) {
     throw new Error('Reference to a config is required.\n');
   }
@@ -68,7 +68,21 @@ export async function bundleConfig(
 
   const types = normalizeTypes(ConfigTypes);
 
-  // console.log('TYPES', types.ConfigRoot);
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.ConfigRoot,
+    externalRefResolver,
+  });
+
+  return { document: document as Document,  resolvedRefMap };
+}
+
+export async function bundleConfig(
+  document: Document,
+  resolvedRefMap: ResolvedRefMap,
+) {
+
+  const types = normalizeTypes(ConfigTypes);
 
   const ctx: BundleContext = {
     problems: [],
@@ -76,12 +90,6 @@ export async function bundleConfig(
     refTypes: new Map<string, NormalizedNodeType>(),
     visitorsData: {},
   };
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.ConfigRoot,
-    externalRefResolver,
-  });
 
   const bundleVisitor = normalizeVisitors(
     [
@@ -108,7 +116,7 @@ export async function bundleConfig(
     ctx,
   });
 
-  return { parsed: document.parsed,  resolvedRefMap };
+  return document.parsed;
 }
 
 export async function bundle(

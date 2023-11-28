@@ -17,7 +17,7 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
   loadConfig,
-  RawConfig,
+  Document,
   Region,
   Config,
   Oas3Definition,
@@ -426,7 +426,7 @@ export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
+    processRawConfig?: (rawConfig: Document, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
     files?: string[];
     region?: Region;
   } = {}

@@ -1,20 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { isEmptyObject, loadYaml, doesYamlFileExist } from '../utils';
+import { doesYamlFileExist, isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig } from './config-resolvers';
-import type {
-  DeprecatedInRawConfig,
-  FlatRawConfig,
-  RawConfig,
-  RawUniversalConfig,
-  Region,
-} from './types';
+import type { RawConfig, RawUniversalConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
-import { bundleConfig } from '../bundle';
+import {bundleConfig, resolveConfigFile} from '../bundle';
+import { Document } from '../resolve';
 import type { ResolvedRefMap } from '../resolve';
 
 async function addConfigMetadata({
@@ -78,7 +73,10 @@ export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
+    processRawConfig?: (
+      rawConfig: Document,
+      resolvedRefMap?: ResolvedRefMap
+    ) => void | Promise<void>;
     files?: string[];
     region?: Region;
   } = {}
@@ -118,17 +116,19 @@ export function findConfig(dir?: string): string | undefined {
 
 export async function getConfig(
   configPath: string | undefined = findConfig(),
-  processRawConfig?: (rawConfig: RawConfig, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>
+  processRawConfig?: (rawConfig: Document, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>
 ): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     // const rawConfig =
     //   (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
-    const {parsed: rawConfig, resolvedRefMap} = await bundleConfig({ref: configPath, config: {} as any});
+    const { document, resolvedRefMap } = await resolveConfigFile({ ref: configPath, config: {} as any });
     if (typeof processRawConfig === 'function') {
-      await processRawConfig(rawConfig, resolvedRefMap);
+      await processRawConfig(document, resolvedRefMap);
     }
-    return transformConfig(rawConfig);
+    const bundledConfig = await bundleConfig(document, resolvedRefMap);
+    return transformConfig(bundledConfig);
+
   } catch (e) {
     if (e instanceof ConfigValidationError) {
       throw e;
