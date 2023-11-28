@@ -656,4 +656,3 @@ rules:
 ## Find and share examples
 
 Configurable rules allow such flexibility, but they can be complex to start with. To help you along the way, take a look at the [Redocly CLI Cookbook](https://github.com/Redocly/redocly-cli-cookbook#readme) where our community goes to share its best examples. Choose from the menu available, and don't forget to share your own rules too.
-
