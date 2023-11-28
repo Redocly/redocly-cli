@@ -48,6 +48,8 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
 
+  checkForDeprecatedOptions(argv);
+
   for (const { path, alias } of apis) {
     try {
       const startedAt = performance.now();
@@ -173,5 +175,24 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new Error('Bundle failed.');
+  }
+}
+
+function checkForDeprecatedOptions(argv: BundleOptions) {
+  const deprecatedOptions: Array<keyof BundleOptions> = [
+    'lint',
+    'skip-rule',
+    'extends',
+    'max-problems',
+  ];
+
+  for (const option of deprecatedOptions) {
+    if (argv[option]) {
+      process.stderr.write(
+        yellow(
+          `[WARNING] "${option}" option is deprecated and will be removed in the next releases. \n\n`
+        )
+      );
+    }
   }
 }

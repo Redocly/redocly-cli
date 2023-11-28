@@ -238,6 +238,10 @@ components:
       items:
         $ref: '#/components/schemas/Pet'
 
+[WARNING] "lint" option is deprecated and will be removed in the next major release. 
+
+[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
+
 foo.yaml:
   30:11  error    spec  Property \`header\` is not expected here.
 

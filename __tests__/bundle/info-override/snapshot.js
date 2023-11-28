@@ -27,6 +27,8 @@ paths:
           description: example description
 components: {}
 
+[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
+
 bundling ./main.yaml...
 📦 Created a bundle for ./main.yaml at stdout <test>ms.
 

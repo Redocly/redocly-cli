@@ -2,6 +2,8 @@
 
 exports[`E2E bundle operation-description-override-error 1`] = `
 
+[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
+
 bundling ./openapi.yaml...
 openapi.yaml:
   23:7  error    operation-description-override  Failed to read markdown override file for operation "updatePet".

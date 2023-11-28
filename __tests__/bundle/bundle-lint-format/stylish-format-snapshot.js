@@ -2,6 +2,10 @@
 
 exports[`E2E bundle lint format bundle lint: should be formatted by format: stylish 1`] = `
 
+[WARNING] "lint" option is deprecated and will be removed in the next major release. 
+
+[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
+
 openapi.yaml:
   20:11  error    spec  Expected type \`MediaType\` (object) but got \`null\`
 
