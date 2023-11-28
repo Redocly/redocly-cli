@@ -15,8 +15,6 @@ components:
     Test:
       type: object
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
-
 bundling ./openapi.yaml...
 📦 Created a bundle for ./openapi.yaml at stdout <test>ms.
 

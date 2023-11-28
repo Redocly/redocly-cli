@@ -294,14 +294,12 @@ yargs
         format: {
           description: 'Use a specific output format.',
           choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
-          default: 'codeframe' as OutputFormat,
           hidden: true,
         },
         'max-problems': {
           requiresArg: true,
           description: 'Reduce output to a maximum of N problems.',
           type: 'number',
-          default: 100,
           hidden: true,
         },
         ext: {

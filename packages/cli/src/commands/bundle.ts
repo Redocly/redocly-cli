@@ -26,10 +26,10 @@ import { writeFileSync } from 'fs';
 
 export type BundleOptions = {
   apis?: string[];
-  'max-problems': number;
+  'max-problems'?: number;
   extends?: string[];
   config?: string;
-  format: OutputFormat;
+  format?: OutputFormat;
   output?: string;
   ext: OutputExtensions;
   dereferenced?: boolean;
@@ -83,7 +83,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
           format: argv.format || 'codeframe',
           totals: fileLintTotals,
           version,
-          maxProblems,
+          maxProblems: maxProblems || 100,
         });
         printLintTotals(fileLintTotals, 2);
       }
@@ -124,8 +124,8 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       totals.ignored += fileTotals.ignored;
 
       formatProblems(problems, {
-        format: argv.format,
-        maxProblems,
+        format: argv.format || 'codeframe',
+        maxProblems: maxProblems || 1,
         totals: fileTotals,
         version,
       });
@@ -181,6 +181,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 function checkForDeprecatedOptions(argv: BundleOptions) {
   const deprecatedOptions: Array<keyof BundleOptions> = [
     'lint',
+    'format',
     'skip-rule',
     'extends',
     'max-problems',

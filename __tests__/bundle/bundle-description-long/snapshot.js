@@ -18,8 +18,6 @@ info:
 security: []
 components: {}
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 
@@ -42,8 +40,6 @@ info:
     second line exists
 security: []
 components: {}
-
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
 
 bundling test.yaml...
 📦 Created a bundle for test.yaml at stdout <test>ms.

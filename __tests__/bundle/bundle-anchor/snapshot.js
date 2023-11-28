@@ -28,8 +28,6 @@ paths:
                 foo: TEST
 components: {}
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 

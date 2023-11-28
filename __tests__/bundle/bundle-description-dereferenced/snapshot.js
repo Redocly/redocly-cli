@@ -36,8 +36,6 @@ components:
           $ref: '#/components/schemas/Name'
           description: Other name (specific).
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
-
 bundling ./test.yaml...
 📦 Created a bundle for ./test.yaml at stdout <test>ms.
 
@@ -79,8 +77,6 @@ components:
       type: object
       description: names description
       properties: *ref_0
-
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
 
 bundling test.yaml...
 📦 Created a bundle for test.yaml at stdout <test>ms.

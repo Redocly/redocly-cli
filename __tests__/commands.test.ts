@@ -288,7 +288,6 @@ describe('E2E', () => {
       const entryPoints = getEntrypoints(testPath);
 
       const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-        '--format=stylish',
         ...entryPoints,
       ]);
 

@@ -2,9 +2,9 @@
 
 exports[`E2E bundle lint format bundle lint: no format parameter or empty value should be formatted as codeframe 1`] = `
 
-[WARNING] "lint" option is deprecated and will be removed in the next major release. 
+[WARNING] "lint" option is deprecated and will be removed in the next releases. 
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next major release. 
+[WARNING] "max-problems" option is deprecated and will be removed in the next releases. 
 
 [1] openapi.yaml:20:11 at #/paths/~1my_post/post/requestBody/content/application~1json
 
