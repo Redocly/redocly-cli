@@ -287,9 +287,7 @@ describe('E2E', () => {
 
       const entryPoints = getEntrypoints(testPath);
 
-      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [
-        ...entryPoints,
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'bundle', [...entryPoints]);
 
       it(file, () => {
         const result = getCommandOutput(args, testPath);
