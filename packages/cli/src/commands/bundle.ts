@@ -83,7 +83,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
           format: argv.format || 'codeframe',
           totals: fileLintTotals,
           version,
-          maxProblems: maxProblems || 100,
+          maxProblems: maxProblems,
         });
         printLintTotals(fileLintTotals, 2);
       }
@@ -125,7 +125,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 
       formatProblems(problems, {
         format: argv.format || 'codeframe',
-        maxProblems: maxProblems || 1,
+        maxProblems: maxProblems,
         totals: fileTotals,
         version,
       });
