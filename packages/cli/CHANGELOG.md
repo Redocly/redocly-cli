@@ -1,5 +1,18 @@
 # @redocly/cli
 
+## 1.5.0
+
+### Minor Changes
+
+- Added new rule `array-parameter-serialization` to require that serialization parameters `style` and `explode` are present on array parameters.
+
+### Patch Changes
+
+- Deprecated lint-related options in the `bundle` command. The options are going to be removed in the subsequent releases.
+  Use the [lint command](https://redocly.com/docs/cli/commands/lint/) separately to lint your APIs before bundling.
+- Updated Redoc to v2.1.3.
+- Updated @redocly/openapi-core to v1.5.0.
+
 ## 1.4.1
 
 ### Patch Changes
