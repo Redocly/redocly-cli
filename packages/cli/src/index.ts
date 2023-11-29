@@ -294,13 +294,13 @@ yargs
         format: {
           description: 'Use a specific output format.',
           choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
-          default: 'codeframe' as OutputFormat,
+          hidden: true,
         },
         'max-problems': {
           requiresArg: true,
           description: 'Reduce output to a maximum of N problems.',
           type: 'number',
-          default: 100,
+          hidden: true,
         },
         ext: {
           description: 'Bundle file extension.',
@@ -311,6 +311,7 @@ yargs
           description: 'Ignore certain rules.',
           array: true,
           type: 'string',
+          hidden: true,
         },
         'skip-preprocessor': {
           description: 'Ignore certain preprocessors.',
@@ -340,6 +341,7 @@ yargs
           description: 'Lint API descriptions',
           type: 'boolean',
           default: false,
+          hidden: true,
         },
         metafile: {
           description: 'Produce metadata about the bundle',
@@ -350,6 +352,7 @@ yargs
           requiresArg: true,
           array: true,
           type: 'string',
+          hidden: true,
         },
         'remove-unused-components': {
           description: 'Remove unused components.',

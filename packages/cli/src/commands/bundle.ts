@@ -26,10 +26,10 @@ import { writeFileSync } from 'fs';
 
 export type BundleOptions = {
   apis?: string[];
-  'max-problems': number;
+  'max-problems'?: number;
   extends?: string[];
   config?: string;
-  format: OutputFormat;
+  format?: OutputFormat;
   output?: string;
   ext: OutputExtensions;
   dereferenced?: boolean;
@@ -47,6 +47,8 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
+
+  checkForDeprecatedOptions(argv);
 
   for (const { path, alias } of apis) {
     try {
@@ -81,7 +83,7 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
           format: argv.format || 'codeframe',
           totals: fileLintTotals,
           version,
-          maxProblems,
+          maxProblems: maxProblems,
         });
         printLintTotals(fileLintTotals, 2);
       }
@@ -122,8 +124,8 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
       totals.ignored += fileTotals.ignored;
 
       formatProblems(problems, {
-        format: argv.format,
-        maxProblems,
+        format: argv.format || 'codeframe',
+        maxProblems: maxProblems,
         totals: fileTotals,
         version,
       });
@@ -173,5 +175,25 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new Error('Bundle failed.');
+  }
+}
+
+function checkForDeprecatedOptions(argv: BundleOptions) {
+  const deprecatedOptions: Array<keyof BundleOptions> = [
+    'lint',
+    'format',
+    'skip-rule',
+    'extends',
+    'max-problems',
+  ];
+
+  for (const option of deprecatedOptions) {
+    if (argv[option]) {
+      process.stderr.write(
+        yellow(
+          `[WARNING] "${option}" option is deprecated and will be removed in a future release. \n\n`
+        )
+      );
+    }
   }
 }
