@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 1.5.0
+
+### Minor Changes
+
+- Added new rule `array-parameter-serialization` to require that serialization parameters `style` and `explode` are present on array parameters.
+
 ## 1.4.1
 
 ### Patch Changes
