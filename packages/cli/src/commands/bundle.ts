@@ -191,7 +191,7 @@ function checkForDeprecatedOptions(argv: BundleOptions) {
     if (argv[option]) {
       process.stderr.write(
         yellow(
-          `[WARNING] "${option}" option is deprecated and will be removed in the next releases. \n\n`
+          `[WARNING] "${option}" option is deprecated and will be removed in a future release. \n\n`
         )
       );
     }
