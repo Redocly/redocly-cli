@@ -21,7 +21,7 @@ redocly bundle --version
 ## Options
 
 {% admonition type="warning" name="Important" %}
-The `--lint` option and all related options (`--extends`, `--max-problems`, `--skip-rule`, `--format`) are deprecated and will be removed in the next releases.
+The `--lint` option and all related options (`--extends`, `--max-problems`, `--skip-rule`, `--format`) are deprecated and are marked for removal in future releases.
 Please use the `lint` command instead.
 {% /admonition %}
 
