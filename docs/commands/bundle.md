@@ -22,7 +22,7 @@ redocly bundle --version
 
 {% admonition type="warning" name="Important" %}
 The `--lint` option and all related options (`--extends`, `--max-problems`, `--skip-rule`, `--format`) are deprecated and are marked for removal in future releases.
-Please use the `lint` command instead.
+ Use the [lint command](./lint/md) separately to lint your APIs before bundling.
 {% /admonition %}
 
 | Option                          | Type     | Description                                                                                                                                                                                                                                                     |
