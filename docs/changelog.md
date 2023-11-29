@@ -15,7 +15,7 @@ toc:
 
 ### Patch Changes
 
-- Deprecated lint-related options in the `bundle` command. The options are going to be removed in the subsequent releases.
+- Deprecated lint-related options in the `bundle` command. The options are marked for removal in a future release.
   Use the [lint command](https://redocly.com/docs/cli/commands/lint/) separately to lint your APIs before bundling.
 - Updated Redoc to v2.1.3.
 - Updated @redocly/openapi-core to v1.5.0.
