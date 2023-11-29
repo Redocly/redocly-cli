@@ -8,11 +8,11 @@ exports[`E2E bundle lint format bundle lint: should be formatted by format: chec
 </file>
 </checkstyle>
 
-[WARNING] "lint" option is deprecated and will be removed in the next releases. 
+[WARNING] "lint" option is deprecated and will be removed in a future release. 
 
-[WARNING] "format" option is deprecated and will be removed in the next releases. 
+[WARNING] "format" option is deprecated and will be removed in a future release. 
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next releases. 
+[WARNING] "max-problems" option is deprecated and will be removed in a future release. 
 
 ❌ Validation failed with 1 error.
 run \`redocly lint --generate-ignore-file\` to add all problems to the ignore file.

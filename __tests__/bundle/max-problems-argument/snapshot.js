@@ -238,11 +238,11 @@ components:
       items:
         $ref: '#/components/schemas/Pet'
 
-[WARNING] "lint" option is deprecated and will be removed in the next releases. 
+[WARNING] "lint" option is deprecated and will be removed in a future release. 
 
-[WARNING] "format" option is deprecated and will be removed in the next releases. 
+[WARNING] "format" option is deprecated and will be removed in a future release. 
 
-[WARNING] "max-problems" option is deprecated and will be removed in the next releases. 
+[WARNING] "max-problems" option is deprecated and will be removed in a future release. 
 
 foo.yaml:
   30:11  error    spec  Property \`header\` is not expected here.

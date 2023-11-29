@@ -52,7 +52,7 @@ components:
         error_code:
           type: number
 
-[WARNING] "lint" option is deprecated and will be removed in the next releases. 
+[WARNING] "lint" option is deprecated and will be removed in a future release. 
 
 [1] openapi.yaml:4:1 at #/info
 
