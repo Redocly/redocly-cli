@@ -9,6 +9,7 @@ import type { SplitOptions } from './commands/split';
 import type { PreviewDocsOptions } from './commands/preview-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushOptions as PushBhOptions } from './blue-harvest/commands/push';
+import type { PushStatusOptions } from './blue-harvest/commands/push-status';
 
 export type Totals = {
   errors: number;
@@ -32,7 +33,8 @@ export type CommandOptions =
   | BundleOptions
   | LoginOptions
   | PreviewDocsOptions
-  | BuildDocsArgv;
+  | BuildDocsArgv
+  | PushStatusOptions;
 export type Skips = {
   'skip-rule'?: string[];
   'skip-decorator'?: string[];

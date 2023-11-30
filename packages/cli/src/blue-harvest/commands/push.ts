@@ -63,7 +63,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
       `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
     );
 
-    const { branchName: filesBranch } = await client.remotes.push(
+    const { branchName: filesBranch, pushStatusId  } = await client.remotes.push(
       orgId,
       projectId,
       remote.id,
@@ -87,7 +87,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
       `${pluralize(
         'file',
         filesToUpload.length
-      )} uploaded to organization ${orgId}, project ${projectId}, branch ${filesBranch}`
+      )} uploaded to organization ${orgId}, project ${projectId}, branch ${filesBranch}. Push status ID: ${pushStatusId}.`
     );
   } catch (err) {
     exitWithError(`✗ File upload failed. Reason: ${err.message}\n`);
