@@ -3,28 +3,13 @@ import * as FormData from 'form-data';
 
 import type { Response } from 'node-fetch';
 import type { ReadStream } from 'fs';
-
-type ProjectSourceResponse = {
-  branchName: string;
-  contentPath: string;
-  isInternal: boolean;
-};
-
-type UpsertRemoteResponse = {
-  id: string;
-  type: 'CICD';
-  mountPath: string;
-  mountBranchName: string;
-  organizationId: string;
-  projectId: string;
-};
-
-type PushResponse = {
-  branchName: string;
-  hasChanges: boolean;
-  commitSha: string;
-  outdated: boolean;
-};
+import type {
+  ListRemotesResponse,
+  ProjectSourceResponse,
+  PushResponse,
+  PushStatusResponse,
+  UpsertRemoteResponse,
+} from './types';
 
 class RemotesApiClient {
   constructor(private readonly domain: string, private readonly apiKey: string) {}
@@ -134,6 +119,54 @@ class RemotesApiClient {
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
       throw new Error(`Failed to push: ${err.message || 'Unknown error'}`);
+    }
+  }
+
+  async getRemotesList(organizationId: string, projectId: string, mountPath: string) {
+    const response = await fetch(
+      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    );
+
+    try {
+      return await this.getParsedResponse<ListRemotesResponse>(response);
+    } catch (err) {
+      throw new Error(`Failed to get remote list: ${err.message || 'Unknown error'}`);
+    }
+  }
+
+  async getPushStatus({
+    organizationId,
+    projectId,
+    pushId,
+    remoteId,
+  }: {
+    organizationId: string;
+    projectId: string;
+    pushId: string;
+    remoteId: string;
+  }) {
+    const response = await fetch(
+      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes/${remoteId}/push-status/${pushId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      }
+    );
+
+    try {
+      return await this.getParsedResponse<PushStatusResponse>(response);
+    } catch (err) {
+      throw new Error(`Failed to get push status: ${err.message || 'Unknown error'}`);
     }
   }
 }

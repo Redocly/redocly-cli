@@ -20,6 +20,7 @@ import { version } from './update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import { handlePushStatus, PushStatusOptions  } from './blue-harvest/commands/push-status';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -145,7 +146,42 @@ yargs
       commandWrapper(handleJoin)(argv);
     }
   )
-
+  .command(
+    'push-status',
+    'Push status.',
+    (yargs) =>
+      yargs.option({
+        pushId: {
+          description: 'Push id.',
+          type: 'string',
+          required: true,
+          alias: 'pid',
+        },
+        organization: {
+          description: 'Name of the organization to push to.',
+          type: 'string',
+          required: true,
+          alias: 'o',
+        },
+        project: {
+          description: 'Name of the project to push to.',
+          type: 'string',
+          required: true,
+          alias: 'p',
+        },
+        mountPath: {
+          description: 'The path files should be pushed to.',
+          type: 'string',
+          required: true,
+          alias: 'mp',
+        },
+        domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+      }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'push-status';
+      commandWrapper(handlePushStatus)(argv as Arguments<PushStatusOptions>);
+    }
+  )
   .command(
     'push [api] [maybeDestination] [maybeBranchName]',
     'Push an API description to the Redocly API registry.',
