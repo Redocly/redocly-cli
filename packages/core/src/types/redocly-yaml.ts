@@ -2,7 +2,7 @@ import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { seoConfigSchema } from "./portal-config-schema";
+import { PortalConfigTypes } from "./portal-config-schema";
 
 const builtInCommonRules = [
   'spec',
@@ -201,7 +201,7 @@ const ConfigRoot: NodeType = {
     ...RootConfigStyleguide.properties,
     apis: 'ConfigApis',
     theme: 'ConfigRootTheme',
-    seo: 'seoConfigSchema',
+    seo: 'seoConfigSchema', //
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
@@ -1014,7 +1014,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   CommonConfigSidebarLinks,
   ConfigTheme,
   ConfigRootTheme,
-  seoConfigSchema:  seoConfigSchema as unknown as NodeType,
   AssertDefinition,
   ThemeColors,
   CommonThemeColors,
@@ -1064,4 +1063,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   Typography,
   AssertionDefinitionAssertions,
   AssertionDefinitionSubject,
+  ...PortalConfigTypes,
+  // seoConfigSchema:  eoConfigSchema ,//as unknown as NodeType, // TODO: fix and extend
 };

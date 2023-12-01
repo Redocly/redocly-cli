@@ -22,7 +22,7 @@ describe('lint', () => {
         servers:
           - url: http://redocly-example.com
         paths: {}
-    `,
+      `,
       config: await loadConfig(),
     });
 
@@ -141,8 +141,8 @@ describe('lint', () => {
           "suggest": [
             "theme",
             "env",
-            "seo",
             "sso",
+            "seo",
           ],
         },
         {
@@ -206,9 +206,9 @@ describe('lint', () => {
           "severity": "error",
           "suggest": [
             "apis",
-            "seo",
             "sso",
             "env",
+            "seo",
           ],
         },
       ]

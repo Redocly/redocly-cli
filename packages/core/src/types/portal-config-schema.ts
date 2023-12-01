@@ -4,6 +4,8 @@ import {
   DEFAULT_TEAM_CLAIM_NAME,
 } from '../config';
 
+import type { NodeType } from '.';
+
 const oidcIssuerMetadataSchema = {
   type: 'object',
   properties: {
@@ -124,8 +126,8 @@ const metadataConfigSchema = {
   additionalProperties: true,
 } as const;
 
-export const seoConfigSchema = {
-  type: 'object',
+ const seoConfigSchema: NodeType = {
+  // type: 'object', // Removing for compatibility
   properties: {
     title: { type: 'string' },
     description: { type: 'string' },
@@ -144,11 +146,14 @@ export const seoConfigSchema = {
         },
         required: ['name', 'content'],
         additionalProperties: false,
-      },
+      } as any, // FIXME: pull out the nested type
     },
   },
-  additionalProperties: false,
+  // additionalProperties: {}  // Removing for compatibility
 } as const;
+
+export const PortalConfigTypes: Record<string, NodeType> = { seoConfigSchema } // TODO: Extract all other types that need to be linted in the config
+
 
 const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
 
@@ -259,7 +264,7 @@ export const redoclyConfigSchema = {
     licenseKey: { type: 'string' },
     theme: { type: 'object', default: {} }, // ThemeConfig
     redirects: { type: 'object', additionalProperties: redirectConfigSchema, default: {} },
-    seo: seoConfigSchema,
+    // seo: seoConfigSchema,
     rbac: rbacConfigSchema,
     responseHeaders: {
       type: 'object',

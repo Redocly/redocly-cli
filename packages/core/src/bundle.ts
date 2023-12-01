@@ -2,8 +2,6 @@ import isEqual = require('lodash.isequal');
 import {
   BaseResolver,
   resolveDocument,
-  Document,
-  ResolvedRefMap,
   makeRefId,
   makeDocumentFromString,
 } from './resolve';
@@ -21,13 +19,14 @@ import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject, isTruthy } from './utils';
-import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
-
-import { Config, StyleguideConfig } from './config';
 import { ConfigTypes } from './types/redocly-yaml';
+
+import type { Config, StyleguideConfig } from './config';
+import type { OasRef } from './typings/openapi';
+import type {   Document, ResolvedRefMap } from './resolve';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -99,7 +98,7 @@ export async function bundleConfig(
         visitor: {
           ref: {
             leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx); // <--
+              replaceRef(node, resolved, ctx); 
             },
           },
         },
@@ -116,7 +115,7 @@ export async function bundleConfig(
     ctx,
   });
 
-  return document.parsed;
+  return document.parsed ?? {};
 }
 
 export async function bundle(
