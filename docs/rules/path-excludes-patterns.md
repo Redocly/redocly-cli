@@ -18,9 +18,7 @@ The [`no-http-verbs-in-paths` rule](./no-http-verbs-in-paths.md) is pre-built fo
 This rule is the general Swiss army knife version.
 If you absolutely know something should not be in the path (for example `foo`), then add the pattern to prevent it.
 
-Ideas for things to prevent in paths besides HTTP verbs include other common CRUD verbs, bad words, and internal code words (food for thought).
-
-Other ideas are around casing (other than kebab-case, which is a common approach and we have [another rule](./paths-kebab-case.md) already prepared for that).
+Some common things to check using this rule: other common CRUD verbs, bad words, and internal code or terminology.
 
 ## Configuration
 
@@ -77,7 +75,8 @@ paths:
 
 ## Related rules
 
-- [tag-description](./tag-description.md)
+- [no-http-verbs-in-paths.md](./no-http-verbs-in-paths.md)
+- [paths-kebab-case](./paths-kebab-case.md)
 - [operation-description](./operation-description.md)
 - [configurable rules](./configurable-rules.md)
 
