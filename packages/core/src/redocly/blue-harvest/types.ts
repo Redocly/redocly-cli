@@ -54,34 +54,24 @@ export type PushResponse = {
 };
 
 export type PushStatusResponse = {
-  build: {
-    url: string;
-    status: BuildStatus;
-  };
-  deployment: {
-    url: string;
-    status: DeploymentStatus;
-  };
-  previewUrl: string;
+  status: BuildStatus | PushCommandStatusState;
+  deploymentStatus: DeploymentStatus;
+  url: string;
   scorecard: ScorecardItem[];
-} | {
-    status: PushStatusState
+  buildUrlLogs: string;
 };
 
-
-export type PushStatusState = "NOT_STARTED" | "NO_CHANGES" | "CONTENT_OUTDATED" | "PROCESSED";
-
-
+export type PushCommandStatusState = 'NOT_STARTED' | 'NO_CHANGES' | 'CONTENT_OUTDATED' | 'PROCESSED';
 
 export type ScorecardItem = {
   name: string;
-  status: BaseStatus;
+  status: PushStatusBase;
   description: string;
   targetUrl: string;
 };
 
-export type BaseStatus = "IN_PROGRESS" | "SUCCEEDED" | "FAILED";
+export type PushStatusBase = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED';
 
-export type BuildStatus =  BaseStatus | "NOT_STARTED" | "QUEUED" ;
+export type BuildStatus = PushStatusBase | 'NOT_STARTED' | 'QUEUED';
 
-export type DeploymentStatus = "NOT_STARTED" | "SKIPPED" | BaseStatus;
+export type DeploymentStatus = 'NOT_STARTED' | 'SKIPPED' | PushStatusBase;

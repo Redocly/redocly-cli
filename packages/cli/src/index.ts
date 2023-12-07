@@ -10,6 +10,7 @@ import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
 import { handlePush, transformPush } from './commands/push';
 import { handlePush as handleBhPush } from './blue-harvest/commands/push';
+import { handlePushStatus, PushStatusOptions } from './blue-harvest/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
@@ -20,7 +21,6 @@ import { version } from './update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import { handlePushStatus, PushStatusOptions  } from './blue-harvest/commands/push-status';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -176,6 +176,12 @@ yargs
           alias: 'mp',
         },
         domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+        format: {
+          description: 'Output format.',
+          type: 'string',
+          choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+          default: 'stylish' as OutputFormat,
+        },
       }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
@@ -183,21 +189,26 @@ yargs
     }
   )
   .command(
-    'push [api] [maybeDestination] [maybeBranchName]',
+    'push [apis...]',
     'Push an API description to the Redocly API registry.',
     (yargs) =>
       yargs
-        .usage('push [api]')
-        .positional('api', { type: 'string' })
-        .positional('maybeDestination', { type: 'string' })
-        .hide('maybeDestination')
-        .hide('maybeBranchName')
+        .positional('apis', {
+          type: 'string',
+          array: true,
+          required: true,
+          default: [],
+        })
+        .hide('project')
+        .hide('domain')
+        .hide('mountPath')
+        .hide('author')
+        .hide('message')
+        .deprecateOption('batch-id', 'use --job-id')
+        .implies('job-id', 'batch-size')
+        .implies('batch-id', 'batch-size')
+        .implies('batch-size', 'job-id')
         .option({
-          organization: {
-            description: 'Name of the organization to push to.',
-            type: 'string',
-            alias: 'o',
-          },
           destination: {
             description: 'API name and version in the format `name@version`.',
             type: 'string',
@@ -252,30 +263,6 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-        })
-        .deprecateOption('batch-id', 'use --job-id')
-        .deprecateOption('maybeDestination')
-        .implies('job-id', 'batch-size')
-        .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'job-id'),
-    (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(transformPush(handlePush))(argv);
-    }
-  )
-  .command(
-    'push-bh <files..>',
-    'Push files to the Redocly BlueHarvest.',
-    (yargs) =>
-      yargs
-        .positional('files', {
-          type: 'string',
-          array: true,
-          required: true,
-          default: [],
-          description: 'List of files and folders (or glob) to upload',
-        })
-        .option({
           organization: {
             description: 'Name of the organization to push to.',
             type: 'string',
@@ -284,31 +271,21 @@ yargs
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
-            required: true,
             alias: 'p',
           },
           mountPath: {
             description: 'The path files should be pushed to.',
             type: 'string',
-            required: true,
             alias: 'mp',
-          },
-          branch: {
-            description: 'Branch name files are pushed from.',
-            type: 'string',
-            required: true,
-            alias: 'b',
           },
           author: {
             description: 'Author of the commit.',
             type: 'string',
-            required: true,
             alias: 'a',
           },
           message: {
-            description: 'Commit messsage.',
+            description: 'Commit message.',
             type: 'string',
-            required: true,
             alias: 'm',
           },
           domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
@@ -319,8 +296,42 @@ yargs
           },
         }),
     (argv) => {
-      process.env.REDOCLY_CLI_COMMAND = 'push-bh';
-      commandWrapper(handleBhPush)(argv);
+      process.env.REDOCLY_CLI_COMMAND = 'push';
+      // If project and mountPath are provided, then it's a push-bh command
+      if (argv.project && argv.mountPath) {
+        if (!argv.message || !argv.author || !argv.branch) {
+          process.stdout.write(
+            'Error: message, author and branch are required for push command to the BlueHarvest'
+          );
+          return;
+        }
+        // Destruct only needed properties from argv for pushBh command
+        const { organization, mountPath, message, author, branch, project, domain, config, $0, _ } =
+          argv;
+
+        commandWrapper(handleBhPush)({
+          files: argv.apis,
+          organization,
+          mountPath,
+          message,
+          author,
+          branch,
+          project,
+          domain,
+          config,
+          $0,
+          _,
+        });
+      } else {
+        // Get maybeDestination and maybeBranchName as positional arguments
+        const [api, maybeDestination, maybeBranchName] = argv.apis;
+        commandWrapper(transformPush(handlePush))({
+          ...argv,
+          api,
+          maybeDestination,
+          maybeBranchName,
+        });
+      }
     }
   )
   .command(
