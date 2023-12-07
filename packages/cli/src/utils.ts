@@ -626,3 +626,17 @@ export function cleanArgs(args: CommandOptions) {
 export function cleanRawInput(argv: string[]) {
   return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
 }
+
+export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
+  for (const option of deprecatedOptions) {
+    if (argv[option]) {
+      process.stderr.write(
+        yellow(
+          `[WARNING] "${String(
+            option
+          )}" option is deprecated and will be removed in a future release. \n\n`
+        )
+      );
+    }
+  }
+}
