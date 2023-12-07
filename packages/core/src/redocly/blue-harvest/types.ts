@@ -61,7 +61,11 @@ export type PushStatusResponse = {
   buildUrlLogs: string;
 };
 
-export type PushCommandStatusState = 'NOT_STARTED' | 'NO_CHANGES' | 'CONTENT_OUTDATED' | 'PROCESSED';
+export type PushCommandStatusState =
+  | 'NOT_STARTED'
+  | 'NO_CHANGES'
+  | 'CONTENT_OUTDATED'
+  | 'PROCESSED';
 
 export type ScorecardItem = {
   name: string;

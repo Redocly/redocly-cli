@@ -12,7 +12,7 @@ const builtInCommonRules = [
   'tags-alphabetical',
 ] as const;
 
-export type BuiltInCommonRuleId = typeof builtInCommonRules[number];
+export type BuiltInCommonRuleId = (typeof builtInCommonRules)[number];
 
 const builtInCommonOASRules = [
   'info-license-url',
@@ -50,7 +50,7 @@ const builtInCommonOASRules = [
   'no-unresolved-refs',
 ] as const;
 
-export type BuiltInCommonOASRuleId = typeof builtInCommonOASRules[number];
+export type BuiltInCommonOASRuleId = (typeof builtInCommonOASRules)[number];
 
 const builtInOAS2Rules = [
   'boolean-parameter-prefixes',
@@ -59,7 +59,7 @@ const builtInOAS2Rules = [
   'response-mime-type',
 ] as const;
 
-export type BuiltInOAS2RuleId = typeof builtInOAS2Rules[number];
+export type BuiltInOAS2RuleId = (typeof builtInOAS2Rules)[number];
 
 const builtInOAS3Rules = [
   'boolean-parameter-prefixes',
@@ -80,11 +80,11 @@ const builtInOAS3Rules = [
   'array-parameter-serialization',
 ] as const;
 
-export type BuiltInOAS3RuleId = typeof builtInOAS3Rules[number];
+export type BuiltInOAS3RuleId = (typeof builtInOAS3Rules)[number];
 
 const builtInAsync2Rules = ['channels-kebab-case', 'no-channel-trailing-slash'] as const;
 
-export type BuiltInAsync2RuleId = typeof builtInAsync2Rules[number];
+export type BuiltInAsync2RuleId = (typeof builtInAsync2Rules)[number];
 
 const builtInRules = [
   ...builtInCommonRules,
@@ -94,7 +94,7 @@ const builtInRules = [
   ...builtInAsync2Rules,
 ] as const;
 
-type BuiltInRuleId = typeof builtInRules[number];
+type BuiltInRuleId = (typeof builtInRules)[number];
 
 const nodeTypesList = [
   'any',

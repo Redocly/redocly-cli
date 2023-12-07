@@ -23,13 +23,12 @@ describe('handlePushStatus()', () => {
   };
 
   beforeEach(() => {
-    remotes.getRemotesList.mockResolvedValueOnce({items:[{ id: 'test-remote-id' }]});
+    remotes.getRemotesList.mockResolvedValueOnce({ items: [{ id: 'test-remote-id' }] });
 
     remotes.getPushStatus.mockResolvedValueOnce(pushResponseStub);
 
     jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
     jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
-
   });
 
   it('should return success push status', async () => {
@@ -43,7 +42,7 @@ describe('handlePushStatus()', () => {
         organization: 'test-org',
         project: 'test-project',
         pushId: 'test-push-id',
-        format: 'json'
+        format: 'json',
       },
       mockConfig
     );
@@ -53,12 +52,17 @@ describe('handlePushStatus()', () => {
       'test-project',
       'test-mount-path'
     );
-    expect(process.stderr.write).toHaveBeenCalledTimes(2)
-    expect(process.stdout.write).toHaveBeenCalledWith(JSON.stringify({
-        status: 'Success',
-        buildUrlLogs: 'https://test-build-url-logs',
-        url: 'https://test-url',
-    }, null,2))
-
+    expect(process.stderr.write).toHaveBeenCalledTimes(2);
+    expect(process.stdout.write).toHaveBeenCalledWith(
+      JSON.stringify(
+        {
+          status: 'Success',
+          buildUrlLogs: 'https://test-build-url-logs',
+          url: 'https://test-url',
+        },
+        null,
+        2
+      )
+    );
   });
 });

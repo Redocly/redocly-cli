@@ -63,7 +63,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
       `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
     );
 
-    const { branchName: filesBranch, pushStatusId  } = await client.remotes.push(
+    const { branchName: filesBranch, pushStatusId } = await client.remotes.push(
       orgId,
       projectId,
       remote.id,
