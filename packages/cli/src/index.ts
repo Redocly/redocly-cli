@@ -204,6 +204,7 @@ yargs
         .hide('mountPath')
         .hide('author')
         .hide('message')
+        .hide('isMainBranch')
         .deprecateOption('batch-id', 'use --job-id')
         .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
@@ -294,6 +295,10 @@ yargs
             requiresArg: true,
             type: 'string',
           },
+          isMainBranch: {
+            type: 'boolean',
+            default: false,
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
@@ -306,8 +311,19 @@ yargs
           return;
         }
         // Destruct only needed properties from argv for pushBh command
-        const { organization, mountPath, message, author, branch, project, domain, config, $0, _ } =
-          argv;
+        const {
+          organization,
+          mountPath,
+          message,
+          author,
+          branch,
+          project,
+          domain,
+          config,
+          isMainBranch,
+          $0,
+          _,
+        } = argv;
 
         commandWrapper(handleBhPush)({
           files: argv.apis,
@@ -319,6 +335,7 @@ yargs
           project,
           domain,
           config,
+          isMainBranch,
           $0,
           _,
         });

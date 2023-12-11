@@ -94,9 +94,16 @@ function printPushStatus(pushStatusResponse: PushStatusResponse) {
   process.stderr.write(
     `${colors.magenta('Status')}: ${getDeploymentAndBuildStatuses(pushStatusResponse.status)}\n\n`
   );
-  process.stderr.write(
-    `${colors.magenta('Build url logs')}: ${colors.cyan(pushStatusResponse.buildUrlLogs)}\n`
-  );
+
+  if (pushStatusResponse.status === 'SUCCEEDED') {
+    process.stderr.write(
+      `${colors.magenta('Preview URL')}: ${colors.cyan(pushStatusResponse.buildUrlLogs)}\n`
+    );
+  } else {
+    process.stderr.write(
+      `${colors.magenta('Build url logs')}: ${colors.cyan(pushStatusResponse.buildUrlLogs)}\n`
+    );
+  }
 
   if (
     pushStatusResponse.status === 'SUCCEEDED' &&

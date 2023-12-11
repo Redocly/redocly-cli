@@ -19,6 +19,7 @@ export type PushOptions = {
 
   domain?: string;
   config?: string;
+  isMainBranch?: boolean;
 };
 
 type FileToUpload = { name: string; path: string };
@@ -73,6 +74,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
           author,
           branchName: argv.branch,
         },
+        isMainBranch: argv.isMainBranch,
       },
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );

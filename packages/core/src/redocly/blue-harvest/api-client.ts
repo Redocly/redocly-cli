@@ -90,6 +90,7 @@ class RemotesApiClient {
           email: string;
         };
       };
+      isMainBranch?: boolean;
     },
     files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
@@ -103,6 +104,8 @@ class RemotesApiClient {
     for (const file of files) {
       formData.append(`files[${file.path}]`, file.stream);
     }
+
+    formData.append('isMainBranch', payload.isMainBranch ? 'true' : 'false');
 
     const response = await fetch(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes/${remoteId}/push`,
