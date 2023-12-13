@@ -40,32 +40,6 @@ export type BundleOptions = {
   keepUrlRefs?: boolean;
 };
 
-export async function resolveConfigFile({
-  configPath,
-  externalRefResolver = new BaseResolver(),
-  base = null,
-}: Omit<BundleOptions, 'config'> & { configPath?: string }) {
-  if (!configPath) {
-    throw new Error('Reference to a config is required.\n');
-  }
-
-  const document = await externalRefResolver.resolveDocument(base, configPath, true);
-
-  if (document instanceof Error) {
-    throw document;
-  }
-
-  const types = normalizeTypes(ConfigTypes);
-
-  const resolvedRefMap = await resolveDocument({
-    rootDocument: document,
-    rootType: types.ConfigRoot,
-    externalRefResolver,
-  });
-
-  return { document, resolvedRefMap };
-}
-
 export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
   const types = normalizeTypes(ConfigTypes);
 

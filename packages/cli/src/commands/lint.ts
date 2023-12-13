@@ -18,11 +18,11 @@ import {
   printLintTotals,
   printUnusedWarnings,
 } from '../utils';
-import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
-import type { CommandOptions, Skips, Totals } from '../types';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
 import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
+import type { CommandOptions, Skips, Totals } from '../types';
 
 export type LintOptions = {
   apis?: string[];
@@ -127,15 +127,11 @@ export function lintConfigCallback(
     return;
   }
 
-  return async (config: Document, resolvedRefMap: ResolvedRefMap) => {
-    // const configPath = findConfig(argv.config) || '';
-    // const stringYaml = stringifyYaml(config);
-    // const configContent = makeDocumentFromString(stringYaml, configPath);
-
+  return async (document: Document, resolvedRefMap: ResolvedRefMap) => {
     const problems = await lintConfig({
-      document: config,
-      severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
+      document,
       resolvedRefMap,
+      severity: (argv['lint-config'] || 'warn') as ProblemSeverity,
     });
 
     const fileTotals = getTotals(problems);

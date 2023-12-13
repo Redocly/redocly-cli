@@ -96,7 +96,7 @@ describe('getConfig', () => {
   });
 
   it('should resolve refs in config', async () => {
-    let problems;
+    let problems: NormalizedProblem[];
     const result = await getConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
       processRawConfig: async (config, resolvedRefMap) => {
@@ -118,7 +118,7 @@ describe('getConfig', () => {
         },
       },
     });
-    expect(replaceSourceWithRef(problems as NormalizedProblem[], __dirname)).toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(problems!, __dirname)).toMatchInlineSnapshot(`
       [
         {
           "location": [

@@ -5,10 +5,10 @@ import { doesYamlFileExist, isEmptyObject } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
-import { resolveConfig } from './config-resolvers';
+import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
 import type { RawConfig, RawUniversalConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
-import { bundleConfig, resolveConfigFile } from '../bundle';
+import { bundleConfig } from '../bundle';
 import { Document } from '../resolve';
 import type { BaseResolver, ResolvedRefMap } from '../resolve';
 
@@ -134,7 +134,7 @@ export async function getConfig(
   const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    const { document, resolvedRefMap } = await resolveConfigFile({
+    const { document, resolvedRefMap } = await resolveConfigFileAndRefs({
       configPath,
       externalRefResolver,
     });

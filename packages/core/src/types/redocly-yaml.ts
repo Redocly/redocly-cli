@@ -1063,5 +1063,4 @@ export const ConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionAssertions,
   AssertionDefinitionSubject,
   ...PortalConfigTypes,
-  // seoConfigSchema:  eoConfigSchema ,//as unknown as NodeType, // TODO: fix and extend
 };

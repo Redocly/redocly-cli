@@ -112,8 +112,8 @@ export async function lintDocument(opts: {
 
 export async function lintConfig(opts: {
   document: Document;
-  severity?: ProblemSeverity;
   resolvedRefMap?: ResolvedRefMap;
+  severity?: ProblemSeverity;
   externalRefResolver?: BaseResolver;
 }) {
   const { document, severity, externalRefResolver = new BaseResolver() } = opts;
