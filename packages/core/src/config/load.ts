@@ -124,11 +124,13 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(options: {
-  configPath?: string;
-  processRawConfig?: RawConfigProcessor;
-  externalRefResolver?: BaseResolver;
-} = {}): Promise<RawConfig> {
+export async function getConfig(
+  options: {
+    configPath?: string;
+    processRawConfig?: RawConfigProcessor;
+    externalRefResolver?: BaseResolver;
+  } = {}
+): Promise<RawConfig> {
   const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
