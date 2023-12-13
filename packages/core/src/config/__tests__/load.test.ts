@@ -95,7 +95,7 @@ describe('getConfig', () => {
     expect(getConfig()).toEqual(Promise.resolve({}));
   });
 
-  it('should resolve refs in a config', async () => {
+  it('should resolve refs in config', async () => {
     let problems;
     const result = await getConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
@@ -117,14 +117,22 @@ describe('getConfig', () => {
           'non-existing-rule': 'warn',
         },
       },
-      theme: {
-        mockServer: {},
-        openapi: {},
-      },
     });
-    expect(replaceSourceWithRef(problems as unknown as NormalizedProblem[], __dirname))
-      .toMatchInlineSnapshot(`
+    expect(replaceSourceWithRef(problems as NormalizedProblem[], __dirname)).toMatchInlineSnapshot(`
       [
+        {
+          "location": [
+            {
+              "pointer": "#/theme",
+              "reportOnKey": false,
+              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
+          "severity": "warn",
+          "suggest": [],
+        },
         {
           "from": {
             "pointer": "#/rules",

@@ -201,7 +201,7 @@ const ConfigRoot: NodeType = {
     ...RootConfigStyleguide.properties,
     apis: 'ConfigApis',
     theme: 'ConfigRootTheme',
-    seo: 'seoConfigSchema', //
+    seo: 'seoConfigSchema', // TODO: add more here
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
