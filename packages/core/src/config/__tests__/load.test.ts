@@ -1,10 +1,10 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
-import { RuleConfig, FlatRawConfig } from './../types';
 import { Config } from '../config';
 import { lintConfig } from '../../lint';
-import { NormalizedProblem } from '../../walk';
 import { replaceSourceWithRef } from '../../../__tests__/utils';
+import type { RuleConfig, FlatRawConfig } from './../types';
+import type { NormalizedProblem } from '../../walk';
 
 const fs = require('fs');
 const path = require('path');
