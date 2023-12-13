@@ -35,7 +35,9 @@ import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
-import type { ConfigValidationError, RawConfigProcessor } from '@redocly/openapi-core/lib/config';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
+
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,

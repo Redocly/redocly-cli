@@ -126,7 +126,7 @@ const metadataConfigSchema = {
   additionalProperties: true,
 } as const;
 
- const seoConfigSchema: NodeType = {
+const seoConfigSchema: NodeType = {
   // type: 'object', // Removing for compatibility
   properties: {
     title: { type: 'string' },
@@ -152,8 +152,7 @@ const metadataConfigSchema = {
   // additionalProperties: {}  // Removing for compatibility
 } as const;
 
-export const PortalConfigTypes: Record<string, NodeType> = { seoConfigSchema } // TODO: Extract all other types that need to be linted in the config
-
+export const PortalConfigTypes: Record<string, NodeType> = { seoConfigSchema }; // TODO: Extract all other types that need to be linted in the config
 
 const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
 

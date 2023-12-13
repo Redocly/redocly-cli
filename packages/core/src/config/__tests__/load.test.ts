@@ -92,21 +92,21 @@ describe('findConfig', () => {
 describe('getConfig', () => {
   jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
   it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(getConfig()).toEqual(Promise.resolve({}));
+    expect(getConfig({ configPath: undefined })).toEqual(Promise.resolve({}));
   });
 
   it('should resolve refs in a config', async () => {
     let problems;
-    const result = await getConfig(
-      path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
-      async (config, resolvedRefMap) => {
+    const result = await getConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
+      processRawConfig: async (config, resolvedRefMap) => {
         problems = await lintConfig({
           document: config,
           severity: 'warn',
           resolvedRefMap,
         });
-      }
-    );
+      },
+    });
     expect(result).toEqual({
       seo: {
         title: 1,

@@ -131,7 +131,7 @@ export function lintConfigCallback(
     // const configPath = findConfig(argv.config) || '';
     // const stringYaml = stringifyYaml(config);
     // const configContent = makeDocumentFromString(stringYaml, configPath);
-    
+
     const problems = await lintConfig({
       document: config,
       severity: (argv['lint-config'] || 'warn') as ProblemSeverity,

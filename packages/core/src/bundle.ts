@@ -1,10 +1,5 @@
 import isEqual = require('lodash.isequal');
-import {
-  BaseResolver,
-  resolveDocument,
-  makeRefId,
-  makeDocumentFromString,
-} from './resolve';
+import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve';
 import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
 import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
 import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
@@ -26,7 +21,7 @@ import { ConfigTypes } from './types/redocly-yaml';
 
 import type { Config, StyleguideConfig } from './config';
 import type { OasRef } from './typings/openapi';
-import type {   Document, ResolvedRefMap } from './resolve';
+import type { Document, ResolvedRefMap } from './resolve';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -45,21 +40,18 @@ export type BundleOptions = {
   keepUrlRefs?: boolean;
 };
 
+export async function resolveConfigFile(
+  opts: {
+    ref?: string;
+  } & BundleOptions
+) {
+  const { ref, externalRefResolver = new BaseResolver(), base = null } = opts;
 
-export async function resolveConfigFile(opts: {
-  ref?: string;
-} & BundleOptions) {
-  const {
-    ref,
-    externalRefResolver = new BaseResolver(),
-    base = null,
-  } = opts;
-
-  if (!(ref)) {
+  if (!ref) {
     throw new Error('Reference to a config is required.\n');
   }
 
-  const document = await externalRefResolver.resolveDocument(base, ref!, true)
+  const document = await externalRefResolver.resolveDocument(base, ref!, true);
 
   if (document instanceof Error) {
     throw document;
@@ -73,14 +65,10 @@ export async function resolveConfigFile(opts: {
     externalRefResolver,
   });
 
-  return { document,  resolvedRefMap };
+  return { document, resolvedRefMap };
 }
 
-export async function bundleConfig(
-  document: Document,
-  resolvedRefMap: ResolvedRefMap,
-) {
-
+export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
   const types = normalizeTypes(ConfigTypes);
 
   const ctx: BundleContext = {
@@ -98,7 +86,7 @@ export async function bundleConfig(
         visitor: {
           ref: {
             leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-              replaceRef(node, resolved, ctx); 
+              replaceRef(node, resolved, ctx);
             },
           },
         },
@@ -109,7 +97,7 @@ export async function bundleConfig(
 
   walkDocument({
     document,
-    rootType: types.ConfigRoot ,
+    rootType: types.ConfigRoot,
     normalizedVisitors: bundleVisitor,
     resolvedRefMap,
     ctx,

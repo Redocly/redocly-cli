@@ -2,7 +2,7 @@ import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { PortalConfigTypes } from "./portal-config-schema";
+import { PortalConfigTypes } from './portal-config-schema';
 
 const builtInCommonRules = [
   'spec',
@@ -996,7 +996,6 @@ const ConfigMockServer: NodeType = {
     errorIfForcedExampleNotFound: { type: 'boolean' },
   },
 };
-
 
 export const ConfigTypes: Record<string, NodeType> = {
   Assert,

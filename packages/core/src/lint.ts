@@ -1,4 +1,10 @@
-import { BaseResolver, resolveDocument, Document, makeDocumentFromString, ResolvedRefMap } from './resolve';
+import {
+  BaseResolver,
+  resolveDocument,
+  Document,
+  makeDocumentFromString,
+  ResolvedRefMap,
+} from './resolve';
 import { normalizeVisitors } from './visitors';
 import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
@@ -103,8 +109,13 @@ export async function lintDocument(opts: {
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
-export async function lintConfig(opts: { document: Document; severity?: ProblemSeverity ; resolvedRefMap?: ResolvedRefMap}) {
-  const { document, severity } = opts;
+export async function lintConfig(opts: {
+  document: Document;
+  severity?: ProblemSeverity;
+  resolvedRefMap?: ResolvedRefMap;
+  externalRefResolver?: BaseResolver;
+}) {
+  const { document, severity, externalRefResolver = new BaseResolver() } = opts;
 
   const ctx: WalkContext = {
     problems: [],
@@ -127,8 +138,8 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
     {
       severity: severity || 'error',
       ruleId: 'configuration no-unresolved-refs',
-      visitor: NoUnresolvedRefs({ severity: 'error' })
-    }
+      visitor: NoUnresolvedRefs({ severity: 'error' }),
+    },
   ];
   // TODO: check why any is needed
   const normalizedVisitors = normalizeVisitors(rules as any, types);
@@ -136,7 +147,13 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
     document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
-    resolvedRefMap: opts.resolvedRefMap ||    new Map(),
+    resolvedRefMap:
+      opts.resolvedRefMap ||
+      (await resolveDocument({
+        rootDocument: document,
+        rootType: types.ConfigRoot,
+        externalRefResolver,
+      })),
     ctx,
   });
 
