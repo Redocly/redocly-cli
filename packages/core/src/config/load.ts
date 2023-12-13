@@ -75,7 +75,7 @@ export async function loadConfig(
     customExtends?: string[];
     processRawConfig?: (
       rawConfig: Document,
-      resolvedRefMap?: ResolvedRefMap
+      resolvedRefMap: ResolvedRefMap
     ) => void | Promise<void>;
     files?: string[];
     region?: Region;
@@ -116,7 +116,7 @@ export function findConfig(dir?: string): string | undefined {
 
 export async function getConfig(
   configPath: string | undefined = findConfig(),
-  processRawConfig?: (rawConfig: Document, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>
+  processRawConfig?: (rawConfig: Document, resolvedRefMap: ResolvedRefMap) => void | Promise<void>
 ): Promise<RawConfig> {
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {

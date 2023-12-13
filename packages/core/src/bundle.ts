@@ -73,7 +73,7 @@ export async function resolveConfigFile(opts: {
     externalRefResolver,
   });
 
-  return { document: document as Document,  resolvedRefMap };
+  return { document,  resolvedRefMap };
 }
 
 export async function bundleConfig(

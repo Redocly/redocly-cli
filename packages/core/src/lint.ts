@@ -8,6 +8,7 @@ import { releaseAjvInstance } from './rules/ajv';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
+import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
 
 export async function lint(opts: {
   ref: string;
@@ -123,6 +124,11 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
       ruleId: 'configuration spec',
       visitor: Spec({ severity: 'error' }),
     },
+    {
+      severity: severity || 'error',
+      ruleId: 'configuration no-unresolved-refs',
+      visitor: NoUnresolvedRefs({ severity: 'error' })
+    }
   ];
   // TODO: check why any is needed
   const normalizedVisitors = normalizeVisitors(rules as any, types);

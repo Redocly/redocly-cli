@@ -127,7 +127,7 @@ export function lintConfigCallback(
     return;
   }
 
-  return async (config: Document, resolvedRefMap?: ResolvedRefMap) => {
+  return async (config: Document, resolvedRefMap: ResolvedRefMap) => {
     // const configPath = findConfig(argv.config) || '';
     // const stringYaml = stringifyYaml(config);
     // const configContent = makeDocumentFromString(stringYaml, configPath);

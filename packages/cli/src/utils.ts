@@ -426,7 +426,7 @@ export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: Document, resolvedRefMap?: ResolvedRefMap) => void | Promise<void>;
+    processRawConfig?: (rawConfig: Document, resolvedRefMap: ResolvedRefMap) => void | Promise<void>;
     files?: string[];
     region?: Region;
   } = {}

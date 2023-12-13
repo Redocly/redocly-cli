@@ -1,3 +1,4 @@
-theme:
-  logo: 
-    maxWidth: 100 # Fail - should be a string
+content:
+  theme:
+    logo:
+      maxWidth: 100 # Fail - should be a string
