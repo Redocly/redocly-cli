@@ -9,5 +9,3 @@ non-existing-root-property: Fail
 theme:
   openapi:
     $ref: ./theme-openapi.yaml#/content
-  # mockServer:
-  #   $ref: ./wrong-ref.yaml # FIXME: strip absolute paths in snapshots
