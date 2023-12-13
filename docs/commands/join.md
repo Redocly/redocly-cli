@@ -37,7 +37,7 @@ redocly join --version
 
 {% admonition type="warning" name="Important" %}
 The `--lint` option is deprecated and is marked for removal in future releases.
-Use the [lint command](./lint.md) separately to lint your APIs before bundling.
+Use the [lint command](./lint.md) separately to lint your APIs before joining.
 {% /admonition %}
 
 | Option                             | Type     | Description                                                                                                                                                                                                |
