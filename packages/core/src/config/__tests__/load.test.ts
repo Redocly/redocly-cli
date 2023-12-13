@@ -92,7 +92,7 @@ describe('findConfig', () => {
 describe('getConfig', () => {
   jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
   it('should return empty object if there is no configPath and config file is not found', () => {
-    expect(getConfig({ configPath: undefined })).toEqual(Promise.resolve({}));
+    expect(getConfig()).toEqual(Promise.resolve({}));
   });
 
   it('should resolve refs in a config', async () => {

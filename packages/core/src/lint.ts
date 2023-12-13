@@ -6,7 +6,6 @@ import {
   ResolvedRefMap,
 } from './resolve';
 import { normalizeVisitors } from './visitors';
-import { NodeType } from './types';
 import { ProblemSeverity, WalkContext, walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
@@ -15,6 +14,8 @@ import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-ty
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
+import type { NodeType } from './types';
+import type { NestedVisitObject, Oas3Visitor, RuleInstanceConfig } from './visitors';
 
 export async function lint(opts: {
   ref: string;
@@ -129,7 +130,9 @@ export async function lintConfig(opts: {
   });
 
   const types = normalizeTypes(ConfigTypes, config);
-  const rules = [
+  const rules: (RuleInstanceConfig & {
+    visitor: NestedVisitObject<unknown, Oas3Visitor | Oas3Visitor[]>;
+  })[] = [
     {
       severity: severity || 'error',
       ruleId: 'configuration spec',
@@ -141,19 +144,19 @@ export async function lintConfig(opts: {
       visitor: NoUnresolvedRefs({ severity: 'error' }),
     },
   ];
-  // TODO: check why any is needed
-  const normalizedVisitors = normalizeVisitors(rules as any, types);
+  const normalizedVisitors = normalizeVisitors(rules, types);
+  const resolvedRefMap =
+    opts.resolvedRefMap ||
+    (await resolveDocument({
+      rootDocument: document,
+      rootType: types.ConfigRoot,
+      externalRefResolver,
+    }));
   walkDocument({
     document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
-    resolvedRefMap:
-      opts.resolvedRefMap ||
-      (await resolveDocument({
-        rootDocument: document,
-        rootType: types.ConfigRoot,
-        externalRefResolver,
-      })),
+    resolvedRefMap,
     ctx,
   });
 

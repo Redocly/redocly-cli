@@ -34,24 +34,22 @@ export type BundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
-  base?: string;
+  base?: string | null;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
 };
 
-export async function resolveConfigFile(
-  opts: {
-    ref?: string;
-  } & BundleOptions
-) {
-  const { ref, externalRefResolver = new BaseResolver(), base = null } = opts;
-
-  if (!ref) {
+export async function resolveConfigFile({
+  configPath,
+  externalRefResolver = new BaseResolver(),
+  base = null,
+}: Omit<BundleOptions, 'config'> & { configPath?: string }) {
+  if (!configPath) {
     throw new Error('Reference to a config is required.\n');
   }
 
-  const document = await externalRefResolver.resolveDocument(base, ref!, true);
+  const document = await externalRefResolver.resolveDocument(base, configPath, true);
 
   if (document instanceof Error) {
     throw document;

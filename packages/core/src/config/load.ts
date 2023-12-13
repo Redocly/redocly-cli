@@ -125,18 +125,15 @@ export function findConfig(dir?: string): string | undefined {
 }
 
 export async function getConfig(options: {
-  configPath: string | undefined;
+  configPath?: string;
   processRawConfig?: RawConfigProcessor;
   externalRefResolver?: BaseResolver;
-}): Promise<RawConfig> {
+} = {}): Promise<RawConfig> {
   const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
-    // const rawConfig =
-    //   (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
     const { document, resolvedRefMap } = await resolveConfigFile({
-      ref: configPath,
-      config: {} as any,
+      configPath,
       externalRefResolver,
     });
     if (typeof processRawConfig === 'function') {
