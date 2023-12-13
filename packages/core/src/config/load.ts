@@ -10,7 +10,7 @@ import type { RawConfig, RawUniversalConfig, Region } from './types';
 import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import {bundleConfig, resolveConfigFile} from '../bundle';
 import { Document } from '../resolve';
-import type { ResolvedRefMap } from '../resolve';
+import type { BaseResolver, ResolvedRefMap } from '../resolve';
 
 async function addConfigMetadata({
   rawConfig,
@@ -69,20 +69,23 @@ async function addConfigMetadata({
   );
 }
 
+export type RawConfigProcessor = (
+  rawConfig: Document,
+  resolvedRefMap: ResolvedRefMap
+) => void | Promise<void>
+
 export async function loadConfig(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (
-      rawConfig: Document,
-      resolvedRefMap: ResolvedRefMap
-    ) => void | Promise<void>;
+    processRawConfig?: RawConfigProcessor;
+    externalRefResolver?: BaseResolver;
     files?: string[];
     region?: Region;
   } = {}
 ): Promise<Config> {
-  const { configPath = findConfig(), customExtends, processRawConfig, files, region } = options;
-  const rawConfig = await getConfig(configPath, processRawConfig);
+  const { configPath = findConfig(), customExtends, processRawConfig, files, region , externalRefResolver} = options;
+  const rawConfig = await getConfig({configPath, processRawConfig, externalRefResolver});
 
   const redoclyClient = new RedoclyClient();
   const tokens = await redoclyClient.getTokens();
@@ -114,15 +117,17 @@ export function findConfig(dir?: string): string | undefined {
   return existingConfigFiles[0];
 }
 
-export async function getConfig(
-  configPath: string | undefined = findConfig(),
-  processRawConfig?: (rawConfig: Document, resolvedRefMap: ResolvedRefMap) => void | Promise<void>
-): Promise<RawConfig> {
+export async function getConfig(options: {
+  configPath: string | undefined ;
+  processRawConfig?: RawConfigProcessor;
+externalRefResolver?: BaseResolver;
+}): Promise<RawConfig> {
+  const { configPath = findConfig(), processRawConfig, externalRefResolver } = options;
   if (!configPath || !doesYamlFileExist(configPath)) return {};
   try {
     // const rawConfig =
     //   (await loadYaml<RawConfig & DeprecatedInRawConfig & FlatRawConfig>(configPath)) || {};
-    const { document, resolvedRefMap } = await resolveConfigFile({ ref: configPath, config: {} as any });
+    const { document, resolvedRefMap } = await resolveConfigFile({ ref: configPath, config: {} as any, externalRefResolver });
     if (typeof processRawConfig === 'function') {
       await processRawConfig(document, resolvedRefMap);
     }

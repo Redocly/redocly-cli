@@ -51,7 +51,7 @@ export async function resolveConfigFile(opts: {
 } & BundleOptions) {
   const {
     ref,
-    externalRefResolver = new BaseResolver(/* opts.config.resolve */),
+    externalRefResolver = new BaseResolver(),
     base = null,
   } = opts;
 

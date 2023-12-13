@@ -17,14 +17,12 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
   loadConfig,
-  Document,
   Region,
   Config,
   Oas3Definition,
   Oas2Definition,
   RedoclyClient,
 } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import {
   Totals,
   outputExtensions,
@@ -37,7 +35,7 @@ import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
-import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
+import type { ConfigValidationError, RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -426,7 +424,7 @@ export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: Document, resolvedRefMap: ResolvedRefMap) => void | Promise<void>;
+    processRawConfig?: RawConfigProcessor;
     files?: string[];
     region?: Region;
   } = {}
