@@ -38,7 +38,7 @@ The `ctx` object here holds all the context, which can be used to give more situ
 Adding this as part of a plugin requires you to add it to the `rules` part of the plugin object, under the relevant document type. The example rule here is intended to be used with OpenAPI, so the plugin code in `plugins/my-rules.js` is as follows:
 
 ```js
-const OpIdNotTest = require('./rules/opid-not-test.js');
+const OperationIdNotTest = require('./rules/opid-not-test.js');
 
 module.exports = {
   id: 'my-rules',
