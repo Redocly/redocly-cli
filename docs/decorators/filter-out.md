@@ -43,7 +43,7 @@ apis:
 To apply the decorator to the OpenAPI description, run the `bundle` command, like this:
 
 ```bash
-redocly bundle openapi.yaml -o museum-filtered.yaml
+redocly bundle filterout -o museum-filtered.yaml
 ```
 
 Open the output file, `museum-filtered.yaml`, and the endpoints relating to special events have all been removed. Repeat the `stats` command, and this time the numbers are reported as:
