@@ -101,7 +101,7 @@ yargs
           demandOption: true,
         })
         .option({
-          lint: { description: 'Lint definitions', type: 'boolean', default: false },
+          lint: { description: 'Lint definitions', type: 'boolean', default: false, hidden: true },
           decorate: { description: 'Run decorators', type: 'boolean', default: false },
           preprocess: { description: 'Run preprocessors', type: 'boolean', default: false },
           'prefix-tags-with-info-prop': {

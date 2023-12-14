@@ -23,6 +23,7 @@ import type { OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
+import { checkForDeprecatedOptions } from '../utils';
 
 export type BundleOptions = {
   apis?: string[];
@@ -47,8 +48,15 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
   const maxProblems = argv['max-problems'];
+  const deprecatedOptions: Array<keyof BundleOptions> = [
+    'lint',
+    'format',
+    'skip-rule',
+    'extends',
+    'max-problems',
+  ];
 
-  checkForDeprecatedOptions(argv);
+  checkForDeprecatedOptions(argv, deprecatedOptions);
 
   for (const { path, alias } of apis) {
     try {
@@ -175,25 +183,5 @@ export async function handleBundle(argv: BundleOptions, config: Config, version:
 
   if (!(totals.errors === 0 || argv.force)) {
     throw new Error('Bundle failed.');
-  }
-}
-
-function checkForDeprecatedOptions(argv: BundleOptions) {
-  const deprecatedOptions: Array<keyof BundleOptions> = [
-    'lint',
-    'format',
-    'skip-rule',
-    'extends',
-    'max-problems',
-  ];
-
-  for (const option of deprecatedOptions) {
-    if (argv[option]) {
-      process.stderr.write(
-        yellow(
-          `[WARNING] "${option}" option is deprecated and will be removed in a future release. \n\n`
-        )
-      );
-    }
   }
 }
