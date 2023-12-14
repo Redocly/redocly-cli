@@ -7,7 +7,6 @@ import type {
   ListRemotesResponse,
   ProjectSourceResponse,
   PushResponse,
-  PushStatusResponse,
   UpsertRemoteResponse,
 } from './types';
 
@@ -80,14 +79,20 @@ class RemotesApiClient {
   async push(
     organizationId: string,
     projectId: string,
-    remoteId: string,
     payload: {
+      remoteId: string,
       commit: {
         message: string;
         branchName: string;
+        sha?: string;
+        url?: string;
+        createdAt?: string;
+        namespace?: string;
+        repository?: string;
         author: {
           name: string;
           email: string;
+          image?: string;
         };
       };
       isMainBranch?: boolean;
@@ -96,6 +101,7 @@ class RemotesApiClient {
   ): Promise<PushResponse> {
     const formData = new FormData();
 
+    formData.append('remoteId', payload.remoteId);
     formData.append('commit[message]', payload.commit.message);
     formData.append('commit[author][name]', payload.commit.author.name);
     formData.append('commit[author][email]', payload.commit.author.email);
@@ -108,7 +114,7 @@ class RemotesApiClient {
     formData.append('isMainBranch', payload.isMainBranch ? 'true' : 'false');
 
     const response = await fetch(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes/${remoteId}/push`,
+      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
       {
         method: 'POST',
         headers: {
@@ -144,19 +150,17 @@ class RemotesApiClient {
     }
   }
 
-  async getPushStatus({
+  async getPush({
     organizationId,
     projectId,
     pushId,
-    remoteId,
   }: {
     organizationId: string;
     projectId: string;
     pushId: string;
-    remoteId: string;
   }) {
     const response = await fetch(
-      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes/${remoteId}/push-status/${pushId}`,
+      `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes/${pushId}`,
       {
         method: 'GET',
         headers: {
@@ -167,7 +171,7 @@ class RemotesApiClient {
     );
 
     try {
-      return await this.getParsedResponse<PushStatusResponse>(response);
+      return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
       throw new Error(`Failed to get push status: ${err.message || 'Unknown error'}`);
     }

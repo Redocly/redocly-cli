@@ -1,20 +1,13 @@
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 
-import {
-  BlueHarvestApiClient,
-  Config,
-  PushStatusBase,
-  PushStatusResponse,
-  ScorecardItem,
-} from '@redocly/openapi-core';
-import { cleanColors, exitWithError, printExecutionTime } from '../../utils';
+import { BlueHarvestApiClient, Config, PushStatusBase, ScorecardItem } from '@redocly/openapi-core';
+import { exitWithError, printExecutionTime } from '../../utils';
 import * as colors from 'colorette';
 
 export type PushStatusOptions = {
   organization: string;
   project: string;
-  mountPath: string;
   pushId: string;
   domain?: string;
   config?: string;
@@ -24,7 +17,7 @@ export type PushStatusOptions = {
 export async function handlePushStatus(argv: PushStatusOptions, config: Config) {
   const startedAt = performance.now();
 
-  const { organization, project: projectId, mountPath, pushId } = argv;
+  const { organization, project: projectId, pushId } = argv;
 
   const orgId = organization || config.organization;
 
@@ -46,74 +39,47 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
     const apiKey = getApiKeys(domain);
     const client = new BlueHarvestApiClient(domain, apiKey);
 
-    const remoteList = await client.remotes.getRemotesList(orgId, projectId, mountPath);
-
-    if (!remoteList.items.length) {
-      return exitWithError(
-        `No remote found for mount path ${mountPath} in project ${projectId} in organization ${orgId}.`
-      );
-    }
-
-    const remote = remoteList.items[0];
-
-    const pushStatus = await client.remotes.getPushStatus({
+    const push = await client.remotes.getPush({
       organizationId: orgId,
       projectId,
       pushId,
-      remoteId: remote.id,
     });
 
-    process.stderr.write(
-      `\nProcessed push-status for ${colors.yellow(orgId)}, ${colors.yellow(
-        projectId
-      )} and mount path ${colors.yellow(mountPath)}.\n\n`
-    );
-
     if (argv.format === 'stylish') {
-      printPushStatus(pushStatus);
-    } else {
-      process.stdout.write(JSON.stringify(formatPushStatusToJson(pushStatus), null, 2));
-    }
+      process.stderr.write(
+        `\nProcessed push-status for ${colors.yellow(orgId)}, ${colors.yellow(
+          projectId
+        )} and pushID ${colors.yellow(pushId)}.\n\n`
+      );
 
-    printExecutionTime('push-status', startedAt, 'Finished');
+      if (push.isOutdated || !push.hasChanges) {
+        process.stderr.write(
+          `Files not uploaded. Reason: ${push.isOutdated ? 'outdated' : 'no changes'}.\n`
+        );
+      } else {
+        process.stderr.write(
+          `${colors.magenta('Status')}: ${getDeploymentAndBuildStatuses(
+            push.status.deploy.status
+          )}\n\n`
+        );
+
+        if (push.status.deploy.url) {
+          process.stderr.write(
+            `${colors.magenta('Preview URL')}: ${colors.cyan(push.status.deploy.url)}\n`
+          );
+        }
+
+        if (push.status.scorecard.length) {
+          printScorecard(push.status.scorecard);
+        }
+      }
+
+      printExecutionTime('push-status', startedAt, 'Finished');
+    } else {
+      process.stdout.write(`${JSON.stringify(push, null, 2)}\n`);
+    }
   } catch (err) {
     exitWithError(`✗ Failed to get push status. Reason: ${err.message}\n`);
-  }
-}
-
-function printPushStatus(pushStatusResponse: PushStatusResponse) {
-  if (
-    pushStatusResponse.status === 'CONTENT_OUTDATED' ||
-    pushStatusResponse.status === 'NO_CHANGES' ||
-    pushStatusResponse.status === 'PROCESSED'
-  ) {
-    process.stderr.write(`Push status is not processed. Reason: ${pushStatusResponse.status}.\n`);
-    return;
-  }
-
-  process.stderr.write(
-    `${colors.magenta('Status')}: ${getDeploymentAndBuildStatuses(pushStatusResponse.status)}\n\n`
-  );
-
-  if (pushStatusResponse.status === 'SUCCEEDED') {
-    process.stderr.write(
-      `${colors.magenta('Preview URL')}: ${colors.cyan(pushStatusResponse.buildUrlLogs)}\n`
-    );
-  } else {
-    process.stderr.write(
-      `${colors.magenta('Build url logs')}: ${colors.cyan(pushStatusResponse.buildUrlLogs)}\n`
-    );
-  }
-
-  if (
-    pushStatusResponse.status === 'SUCCEEDED' &&
-    pushStatusResponse.deploymentStatus === 'SUCCEEDED'
-  ) {
-    process.stderr.write(`${colors.blue('URL')}: ${colors.cyan(pushStatusResponse.url)}\n`);
-  }
-
-  if (pushStatusResponse.scorecard.length) {
-    printScorecard(pushStatusResponse.scorecard);
   }
 }
 
@@ -129,7 +95,7 @@ function printScorecard(scorecard: ScorecardItem[]) {
 }
 
 function getDeploymentAndBuildStatuses(
-  status: PushStatusBase | 'NOT_STARTED' | 'QUEUED' | 'NO_CHANGES'
+  status: PushStatusBase | 'NOT_STARTED' | 'QUEUED' | 'NO_CHANGES' | 'SKIPPED'
 ) {
   switch (status) {
     case 'SUCCEEDED':
@@ -140,36 +106,11 @@ function getDeploymentAndBuildStatuses(
       return `${colors.gray('Not started')}`;
     case 'QUEUED':
       return `${colors.yellow('Queued')}`;
+    case 'SKIPPED':
+      return `${colors.yellow('Queued')}`;
     case 'NO_CHANGES':
       return `${colors.gray('No changes')}`;
     case 'IN_PROGRESS':
       return `${colors.gray('In progress')}`;
   }
-}
-
-function formatPushStatusToJson(pushStatusResponse: PushStatusResponse) {
-  if (
-    pushStatusResponse.status === 'CONTENT_OUTDATED' ||
-    pushStatusResponse.status === 'NO_CHANGES' ||
-    pushStatusResponse.status === 'PROCESSED'
-  ) {
-    return {
-      status: pushStatusResponse.status,
-    };
-  }
-
-  return {
-    status: cleanColors(getDeploymentAndBuildStatuses(pushStatusResponse.status)),
-    buildUrlLogs: pushStatusResponse.buildUrlLogs,
-    ...(pushStatusResponse.status === 'SUCCEEDED' &&
-      pushStatusResponse.deploymentStatus === 'SUCCEEDED' && { url: pushStatusResponse.url }),
-    ...(pushStatusResponse.scorecard.length && {
-      scorecard: pushStatusResponse.scorecard.map((item) => ({
-        name: item.name,
-        status: cleanColors(getDeploymentAndBuildStatuses(item.status)),
-        description: item.description,
-        url: item.targetUrl,
-      })),
-    }),
-  };
 }

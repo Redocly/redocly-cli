@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Config, BlueHarvestApiClient, slash } from '@redocly/openapi-core';
-import * as pluralize from 'pluralize';
+// import * as pluralize from 'pluralize';
 import { exitWithError, printExecutionTime } from '../../utils';
-import { green, yellow } from 'colorette';
+import { red, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 
@@ -15,6 +15,12 @@ export type PushOptions = {
   branch: string;
   author: string;
   message: string;
+  commitSha?: string;
+  commitUrl?: string;
+  namespace?: string;
+  repository?: string;
+  createdAt?: string;
+
   files: string[];
 
   domain?: string;
@@ -60,39 +66,47 @@ export async function handlePush(argv: PushOptions, config: Config) {
       mountPath,
     });
 
-    process.stdout.write(
-      `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
-    );
+    // process.stdout.write(
+    //   `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
+    // );
 
-    const { branchName: filesBranch, pushStatusId } = await client.remotes.push(
+    const { id } = await client.remotes.push(
       orgId,
       projectId,
-      remote.id,
       {
+        remoteId: remote.id,
         commit: {
           message: argv.message,
-          author,
           branchName: argv.branch,
+          sha: argv.commitSha,
+          url: argv.commitUrl,
+          createdAt: argv.createdAt,
+          namespace: argv.namespace,
+          repository: argv.repository,
+          author,
         },
         isMainBranch: argv.isMainBranch,
       },
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
 
-    filesToUpload.forEach((f) => {
-      process.stdout.write(green(`✓ ${f.name}\n`));
-    });
+    // filesToUpload.forEach((f) => {
+    //   process.stdout.write(green(`✓ ${f.name}\n`));
+    // });
 
-    printExecutionTime(
-      'push-bh',
-      startedAt,
-      `${pluralize(
-        'file',
-        filesToUpload.length
-      )} uploaded to organization ${orgId}, project ${projectId}, branch ${filesBranch}. Push status ID: ${pushStatusId}.`
-    );
+    // printExecutionTime(
+    //   'push-bh',
+    //   startedAt,
+    //   `${pluralize(
+    //     'file',
+    //     filesToUpload.length
+    //   )} uploaded to organization ${orgId}, project ${projectId}, branch ${filesBranch}. Push ID: ${id}.`
+    // );
+
+    process.stdout.write(`${id}\n`);
   } catch (err) {
-    exitWithError(`✗ File upload failed. Reason: ${err.message}\n`);
+    process.stderr.write(red(`✗ File upload failed. Reason: ${err.message}\n`) + '\n\n');
+    process.exit(1);
   }
 }
 

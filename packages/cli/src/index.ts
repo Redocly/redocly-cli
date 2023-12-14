@@ -169,12 +169,6 @@ yargs
           required: true,
           alias: 'p',
         },
-        mountPath: {
-          description: 'The path files should be pushed to.',
-          type: 'string',
-          required: true,
-          alias: 'mp',
-        },
         domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
         format: {
           description: 'Output format.',
@@ -289,6 +283,28 @@ yargs
             type: 'string',
             alias: 'm',
           },
+          commitSha: {
+            description: 'Commit SHA.',
+            type: 'string',
+            alias: 'sha',
+          },
+          commitUrl: {
+            description: 'Commit URL.',
+            type: 'string',
+            alias: 'url',
+          },
+          namespace: {
+            description: 'Repository namespace.',
+            type: 'string',
+          },
+          repository: {
+            description: 'Repository name.',
+            type: 'string',
+          },
+          createdAt: {
+            description: 'Commit creation date.',
+            type: 'string',
+          },
           domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
           config: {
             description: 'Path to the config file.',
@@ -321,6 +337,11 @@ yargs
           domain,
           config,
           isMainBranch,
+          commitSha,
+          commitUrl,
+          namespace,
+          repository,
+          createdAt,
           $0,
           _,
         } = argv;
@@ -336,6 +357,11 @@ yargs
           domain,
           config,
           isMainBranch,
+          commitSha,
+          commitUrl,
+          namespace,
+          repository,
+          createdAt,
           $0,
           _,
         });

@@ -46,26 +46,40 @@ export type Remote = {
 };
 
 export type PushResponse = {
-  branchName: string;
+  id: string;
+  remoteId: string;
+  commit: {
+    message: string;
+    branchName: string;
+    sha: string | null;
+    url: string | null;
+    createdAt: string | null;
+    namespace: string | null;
+    repository: string | null;
+    author: {
+      name: string;
+      email: string;
+      image: string | null;
+    };
+  };
+  remoteCommit: {
+    branchName: string;
+    commitSha: string | null;
+    files: { path: string; mimeType: string }[];
+  };
   hasChanges: boolean;
-  commitSha: string;
-  outdated: boolean;
-  pushStatusId: string;
+  isOutdated: boolean;
+  isMainBranch: boolean;
+  status: PushStatusResponse;
 };
 
 export type PushStatusResponse = {
-  status: BuildStatus | PushCommandStatusState;
-  deploymentStatus: DeploymentStatus;
-  url: string;
+  deploy: {
+    url: string | null;
+    status: DeploymentStatus;
+  };
   scorecard: ScorecardItem[];
-  buildUrlLogs: string;
 };
-
-export type PushCommandStatusState =
-  | 'NOT_STARTED'
-  | 'NO_CHANGES'
-  | 'CONTENT_OUTDATED'
-  | 'PROCESSED';
 
 export type ScorecardItem = {
   name: string;
@@ -76,6 +90,6 @@ export type ScorecardItem = {
 
 export type PushStatusBase = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED';
 
-export type BuildStatus = PushStatusBase | 'NOT_STARTED' | 'QUEUED';
+// export type BuildStatus = PushStatusBase | 'NOT_STARTED' | 'QUEUED';
 
 export type DeploymentStatus = 'NOT_STARTED' | 'SKIPPED' | PushStatusBase;
