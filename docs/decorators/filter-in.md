@@ -35,7 +35,7 @@ apis:
     root: openapi.yaml
     decorators:
       filter-in:
-        property: operationId 
+        property: operationId
         value: [createSpecialEvent, listSpecialEvents]
 ```
 
