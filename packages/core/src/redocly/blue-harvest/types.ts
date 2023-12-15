@@ -73,12 +73,17 @@ export type PushResponse = {
   status: PushStatusResponse;
 };
 
-export type PushStatusResponse = {
+type DeploymentStatusResponse = {
   deploy: {
     url: string | null;
     status: DeploymentStatus;
   };
   scorecard: ScorecardItem[];
+};
+
+export type PushStatusResponse = {
+  preview: DeploymentStatusResponse;
+  production: DeploymentStatusResponse;
 };
 
 export type ScorecardItem = {

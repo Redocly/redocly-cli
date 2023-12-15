@@ -59,18 +59,18 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
       } else {
         process.stderr.write(
           `${colors.magenta('Status')}: ${getDeploymentAndBuildStatuses(
-            push.status.deploy.status
+            push.status.preview.deploy.status
           )}\n\n`
         );
 
-        if (push.status.deploy.url) {
+        if (push.status.preview.deploy.url) {
           process.stderr.write(
-            `${colors.magenta('Preview URL')}: ${colors.cyan(push.status.deploy.url)}\n`
+            `${colors.magenta('Preview URL')}: ${colors.cyan(push.status.preview.deploy.url)}\n`
           );
         }
 
-        if (push.status.scorecard.length) {
-          printScorecard(push.status.scorecard);
+        if (push.status.preview.scorecard.length) {
+          printScorecard(push.status.preview.scorecard);
         }
       }
 
