@@ -107,9 +107,9 @@ class RemotesApiClient {
     formData.append('commit[author][email]', payload.commit.author.email);
     formData.append('commit[branchName]', payload.commit.branchName);
     payload.commit.url && formData.append('commit[url]', payload.commit.url);
-    payload.commit.namespace && formData.append('commit[namespace]', payload.commit.namespace);
+    payload.commit.namespace && formData.append('commit[namespaceId]', payload.commit.namespace);
     payload.commit.sha && formData.append('commit[sha]', payload.commit.sha);
-    payload.commit.repository && formData.append('commit[repository]', payload.commit.repository);
+    payload.commit.repository && formData.append('commit[repositoryId]', payload.commit.repository);
 
 
 
