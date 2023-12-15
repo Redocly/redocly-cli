@@ -94,7 +94,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
     );
 
     if (!verbose) {
-      process.stdout.write(JSON.stringify({ pushId: id }, null, 2));
+      process.stdout.write(`${id}\n`);
     }
 
     verbose &&
