@@ -315,6 +315,10 @@ yargs
             type: 'boolean',
             default: false,
           },
+          verbose: {
+            type: 'boolean',
+            default: false,
+          }
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
@@ -342,6 +346,7 @@ yargs
           namespace,
           repository,
           createdAt,
+          verbose,
           $0,
           _,
         } = argv;
@@ -362,6 +367,7 @@ yargs
           namespace,
           repository,
           createdAt,
+          verbose,
           $0,
           _,
         });

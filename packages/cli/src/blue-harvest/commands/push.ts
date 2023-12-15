@@ -3,9 +3,10 @@ import * as path from 'path';
 import { Config, BlueHarvestApiClient, slash } from '@redocly/openapi-core';
 // import * as pluralize from 'pluralize';
 import { exitWithError, printExecutionTime } from '../../utils';
-import { red, yellow } from 'colorette';
+import { green, red, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
+import pluralize = require('pluralize');
 
 export type PushOptions = {
   organization?: string;
@@ -26,13 +27,14 @@ export type PushOptions = {
   domain?: string;
   config?: string;
   isMainBranch?: boolean;
+  verbose?: boolean;
 };
 
 type FileToUpload = { name: string; path: string };
 
 export async function handlePush(argv: PushOptions, config: Config) {
   const startedAt = performance.now();
-  const { organization, project: projectId, mountPath } = argv;
+  const { organization, project: projectId, mountPath, verbose } = argv;
 
   const orgId = organization || config.organization;
 
@@ -66,9 +68,10 @@ export async function handlePush(argv: PushOptions, config: Config) {
       mountPath,
     });
 
-    // process.stdout.write(
-    //   `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
-    // );
+    verbose &&
+      process.stdout.write(
+        `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
+      );
 
     const { id } = await client.remotes.push(
       orgId,
@@ -90,20 +93,24 @@ export async function handlePush(argv: PushOptions, config: Config) {
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
 
-    // filesToUpload.forEach((f) => {
-    //   process.stdout.write(green(`✓ ${f.name}\n`));
-    // });
+    if (!verbose) {
+      process.stdout.write(JSON.stringify({ pushId: id }, null, 2));
+    }
 
-    // printExecutionTime(
-    //   'push-bh',
-    //   startedAt,
-    //   `${pluralize(
-    //     'file',
-    //     filesToUpload.length
-    //   )} uploaded to organization ${orgId}, project ${projectId}, branch ${filesBranch}. Push ID: ${id}.`
-    // );
+    verbose &&
+      filesToUpload.forEach((f) => {
+        process.stdout.write(green(`✓ ${f.name}\n`));
+      });
 
-    process.stdout.write(`${id}\n`);
+    verbose &&
+      printExecutionTime(
+        'push-bh',
+        startedAt,
+        `${pluralize(
+          'file',
+          filesToUpload.length
+        )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
+      );
   } catch (err) {
     process.stderr.write(red(`✗ File upload failed. Reason: ${err.message}\n`) + '\n\n');
     process.exit(1);

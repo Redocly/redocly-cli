@@ -111,7 +111,7 @@ class RemotesApiClient {
       formData.append(`files[${file.path}]`, file.stream);
     }
 
-    formData.append('isMainBranch', payload.isMainBranch ? 'true' : 'false');
+    payload.isMainBranch && formData.append('isMainBranch', 'true');
 
     const response = await fetch(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
