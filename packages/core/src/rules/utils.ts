@@ -2,7 +2,7 @@ import levenshtein = require('js-levenshtein');
 import { UserContext } from '../walk';
 import { Location } from '../ref-utils';
 import { validateJsonSchema } from './ajv';
-import { Oas3Schema, Referenced } from '../typings/openapi';
+import { Oas3Schema, Oas3_1Schema, Referenced } from '../typings/openapi';
 import { showErrorForDeprecatedField, showWarningForDeprecatedField } from '../utils';
 
 export function oasTypeOf(value: unknown) {
@@ -91,7 +91,7 @@ export function getSuggest(given: string, variants: string[]): string[] {
 
 export function validateExample(
   example: any,
-  schema: Referenced<Oas3Schema>,
+  schema: Referenced<Oas3Schema | Oas3_1Schema>,
   dataLoc: Location,
   { resolve, location, report }: UserContext,
   allowAdditionalProperties: boolean
