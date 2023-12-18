@@ -204,7 +204,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 
       for (const { context, visit, skip, ruleId, severity } of currentEnterVisitors) {
-        if (ignoredNodes.has(currentLocation.pointer)) break;
+        if (ignoredNodes.has(`${currentLocation.absolutePointer}${currentLocation.pointer}`)) break;
 
         if (context.isSkippedLevel) {
           if (
@@ -413,7 +413,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
           ignoreNextVisitorsOnNode: () => {
-            ignoredNodes.add(currentLocation.pointer);
+            ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
           getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
         },

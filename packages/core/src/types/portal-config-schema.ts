@@ -89,8 +89,9 @@ const authProviderConfigSchema = {
 
 export const ssoConfigSchema = {
   type: 'object',
+  properties: {},
   additionalProperties: authProviderConfigSchema,
-} as const;
+} as NodeType;
 
 const redirectConfigSchema = {
   type: 'object',
@@ -99,8 +100,14 @@ const redirectConfigSchema = {
     type: { type: 'number', default: 301 },
   },
   required: ['to'],
-  additionalProperties: false,
-} as const;
+} as NodeType;
+
+const redirectsConfigSchema = {
+  type: 'object',
+  properties: {},
+  additionalProperties: 'redirectConfigSchema',
+  default: {},
+} as NodeType;
 
 export const apiConfigSchema = {
   type: 'object',
@@ -126,8 +133,8 @@ const metadataConfigSchema = {
   additionalProperties: true,
 } as const;
 
-const seoConfigSchema: NodeType = {
-  // type: 'object', // Removing for compatibility
+const seoConfigSchema = {
+  type: 'object', 
   properties: {
     title: { type: 'string' },
     description: { type: 'string' },
@@ -146,23 +153,24 @@ const seoConfigSchema: NodeType = {
         },
         required: ['name', 'content'],
         additionalProperties: false,
-      } as any, // FIXME: pull out the nested type
+      }
     },
   },
-  // additionalProperties: {}  // Removing for compatibility
 } as const;
 
-export const PortalConfigTypes: Record<string, NodeType> = { seoConfigSchema }; // TODO: Extract all other types that need to be linted in the config
-
-const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
+const rbacScopeItemsSchema = {
+  type: 'object',
+  properties: {},
+  additionalProperties: { type: 'string' },
+} as NodeType;
 
 const rbacConfigSchema = {
   type: 'object',
   properties: {
-    defaults: rbacScopeItemsSchema,
+    defaults: 'rbacScopeItemsSchema',
   },
   additionalProperties: rbacScopeItemsSchema,
-} as const;
+} as NodeType;
 
 const graviteeAdapterConfigSchema = {
   type: 'object',
@@ -238,14 +246,38 @@ const devOnboardingAdapterConfigSchema = {
 const devOnboardingConfigSchema = {
   type: 'object',
   required: ['adapters'],
-  additionalProperties: false,
   properties: {
     adapters: {
       type: 'array',
       items: devOnboardingAdapterConfigSchema,
     },
   },
-} as const;
+} as NodeType;
+
+const i18ConfigSchema  = {
+  type: 'object',
+  properties: {
+    defaultLocale: {
+      type: 'string',
+    },
+    locales: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          code: {
+            type: 'string',
+          },
+          name: {
+            type: 'string',
+          },
+        },
+        required: ['code'],
+      },
+    },
+  },
+  required: ['defaultLocale', 'locales'],
+} as NodeType;
 
 const responseHeaderSchema = {
   type: 'object',
@@ -257,14 +289,25 @@ const responseHeaderSchema = {
   required: ['name', 'value'],
 } as const;
 
+export const PortalConfigNodeTypes: Record<string, NodeType> = {
+  seoConfigSchema,
+  rbacConfigSchema,
+  rbacScopeItemsSchema,
+  ssoConfigSchema ,
+  devOnboardingConfigSchema,
+  i18ConfigSchema,
+  redirectsConfigSchema,
+  redirectConfigSchema
+// TODO: Extract other types that need to be linted in the config
+}; 
+
 export const redoclyConfigSchema = {
   type: 'object',
   properties: {
     licenseKey: { type: 'string' },
-    theme: { type: 'object', default: {} }, // ThemeConfig
-    redirects: { type: 'object', additionalProperties: redirectConfigSchema, default: {} },
-    // seo: seoConfigSchema,
-    rbac: rbacConfigSchema,
+    redirects: 'redirectsConfigSchema',
+    seo: 'seoConfigSchema',
+    rbac: 'rbacConfigSchema',
     responseHeaders: {
       type: 'object',
       additionalProperties: {
@@ -286,38 +329,13 @@ export const redoclyConfigSchema = {
       type: 'object',
       additionalProperties: apiConfigSchema,
     },
-    sso: ssoConfigSchema,
-    developerOnboarding: devOnboardingConfigSchema,
-    i18n: {
-      type: 'object',
-      properties: {
-        defaultLocale: {
-          type: 'string',
-        },
-        locales: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              code: {
-                type: 'string',
-              },
-              name: {
-                type: 'string',
-              },
-            },
-            required: ['code'],
-          },
-        },
-      },
-      additionalProperties: false,
-      required: ['defaultLocale', 'locales'],
-    },
+    sso: 'ssoConfigSchema',
+    developerOnboarding: 'devOnboardingConfigSchema',
+    i18n: 'i18ConfigSchema',
     metadata: metadataConfigSchema,
   },
   default: {},
-  additionalProperties: true,
-} as const;
+} as NodeType;
 
 export const environmentSchema = {
   oneOf: [
@@ -339,6 +357,7 @@ export const rootRedoclyConfigSchema = {
     ...redoclyConfigSchema.properties,
     env: {
       type: 'object',
+      properties: {},
       additionalProperties: environmentSchema,
     },
   },

@@ -1,12 +1,6 @@
-import {
-  BaseResolver,
-  resolveDocument,
-  Document,
-  makeDocumentFromString,
-  ResolvedRefMap,
-} from './resolve';
+import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve';
 import { normalizeVisitors } from './visitors';
-import { ProblemSeverity, WalkContext, walkDocument } from './walk';
+import { walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
@@ -14,6 +8,8 @@ import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-ty
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
+import type { Document, ResolvedRefMap } from './resolve';
+import type { ProblemSeverity, WalkContext } from './walk';
 import type { NodeType } from './types';
 import type { NestedVisitObject, Oas3Visitor, RuleInstanceConfig } from './visitors';
 

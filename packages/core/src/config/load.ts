@@ -1,15 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedoclyClient } from '../redocly';
-import { doesYamlFileExist, isEmptyObject } from '../utils';
+import { isEmptyObject, doesYamlFileExist } from '../utils';
 import { parseYaml } from '../js-yaml';
 import { Config, DOMAINS } from './config';
 import { ConfigValidationError, transformConfig } from './utils';
 import { resolveConfig, resolveConfigFileAndRefs } from './config-resolvers';
-import type { RawConfig, RawUniversalConfig, Region } from './types';
-import { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
 import { bundleConfig } from '../bundle';
-import { Document } from '../resolve';
+import type { Document } from '../resolve';
+import type { RegionalTokenWithValidity } from '../redocly/redocly-client-types';
+import type { RawConfig, RawUniversalConfig, Region } from './types';
 import type { BaseResolver, ResolvedRefMap } from '../resolve';
 
 async function addConfigMetadata({

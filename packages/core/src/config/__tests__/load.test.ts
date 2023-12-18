@@ -121,15 +121,19 @@ describe('getConfig', () => {
     expect(replaceSourceWithRef(problems!, __dirname)).toMatchInlineSnapshot(`
       [
         {
+          "from": {
+            "pointer": "#/seo",
+            "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+          },
           "location": [
             {
-              "pointer": "#/theme",
+              "pointer": "#/title",
               "reportOnKey": false,
-              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+              "source": "fixtures/resolve-refs-in-config/seo.yaml",
             },
           ],
-          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
-          "ruleId": "configuration no-unresolved-refs",
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
           "severity": "warn",
           "suggest": [],
         },
@@ -151,19 +155,15 @@ describe('getConfig', () => {
           "suggest": [],
         },
         {
-          "from": {
-            "pointer": "#/seo",
-            "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
-          },
           "location": [
             {
-              "pointer": "#/title",
+              "pointer": "#/theme",
               "reportOnKey": false,
-              "source": "fixtures/resolve-refs-in-config/seo.yaml",
+              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
             },
           ],
-          "message": "Expected type \`string\` but got \`integer\`.",
-          "ruleId": "configuration spec",
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
           "severity": "warn",
           "suggest": [],
         },

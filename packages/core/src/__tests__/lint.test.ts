@@ -139,10 +139,10 @@ describe('lint', () => {
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [
-            "theme",
             "env",
-            "sso",
+            "theme",
             "seo",
+            "sso",
           ],
         },
         {
@@ -206,9 +206,9 @@ describe('lint', () => {
           "severity": "error",
           "suggest": [
             "apis",
+            "seo",
             "sso",
             "env",
-            "seo",
           ],
         },
       ]
