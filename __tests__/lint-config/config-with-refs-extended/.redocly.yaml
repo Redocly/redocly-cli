@@ -1,6 +1,6 @@
 unexpected-property: Should fail
 
-apis: 
+apis:
   $ref: apis.yaml
 
 rules:
@@ -12,5 +12,5 @@ theme:
 
 organization: false # wrong, expected string
 
-seo: 
+seo:
   $ref: seo.yaml

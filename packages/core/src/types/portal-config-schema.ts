@@ -134,7 +134,7 @@ const metadataConfigSchema = {
 } as const;
 
 const seoConfigSchema = {
-  type: 'object', 
+  type: 'object',
   properties: {
     title: { type: 'string' },
     description: { type: 'string' },
@@ -153,7 +153,7 @@ const seoConfigSchema = {
         },
         required: ['name', 'content'],
         additionalProperties: false,
-      }
+      },
     },
   },
 } as const;
@@ -254,7 +254,7 @@ const devOnboardingConfigSchema = {
   },
 } as NodeType;
 
-const i18ConfigSchema  = {
+const i18ConfigSchema = {
   type: 'object',
   properties: {
     defaultLocale: {
@@ -293,13 +293,13 @@ export const PortalConfigNodeTypes: Record<string, NodeType> = {
   seoConfigSchema,
   rbacConfigSchema,
   rbacScopeItemsSchema,
-  ssoConfigSchema ,
+  ssoConfigSchema,
   devOnboardingConfigSchema,
   i18ConfigSchema,
   redirectsConfigSchema,
-  redirectConfigSchema
-// TODO: Extract other types that need to be linted in the config
-}; 
+  redirectConfigSchema,
+  // TODO: Extract other types that need to be linted in the config
+};
 
 export const redoclyConfigSchema = {
   type: 'object',
