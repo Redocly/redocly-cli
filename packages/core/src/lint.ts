@@ -1,13 +1,18 @@
-import { BaseResolver, resolveDocument, Document, makeDocumentFromString } from './resolve';
+import { BaseResolver, resolveDocument, makeDocumentFromString } from './resolve';
 import { normalizeVisitors } from './visitors';
-import { NodeType } from './types';
-import { ProblemSeverity, WalkContext, walkDocument } from './walk';
+import { walkDocument } from './walk';
 import { StyleguideConfig, Config, initRules, defaultPlugin, resolvePlugins } from './config';
 import { normalizeTypes } from './types';
 import { releaseAjvInstance } from './rules/ajv';
 import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-types';
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
+import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
+
+import type { Document, ResolvedRefMap } from './resolve';
+import type { ProblemSeverity, WalkContext } from './walk';
+import type { NodeType } from './types';
+import type { NestedVisitObject, Oas3Visitor, RuleInstanceConfig } from './visitors';
 
 export async function lint(opts: {
   ref: string;
@@ -102,8 +107,13 @@ export async function lintDocument(opts: {
   return ctx.problems.map((problem) => config.addProblemToIgnore(problem));
 }
 
-export async function lintConfig(opts: { document: Document; severity?: ProblemSeverity }) {
-  const { document, severity } = opts;
+export async function lintConfig(opts: {
+  document: Document;
+  resolvedRefMap?: ResolvedRefMap;
+  severity?: ProblemSeverity;
+  externalRefResolver?: BaseResolver;
+}) {
+  const { document, severity, externalRefResolver = new BaseResolver() } = opts;
 
   const ctx: WalkContext = {
     problems: [],
@@ -117,21 +127,33 @@ export async function lintConfig(opts: { document: Document; severity?: ProblemS
   });
 
   const types = normalizeTypes(ConfigTypes, config);
-  const rules = [
+  const rules: (RuleInstanceConfig & {
+    visitor: NestedVisitObject<unknown, Oas3Visitor | Oas3Visitor[]>;
+  })[] = [
     {
       severity: severity || 'error',
       ruleId: 'configuration spec',
       visitor: Spec({ severity: 'error' }),
     },
+    {
+      severity: severity || 'error',
+      ruleId: 'configuration no-unresolved-refs',
+      visitor: NoUnresolvedRefs({ severity: 'error' }),
+    },
   ];
-  // TODO: check why any is needed
-  const normalizedVisitors = normalizeVisitors(rules as any, types);
-
+  const normalizedVisitors = normalizeVisitors(rules, types);
+  const resolvedRefMap =
+    opts.resolvedRefMap ||
+    (await resolveDocument({
+      rootDocument: document,
+      rootType: types.ConfigRoot,
+      externalRefResolver,
+    }));
   walkDocument({
     document,
     rootType: types.ConfigRoot,
     normalizedVisitors,
-    resolvedRefMap: new Map(),
+    resolvedRefMap,
     ctx,
   });
 

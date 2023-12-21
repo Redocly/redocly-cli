@@ -1,3 +1,9 @@
+import { SpecExtension } from './types';
+
+import type { NormalizedNodeType } from './types';
+import type { Stack } from './utils';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
+import type { Location } from './ref-utils';
 import type {
   Oas3Definition,
   Oas3ExternalDocs,
@@ -26,7 +32,6 @@ import type {
   Oas3Discriminator,
   Oas3Callback,
 } from './typings/openapi';
-
 import type {
   Oas2Definition,
   Oas2Tag,
@@ -44,12 +49,7 @@ import type {
   Oas2Parameter,
   Oas2SecurityScheme,
 } from './typings/swagger';
-
-import { NormalizedNodeType, SpecExtension } from './types';
-import type { Stack } from './utils';
-import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
-import type { Location } from './ref-utils';
-import { Async2Definition } from './typings/asyncapi';
+import type { Async2Definition } from './typings/asyncapi';
 
 export type SkipFunctionContext = Pick<
   UserContext,
@@ -297,7 +297,7 @@ export type RuleInstanceConfig = {
 };
 
 export function normalizeVisitors<T extends BaseVisitor>(
-  visitorsConfig: (RuleInstanceConfig & { visitor: NestedVisitObject<any, T> })[],
+  visitorsConfig: (RuleInstanceConfig & { visitor: NestedVisitObject<unknown, T> })[],
   types: Record<keyof T, NormalizedNodeType>
 ): NormalizedOasVisitors<T> {
   const normalizedVisitors: NormalizedOasVisitors<T> = {} as any;
@@ -377,12 +377,10 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
     function addWeakFromStack(ruleConf: RuleInstanceConfig, stack: NormalizedNodeType[]) {
       for (const interType of stack.slice(1)) {
-        (normalizedVisitors as any)[interType.name] =
-          normalizedVisitors[interType.name] ||
-          ({
-            enter: [],
-            leave: [],
-          } as any);
+        (normalizedVisitors as any)[interType.name] = normalizedVisitors[interType.name] || {
+          enter: [],
+          leave: [],
+        };
         normalizedVisitors[interType.name].enter.push({
           ...ruleConf,
           visit: () => undefined,
@@ -398,7 +396,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
   }
 
   function findLegacyVisitorNode<T>(
-    visitor: NestedVisitObject<any, T>,
+    visitor: NestedVisitObject<unknown, T>,
     typeName: keyof T | Array<keyof T>
   ) {
     if (Array.isArray(typeName)) {
@@ -411,7 +409,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
 
   function normalizeVisitorLevel(
     ruleConf: RuleInstanceConfig,
-    visitor: NestedVisitObject<any, T>,
+    visitor: NestedVisitObject<unknown, T>,
     parentContext: VisitorLevelContext | null,
     depth = 0
   ) {
@@ -434,14 +432,14 @@ export function normalizeVisitors<T extends BaseVisitor>(
         findLegacyVisitorNode(
           visitor,
           legacyTypesMap[typeName as keyof typeof legacyTypesMap] as keyof T
-        )) as any as NestedVisitObject<any, T>;
+        )) as NestedVisitObject<unknown, T>;
       const normalizedTypeVisitor = normalizedVisitors[typeName];
 
       if (!typeVisitor) continue;
 
-      let visitorEnter: VisitFunction<any> | undefined;
-      let visitorLeave: VisitFunction<any> | undefined;
-      let visitorSkip: SkipFunction<any> | undefined;
+      let visitorEnter: VisitFunction<unknown> | undefined;
+      let visitorLeave: VisitFunction<unknown> | undefined;
+      let visitorSkip: SkipFunction<unknown> | undefined;
 
       const isObjectVisitor = typeof typeVisitor === 'object';
 
@@ -450,7 +448,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
       }
 
       if (typeof typeVisitor === 'function') {
-        visitorEnter = typeVisitor as any;
+        visitorEnter = typeVisitor;
       } else if (isObjectVisitor) {
         visitorEnter = typeVisitor.enter;
         visitorLeave = typeVisitor.leave;
@@ -465,7 +463,7 @@ export function normalizeVisitors<T extends BaseVisitor>(
       };
 
       if (typeof typeVisitor === 'object') {
-        normalizeVisitorLevel(ruleConf, typeVisitor as any, context, depth + 1);
+        normalizeVisitorLevel(ruleConf, typeVisitor, context, depth + 1);
       }
 
       if (parentContext) {
