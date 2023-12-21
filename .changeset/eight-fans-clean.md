@@ -3,4 +3,4 @@
 "@redocly/cli": minor
 ---
 
-Added the possibility to use $ref in the Redocly config. This allows splitting up big config files and maintaining their constituent parts independently.
+Added the ability to use `$ref` in the Redocly config file. This ability allows users to split up big config files and maintain their constituent parts independently.
