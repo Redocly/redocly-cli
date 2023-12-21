@@ -1,3 +1,9 @@
+import { Location, isRef } from './ref-utils';
+import { pushStack, popStack } from './utils';
+import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
+import { SpecVersion } from './oas-types';
+import { isNamedType, SpecExtension } from './types';
+
 import type { Referenced } from './typings/openapi';
 import type {
   VisitorLevelContext,
@@ -11,12 +17,6 @@ import type {
 import type { ResolvedRefMap, Document } from './resolve';
 import type { NormalizedNodeType } from './types';
 import type { RuleSeverity } from './config';
-
-import { Location, isRef } from './ref-utils';
-import { pushStack, popStack } from './utils';
-import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
-import { SpecVersion } from './oas-types';
-import { isNamedType, SpecExtension } from './types';
 
 export type NonUndefined =
   | string

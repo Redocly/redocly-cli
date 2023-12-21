@@ -20,6 +20,7 @@ import {
 } from '../utils';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
+
 import type { OutputFormat, ProblemSeverity, Document, RuleSeverity } from '@redocly/openapi-core';
 import type { ResolvedRefMap } from '@redocly/openapi-core/lib/resolve';
 import type { CommandOptions, Skips, Totals } from '../types';

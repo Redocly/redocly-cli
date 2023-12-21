@@ -8,6 +8,7 @@ import { SpecVersion, getMajorSpecVersion, detectSpec, getTypes } from './oas-ty
 import { ConfigTypes } from './types/redocly-yaml';
 import { Spec } from './rules/common/spec';
 import { NoUnresolvedRefs } from './rules/no-unresolved-refs';
+
 import type { Document, ResolvedRefMap } from './resolve';
 import type { ProblemSeverity, WalkContext } from './walk';
 import type { NodeType } from './types';

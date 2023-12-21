@@ -1,3 +1,9 @@
+import { SpecExtension } from './types';
+
+import type { NormalizedNodeType } from './types';
+import type { Stack } from './utils';
+import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
+import type { Location } from './ref-utils';
 import type {
   Oas3Definition,
   Oas3ExternalDocs,
@@ -26,7 +32,6 @@ import type {
   Oas3Discriminator,
   Oas3Callback,
 } from './typings/openapi';
-
 import type {
   Oas2Definition,
   Oas2Tag,
@@ -44,12 +49,7 @@ import type {
   Oas2Parameter,
   Oas2SecurityScheme,
 } from './typings/swagger';
-
-import { NormalizedNodeType, SpecExtension } from './types';
-import type { Stack } from './utils';
-import type { UserContext, ResolveResult, ProblemSeverity } from './walk';
-import type { Location } from './ref-utils';
-import { Async2Definition } from './typings/asyncapi';
+import type { Async2Definition } from './typings/asyncapi';
 
 export type SkipFunctionContext = Pick<
   UserContext,

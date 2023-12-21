@@ -11,6 +11,14 @@ import {
   prefixRules,
   transformConfig,
 } from './utils';
+import { isBrowser } from '../env';
+import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
+import { Config } from './config';
+import { colorize, logger } from '../logger';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
+import { normalizeTypes } from '../types';
+import { ConfigTypes } from '../types/redocly-yaml';
+
 import type {
   StyleguideRawConfig,
   ApiStyleguideRawConfig,
@@ -21,19 +29,8 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
 } from './types';
-import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
-import { Config } from './config';
-import { colorize, logger } from '../logger';
-import {
-  Asserts,
-  AssertionFn,
-  asserts,
-  buildAssertCustomFunction,
-} from '../rules/common/assertions/asserts';
-import { normalizeTypes } from '../types';
-import { ConfigTypes } from '../types/redocly-yaml';
 import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
+import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
 import type { BundleOptions } from '../bundle';
 import type { Document, ResolvedRefMap } from '../resolve';
 

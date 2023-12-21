@@ -1,8 +1,8 @@
 import isEqual = require('lodash.isequal');
 import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve';
-import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
-import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
-import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
+import { normalizeVisitors } from './visitors';
+import { normalizeTypes } from './types';
+import { walkDocument } from './walk';
 import {
   detectSpec,
   getTypes,
@@ -19,6 +19,9 @@ import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorato
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 import { ConfigTypes } from './types/redocly-yaml';
 
+import type { Oas3Rule, Oas3Visitor, Oas2Visitor } from './visitors';
+import type { NormalizedNodeType, NodeType } from './types';
+import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk';
 import type { Config, StyleguideConfig } from './config';
 import type { OasRef } from './typings/openapi';
 import type { Document, ResolvedRefMap } from './resolve';
