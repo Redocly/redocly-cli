@@ -245,5 +245,5 @@ theme:
 ```
 
 {% admonition type="attention" %}
-When using the `push` command with `$ref`s in a config file, all referenced files should explicitly upload using the `--files` option
+When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.
 {% /admonition %}
