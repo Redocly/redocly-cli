@@ -44,12 +44,12 @@ const tryGetProductFromPackageJson = (projectDir: string): Product => {
 
       for (const [product, packageName] of Object.entries(PRODUCT_PACKAGES)) {
         if (packageJsonDeps[packageName]) {
-          console.log(`\n${packageName} detected in project's 'package.json'`);
+          process.stdout.write(`\n${packageName} detected in project's 'package.json'`);
           return product as Product;
         }
       }
     } catch (error) {
-      console.log(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
+      process.stdout.write(`Invalid 'package.json': ${packageJsonPath}. Using Realm.`);
     }
   }
 
