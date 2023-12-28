@@ -28,7 +28,7 @@ Then you can use it as `redocly [command] [options]`, for example:
 redocly lint path-to-root-file.yaml
 ```
 
-Minimum required versions of Node.js and NPM are 14.19.0 and 7.0.0 respectively.
+The minimum required versions of Node.js and NPM are 14.19.0 and 7.0.0 respectively.
 
 ### Docker
 
@@ -81,7 +81,7 @@ redocly lint openapi.yaml
 
 **Format the output** in whatever way you need. The `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, the `lint` command can output those too.
 
-**Multiple files supported** so you don't need to bundle your API description to lint it. Just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
+**Multiple files supported** so you don't need to bundle your API description to lint it; just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 
