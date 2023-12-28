@@ -63,7 +63,7 @@ Your API reference docs are in `redoc-static.html` by default. You can customize
 
 ### Bundle multiple OpenAPI documents
 
-Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref` or don't support multiple documents. Redocly to the rescue! It has a `bundle` command you can use to recombine all of those documents back into one single document. The bundled output that Redocly CLI provides is clean, tidy, and looks like a human made it.
+Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref` or don't support multiple documents. Redocly CLI to the rescue! It has a `bundle` command you can use to recombine all of those documents back into one single document. The bundled output that Redocly CLI provides is clean, tidy, and looks like a human made it.
 
 ### Automate API guidelines with Linting
 
