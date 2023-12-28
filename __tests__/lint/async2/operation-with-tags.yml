@@ -11,7 +11,12 @@ channels:
       tags:
         - name: user
         - name: signup
+          description: Tag descriptions are supported
         - name: register
+          description: Tag descriptions and external docs are supported
+          externalDocs:
+            url: https://redocly.com/docs
+            description: Some excellent docs
 components:
   messages:
     UserSignedUp:
