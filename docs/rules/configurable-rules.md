@@ -493,6 +493,11 @@ rules:
       notPattern: /^The/
 ```
 
+Take care using `notPattern` with multiline Markdown values such as
+`description` fields. These may end with a newline rather than the character
+you expect. Use the trimmed notations (`|-` or `>-`) or take account of this in
+your pattern.
+
 ### `pattern` example
 
 The following example asserts that the operation summary contains "test".
@@ -506,6 +511,10 @@ rules:
     assertions:
       pattern: /test/
 ```
+
+Take care using `pattern` with multiline Markdown values such as `description`
+fields. These may end with a newline rather than the character you expect. Use
+the trimmed notations (`|-` or `>-`) or take account of this in your pattern.
 
 ### `ref` example
 
