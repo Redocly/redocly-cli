@@ -53,7 +53,7 @@ yargs
     }
   )
   .command(
-    'split --outDir [directory] [api]',
+    'split [api]',
     'Split an API description into a multi-file structure.',
     (yargs) =>
       yargs
@@ -124,7 +124,7 @@ yargs
             type: 'boolean',
           },
           output: {
-            description: 'Output file',
+            description: 'Output file.',
             alias: 'o',
             type: 'string',
           },
@@ -292,8 +292,8 @@ yargs
       yargs.positional('apis', { array: true, type: 'string', demandOption: true }).options({
         output: {
           type: 'string',
-          description: 'Output file',
-          alias: 'o'
+          description: 'Output file.',
+          alias: 'o',
         },
         format: {
           description: 'Use a specific output format.',

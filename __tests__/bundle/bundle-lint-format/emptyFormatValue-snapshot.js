@@ -4,7 +4,7 @@ exports[`E2E bundle lint format bundle lint: no format parameter or empty value 
 
 index.ts bundle [apis...]
 
-Bundle definition.
+Bundle a multi-file API description to a single file.
 
 Positionals:
   apis                                                     [array] [default: []]
@@ -12,7 +12,7 @@ Positionals:
 Options:
       --version                   Show version number.                 [boolean]
       --help                      Show help.                           [boolean]
-  -o, --output                                                          [string]
+  -o, --output                    Output file.                          [string]
       --ext                       Bundle file extension.
                                                 [choices: "json", "yaml", "yml"]
       --skip-preprocessor         Ignore certain preprocessors.          [array]
