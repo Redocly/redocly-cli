@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`E2E lint no-invalid-media-type-examples-do-not-error-on-valid-cross-files 1`] = `
+exports[`E2E lint no-invalid-media-type-examples-multiple-valid-refs-different-files 1`] = `
 
 validating /openapi.yaml...
 /openapi.yaml: validated in <test>ms
