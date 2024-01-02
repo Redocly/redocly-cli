@@ -92,7 +92,7 @@ yargs
   )
   .command(
     'join [apis...]',
-    'Join definitions [experimental].',
+    'Join multiple API descriptions into one [experimental].',
     (yargs) =>
       yargs
         .positional('apis', {
@@ -101,7 +101,7 @@ yargs
           demandOption: true,
         })
         .option({
-          lint: { description: 'Lint definitions', type: 'boolean', default: false, hidden: true },
+          lint: { description: 'Lint descriptions', type: 'boolean', default: false, hidden: true },
           decorate: { description: 'Run decorators', type: 'boolean', default: false },
           preprocess: { description: 'Run preprocessors', type: 'boolean', default: false },
           'prefix-tags-with-info-prop': {
@@ -124,7 +124,7 @@ yargs
             type: 'boolean',
           },
           output: {
-            describe: 'Output file',
+            description: 'Output file.',
             alias: 'o',
             type: 'string',
           },
@@ -228,7 +228,7 @@ yargs
   )
   .command(
     'lint [apis...]',
-    'Lint definition.',
+    'Lint an API description.',
     (yargs) =>
       yargs.positional('apis', { array: true, type: 'string', demandOption: true }).option({
         format: {
@@ -287,10 +287,14 @@ yargs
   )
   .command(
     'bundle [apis...]',
-    'Bundle definition.',
+    'Bundle a multi-file API description to a single file.',
     (yargs) =>
       yargs.positional('apis', { array: true, type: 'string', demandOption: true }).options({
-        output: { type: 'string', alias: 'o' },
+        output: {
+          type: 'string',
+          description: 'Output file.',
+          alias: 'o',
+        },
         format: {
           description: 'Use a specific output format.',
           choices: ['stylish', 'codeframe', 'json', 'checkstyle'] as ReadonlyArray<OutputFormat>,
@@ -415,7 +419,7 @@ yargs
   )
   .command(
     'preview-docs [api]',
-    'Preview API reference docs for the specified definition.',
+    'Preview API reference docs for an API description.',
     (yargs) =>
       yargs.positional('api', { type: 'string' }).options({
         port: {
@@ -519,7 +523,7 @@ yargs
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);
     }
   )
-  .completion('completion', 'Generate completion script.')
+  .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
   .middleware([notifyUpdateCliVersion])
   .strict().argv;
