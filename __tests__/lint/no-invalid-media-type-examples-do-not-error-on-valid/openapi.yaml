@@ -1,0 +1,53 @@
+openapi: 3.1.0
+paths:
+  /foo:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/foo'
+              examples:
+                ValidFoo:
+                  value:
+                    id: 1
+  /bar:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/bar'
+              examples:
+                ValidBar:
+                  value:
+                    id: 1
+            application/baz+json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/baz'
+              examples:
+                ValidBaz:
+                  value: #
+                    id: 3
+
+components:
+  schemas:
+    commonId:
+      type: integer
+    foo:
+      $ref: '#/components/schemas/commonId'
+    bar:
+      $ref: '#/components/schemas/commonId'
+    baz:
+      $ref: '#/components/schemas/commonId'
