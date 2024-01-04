@@ -495,7 +495,7 @@ rules:
 
 Take care using `notPattern` with multiline Markdown values such as `description` fields.
 These may end with a newline or a space rather than the character you expect.
-Use the [double-quotated style](https://yaml.org/spec/1.2.2/#731-double-quoted-style) or take account of this in your pattern.
+Use the [double-quoted style](https://yaml.org/spec/1.2.2/#731-double-quoted-style) or take account of this in your pattern.
 
 ### `pattern` example
 
