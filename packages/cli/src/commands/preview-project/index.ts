@@ -6,7 +6,7 @@ import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
 import type { PreviewProjectOptions, Product } from './types';
 
 export const previewProject = async (args: PreviewProjectOptions) => {
-  const { plan } = args;
+  const { plan, port } = args;
   const projectDir = args['project-dir'] || '.';
 
   const product = args.product || tryGetProductFromPackageJson(projectDir);
@@ -19,9 +19,9 @@ export const previewProject = async (args: PreviewProjectOptions) => {
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
 
-  process.stdout.write(`\nLaunching preview of ${productName} ${args.plan} using NPX\n\n`);
+  process.stdout.write(`\nLaunching preview of ${productName} ${plan} using NPX\n\n`);
 
-  spawn('npx', ['-y', packageName, 'develop', `--plan=${plan}`], {
+  spawn('npx', ['-y', packageName, 'develop', `--plan=${plan}`, `--port=${port || 4000}`], {
     stdio: 'inherit',
     cwd: projectDir
   });
