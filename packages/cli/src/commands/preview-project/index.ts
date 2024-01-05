@@ -1,8 +1,9 @@
 import path = require('path');
-import { PreviewProjectOptions, Product } from './types';
+import { existsSync, readFileSync } from 'fs';
 import { spawn } from 'child_process';
 import { PRODUCT_NAMES, PRODUCT_PACKAGES } from './constants';
-import { existsSync, readFileSync } from 'fs';
+
+import type { PreviewProjectOptions, Product } from './types';
 
 export const previewProject = async (args: PreviewProjectOptions) => {
   const { plan } = args;
