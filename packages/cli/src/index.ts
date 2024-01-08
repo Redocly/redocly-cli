@@ -414,28 +414,30 @@ yargs
   )
   .command(
     'preview',
-    'Preview Redocly project',
+    'Preview Redocly project using one of the product NPM packages.',
     (yargs) =>
       yargs.options({
         product: {
           type: 'string',
           choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
+          description:
+            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
         },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
           default: 'enterprise',
-          description: '',
         },
         port: {
-          alias: 'p',
           type: 'number',
           description: 'Preview port.',
+          default: 4000,
         },
-        'project-dir': {
+        'source-dir': {
           alias: 'd',
           type: 'string',
           description: 'Project directory.',
+          default: '.',
         },
       }),
     (argv) => {

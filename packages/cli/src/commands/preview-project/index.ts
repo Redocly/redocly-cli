@@ -7,7 +7,7 @@ import type { PreviewProjectOptions, Product } from './types';
 
 export const previewProject = async (args: PreviewProjectOptions) => {
   const { plan, port } = args;
-  const projectDir = args['project-dir'] || '.';
+  const projectDir = args['source-dir'];
 
   const product = args.product || tryGetProductFromPackageJson(projectDir);
 
@@ -23,7 +23,7 @@ export const previewProject = async (args: PreviewProjectOptions) => {
 
   spawn('npx', ['-y', packageName, 'develop', `--plan=${plan}`, `--port=${port || 4000}`], {
     stdio: 'inherit',
-    cwd: projectDir
+    cwd: projectDir,
   });
 };
 
