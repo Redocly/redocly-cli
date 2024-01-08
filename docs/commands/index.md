@@ -8,6 +8,7 @@ Documentation commands:
 
 - [`preview-docs`](preview-docs.md) Preview API reference docs for the specified API description.
 - [`build-docs`](build-docs.md) Build API description into an HTML file.
+- [`preview`](preview.md) Preview Redocly project.
 
 API management commands:
 
