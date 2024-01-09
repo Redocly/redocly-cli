@@ -3,7 +3,7 @@ import * as path from 'path';
 import { Config, BlueHarvestApiClient, slash } from '@redocly/openapi-core';
 // import * as pluralize from 'pluralize';
 import { exitWithError, printExecutionTime } from '../../utils';
-import { green, red, yellow } from 'colorette';
+import { green, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 import pluralize = require('pluralize');
@@ -68,10 +68,14 @@ export async function handlePush(argv: PushOptions, config: Config) {
       mountPath,
     });
 
-    verbose &&
-      process.stdout.write(
-        `Uploading ${filesToUpload.length} ${pluralize('file', filesToUpload.length)}:\n\n`
-      );
+    process.stderr.write(`Using branch ${green(remote.mountBranchName)} \n\n`);
+
+    process.stderr.write(
+      `Uploading to ${remote.mountPath} ${filesToUpload.length} ${pluralize(
+        'file',
+        filesToUpload.length
+      )}:\n`
+    );
 
     const { id } = await client.remotes.push(
       orgId,
@@ -93,14 +97,11 @@ export async function handlePush(argv: PushOptions, config: Config) {
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
 
-    if (!verbose) {
-      process.stdout.write(`${id}\n`);
-    }
+    filesToUpload.forEach((f) => {
+      process.stderr.write(green(`✓ ${f.name}\n`));
+    });
 
-    verbose &&
-      filesToUpload.forEach((f) => {
-        process.stdout.write(green(`✓ ${f.name}\n`));
-      });
+    process.stdout.write(`\n${id}\n`);
 
     verbose &&
       printExecutionTime(
@@ -112,8 +113,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
   } catch (err) {
-    process.stderr.write(red(`✗ File upload failed. Reason: ${err.message}\n`) + '\n\n');
-    process.exit(1);
+    exitWithError(`✗ File upload failed. Reason: ${err.message}`);
   }
 }
 

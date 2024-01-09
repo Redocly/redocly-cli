@@ -30,11 +30,14 @@ import {
   ConfigApis,
   CommandOptions,
   OutputExtensions,
+  PushArguments,
 } from './types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
-import { DESTINATION_REGEX } from './commands/push';
+import { DESTINATION_REGEX, handlePush, transformPush } from './commands/push';
+import { commandWrapper } from './wrapper';
+import { handlePush as handleCMSPush } from './cms/commands/push';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
@@ -658,4 +661,30 @@ export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<k
       );
     }
   }
+}
+
+export function findAndApplyPushHandler(argv: PushArguments) {
+  if (argv.project && argv.mountPath) {
+    if (!argv.message || !argv.author || !argv.branch) {
+      process.stdout.write(
+        'Error: message, author and branch are required for push command to the BlueHarvest'
+      );
+      return;
+    }
+    commandWrapper(handleCMSPush)({
+      ...argv,
+      files: argv.apis,
+    });
+    return;
+  }
+
+  // Get maybeDestination and maybeBranchName as positional arguments
+  const [api, maybeDestination, maybeBranchName] = argv.apis;
+  commandWrapper(transformPush(handlePush))({
+    ...argv,
+    api,
+    maybeDestination,
+    maybeBranchName,
+  });
+  return;
 }

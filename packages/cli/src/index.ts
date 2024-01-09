@@ -2,15 +2,13 @@
 
 import './assert-node-version';
 import * as yargs from 'yargs';
-import { outputExtensions, regionChoices } from './types';
+import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
-import { handlePush, transformPush } from './commands/push';
-import { handlePush as handleBhPush } from './blue-harvest/commands/push';
-import { handlePushStatus, PushStatusOptions } from './blue-harvest/commands/push-status';
+import { handlePushStatus, PushStatusOptions } from './cms/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
@@ -21,6 +19,7 @@ import { version } from './update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import { findAndApplyPushHandler } from './utils';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -323,69 +322,11 @@ yargs
           verbose: {
             type: 'boolean',
             default: false,
-          }
+          },
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      // If project and mountPath are provided, then it's a push-bh command
-      if (argv.project && argv.mountPath) {
-        if (!argv.message || !argv.author || !argv.branch) {
-          process.stdout.write(
-            'Error: message, author and branch are required for push command to the BlueHarvest'
-          );
-          return;
-        }
-        // Destruct only needed properties from argv for pushBh command
-        const {
-          organization,
-          mountPath,
-          message,
-          author,
-          branch,
-          project,
-          domain,
-          config,
-          isMainBranch,
-          commitSha,
-          commitUrl,
-          namespace,
-          repository,
-          createdAt,
-          verbose,
-          $0,
-          _,
-        } = argv;
-
-        commandWrapper(handleBhPush)({
-          files: argv.apis,
-          organization,
-          mountPath,
-          message,
-          author,
-          branch,
-          project,
-          domain,
-          config,
-          isMainBranch,
-          commitSha,
-          commitUrl,
-          namespace,
-          repository,
-          createdAt,
-          verbose,
-          $0,
-          _,
-        });
-      } else {
-        // Get maybeDestination and maybeBranchName as positional arguments
-        const [api, maybeDestination, maybeBranchName] = argv.apis;
-        commandWrapper(transformPush(handlePush))({
-          ...argv,
-          api,
-          maybeDestination,
-          maybeBranchName,
-        });
-      }
+      findAndApplyPushHandler(argv as PushArguments);
     }
   )
   .command(

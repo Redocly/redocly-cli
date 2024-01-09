@@ -66,6 +66,12 @@ describe('handlePush()', () => {
         organization: 'test-org',
         project: 'test-project',
         branch: 'test-branch',
+        namespace: 'test-namespace',
+        repository: 'test-repository',
+        commitSha: 'test-commit-sha',
+        commitUrl: 'test-commit-url',
+        isMainBranch: true,
+        createdAt: 'test-created-at',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
         files: ['test-file'],
@@ -81,11 +87,17 @@ describe('handlePush()', () => {
     expect(remotes.push).toHaveBeenCalledWith(
       'test-org',
       'test-project',
-      'test-remote-id',
       {
+        isMainBranch: true,
+        remoteId: 'test-remote-id',
         commit: {
           message: 'Test message',
           branchName: 'test-branch',
+          createdAt: 'test-created-at',
+          namespace: 'test-namespace',
+          repository: 'test-repository',
+          sha: 'test-commit-sha',
+          url: 'test-commit-url',
           author: {
             name: 'TestAuthor',
             email: 'test-author@mail.com',
@@ -148,7 +160,6 @@ describe('handlePush()', () => {
     );
 
     expect(remotes.push).toHaveBeenCalledWith(
-      expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.anything(),
@@ -231,7 +242,6 @@ describe('handlePush()', () => {
     );
     expect(remotes.push).toHaveBeenCalledWith(
       'test-org-from-config',
-      expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.anything()

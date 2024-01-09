@@ -80,7 +80,7 @@ class RemotesApiClient {
     organizationId: string,
     projectId: string,
     payload: {
-      remoteId: string,
+      remoteId: string;
       commit: {
         message: string;
         branchName: string;
@@ -110,9 +110,6 @@ class RemotesApiClient {
     payload.commit.namespace && formData.append('commit[namespaceId]', payload.commit.namespace);
     payload.commit.sha && formData.append('commit[sha]', payload.commit.sha);
     payload.commit.repository && formData.append('commit[repositoryId]', payload.commit.repository);
-
-
-
 
     for (const file of files) {
       formData.append(`files[${file.path}]`, file.stream);
