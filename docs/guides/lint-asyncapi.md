@@ -15,7 +15,7 @@ Redocly CLI supports the following linting approaches with AsyncAPI documents:
 
 - AsyncAPI document validation, including full binding validation for [supported protocols](#supported-protocols).
 - Supported versions:
-  - [AsyncAPI 2.6](https://www.asyncapi.com/docs/reference/specification/v2.6.0)
+  - [AsyncAPI 2.6](https://v2.asyncapi.com/docs/reference/specification/v2.6.0)
   - earlier versions in the 2.x family may also validate successfully
 - Built-in rules for checking common standards requirements (see the [list of AsyncAPI rules](#asyncapi-rules)).
 - [Configurable rules](../rules/configurable-rules.md) so that you can build your own rules following common patterns

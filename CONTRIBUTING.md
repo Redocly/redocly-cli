@@ -24,7 +24,7 @@ Before submitting a pull request, please make sure the following is done:
 1. Fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
 1. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
-1. Ensure the test suite passes (`npm test`). Tip: `npm test -- --watch TestName` is helpful in development.
+1. Ensure the test suite passes (`npm run test` and `npm run e2e`). Tip: to run a specific test, use this command: `npm run unit -- -t 'Test name'`. To update snapshots, run `npm run unit -- -u` for unit tests or `npm run e2e -- -u` for e2e tests.
 1. Format your code with prettier (`npm run prettier`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
 

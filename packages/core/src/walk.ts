@@ -1,3 +1,9 @@
+import { Location, isRef } from './ref-utils';
+import { pushStack, popStack } from './utils';
+import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
+import { SpecVersion } from './oas-types';
+import { isNamedType, SpecExtension } from './types';
+
 import type { Referenced } from './typings/openapi';
 import type {
   VisitorLevelContext,
@@ -11,12 +17,6 @@ import type {
 import type { ResolvedRefMap, Document } from './resolve';
 import type { NormalizedNodeType } from './types';
 import type { RuleSeverity } from './config';
-
-import { Location, isRef } from './ref-utils';
-import { pushStack, popStack } from './utils';
-import { ResolveError, YamlParseError, Source, makeRefId } from './resolve';
-import { SpecVersion } from './oas-types';
-import { isNamedType, SpecExtension } from './types';
 
 export type NonUndefined =
   | string
@@ -204,7 +204,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
       const activatedContexts: Array<VisitorSkippedLevelContext | VisitorLevelContext> = [];
 
       for (const { context, visit, skip, ruleId, severity } of currentEnterVisitors) {
-        if (ignoredNodes.has(currentLocation.pointer)) break;
+        if (ignoredNodes.has(`${currentLocation.absolutePointer}${currentLocation.pointer}`)) break;
 
         if (context.isSkippedLevel) {
           if (
@@ -413,7 +413,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           parentLocations: collectParentsLocations(context),
           oasVersion: ctx.oasVersion,
           ignoreNextVisitorsOnNode: () => {
-            ignoredNodes.add(currentLocation.pointer);
+            ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
           getVisitorData: getVisitorDataFn.bind(undefined, ruleId),
         },

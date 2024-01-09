@@ -1,7 +1,10 @@
 import { loadConfig, findConfig, getConfig, createConfig } from '../load';
 import { RedoclyClient } from '../../redocly';
-import { RuleConfig, FlatRawConfig } from './../types';
 import { Config } from '../config';
+import { lintConfig } from '../../lint';
+import { replaceSourceWithRef } from '../../../__tests__/utils';
+import type { RuleConfig, FlatRawConfig } from './../types';
+import type { NormalizedProblem } from '../../walk';
 
 const fs = require('fs');
 const path = require('path');
@@ -90,6 +93,82 @@ describe('getConfig', () => {
   jest.spyOn(fs, 'hasOwnProperty').mockImplementation(() => false);
   it('should return empty object if there is no configPath and config file is not found', () => {
     expect(getConfig()).toEqual(Promise.resolve({}));
+  });
+
+  it('should resolve refs in config', async () => {
+    let problems: NormalizedProblem[];
+    const result = await getConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/config-with-refs.yaml'),
+      processRawConfig: async (config, resolvedRefMap) => {
+        problems = await lintConfig({
+          document: config,
+          severity: 'warn',
+          resolvedRefMap,
+        });
+      },
+    });
+    expect(result).toEqual({
+      seo: {
+        title: 1,
+      },
+      styleguide: {
+        rules: {
+          'info-license': 'error',
+          'non-existing-rule': 'warn',
+        },
+      },
+    });
+    expect(replaceSourceWithRef(problems!, __dirname)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": {
+            "pointer": "#/seo",
+            "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/title",
+              "reportOnKey": false,
+              "source": "fixtures/resolve-refs-in-config/seo.yaml",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "from": {
+            "pointer": "#/rules",
+            "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+          },
+          "location": [
+            {
+              "pointer": "#/non-existing-rule",
+              "reportOnKey": true,
+              "source": "fixtures/resolve-refs-in-config/rules.yaml",
+            },
+          ],
+          "message": "Property \`non-existing-rule\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/theme",
+              "reportOnKey": false,
+              "source": "fixtures/resolve-refs-in-config/config-with-refs.yaml",
+            },
+          ],
+          "message": "Can't resolve $ref: ENOENT: no such file or directory 'fixtures/resolve-refs-in-config/wrong-ref.yaml'",
+          "ruleId": "configuration no-unresolved-refs",
+          "severity": "warn",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
 

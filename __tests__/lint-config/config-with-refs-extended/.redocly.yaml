@@ -1,0 +1,16 @@
+unexpected-property: Should fail
+
+apis:
+  $ref: apis.yaml
+
+rules:
+  $ref: ./rules.yaml
+
+theme:
+  openapi:
+    $ref: theme-openapi.yaml
+
+organization: false # wrong, expected string
+
+seo:
+  $ref: seo.yaml

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { isAbsoluteUrl } from '../ref-utils';
 import { pickDefined } from '../utils';
-import { BaseResolver } from '../resolve';
+import { resolveDocument, BaseResolver } from '../resolve';
 import { defaultPlugin } from './builtIn';
 import {
   getResolveConfig,
@@ -11,6 +11,14 @@ import {
   prefixRules,
   transformConfig,
 } from './utils';
+import { isBrowser } from '../env';
+import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
+import { Config } from './config';
+import { colorize, logger } from '../logger';
+import { asserts, buildAssertCustomFunction } from '../rules/common/assertions/asserts';
+import { normalizeTypes } from '../types';
+import { ConfigTypes } from '../types/redocly-yaml';
+
 import type {
   StyleguideRawConfig,
   ApiStyleguideRawConfig,
@@ -21,17 +29,39 @@ import type {
   RuleConfig,
   DeprecatedInRawConfig,
 } from './types';
-import { isBrowser } from '../env';
-import { isNotString, isString, isDefined, parseYaml, keysOf } from '../utils';
-import { Config } from './config';
-import { colorize, logger } from '../logger';
-import {
-  Asserts,
-  AssertionFn,
-  asserts,
-  buildAssertCustomFunction,
-} from '../rules/common/assertions/asserts';
 import type { Assertion, AssertionDefinition, RawAssertion } from '../rules/common/assertions';
+import type { Asserts, AssertionFn } from '../rules/common/assertions/asserts';
+import type { BundleOptions } from '../bundle';
+import type { Document, ResolvedRefMap } from '../resolve';
+
+export async function resolveConfigFileAndRefs({
+  configPath,
+  externalRefResolver = new BaseResolver(),
+  base = null,
+}: Omit<BundleOptions, 'config'> & { configPath?: string }): Promise<{
+  document: Document;
+  resolvedRefMap: ResolvedRefMap;
+}> {
+  if (!configPath) {
+    throw new Error('Reference to a config is required.\n');
+  }
+
+  const document = await externalRefResolver.resolveDocument(base, configPath, true);
+
+  if (document instanceof Error) {
+    throw document;
+  }
+
+  const types = normalizeTypes(ConfigTypes);
+
+  const resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.ConfigRoot,
+    externalRefResolver,
+  });
+
+  return { document, resolvedRefMap };
+}
 
 export async function resolveConfig(rawConfig: RawConfig, configPath?: string): Promise<Config> {
   if (rawConfig.styleguide?.extends?.some(isNotString)) {

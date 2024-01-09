@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.6.0 (2023-12-21)
+
+### Minor Changes
+
+- Added the ability to use `$ref` in the Redocly config file. This ability allows users to split up big config files and maintain their constituent parts independently.
+
+### Patch Changes
+
+- Deprecated `--lint` option in the `join` command. The options are marked for removal in a future release. Use the [lint command](https://redocly.com/docs/cli/commands/lint/) separately to lint your APIs.
+- Updated @redocly/openapi-core to v1.6.0.
+
 ## 1.5.0 (2023-11-29)
 
 ### Minor Changes
