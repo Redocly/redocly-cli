@@ -45,7 +45,7 @@ npx @redocly/cli <command> [options]
 {% tab label="Example with lint command" %}
 
 ```shell
-npx @redocly/cli@latest lint petstore.yaml
+npx @redocly/cli@latest lint openapi.yaml
 ```
 
 {% /tab  %}
@@ -75,10 +75,12 @@ docker pull ghcr.io/redocly/cli
 To give a Docker container access to your OpenAPI description files, you need to mount the containing directory as a volume. Assuming the API description is in the current working directory, the command to use is:
 
 ```shell Example with lint command
-docker run --rm -v $PWD:/spec redocly/cli lint petstore.yaml
+docker run --rm -v $PWD:/spec redocly/cli lint openapi.yaml
 ```
 
 ## Next steps
 
 - Set up [autocomplete for Redocly CLI](./guides/autocomplete.md).
 - Check the full list of [Redocly CLI commands](./commands/index.md) available.
+- Try things out with the [Museum Example API](https://github.com/Redocly/museum-openapi-example).
+
