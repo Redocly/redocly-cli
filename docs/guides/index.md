@@ -15,7 +15,7 @@ content:
       text: How to create a custom rule to enforce response contents.
     - header: Lint and bundle in one command
       link: docs/cli/guides/lint-and-bundle
-      text: Combine lint and bundle together and check both commands succeed.
+      text: Combine lint and bundle commands, and check each command succeeds.
     - header: Hide internal APIs
       link: docs/cli/guides/hide-apis
       text: How to hide internal APIs.
