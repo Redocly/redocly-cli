@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `preview` command starts a preview server for a Redocly project.
+The `preview` command starts a local preview server for a Redocly project. Use the preview to develop your project locally before deployment.
 
 ## Usage
 
@@ -36,8 +36,8 @@ redocly preview --product=revel
 
 ### Select a plan for preview
 
-By default, the preview is run in an enterprise plan mode. This makes all of the enterprise features available.
-Alternatively, you can run the preview with a professional plan.
+Previews are run in enterprise plan mode by default. This mode makes all of the enterprise features available.
+Switch the preview to professional plan mode by setting `--plan` to `pro`.
 
 ```bash
 redocly preview --plan=pro
@@ -45,7 +45,7 @@ redocly preview --plan=pro
 
 ### Specify project directory
 
-By default, the preview command uses the current directory. To specify another directory, provide a path to it relative to the current directory:
+The preview command uses the current directory by default. To specify another directory, provide a path to it relative to the current directory:
 
 ```bash
 redocly preview --source-dir=./path/to/my/docs/
@@ -53,7 +53,7 @@ redocly preview --source-dir=./path/to/my/docs/
 
 ### Custom port for preview
 
-By default, without using the `port` option, the preview starts on port `4000`, so you can access the docs at `http://localhost:4000` or `http://127.0.0.1:4000`.
+The preview starts on port `4000` by default, so you can access the docs at `http://localhost:4000` or `http://127.0.0.1:4000`.
 
 To specify a custom port for the preview, pass the desired value using a `port` option:
 
