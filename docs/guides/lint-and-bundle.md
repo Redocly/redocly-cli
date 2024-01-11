@@ -44,4 +44,4 @@ redocly lint openapi.yaml && redocly bundle openapi.yaml
 Using this syntax, the command only completes successfully if both the `lint` and the `bundle` step are marked as successful.
 If the `lint` step returns errors, then the `bundle` command does not run at all.
 If `lint` succeeds but `bundle` fails, the exit code indicates the failure.
-Helpfully this approach means that even when used in automation, any failure state can be clearly identified, and the second step only proceeds if the first complete succesffully.
+Helpfully this approach means that even when used in automation, any failure state can be clearly identified, and the second step only proceeds if the first completes succesfully.
