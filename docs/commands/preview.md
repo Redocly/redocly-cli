@@ -4,6 +4,10 @@
 
 The `preview` command starts a local preview server for a Redocly project. Use the preview to develop your project locally before deployment.
 
+{% admonition type="info" name="Important" %}
+This command uses some early-release functionality. Look out for wider release announcements.
+{% /admonition %}
+
 ## Usage
 
 ```bash
@@ -15,20 +19,21 @@ redocly preview --product=reef --plan=pro --source-dir=./my-docs-project --port=
 
 ## Options
 
-| Option       | Type    | Description                                                                                                                                                                           |
-| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --help       | boolean | Shows help.                                                                                                                                                                           |
-| --plan       | string  | Product plan to use in preview. <br/> **Possible values:** `pro`, `enterprise`. The default value is `enterprise`.                                                                    |
-| --product    | string  | Name of a project to preview the product with. <br/> **Possible values:** `redoc`, `revel`, `reef`, `realm`, `redoc-revel`, `redoc-reef`, `revel-reef`. The default value is `realm`. |
-| --source-dir | string  | Path to the project directory. The default value is `.` (current directory).                                                                                                          |
-| --port       | number  | The port to run the preview server on. The default value is `4000`.                                                                                                                   |
-| --version    | boolean | Shows version number.                                                                                                                                                                 |
+| Option           | Type    | Description                                                                                                                                                                                                                                     |
+| ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --help           | boolean | Shows help.                                                                                                                                                                                                                                     |
+| --plan           | string  | Product plan to use in preview. <br/> **Possible values:** `pro`, `enterprise`. The default value is `enterprise`.                                                                                                                              |
+| --product        | string  | Name of a project to preview the product with. <br/> **Possible values:** `redoc`, `revel`, `reef`, `realm`, `redoc-revel`, `redoc-reef`, `revel-reef`. The default value is autodetected from the project's `package.json` or `realm` is used. |
+| --source-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                                                                                                                                    |
+| --port           | number  | The port to run the preview server on. The default value is `4000`.                                                                                                                                                                             |
+| --version        | boolean | Shows version number.                                                                                                                                                                                                                           |
 
 ## Examples
 
 ### Select a product for preview
 
-Instead of inferring the product package to use for preview from `package.json` or using Realm by default, you can specify the product package as an argument.
+Specify the product package to use by setting a `--product` argument.
+If this setting is not supplied, the preview command will try to guess which package to use from the project's `package.json` or use `realm` by default.
 
 ```bash
 redocly preview --product=revel
