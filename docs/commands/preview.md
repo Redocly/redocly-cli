@@ -4,8 +4,8 @@
 
 The `preview` command starts a local preview server for a Redocly project. Use the preview to develop your project locally before deployment.
 
-{% admonition type="info" name="Important" %}
-This command uses some early-release functionality. Look out for wider release announcements.
+{% admonition type="info" name="Pre-release" %}
+This command is for our pre-release products, currently open for early access to a small number of users. We will be making release announcements through our [mailing list](https://redocly.com/product-updates/).
 {% /admonition %}
 
 ## Usage
@@ -33,7 +33,7 @@ redocly preview --product=reef --plan=pro --source-dir=./my-docs-project --port=
 ### Select a product for preview
 
 Specify the product package to use by setting a `--product` argument.
-If this setting is not supplied, the preview command will try to guess which package to use from the project's `package.json` or use `realm` by default.
+If this setting is not supplied, the preview command tries to guess which package to use from the project's `package.json` or use `realm` by default.
 
 ```bash
 redocly preview --product=revel
