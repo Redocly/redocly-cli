@@ -5,7 +5,7 @@
 The `preview` command starts a local preview server for a Redocly project. Use the preview to develop your project locally before deployment.
 
 {% admonition type="info" name="Pre-release" %}
-This command is for our pre-release products, currently open for early access to a small number of users. Announcements regarding the release will be made through our [mailing list](https://redocly.com/product-updates/).
+This command is for our pre-release products, currently open for early access to a small number of users. Announcements regarding the release are made through our [mailing list](https://redocly.com/product-updates/).
 {% /admonition %}
 
 ## Usage
