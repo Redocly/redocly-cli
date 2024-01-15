@@ -2,14 +2,19 @@
 
 Hi! We're really excited that you are interested in contributing to Redocly CLI. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
-- [Redocly CLI Contributing Guide](#redocly-cli-contributing-guide)
-  - [Issue Reporting Guidelines](#issue-reporting-guidelines)
-  - [Pull Request Guidelines](#pull-request-guidelines)
-  - [Development Setup](#development-setup)
-    - [Commonly used NPM scripts](#commonly-used-npm-scripts)
-  - [Project Structure](#project-structure)
+- [Issue reporting guidelines](#issue-reporting-guidelines)
+- [Pull request guidelines](#pull-request-guidelines)
+- [Development setup](#development-setup)
+- [Local source code usage](#local-source-code-usage)
+- [Contribute documentation](#contribute-documentation)
+- [Built-in rules changes](#built-in-rules-changes)
+- [Arguments usage](#arguments-usage)
+- [Exit codes](#exit-codes)
+- [Tests](#tests)
+- [Project structure](#project-structure)
+- [Release flow](#release-flow)
 
-## Issue Reporting Guidelines
+## Issue reporting guidelines
 
 - Before opening a new issue, try to make sure the same problem or idea hasn't already been reported. You can do that on the [Issues page](https://github.com/Redocly/redocly-cli/issues) in the repository and using the filter `is:issue` combined with some keywords relevant to your idea or problem. It helps us notice that more people have the same issue or use-case, and reduces the chance of getting your issue marked as a duplicate. Plus, you can even find some workarounds for your issue in the comments of a previously reported one!
 
@@ -17,18 +22,18 @@ Hi! We're really excited that you are interested in contributing to Redocly CLI.
 
 - Abide by our [Code of Conduct](https://redocly.com/code-of-conduct/) in all your interactions on this repository, and show patience and respect to other community members.
 
-## Pull Request Guidelines
+## Pull request guidelines
 
 Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
 1. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
-1. Ensure the test suite passes (`npm test`). Tip: `npm test -- --watch TestName` is helpful in development.
+1. Ensure the test suite passes (`npm run test` and `npm run e2e`). Tip: to run a specific test, use this command: `npm run unit -- -t 'Test name'`. To update snapshots, run `npm run unit -- -u` for unit tests or `npm run e2e -- -u` for e2e tests.
 1. Format your code with prettier (`npm run prettier`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
 
-## Development Setup
+## Development setup
 
 [Node.js](http://nodejs.org) at v14.19.0+ and NPM v7.0.0+ are required.
 
@@ -129,7 +134,7 @@ mlc docs/
 
 It only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors, so take care when renaming pages or titles.
 
-### Built-in rules changes
+## Built-in rules changes
 
 After adding a new rule, make sure it is added to the `minimal`, `recommended` and `all` rulesets with appropriate severity levels. The defaults are `off` for `minimal` and `recommended` and `error` for `all`.
 Also add the rule to the `builtInRulesList` in [the config types tree](../packages/core/src/types/redocly-yaml.ts).
@@ -176,7 +181,7 @@ To get coverage per package run `npm run coverage:cli` or `npm run coverage:core
 
 E2E tests are sensitive to any additional output (like `console.log`) in the source code.
 
-## Project Structure
+## Project structure
 
 - **`__mocks__`**: contains basic mocks for e2e tests.
 

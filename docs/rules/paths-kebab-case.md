@@ -22,10 +22,7 @@ However, whatsapersontodowhenapathbecomesreallyhardtoread?
 Use the de facto standard of kebab-case.
 
 Let's see if that question from above is easier to read this time around: whats-a-person-to-do-when-a-path-becomes-really-hard-to-read?
-Much better.
-
-Don't adhere to this rule at your own risk.
-We don't want to say we told ya so!
+That's what we thought!
 
 ## Configuration
 

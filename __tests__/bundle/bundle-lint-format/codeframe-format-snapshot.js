@@ -2,6 +2,12 @@
 
 exports[`E2E bundle lint format bundle lint: should be formatted by format: codeframe 1`] = `
 
+[WARNING] "lint" option is deprecated and will be removed in a future release. 
+
+[WARNING] "format" option is deprecated and will be removed in a future release. 
+
+[WARNING] "max-problems" option is deprecated and will be removed in a future release. 
+
 [1] openapi.yaml:20:11 at #/paths/~1my_post/post/requestBody/content/application~1json
 
 Expected type \`MediaType\` (object) but got \`null\`

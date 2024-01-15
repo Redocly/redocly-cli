@@ -17,14 +17,12 @@ import {
   stringifyYaml,
   isAbsoluteUrl,
   loadConfig,
-  RawConfig,
   Region,
   Config,
   Oas3Definition,
   Oas2Definition,
   RedoclyClient,
 } from '@redocly/openapi-core';
-import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 import {
   Totals,
   outputExtensions,
@@ -37,6 +35,9 @@ import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
 import { DESTINATION_REGEX } from './commands/push';
+import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
+
+import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';
 
 export async function getFallbackApisOrExit(
   argsApis: string[] | undefined,
@@ -145,6 +146,24 @@ export function langToExt(lang: string) {
     javascript: '.js',
     js: '.js',
     python: '.py',
+    c: '.c',
+    'c++': '.cpp',
+    coffeescript: '.litcoffee',
+    dart: '.dart',
+    elixir: '.ex',
+    go: '.go',
+    groovy: '.groovy',
+    java: '.java',
+    kotlin: '.kt',
+    'objective-c': '.m',
+    perl: '.pl',
+    powershell: '.ps1',
+    ruby: '.rb',
+    rust: '.rs',
+    scala: '.sc',
+    swift: '.swift',
+    typescript: '.ts',
+    tsx: '.tsx',
   };
   return langObj[lang.toLowerCase()];
 }
@@ -425,7 +444,7 @@ export async function loadConfigAndHandleErrors(
   options: {
     configPath?: string;
     customExtends?: string[];
-    processRawConfig?: (rawConfig: RawConfig) => void | Promise<void>;
+    processRawConfig?: RawConfigProcessor;
     files?: string[];
     region?: Region;
   } = {}
@@ -625,4 +644,18 @@ export function cleanArgs(args: CommandOptions) {
 
 export function cleanRawInput(argv: string[]) {
   return argv.map((entry) => entry.split('=').map(cleanString).join('=')).join(' ');
+}
+
+export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<keyof T>) {
+  for (const option of deprecatedOptions) {
+    if (argv[option]) {
+      process.stderr.write(
+        yellow(
+          `[WARNING] "${String(
+            option
+          )}" option is deprecated and will be removed in a future release. \n\n`
+        )
+      );
+    }
+  }
 }

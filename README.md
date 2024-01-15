@@ -28,7 +28,7 @@ Then you can use it as `redocly [command] [options]`, for example:
 redocly lint path-to-root-file.yaml
 ```
 
-Minimal required versions of Node.js and NPM are 14.19.0 and 7.0.0 respectively.
+The minimum required versions of Node.js and NPM are 14.19.0 and 7.0.0 respectively.
 
 ### Docker
 
@@ -63,11 +63,11 @@ Your API reference docs are in `redoc-static.html` by default. You can customize
 
 ### Bundle multiple OpenAPI documents
 
-Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref`, or don't support multiple documents?! Well fear not, because Redocly has a `bundle` command you can use to recombine all of those documents back into one single document. The bundled output Redocly CLI provides is clean, tidy, and looks like a human made it.
+Having one massive OpenAPI description can be annoying, so most people split them up into multiple documents via `$ref`, only to later find out some tools don't support `$ref` or don't support multiple documents. Redocly CLI to the rescue! It has a `bundle` command you can use to recombine all of those documents back into one single document. The bundled output that Redocly CLI provides is clean, tidy, and looks like a human made it.
 
 ### Automate API guidelines with Linting
 
-Check your API matches the expected API guidelines by using the `lint` command. API guidelines are an important piece of API governance, it helps to keep APIs consistent (enforcing the same standards and naming conventions) but can also guide API teams through potential security hazards and other pitfalls. Automating API guidelines means you can keep APIs consistent and secure throughout their lifecycle. Even better, you can shape the design of the API before it even exists if you combine API linting with a design-first API workflow!
+Check that your API matches the expected API guidelines by using the `lint` command. API guidelines are an important piece of API governance. They help to keep APIs consistent by enforcing the same standards and naming conventions, and they can also guide API teams through potential security hazards and other pitfalls. Automating API guidelines means you can keep APIs consistent and secure throughout their lifecycle. Even better, you can shape the design of the API before it even exists by combining API linting with a design-first API workflow.
 
 Our API linter is designed for speed on even large documents, and it's easy to run locally, in CI, or anywhere you need it. It's also designed for humans, with meaningful error messages to help you get your API right every time.
 
@@ -79,9 +79,9 @@ redocly lint openapi.yaml
 
 **Configure the rules** as you wish. Other API Linters use complicated identifiers like JSONPath, but Redocly makes life easy with simple expressions that understand the OpenAPI structure. You can either use the [built-in rules](https://redocly.com/docs/cli/rules) to mix-and-match your ideal API guidelines, or break out the tools to build your own.
 
-**Format the output** in whatever way you need, the `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, the lint command can output those too.
+**Format the output** in whatever way you need. The `stylish` output is as good as it sounds, but if you need JSON or Checkstyle outputs to integrate with other tools, the `lint` command can output those too.
 
-**Multiple files supported** so you don't need to bundle your API description to lint it, just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
+**Multiple files supported** so you don't need to bundle your API description to lint it; just point Redocly CLI at the "entry point" (e.g.: `openapi.yaml`) and it handles the rest.
 
 [Learn more about API standards and configuring Redocly rules](https://redocly.com/docs/cli/api-standards).
 

@@ -36,6 +36,8 @@
         - label: Use openapi-starter
           page: openapi-starter.md
         - page: guides/configure-rules.md
+        - page: guides/lint-and-bundle.md
+          label: Lint and bundle
         - label: Hide internal APIs
           page: guides/hide-apis.md
         - label: Replace the servers URL

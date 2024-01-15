@@ -227,3 +227,23 @@ resolve:
 
 The first match takes priority when a URL matches multiple patterns.
 Therefore, only the header from the first match is used in the request.
+
+### Split up the configuration file
+
+As your config file grows, you may want to split it into multiple parts.
+Splitting a config file is possible by using references in a config similar to how they are used in OpenAPI descriptions:
+
+```yaml
+extends:
+  - recommended
+
+theme:
+  openapi:
+    $ref: ./openapi-theme.yaml
+  mockServer:
+    $ref: ./mockserver.yaml
+```
+
+{% admonition type="attention" %}
+When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.
+{% /admonition %}

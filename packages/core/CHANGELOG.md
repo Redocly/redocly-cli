@@ -1,5 +1,17 @@
 # @redocly/openapi-core
 
+## 1.6.0
+
+### Minor Changes
+
+- Added the ability to use `$ref` in the Redocly config file. This ability allows users to split up big config files and maintain their constituent parts independently.
+
+## 1.5.0
+
+### Minor Changes
+
+- Added new rule `array-parameter-serialization` to require that serialization parameters `style` and `explode` are present on array parameters.
+
 ## 1.4.1
 
 ### Patch Changes

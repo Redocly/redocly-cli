@@ -29,6 +29,7 @@ import {
   sortTopLevelKeysForOas,
   getAndValidateFileExtension,
   writeToFileByExtension,
+  checkForDeprecatedOptions,
 } from '../utils';
 import { isObject, isString, keysOf } from '../js-utils';
 import {
@@ -65,7 +66,6 @@ export type JoinOptions = {
   'without-x-tag-groups'?: boolean;
   output?: string;
   config?: string;
-  extends?: undefined;
   'lint-config'?: RuleSeverity;
 };
 
@@ -75,6 +75,8 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   if (argv.apis.length < 2) {
     return exitWithError(`At least 2 apis should be provided. \n\n`);
   }
+
+  checkForDeprecatedOptions(argv, ['lint'] as Array<keyof JoinOptions>);
 
   const fileExtension = getAndValidateFileExtension(argv.output || argv.apis[0]);
 

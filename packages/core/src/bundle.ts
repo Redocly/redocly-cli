@@ -1,26 +1,30 @@
 import isEqual = require('lodash.isequal');
+import { BaseResolver, resolveDocument, makeRefId, makeDocumentFromString } from './resolve';
+import { normalizeVisitors } from './visitors';
+import { normalizeTypes } from './types';
+import { walkDocument } from './walk';
 import {
-  BaseResolver,
-  resolveDocument,
-  Document,
-  ResolvedRefMap,
-  makeRefId,
-  makeDocumentFromString,
-} from './resolve';
-import { Oas3Rule, normalizeVisitors, Oas3Visitor, Oas2Visitor } from './visitors';
-import { NormalizedNodeType, normalizeTypes, NodeType } from './types';
-import { WalkContext, walkDocument, UserContext, ResolveResult, NormalizedProblem } from './walk';
-import { detectSpec, getTypes, getMajorSpecVersion, SpecMajorVersion } from './oas-types';
+  detectSpec,
+  getTypes,
+  getMajorSpecVersion,
+  SpecMajorVersion,
+  SpecVersion,
+} from './oas-types';
 import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject, isTruthy } from './utils';
-import { OasRef } from './typings/openapi';
 import { isRedoclyRegistryURL } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
+import { ConfigTypes } from './types/redocly-yaml';
 
+import type { Oas3Rule, Oas3Visitor, Oas2Visitor } from './visitors';
+import type { NormalizedNodeType, NodeType } from './types';
+import type { WalkContext, UserContext, ResolveResult, NormalizedProblem } from './walk';
 import type { Config, StyleguideConfig } from './config';
+import type { OasRef } from './typings/openapi';
+import type { Document, ResolvedRefMap } from './resolve';
 
 export type Oas3RuleSet = Record<string, Oas3Rule>;
 
@@ -33,11 +37,49 @@ export type BundleOptions = {
   externalRefResolver?: BaseResolver;
   config: Config;
   dereference?: boolean;
-  base?: string;
+  base?: string | null;
   skipRedoclyRegistryRefs?: boolean;
   removeUnusedComponents?: boolean;
   keepUrlRefs?: boolean;
 };
+
+export async function bundleConfig(document: Document, resolvedRefMap: ResolvedRefMap) {
+  const types = normalizeTypes(ConfigTypes);
+
+  const ctx: BundleContext = {
+    problems: [],
+    oasVersion: SpecVersion.OAS3_0,
+    refTypes: new Map<string, NormalizedNodeType>(),
+    visitorsData: {},
+  };
+
+  const bundleVisitor = normalizeVisitors(
+    [
+      {
+        severity: 'error',
+        ruleId: 'configBundler',
+        visitor: {
+          ref: {
+            leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+              replaceRef(node, resolved, ctx);
+            },
+          },
+        },
+      },
+    ],
+    types
+  );
+
+  walkDocument({
+    document,
+    rootType: types.ConfigRoot,
+    normalizedVisitors: bundleVisitor,
+    resolvedRefMap,
+    ctx,
+  });
+
+  return document.parsed ?? {};
+}
 
 export async function bundle(
   opts: {
@@ -254,6 +296,18 @@ export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) 
   }
 }
 
+function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
+  if (!isPlainObject(resolved.node)) {
+    ctx.parent[ctx.key] = resolved.node;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete ref.$ref;
+    const obj = Object.assign({}, resolved.node, ref);
+    Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
+  }
+}
+
 // function oas3Move
 
 function makeBundleVisitor(
@@ -349,19 +403,6 @@ function makeBundleVisitor(
       nodePointer: node.$ref,
       resolved: true,
     });
-  }
-
-  function replaceRef(ref: OasRef, resolved: ResolveResult<any>, ctx: UserContext) {
-    if (!isPlainObject(resolved.node)) {
-      ctx.parent[ctx.key] = resolved.node;
-    } else {
-      // TODO: why $ref isn't optional in OasRef?
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      delete ref.$ref;
-      const obj = Object.assign({}, resolved.node, ref);
-      Object.assign(ref, obj); // assign ref itself again so ref fields take precedence
-    }
   }
 
   function saveComponent(

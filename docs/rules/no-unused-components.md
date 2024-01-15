@@ -80,12 +80,11 @@ components:
       # ...
 ```
 
-## Relates rules
+## Related rules
 
 - [no-undefined-refs](./no-unresolved-refs.md)
 
 ## Resources
 
-- The Redocly CLI `bundle` command supports an option called `--remove-unused-components`. Use it to automatically clean up any unused components from your OpenAPI document while bundling it.
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-unused-components.ts)
 - [Components docs](https://redocly.com/docs/openapi-visual-reference/components/)
