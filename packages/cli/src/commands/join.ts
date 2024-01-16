@@ -218,7 +218,6 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       populateTags(context);
     }
     collectServers(openapi);
-    collectInfoDescriptions(openapi, context);
     collectExternalDocs(openapi, context);
     collectPaths(openapi, context);
     collectComponents(openapi, context);
@@ -340,27 +339,6 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
         if (!joinedDef.servers.some((s: any) => s.url === server.url)) {
           joinedDef.servers.push(server);
         }
-      }
-    }
-  }
-
-  function collectInfoDescriptions(
-    openapi: Oas3Definition,
-    { apiFilename, componentsPrefix }: JoinDocumentContext
-  ) {
-    const { info } = openapi;
-    if (info?.description) {
-      const groupIndex = joinedDef[xTagGroups] ? getIndexGroup(apiFilename) : -1;
-      if (
-        joinedDef.hasOwnProperty(xTagGroups) &&
-        groupIndex !== -1 &&
-        joinedDef[xTagGroups][groupIndex]['tags'] &&
-        joinedDef[xTagGroups][groupIndex]['tags'].length
-      ) {
-        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(
-          info.description,
-          componentsPrefix!
-        );
       }
     }
   }
