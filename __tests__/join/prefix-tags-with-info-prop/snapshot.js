@@ -56,12 +56,10 @@ x-tagGroups:
     tags:
       - Example OpenAPI 3 definition with foo title._Pet
       - Example OpenAPI 3 definition with foo title._other
-    description: Information about API
   - name: bar
     tags:
       - Example OpenAPI 3 definition._Pet
       - Example OpenAPI 3 definition._other
-    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 

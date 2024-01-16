@@ -63,12 +63,10 @@ x-tagGroups:
     tags:
       - Foo
       - foo_other
-    description: Information about API
   - name: bar
     tags:
       - Bar
       - bar_other
-    description: Information about API
 
 openapi.yaml: join processed in <test>ms
 

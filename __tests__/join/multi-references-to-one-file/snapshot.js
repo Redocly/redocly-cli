@@ -81,7 +81,6 @@ x-tagGroups:
       - GetSingleFoo
       - Foo
       - foo_other
-    description: My sample api
   - name: bar
     tags:
       - CreateBar
