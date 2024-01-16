@@ -362,7 +362,14 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
 
   function collectPaths(
     openapi: Oas3Definition,
-    { apiFilename, apiTitle, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
+    {
+      apiFilename,
+      apiTitle,
+      api,
+      potentialConflicts,
+      tagsPrefix,
+      componentsPrefix,
+    }: JoinDocumentContext
   ) {
     const { paths } = openapi;
     const operationsSet = new Set(keysOf<typeof OPENAPI3_METHOD>(OPENAPI3_METHOD));
@@ -583,7 +590,14 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   function collectWebhooks(
     oasVersion: SpecVersion,
     openapi: Oas3_1Definition,
-    { apiFilename, apiTitle, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
+    {
+      apiFilename,
+      apiTitle,
+      api,
+      potentialConflicts,
+      tagsPrefix,
+      componentsPrefix,
+    }: JoinDocumentContext
   ) {
     const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
