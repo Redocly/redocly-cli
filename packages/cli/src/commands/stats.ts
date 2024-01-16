@@ -46,6 +46,14 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
+function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
+  let output = "";
+  for (const key of Object.keys(statsAccumulator)) {
+      output += "- " + statsAccumulator[key as StatsName].metric + ": " + statsAccumulator[key as StatsName].total + "\n";
+  }
+  process.stdout.write(output);
+}
+
 function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
   switch (format) {
     case 'stylish':
@@ -54,6 +62,9 @@ function printStats(statsAccumulator: StatsAccumulator, api: string, format: str
       break;
     case 'json':
       printStatsJson(statsAccumulator);
+      break;
+    case 'markdown':
+      printStatsMarkdown(statsAccumulator);
       break;
   }
 }
