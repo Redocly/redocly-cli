@@ -5,7 +5,7 @@ exports[`E2E join without options test: multiple-tags-in-same-files 1`] = `
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition.
+  title: Foo Example OpenAPI 3 definition.
   description: Information about API
   license:
     name: MIT
@@ -71,11 +71,11 @@ paths:
           description: example description
 components: {}
 x-tagGroups:
-  - name: foo
+  - name: Foo Example OpenAPI 3 definition.
     tags:
       - Store
       - foo_other
-  - name: bar
+  - name: Bar Example OpenAPI 3 definition.
     tags:
       - Pets
       - Dog

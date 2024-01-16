@@ -9,7 +9,7 @@ exports[`E2E join files with different extensions test with option: {
 
 openapi: 3.0.0
 info:
-  title: Example API
+  title: Bar Example API
   description: This is an example API.
   version: 1.0.0
 servers:
@@ -63,10 +63,10 @@ paths:
         - foo_other
 components: {}
 x-tagGroups:
-  - name: bar
+  - name: Bar Example API
     tags:
       - bar_other
-  - name: foo
+  - name: Foo Example API
     tags:
       - foo_other
 

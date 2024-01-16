@@ -8,7 +8,7 @@ openapi: 3.0.0
 info:
   description: test
   version: 1.0.0
-  title: Swagger Petstore
+  title: Swagger Test Petstore
   termsOfService: http://swagger.io/terms/
   license:
     name: Apache 2.0
@@ -80,10 +80,10 @@ paths:
           description: bad request
 components: {}
 x-tagGroups:
-  - name: test
+  - name: Swagger Test Petstore
     tags:
       - user
-  - name: pet
+  - name: Swagger Petstore
     tags:
       - pet
 
