@@ -114,7 +114,4 @@ Document: openapi.yaml stats:
 👷 Operations: 2 
 🔖 Tags: 0 
 
-openapi.yaml: stats processed in <test>ms
-
-
 `;

@@ -47,9 +47,14 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
 }
 
 function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
-  let output = "";
+  let output = '';
   for (const key of Object.keys(statsAccumulator)) {
-      output += "- " + statsAccumulator[key as StatsName].metric + ": " + statsAccumulator[key as StatsName].total + "\n";
+    output +=
+      '- ' +
+      statsAccumulator[key as StatsName].metric +
+      ': ' +
+      statsAccumulator[key as StatsName].total +
+      '\n';
   }
   process.stdout.write(output);
 }
