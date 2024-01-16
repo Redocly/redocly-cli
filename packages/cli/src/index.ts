@@ -19,6 +19,8 @@ import { version } from './update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import { previewProject } from './commands/preview-project';
+import { PRODUCT_PLANS } from './commands/preview-project/constants';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -415,6 +417,38 @@ yargs
         client.logout();
         process.stdout.write('Logged out from the Redocly account. ✋\n');
       })(argv);
+    }
+  )
+  .command(
+    'preview',
+    'Preview Redocly project using one of the product NPM packages.',
+    (yargs) =>
+      yargs.options({
+        product: {
+          type: 'string',
+          choices: ['redoc', 'revel', 'reef', 'realm', 'redoc-revel', 'redoc-reef', 'revel-reef'],
+          description:
+            "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
+        },
+        plan: {
+          type: 'string',
+          choices: PRODUCT_PLANS,
+          default: 'enterprise',
+        },
+        port: {
+          type: 'number',
+          description: 'Preview port.',
+          default: 4000,
+        },
+        'source-dir': {
+          alias: 'd',
+          type: 'string',
+          description: 'Project directory.',
+          default: '.',
+        },
+      }),
+    (argv) => {
+      commandWrapper(previewProject)(argv);
     }
   )
   .command(
