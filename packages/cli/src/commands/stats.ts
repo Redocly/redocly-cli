@@ -47,9 +47,9 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
 }
 
 function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
-  process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
   switch (format) {
     case 'stylish':
+      process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
       break;
     case 'json':
@@ -108,5 +108,4 @@ export async function handleStats(argv: StatsOptions, config: Config) {
   });
 
   printStats(statsAccumulator, path, argv.format);
-  printExecutionTime('stats', startedAt, path);
 }
