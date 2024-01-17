@@ -500,9 +500,7 @@ describe('E2E', () => {
 
     test('stats should produce correct output (stylish format)', () => {
       const testPath = join(folderPath, 'stats-stylish');
-      const args = getParams('../../../packages/cli/src/index.ts', 'stats', [
-        'museum.yaml',
-      ]);
+      const args = getParams('../../../packages/cli/src/index.ts', 'stats', ['museum.yaml']);
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
@@ -526,7 +524,5 @@ describe('E2E', () => {
       const result = getCommandOutput(args, testPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(testPath, 'snapshot.js'));
     });
-
   });
-
 });
