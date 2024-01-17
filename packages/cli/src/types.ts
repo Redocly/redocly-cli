@@ -8,6 +8,7 @@ import type { StatsOptions } from './commands/stats';
 import type { SplitOptions } from './commands/split';
 import type { PreviewDocsOptions } from './commands/preview-docs';
 import type { BuildDocsArgv } from './commands/build-docs/types';
+import type { PreviewProjectOptions } from './commands/preview-project/types';
 
 export type Totals = {
   errors: number;
@@ -30,7 +31,9 @@ export type CommandOptions =
   | BundleOptions
   | LoginOptions
   | PreviewDocsOptions
-  | BuildDocsArgv;
+  | BuildDocsArgv
+  | PreviewProjectOptions;
+
 export type Skips = {
   'skip-rule'?: string[];
   'skip-decorator'?: string[];

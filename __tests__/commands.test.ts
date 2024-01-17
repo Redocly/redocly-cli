@@ -4,6 +4,7 @@ import { join, relative } from 'path';
 import { toMatchSpecificSnapshot } from './specific-snapshot';
 import { getCommandOutput, getEntrypoints, callSerializer, getParams } from './helpers';
 import * as fs from 'fs';
+import { spawnSync } from 'child_process';
 
 expect.extend({
   toMatchExtendedSpecificSnapshot(received, snapshotFile) {
@@ -63,6 +64,8 @@ describe('E2E', () => {
       { dirName: 'invalid-config-assertation-name', option: 'warn' },
       { dirName: 'invalid-config-assertation-config-type', option: 'warn' },
       { dirName: 'invalid-config-format-json', option: 'warn', format: 'json' },
+      { dirName: 'config-with-refs', option: 'warn' },
+      { dirName: 'config-with-refs-extended', option: 'error' },
     ];
 
     const validOpenapiFile = join(__dirname, 'lint-config/__fixtures__/valid-openapi.yaml');
@@ -173,6 +176,32 @@ describe('E2E', () => {
 
       const result = getCommandOutput(args, folderPath);
       (<any>expect(result)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
+    });
+
+    test('openapi json file refs validation', () => {
+      const folderPath = join(__dirname, `split/refs-in-json`);
+      const file = '../../../__tests__/split/refs-in-json/openapi.json';
+
+      const args = getParams('../../../packages/cli/src/index.ts', 'split', [
+        file,
+        '--outDir=output',
+      ]);
+
+      // run the split command and write the result to files
+      spawnSync('ts-node', args, {
+        cwd: folderPath,
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          NO_COLOR: 'TRUE',
+        },
+      });
+
+      const lintArgs = getParams('../../../packages/cli/src/index.ts', 'lint', [
+        join(folderPath, 'output/openapi.json'),
+      ]);
+      const lintResult = getCommandOutput(lintArgs, folderPath);
+      (<any>expect(lintResult)).toMatchSpecificSnapshot(join(folderPath, 'snapshot.js'));
     });
   });
 

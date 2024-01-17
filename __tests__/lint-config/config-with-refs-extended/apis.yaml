@@ -1,0 +1,2 @@
+test@v1:
+  $ref: v1.yaml

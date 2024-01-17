@@ -97,8 +97,8 @@ function isStartsWithComponents(node: string) {
   return node.startsWith(componentsPath);
 }
 
-function isNotYaml(filename: string) {
-  return !(filename.endsWith('.yaml') || filename.endsWith('.yml'));
+function isSupportedExtension(filename: string) {
+  return filename.endsWith('.yaml') || filename.endsWith('.yml') || filename.endsWith('.json');
 }
 
 function loadFile(fileName: string) {
@@ -138,7 +138,7 @@ function traverseDirectoryDeepCallback(
   directory: string,
   componentsFiles: object
 ) {
-  if (isNotYaml(filename)) return;
+  if (!isSupportedExtension(filename)) return;
   const pathData = readYaml(filename);
   replace$Refs(pathData, directory, componentsFiles);
   writeToFileByExtension(pathData, filename);

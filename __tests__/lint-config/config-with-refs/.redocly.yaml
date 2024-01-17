@@ -1,0 +1,11 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    rules:
+      $ref: rules.yaml
+
+non-existing-root-property: Fail
+
+theme:
+  openapi:
+    $ref: ./theme-openapi.yaml#/content

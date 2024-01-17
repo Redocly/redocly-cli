@@ -1,8 +1,8 @@
 import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema';
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
-import { Oas3_1Types } from './oas3_1';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+import { PortalConfigNodeTypes } from './portal-config-schema';
 
 const builtInCommonRules = [
   'spec',
@@ -236,8 +236,6 @@ const ConfigApisProperties: NodeType = {
         type: 'string',
       },
     },
-    lint: 'ConfigStyleguide', // deprecated
-    styleguide: 'ConfigStyleguide', // deprecated
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
@@ -997,7 +995,6 @@ const ConfigMockServer: NodeType = {
 };
 
 export const ConfigTypes: Record<string, NodeType> = {
-  ...Oas3_1Types,
   Assert,
   ConfigRoot,
   ConfigApis,
@@ -1062,4 +1059,5 @@ export const ConfigTypes: Record<string, NodeType> = {
   Typography,
   AssertionDefinitionAssertions,
   AssertionDefinitionSubject,
+  ...PortalConfigNodeTypes,
 };
