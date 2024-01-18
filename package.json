@@ -62,7 +62,7 @@
     "@types/jest": "^26.0.15",
     "@types/mark.js": "^8.11.5",
     "@types/marked": "^4.0.3",
-    "@types/node": "^17.0.31",
+    "@types/node": "^20.11.5",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "eslint": "^8.22.0",
