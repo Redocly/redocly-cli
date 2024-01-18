@@ -91,7 +91,6 @@ export async function handleStats(argv: StatsOptions, config: Config) {
     lintConfig
   );
 
-  const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
     oasVersion: specVersion,
