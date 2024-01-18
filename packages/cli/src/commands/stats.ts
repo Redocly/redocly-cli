@@ -1,4 +1,3 @@
-import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
   Config,
