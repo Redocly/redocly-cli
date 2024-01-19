@@ -42,7 +42,7 @@ redocly preview --product=revel
 ### Select a plan for preview
 
 Previews are run in enterprise plan mode by default. This mode makes all of the enterprise features available.
-Switch the preview to professional plan mode by setting `--plan` to `pro`.
+Switch the preview to pro plan mode by setting `--plan` to `pro`.
 
 ```bash
 redocly preview --plan=pro
