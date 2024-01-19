@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, BlueHarvestApiClient, slash } from '@redocly/openapi-core';
-// import * as pluralize from 'pluralize';
-import { exitWithError, printExecutionTime } from '../../utils';
+import { Config, RedoclyCloudApiClient, slash } from '@redocly/openapi-core';
+import { exitWithError, HandledError, printExecutionTime } from '../../utils';
 import { green, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 import pluralize = require('pluralize');
+import { handlePushStatus } from './push-status';
 
 export type PushOptions = {
   organization?: string;
@@ -24,9 +24,11 @@ export type PushOptions = {
 
   files: string[];
 
+  defaultBranch: string;
   domain?: string;
   config?: string;
-  isMainBranch?: boolean;
+  'wait-for-deployment'?: boolean;
+  'max-execution-time': number;
   verbose?: boolean;
 };
 
@@ -48,7 +50,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
 
   if (!domain) {
     return exitWithError(
-      `No domain provided, please use --domain option or environment variable REDOCLY_DOMAIN.`
+      `No domain provided, please use --domain option or environment variable REDOCLY_AUTHORIZATION.`
     );
   }
 
@@ -61,14 +63,12 @@ export async function handlePush(argv: PushOptions, config: Config) {
       return printExecutionTime('push-bh', startedAt, `No files to upload`);
     }
 
-    const client = new BlueHarvestApiClient(domain, apiKey);
+    const client = new RedoclyCloudApiClient(domain, apiKey);
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,
       mountPath,
     });
-
-    process.stderr.write(`Using branch ${green(remote.mountBranchName)} \n\n`);
 
     process.stderr.write(
       `Uploading to ${remote.mountPath} ${filesToUpload.length} ${pluralize(
@@ -92,7 +92,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
           repository: argv.repository,
           author,
         },
-        isMainBranch: argv.isMainBranch,
+        isMainBranch: argv.defaultBranch === argv.branch,
       },
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
@@ -100,9 +100,25 @@ export async function handlePush(argv: PushOptions, config: Config) {
     filesToUpload.forEach((f) => {
       process.stderr.write(green(`✓ ${f.name}\n`));
     });
+    process.stdout.write('\n');
 
-    process.stdout.write(`\n${id}\n`);
+    process.stdout.write(`${id}\n`);
 
+    if (argv['wait-for-deployment']) {
+      process.stdout.write('\n');
+
+      await handlePushStatus(
+        {
+          organization: orgId,
+          project: projectId,
+          pushId: id,
+          wait: true,
+          domain,
+          'max-execution-time': argv['max-execution-time'],
+        },
+        config
+      );
+    }
     verbose &&
       printExecutionTime(
         'push-bh',
@@ -113,7 +129,9 @@ export async function handlePush(argv: PushOptions, config: Config) {
         )} uploaded to organization ${orgId}, project ${projectId}. Push ID: ${id}.`
       );
   } catch (err) {
-    exitWithError(`✗ File upload failed. Reason: ${err.message}`);
+    const message =
+      err instanceof HandledError ? '' : `✗ File upload failed. Reason: ${err.message}`;
+    exitWithError(message);
   }
 }
 

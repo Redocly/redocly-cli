@@ -1,3 +1,4 @@
+import fetchWithTimeout from '../../fetch-with-timeout';
 import fetch from 'node-fetch';
 import * as FormData from 'form-data';
 
@@ -79,24 +80,7 @@ class RemotesApiClient {
   async push(
     organizationId: string,
     projectId: string,
-    payload: {
-      remoteId: string;
-      commit: {
-        message: string;
-        branchName: string;
-        sha?: string;
-        url?: string;
-        createdAt?: string;
-        namespace?: string;
-        repository?: string;
-        author: {
-          name: string;
-          email: string;
-          image?: string;
-        };
-      };
-      isMainBranch?: boolean;
-    },
+    payload: PushPayload,
     files: { path: string; stream: ReadStream | Buffer }[]
   ): Promise<PushResponse> {
     const formData = new FormData();
@@ -110,6 +94,7 @@ class RemotesApiClient {
     payload.commit.namespace && formData.append('commit[namespaceId]', payload.commit.namespace);
     payload.commit.sha && formData.append('commit[sha]', payload.commit.sha);
     payload.commit.repository && formData.append('commit[repositoryId]', payload.commit.repository);
+    payload.commit.createdAt && formData.append('commit[createdAt]', payload.commit.createdAt);
 
     for (const file of files) {
       formData.append(`files[${file.path}]`, file.stream);
@@ -163,7 +148,7 @@ class RemotesApiClient {
     projectId: string;
     pushId: string;
   }) {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes/${pushId}`,
       {
         method: 'GET',
@@ -173,6 +158,10 @@ class RemotesApiClient {
         },
       }
     );
+
+    if (!response) {
+      throw new Error(`Failed to get push status: Time is up`);
+    }
 
     try {
       return await this.getParsedResponse<PushResponse>(response);
@@ -189,3 +178,22 @@ export class ApiClient {
     this.remotes = new RemotesApiClient(this.domain, this.apiKey);
   }
 }
+
+export type PushPayload = {
+  remoteId: string;
+  commit: {
+    message: string;
+    branchName: string;
+    sha?: string;
+    url?: string;
+    createdAt?: string;
+    namespace?: string;
+    repository?: string;
+    author: {
+      name: string;
+      email: string;
+      image?: string;
+    };
+  };
+  isMainBranch?: boolean;
+};

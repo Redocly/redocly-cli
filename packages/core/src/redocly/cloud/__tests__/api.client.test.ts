@@ -1,7 +1,7 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
 
-import { ApiClient } from '../api-client';
+import { ApiClient, PushPayload } from '../api-client';
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),
@@ -165,15 +165,16 @@ describe('ApiClient', () => {
   describe('push()', () => {
     const testRemoteId = 'test-remote-id';
     const pushPayload = {
+      remoteId: testRemoteId,
       commit: {
+        message: 'test-message',
         author: {
           name: 'test-name',
           email: 'test-email',
         },
         branchName: 'test-branch-name',
-        message: 'test-message',
       },
-    };
+    } as unknown as PushPayload;
 
     const filesMock = [{ path: 'some-file.yaml', stream: Buffer.from('fefef') }];
 
@@ -215,22 +216,17 @@ describe('ApiClient', () => {
 
       const formData = new FormData();
 
+      formData.append('remoteId', testRemoteId);
       formData.append('commit[message]', pushPayload.commit.message);
       formData.append('commit[author][name]', pushPayload.commit.author.name);
       formData.append('commit[author][email]', pushPayload.commit.author.email);
       formData.append('commit[branchName]', pushPayload.commit.branchName);
       formData.append('files[some-file.yaml]', filesMock[0].stream);
 
-      const result = await apiClient.remotes.push(
-        testOrg,
-        testProject,
-        testRemoteId,
-        pushPayload,
-        filesMock
-      );
+      const result = await apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock);
 
       expect(fetch).toHaveBeenCalledWith(
-        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/remotes/${testRemoteId}/push`,
+        `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/pushes`,
         expect.objectContaining({
           method: 'POST',
           headers: {
@@ -258,7 +254,7 @@ describe('ApiClient', () => {
       });
 
       await expect(
-        apiClient.remotes.push(testOrg, testProject, testRemoteId, pushPayload, filesMock)
+        apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
       ).rejects.toThrow(new Error('Failed to push: Cannot push to remote'));
     });
 
@@ -272,7 +268,7 @@ describe('ApiClient', () => {
       });
 
       await expect(
-        apiClient.remotes.push(testOrg, testProject, testRemoteId, pushPayload, filesMock)
+        apiClient.remotes.push(testOrg, testProject, pushPayload, filesMock)
       ).rejects.toThrow(new Error('Failed to push: Not found'));
     });
   });

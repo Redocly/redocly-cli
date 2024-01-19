@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { handlePush } from '../push';
-import { BlueHarvestApiClient } from '@redocly/openapi-core';
+import { RedoclyCloudApiClient } from '@redocly/openapi-core';
 
 const remotes = {
   push: jest.fn(),
@@ -11,7 +11,7 @@ const remotes = {
 
 jest.mock('@redocly/openapi-core', () => ({
   ...jest.requireActual('@redocly/openapi-core'),
-  BlueHarvestApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
+  RedoclyCloudApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
   }),
 }));
@@ -70,11 +70,12 @@ describe('handlePush()', () => {
         repository: 'test-repository',
         commitSha: 'test-commit-sha',
         commitUrl: 'test-commit-url',
-        isMainBranch: true,
+        defaultBranch: 'test-branch',
         createdAt: 'test-created-at',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
         files: ['test-file'],
+        'max-execution-time': 10,
       },
       mockConfig
     );
@@ -154,7 +155,9 @@ describe('handlePush()', () => {
         branch: 'test-branch',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
+        defaultBranch: 'main',
         files: ['test-folder'],
+        'max-execution-time': 10,
       },
       mockConfig
     );
@@ -194,7 +197,9 @@ describe('handlePush()', () => {
         branch: 'test-branch',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
+        defaultBranch: 'main',
         files: [],
+        'max-execution-time': 10,
       },
       mockConfig
     );
@@ -227,6 +232,8 @@ describe('handlePush()', () => {
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
         files: ['test-file'],
+        defaultBranch: 'main',
+        'max-execution-time': 10,
       },
       mockConfig
     );
@@ -268,13 +275,15 @@ describe('handlePush()', () => {
         mountPath: 'test-mount-path',
         project: 'test-project',
         branch: 'test-branch',
+        defaultBranch: 'main',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
         files: ['test-file'],
+        'max-execution-time': 10,
       },
       mockConfig
     );
 
-    expect(BlueHarvestApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
+    expect(RedoclyCloudApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
   });
 });

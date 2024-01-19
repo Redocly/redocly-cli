@@ -146,36 +146,39 @@ yargs
     }
   )
   .command(
-    'push-status',
+    'push-status [pushId]',
     'Push status.',
     (yargs) =>
-      yargs.option({
-        pushId: {
+      yargs
+        .positional('pushId', {
           description: 'Push id.',
           type: 'string',
           required: true,
-          alias: 'pid',
-        },
-        organization: {
-          description: 'Name of the organization to push to.',
-          type: 'string',
-          required: true,
-          alias: 'o',
-        },
-        project: {
-          description: 'Name of the project to push to.',
-          type: 'string',
-          required: true,
-          alias: 'p',
-        },
-        domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
-        format: {
-          description: 'Output format.',
-          type: 'string',
-          choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
-          default: 'stylish' as OutputFormat,
-        },
-      }),
+        })
+        .option({
+          organization: {
+            description: 'Name of the organization to push to.',
+            type: 'string',
+            // required: true,
+            alias: 'o',
+          },
+          project: {
+            description: 'Name of the project to push to.',
+            type: 'string',
+            // required: true,
+            alias: 'p',
+          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          wait: {
+            description: 'Wait for build to finish.',
+            type: 'boolean',
+          },
+          'max-execution-time': {
+            description: 'Maximum execution time in seconds.',
+            type: 'number',
+            default: 600,
+          },
+        }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push-status';
       commandWrapper(handlePushStatus)(argv as Arguments<PushStatusOptions>);
@@ -197,12 +200,15 @@ yargs
         .hide('mountPath')
         .hide('author')
         .hide('message')
-        .hide('isMainBranch')
+        .hide('defaultBranch')
         .hide('verbose')
         .hide('commitSha')
         .hide('commitUrl')
         .hide('namespace')
         .hide('repository')
+        .hide('wait-for-deployment')
+        .hide('createdAt')
+        .hide('max-execution-time')
         .deprecateOption('batch-id', 'use --job-id')
         .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
@@ -315,7 +321,16 @@ yargs
             requiresArg: true,
             type: 'string',
           },
-          isMainBranch: {
+          defaultBranch: {
+            type: 'string',
+            default: 'main',
+          },
+          'max-execution-time': {
+            description: 'Maximum execution time in miliseconds.',
+            type: 'number',
+            default: 10 * 60,
+          },
+          'wait-for-deployment': {
             type: 'boolean',
             default: false,
           },

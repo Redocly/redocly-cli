@@ -62,10 +62,11 @@ export type PushResponse = {
       image: string | null;
     };
   };
-  remoteCommit: {
-    branchName: string;
-    commitSha: string | null;
-    files: { path: string; mimeType: string }[];
+  remote: {
+    commits: {
+      branchName: string;
+      sha: string;
+    }[];
   };
   hasChanges: boolean;
   isOutdated: boolean;
@@ -93,8 +94,8 @@ export type ScorecardItem = {
   targetUrl: string;
 };
 
-export type PushStatusBase = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED';
+export type PushStatusBase = 'pending' | 'success' | 'running' | 'failed';
 
 // export type BuildStatus = PushStatusBase | 'NOT_STARTED' | 'QUEUED';
 
-export type DeploymentStatus = 'NOT_STARTED' | 'SKIPPED' | PushStatusBase;
+export type DeploymentStatus = 'skipped' | PushStatusBase;
