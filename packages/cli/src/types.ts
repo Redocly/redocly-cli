@@ -12,6 +12,7 @@ import type { BuildDocsArgv } from './commands/build-docs/types';
 import type { PushOptions as PushBhOptions } from './cms/commands/push';
 import type { PushStatusOptions } from './cms/commands/push-status';
 import type { PushOptions as CMSPushOptions } from './cms/commands/push';
+import type { PreviewProjectOptions } from './commands/preview-project/types';
 
 export type Totals = {
   errors: number;
@@ -36,7 +37,9 @@ export type CommandOptions =
   | LoginOptions
   | PreviewDocsOptions
   | BuildDocsArgv
-  | PushStatusOptions;
+  | PushStatusOptions
+  | PreviewProjectOptions;
+
 export type Skips = {
   'skip-rule'?: string[];
   'skip-decorator'?: string[];

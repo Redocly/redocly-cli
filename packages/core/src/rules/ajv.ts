@@ -1,6 +1,8 @@
-import Ajv, { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020';
+import Ajv from '@redocly/ajv/dist/2020';
 import { Location, escapePointer } from '../ref-utils';
-import { ResolveFn } from '../walk';
+
+import type { ValidateFunction, ErrorObject } from '@redocly/ajv/dist/2020';
+import type { ResolveFn } from '../walk';
 
 let ajvInstance: Ajv | null = null;
 
@@ -21,10 +23,10 @@ function getAjv(resolve: ResolveFn, allowAdditionalProperties: boolean) {
       allowUnionTypes: true,
       validateFormats: false, // TODO: fix it
       defaultUnevaluatedProperties: allowAdditionalProperties,
-      loadSchemaSync(base: string, $ref: string) {
+      loadSchemaSync(base: string, $ref: string, $id: string) {
         const resolvedRef = resolve({ $ref }, base.split('#')[0]);
         if (!resolvedRef || !resolvedRef.location) return false;
-        return { $id: resolvedRef.location.absolutePointer, ...resolvedRef.node };
+        return { $id: resolvedRef.location.source.absoluteRef + '#' + $id, ...resolvedRef.node };
       },
       logger: false,
     });
