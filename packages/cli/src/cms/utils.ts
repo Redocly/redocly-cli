@@ -1,2 +1,1 @@
-export class DeploymentError extends Error {
-}
+export class DeploymentError extends Error {}
