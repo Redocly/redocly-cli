@@ -3,4 +3,4 @@
 "@redocly/cli": patch
 ---
 
-Fixed false positive errors when validating media type examples. Now, the linter won't error on valid examples that contain references.
+Fixed a problem where the linter incorrectly returned an error for valid examples that contain references.
