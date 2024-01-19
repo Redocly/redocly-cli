@@ -802,7 +802,7 @@ async function validateApi(
 function crawl(object: any, visitor: any) {
   if (!isObject(object)) return;
   for (const key of Object.keys(object)) {
-    visitor(object, key);
+    visitor(object[key], key);
     crawl(object[key], visitor);
   }
 }
