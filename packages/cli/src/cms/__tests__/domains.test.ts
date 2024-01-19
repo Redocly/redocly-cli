@@ -10,6 +10,6 @@ describe('getDomain()', () => {
   it('should return the default domain if no domain provided', () => {
     process.env.REDOCLY_DOMAIN = '';
 
-    expect(getDomain()).toBe('https://app.beta.redocly.com');
+    expect(getDomain()).toBe('https://app.cloud.redocly.com');
   });
 });
