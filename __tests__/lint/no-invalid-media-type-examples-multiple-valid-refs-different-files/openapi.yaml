@@ -1,0 +1,21 @@
+openapi: 3.1.0
+components:
+  schemas:
+    C:
+      $ref: './components.yaml#/components/schemas/A'
+    D:
+      $ref: './components.yaml#/components/schemas/A'
+paths:
+  /pet:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              example: { 'a': 'test', 'b': 'test' }
+              schema:
+                $ref: '#/components/schemas/C'
+            application/x+json:
+              example: { 'a': 'test', 'b': 'test' }
+              schema:
+                $ref: '#/components/schemas/D'
