@@ -28,8 +28,8 @@ Before submitting a pull request, please make sure the following is done:
 
 1. Fork the repository and create your branch from `main`.
 1. Run `npm install` in the repository root.
-1. If you’ve fixed a bug or added code that should be tested, don't forget to add tests!
-1. Ensure the test suite passes (`npm run test` and `npm run e2e`). Tip: to run a specific test, use this command: `npm run unit -- -t 'Test name'`. To update snapshots, run `npm run unit -- -u` for unit tests or `npm run e2e -- -u` for e2e tests.
+1. If you’ve fixed a bug or added code that should be tested, don't forget to add [tests](#tests)!
+1. Ensure the test suite passes (see the [Tests section](#tests) for more details).
 1. Format your code with prettier (`npm run prettier`).
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`; if your changes are scoped to `packages/core` but also affect Redocly CLI behavior, please include the `@redocly/cli` package as well). Please describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)). This produces a file in `.changeset` folder. Please commit this file along with your changes.
 
@@ -45,36 +45,13 @@ npm install # or npm i
 
 ### Commonly used NPM scripts
 
-```bash
-# run a separate CLI command
-$ npm run <command>
+To compile the code, run `npm run compile`. To do that on the fly, run `npm run watch` in a separate thread.
 
-# run a compile of packages
-$ npm run compile
+To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint openapi.yaml --format=stylish`. Please notice that the extra `--` is required to pass arguments to the CLI rather than the NPM itself.
 
-# synchronously pick-up the changes made to the packages
-$ npm run watch
+Format your code with `npm run prettier` before committing.
 
-# run the CLI package
-$ npm run cli
-
-# run the unit tests with typecheck
-$ npm test
-
-# run the unit tests (includes coverage report)
-$ npm run unit
-
-# run e2e tests
-$ npm run e2e
-# Make sure you have compiled the code before running e2e test
-# E.g. run `npm run compile` and wait for the finishing process or run `npm run watch`.
-
-# format the code using prettier
-$ npm run prettier
-
-# run basic perf benchmark
-$ npm run benchmark
-```
+Please check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
 
@@ -173,13 +150,24 @@ The application maintains the following exit codes.
 
 ### Unit tests
 
+Run unit tests with this command: `npm run test`.
+
 Unit tests in the **cli** package are sensitive to top-level configuration file (**redocly.yaml**).
+
+To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
+To update snapshots, run `npm run unit -- -u`.
 
 To get coverage per package run `npm run coverage:cli` or `npm run coverage:core`.
 
 ### E2E tests
 
+Run e2e tests with this command: `npm run e2e`.
+
 E2E tests are sensitive to any additional output (like `console.log`) in the source code.
+
+To update snapshots, run `npm run e2e -- -u`.
+
+If you made any changes, make sure to compile the code before running the tests.
 
 ## Project structure
 
