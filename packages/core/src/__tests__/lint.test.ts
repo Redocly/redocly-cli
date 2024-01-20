@@ -97,28 +97,28 @@ describe('lint', () => {
             assertions:
               local/checkWordsCount:
                 min: 3
-      theme:
-        openapi:
-          showConsole: true
-          layout:
-            scope: section
-          routingStrategy: browser
-          theme:
-            rightPanel:
-              backgroundColor: '#263238'
-            links:
-              color: '#6CC496'
+        theme:
+          openapi:
+            showConsole: true
+            layout:
+              scope: section
+            routingStrategy: browser
             theme:
-              openapi:
-              showConsole: true
-              layout:
-                scope: section
-              routingStrategy: browser
+              rightPanel:
+                backgroundColor: '#263238'
+              links:
+                color: '#6CC496'
               theme:
-                rightPanel:
-                  backgroundColor: '#263238'
-                links:
-                  color: '#6CC496'
+                openapi:
+                  showConsole: true
+                  layout:
+                    scope: section
+                  routingStrategy: browser
+                  theme:
+                    rightPanel:
+                      backgroundColor: '#263238'
+                    links:
+                      color: '#6CC496'
       `,
       ''
     );
@@ -126,39 +126,6 @@ describe('lint', () => {
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/eme",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`eme\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [
-            "env",
-            "theme",
-            "seo",
-            "sso",
-          ],
-        },
-        {
-          "from": undefined,
-          "location": [
-            {
-              "pointer": "#/openapi",
-              "reportOnKey": true,
-              "source": "",
-            },
-          ],
-          "message": "Property \`openapi\` is not expected here.",
-          "ruleId": "configuration spec",
-          "severity": "error",
-          "suggest": [],
-        },
         {
           "from": undefined,
           "location": [
@@ -172,6 +139,37 @@ describe('lint', () => {
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/openapi/layout",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`layout\` can be one of the following only: "stacked", "three-panel".",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/openapi/theme/theme",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`theme\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [
+            "schema",
+            "shape",
+          ],
         },
       ]
     `);

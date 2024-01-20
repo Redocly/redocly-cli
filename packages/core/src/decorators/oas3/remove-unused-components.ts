@@ -1,7 +1,8 @@
-import type { Oas3Decorator } from '../../visitors';
 import { Location } from '../../ref-utils';
-import type { Oas3Components } from '../../typings/openapi';
 import { isEmptyObject } from '../../utils';
+
+import type { Oas3Decorator } from '../../visitors';
+import type { Oas3Components } from '../../typings/openapi';
 
 export const RemoveUnusedComponents: Oas3Decorator = () => {
   const components = new Map<

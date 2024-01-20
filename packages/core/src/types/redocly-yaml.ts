@@ -1,8 +1,8 @@
-import { rootRedoclyConfigSchema, apiConfigSchema } from './portal-config-schema';
+import {  PortalConfigNodeTypes } from './portal-config-schema';
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-import { PortalConfigNodeTypes } from './portal-config-schema';
+
 
 const builtInCommonRules = [
   'spec',
@@ -97,8 +97,49 @@ const builtInRules = [
 
 type BuiltInRuleId = typeof builtInRules[number];
 
-const nodeTypesList = [
-  'any',
+const oas2NodeTypesList = [
+  'Root',
+  'Tag',
+  'TagList',
+  'ExternalDocs',
+  'SecurityRequirement',
+  'SecurityRequirementList',
+  'Info',
+  'Contact',
+  'License',
+  'Paths',
+  'PathItem',
+  'Parameter',
+  'ParameterList',
+  'ParameterItems',
+  'Operation',
+  'Example',
+  'ExamplesMap',
+  'Examples',
+  'Header',
+  'Responses',
+  'Response',
+  'Schema',
+  'Xml',
+  'SchemaProperties',
+  'NamedSchemas',
+  'NamedResponses',
+  'NamedParameters',
+  'NamedSecuritySchemes',
+  'SecurityScheme',
+  'TagGroup',
+  'TagGroups',
+  'EnumDescriptions',
+  'Logo',
+  'XCodeSample',
+  'XCodeSampleList',
+  'XServer',
+  'XServerList',
+] as const;
+
+export type Oas2NodeType = typeof oas2NodeTypesList[number];
+
+const oas3NodeTypesList = [
   'Root',
   'Tag',
   'TagList',
@@ -153,12 +194,33 @@ const nodeTypesList = [
   'AuthorizationCode',
   'OAuth2Flows',
   'SecurityScheme',
+  'TagGroup',
+  'TagGroups',
+  'EnumDescriptions',
+  'Logo',
   'XCodeSample',
   'XCodeSampleList',
+  'XUsePkce',
   'WebhooksMap',
-  'SpecExtension',
-  'Message',
-];
+] as const;
+
+export type Oas3NodeType = typeof oas3NodeTypesList[number];
+
+const oas3_1NodeTypesList = [
+  'Root',
+  'Schema',
+  'SchemaProperties',
+  'Info',
+  'License',
+  'Components',
+  'NamedPathItems',
+  'SecurityScheme',
+  'Operation',
+] as const;
+
+export type Oas3_1NodeType = typeof oas3_1NodeTypesList[number];
+
+const asyncNodeTypesList = ['Message'] as const;
 
 const ConfigStyleguide: NodeType = {
   properties: {
@@ -197,11 +259,12 @@ const RootConfigStyleguide: NodeType = {
 };
 
 const ConfigRoot: NodeType = {
+  ...PortalConfigNodeTypes.rootRedoclyConfigSchema,
   properties: {
-    ...rootRedoclyConfigSchema.properties,
+    ...PortalConfigNodeTypes.rootRedoclyConfigSchema.properties,
     ...RootConfigStyleguide.properties,
     apis: 'ConfigApis',
-    theme: 'ConfigRootTheme',
+    theme: 'ConfigRootTheme', // TODO: decide where to take it from
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
@@ -229,7 +292,7 @@ const ConfigApis: NodeType = {
 
 const ConfigApisProperties: NodeType = {
   properties: {
-    ...apiConfigSchema.properties,
+    ...PortalConfigNodeTypes.apis_additionalProperties.properties,
     root: { type: 'string' },
     labels: {
       type: 'array',
@@ -264,7 +327,7 @@ const ConfigHTTP: NodeType = {
 
 const ConfigRootTheme: NodeType = {
   properties: {
-    ...themeConfigSchema.properties,
+    ...themeConfigSchema.properties, // TODO: decide how to merge
     openapi: 'ConfigReferenceDocs',
     mockServer: 'ConfigMockServer',
   },
@@ -302,7 +365,18 @@ const ObjectRule: NodeType = {
 
 const AssertionDefinitionSubject: NodeType = {
   properties: {
-    type: { enum: nodeTypesList },
+    type: {
+      enum: [
+        ...new Set([
+          'any',
+          ...oas2NodeTypesList,
+          ...oas3NodeTypesList,
+          ...oas3_1NodeTypesList,
+          ...asyncNodeTypesList,
+          'SpecExtension',
+        ]),
+      ],
+    },
     property: (value: unknown) => {
       if (Array.isArray(value)) {
         return { type: 'array', items: { type: 'string' } };
@@ -1062,3 +1136,6 @@ export const ConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionSubject,
   ...PortalConfigNodeTypes,
 };
+
+
+// console.log('ConfigTypes', ConfigTypes);

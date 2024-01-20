@@ -66,6 +66,7 @@ describe('E2E', () => {
       { dirName: 'invalid-config-format-json', option: 'warn', format: 'json' },
       { dirName: 'config-with-refs', option: 'warn' },
       { dirName: 'config-with-refs-extended', option: 'error' },
+      { dirName: 'config-structure', option: 'error' },
     ];
 
     const validOpenapiFile = join(__dirname, 'lint-config/__fixtures__/valid-openapi.yaml');

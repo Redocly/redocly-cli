@@ -3,7 +3,9 @@ import {
   AuthProviderType,
   DEFAULT_TEAM_CLAIM_NAME,
 } from '../config';
+import { transformJSONSchemaToNodeType } from './json-schema-adapter';
 
+import type { FromSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
 
 const oidcIssuerMetadataSchema = {
@@ -87,11 +89,27 @@ const authProviderConfigSchema = {
   discriminator: { propertyName: 'type' },
 } as const;
 
-export const ssoConfigSchema = {
+export const ssoOnPremConfigSchema = {
   type: 'object',
-  properties: {},
   additionalProperties: authProviderConfigSchema,
-} as NodeType;
+} as const;
+
+export const ssoConfigSchema = {
+  oneOf: [
+    {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: ['REDOCLY', 'CORPORATE', 'GUEST'],
+      },
+      uniqueItems: true,
+    },
+    {
+      type: 'string',
+      enum: ['REDOCLY', 'CORPORATE', 'GUEST'],
+    },
+  ],
+} as const;
 
 const redirectConfigSchema = {
   type: 'object',
@@ -99,20 +117,20 @@ const redirectConfigSchema = {
     to: { type: 'string' },
     type: { type: 'number', default: 301 },
   },
-  required: ['to'],
-} as NodeType;
+  additionalProperties: false,
+} as const;
 
 const redirectsConfigSchema = {
   type: 'object',
-  properties: {},
-  additionalProperties: 'redirectConfigSchema',
+  additionalProperties: redirectConfigSchema,
   default: {},
-} as NodeType;
+} as const;
 
-export const apiConfigSchema = {
+ const apiConfigSchema = {
   type: 'object',
   properties: {
     root: { type: 'string' },
+    output: { type: 'string', pattern: '(.ya?ml|.json)$' },
     rbac: { type: 'object', additionalProperties: true },
     theme: {
       type: 'object',
@@ -140,7 +158,9 @@ const seoConfigSchema = {
     description: { type: 'string' },
     siteUrl: { type: 'string' },
     image: { type: 'string' },
-    keywords: { type: 'array', items: { type: 'string' } },
+    keywords: {
+      oneOf: [{ type: 'array', items: { type: 'string' } }, { type: 'string' }],
+    },
     lang: { type: 'string' },
     jsonLd: { type: 'object' },
     meta: {
@@ -156,21 +176,25 @@ const seoConfigSchema = {
       },
     },
   },
+  additionalProperties: false,
 } as const;
 
-const rbacScopeItemsSchema = {
-  type: 'object',
-  properties: {},
-  additionalProperties: { type: 'string' },
-} as NodeType;
+const rbacScopeItemsSchema = { type: 'object', additionalProperties: { type: 'string' } } as const;
 
 const rbacConfigSchema = {
   type: 'object',
   properties: {
-    defaults: 'rbacScopeItemsSchema',
+    cms: rbacScopeItemsSchema,
+    content: {
+      type: 'object',
+      properties: {
+        '**': rbacScopeItemsSchema,
+      },
+      additionalProperties: rbacScopeItemsSchema,
+    },
   },
   additionalProperties: rbacScopeItemsSchema,
-} as NodeType;
+} as const;
 
 const graviteeAdapterConfigSchema = {
   type: 'object',
@@ -246,13 +270,30 @@ const devOnboardingAdapterConfigSchema = {
 const devOnboardingConfigSchema = {
   type: 'object',
   required: ['adapters'],
+  additionalProperties: false,
   properties: {
+    // adapters: {
+    //   type: 'array',
+    //   items: devOnboardingAdapterConfigSchema,
+    // }, // TODO: figure out how to make oneOf work with arrays
     adapters: {
-      type: 'array',
-      items: devOnboardingAdapterConfigSchema,
+      oneOf: [
+        {
+          type: 'array',
+          items: apigeeXAdapterConfigSchema,
+        },
+        {
+          type: 'array',
+          items: apigeeEdgeAdapterConfigSchema,
+        },
+        {
+          type: 'array',
+          items: graviteeAdapterConfigSchema,
+        },
+      ],
     },
   },
-} as NodeType;
+} as const;
 
 const i18ConfigSchema = {
   type: 'object',
@@ -276,8 +317,9 @@ const i18ConfigSchema = {
       },
     },
   },
-  required: ['defaultLocale', 'locales'],
-} as NodeType;
+  additionalProperties: false,
+  required: ['defaultLocale'],
+} as const;
 
 const responseHeaderSchema = {
   type: 'object',
@@ -289,25 +331,13 @@ const responseHeaderSchema = {
   required: ['name', 'value'],
 } as const;
 
-export const PortalConfigNodeTypes: Record<string, NodeType> = {
-  seoConfigSchema,
-  rbacConfigSchema,
-  rbacScopeItemsSchema,
-  ssoConfigSchema,
-  devOnboardingConfigSchema,
-  i18ConfigSchema,
-  redirectsConfigSchema,
-  redirectConfigSchema,
-  // TODO: Extract other types that need to be linted in the config
-};
-
 export const redoclyConfigSchema = {
   type: 'object',
   properties: {
     licenseKey: { type: 'string' },
-    redirects: 'redirectsConfigSchema',
-    seo: 'seoConfigSchema',
-    rbac: 'rbacConfigSchema',
+    redirects: redirectsConfigSchema,
+    seo: seoConfigSchema,
+    rbac: rbacConfigSchema,
     responseHeaders: {
       type: 'object',
       additionalProperties: {
@@ -329,26 +359,26 @@ export const redoclyConfigSchema = {
       type: 'object',
       additionalProperties: apiConfigSchema,
     },
-    sso: 'ssoConfigSchema',
-    developerOnboarding: 'devOnboardingConfigSchema',
-    i18n: 'i18ConfigSchema',
+    ssoOnPrem: ssoOnPremConfigSchema,
+    sso: ssoConfigSchema,
+    residency: { type: 'string' },
+    developerOnboarding: devOnboardingConfigSchema,
+    i18n: i18ConfigSchema,
     metadata: metadataConfigSchema,
+    ignore: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
   },
   default: {},
-} as NodeType;
+  additionalProperties: false,
+} as const;
 
 export const environmentSchema = {
-  oneOf: [
-    { ...redoclyConfigSchema, additionalProperties: false },
-    {
-      type: 'object',
-      properties: {
-        $ref: { type: 'string' },
-      },
-      required: ['$ref'],
-      additionalProperties: false,
-    },
-  ],
+  ...redoclyConfigSchema,
+  additionalProperties: false,
 } as const;
 
 export const rootRedoclyConfigSchema = {
@@ -357,10 +387,45 @@ export const rootRedoclyConfigSchema = {
     ...redoclyConfigSchema.properties,
     env: {
       type: 'object',
-      properties: {},
       additionalProperties: environmentSchema,
     },
   },
   default: {},
-  required: ['redirects'],
+  // required: ['redirects'], // FIXME: why redirects is required?
 } as const;
+
+// TODO: get ThemeConfig later
+// export type RedoclyConfig<T = ThemeConfig> = FromSchema<typeof rootRedoclyConfigSchema> & {
+//   theme?: T;
+// };
+export type RedirectConfig = FromSchema<typeof redirectConfigSchema>;
+export type RedirectsConfig = FromSchema<typeof redirectsConfigSchema>;
+
+export type AuthProviderConfig = FromSchema<typeof authProviderConfigSchema>;
+export type BasicAuthProviderConfig = FromSchema<typeof basicAuthProviderConfigSchema>;
+export type OidcProviderConfig = FromSchema<typeof oidcProviderConfigSchema>;
+export type Saml2ProviderConfig = FromSchema<typeof saml2ProviderConfigSchema>;
+export type SeoConfig = FromSchema<typeof seoConfigSchema>;
+export type RbacConfig = FromSchema<typeof rbacConfigSchema>;
+export type RbacScopeItems = FromSchema<typeof rbacScopeItemsSchema>;
+export type OidcIssuerMetadata = FromSchema<typeof oidcIssuerMetadataSchema>;
+
+export type DevOnboardingAdapterConfig = FromSchema<typeof devOnboardingAdapterConfigSchema>;
+export type GraviteeAdapterConfig = FromSchema<typeof graviteeAdapterConfigSchema>;
+export type ApigeeAdapterConfig = FromSchema<
+  typeof apigeeXAdapterConfigSchema | typeof apigeeEdgeAdapterConfigSchema
+>;
+export type ApigeeAdapterAuthOauth2 = FromSchema<typeof apigeeAdapterAuthOauth2Schema>;
+export type ApigeeAdapterAuthServiceAccount = FromSchema<
+  typeof apigeeAdapterAuthServiceAccountSchema
+>;
+export type SsoConfig = FromSchema<typeof ssoOnPremConfigSchema>;
+export type I18nConfig = FromSchema<typeof i18ConfigSchema>;
+
+export const PortalConfigNodeTypes: Record<string, NodeType> = {};
+
+transformJSONSchemaToNodeType(
+  'rootRedoclyConfigSchema',
+  rootRedoclyConfigSchema,
+  PortalConfigNodeTypes
+);

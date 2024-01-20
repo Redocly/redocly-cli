@@ -1,0 +1,290 @@
+licenseKey: 123 # Must be a string
+
+apis:
+  without-root:
+    foo: Not expected!
+    output: file.json
+  with-wrong-root:
+    root: 456 # Must be a string
+  with-theme:
+    root: ./openapi.yaml
+    theme:
+      openapi: wrong, must be an object
+      not-expected: Must fail
+
+seo:
+  keywords: 789 # Must be an array
+
+redirects:
+  some-redirect:
+    t1o: Wrong name, should be 'two'
+    type: wrong type, must be a number
+
+rbac:
+  'team-b.md':
+    TeamB: read
+  team-c.md:
+    TeamC: read
+  /blog/*:
+    anonymous: none
+    authenticated: read
+  /blogpost/:
+    TeamD: none
+  '**/*.md':
+    TeamA: none
+    authenticated: none
+    '*': read
+  'blog/april-2022.md':
+    TeamA: none
+    TeamC: read
+  test.md:
+    TeamC: none
+    TeamB: none
+    authenticated: none
+    '*': read
+  test/**:
+    TeamB: read
+    TeamC: read
+    authenticated: read
+    anonymous: read
+  additional-property:
+    something: 123 # Must be a string
+  content:
+    '**':
+      additionalProp: 456 # Must be a stirng
+    foo:
+      additionalProp2: 789 # Must be a stirng
+
+responseHeaders:
+  some-header: wrong, must be an array
+  some-header2:
+    - wrong, must be an object
+    - unexpected-property: Should fail
+      # name: Must be reported as a missing required prop
+      value: 123 # Must be a string
+
+ssoOnPrem:
+  oidc:
+    title: 456 # Must be a string
+    type: OIDC
+    configurationUrl: http://localhost/oidc/.well-known/openid-configuration
+    clientId: '{{ process.env.public }}'
+    clientSecret: '{{ process.env.secret }}'
+    teamsClaimName: https://test.com
+    scopes:
+      - openid
+    audience:
+      - default
+    authorizationRequestCustomParams:
+      login_hint: 789 # Must be a string
+      prompt: login
+    configuration:
+      token_endpoint: 123 # Must be a string
+      # authorization_endpoint: Must be reported as a missing required prop
+      additional-propery: Must be allowed
+    defaultTeams:
+      - 456 # Must be a string
+
+  sso-config-schema-without-configurationUrl:
+    type: OIDC
+    # clientId: Must be reported as a missing required prop
+    # configurationUrl: Must be reported as a missing required prop
+    clientSecret: '{{ process.env.secret }}'
+
+  basic:
+    type: BASIC
+    credentials:
+      - teams:
+          - 789 # Must be a string
+          - correct
+        # username: Must be reported as a missing required prop
+
+sso:
+  - WRONG # Does not match allowed options
+
+developerOnboarding:
+  wrong: A not allowed field
+  adapters:
+    - should be object
+    - type: 123 # Must be a string
+    - type: APIGEE_X
+      # organizationName: Must be reported as a missing required prop
+      auth:
+        type: OAUTH2
+        # tokenEndpoint: Must be reported as a missing required prop
+        clientId: 456 # Must be a string
+        clientSecret: '{{ process.env.secret }}'
+        not-expected: Must fail
+    - type: APIGEE_X
+      organizationName: Test
+      auth:
+        type: SERVICE_ACCOUNT
+        # serviceAccountPrivateKey: Must be reported as a missing required prop
+        serviceAccountEmail: 789 # Must be a string
+
+i18n:
+  defaultLocale: en-US
+  locales:
+    - code: 123 # Must be a string
+      name: English
+    - code: es-ES
+      name: Spanish
+
+metadata:
+  test: anything
+
+not-listed-filed: Must be reported as not expected
+
+env:
+  some-env:
+    mockServer:
+      off: must be boolean
+      not-expected: Must fail
+    apis:
+      no-root:
+        # root: Must be defined
+        rules: {}
+      wrong-root:
+        root: 789 # Must be a string
+
+  referenced-env:
+    $ref: ./env.yaml
+
+theme:
+  breadcrumbs:
+    hide: false
+    prefixItems:
+      - label: Home
+        page: '/'
+  imports:
+    - '@redocly/test-theme'
+
+  logo:
+    srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
+    altText: Test
+    link: /
+  asyncapi:
+    hideInfo: false
+    expandSchemas:
+      root: true
+      elements: true
+  navbar:
+    items:
+      - label: Markdown
+        page: /markdown/
+      - page: /my-catalog/
+      - page: openapi.yaml
+      - label: TSX page
+        page: tsx.page.tsx
+      - label: External docs
+        href: https://test.com/docs/developer-portal/introduction/
+
+  search:
+    shortcuts:
+      - ctrl+f
+      - cmd+k
+      - /
+    suggestedPages:
+      - label: TSX page
+        page: tsx.page.tsx
+      - page: /my-catalog/
+
+  footer:
+    copyrightText: Copyright © Test 2019-2020.
+    items:
+      - group: Legal
+        items:
+          - label: Terms of Use
+            href: 'https://test.com/'
+          - label: Privacy Notice
+            href: 'https://test.com/'
+          - label: Cookie Notice
+            href: 'https://test.com/'
+      - group: Support
+        items:
+          - label: Tsx page
+            page: tsx.page.tsx
+          - label: Blog
+            page: blog.page.tsx
+      - group: Social
+        items:
+          - href: 'https://test.com'
+            icon:
+              srcSet: 'images/test-black.svg light, images/test.svg dark'
+          - href: 'https://test.com'
+            icon:
+              srcSet: 'images/test-black.svg light, images/test.svg dark'
+          - href: 'https://test.com'
+            icon:
+              srcSet: 'images/test-black.svg light, images/test.svg dark'
+  markdown:
+    lastUpdatedBlock:
+      format: 'long'
+    editPage:
+      baseUrl: https://test.com
+  graphql:
+    pagination: section
+    menu:
+      {
+        initialLoadState: 'default',
+        requireExactGroups: false,
+        groups:
+          [
+            {
+              name: 'GraphQL custom group',
+              directives: { includeByName: ['cacheControl', 'typeDirective'] },
+            },
+          ],
+        otherItemsGroupName: 'Other',
+      }
+  sidebar:
+    separatorLine: true
+    linePosition: top
+  catalog:
+    main:
+      title: API Catalog
+      description: 'This is a description of the API Catalog'
+      slug: /my-catalog/
+      filters:
+        - title: Domain
+          property: domain
+          missingCategoryName: Other
+        - title: API Category
+          property: category
+          missingCategoryName: Other
+      groupByFirstFilter: false
+      items:
+        - directory: ./
+          flatten: true
+          includeByMetadata:
+            type: [openapi]
+  scorecard:
+    ignoreNonCompliant: true
+    levels:
+      - name: Baseline
+        extends:
+          - minimal
+      - name: Silver
+        extends:
+          - recommended
+        rules:
+          info-description: off
+
+      - name: Gold
+        rules:
+          rule/path-item-get-required:
+            severity: warn
+            subject:
+              type: PathItem
+            message: Every path item must have a GET operation.
+            assertions:
+              required:
+                - get
+
+          operation-4xx-response: warn
+    targets:
+      - where:
+          metadata:
+            l0: Distribution
+            publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
+        minimumLevel: Silver
