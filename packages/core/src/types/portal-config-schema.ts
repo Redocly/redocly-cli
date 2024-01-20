@@ -126,7 +126,7 @@ const redirectsConfigSchema = {
   default: {},
 } as const;
 
- const apiConfigSchema = {
+const apiConfigSchema = {
   type: 'object',
   properties: {
     root: { type: 'string' },

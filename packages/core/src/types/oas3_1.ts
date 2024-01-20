@@ -1,7 +1,7 @@
-import {  listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import { Oas3Types } from './oas3';
 
-import type { NodeType,  } from '.';
+import type { NodeType } from '.';
 import type { Oas3_1NodeType } from './redocly-yaml';
 
 const Root: NodeType = {

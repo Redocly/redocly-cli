@@ -1,8 +1,7 @@
-import {  PortalConfigNodeTypes } from './portal-config-schema';
+import { PortalConfigNodeTypes } from './portal-config-schema';
 import { themeConfigSchema } from './theme-config';
 import { NodeType, listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
-
 
 const builtInCommonRules = [
   'spec',
@@ -1136,6 +1135,3 @@ export const ConfigTypes: Record<string, NodeType> = {
   AssertionDefinitionSubject,
   ...PortalConfigNodeTypes,
 };
-
-
-// console.log('ConfigTypes', ConfigTypes);

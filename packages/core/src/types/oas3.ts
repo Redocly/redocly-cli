@@ -1,4 +1,4 @@
-import {  listOf, mapOf } from '.';
+import { listOf, mapOf } from '.';
 import { isMappingRef } from '../ref-utils';
 
 import type { NodeType } from '.';
