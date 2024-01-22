@@ -16,15 +16,15 @@ export type PushOptions = {
   branch: string;
   author: string;
   message: string;
-  commitSha?: string;
-  commitUrl?: string;
+  'commit-sha'?: string;
+  'commit-url'?: string;
   namespace?: string;
   repository?: string;
   createdAt?: string;
 
   files: string[];
 
-  defaultBranch: string;
+  'default-branch': string;
   domain?: string;
   config?: string;
   'wait-for-deployment'?: boolean;
@@ -55,6 +55,13 @@ export async function handlePush(argv: PushOptions, config: Config) {
   }
 
   try {
+    const {
+      'commit-sha': commitSha,
+      'commit-url': commitUrl,
+      'default-branch': defaultBranch,
+      'wait-for-deployment': waitForDeployment,
+      'max-execution-time': maxExecutionTime,
+    } = argv;
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
     const filesToUpload = collectFilesToPush(argv.files);
@@ -85,14 +92,14 @@ export async function handlePush(argv: PushOptions, config: Config) {
         commit: {
           message: argv.message,
           branchName: argv.branch,
-          sha: argv.commitSha,
-          url: argv.commitUrl,
+          sha: commitSha,
+          url: commitUrl,
           createdAt: argv.createdAt,
           namespace: argv.namespace,
           repository: argv.repository,
           author,
         },
-        isMainBranch: argv.defaultBranch === argv.branch,
+        isMainBranch: defaultBranch === argv.branch,
       },
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
@@ -102,9 +109,9 @@ export async function handlePush(argv: PushOptions, config: Config) {
     });
     process.stdout.write('\n');
 
-    process.stdout.write(`${id}\n`);
+    process.stdout.write(`Push ID: ${id}\n`);
 
-    if (argv['wait-for-deployment']) {
+    if (waitForDeployment) {
       process.stdout.write('\n');
 
       await handlePushStatus(
@@ -114,14 +121,14 @@ export async function handlePush(argv: PushOptions, config: Config) {
           pushId: id,
           wait: true,
           domain,
-          'max-execution-time': argv['max-execution-time'],
+          'max-execution-time': maxExecutionTime,
         },
         config
       );
     }
     verbose &&
       printExecutionTime(
-        'push-bh',
+        'push',
         startedAt,
         `${pluralize(
           'file',

@@ -161,13 +161,13 @@ yargs
           organization: {
             description: 'Name of the organization to push to.',
             type: 'string',
-            // required: true,
+            required: true,
             alias: 'o',
           },
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
-            // required: true,
+            required: true,
             alias: 'p',
           },
           domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
@@ -202,10 +202,10 @@ yargs
         .hide('mountPath')
         .hide('author')
         .hide('message')
-        .hide('defaultBranch')
+        .hide('default-branch')
         .hide('verbose')
-        .hide('commitSha')
-        .hide('commitUrl')
+        .hide('commit-sha')
+        .hide('commit-url')
         .hide('namespace')
         .hide('repository')
         .hide('wait-for-deployment')
@@ -280,7 +280,7 @@ yargs
             type: 'string',
             alias: 'p',
           },
-          mountPath: {
+          'mount-path': {
             description: 'The path files should be pushed to.',
             type: 'string',
             alias: 'mp',
@@ -295,12 +295,12 @@ yargs
             type: 'string',
             alias: 'm',
           },
-          commitSha: {
+          'commit-sha': {
             description: 'Commit SHA.',
             type: 'string',
             alias: 'sha',
           },
-          commitUrl: {
+          'commit-url': {
             description: 'Commit URL.',
             type: 'string',
             alias: 'url',
@@ -323,7 +323,7 @@ yargs
             requiresArg: true,
             type: 'string',
           },
-          defaultBranch: {
+          'default-branch': {
             type: 'string',
             default: 'main',
           },
