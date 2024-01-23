@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.7.0 (2024-01-23)
+
+### Minor Changes
+
+- Added a `preview` command that starts a local preview server for Redocly projects that use products that are currently in a pre-release stage.
+
+### Patch Changes
+
+- Fixed an issue with resolving references after splitting API descriptions written in the json format.
+- Added filename extension support for more `x-codeSamples` languages.
+- Fixed a problem where the linter incorrectly returned an error for valid examples that contain references.
+- Updated @redocly/openapi-core to v1.7.0.
+
 ## 1.6.0 (2023-12-21)
 
 ### Minor Changes
