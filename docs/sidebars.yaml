@@ -20,6 +20,8 @@
           page: commands/login.md
         - label: logout
           page: commands/logout.md
+        - label: preview
+          page: commands/preview.md
         - label: preview-docs
           page: commands/preview-docs.md
         - label: push
