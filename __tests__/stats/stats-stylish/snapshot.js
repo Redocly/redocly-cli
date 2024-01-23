@@ -13,4 +13,7 @@ Document: museum.yaml stats:
 👷 Operations: 8 
 🔖 Tags: 3 
 
+museum.yaml: stats processed in <test>ms
+
+
 `;
