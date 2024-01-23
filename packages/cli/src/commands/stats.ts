@@ -59,7 +59,12 @@ function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
   process.stdout.write(output);
 }
 
-function printStats(statsAccumulator: StatsAccumulator, api: string, startedAt:number, format: string) {
+function printStats(
+  statsAccumulator: StatsAccumulator,
+  api: string,
+  startedAt: number,
+  format: string
+) {
   switch (format) {
     case 'stylish':
       process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
