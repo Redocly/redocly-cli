@@ -1,3 +1,4 @@
+import { performance } from 'perf_hooks';
 import * as colors from 'colorette';
 import {
   Config,
@@ -58,11 +59,12 @@ function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
   process.stdout.write(output);
 }
 
-function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
+function printStats(statsAccumulator: StatsAccumulator, api: string, startedAt:number, format: string) {
   switch (format) {
     case 'stylish':
       process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
+      printExecutionTime('stats', startedAt, api);
       break;
     case 'json':
       printStatsJson(statsAccumulator);
@@ -90,6 +92,7 @@ export async function handleStats(argv: StatsOptions, config: Config) {
     lintConfig
   );
 
+  const startedAt = performance.now();
   const ctx: WalkContext = {
     problems: [],
     oasVersion: specVersion,
@@ -121,5 +124,5 @@ export async function handleStats(argv: StatsOptions, config: Config) {
     ctx,
   });
 
-  printStats(statsAccumulator, path, argv.format);
+  printStats(statsAccumulator, path, startedAt, argv.format);
 }
