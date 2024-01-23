@@ -20,7 +20,7 @@ export type PushOptions = {
   'commit-url'?: string;
   namespace?: string;
   repository?: string;
-  createdAt?: string;
+  'created-at'?: string;
 
   files: string[];
 
@@ -94,7 +94,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
           branchName: argv.branch,
           sha: commitSha,
           url: commitUrl,
-          createdAt: argv.createdAt,
+          createdAt: argv['created-at'],
           namespace: argv.namespace,
           repository: argv.repository,
           author,

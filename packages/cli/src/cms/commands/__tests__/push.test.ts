@@ -71,7 +71,7 @@ describe('handlePush()', () => {
         'commit-sha': 'test-commit-sha',
         'commit-url': 'test-commit-url',
         'default-branch': 'test-branch',
-        createdAt: 'test-created-at',
+        'created-at': 'test-created-at',
         author: 'TestAuthor <test-author@mail.com>',
         message: 'Test message',
         files: ['test-file'],

@@ -667,7 +667,7 @@ export function findAndApplyPushHandler(argv: PushArguments) {
   if (argv.project && argv.mountPath) {
     if (!argv.message || !argv.author || !argv.branch) {
       process.stdout.write(
-        'Error: message, author and branch are required for push command to the BlueHarvest'
+        'Error: message, author and branch are required for push command to the CMS'
       );
       return;
     }

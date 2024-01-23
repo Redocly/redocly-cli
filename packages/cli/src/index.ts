@@ -313,7 +313,7 @@ yargs
             description: 'Repository name.',
             type: 'string',
           },
-          createdAt: {
+          'created-at': {
             description: 'Commit creation date.',
             type: 'string',
           },
