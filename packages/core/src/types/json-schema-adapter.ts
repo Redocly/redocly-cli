@@ -14,6 +14,23 @@ const ajv = new Ajv({
   verbose: true,
 });
 
+const findOneOf = (
+  schemaOneOf: JSONSchema[],
+  oneOfs: (PropType | ResolveTypeFn)[]
+): ResolveTypeFn => {
+  if (oneOfs.some((option) => typeof option === 'function')) {
+    throw new Error('Unexpected oneOf inside oneOf.');
+  }
+
+  return (value: any) => {
+    let index = schemaOneOf!.findIndex((option) => ajv.validate(option, value));
+    if (index === -1) {
+      index = 0;
+    }
+    return oneOfs[index] as PropType;
+  };
+};
+
 export const transformJSONSchemaToNodeType = (
   propertyName: string,
   schema: JSONSchema,
@@ -56,6 +73,10 @@ export const transformJSONSchemaToNodeType = (
     }
   }
 
+  if (isPlainObject(schema.items) && schema.items.oneOf) {
+    throw new Error('Unexpected oneOf in items.');
+  }
+
   if (
     isPlainObject(schema.properties) ||
     isPlainObject(schema.additionalProperties) ||
@@ -69,46 +90,33 @@ export const transformJSONSchemaToNodeType = (
     if ((schema as any).discriminator) {
       const discriminatedPropertyName: string = (schema as any).discriminator?.propertyName;
 
-      const oneOfs = schema.oneOf.map((item, i) => {
-        if (typeof item === 'boolean') {
+      const oneOfs = schema.oneOf.map((option, i) => {
+        if (typeof option === 'boolean') {
           throw new Error('Unexpected boolean schema.');
         }
-        const discriminatedProperty = item?.properties?.[discriminatedPropertyName];
+        const discriminatedProperty = option?.properties?.[discriminatedPropertyName];
         if (!discriminatedProperty || typeof discriminatedProperty === 'boolean') {
           throw new Error('Unexpected property schema.');
         }
         const name = discriminatedProperty.const as string;
-        return transformJSONSchemaToNodeType(name, item, ctx);
+        return transformJSONSchemaToNodeType(name, option, ctx);
       });
 
       return (value: any, key: string) => {
         if (!isPlainObject(value)) {
-          return {} as any; // FIXME: as any
+          return findOneOf(schema.oneOf as JSONSchema[], oneOfs)(value, key);
         }
-        return value[discriminatedPropertyName];
+        return value[discriminatedPropertyName] as PropType;
       };
     } else {
-      const oneOfs = schema.oneOf.map((item, i) =>
-        transformJSONSchemaToNodeType(propertyName + '_' + i, item, ctx)
+      const oneOfs = schema.oneOf.map((option, i) =>
+        transformJSONSchemaToNodeType(propertyName + '_' + i, option, ctx)
       );
-
-      return (value: any, key: string) => {
-        let index = schema.oneOf!.findIndex((item) => ajv.validate(item, value));
-        if (index === -1) {
-          index = 0;
-        }
-
-        return oneOfs[index] as PropType; // FIXME: as
-      };
+      return findOneOf(schema.oneOf as JSONSchema[], oneOfs);
     }
   }
 
-  /// TODO: get rid of this / see ^^^
-  if (isPlainObject(schema.items) && schema.items.oneOf) {
-    throw new Error('Unexpected oneOf in items.');
-  }
-
-  return schema as PropType | ResolveTypeFn; // FIXME:
+  return schema as PropType;
 };
 
 const extractNodeToContext = (
@@ -153,18 +161,19 @@ const extractNodeToContext = (
   if (
     isPlainObject(schema.items) &&
     (isPlainObject(schema.items.properties) ||
-      isPlainObject(schema.items.additionalProperties)) /* || schema.items.oneOf */
+      isPlainObject(schema.items.additionalProperties))
   ) {
     items = propertyName + '_items';
-    transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx); //as ScalarSchema
+    transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
   }
 
   let required = schema.required as NodeType['required'];
-  if (schema.oneOf && schema.oneOf.every((item) => !!(item as any).required)) {
-    required = (value: any, key: string | number | undefined): string[] => {
-      const requiredList: string[][] = schema.oneOf!.map((item) => [
+  // Translate required in oneOfs into a ResolveTypeFn.
+  if (schema.oneOf && schema.oneOf.every((option) => !!(option as any).required)) {
+    required = (value: any): string[] => {
+      const requiredList: string[][] = schema.oneOf!.map((option) => [
         ...(schema.required || []),
-        ...(item as any).required,
+        ...(option as any).required,
       ]);
 
       let index = requiredList.findIndex((r) =>
