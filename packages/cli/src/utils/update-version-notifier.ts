@@ -75,7 +75,7 @@ const renderUpdateBanner = (current: string, latest: string) => {
       .join('\n')}
     ${yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║')}
     ${yellow('╚' + border + '╝')}
-  `;
+`;
 
   process.stderr.write(banner);
 };
