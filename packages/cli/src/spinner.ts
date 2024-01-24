@@ -26,6 +26,7 @@ export class Spinner {
     }
 
     this.message = message;
+    // If we're not in a TTY, don't display the spinner.
     if (!process.stdout.isTTY) {
       process.stdout.write(`${message}...\n`);
       return;

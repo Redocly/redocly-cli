@@ -10,9 +10,6 @@ export default async (url: string, options = {}) => {
       controller.abort();
     }, TIMEOUT);
 
-    // FIXME: fix this (possibly along with this issue: https://github.com/Redocly/redocly-cli/issues/1260)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const res = await nodeFetch(url, { signal: controller.signal, ...options });
     clearTimeout(timeout);
     return res;
