@@ -1,11 +1,11 @@
 import { handleJoin } from '../../commands/join';
-import { exitWithError, writeToFileByExtension, writeYaml } from '../../utils';
+import { exitWithError, writeToFileByExtension, writeYaml } from '../../utils/miscellaneous';
 import { yellow } from 'colorette';
 import { detectSpec } from '@redocly/openapi-core';
 import { loadConfig } from '../../__mocks__/@redocly/openapi-core';
 import { ConfigFixture } from '../fixtures/config';
 
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 jest.mock('colorette');
 

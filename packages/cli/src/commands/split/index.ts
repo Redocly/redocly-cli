@@ -15,8 +15,8 @@ import {
   langToExt,
   writeToFileByExtension,
   getAndValidateFileExtension,
-} from '../../utils';
-import { isString, isObject, isEmptyObject } from '../../js-utils';
+} from '../../utils/miscellaneous';
+import { isString, isObject, isEmptyObject } from '../../utils/js-utils';
 import {
   Definition,
   Oas2Definition,

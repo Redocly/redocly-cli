@@ -31,7 +31,7 @@ describe('getApiKeys()', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     expect(() => getApiKeys('test-domain')).toThrowError(
-      'No api key provided, please use environment variable REDOCLY_DOMAIN.'
+      'No api key provided, please use environment variable REDOCLY_AUTHORIZATION.'
     );
   });
 });

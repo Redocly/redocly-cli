@@ -1,14 +1,13 @@
 import { handlePushStatus } from '../push-status';
 import { PushResponse } from '../../api/types';
-import { exitWithError } from '../../../utils';
-import { ReuniteApiClient } from '../../api';
+import { exitWithError } from '../../../utils/miscellaneous';
 
 const remotes = {
   getPush: jest.fn(),
   getRemotesList: jest.fn(),
 };
 
-jest.mock('../../../utils');
+jest.mock('../../../utils/miscellaneous');
 
 jest.mock('colorette', () => ({
   green: (str: string) => str,
@@ -20,6 +19,7 @@ jest.mock('colorette', () => ({
 }));
 
 jest.mock('../../api', () => ({
+  ...jest.requireActual('../../api'),
   ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
   }),

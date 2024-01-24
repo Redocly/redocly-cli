@@ -1,4 +1,4 @@
-import fetchWithTimeout from '../../fetch-with-timeout';
+import fetchWithTimeout from '../../utils/fetch-with-timeout';
 import fetch from 'node-fetch';
 import * as FormData from 'form-data';
 

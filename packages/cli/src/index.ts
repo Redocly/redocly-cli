@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import './assert-node-version';
+import './utils/assert-node-version';
 import * as yargs from 'yargs';
 import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
@@ -13,15 +13,15 @@ import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
-import { version } from './update-version-notifier';
+import { version } from './utils/update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
-import { findAndApplyPushHandler } from './utils';
 import { previewProject } from './commands/preview-project';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
+import { commonPushHandler } from './commands/push';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -157,6 +157,7 @@ yargs
           type: 'string',
           required: true,
         })
+        .implies('max-execution-time', 'wait')
         .option({
           organization: {
             description: 'Name of the organization to push to.',
@@ -215,6 +216,7 @@ yargs
         .implies('job-id', 'batch-size')
         .implies('batch-id', 'batch-size')
         .implies('batch-size', 'job-id')
+        .implies('max-execution-time', 'wait-for-deployment')
         .option({
           destination: {
             description: 'API name and version in the format `name@version`.',
@@ -343,7 +345,7 @@ yargs
         }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      findAndApplyPushHandler(argv as PushArguments);
+      commandWrapper(commonPushHandler(argv))(argv as PushArguments);
     }
   )
   .command(

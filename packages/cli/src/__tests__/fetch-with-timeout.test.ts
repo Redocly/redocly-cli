@@ -1,5 +1,5 @@
 import AbortController from 'abort-controller';
-import fetchWithTimeout from '../fetch-with-timeout';
+import fetchWithTimeout from '../utils/fetch-with-timeout';
 import nodeFetch from 'node-fetch';
 
 jest.mock('node-fetch');

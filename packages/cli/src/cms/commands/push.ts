@@ -1,15 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Config, slash } from '@redocly/openapi-core';
-import { exitWithError, HandledError, printExecutionTime } from '../../utils';
+import { exitWithError, HandledError, printExecutionTime } from '../../utils/miscellaneous';
 import { green, yellow } from 'colorette';
-import { getDomain } from '../domains';
-import { getApiKeys } from '../api-keys';
 import pluralize = require('pluralize');
 import { handlePushStatus } from './push-status';
-import { ReuniteApiClient } from '../api';
+import { ReuniteApiClient, getDomain, getApiKeys } from '../api';
 
 export type PushOptions = {
+  apis?: string[];
   organization?: string;
   project: string;
   'mount-path': string;
@@ -41,6 +40,10 @@ export async function handlePush(argv: PushOptions, config: Config) {
 
   const orgId = organization || config.organization;
 
+  if (!argv.message || !argv.author || !argv.branch) {
+    exitWithError('Error: message, author and branch are required for push to the CMS');
+  }
+
   if (!orgId) {
     return exitWithError(
       `No organization provided, please use --organization option or specify the 'organization' field in the config file.`
@@ -65,7 +68,7 @@ export async function handlePush(argv: PushOptions, config: Config) {
     } = argv;
     const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys(domain);
-    const filesToUpload = collectFilesToPush(argv.files);
+    const filesToUpload = collectFilesToPush(argv.files || argv.apis);
 
     if (!filesToUpload.length) {
       return printExecutionTime('push', startedAt, `No files to upload`);

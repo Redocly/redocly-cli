@@ -3,12 +3,11 @@ import * as path from 'path';
 import * as openapiCore from '@redocly/openapi-core';
 import { ComponentsFiles } from '../types';
 import { blue, green } from 'colorette';
-import { writeToFileByExtension } from '../../../utils';
 
-const utils = require('../../../utils');
+const utils = require('../../../utils/miscellaneous');
 
-jest.mock('../../../utils', () => ({
-  ...jest.requireActual('../../../utils'),
+jest.mock('../../../utils/miscellaneous', () => ({
+  ...jest.requireActual('../../../utils/miscellaneous'),
   writeToFileByExtension: jest.fn(),
 }));
 

@@ -1,10 +1,10 @@
-import { Spinner } from '../spinner';
+import { Spinner } from '../utils/spinner';
 import * as process from 'process';
 
 jest.useFakeTimers();
 
 describe('Spinner', () => {
-  const IS_TTY = process.stdout.isTTY
+  const IS_TTY = process.stdout.isTTY;
 
   let writeMock: jest.SpyInstance;
   let spinner: Spinner;

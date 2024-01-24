@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { Config, getMergedConfig } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils';
+import { exitWithError } from '../../utils/miscellaneous';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
@@ -13,7 +13,7 @@ jest.mock('node-fetch', () => ({
   })),
 }));
 jest.mock('@redocly/openapi-core');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 

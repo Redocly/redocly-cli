@@ -14,6 +14,7 @@ jest.mock('@redocly/openapi-core', () => ({
 }));
 
 jest.mock('../../api', () => ({
+  ...jest.requireActual('../../api'),
   ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
   }),

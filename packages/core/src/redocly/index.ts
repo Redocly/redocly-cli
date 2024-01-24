@@ -10,7 +10,7 @@ import { colorize } from '../logger';
 
 import type { AccessTokens, Region } from '../config/types';
 
-const TOKEN_FILENAME = '.redocly-config.json';
+export const TOKEN_FILENAME = '.redocly-config.json';
 
 export class RedoclyClient {
   private accessTokens: AccessTokens = {};

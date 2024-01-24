@@ -1,12 +1,10 @@
 import * as colors from 'colorette';
 import { Config } from '@redocly/openapi-core';
-import { getDomain } from '../domains';
-import { getApiKeys } from '../api-keys';
-import { exitWithError, printExecutionTime } from '../../utils';
-import { Spinner } from '../../spinner';
+import { exitWithError, printExecutionTime } from '../../utils/miscellaneous';
+import { Spinner } from '../../utils/spinner';
 import { DeploymentError } from '../utils';
 import { yellow } from 'colorette';
-import { ReuniteApiClient } from '../api';
+import { ReuniteApiClient, getApiKeys, getDomain } from '../api';
 
 import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
 
@@ -121,7 +119,6 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
     client: ReuniteApiClient,
     buildType: 'preview' | 'production'
   ) {
-    // { hasChanges: true, status: {preview: {deploy: {status: 'failed', url: 'https://app.lab1.blueharvest.cloud/'}}}} as PushResponse;
     const push = await client.remotes.getPush({
       organizationId: orgId!,
       projectId,
