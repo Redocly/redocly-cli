@@ -1,12 +1,14 @@
 import * as colors from 'colorette';
-import { RedoclyCloudApiClient, Config, ScorecardItem } from '@redocly/openapi-core';
-import type { DeploymentStatus, PushResponse } from '@redocly/openapi-core/lib/redocly/cloud/types';
+import { Config } from '@redocly/openapi-core';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 import { exitWithError, printExecutionTime } from '../../utils';
 import { Spinner } from '../../spinner';
 import { DeploymentError } from '../utils';
 import { yellow } from 'colorette';
+import { ReuniteApiClient } from '../api';
+
+import type { DeploymentStatus, PushResponse, ScorecardItem } from '../api/types';
 
 const INTERVAL = 5000;
 
@@ -45,25 +47,25 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
 
   try {
     const apiKey = getApiKeys(domain);
-    const client = new RedoclyCloudApiClient(domain, apiKey);
+    const client = new ReuniteApiClient(domain, apiKey);
 
-    if (!wait) {
-      const pushPreview = await getAndPrintPushStatus(client, 'preview');
-      printScorecard(pushPreview.status.preview.scorecard);
+    if (wait) {
+      const push = await waitForDeployment(client, 'preview');
 
-      if (pushPreview.isMainBranch) {
-        await getAndPrintPushStatus(client, 'production');
-        printScorecard(pushPreview.status.production.scorecard);
+      if (push.isMainBranch && push.status.preview.deploy.status === 'success') {
+        await waitForDeployment(client, 'production');
       }
 
       printPushStatusInfo();
       return;
     }
 
-    const push = await waitForDeployment(client, 'preview');
+    const pushPreview = await getAndPrintPushStatus(client, 'preview');
+    printScorecard(pushPreview.status.preview.scorecard);
 
-    if (push.isMainBranch && push.status.preview.deploy.status === 'success') {
-      await waitForDeployment(client, 'production');
+    if (pushPreview.isMainBranch) {
+      await getAndPrintPushStatus(client, 'production');
+      printScorecard(pushPreview.status.production.scorecard);
     }
 
     printPushStatusInfo();
@@ -85,7 +87,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
   }
 
   async function waitForDeployment(
-    client: RedoclyCloudApiClient,
+    client: ReuniteApiClient,
     buildType: 'preview' | 'production'
   ): Promise<PushResponse> {
     return new Promise((resolve, reject) => {
@@ -111,14 +113,12 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
             }
           }, INTERVAL);
         })
-        .catch((err) => {
-          reject(err);
-        });
+        .catch(reject);
     });
   }
 
   async function getAndPrintPushStatus(
-    client: RedoclyCloudApiClient,
+    client: ReuniteApiClient,
     buildType: 'preview' | 'production'
   ) {
     // { hasChanges: true, status: {preview: {deploy: {status: 'failed', url: 'https://app.lab1.blueharvest.cloud/'}}}} as PushResponse;
@@ -158,6 +158,7 @@ function printScorecard(scorecard: ScorecardItem[]) {
     ${colors.magenta('URL')}: ${colors.cyan(scorecardItem.targetUrl)}
     ${colors.magenta('Description')}: ${scorecardItem.description}\n`);
   }
+  process.stdout.write(`\n`);
 }
 
 function displayDeploymentAndBuildStatus({

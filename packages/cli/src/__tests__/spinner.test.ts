@@ -4,13 +4,13 @@ import * as process from 'process';
 jest.useFakeTimers();
 
 describe('Spinner', () => {
-  const CI_VALUE = process.env.CI;
+  const IS_TTY = process.stdout.isTTY
 
   let writeMock: jest.SpyInstance;
   let spinner: Spinner;
 
   beforeEach(() => {
-    process.env.CI = '';
+    process.stdout.isTTY = true;
     writeMock = jest.spyOn(process.stdout, 'write').mockImplementation(jest.fn());
     spinner = new Spinner();
   });
@@ -21,7 +21,7 @@ describe('Spinner', () => {
   });
 
   afterAll(() => {
-    process.env.CI = CI_VALUE;
+    process.stdout.isTTY = IS_TTY;
   });
 
   it('starts the spinner', () => {
@@ -43,7 +43,7 @@ describe('Spinner', () => {
   });
 
   it('should call write 1 times if CI set to true', () => {
-    process.env.CI = 'true';
+    process.stdout.isTTY = false;
     spinner.start('Loading');
     jest.advanceTimersByTime(300);
     expect(writeMock).toHaveBeenCalledTimes(1);

@@ -26,7 +26,7 @@ export class Spinner {
     }
 
     this.message = message;
-    if (process.env.CI) {
+    if (!process.stdout.isTTY) {
       process.stdout.write(`${message}...\n`);
       return;
     }

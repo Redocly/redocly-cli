@@ -1,6 +1,7 @@
 import { handlePushStatus } from '../push-status';
-import { PushResponse } from '@redocly/openapi-core/lib/redocly/cloud/types';
+import { PushResponse } from '../../api/types';
 import { exitWithError } from '../../../utils';
+import { ReuniteApiClient } from '../../api';
 
 const remotes = {
   getPush: jest.fn(),
@@ -18,9 +19,8 @@ jest.mock('colorette', () => ({
   cyan: (str: string) => str,
 }));
 
-jest.mock('@redocly/openapi-core', () => ({
-  ...jest.requireActual('@redocly/openapi-core'),
-  RedoclyCloudApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
+jest.mock('../../api', () => ({
+  ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
   }),
 }));
@@ -174,7 +174,7 @@ describe('handlePushStatus()', () => {
       },
       mockConfig
     );
-    expect(process.stdout.write).toHaveBeenCalledTimes(3);
+    expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
       '🚀 PREVIEW deployment succeeded.\nPreview URL: https://test-url\n'
     );
@@ -182,6 +182,7 @@ describe('handlePushStatus()', () => {
     expect(process.stdout.write).toHaveBeenCalledWith(
       '\n    Name: test-name\n    Status: success\n    URL: test-url\n    Description: test-description\n'
     );
+    expect(process.stdout.write).toHaveBeenCalledWith('\n');
   });
 
   it('should display message if there is no changes', async () => {

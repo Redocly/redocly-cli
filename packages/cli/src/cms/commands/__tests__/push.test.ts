@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { handlePush } from '../push';
-import { RedoclyCloudApiClient } from '@redocly/openapi-core';
+import { ReuniteApiClient } from '../../api';
 
 const remotes = {
   push: jest.fn(),
@@ -10,8 +10,11 @@ const remotes = {
 };
 
 jest.mock('@redocly/openapi-core', () => ({
-  ...jest.requireActual('@redocly/openapi-core'),
-  RedoclyCloudApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
+  slash: jest.fn().mockImplementation((p) => p),
+}));
+
+jest.mock('../../api', () => ({
+  ReuniteApiClient: jest.fn().mockImplementation(function (this: any, ...args) {
     this.remotes = remotes;
   }),
 }));
@@ -62,7 +65,7 @@ describe('handlePush()', () => {
     await handlePush(
       {
         domain: 'test-domain',
-        mountPath: 'test-mount-path',
+        'mount-path': 'test-mount-path',
         organization: 'test-org',
         project: 'test-project',
         branch: 'test-branch',
@@ -149,7 +152,7 @@ describe('handlePush()', () => {
     await handlePush(
       {
         domain: 'test-domain',
-        mountPath: 'test-mount-path',
+        'mount-path': 'test-mount-path',
         organization: 'test-org',
         project: 'test-project',
         branch: 'test-branch',
@@ -191,7 +194,7 @@ describe('handlePush()', () => {
     await handlePush(
       {
         domain: 'test-domain',
-        mountPath: 'test-mount-path',
+        'mount-path': 'test-mount-path',
         organization: 'test-org',
         project: 'test-project',
         branch: 'test-branch',
@@ -226,7 +229,7 @@ describe('handlePush()', () => {
     await handlePush(
       {
         domain: 'test-domain',
-        mountPath: 'test-mount-path',
+        'mount-path': 'test-mount-path',
         project: 'test-project',
         branch: 'test-branch',
         author: 'TestAuthor <test-author@mail.com>',
@@ -272,7 +275,7 @@ describe('handlePush()', () => {
 
     await handlePush(
       {
-        mountPath: 'test-mount-path',
+        'mount-path': 'test-mount-path',
         project: 'test-project',
         branch: 'test-branch',
         'default-branch': 'main',
@@ -284,6 +287,6 @@ describe('handlePush()', () => {
       mockConfig
     );
 
-    expect(RedoclyCloudApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
+    expect(ReuniteApiClient).toBeCalledWith('test-domain-from-env', 'test-api-key');
   });
 });

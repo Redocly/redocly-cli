@@ -1,7 +1,7 @@
 import fetch, { Response } from 'node-fetch';
 import * as FormData from 'form-data';
 
-import { ApiClient, PushPayload } from '../api-client';
+import { ReuniteApiClient, PushPayload } from '../api-client';
 
 jest.mock('node-fetch', () => ({
   default: jest.fn(),
@@ -18,10 +18,10 @@ describe('ApiClient', () => {
   const testProject = 'test-project';
 
   describe('getDefaultBranch()', () => {
-    let apiClient: ApiClient;
+    let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken);
     });
 
     it('should get default project branch', async () => {
@@ -85,10 +85,10 @@ describe('ApiClient', () => {
       mountBranchName: 'remote-mount-branch-name',
       mountPath: 'remote-mount-path',
     };
-    let apiClient: ApiClient;
+    let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken);
     });
 
     it('should upsert remote', async () => {
@@ -194,10 +194,10 @@ describe('ApiClient', () => {
       outdated: false,
     };
 
-    let apiClient: ApiClient;
+    let apiClient: ReuniteApiClient;
 
     beforeEach(() => {
-      apiClient = new ApiClient(testDomain, testToken);
+      apiClient = new ReuniteApiClient(testDomain, testToken);
     });
 
     it('should push to remote', async () => {

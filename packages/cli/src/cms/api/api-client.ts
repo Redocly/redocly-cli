@@ -171,7 +171,7 @@ class RemotesApiClient {
   }
 }
 
-export class ApiClient {
+export class ReuniteApiClient {
   remotes: RemotesApiClient;
 
   constructor(public domain: string, private readonly apiKey: string) {

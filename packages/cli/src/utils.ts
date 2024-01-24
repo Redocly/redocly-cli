@@ -664,7 +664,7 @@ export function checkForDeprecatedOptions<T>(argv: T, deprecatedOptions: Array<k
 }
 
 export function findAndApplyPushHandler(argv: PushArguments) {
-  if (argv.project && argv.mountPath) {
+  if (argv.project && argv['mount-path']) {
     if (!argv.message || !argv.author || !argv.branch) {
       process.stdout.write(
         'Error: message, author and branch are required for push command to the CMS'

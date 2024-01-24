@@ -8,8 +8,6 @@ import { RegionalToken, RegionalTokenWithValidity } from './redocly-client-types
 import { isNotEmptyObject } from '../utils';
 import { colorize } from '../logger';
 
-export * from './cloud';
-
 import type { AccessTokens, Region } from '../config/types';
 
 const TOKEN_FILENAME = '.redocly-config.json';

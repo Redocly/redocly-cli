@@ -1,17 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config, RedoclyCloudApiClient, slash } from '@redocly/openapi-core';
+import { Config, slash } from '@redocly/openapi-core';
 import { exitWithError, HandledError, printExecutionTime } from '../../utils';
 import { green, yellow } from 'colorette';
 import { getDomain } from '../domains';
 import { getApiKeys } from '../api-keys';
 import pluralize = require('pluralize');
 import { handlePushStatus } from './push-status';
+import { ReuniteApiClient } from '../api';
 
 export type PushOptions = {
   organization?: string;
   project: string;
-  mountPath: string;
+  'mount-path': string;
 
   branch: string;
   author: string;
@@ -36,7 +37,7 @@ type FileToUpload = { name: string; path: string };
 
 export async function handlePush(argv: PushOptions, config: Config) {
   const startedAt = performance.now();
-  const { organization, project: projectId, mountPath, verbose } = argv;
+  const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
 
   const orgId = organization || config.organization;
 
@@ -67,10 +68,10 @@ export async function handlePush(argv: PushOptions, config: Config) {
     const filesToUpload = collectFilesToPush(argv.files);
 
     if (!filesToUpload.length) {
-      return printExecutionTime('push-bh', startedAt, `No files to upload`);
+      return printExecutionTime('push', startedAt, `No files to upload`);
     }
 
-    const client = new RedoclyCloudApiClient(domain, apiKey);
+    const client = new ReuniteApiClient(domain, apiKey);
     const projectDefaultBranch = await client.remotes.getDefaultBranch(orgId, projectId);
     const remote = await client.remotes.upsert(orgId, projectId, {
       mountBranchName: projectDefaultBranch,

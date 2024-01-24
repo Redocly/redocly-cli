@@ -41,7 +41,7 @@ export {
   ResolvedApi,
 } from './config';
 
-export { RedoclyClient, isRedoclyRegistryURL, ApiClient as RedoclyCloudApiClient } from './redocly';
+export { RedoclyClient, isRedoclyRegistryURL } from './redocly';
 
 export {
   Source,
@@ -73,9 +73,7 @@ export {
   Loc,
 } from './walk';
 
-export * from './fetch-with-timeout';
 export { getAstNodeByPointer, getLineColLocation } from './format/codeframes';
 export { formatProblems, OutputFormat, getTotals, Totals } from './format/format';
 export { lint, lint as validate, lintDocument, lintFromString, lintConfig } from './lint';
 export { bundle, bundleDocument, mapTypeToComponent, bundleFromString } from './bundle';
-export { PushStatusBase, PushStatusResponse, ScorecardItem } from './redocly/cloud/types';

@@ -37,6 +37,7 @@
   ],
   "dependencies": {
     "@redocly/openapi-core": "1.6.0",
+    "abort-controller": "^3.0.0",
     "chokidar": "^3.5.1",
     "colorette": "^1.2.0",
     "core-js": "^3.32.1",
