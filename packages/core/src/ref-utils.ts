@@ -43,7 +43,8 @@ export function escapePointer<T extends string | number>(fragment: T): T {
 }
 
 export function parseRef(ref: string): { uri: string | null; pointer: string[] } {
-  const [uri, pointer] = ref.split('#/');
+  const [uri, pointer_] = ref.split('#');
+  const pointer = pointer_?.startsWith('/') ? pointer_.substring(1) : pointer_;
   return {
     uri: uri || null,
     pointer: pointer ? pointer.split('/').map(unescapePointer).filter(isTruthy) : [],
