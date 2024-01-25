@@ -73,6 +73,14 @@ export const transformJSONSchemaToNodeType = (
     }
   }
 
+  if (schema.allOf) {
+    throw new Error('Unexpected allOf.');
+  }
+
+  if (schema.anyOf) {
+    throw new Error('Unexpected anyOf.');
+  }
+
   if (isPlainObject(schema.items) && schema.items.oneOf) {
     throw new Error('Unexpected oneOf in items.');
   }
@@ -81,7 +89,7 @@ export const transformJSONSchemaToNodeType = (
     isPlainObject(schema.properties) ||
     isPlainObject(schema.additionalProperties) ||
     (isPlainObject(schema.items) &&
-      (isPlainObject(schema.items.properties) || isPlainObject(schema.items.additionalProperties))) // && !schema.items.oneOf TODO:
+      (isPlainObject(schema.items.properties) || isPlainObject(schema.items.additionalProperties)))
   ) {
     return extractNodeToContext(propertyName, schema, ctx);
   }
@@ -160,8 +168,7 @@ const extractNodeToContext = (
   let items;
   if (
     isPlainObject(schema.items) &&
-    (isPlainObject(schema.items.properties) ||
-      isPlainObject(schema.items.additionalProperties))
+    (isPlainObject(schema.items.properties) || isPlainObject(schema.items.additionalProperties))
   ) {
     items = propertyName + '_items';
     transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
