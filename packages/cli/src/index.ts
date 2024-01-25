@@ -566,11 +566,6 @@ yargs
           description: 'Project directory.',
           default: '.',
         },
-        config: {
-          description: 'Path to the config file.',
-          requiresArg: true,
-          type: 'string',
-        },
       }),
     (argv) => {
       commandWrapper(previewProject)(argv);
