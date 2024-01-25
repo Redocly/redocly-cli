@@ -6,7 +6,7 @@
 
 ## Screenshots (optional)
 
-## Code has been changed?
+## Has code been changed?
 
 - [ ] Tested with redoc/reference-docs/workflows (internal)
 - [ ] All new/updated code is covered with tests
