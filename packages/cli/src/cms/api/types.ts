@@ -91,7 +91,7 @@ export type ScorecardItem = {
   name: string;
   status: PushStatusBase;
   description: string;
-  targetUrl: string;
+  url: string;
 };
 
 export type PushStatusBase = 'pending' | 'success' | 'running' | 'failed';

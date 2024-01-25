@@ -157,7 +157,7 @@ describe('handlePushStatus()', () => {
               name: 'test-name',
               status: 'success',
               description: 'test-description',
-              targetUrl: 'test-url',
+              url: 'test-url',
             },
           ],
         },

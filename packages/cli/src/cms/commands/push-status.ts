@@ -152,7 +152,7 @@ function printScorecard(scorecard: ScorecardItem[]) {
     process.stdout.write(`
     ${colors.magenta('Name')}: ${scorecardItem.name}
     ${colors.magenta('Status')}: ${scorecardItem.status}
-    ${colors.magenta('URL')}: ${colors.cyan(scorecardItem.targetUrl)}
+    ${colors.magenta('URL')}: ${colors.cyan(scorecardItem.url)}
     ${colors.magenta('Description')}: ${scorecardItem.description}\n`);
   }
   process.stdout.write(`\n`);
