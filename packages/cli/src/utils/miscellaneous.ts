@@ -30,11 +30,11 @@ import {
   ConfigApis,
   CommandOptions,
   OutputExtensions,
-} from './types';
+} from '../types';
 import { isEmptyObject } from '@redocly/openapi-core/lib/utils';
 import { Arguments } from 'yargs';
 import { version } from './update-version-notifier';
-import { DESTINATION_REGEX } from './commands/push';
+import { DESTINATION_REGEX } from '../commands/push';
 import { ConfigValidationError } from '@redocly/openapi-core/lib/config';
 
 import type { RawConfigProcessor } from '@redocly/openapi-core/lib/config';

@@ -1,7 +1,11 @@
 import * as colorette from 'colorette';
 import * as chockidar from 'chokidar';
 import { bundle, RedoclyClient, getTotals, getMergedConfig, Config } from '@redocly/openapi-core';
-import { getFallbackApisOrExit, handleError, loadConfigAndHandleErrors } from '../../utils';
+import {
+  getFallbackApisOrExit,
+  handleError,
+  loadConfigAndHandleErrors,
+} from '../../utils/miscellaneous';
 import startPreviewServer from './preview-server/preview-server';
 import type { Skips } from '../../types';
 

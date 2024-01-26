@@ -4,9 +4,9 @@ import { existsSync, writeFileSync, readFileSync, statSync } from 'fs';
 import { compare } from 'semver';
 import fetch from './fetch-with-timeout';
 import { cyan, green, yellow } from 'colorette';
-import { cleanColors } from './utils';
+import { cleanColors } from './miscellaneous';
 
-export const { version, name } = require('../package.json');
+export const { version, name } = require('../../package.json');
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
 const SPACE_TO_BORDER = 4;

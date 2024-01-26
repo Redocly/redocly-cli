@@ -14,7 +14,7 @@ import {
   exitWithError,
   loadConfigAndHandleErrors,
   checkIfRulesetExist,
-} from '../../utils';
+} from '../../utils/miscellaneous';
 import { ConfigFixture } from '../fixtures/config';
 import { performance } from 'perf_hooks';
 import { commandWrapper } from '../../wrapper';
@@ -22,10 +22,10 @@ import { Arguments } from 'yargs';
 import { blue } from 'colorette';
 
 jest.mock('@redocly/openapi-core');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 jest.mock('perf_hooks');
 
-jest.mock('../../update-version-notifier', () => ({
+jest.mock('../../utils/update-version-notifier', () => ({
   version: '1.0.0',
 }));
 

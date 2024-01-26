@@ -1,4 +1,4 @@
-import { loadConfigAndHandleErrors, sendTelemetry } from '../utils';
+import { loadConfigAndHandleErrors, sendTelemetry } from '../utils/miscellaneous';
 import * as process from 'process';
 import { commandWrapper } from '../wrapper';
 import { handleLint } from '../commands/lint';
@@ -6,7 +6,7 @@ import { Arguments } from 'yargs';
 import { handlePush, PushOptions } from '../commands/push';
 
 jest.mock('node-fetch');
-jest.mock('../utils', () => ({
+jest.mock('../utils/miscellaneous', () => ({
   sendTelemetry: jest.fn(),
   loadConfigAndHandleErrors: jest.fn(),
 }));

@@ -13,8 +13,8 @@ import {
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit } from '../utils';
-import { printExecutionTime } from '../utils';
+import { getFallbackApisOrExit } from '../utils/miscellaneous';
+import { printExecutionTime } from '../utils/miscellaneous';
 import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
 
 const statsAccumulator: StatsAccumulator = {
