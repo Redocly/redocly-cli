@@ -43,6 +43,8 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
     );
   }
 
+  const maxExecutionTime = argv['max-execution-time'] || 600;
+
   try {
     const apiKey = getApiKeys(domain);
     const client = new ReuniteApiClient(domain, apiKey);
@@ -89,7 +91,7 @@ export async function handlePushStatus(argv: PushStatusOptions, config: Config) 
     buildType: 'preview' | 'production'
   ): Promise<PushResponse> {
     return new Promise((resolve, reject) => {
-      if (performance.now() - startedAt > argv['max-execution-time'] * 1000) {
+      if (performance.now() - startedAt > maxExecutionTime * 1000) {
         spinner.stop();
         reject(new Error(`Time limit exceeded.`));
       }

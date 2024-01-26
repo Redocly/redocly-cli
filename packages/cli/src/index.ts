@@ -149,7 +149,7 @@ yargs
   )
   .command(
     'push-status [pushId]',
-    'Push status.',
+    false,
     (yargs) =>
       yargs
         .positional('pushId', {
@@ -162,24 +162,22 @@ yargs
           organization: {
             description: 'Name of the organization to push to.',
             type: 'string',
-            required: true,
             alias: 'o',
           },
           project: {
             description: 'Name of the project to push to.',
             type: 'string',
-            required: true,
             alias: 'p',
           },
           domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
           wait: {
             description: 'Wait for build to finish.',
             type: 'boolean',
+            default: false,
           },
           'max-execution-time': {
             description: 'Maximum execution time in seconds.',
             type: 'number',
-            default: 600,
           },
         }),
     (argv) => {
@@ -330,11 +328,11 @@ yargs
             default: 'main',
           },
           'max-execution-time': {
-            description: 'Maximum execution time in miliseconds.',
+            description: 'Maximum execution time in seconds.',
             type: 'number',
-            default: 10 * 60,
           },
           'wait-for-deployment': {
+            description: 'Wait for build to finish.',
             type: 'boolean',
             default: false,
           },
