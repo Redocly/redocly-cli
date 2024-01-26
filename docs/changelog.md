@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.8.0 (2024-01-26)
+
+### Minor Changes
+
+- Added a `push` and `push-status` command for use with future Redocly products.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.8.0.
+
 ## 1.7.0 (2024-01-23)
 
 ### Minor Changes
