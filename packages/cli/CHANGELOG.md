@@ -1,5 +1,15 @@
 # @redocly/cli
 
+## 1.8.0
+
+### Minor Changes
+
+- Added a `push` and `push-status` command for use with future Redocly products.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.8.0.
+
 ## 1.7.0
 
 ### Minor Changes
