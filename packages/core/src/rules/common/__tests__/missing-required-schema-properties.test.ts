@@ -52,7 +52,7 @@ describe('missing-required-schema-properties', () => {
     `);
   });
 
-  it('should not report if all more of the required properties are present', async () => {
+  it('should not report if all of the required properties are present', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
