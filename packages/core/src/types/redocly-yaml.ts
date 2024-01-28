@@ -48,6 +48,7 @@ const builtInCommonOASRules = [
   'security-defined',
   'spec-strict-refs',
   'no-unresolved-refs',
+  'missing-required-schema-properties',
 ] as const;
 
 export type BuiltInCommonOASRuleId = typeof builtInCommonOASRules[number];

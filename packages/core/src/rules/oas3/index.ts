@@ -53,6 +53,7 @@ import { RequiredStringPropertyMissingMinLength } from '../common/required-strin
 import { SpecStrictRefs } from '../common/spec-strict-refs';
 import { ComponentNameUnique } from './component-name-unique';
 import { ArrayParameterSerialization } from './array-parameter-serialization';
+import { MissingRequiredSchemaProperties } from '../common/missing-required-schema-properties';
 
 export const rules: Oas3RuleSet<'built-in'> = {
   spec: Spec,
@@ -110,6 +111,7 @@ export const rules: Oas3RuleSet<'built-in'> = {
   'spec-strict-refs': SpecStrictRefs,
   'component-name-unique': ComponentNameUnique,
   'array-parameter-serialization': ArrayParameterSerialization,
+  'missing-required-schema-properties': MissingRequiredSchemaProperties,
 };
 
 export const preprocessors = {};
