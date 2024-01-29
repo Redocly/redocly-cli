@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.8.1
+
+### Patch Changes
+
+- Added git to the docker image, so the push command can use git metadata.
+- Updated @redocly/openapi-core to v1.8.1.
+
 ## 1.8.0
 
 ### Minor Changes

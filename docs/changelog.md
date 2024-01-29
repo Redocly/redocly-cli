@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.8.1 (2024-01-29)
+
+### Patch Changes
+
+- Added git to the docker image, so the push command can use git metadata.
+- Updated @redocly/openapi-core to v1.8.1.
+
 ## 1.8.0 (2024-01-26)
 
 ### Minor Changes
