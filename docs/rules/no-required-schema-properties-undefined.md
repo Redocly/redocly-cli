@@ -22,7 +22,7 @@ style Schemas fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-If a required schema property is declared but not defined, this rule will inform you which of the required schema properties are missing.
+If a required schema property is declared but not defined, this rule informs you which of the required schema properties are missing.
 
 ## Configuration
 
