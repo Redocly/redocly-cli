@@ -15,7 +15,7 @@ export const MissingRequiredSchemaProperties: Oas3Rule = () => {
           if (missingRequiredProperties.length) {
             const reportMessage =
               missingRequiredProperties.length > 1
-                ? `Properties: ${missingRequiredProperties.join(', ')} are required.`
+                ? `Properties ${missingRequiredProperties.join(', ')} are required.`
                 : `Property ${missingRequiredProperties.join()} is required.`;
 
             report({

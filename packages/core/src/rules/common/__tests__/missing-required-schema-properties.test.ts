@@ -52,6 +52,55 @@ describe('missing-required-schema-properties', () => {
     `);
   });
 
+  it('should report with different message if more than one of the required properties are missing', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Pet:
+                type: object
+                required:
+                  - name
+                  - id
+                  - test
+                  - test2
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                    example: doggie
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'missing-required-schema-properties': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Pet",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Properties test, test2 are required.",
+          "ruleId": "missing-required-schema-properties",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report if all of the required properties are present', async () => {
     const document = parseYamlToDocument(
       outdent`
