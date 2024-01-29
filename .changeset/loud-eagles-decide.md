@@ -2,4 +2,4 @@
 "@redocly/cli": patch
 ---
 
-Added the ability to use git operations in the docker image.
+Added git to the docker image, so the push command can use git metadata.
