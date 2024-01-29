@@ -2,4 +2,4 @@
 "@redocly/openapi-core": minor
 ---
 
-Added new `missing-required-schema-properties` rule to check if any of required schema properties is missing.
+Added new `no-required-schema-properties-undefined` rule to check if each required schema properties is defined.

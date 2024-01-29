@@ -3,7 +3,7 @@ import { lintDocument } from '../../../lint';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../../__tests__/utils';
 import { BaseResolver } from '../../../resolve';
 
-describe('missing-required-schema-properties', () => {
+describe('no-required-schema-properties-undefined', () => {
   it('should report if one or more of the required properties are missing', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -30,7 +30,7 @@ describe('missing-required-schema-properties', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'missing-required-schema-properties': 'error' }),
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -43,8 +43,82 @@ describe('missing-required-schema-properties', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Property test is required.",
-          "ruleId": "missing-required-schema-properties",
+          "message": "Required property test is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report if one or more of the required properties are missing when used in schema with allOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                        description: The measured skill for hunting
+                        default: lazy
+                        example: adventurous
+                        enum:
+                          - clueless
+                          - lazy
+                          - adventurous
+                          - aggressive
+                    required:
+                      - huntingSkill
+                      - test
+              Pet:
+                type: object
+                required:
+                  - name
+                  - photoUrls
+                properties:
+                  name:
+                    description: The name given to a pet
+                    type: string
+                    example: Guru
+                  photoUrls:
+                    description: The list of URL to a cute photos featuring pet
+                    type: array
+                    maxItems: 20
+                    xml:
+                      name: photoUrl
+                      wrapped: true
+                    items:
+                      type: string
+                      format: url
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/allOf/1",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property test is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
         },
@@ -79,7 +153,7 @@ describe('missing-required-schema-properties', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'missing-required-schema-properties': 'error' }),
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
@@ -92,8 +166,8 @@ describe('missing-required-schema-properties', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Properties test, test2 are required.",
-          "ruleId": "missing-required-schema-properties",
+          "message": "Required properties are undefined: test, test2.",
+          "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
         },
@@ -129,7 +203,7 @@ describe('missing-required-schema-properties', () => {
     const results = await lintDocument({
       externalRefResolver: new BaseResolver(),
       document,
-      config: await makeConfig({ 'missing-required-schema-properties': 'error' }),
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);

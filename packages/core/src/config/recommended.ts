@@ -40,7 +40,7 @@ const recommended: PluginStyleguideConfig<'built-in'> = {
     'required-string-property-missing-min-length': 'off',
     'response-contains-header': 'off',
     'scalar-property-missing-example': 'off',
-    'missing-required-schema-properties': 'off',
+    'no-required-schema-properties-undefined': 'off',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'off',

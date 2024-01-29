@@ -3,7 +3,7 @@ import { Oas3Schema, Oas3_1Schema } from '../../typings/openapi';
 import { Oas2Schema } from 'core/src/typings/swagger';
 import { UserContext } from 'core/src/walk';
 
-export const MissingRequiredSchemaProperties: Oas3Rule = () => {
+export const NoRequiredSchemaPropertiesUndefined: Oas3Rule = () => {
   return {
     Schema: {
       enter(schema: Oas3Schema | Oas3_1Schema | Oas2Schema, { location, report }: UserContext) {
@@ -15,8 +15,8 @@ export const MissingRequiredSchemaProperties: Oas3Rule = () => {
           if (missingRequiredProperties.length) {
             const reportMessage =
               missingRequiredProperties.length > 1
-                ? `Properties ${missingRequiredProperties.join(', ')} are required.`
-                : `Property ${missingRequiredProperties.join()} is required.`;
+                ? `Required properties are undefined: ${missingRequiredProperties.join(', ')}.`
+                : `Required property ${missingRequiredProperties.join()} is undefined.`;
 
             report({
               message: reportMessage,

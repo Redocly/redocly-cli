@@ -40,7 +40,7 @@ const minimal: PluginStyleguideConfig<'built-in'> = {
     'response-contains-header': 'off',
     'path-segment-plural': 'off',
     'scalar-property-missing-example': 'off',
-    'missing-required-schema-properties': 'off',
+    'no-required-schema-properties-undefined': 'off',
   },
   oas2Rules: {
     'boolean-parameter-prefixes': 'off',
