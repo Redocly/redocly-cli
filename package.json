@@ -13,7 +13,7 @@
     "jest": "REDOCLY_TELEMETRY=off jest ./packages",
     "unit": "npm run jest -- --coverage --coverageReporters lcov text-summary",
     "coverage:cli": "npm run jest -- --roots packages/cli/src --coverage",
-    "coverage:core": "npm run jest -- --roots packages/core/src/rules/common --coverage",
+    "coverage:core": "npm run jest -- --roots packages/core/src --coverage",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "e2e": "npm run webpack-bundle -- --mode=none && REDOCLY_TELEMETRY=off jest --roots=./__tests__/",
     "prettier": "npx prettier --write \"**/*.{ts,js,yaml,json,md}\"",
