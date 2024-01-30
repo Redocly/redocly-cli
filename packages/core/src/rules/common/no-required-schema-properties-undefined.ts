@@ -7,23 +7,14 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule = () => {
   return {
     Schema: {
       enter(schema: Oas3Schema | Oas3_1Schema | Oas2Schema, { location, report }: UserContext) {
-        if (schema?.required) {
-          const missingRequiredProperties: string[] = schema.required.filter((property) => {
-            return !schema.properties || schema.properties[property] === undefined;
-          });
-
-          if (missingRequiredProperties.length) {
-            const reportMessage =
-              missingRequiredProperties.length > 1
-                ? `Required properties are undefined: ${missingRequiredProperties.join(', ')}.`
-                : `Required property ${missingRequiredProperties.join()} is undefined.`;
-
+        schema.required?.forEach((requiredProperty, i) => {
+          if (!schema.properties || schema.properties[requiredProperty] === undefined) {
             report({
-              message: reportMessage,
-              location: location.child('required'),
+              message: `Required property '${requiredProperty}' is undefined.`,
+              location: location.child(['required', i]),
             });
           }
-        }
+        });
       },
     },
   };

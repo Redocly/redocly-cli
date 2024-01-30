@@ -38,12 +38,12 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Pet/required",
+              "pointer": "#/components/schemas/Pet/required/2",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property test is undefined.",
+          "message": "Required property 'test' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -112,12 +112,12 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Cat/allOf/1/required",
+              "pointer": "#/components/schemas/Cat/allOf/1/required/1",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property test is undefined.",
+          "message": "Required property 'test' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
@@ -161,12 +161,25 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Pet/required",
+              "pointer": "#/components/schemas/Pet/required/2",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required properties are undefined: test, test2.",
+          "message": "Required property 'test' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Pet/required/3",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'test2' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
