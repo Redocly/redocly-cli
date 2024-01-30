@@ -150,7 +150,7 @@ const extractNodeToContext = (
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
-    properties[name] = transformJSONSchemaToNodeType(name, property, ctx);
+    properties[name] = transformJSONSchemaToNodeType(propertyName + '.' + name, property, ctx);
   }
 
   let additionalProperties;

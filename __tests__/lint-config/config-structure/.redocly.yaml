@@ -172,12 +172,6 @@ theme:
     items:
       - label: Markdown
         page: /markdown/
-      - page: /my-catalog/
-      - page: openapi.yaml
-      - label: TSX page
-        page: tsx.page.tsx
-      - label: External docs
-        href: https://test.com/docs/developer-portal/introduction/
 
   search:
     shortcuts:
@@ -195,28 +189,8 @@ theme:
       - group: Legal
         items:
           - label: Terms of Use
-            href: 'https://test.com/'
-          - label: Privacy Notice
-            href: 'https://test.com/'
-          - label: Cookie Notice
-            href: 'https://test.com/'
-      - group: Support
-        items:
-          - label: Tsx page
-            page: tsx.page.tsx
-          - label: Blog
-            page: blog.page.tsx
-      - group: Social
-        items:
-          - href: 'https://test.com'
-            icon:
-              srcSet: 'images/test-black.svg light, images/test.svg dark'
-          - href: 'https://test.com'
-            icon:
-              srcSet: 'images/test-black.svg light, images/test.svg dark'
-          - href: 'https://test.com'
-            icon:
-              srcSet: 'images/test-black.svg light, images/test.svg dark'
+            href: 'https://test.com/' # Not expected
+
   markdown:
     lastUpdatedBlock:
       format: 'long'

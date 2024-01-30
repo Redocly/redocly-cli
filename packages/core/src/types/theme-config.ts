@@ -315,10 +315,10 @@ const scorecardConfigSchema = {
         properties: {
           name: { type: 'string' },
           extends: { type: 'array', items: { type: 'string' } },
-          rules: {
-            type: 'object',
+          rules: { // FIXME: override rules!
+            type: 'object', 
             additionalProperties: {
-              type: ['object', 'string'],
+              oneOf: [{ type: 'string' }, { type: 'object' }], 
             },
           },
         },
@@ -420,12 +420,13 @@ export const themeConfigSchema = {
       },
       additionalProperties: false,
     },
-    seo: {
-      type: 'object',
-      properties: {
-        title: { type: 'string' },
-      },
-    },
+    // TODO: been removed?
+    // seo: {
+    //   type: 'object',
+    //   properties: {
+    //     title: { type: 'string' },
+    //   },
+    // },
     scripts: {
       type: 'object',
       properties: {
@@ -661,23 +662,24 @@ export const themeConfigSchema = {
   default: {},
 } as const;
 
-export const productThemeOverrideSchema = {
-  type: 'object',
-  properties: {
-    logo: themeConfigSchema.properties.logo,
-    navbar: themeConfigSchema.properties.navbar,
-    footer: themeConfigSchema.properties.footer,
-    sidebar: themeConfigSchema.properties.sidebar,
-    search: themeConfigSchema.properties.search,
-    codeSnippet: themeConfigSchema.properties.codeSnippet,
-    breadcrumbs: themeConfigSchema.properties.breadcrumbs,
-  },
-  additionalProperties: true,
-  default: {},
-} as const;
+// TODO: decide what to do with this
+// export const productThemeOverrideSchema = {
+//   type: 'object',
+//   properties: {
+//     logo: themeConfigSchema.properties.logo,
+//     navbar: themeConfigSchema.properties.navbar,
+//     footer: themeConfigSchema.properties.footer,
+//     sidebar: themeConfigSchema.properties.sidebar,
+//     search: themeConfigSchema.properties.search,
+//     codeSnippet: themeConfigSchema.properties.codeSnippet,
+//     breadcrumbs: themeConfigSchema.properties.breadcrumbs,
+//   },
+//   additionalProperties: true,
+//   default: {},
+// } as const;
 
-export enum ScorecardStatus {
-  BelowMinimum = 'Below minimum',
-  Highest = 'Highest',
-  Minimum = 'Minimum',
-}
+// export enum ScorecardStatus {
+//   BelowMinimum = 'Below minimum',
+//   Highest = 'Highest',
+//   Minimum = 'Minimum',
+// }

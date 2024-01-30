@@ -262,8 +262,8 @@ const ConfigRoot: NodeType = {
   properties: {
     ...PortalConfigNodeTypes.rootRedoclyConfigSchema.properties,
     ...RootConfigStyleguide.properties,
-    apis: 'ConfigApis',
-    theme: 'ConfigRootTheme', // TODO: decide where to take it from
+    apis: 'ConfigApis', // Override apis with internal format
+    theme: 'ConfigRootTheme', // Override theme with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
     organization: { type: 'string' },
@@ -291,7 +291,7 @@ const ConfigApis: NodeType = {
 
 const ConfigApisProperties: NodeType = {
   properties: {
-    ...PortalConfigNodeTypes.apis_additionalProperties.properties,
+    ...PortalConfigNodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'].properties,
     root: { type: 'string' },
     labels: {
       type: 'array',
@@ -326,9 +326,9 @@ const ConfigHTTP: NodeType = {
 
 const ConfigRootTheme: NodeType = {
   properties: {
-    ...themeConfigSchema.properties, // TODO: decide how to merge
-    openapi: 'ConfigReferenceDocs',
-    mockServer: 'ConfigMockServer',
+    ...PortalConfigNodeTypes['rootRedoclyConfigSchema.theme'].properties,
+    openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
+    // mockServer: 'ConfigMockServer', // TODO: do we still need this? It looks like we declare it in the redoclyConfigSchema
   },
 };
 

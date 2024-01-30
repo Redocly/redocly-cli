@@ -4,6 +4,7 @@ import {
   DEFAULT_TEAM_CLAIM_NAME,
 } from '../config';
 import { transformJSONSchemaToNodeType } from './json-schema-adapter';
+import { themeConfigSchema } from './theme-config';
 
 import type { FromSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
@@ -135,10 +136,11 @@ const apiConfigSchema = {
     theme: {
       type: 'object',
       properties: {
-        openapi: { type: 'object', additionalProperties: true },
+        openapi: themeConfigSchema.properties.openapi,
+        graphql: themeConfigSchema.properties.graphql, // TODO: should it be here?
       },
       additionalProperties: false,
-    },
+    } ,
     title: { type: 'string' },
     metadata: { type: 'object', additionalProperties: true },
   },
@@ -371,6 +373,7 @@ export const redoclyConfigSchema = {
         type: 'string',
       },
     },
+    theme: themeConfigSchema,
   },
   default: {},
   additionalProperties: false,
@@ -429,3 +432,5 @@ transformJSONSchemaToNodeType(
   rootRedoclyConfigSchema,
   PortalConfigNodeTypes
 );
+
+// console.log(JSON.stringify(PortalConfigNodeTypes, null, 2));
