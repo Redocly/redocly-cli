@@ -38,8 +38,8 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Pet",
-              "reportOnKey": true,
+              "pointer": "#/components/schemas/Pet/required",
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
@@ -112,8 +112,8 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Cat/allOf/1",
-              "reportOnKey": true,
+              "pointer": "#/components/schemas/Cat/allOf/1/required",
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],
@@ -161,8 +161,8 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Pet",
-              "reportOnKey": true,
+              "pointer": "#/components/schemas/Pet/required",
+              "reportOnKey": false,
               "source": "foobar.yaml",
             },
           ],

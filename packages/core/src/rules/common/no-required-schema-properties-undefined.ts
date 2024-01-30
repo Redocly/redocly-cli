@@ -8,8 +8,8 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule = () => {
     Schema: {
       enter(schema: Oas3Schema | Oas3_1Schema | Oas2Schema, { location, report }: UserContext) {
         if (schema?.required) {
-          const missingRequiredProperties: Array<string> = schema.required.filter((property) => {
-            return !schema.properties || !Object.keys(schema.properties!).includes(property);
+          const missingRequiredProperties: string[] = schema.required.filter((property) => {
+            return !schema.properties || schema.properties[property] === undefined;
           });
 
           if (missingRequiredProperties.length) {
@@ -20,7 +20,7 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule = () => {
 
             report({
               message: reportMessage,
-              location: location.key(),
+              location: location.child('required'),
             });
           }
         }
