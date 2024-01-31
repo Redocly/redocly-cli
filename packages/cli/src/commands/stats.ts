@@ -47,14 +47,14 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
 }
 
 function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
-  let output = '';
+  let output = '| Feature  | Count  |\n| --- | --- |\n';
   for (const key of Object.keys(statsAccumulator)) {
     output +=
-      '- ' +
+      '| ' +
       statsAccumulator[key as StatsName].metric +
-      ': ' +
+      ' | ' +
       statsAccumulator[key as StatsName].total +
-      '\n';
+      ' |\n';
   }
   process.stdout.write(output);
 }
