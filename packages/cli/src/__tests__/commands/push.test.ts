@@ -279,73 +279,17 @@ describe('push', () => {
 });
 
 describe('transformPush', () => {
-  it('should adapt the existing syntax', () => {
-    const cb = jest.fn();
-    transformPush(cb)(
-      {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
-      },
-      {} as any
-    );
-    expect(cb).toBeCalledWith(
-      {
-        api: 'openapi.yaml',
-        destination: '@testing_org/main@v1',
-      },
-      {}
-    );
-  });
-  it('should adapt the existing syntax (including branchName)', () => {
-    const cb = jest.fn();
-    transformPush(cb)(
-      {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
-        maybeBranchName: 'other',
-      },
-      {} as any
-    );
-    expect(cb).toBeCalledWith(
-      {
-        api: 'openapi.yaml',
-        destination: '@testing_org/main@v1',
-        branchName: 'other',
-      },
-      {}
-    );
-  });
-  it('should use --branch option firstly', () => {
-    const cb = jest.fn();
-    transformPush(cb)(
-      {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
-        maybeBranchName: 'other',
-        branch: 'priority-branch',
-      },
-      {} as any
-    );
-    expect(cb).toBeCalledWith(
-      {
-        api: 'openapi.yaml',
-        destination: '@testing_org/main@v1',
-        branchName: 'priority-branch',
-      },
-      {}
-    );
-  });
   it('should work for a destination only', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: '@testing_org/main@v1',
+        apis: ['main@v1'],
       },
       {} as any
     );
     expect(cb).toBeCalledWith(
       {
-        destination: '@testing_org/main@v1',
+        destination: 'main@v1',
       },
       {}
     );
@@ -354,7 +298,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'test.yaml',
+        apis: ['test.yaml'],
       },
       {} as any
     );
@@ -365,31 +309,32 @@ describe('transformPush', () => {
       {}
     );
   });
-  it('should accept aliases for the old syntax', () => {
+
+  it('should use destination from option', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'alias',
-        maybeDestination: '@testing_org/main@v1',
+        apis: ['test@v1'],
+        destination: 'main@v1',
       },
       {} as any
     );
     expect(cb).toBeCalledWith(
       {
-        destination: '@testing_org/main@v1',
-        api: 'alias',
+        destination: 'main@v1',
+        api: 'test@v1',
       },
       {}
     );
   });
+
   it('should use --job-id option firstly', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
         'batch-id': 'b-123',
         'job-id': 'j-123',
-        api: 'test',
-        maybeDestination: 'main@v1',
+        apis: ['test'],
         branch: 'test',
         destination: 'main@v1',
       },

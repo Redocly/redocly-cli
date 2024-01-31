@@ -55,7 +55,7 @@ export function commonPushHandler({
   if (project && mountPath) {
     return handleCMSPush;
   }
-  return handlePush;
+  return transformPush(handlePush);
 }
 
 export async function handlePush(argv: PushOptions, config: Config): Promise<void> {
@@ -354,8 +354,7 @@ export function getDestinationProps(
 }
 
 type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
-  maybeDestination?: string;
-  maybeBranchName?: string;
+  apis?: string[];
   branch?: string;
   destination?: string;
 };
@@ -364,9 +363,7 @@ export const transformPush =
   (callback: typeof handlePush) =>
   (
     {
-      api: maybeApiOrDestination,
-      maybeDestination,
-      maybeBranchName,
+      apis,
       branch,
       'batch-id': batchId,
       'job-id': jobId,
@@ -382,42 +379,20 @@ export const transformPush =
       );
     }
 
-    if (maybeBranchName) {
-      process.stderr.write(
-        yellow(
-          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.\n\n'
-        )
-      );
-    }
+    let api = apis?.[0];
+    let destination = rest.destination;
 
-    let apiFile, destination;
-    if (maybeDestination) {
-      process.stderr.write(
-        yellow(
-          'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
-        )
-      );
-      apiFile = maybeApiOrDestination;
-      destination = maybeDestination;
-    } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
-      process.stderr.write(
-        yellow(
-          'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
-        )
-      );
-      destination = maybeApiOrDestination;
-    } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
-      apiFile = maybeApiOrDestination;
+    if (!destination && api && DESTINATION_REGEX.test(api)) {
+      destination = api;
+      api = undefined;
     }
-
-    destination = rest.destination || destination;
 
     return callback(
       {
         ...rest,
         destination,
-        api: apiFile,
-        branchName: branch ?? maybeBranchName,
+        api,
+        branchName: branch,
         'job-id': jobId || batchId,
       },
       config
