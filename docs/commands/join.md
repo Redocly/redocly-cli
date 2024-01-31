@@ -94,7 +94,7 @@ externalDocs
 
 By default, the `info.description` property is taken only from the first file, even if it exists in other input files.
 
-However, if any of the input files contain the `tags` object, the `join` command automatically creates the `x-tagGroups` object in the output file. This object contains the `info.description` property from each of the input files.
+However, if any of the input files contain the `tags` object, the `join` command automatically creates the `x-tagGroups` object in the output file.
 
 ```yaml
 x-tagGroups:
@@ -102,11 +102,9 @@ x-tagGroups:
     tags:
       - expanded
       - other
-    description: 'Text from info: description of the first input file'
   - name: second-api
     tags:
       - pets
-    description: 'Text from info: description of the second input file'
 ```
 
 {% admonition type="info" %}
