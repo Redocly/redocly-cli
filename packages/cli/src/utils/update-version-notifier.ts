@@ -64,27 +64,27 @@ const renderUpdateBanner = (current: string, latest: string) => {
   const maxLength = Math.max(...messageLines.map((line) => cleanColors(line).length));
 
   const border = yellow('═'.repeat(maxLength + SPACE_TO_BORDER));
+  const extraSpaces = ' '.repeat(SPACE_TO_BORDER);
 
-  const banner = `
-    ${yellow('╔' + border + '╗')}
-    ${yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║')}
-    ${messageLines
-      .map((line, index) => {
-        return getLineWithPadding(maxLength, line, index);
-      })
-      .join('\n')}
-    ${yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║')}
-    ${yellow('╚' + border + '╝')}
-`;
-
+  const banner = [
+    '',
+    extraSpaces + yellow('╔' + border + '╗'),
+    extraSpaces + yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║'),
+    messageLines.map(getLineWithPadding(maxLength, extraSpaces)).join('\n'),
+    extraSpaces + yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║'),
+    extraSpaces + yellow('╚' + border + '╝'),
+    '',
+    '',
+  ].join('\n');
   process.stderr.write(banner);
 };
 
-const getLineWithPadding = (maxLength: number, line: string, index: number): string => {
-  const padding = ' '.repeat(maxLength - cleanColors(line).length);
-  const extraSpaces = index !== 0 ? ' '.repeat(SPACE_TO_BORDER) : '';
-  return `${extraSpaces}${yellow('║')}  ${line}${padding}  ${yellow('║')}`;
-};
+const getLineWithPadding =
+  (maxLength: number, extraSpaces: string) =>
+  (line: string): string => {
+    const padding = ' '.repeat(maxLength - cleanColors(line).length);
+    return `${extraSpaces}${yellow('║')}  ${line}${padding}  ${yellow('║')}`;
+  };
 
 const isNeedToBeCached = (): boolean => {
   try {
