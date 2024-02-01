@@ -177,9 +177,9 @@ function displayDeploymentAndBuildStatus({
     case 'success':
       spinner.stop();
       return process.stdout.write(
-        `${colors.green(
-          `🚀 ${buildType.toLocaleUpperCase()} deploy success.`
-        )}\n${colors.magenta('Preview URL')}: ${colors.cyan(previewUrl!)}\n`
+        `${colors.green(`🚀 ${buildType.toLocaleUpperCase()} deploy success.`)}\n${colors.magenta(
+          'Preview URL'
+        )}: ${colors.cyan(previewUrl!)}\n`
       );
     case 'failed':
       spinner.stop();
