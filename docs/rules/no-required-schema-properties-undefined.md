@@ -61,6 +61,12 @@ schemas:
           format: int64
 ```
 
+Expected error message when linting incorrect schema example:
+
+```
+Required property 'name' is undefined.
+```
+
 Example of **correct** schema properties:
 
 ```yaml
