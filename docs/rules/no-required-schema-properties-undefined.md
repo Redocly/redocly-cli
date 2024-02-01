@@ -63,7 +63,7 @@ schemas:
 
 Expected error message when linting incorrect schema example:
 
-```
+```bash
 Required property 'name' is undefined.
 ```
 
