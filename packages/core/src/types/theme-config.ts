@@ -243,6 +243,7 @@ const navItemSchema = {
       items: { type: 'string' },
     },
   },
+  // additionalProperties: false, // TODO: check this
 } as const;
 
 const navItemsSchema = {

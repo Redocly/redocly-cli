@@ -143,8 +143,9 @@ const apiConfigSchema = {
     } ,
     title: { type: 'string' },
     metadata: { type: 'object', additionalProperties: true },
+    rules: { type: 'object', additionalProperties: true }, // FIXME: either add this here or uncomment `additionalProperties: true`
   },
-  additionalProperties: true,
+  // additionalProperties: true, // FIXME: do we need this?
   required: ['root'],
 } as const;
 
@@ -390,7 +391,7 @@ export const rootRedoclyConfigSchema = {
     ...redoclyConfigSchema.properties,
     env: {
       type: 'object',
-      additionalProperties: environmentSchema,
+      additionalProperties: environmentSchema, // TODO: if we want full valiadation we need to override apis, theme and the root
     },
   },
   default: {},
@@ -425,12 +426,12 @@ export type ApigeeAdapterAuthServiceAccount = FromSchema<
 export type SsoConfig = FromSchema<typeof ssoOnPremConfigSchema>;
 export type I18nConfig = FromSchema<typeof i18ConfigSchema>;
 
-export const PortalConfigNodeTypes: Record<string, NodeType> = {};
+export const DefaultPortalConfigNodeTypes: Record<string, NodeType> = {};
 
 transformJSONSchemaToNodeType(
   'rootRedoclyConfigSchema',
-  rootRedoclyConfigSchema,
-  PortalConfigNodeTypes
+  rootRedoclyConfigSchema, 
+  DefaultPortalConfigNodeTypes
 );
 
-// console.log(JSON.stringify(PortalConfigNodeTypes, null, 2));
+// console.log(JSON.stringify(DefaultPortalConfigNodeTypes, null, 2));

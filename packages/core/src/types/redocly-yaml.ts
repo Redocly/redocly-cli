@@ -1,7 +1,10 @@
-import { PortalConfigNodeTypes } from './portal-config-schema';
-import { themeConfigSchema } from './theme-config';
-import { NodeType, listOf } from '.';
+import { DefaultPortalConfigNodeTypes } from './portal-config-schema';
+import { listOf } from '.';
 import { omitObjectProps, pickObjectProps, isCustomRuleId } from '../utils';
+import { transformJSONSchemaToNodeType } from './json-schema-adapter';
+
+import type { NodeType } from '.';
+import type { JSONSchema } from 'json-schema-to-ts';
 
 const builtInCommonRules = [
   'spec',
@@ -257,10 +260,10 @@ const RootConfigStyleguide: NodeType = {
   },
 };
 
-const ConfigRoot: NodeType = {
-  ...PortalConfigNodeTypes.rootRedoclyConfigSchema,
+const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes.rootRedoclyConfigSchema,
   properties: {
-    ...PortalConfigNodeTypes.rootRedoclyConfigSchema.properties,
+    ...nodeTypes.rootRedoclyConfigSchema.properties,
     ...RootConfigStyleguide.properties,
     apis: 'ConfigApis', // Override apis with internal format
     theme: 'ConfigRootTheme', // Override theme with internal format
@@ -282,17 +285,17 @@ const ConfigRoot: NodeType = {
       },
     },
   },
-};
+});
 
 const ConfigApis: NodeType = {
   properties: {},
   additionalProperties: 'ConfigApisProperties',
 };
 
-const ConfigApisProperties: NodeType = {
+const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
-    ...PortalConfigNodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'].properties,
-    root: { type: 'string' },
+    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     labels: {
       type: 'array',
       items: {
@@ -302,7 +305,6 @@ const ConfigApisProperties: NodeType = {
     ...ConfigStyleguide.properties,
     'features.openapi': 'ConfigReferenceDocs', // deprecated
     'features.mockServer': 'ConfigMockServer', // deprecated
-    theme: 'ConfigRootTheme',
     files: {
       type: 'array',
       items: {
@@ -310,8 +312,7 @@ const ConfigApisProperties: NodeType = {
       },
     },
   },
-  required: ['root'],
-};
+});
 
 const ConfigHTTP: NodeType = {
   properties: {
@@ -324,13 +325,14 @@ const ConfigHTTP: NodeType = {
   },
 };
 
-const ConfigRootTheme: NodeType = {
+const createConfigRootTheme = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes['rootRedoclyConfigSchema.theme'], 
   properties: {
-    ...PortalConfigNodeTypes['rootRedoclyConfigSchema.theme'].properties,
+    ...nodeTypes['rootRedoclyConfigSchema.theme']?.properties,
     openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
     // mockServer: 'ConfigMockServer', // TODO: do we still need this? It looks like we declare it in the redoclyConfigSchema
   },
-};
+});
 
 const Rules: NodeType = {
   properties: {},
@@ -1068,11 +1070,26 @@ const ConfigMockServer: NodeType = {
   },
 };
 
-export const ConfigTypes: Record<string, NodeType> = {
+export const createConfigTypes = (extraPortalSchemas: JSONSchema) => {
+  // Create new types based on external schemas
+  const nodeTypes = {};
+  transformJSONSchemaToNodeType('rootRedoclyConfigSchema', extraPortalSchemas, nodeTypes);
+
+  return {
+    ...CoreConfigTypes, // ...ConfigTypes,
+    // Override the below as those are created using DefaultPortalConfigNodeTypes
+    ConfigRoot: createConfigRoot(nodeTypes),
+    ConfigApisProperties: createConfigApisProperties(nodeTypes),
+    ConfigRootTheme: createConfigRootTheme(nodeTypes),
+    ...nodeTypes,
+  };
+};
+
+const CoreConfigTypes: Record<string, NodeType> = {
   Assert,
-  ConfigRoot,
+  ConfigRoot: createConfigRoot(DefaultPortalConfigNodeTypes),
   ConfigApis,
-  ConfigApisProperties,
+  ConfigApisProperties: createConfigApisProperties(DefaultPortalConfigNodeTypes),
   RootConfigStyleguide,
   ConfigStyleguide,
   ConfigReferenceDocs,
@@ -1083,7 +1100,7 @@ export const ConfigTypes: Record<string, NodeType> = {
   ConfigSidebarLinks,
   CommonConfigSidebarLinks,
   ConfigTheme,
-  ConfigRootTheme,
+  ConfigRootTheme: createConfigRootTheme(DefaultPortalConfigNodeTypes),
   AssertDefinition,
   ThemeColors,
   CommonThemeColors,
@@ -1133,5 +1150,11 @@ export const ConfigTypes: Record<string, NodeType> = {
   Typography,
   AssertionDefinitionAssertions,
   AssertionDefinitionSubject,
-  ...PortalConfigNodeTypes,
 };
+
+export const ConfigTypes: Record<string, NodeType> = {
+  ...CoreConfigTypes,
+  ...DefaultPortalConfigNodeTypes,
+};
+
+// console.log(JSON.stringify(ConfigTypes, null, 2));

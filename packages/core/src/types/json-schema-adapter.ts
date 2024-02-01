@@ -3,6 +3,7 @@ import { isPlainObject } from '../utils';
 
 import type { NodeType, PropType, ResolveTypeFn } from '.';
 import type { JSONSchema } from 'json-schema-to-ts';
+import { Oas3Schema } from '../typings/openapi';
 
 const ajv = new Ajv({
   strictSchema: false,
@@ -95,9 +96,11 @@ export const transformJSONSchemaToNodeType = (
   }
 
   if (schema.oneOf) {
-    if ((schema as any).discriminator) {
-      const discriminatedPropertyName: string = (schema as any).discriminator?.propertyName;
-
+    if ((schema as Oas3Schema).discriminator) {
+      const discriminatedPropertyName = (schema as Oas3Schema).discriminator?.propertyName ;
+      if (!discriminatedPropertyName) {
+        throw new Error('Unexpected discriminator without a propertyName.');
+      }
       const oneOfs = schema.oneOf.map((option, i) => {
         if (typeof option === 'boolean') {
           throw new Error('Unexpected boolean schema.');

@@ -6,6 +6,276 @@ import { BaseResolver } from '../resolve';
 import { loadConfig } from '../config/load';
 import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../__tests__/utils';
 import { detectSpec } from '../oas-types';
+import { themeConfigSchema } from '../types/theme-config';
+import { createConfigTypes } from '../types/redocly-yaml';
+
+const testPortalConfig = parseYamlToDocument(
+  outdent`
+    licenseKey: 123 # Must be a string
+
+    apis:
+      without-root:
+        foo: Not expected!
+        output: file.json
+      with-wrong-root:
+        root: 456 # Must be a string
+      with-theme:
+        root: ./openapi.yaml
+        theme:
+          openapi: wrong, must be an object
+          not-expected: Must fail
+
+    seo:
+      keywords: 789 # Must be an array
+
+    redirects:
+      some-redirect:
+        t1o: Wrong name, should be 'two'
+        type: wrong type, must be a number
+
+    rbac:
+      'team-b.md':
+        TeamB: read
+      team-c.md:
+        TeamC: read
+      /blog/*:
+        anonymous: none
+        authenticated: read
+      /blogpost/:
+        TeamD: none
+      '**/*.md':
+        TeamA: none
+        authenticated: none
+        '*': read
+      'blog/april-2022.md':
+        TeamA: none
+        TeamC: read
+      test.md:
+        TeamC: none
+        TeamB: none
+        authenticated: none
+        '*': read
+      test/**:
+        TeamB: read
+        TeamC: read
+        authenticated: read
+        anonymous: read
+      additional-property:
+        something: 123 # Must be a string
+      content:
+        '**':
+          additionalProp: 456 # Must be a stirng
+        foo:
+          additionalProp2: 789 # Must be a stirng
+
+    responseHeaders:
+      some-header: wrong, must be an array
+      some-header2:
+        - wrong, must be an object
+        - unexpected-property: Should fail
+          # name: Must be reported as a missing required prop
+          value: 123 # Must be a string
+
+    ssoOnPrem:
+      oidc:
+        title: 456 # Must be a string
+        type: OIDC
+        configurationUrl: http://localhost/oidc/.well-known/openid-configuration
+        clientId: '{{ process.env.public }}'
+        clientSecret: '{{ process.env.secret }}'
+        teamsClaimName: https://test.com
+        scopes:
+          - openid
+        audience:
+          - default
+        authorizationRequestCustomParams:
+          login_hint: 789 # Must be a string
+          prompt: login
+        configuration:
+          token_endpoint: 123 # Must be a string
+          # authorization_endpoint: Must be reported as a missing required prop
+          additional-propery: Must be allowed
+        defaultTeams:
+          - 456 # Must be a string
+
+      sso-config-schema-without-configurationUrl:
+        type: OIDC
+        # clientId: Must be reported as a missing required prop
+        # configurationUrl: Must be reported as a missing required prop
+        clientSecret: '{{ process.env.secret }}'
+
+      basic:
+        type: BASIC
+        credentials:
+          - teams:
+              - 789 # Must be a string
+              - correct
+            # username: Must be reported as a missing required prop
+
+    sso:
+      - WRONG # Does not match allowed options
+
+    developerOnboarding:
+      wrong: A not allowed field
+      adapters:
+        - should be object
+        - type: 123 # Must be a string
+        - type: APIGEE_X
+          # organizationName: Must be reported as a missing required prop
+          auth:
+            type: OAUTH2
+            # tokenEndpoint: Must be reported as a missing required prop
+            clientId: 456 # Must be a string
+            clientSecret: '{{ process.env.secret }}'
+            not-expected: Must fail
+        - type: APIGEE_X
+          organizationName: Test
+          auth:
+            type: SERVICE_ACCOUNT
+            # serviceAccountPrivateKey: Must be reported as a missing required prop
+            serviceAccountEmail: 789 # Must be a string
+
+    i18n:
+      defaultLocale: en-US
+      locales:
+        - code: 123 # Must be a string
+          name: English
+        - code: es-ES
+          name: Spanish
+
+    metadata:
+      test: anything
+
+    not-listed-filed: Must be reported as not expected
+
+    env:
+      some-env:
+        mockServer:
+          off: must be boolean
+          not-expected: Must fail
+        apis:
+          no-root:
+            # root: Must be defined
+            rules: {}
+          wrong-root:
+            root: 789 # Must be a string
+
+    theme:
+      breadcrumbs:
+        hide: false
+        prefixItems:
+          - label: Home
+            page: '/'
+      imports:
+        - '@redocly/theme-experimental'
+
+      logo:
+        srcSet: './images/redocly-black-logo.svg light, ./images/redocly-brand-logo.svg dark'
+        altText: Test
+        link: /
+      asyncapi:
+        hideInfo: false
+        expandSchemas:
+          root: true
+          elements: true
+      navbar:
+        items:
+          - label: Markdown
+            page: /markdown/
+
+      search:
+        shortcuts:
+          - ctrl+f
+          - cmd+k
+          - /
+        suggestedPages:
+          - label: TSX page
+            page: tsx.page.tsx
+          - page: /my-catalog/
+
+      footer:
+        copyrightText: Copyright © Test 2019-2020.
+        items:
+          - group: Legal
+            items:
+              - label: Terms of Use
+                href: 'https://test.com/' # Not expected
+
+      markdown:
+        lastUpdatedBlock:
+          format: 'long'
+        editPage:
+          baseUrl: https://test.com
+      graphql:
+        pagination: section
+        menu:
+          {
+            initialLoadState: 'default',
+            requireExactGroups: false,
+            groups:
+              [
+                {
+                  name: 'GraphQL custom group',
+                  directives: { includeByName: ['cacheControl', 'typeDirective'] },
+                },
+              ],
+            otherItemsGroupName: 'Other',
+          }
+      sidebar:
+        separatorLine: true
+        linePosition: top
+      catalog:
+        main:
+          title: API Catalog
+          description: 'This is a description of the API Catalog'
+          slug: /my-catalog/
+          filters:
+            - title: Domain
+              property: domain
+              missingCategoryName: Other
+            - title: API Category
+              property: category
+              missingCategoryName: Other
+          groupByFirstFilter: false
+          items:
+            - directory: ./
+              flatten: true
+              includeByMetadata:
+                type: [openapi]
+      scorecard:
+        ignoreNonCompliant: true
+        levels:
+          - name: Baseline
+            extends:
+              - minimal
+          - name: Silver
+            extends:
+              - recommended
+            rules:
+              info-description: off
+
+          - name: Gold
+            rules:
+              rule/path-item-get-required:
+                severity: warn
+                subject:
+                  type: PathItem
+                message: Every path item must have a GET operation.
+                assertions:
+                  required:
+                    - get
+
+              operation-4xx-response: warn
+        targets:
+          - where:
+              metadata:
+                l0: Distribution
+                publishDateRange: 2021-01-01T00:00:00Z/2022-01-01
+            minimumLevel: Silver
+
+  `,
+  ''
+);
 
 describe('lint', () => {
   it('lintFromString should work', async () => {
@@ -275,6 +545,920 @@ describe('lint', () => {
             },
           ],
           "message": "Property \`plugins\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('lintConfig should detect wrong fields in the default configuration after merging with the portal config schema', async () => {
+    const document = testPortalConfig;
+    const results = await lintConfig({ document });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/licenseKey",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sso/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "\`sso\` can be one of the following only: "REDOCLY", "CORPORATE", "GUEST".",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/not-listed-filed",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-listed-filed\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/redirects/some-redirect/t1o",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`t1o\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [
+            "to",
+            "type",
+          ],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/redirects/some-redirect/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`number\` but got \`string\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/seo/keywords",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`array\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rbac/content/**/additionalProp",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rbac/content/foo/additionalProp2",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rbac/additional-property/something",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders/some-header",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`rootRedoclyConfigSchema.responseHeaders_additionalProperties\` (array) but got \`string\`",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders/some-header2/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`rootRedoclyConfigSchema.responseHeaders_additionalProperties_items\` (object) but got \`string\`",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders/some-header2/1",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`name\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders/some-header2/1/unexpected-property",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`unexpected-property\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders/some-header2/1/value",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/without-root",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`root\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/without-root/foo",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`foo\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [
+            "root",
+          ],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-wrong-root/root",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-theme/theme/openapi",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`object\` but got \`string\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-theme/theme/not-expected",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-expected\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/oidc/title",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/oidc/defaultTeams/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/oidc/configuration",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`authorization_endpoint\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/oidc/configuration/token_endpoint",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/oidc/authorizationRequestCustomParams/login_hint",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/sso-config-schema-without-configurationUrl",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`clientId\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/sso-config-schema-without-configurationUrl",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`configurationUrl\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/basic/credentials/0",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`username\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem/basic/credentials/0/teams/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/wrong",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`wrong\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/0",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`rootRedoclyConfigSchema.developerOnboarding.adapters_0_items\` (object) but got \`string\`",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/1",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`organizationName\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/1",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`auth\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/1/type",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/2",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`organizationName\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/2/auth",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`tokenEndpoint\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/2/auth/clientId",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/2/auth/not-expected",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-expected\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/3/auth",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`serviceAccountPrivateKey\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding/adapters/3/auth/serviceAccountEmail",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/i18n/locales/0/code",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/footer/items/0/items/0/href",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`href\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/env/some-env/mockServer/off",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`boolean\` but got \`string\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/env/some-env/mockServer/not-expected",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-expected\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/env/some-env/apis/no-root",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "The field \`root\` must be present on this level.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/env/some-env/apis/wrong-root/root",
+              "reportOnKey": false,
+              "source": "",
+            },
+          ],
+          "message": "Expected type \`string\` but got \`integer\`.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('lintConfig should alternate its behavior when supplied externalConfigTypes', async () => {
+    const document = testPortalConfig;
+    const results = await lintConfig({
+      document,
+      externalConfigTypes: createConfigTypes({
+        type: 'object',
+        properties: { theme: themeConfigSchema },
+        additionalProperties: false,
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/licenseKey",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`licenseKey\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/seo",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`seo\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/redirects",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`redirects\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/rbac",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`rbac\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/responseHeaders",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`responseHeaders\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/ssoOnPrem",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`ssoOnPrem\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/sso",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`sso\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/developerOnboarding",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`developerOnboarding\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/i18n",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`i18n\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/metadata",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`metadata\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/not-listed-filed",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`not-listed-filed\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/env",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`env\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/theme/footer/items/0/items/0/href",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`href\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/without-root/foo",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`foo\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/without-root/output",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`output\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-wrong-root/root",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`root\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-theme/root",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`root\` is not expected here.",
+          "ruleId": "configuration spec",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/apis/with-theme/theme",
+              "reportOnKey": true,
+              "source": "",
+            },
+          ],
+          "message": "Property \`theme\` is not expected here.",
           "ruleId": "configuration spec",
           "severity": "error",
           "suggest": [],
