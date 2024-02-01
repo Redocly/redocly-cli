@@ -112,6 +112,8 @@ If some operations in an input file don't have a tag assigned to them, the `join
 
 If any of the input files contain the `x-tagGroups` object, the content of this object is ignored by the `join` command and not included in the output file.
 
+`info.title` is used as a name in x-tagGroups instead of a file name for the `join` command to make possible the joining of files with the same names. If you need to adjust the `info.title` field, you can also use the [info-override decorator](https://redocly.com/docs/cli/decorators/info-override/).
+
 {% /admonition %}
 
 The `servers` object combines the content from all input files, starting with the content from the first file. Commented lines are not included in the output file.
