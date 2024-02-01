@@ -1,5 +1,5 @@
 import { UserContext } from '../../walk';
-import { isRedoclyRegistryURL } from '../../redocly';
+import { RedoclyClient } from '../../redocly';
 
 import { Oas3Decorator, Oas2Decorator } from '../../visitors';
 
@@ -16,7 +16,7 @@ export const RegistryDependencies: Oas3Decorator | Oas2Decorator = () => {
     ref(node) {
       if (node.$ref) {
         const link = node.$ref.split('#/')[0];
-        if (isRedoclyRegistryURL(link)) {
+        if (RedoclyClient.isRedoclyRegistryURL(link)) {
           registryDependencies.add(link);
         }
       }

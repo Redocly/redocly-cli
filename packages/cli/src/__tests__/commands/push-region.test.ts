@@ -19,7 +19,8 @@ jest.mock('../../utils/miscellaneous');
 const mockPromptClientToken = promptClientToken as jest.MockedFunction<typeof promptClientToken>;
 
 describe('push-with-region', () => {
-  const redoclyClient = require('@redocly/openapi-core').__redoclyClient;
+  const RedoclyClient = require('@redocly/openapi-core').RedoclyClient;
+  const redoclyClient = new RedoclyClient();
   redoclyClient.isAuthorizedWithRedoclyByRegion = jest.fn().mockResolvedValue(false);
 
   beforeAll(() => {
@@ -27,7 +28,7 @@ describe('push-with-region', () => {
   });
 
   it('should call login with default domain when region is US', async () => {
-    redoclyClient.domain = 'redoc.ly';
+    RedoclyClient.domain = 'redoc.ly';
     await handlePush(
       {
         upsert: true,
@@ -38,11 +39,11 @@ describe('push-with-region', () => {
       ConfigFixture as any
     );
     expect(mockPromptClientToken).toBeCalledTimes(1);
-    expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
+    expect(mockPromptClientToken).toHaveBeenCalledWith(RedoclyClient.domain);
   });
 
   it('should call login with EU domain when region is EU', async () => {
-    redoclyClient.domain = 'eu.redocly.com';
+    RedoclyClient.domain = 'eu.redocly.com';
     await handlePush(
       {
         upsert: true,
@@ -53,6 +54,6 @@ describe('push-with-region', () => {
       ConfigFixture as any
     );
     expect(mockPromptClientToken).toBeCalledTimes(1);
-    expect(mockPromptClientToken).toHaveBeenCalledWith(redoclyClient.domain);
+    expect(mockPromptClientToken).toHaveBeenCalledWith(RedoclyClient.domain);
   });
 });

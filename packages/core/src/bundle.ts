@@ -14,7 +14,7 @@ import { isAbsoluteUrl, isRef, Location, refBaseName } from './ref-utils';
 import { initRules } from './config/rules';
 import { reportUnresolvedRef } from './rules/no-unresolved-refs';
 import { isPlainObject, isTruthy } from './utils';
-import { isRedoclyRegistryURL } from './redocly';
+import { RedoclyClient } from './redocly';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas2 } from './decorators/oas2/remove-unused-components';
 import { RemoveUnusedComponents as RemoveUnusedComponentsOas3 } from './decorators/oas3/remove-unused-components';
 import { ConfigTypes } from './types/redocly-yaml';
@@ -338,7 +338,7 @@ function makeBundleVisitor(
         }
 
         // do not bundle registry URL before push, otherwise we can't record dependencies
-        if (skipRedoclyRegistryRefs && isRedoclyRegistryURL(node.$ref)) {
+        if (skipRedoclyRegistryRefs && RedoclyClient.isRedoclyRegistryURL(node.$ref)) {
           return;
         }
 

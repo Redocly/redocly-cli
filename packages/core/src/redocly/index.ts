@@ -15,15 +15,13 @@ export const TOKEN_FILENAME = '.redocly-config.json';
 export class RedoclyClient {
   private accessTokens: AccessTokens = {};
   private region: Region;
-  domain: string;
+  static domain: string;
   registryApi: RegistryApi;
 
   constructor(region?: Region) {
     this.region = this.loadRegion(region);
     this.loadTokens();
-    this.domain = region ? DOMAINS[region] : env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
-
-    env.REDOCLY_DOMAIN = this.domain; // isRedoclyRegistryURL depends on the value to be set
+    RedoclyClient.domain = region ? DOMAINS[region] : env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
     this.registryApi = new RegistryApi(this.accessTokens, this.region);
   }
 
@@ -169,19 +167,19 @@ export class RedoclyClient {
       unlinkSync(credentialsPath);
     }
   }
-}
 
-export function isRedoclyRegistryURL(link: string): boolean {
-  const domain = env.REDOCLY_DOMAIN || DOMAINS[DEFAULT_REGION];
+  static isRedoclyRegistryURL(link: string): boolean {
+    const domain = RedoclyClient.domain || DOMAINS[DEFAULT_REGION];
 
-  const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
+    const legacyDomain = domain === 'redocly.com' ? 'redoc.ly' : domain;
 
-  if (
-    !link.startsWith(`https://api.${domain}/registry/`) &&
-    !link.startsWith(`https://api.${legacyDomain}/registry/`)
-  ) {
-    return false;
+    if (
+      !link.startsWith(`https://api.${domain}/registry/`) &&
+      !link.startsWith(`https://api.${legacyDomain}/registry/`)
+    ) {
+      return false;
+    }
+
+    return true;
   }
-
-  return true;
 }

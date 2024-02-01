@@ -29,6 +29,7 @@ import type {
 } from './types';
 import { getResolveConfig } from './utils';
 import { isAbsoluteUrl } from '../ref-utils';
+import { RedoclyClient } from '../redocly';
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 const IGNORE_BANNER =
@@ -44,7 +45,7 @@ function getDomains() {
   };
 
   // FIXME: temporary fix for our lab environments
-  const domain = env.REDOCLY_DOMAIN;
+  const domain = RedoclyClient?.domain || env.REDOCLY_DOMAIN;
   if (domain?.endsWith('.redocly.host')) {
     domains[domain.split('.')[0] as Region] = domain;
   }

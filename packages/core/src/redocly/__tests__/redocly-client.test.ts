@@ -19,36 +19,36 @@ describe('RedoclyClient', () => {
   });
 
   it('should resolve the US domain by default', () => {
-    const client = new RedoclyClient();
-    expect(client.domain).toBe(REDOCLY_DOMAIN_US);
+    new RedoclyClient();
+    expect(RedoclyClient.domain).toBe(REDOCLY_DOMAIN_US);
   });
 
   it('should resolve domain from RedoclyDomain env', () => {
     process.env.REDOCLY_DOMAIN = testRedoclyDomain;
-    const client = new RedoclyClient();
-    expect(client.domain).toBe(testRedoclyDomain);
+    new RedoclyClient();
+    expect(RedoclyClient.domain).toBe(testRedoclyDomain);
   });
 
   it('should resolve a domain by US region', () => {
-    const client = new RedoclyClient('us');
-    expect(client.domain).toBe(REDOCLY_DOMAIN_US);
+    new RedoclyClient('us');
+    expect(RedoclyClient.domain).toBe(REDOCLY_DOMAIN_US);
   });
 
   it('should resolve a domain by EU region', () => {
-    const client = new RedoclyClient('eu');
-    expect(client.domain).toBe(REDOCLY_DOMAIN_EU);
+    new RedoclyClient('eu');
+    expect(RedoclyClient.domain).toBe(REDOCLY_DOMAIN_EU);
   });
 
   it('should resolve domain by EU region prioritizing flag over env variable', () => {
     process.env.REDOCLY_DOMAIN = testRedoclyDomain;
-    const client = new RedoclyClient('eu');
-    expect(client.domain).toBe(REDOCLY_DOMAIN_EU);
+    new RedoclyClient('eu');
+    expect(RedoclyClient.domain).toBe(REDOCLY_DOMAIN_EU);
   });
 
   it('should resolve domain by US region prioritizing flag over env variable', () => {
     process.env.REDOCLY_DOMAIN = testRedoclyDomain;
-    const client = new RedoclyClient('us');
-    expect(client.domain).toBe(REDOCLY_DOMAIN_US);
+    new RedoclyClient('us');
+    expect(RedoclyClient.domain).toBe(REDOCLY_DOMAIN_US);
   });
 
   it('should resolve domain by US region when REDOCLY_DOMAIN consists EU domain', () => {

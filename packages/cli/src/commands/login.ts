@@ -20,7 +20,7 @@ export type LoginOptions = {
 export async function handleLogin(argv: LoginOptions, config: Config) {
   const region = argv.region || config.region;
   const client = new RedoclyClient(region);
-  const clientToken = await promptClientToken(client.domain);
+  const clientToken = await promptClientToken(RedoclyClient.domain);
   process.stdout.write(gray('\n  Logging in...\n'));
   await client.login(clientToken, argv.verbose);
   process.stdout.write(green('  Authorization confirmed. ✅\n\n'));
