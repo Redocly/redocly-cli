@@ -52,6 +52,66 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
+  it('should report if one or more of the required properties are missing, including allOf nested schemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Pet:
+                type: object
+                allOf:
+                  - properties:
+                      foo:
+                        type: string
+                  - properties:
+                      bar:
+                        type: number
+                      baz:
+                        type: string
+                required:
+                  - name
+                  - id
+                  - bar
+                  - foo
+                  - baz
+                  - test
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                    example: doggie
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Pet/required/5",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'test' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should report if one or more of the required properties are missing when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -76,11 +136,10 @@ describe('no-required-schema-properties-undefined', () => {
                           - aggressive
                     required:
                       - huntingSkill
-                      - test
+                      - name
               Pet:
                 type: object
                 required:
-                  - name
                   - photoUrls
                 properties:
                   name:
@@ -117,13 +176,71 @@ describe('no-required-schema-properties-undefined', () => {
               "source": "foobar.yaml",
             },
           ],
-          "message": "Required property 'test' is undefined.",
+          "message": "Required property 'name' is undefined.",
           "ruleId": "no-required-schema-properties-undefined",
           "severity": "error",
           "suggest": [],
         },
       ]
     `);
+  });
+
+  it('should not report required properties are present after resolving $refs when used in schema with allOf keyword', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                        description: The measured skill for hunting
+                        default: lazy
+                        example: adventurous
+                        enum:
+                          - clueless
+                          - lazy
+                          - adventurous
+                          - aggressive
+                    required:
+                      - huntingSkill
+                required:
+                  - name
+              Pet:
+                type: object
+                required:
+                  - photoUrls
+                properties:
+                  name:
+                    description: The name given to a pet
+                    type: string
+                    example: Guru
+                  photoUrls:
+                    description: The list of URL to a cute photos featuring pet
+                    type: array
+                    maxItems: 20
+                    xml:
+                      name: photoUrl
+                      wrapped: true
+                    items:
+                      type: string
+                      format: url
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should report with different message if more than one of the required properties are missing', async () => {
