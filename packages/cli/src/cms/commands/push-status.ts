@@ -178,13 +178,13 @@ function displayDeploymentAndBuildStatus({
       spinner.stop();
       return process.stdout.write(
         `${colors.green(
-          `🚀 ${buildType.toLocaleUpperCase()} deployment succeeded.`
+          `🚀 ${buildType.toLocaleUpperCase()} deploy success.`
         )}\n${colors.magenta('Preview URL')}: ${colors.cyan(previewUrl!)}\n`
       );
     case 'failed':
       spinner.stop();
       throw new DeploymentError(
-        `${colors.red(`❌ ${buildType.toLocaleUpperCase()} deployment failed.`)}\n${colors.magenta(
+        `${colors.red(`❌ ${buildType.toLocaleUpperCase()} deploy fail.`)}\n${colors.magenta(
           'Preview URL'
         )}: ${colors.cyan(previewUrl!)}`
       );
