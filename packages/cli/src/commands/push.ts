@@ -355,6 +355,8 @@ export function getDestinationProps(
 
 type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
   apis?: string[];
+  maybeDestination?: string;
+  maybeBranchName?: string;
   branch?: string;
   destination?: string;
 };
@@ -371,6 +373,8 @@ export const transformPush =
     }: BarePushArgs & { 'batch-id'?: string },
     config: Config
   ) => {
+    const [maybeApiOrDestination, maybeDestination, maybeBranchName] = apis || [];
+
     if (batchId) {
       process.stderr.write(
         yellow(
@@ -379,20 +383,40 @@ export const transformPush =
       );
     }
 
-    let api = apis?.[0];
-    let destination = rest.destination;
+    if (maybeBranchName) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the third parameter as a branch name. Please use a separate --branch option instead.\n\n'
+        )
+      );
+    }
 
-    if (!destination && api && DESTINATION_REGEX.test(api)) {
-      destination = api;
-      api = undefined;
+    let apiFile, destination;
+    if (maybeDestination) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the second parameter as a destination. Please use a separate --destination and --organization instead.\n\n'
+        )
+      );
+      apiFile = maybeApiOrDestination;
+      destination = maybeDestination;
+    } else if (maybeApiOrDestination && DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      process.stderr.write(
+        yellow(
+          'Deprecation warning: Do not use the first parameter as a destination. Please use a separate --destination and --organization options instead.\n\n'
+        )
+      );
+      destination = maybeApiOrDestination;
+    } else if (maybeApiOrDestination && !DESTINATION_REGEX.test(maybeApiOrDestination)) {
+      apiFile = maybeApiOrDestination;
     }
 
     return callback(
       {
         ...rest,
-        destination,
-        api,
-        branchName: branch,
+        destination: rest.destination ?? destination,
+        api: apiFile,
+        branchName: branch ?? maybeBranchName,
         'job-id': jobId || batchId,
       },
       config

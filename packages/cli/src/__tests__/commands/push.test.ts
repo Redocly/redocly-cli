@@ -279,6 +279,57 @@ describe('push', () => {
 });
 
 describe('transformPush', () => {
+  it('should adapt the existing syntax', () => {
+    const cb = jest.fn();
+    transformPush(cb)(
+      {
+        apis: ['openapi.yaml', '@testing_org/main@v1'],
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+      },
+      {}
+    );
+  });
+  it('should adapt the existing syntax (including branchName)', () => {
+    const cb = jest.fn();
+    transformPush(cb)(
+      {
+        apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+        branchName: 'other',
+      },
+      {}
+    );
+  });
+  it('should use --branch option firstly', () => {
+    const cb = jest.fn();
+    transformPush(cb)(
+      {
+        apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
+        branch: 'priority-branch',
+      },
+      {} as any
+    );
+    expect(cb).toBeCalledWith(
+      {
+        api: 'openapi.yaml',
+        destination: '@testing_org/main@v1',
+        branchName: 'priority-branch',
+      },
+      {}
+    );
+  });
   it('should work for a destination only', () => {
     const cb = jest.fn();
     transformPush(cb)(
@@ -314,7 +365,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        apis: ['test@v1'],
+        apis: ['test.yaml', 'test@v1'],
         destination: 'main@v1',
       },
       {} as any
@@ -322,7 +373,7 @@ describe('transformPush', () => {
     expect(cb).toBeCalledWith(
       {
         destination: 'main@v1',
-        api: 'test@v1',
+        api: 'test.yaml',
       },
       {}
     );
