@@ -355,8 +355,6 @@ export function getDestinationProps(
 
 type BarePushArgs = Omit<PushOptions, 'destination' | 'branchName'> & {
   apis?: string[];
-  maybeDestination?: string;
-  maybeBranchName?: string;
   branch?: string;
   destination?: string;
 };
