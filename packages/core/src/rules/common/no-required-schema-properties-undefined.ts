@@ -7,7 +7,10 @@ import { isRef } from '../../ref-utils';
 export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
   return {
     Schema: {
-      enter(schema: Oas3Schema | Oas3_1Schema | Oas2Schema, { location, report, resolve }: UserContext) {
+      enter(
+        schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
+        { location, report, resolve }: UserContext
+      ) {
         const allProperties = schema.properties ?? {};
 
         // Skip oneOf/anyOf as it's complicated to validate it right now.
@@ -15,11 +18,11 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
         // Right now we only resolve basic allOf keyword nesting.
         if (schema.allOf) {
           schema.allOf.forEach((nestedSchema: Oas3Schema | Oas3_1Schema | Oas2Schema) => {
-            if(isRef(nestedSchema)) {
+            if (isRef(nestedSchema)) {
               const resolved = resolve(nestedSchema).node as Oas3Schema | Oas3_1Schema | Oas2Schema;
-              Object.assign(allProperties, resolved.properties)
+              Object.assign(allProperties, resolved.properties);
             }
-            
+
             Object.assign(allProperties, nestedSchema.properties);
           });
         }
