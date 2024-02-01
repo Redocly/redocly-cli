@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 1.8.2
+
+### Patch Changes
+
+- Added markdown format option to stats command for use with GitHub job summaries.
+- Fixed an issue with the `push` command, when `destination` option does not work without specifying it in `redocly.yaml`.
+- Updated @redocly/openapi-core to v1.8.2.
+
 ## 1.8.1
 
 ### Patch Changes
