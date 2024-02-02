@@ -17,7 +17,7 @@ import {
   printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
-} from '../utils';
+} from '../utils/miscellaneous';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 

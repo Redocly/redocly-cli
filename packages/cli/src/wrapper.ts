@@ -1,7 +1,12 @@
 import { Config, Region, doesYamlFileExist } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
-import { version } from './update-version-notifier';
-import { ExitCode, exitWithError, loadConfigAndHandleErrors, sendTelemetry } from './utils';
+import { version } from './utils/update-version-notifier';
+import {
+  ExitCode,
+  exitWithError,
+  loadConfigAndHandleErrors,
+  sendTelemetry,
+} from './utils/miscellaneous';
 import { lintConfigCallback } from './commands/lint';
 import type { CommandOptions } from './types';
 

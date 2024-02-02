@@ -8,7 +8,7 @@ module.exports = {
     '!packages/**/__tests__/**/*',
     '!packages/core/src/benchmark/**/*',
     '!packages/cli/src/index.ts',
-    '!packages/cli/src/assert-node-version.ts',
+    '!packages/cli/src/utils/assert-node-version.ts',
   ],
   coverageThreshold: {
     'packages/core/': {

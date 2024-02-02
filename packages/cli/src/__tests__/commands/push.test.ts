@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { Config, getMergedConfig } from '@redocly/openapi-core';
-import { exitWithError } from '../../utils';
+import { exitWithError } from '../../utils/miscellaneous';
 import { getApiRoot, getDestinationProps, handlePush, transformPush } from '../../commands/push';
 import { ConfigFixture } from '../fixtures/config';
 import { yellow } from 'colorette';
@@ -13,7 +13,7 @@ jest.mock('node-fetch', () => ({
   })),
 }));
 jest.mock('@redocly/openapi-core');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 
@@ -283,8 +283,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
+        apis: ['openapi.yaml', '@testing_org/main@v1'],
       },
       {} as any
     );
@@ -300,9 +299,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
-        maybeBranchName: 'other',
+        apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
       },
       {} as any
     );
@@ -319,9 +316,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'openapi.yaml',
-        maybeDestination: '@testing_org/main@v1',
-        maybeBranchName: 'other',
+        apis: ['openapi.yaml', '@testing_org/main@v1', 'other'],
         branch: 'priority-branch',
       },
       {} as any
@@ -339,13 +334,13 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: '@testing_org/main@v1',
+        apis: ['main@v1'],
       },
       {} as any
     );
     expect(cb).toBeCalledWith(
       {
-        destination: '@testing_org/main@v1',
+        destination: 'main@v1',
       },
       {}
     );
@@ -354,7 +349,7 @@ describe('transformPush', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'test.yaml',
+        apis: ['test.yaml'],
       },
       {} as any
     );
@@ -365,31 +360,32 @@ describe('transformPush', () => {
       {}
     );
   });
-  it('should accept aliases for the old syntax', () => {
+
+  it('should use destination from option', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
-        api: 'alias',
-        maybeDestination: '@testing_org/main@v1',
+        apis: ['test.yaml', 'test@v1'],
+        destination: 'main@v1',
       },
       {} as any
     );
     expect(cb).toBeCalledWith(
       {
-        destination: '@testing_org/main@v1',
-        api: 'alias',
+        destination: 'main@v1',
+        api: 'test.yaml',
       },
       {}
     );
   });
+
   it('should use --job-id option firstly', () => {
     const cb = jest.fn();
     transformPush(cb)(
       {
         'batch-id': 'b-123',
         'job-id': 'j-123',
-        api: 'test',
-        maybeDestination: 'main@v1',
+        apis: ['test'],
         branch: 'test',
         destination: 'main@v1',
       },

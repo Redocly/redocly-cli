@@ -203,10 +203,10 @@ Each function is called with the following parameters:
 problems | [`Problem`] | List of problems. An empty list means all checks are valid.
 
 `Problem`
-Property | Type | Description
--- | -- | --
-message | `string` \| [`string`] | Problem message that is displayed in the [lint command](../commands/lint.md) output.
-location | `Location Object` | Location in the source document. See [Location Object](../custom-plugins/custom-rules.md#location-object)
+| Property | Type | Description |
+| -- | -- | -- |
+| message | `string` \| [`string`] | Problem message that is displayed in the [lint command](../commands/lint.md) output. |
+| location | `Location Object` | Location in the source document. See [Location Object](../custom-plugins/custom-rules.md#location-object) |
 
 `redocly.yaml`
 

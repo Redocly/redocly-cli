@@ -6,9 +6,8 @@
 
 ## Screenshots (optional)
 
-## Check yourself
+## Has code been changed?
 
-- [ ] Code is linted
 - [ ] Tested with redoc/reference-docs/workflows (internal)
 - [ ] All new/updated code is covered with tests
 

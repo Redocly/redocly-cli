@@ -30,8 +30,8 @@ import {
   getAndValidateFileExtension,
   writeToFileByExtension,
   checkForDeprecatedOptions,
-} from '../utils';
-import { isObject, isString, keysOf } from '../js-utils';
+} from '../utils/miscellaneous';
+import { isObject, isString, keysOf } from '../utils/js-utils';
 import {
   Oas3Parameter,
   Oas3PathItem,

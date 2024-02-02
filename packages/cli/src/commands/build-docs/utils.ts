@@ -10,7 +10,7 @@ import { existsSync, lstatSync, readFileSync } from 'fs';
 
 import type { BuildDocsOptions } from './types';
 import { red } from 'colorette';
-import { exitWithError } from '../../utils';
+import { exitWithError } from '../../utils/miscellaneous';
 
 export function getObjectOrJSON(
   openapiOptions: string | Record<string, unknown>,

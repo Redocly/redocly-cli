@@ -111,14 +111,14 @@ export interface Oas3Xml {
   wrapped?: string;
 }
 
-export interface Oas3Schema {
+// common fields for OpenAPI Schema v3.x
+interface Oas3XSchemaBase<T> {
   $ref?: string;
-  type?: string;
-  properties?: { [name: string]: Oas3Schema };
-  additionalProperties?: boolean | Oas3Schema;
+  properties?: { [name: string]: T };
+  additionalProperties?: boolean | T;
   description?: string;
   default?: any;
-  items?: Oas3Schema;
+  items?: T;
   required?: string[];
   readOnly?: boolean;
   writeOnly?: boolean;
@@ -127,10 +127,10 @@ export interface Oas3Schema {
   externalDocs?: Oas3ExternalDocs;
   discriminator?: Oas3Discriminator;
   nullable?: boolean;
-  oneOf?: Oas3Schema[];
-  anyOf?: Oas3Schema[];
-  allOf?: Oas3Schema[];
-  not?: Oas3Schema;
+  oneOf?: T[];
+  anyOf?: T[];
+  allOf?: T[];
+  not?: T;
 
   title?: string;
   multipleOf?: number;
@@ -153,11 +153,15 @@ export interface Oas3Schema {
   'x-tags'?: string[];
 }
 
-export type Oas3_1Schema = Oas3Schema & {
+export interface Oas3Schema extends Oas3XSchemaBase<Oas3Schema> {
+  type?: string;
+}
+
+export interface Oas3_1Schema extends Oas3XSchemaBase<Oas3_1Schema> {
   type?: string | string[];
   examples?: any[];
   prefixItems?: Oas3_1Schema[];
-};
+}
 
 export interface Oas3_1Definition extends Oas3Definition {
   webhooks?: Oas3_1Webhooks;

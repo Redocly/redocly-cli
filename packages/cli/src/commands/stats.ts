@@ -13,8 +13,8 @@ import {
   Stats,
   bundle,
 } from '@redocly/openapi-core';
-import { getFallbackApisOrExit } from '../utils';
-import { printExecutionTime } from '../utils';
+import { getFallbackApisOrExit } from '../utils/miscellaneous';
+import { printExecutionTime } from '../utils/miscellaneous';
 import type { StatsAccumulator, StatsName, WalkContext, OutputFormat } from '@redocly/openapi-core';
 
 const statsAccumulator: StatsAccumulator = {
@@ -46,14 +46,36 @@ function printStatsJson(statsAccumulator: StatsAccumulator) {
   process.stdout.write(JSON.stringify(json, null, 2));
 }
 
-function printStats(statsAccumulator: StatsAccumulator, api: string, format: string) {
-  process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
+function printStatsMarkdown(statsAccumulator: StatsAccumulator) {
+  let output = '| Feature  | Count  |\n| --- | --- |\n';
+  for (const key of Object.keys(statsAccumulator)) {
+    output +=
+      '| ' +
+      statsAccumulator[key as StatsName].metric +
+      ' | ' +
+      statsAccumulator[key as StatsName].total +
+      ' |\n';
+  }
+  process.stdout.write(output);
+}
+
+function printStats(
+  statsAccumulator: StatsAccumulator,
+  api: string,
+  startedAt: number,
+  format: string
+) {
   switch (format) {
     case 'stylish':
+      process.stderr.write(`Document: ${colors.magenta(api)} stats:\n\n`);
       printStatsStylish(statsAccumulator);
+      printExecutionTime('stats', startedAt, api);
       break;
     case 'json':
       printStatsJson(statsAccumulator);
+      break;
+    case 'markdown':
+      printStatsMarkdown(statsAccumulator);
       break;
   }
 }
@@ -107,6 +129,5 @@ export async function handleStats(argv: StatsOptions, config: Config) {
     ctx,
   });
 
-  printStats(statsAccumulator, path, argv.format);
-  printExecutionTime('stats', startedAt, path);
+  printStats(statsAccumulator, path, startedAt, argv.format);
 }

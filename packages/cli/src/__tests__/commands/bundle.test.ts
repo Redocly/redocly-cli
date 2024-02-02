@@ -1,13 +1,13 @@
 import { lint, bundle, getTotals, getMergedConfig } from '@redocly/openapi-core';
 
 import { BundleOptions, handleBundle } from '../../commands/bundle';
-import { handleError } from '../../utils';
+import { handleError } from '../../utils/miscellaneous';
 import { commandWrapper } from '../../wrapper';
 import SpyInstance = jest.SpyInstance;
 import { Arguments } from 'yargs';
 
 jest.mock('@redocly/openapi-core');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 

@@ -13,10 +13,8 @@ import {
   cleanArgs,
   cleanRawInput,
   getAndValidateFileExtension,
-  writeYaml,
-  writeJson,
   writeToFileByExtension,
-} from '../utils';
+} from '../utils/miscellaneous';
 import {
   ResolvedApi,
   Totals,
@@ -26,10 +24,9 @@ import {
   stringifyYaml,
 } from '@redocly/openapi-core';
 import { blue, red, yellow } from 'colorette';
-import { existsSync, statSync, writeFileSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import * as utils from '../utils';
 
 jest.mock('os');
 jest.mock('colorette');
