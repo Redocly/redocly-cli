@@ -49,6 +49,7 @@ let potentialConflictsTotal = 0;
 type JoinDocumentContext = {
   api: string;
   apiFilename: string;
+  apiTitle?: string;
   tags: Oas3Tag[];
   potentialConflicts: any;
   tagsPrefix: string;
@@ -209,6 +210,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     const context = {
       api,
       apiFilename,
+      apiTitle: info?.title,
       tags,
       potentialConflicts,
       tagsPrefix,
@@ -218,7 +220,6 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       populateTags(context);
     }
     collectServers(openapi);
-    collectInfoDescriptions(openapi, context);
     collectExternalDocs(openapi, context);
     collectPaths(openapi, context);
     collectComponents(openapi, context);
@@ -242,6 +243,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   function populateTags({
     api,
     apiFilename,
+    apiTitle,
     tags,
     potentialConflicts,
     tagsPrefix,
@@ -285,9 +287,10 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
       }
 
       if (!withoutXTagGroups) {
-        createXTagGroups(apiFilename);
+        const groupName = apiTitle || apiFilename;
+        createXTagGroups(groupName);
         if (!tagDuplicate) {
-          populateXTagGroups(entrypointTagName, getIndexGroup(apiFilename));
+          populateXTagGroups(entrypointTagName, getIndexGroup(groupName));
         }
       }
 
@@ -302,20 +305,20 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  function getIndexGroup(apiFilename: string): number {
-    return joinedDef[xTagGroups].findIndex((item: any) => item.name === apiFilename);
+  function getIndexGroup(name: string): number {
+    return joinedDef[xTagGroups].findIndex((item: any) => item.name === name);
   }
 
-  function createXTagGroups(apiFilename: string) {
+  function createXTagGroups(name: string) {
     if (!joinedDef.hasOwnProperty(xTagGroups)) {
       joinedDef[xTagGroups] = [];
     }
 
-    if (!joinedDef[xTagGroups].some((g: any) => g.name === apiFilename)) {
-      joinedDef[xTagGroups].push({ name: apiFilename, tags: [] });
+    if (!joinedDef[xTagGroups].some((g: any) => g.name === name)) {
+      joinedDef[xTagGroups].push({ name, tags: [] });
     }
 
-    const indexGroup = getIndexGroup(apiFilename);
+    const indexGroup = getIndexGroup(name);
 
     if (!joinedDef[xTagGroups][indexGroup].hasOwnProperty(Tags)) {
       joinedDef[xTagGroups][indexGroup][Tags] = [];
@@ -344,27 +347,6 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
     }
   }
 
-  function collectInfoDescriptions(
-    openapi: Oas3Definition,
-    { apiFilename, componentsPrefix }: JoinDocumentContext
-  ) {
-    const { info } = openapi;
-    if (info?.description) {
-      const groupIndex = joinedDef[xTagGroups] ? getIndexGroup(apiFilename) : -1;
-      if (
-        joinedDef.hasOwnProperty(xTagGroups) &&
-        groupIndex !== -1 &&
-        joinedDef[xTagGroups][groupIndex]['tags'] &&
-        joinedDef[xTagGroups][groupIndex]['tags'].length
-      ) {
-        joinedDef[xTagGroups][groupIndex]['description'] = addComponentsPrefix(
-          info.description,
-          componentsPrefix!
-        );
-      }
-    }
-  }
-
   function collectExternalDocs(openapi: Oas3Definition, { api }: JoinDocumentContext) {
     const { externalDocs } = openapi;
     if (externalDocs) {
@@ -380,7 +362,14 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
 
   function collectPaths(
     openapi: Oas3Definition,
-    { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
+    {
+      apiFilename,
+      apiTitle,
+      api,
+      potentialConflicts,
+      tagsPrefix,
+      componentsPrefix,
+    }: JoinDocumentContext
   ) {
     const { paths } = openapi;
     const operationsSet = new Set(keysOf<typeof OPENAPI3_METHOD>(OPENAPI3_METHOD));
@@ -532,6 +521,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
         populateTags({
           api,
           apiFilename,
+          apiTitle,
           tags: formatTags(tags),
           potentialConflicts,
           tagsPrefix,
@@ -542,6 +532,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
         populateTags({
           api,
           apiFilename,
+          apiTitle,
           tags: formatTags(['other']),
           potentialConflicts,
           tagsPrefix: tagsPrefix || apiFilename,
@@ -599,7 +590,14 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
   function collectWebhooks(
     oasVersion: SpecVersion,
     openapi: Oas3_1Definition,
-    { apiFilename, api, potentialConflicts, tagsPrefix, componentsPrefix }: JoinDocumentContext
+    {
+      apiFilename,
+      apiTitle,
+      api,
+      potentialConflicts,
+      tagsPrefix,
+      componentsPrefix,
+    }: JoinDocumentContext
   ) {
     const webhooks = oasVersion === SpecVersion.OAS3_1 ? 'webhooks' : 'x-webhooks';
     const openapiWebhooks = openapi[webhooks];
@@ -628,6 +626,7 @@ export async function handleJoin(argv: JoinOptions, config: Config, packageVersi
             populateTags({
               api,
               apiFilename,
+              apiTitle,
               tags: formatTags(tags),
               potentialConflicts,
               tagsPrefix,
