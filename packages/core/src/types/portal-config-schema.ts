@@ -386,7 +386,7 @@ const environmentSchema = {
   additionalProperties: false,
 } as const;
 
-const rootRedoclyConfigSchema = {
+export const rootRedoclyConfigSchema = {
   ...redoclyConfigSchema,
   properties: {
     plugins: {
