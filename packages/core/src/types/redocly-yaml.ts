@@ -250,21 +250,11 @@ const ConfigStyleguide: NodeType = {
   },
 };
 
-const RootConfigStyleguide: NodeType = {
-  properties: {
-    plugins: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    ...ConfigStyleguide.properties,
-  },
-};
-
 const createConfigRoot = (nodeTypes: Record<string, NodeType>): NodeType => ({
   ...nodeTypes.rootRedoclyConfigSchema,
   properties: {
     ...nodeTypes.rootRedoclyConfigSchema.properties,
-    ...RootConfigStyleguide.properties,
+    ...ConfigStyleguide.properties,
     apis: 'ConfigApis', // Override apis with internal format
     theme: 'ConfigRootTheme', // Override theme with internal format
     'features.openapi': 'ConfigReferenceDocs', // deprecated
@@ -326,7 +316,7 @@ const ConfigHTTP: NodeType = {
 };
 
 const createConfigRootTheme = (nodeTypes: Record<string, NodeType>): NodeType => ({
-  ...nodeTypes['rootRedoclyConfigSchema.theme'], 
+  ...nodeTypes['rootRedoclyConfigSchema.theme'],
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.theme']?.properties,
     openapi: 'ConfigReferenceDocs', // Override theme.openapi with internal format
@@ -938,8 +928,9 @@ const GenerateCodeSamples: NodeType = {
 };
 
 const ConfigReferenceDocs: NodeType = {
+  // TODO: partially invalid @Viacheslav
   properties: {
-    theme: 'ConfigTheme',
+    theme: 'ConfigTheme', // TODO: deprecated @Viacheslav
     corsProxyUrl: { type: 'string' },
     ctrlFHijack: { type: 'boolean' },
     defaultSampleLanguage: { type: 'string' },
@@ -1090,7 +1081,6 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigRoot: createConfigRoot(DefaultPortalConfigNodeTypes),
   ConfigApis,
   ConfigApisProperties: createConfigApisProperties(DefaultPortalConfigNodeTypes),
-  RootConfigStyleguide,
   ConfigStyleguide,
   ConfigReferenceDocs,
   ConfigMockServer,

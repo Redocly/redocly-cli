@@ -8,6 +8,7 @@ import { themeConfigSchema } from './theme-config';
 
 import type { FromSchema } from 'json-schema-to-ts';
 import type { NodeType } from '.';
+import type { ThemeConfig } from './theme-config';
 
 const oidcIssuerMetadataSchema = {
   type: 'object',
@@ -90,12 +91,12 @@ const authProviderConfigSchema = {
   discriminator: { propertyName: 'type' },
 } as const;
 
-export const ssoOnPremConfigSchema = {
+const ssoOnPremConfigSchema = {
   type: 'object',
   additionalProperties: authProviderConfigSchema,
 } as const;
 
-export const ssoConfigSchema = {
+const ssoConfigSchema = {
   oneOf: [
     {
       type: 'array',
@@ -140,7 +141,7 @@ const apiConfigSchema = {
         graphql: themeConfigSchema.properties.graphql, // TODO: should it be here?
       },
       additionalProperties: false,
-    } ,
+    },
     title: { type: 'string' },
     metadata: { type: 'object', additionalProperties: true },
     rules: { type: 'object', additionalProperties: true }, // FIXME: either add this here or uncomment `additionalProperties: true`
@@ -334,7 +335,7 @@ const responseHeaderSchema = {
   required: ['name', 'value'],
 } as const;
 
-export const redoclyConfigSchema = {
+const redoclyConfigSchema = {
   type: 'object',
   properties: {
     licenseKey: { type: 'string' },
@@ -376,18 +377,22 @@ export const redoclyConfigSchema = {
     },
     theme: themeConfigSchema,
   },
-  default: {},
+  default: { redirects: {} },
   additionalProperties: false,
 } as const;
 
-export const environmentSchema = {
+const environmentSchema = {
   ...redoclyConfigSchema,
   additionalProperties: false,
 } as const;
 
-export const rootRedoclyConfigSchema = {
+const rootRedoclyConfigSchema = {
   ...redoclyConfigSchema,
   properties: {
+    plugins: {
+      type: 'array',
+      items: { type: 'string' },
+    },
     ...redoclyConfigSchema.properties,
     env: {
       type: 'object',
@@ -398,10 +403,9 @@ export const rootRedoclyConfigSchema = {
   // required: ['redirects'], // FIXME: why redirects is required?
 } as const;
 
-// TODO: get ThemeConfig later
-// export type RedoclyConfig<T = ThemeConfig> = FromSchema<typeof rootRedoclyConfigSchema> & {
-//   theme?: T;
-// };
+export type RedoclyConfig<T = ThemeConfig> = FromSchema<typeof rootRedoclyConfigSchema> & {
+  theme?: T;
+};
 export type RedirectConfig = FromSchema<typeof redirectConfigSchema>;
 export type RedirectsConfig = FromSchema<typeof redirectsConfigSchema>;
 
@@ -426,11 +430,13 @@ export type ApigeeAdapterAuthServiceAccount = FromSchema<
 export type SsoConfig = FromSchema<typeof ssoOnPremConfigSchema>;
 export type I18nConfig = FromSchema<typeof i18ConfigSchema>;
 
+export type ApiConfig = FromSchema<typeof apiConfigSchema>;
+
 export const DefaultPortalConfigNodeTypes: Record<string, NodeType> = {};
 
 transformJSONSchemaToNodeType(
   'rootRedoclyConfigSchema',
-  rootRedoclyConfigSchema, 
+  rootRedoclyConfigSchema,
   DefaultPortalConfigNodeTypes
 );
 

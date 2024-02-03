@@ -1,3 +1,5 @@
+import type { FromSchema } from 'json-schema-to-ts';
+
 const logoConfigSchema = {
   type: 'object',
   properties: {
@@ -68,6 +70,11 @@ const markdownConfigSchema = {
       items: { type: 'string' },
       default: ['image', 'links'],
     },
+    partialsFolders: {
+      type: 'array',
+      items: { type: 'string' },
+      default: ['_partials'],
+    },
     lastUpdatedBlock: {
       type: 'object',
       properties: {
@@ -76,7 +83,7 @@ const markdownConfigSchema = {
           enum: ['timeago', 'iso', 'long', 'short'],
           default: 'timeago',
         },
-        locale: { type: 'string', default: 'en-US' },
+        locale: { type: 'string' },
         ...hideConfigSchema.properties,
       },
       additionalProperties: false,
@@ -224,6 +231,7 @@ const navItemSchema = {
   properties: {
     page: { type: 'string' },
     directory: { type: 'string' },
+    disconnect: { type: 'boolean', default: false },
     group: { type: 'string' },
     label: { type: 'string' },
     separator: { type: 'string' },
@@ -234,7 +242,7 @@ const navItemSchema = {
       default: 'top',
     },
     version: { type: 'string' },
-    menuStyle: { type: 'string', enum: ['drilldown'] },
+    menuStyle: { type: 'string', enum: ['drilldown'/*  as MenuStyle */] },
     expanded: { type: 'string', const: 'always' },
     selectFirstItemOnExpand: { type: 'boolean' },
     flatten: { type: 'boolean' },
@@ -265,7 +273,7 @@ const productConfigSchema = {
     folder: { type: 'string' },
   },
   additionalProperties: false,
-  required: ['name', 'icon', 'folder'],
+  required: ['name', 'folder'],
 } as const;
 
 const suggestedPageSchema = {
@@ -288,6 +296,7 @@ const catalogFilterSchema = {
     titleTranslationKey: { type: 'string' },
     property: { type: 'string' },
     parentFilter: { type: 'string' },
+    valuesMapping: { type: 'object', additionalProperties: { type: 'string' } },
     missingCategoryName: { type: 'string' },
     missingCategoryNameTranslationKey: { type: 'string' },
     options: { type: 'array', items: { type: 'string' } },
@@ -297,9 +306,9 @@ const catalogFilterSchema = {
 const scorecardConfigSchema = {
   type: 'object',
   additionalProperties: true,
-  required: ['levels'],
+  required: [],
   properties: {
-    failBuildIfBelowMinimum: { type: 'boolean', default: false },
+    ignoreNonCompliant: { type: 'boolean', default: false },
     teamMetadataProperty: {
       type: 'object',
       properties: {
@@ -315,11 +324,13 @@ const scorecardConfigSchema = {
         required: ['name'],
         properties: {
           name: { type: 'string' },
+          color: { type: 'string' },
           extends: { type: 'array', items: { type: 'string' } },
-          rules: { // FIXME: override rules!
-            type: 'object', 
+          // FIXME: override rules?
+          rules: {
+            type: 'object',
             additionalProperties: {
-              oneOf: [{ type: 'string' }, { type: 'object' }], 
+              oneOf: [{ type: 'string' }, { type: 'object' }],
             },
           },
         },
@@ -421,13 +432,6 @@ export const themeConfigSchema = {
       },
       additionalProperties: false,
     },
-    // TODO: been removed?
-    // seo: {
-    //   type: 'object',
-    //   properties: {
-    //     title: { type: 'string' },
-    //   },
-    // },
     scripts: {
       type: 'object',
       properties: {
@@ -446,7 +450,7 @@ export const themeConfigSchema = {
         },
         type: {
           type: 'string',
-          enum: ['rating', 'sentiment', 'comment', 'reasons'],
+          enum: ['rating', 'sentiment', 'comment', 'reasons', 'mood', 'scale'],
           default: 'sentiment',
         },
         settings: {
@@ -454,15 +458,27 @@ export const themeConfigSchema = {
           properties: {
             label: { type: 'string' },
             submitText: { type: 'string' },
-            max: { type: 'number' },
             buttonText: { type: 'string' },
-            multi: { type: 'boolean' },
+            component: {
+              type: 'string',
+              enum: ['radio', 'checkbox'],
+              default: 'checkbox',
+            },
             items: { type: 'array', items: { type: 'string' }, minItems: 1 },
+            leftScaleLabel: { type: 'string' },
+            rightScaleLabel: { type: 'string' },
             reasons: {
               type: 'object',
               properties: {
-                enable: { type: 'boolean', default: true },
-                multi: { type: 'boolean' },
+                hide: {
+                  type: 'boolean',
+                  default: false,
+                },
+                component: {
+                  type: 'string',
+                  enum: ['radio', 'checkbox'],
+                  default: 'checkbox',
+                },
                 label: { type: 'string' },
                 items: { type: 'array', items: { type: 'string' } },
               },
@@ -471,10 +487,16 @@ export const themeConfigSchema = {
             comment: {
               type: 'object',
               properties: {
-                enable: { type: 'boolean', default: true },
+                hide: {
+                  type: 'boolean',
+                  default: false,
+                },
                 label: { type: 'string' },
                 likeLabel: { type: 'string' },
                 dislikeLabel: { type: 'string' },
+                satisfiedLabel: { type: 'string' },
+                neutralLabel: { type: 'string' },
+                dissatisfiedLabel: { type: 'string' },
               },
               additionalProperties: false,
             },
@@ -527,7 +549,7 @@ export const themeConfigSchema = {
         nextButton: {
           type: 'object',
           properties: {
-            text: { type: 'string', default: 'Next to {label}' },
+            text: { type: 'string', default: 'Next to {{label}}' },
             ...hideConfigSchema.properties,
           },
           additionalProperties: false,
@@ -536,7 +558,7 @@ export const themeConfigSchema = {
         previousButton: {
           type: 'object',
           properties: {
-            text: { type: 'string', default: 'Back to {label}' },
+            text: { type: 'string', default: 'Back to {{label}}' },
             ...hideConfigSchema.properties,
           },
           additionalProperties: false,
@@ -549,7 +571,7 @@ export const themeConfigSchema = {
     codeSnippet: {
       type: 'object',
       properties: {
-        controlsStyle: { type: 'string', default: 'icon' },
+        elementFormat: { type: 'string', default: 'icon' },
         copy: {
           type: 'object',
           properties: {
@@ -561,10 +583,13 @@ export const themeConfigSchema = {
         report: {
           type: 'object',
           properties: {
+            tooltipText: { type: 'string' },
+            buttonText: { type: 'string' },
+            label: { type: 'string' },
             ...hideConfigSchema.properties,
           },
           additionalProperties: false,
-          default: { hide: true },
+          default: { hide: false },
         },
         expand: {
           type: 'object',
@@ -587,7 +612,7 @@ export const themeConfigSchema = {
       default: {},
     },
     markdown: markdownConfigSchema,
-    openapi: { type: 'object', additionalProperties: true },
+    openapi: { type: 'object', additionalProperties: true }, // TODO: put the real schema here @Viacheslav
     graphql: { type: 'object', additionalProperties: true },
     analytics: {
       type: 'object',
@@ -663,24 +688,67 @@ export const themeConfigSchema = {
   default: {},
 } as const;
 
-// TODO: decide what to do with this
-// export const productThemeOverrideSchema = {
-//   type: 'object',
-//   properties: {
-//     logo: themeConfigSchema.properties.logo,
-//     navbar: themeConfigSchema.properties.navbar,
-//     footer: themeConfigSchema.properties.footer,
-//     sidebar: themeConfigSchema.properties.sidebar,
-//     search: themeConfigSchema.properties.search,
-//     codeSnippet: themeConfigSchema.properties.codeSnippet,
-//     breadcrumbs: themeConfigSchema.properties.breadcrumbs,
-//   },
-//   additionalProperties: true,
-//   default: {},
-// } as const;
+export const productThemeOverrideSchema = {
+  type: 'object',
+  properties: {
+    logo: themeConfigSchema.properties.logo,
+    navbar: themeConfigSchema.properties.navbar,
+    footer: themeConfigSchema.properties.footer,
+    sidebar: themeConfigSchema.properties.sidebar,
+    search: themeConfigSchema.properties.search,
+    codeSnippet: themeConfigSchema.properties.codeSnippet,
+    breadcrumbs: themeConfigSchema.properties.breadcrumbs,
+  },
+  additionalProperties: true,
+  default: {},
+} as const;
 
-// export enum ScorecardStatus {
-//   BelowMinimum = 'Below minimum',
-//   Highest = 'Highest',
-//   Minimum = 'Minimum',
-// }
+export type ThemeConfig = FromSchema<typeof themeConfigSchema>;
+
+// TODO: cannot export  as it relies on external types
+// export type ThemeUIConfig = ThemeConfig & {
+//   auth?: {
+//     // used by portal dev login emulator
+//     idpsInfo?: {
+//       idpId: string;
+//       type: string; // AuthProviderType
+//       title: string | undefined;
+//     }[];
+//     devLogin?: boolean;
+//     loginUrls?: Record<string, string>;
+//   };
+//   search?: {
+//     shortcuts?: string[];
+//     suggestedPages?: any[];
+//   };
+//   breadcrumbs?: {
+//     prefixItems?: ResolvedNavLinkItem[];
+//   };
+//   products?: {
+//     [key: string]: ProductUiConfig;
+//   };
+// };
+
+export type ProductConfig = FromSchema<typeof productConfigSchema>;
+// TODO: cannot export  as it relies on external types
+// export type ProductThemeOverrideConfig = Pick<
+//   ThemeUIConfig,
+//   'logo' | 'navbar' | 'footer' | 'sidebar' | 'search' | 'codeSnippet' | 'breadcrumbs'
+// >;
+// export type ProductUiConfig = ProductConfig & {
+//   slug: string;
+//   link: string;
+//   [REDOCLY_TEAMS_RBAC]?: { [key: string]: string };
+//   themeOverride?: ProductThemeOverrideConfig;
+// };
+
+export type MarkdownConfig = FromSchema<typeof markdownConfigSchema>;
+
+export type AmplitudeAnalyticsConfig = FromSchema<typeof amplitudeAnalyticsConfigSchema>;
+export type RudderstackAnalyticsConfig = FromSchema<typeof rudderstackAnalyticsConfigSchema>;
+export type SegmentAnalyticsConfig = FromSchema<typeof segmentAnalyticsConfigSchema>;
+export type GtmAnalyticsConfig = FromSchema<typeof gtmAnalyticsConfigSchema>;
+export type GoogleAnalyticsConfig = FromSchema<typeof googleAnalyticsConfigSchema>;
+export type CatalogConfig = FromSchema<typeof catalogSchema>;
+export type CatalogFilterConfig = FromSchema<typeof catalogFilterSchema>;
+export type ScorecardConfig = FromSchema<typeof scorecardConfigSchema>;
