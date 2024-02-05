@@ -8,94 +8,94 @@ on:
       - main
 
 jobs:
-  # build-and-unit:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       env:
-  #         CI: true
-  #     - name: Typecheck
-  #       run: npm run typecheck
-  #     - name: Unit Tests
-  #       run: npm run jest -- --silent --ci --testLocationInResults --bail --coverage
-  #     - name: E2E Tests
-  #       run: npm run e2e
-  #       env:
-  #         CI: true
+  build-and-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit Tests
+        run: npm run jest -- --silent --ci --testLocationInResults --bail --coverage
+      - name: E2E Tests
+        run: npm run e2e
+        env:
+          CI: true
 
-  # cli-package-test:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       env:
-  #         CI: true
-  #     - name: Prepare CLI and Core packages
-  #       run: npm run pack:prepare
-  #     - name: Install CLI Package
-  #       run: npm install -g redocly-cli.tgz
-  #     - name: Redocly version
-  #       run: redocly --version
-  #     - name: Definition test
-  #       run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
+  cli-package-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - name: Prepare CLI and Core packages
+        run: npm run pack:prepare
+      - name: Install CLI Package
+        run: npm install -g redocly-cli.tgz
+      - name: Redocly version
+        run: redocly --version
+      - name: Definition test
+        run: redocly lint packages/core/src/benchmark/benches/rebilly.yaml --format=stylish
 
-  # coverage-report:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Coverage Report
-  #       uses: artiomtr/jest-coverage-report-action@v2.0.8
-  #       continue-on-error: true
-  #       with:
-  #         skip-step: none
-  #         annotations: none
-  #         test-script: npm run jest
+  coverage-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Coverage Report
+        uses: artiomtr/jest-coverage-report-action@v2.0.8
+        continue-on-error: true
+        with:
+          skip-step: none
+          annotations: none
+          test-script: npm run jest
 
-  # prettier-check:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       env:
-  #         CI: true
-  #     - run: npm run prettier:check
+  prettier-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - run: npm run prettier:check
 
-  # eslint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       env:
-  #         CI: true
-  #     - run: npm run eslint
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CI: true
+      - run: npm run eslint
 
   require-changeset:
-    if: ${{ github.event.label.name != 'no-changeset-needed' }}
+    if: ${{ github.event.label.name != 'question' }}
     runs-on: ubuntu-latest
     env:
       CI: true
