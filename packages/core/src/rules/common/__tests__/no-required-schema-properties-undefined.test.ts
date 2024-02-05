@@ -4,7 +4,7 @@ import { parseYamlToDocument, replaceSourceWithRef, makeConfig } from '../../../
 import { BaseResolver } from '../../../resolve';
 
 describe('no-required-schema-properties-undefined', () => {
-  it('should report if one or more of the required properties are missing', async () => {
+  it('should report if one or more of the required properties are undefined', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -52,7 +52,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should report if one or more of the required properties are missing, including allOf nested schemas', async () => {
+  it('should report if one or more of the required properties are undefined, including allOf nested schemas', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -112,7 +112,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should report if one or more of the required properties are missing when used in schema with allOf keyword', async () => {
+  it('should report if one or more of the required properties are undefined when used in schema with allOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -243,7 +243,7 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report with different message if more than one of the required properties are missing', async () => {
+  it('should report with few messages if more than one of the required properties are undefined', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -326,6 +326,56 @@ describe('no-required-schema-properties-undefined', () => {
                   test:
                     type: string
                     example: test
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not cause stack overflow when there are circular references in schemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                        description: The measured skill for hunting
+                        enum:
+                          - clueless
+                          - lazy
+                    required:
+                      - huntingSkill
+                required:
+                  - name
+              Pet:
+                description: A schema of pet
+                allOf:
+                  - $ref: '#/components/schemas/Cat'
+                  - type: object
+                    required:
+                      - photoUrls
+                    properties:
+                      name:
+                        description: The name given to a pet
+                        type: string
+                        example: Guru
+                      photoUrls:
+                        description: The list of URL to a cute photos featuring pet
+                        type: string
         `,
       'foobar.yaml'
     );

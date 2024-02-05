@@ -5,6 +5,47 @@ import { UserContext } from 'core/src/walk';
 import { isRef } from '../../ref-utils';
 
 export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
+  const processNestedSchemasRecursively = (
+    schema: Oas3Schema | Oas3_1Schema | Oas2Schema,
+    { resolve }: UserContext,
+    allProperties: Record<string, Oas3Schema | Oas3_1Schema | Oas2Schema>,
+    visitedSchemas: Set<Oas3Schema | Oas3_1Schema | Oas2Schema>
+  ) => {
+    // Skip oneOf/anyOf as it's complicated to validate it right now.
+    // We need core support for checking constraints through those keywords.
+    // Right now we only resolve allOf keyword nesting.
+    if (schema.allOf) {
+      // Check if the schema has been visited before processing it
+      if (visitedSchemas.has(schema)) {
+        return;
+      }
+
+      // Add the schema to the visited set to avoid circular references
+      visitedSchemas.add(schema);
+
+      for (const nestedSchema of schema.allOf) {
+        if (isRef(nestedSchema)) {
+          const resolved = resolve(nestedSchema).node as Oas3Schema | Oas3_1Schema | Oas2Schema;
+          Object.assign(allProperties, resolved.properties);
+          processNestedSchemasRecursively(
+            resolved,
+            { resolve } as UserContext,
+            allProperties,
+            visitedSchemas
+          );
+        } else {
+          Object.assign(allProperties, nestedSchema.properties || {});
+          processNestedSchemasRecursively(
+            nestedSchema,
+            { resolve } as UserContext,
+            allProperties,
+            visitedSchemas
+          );
+        }
+      }
+    }
+  };
+
   return {
     Schema: {
       enter(
@@ -13,23 +54,19 @@ export const NoRequiredSchemaPropertiesUndefined: Oas3Rule | Oas2Rule = () => {
       ) {
         if (!schema.required) return;
 
-        const allProperties = schema.properties ?? {};
+        const allProperties: Record<string, Oas3Schema | Oas3_1Schema | Oas2Schema> = {};
+        const visitedSchemas: Set<Oas3Schema | Oas3_1Schema | Oas2Schema> = new Set();
 
-        // Skip oneOf/anyOf as it's complicated to validate it right now.
-        // We need core support for checking contrstrains through those keywords.
-        // Right now we only resolve basic allOf keyword nesting.
-        if (schema.allOf) {
-          for (const nestedSchema of schema.allOf as Array<
-            Oas3Schema | Oas3_1Schema | Oas2Schema
-          >) {
-            if (isRef(nestedSchema)) {
-              const resolved = resolve(nestedSchema).node as Oas3Schema | Oas3_1Schema | Oas2Schema;
-              Object.assign(allProperties, resolved.properties);
-            } else {
-              Object.assign(allProperties, nestedSchema.properties);
-            }
-          }
+        if (schema.properties) {
+          Object.assign(allProperties, schema.properties);
         }
+
+        processNestedSchemasRecursively(
+          schema,
+          { resolve } as UserContext,
+          allProperties,
+          visitedSchemas
+        );
 
         for (const [i, requiredProperty] of schema.required.entries()) {
           if (!allProperties || allProperties[requiredProperty] === undefined) {
