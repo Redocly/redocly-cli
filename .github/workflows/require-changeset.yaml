@@ -21,4 +21,4 @@ jobs:
       - run: npm ci
       - run: git branch
       - name: Check for changeset
-        run: npx changeset status  --verbose
+        run: npx changeset status --since origin/main --verbose
