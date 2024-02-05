@@ -1,7 +1,7 @@
 name: Require Changeset
 on:
   pull_request:
-    types: [opened, labeled]
+    types: [opened, synchronize, reopened, labeled]
 
 jobs:
   require-changeset:
