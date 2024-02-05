@@ -16,5 +16,6 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
+      - run: git branch
       - name: Check for changeset
         run: changeset status --since main --verbose
