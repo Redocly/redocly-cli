@@ -64,25 +64,14 @@ describe('no-required-schema-properties-undefined', () => {
                   - properties:
                       foo:
                         type: string
-                  - properties:
-                      bar:
-                        type: number
-                      baz:
-                        type: string
                 required:
-                  - name
                   - id
-                  - bar
                   - foo
-                  - baz
                   - test
                 properties:
                   id:
                     type: integer
                     format: int64
-                  name:
-                    type: string
-                    example: doggie
         `,
       'foobar.yaml'
     );
@@ -98,7 +87,7 @@ describe('no-required-schema-properties-undefined', () => {
         {
           "location": [
             {
-              "pointer": "#/components/schemas/Pet/required/5",
+              "pointer": "#/components/schemas/Pet/required/2",
               "reportOnKey": false,
               "source": "foobar.yaml",
             },
@@ -126,14 +115,6 @@ describe('no-required-schema-properties-undefined', () => {
                     properties:
                       huntingSkill:
                         type: string
-                        description: The measured skill for hunting
-                        default: lazy
-                        example: adventurous
-                        enum:
-                          - clueless
-                          - lazy
-                          - adventurous
-                          - aggressive
                     required:
                       - huntingSkill
                       - name
@@ -143,19 +124,9 @@ describe('no-required-schema-properties-undefined', () => {
                   - photoUrls
                 properties:
                   name:
-                    description: The name given to a pet
                     type: string
-                    example: Guru
                   photoUrls:
-                    description: The list of URL to a cute photos featuring pet
-                    type: array
-                    maxItems: 20
-                    xml:
-                      name: photoUrl
-                      wrapped: true
-                    items:
-                      type: string
-                      format: url
+                    type: string
         `,
       'foobar.yaml'
     );
@@ -199,14 +170,6 @@ describe('no-required-schema-properties-undefined', () => {
                     properties:
                       huntingSkill:
                         type: string
-                        description: The measured skill for hunting
-                        default: lazy
-                        example: adventurous
-                        enum:
-                          - clueless
-                          - lazy
-                          - adventurous
-                          - aggressive
                     required:
                       - huntingSkill
                 required:
@@ -217,19 +180,9 @@ describe('no-required-schema-properties-undefined', () => {
                   - photoUrls
                 properties:
                   name:
-                    description: The name given to a pet
                     type: string
-                    example: Guru
                   photoUrls:
-                    description: The list of URL to a cute photos featuring pet
-                    type: array
-                    maxItems: 20
-                    xml:
-                      name: photoUrl
-                      wrapped: true
-                    items:
-                      type: string
-                      format: url
+                    type: string
         `,
       'foobar.yaml'
     );
@@ -353,10 +306,6 @@ describe('no-required-schema-properties-undefined', () => {
                     properties:
                       huntingSkill:
                         type: string
-                        description: The measured skill for hunting
-                        enum:
-                          - clueless
-                          - lazy
                     required:
                       - huntingSkill
                 required:
@@ -370,12 +319,127 @@ describe('no-required-schema-properties-undefined', () => {
                       - photoUrls
                     properties:
                       name:
-                        description: The name given to a pet
                         type: string
-                        example: Guru
                       photoUrls:
-                        description: The list of URL to a cute photos featuring pet
                         type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should report if there is any required schema that is undefined, including checking nested allOf schemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Cat:
+                description: A representation of a cat
+                allOf:
+                  - $ref: '#/components/schemas/Pet'
+                  - type: object
+                    properties:
+                      huntingSkill:
+                        type: string
+                    required:
+                      - huntingSkill
+                required:
+                  - test
+                  - id
+              Pet:
+                description: A schema of pet
+                allOf:
+                  - type: object
+                    required:
+                      - photoUrls
+                    properties:
+                      photoUrls:
+                        type: string
+                  - type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                      id:
+                        type: string
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await makeConfig({ 'no-required-schema-properties-undefined': 'error' }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Cat/required/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Required property 'test' is undefined.",
+          "ruleId": "no-required-schema-properties-undefined",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report if required property is present in one of the nested reference schemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          components:
+            schemas:
+              Animal:
+                type: object
+                properties:
+                  commonProperty:
+                    type: string
+              Mammal:
+                allOf:
+                  - $ref: '#/components/schemas/Animal'
+                  - type: object
+                    properties:
+                      furColor:
+                        type: string
+                    required:
+                      - furColor
+              Carnivore:
+                allOf:
+                  - $ref: '#/components/schemas/Mammal'
+                  - type: object
+                    properties:
+                      diet:
+                        type: string
+                    required:
+                      - diet
+              Tiger:
+                allOf:
+                  - $ref: '#/components/schemas/Carnivore'
+                  - type: object
+                    properties:
+                      stripes:
+                        type: boolean
+                    required:
+                      - stripes
+                required:
+                  - commonProperty
         `,
       'foobar.yaml'
     );
