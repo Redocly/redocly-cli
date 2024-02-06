@@ -11,7 +11,7 @@ exports[`E2E join files with different extensions test with option: {
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Example API",
+    "title": "Foo Example API",
     "description": "This is an example API.",
     "version": "<version>"
   },
@@ -99,13 +99,13 @@ exports[`E2E join files with different extensions test with option: {
   "components": {},
   "x-tagGroups": [
     {
-      "name": "foo",
+      "name": "Foo Example API",
       "tags": [
         "foo_other"
       ]
     },
     {
-      "name": "bar",
+      "name": "Bar Example API",
       "tags": [
         "bar_other"
       ]

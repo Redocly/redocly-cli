@@ -5,7 +5,7 @@ exports[`E2E join with options test with option: { name: 'prefix-tags-with-info-
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example OpenAPI 3 definition with foo title.
+  title: Foo Example OpenAPI 3 definition with foo title.
   description: Information about API
   license:
     name: MIT
@@ -13,15 +13,15 @@ info:
 servers:
   - url: https://redocly.com/v1
 tags:
-  - name: Example OpenAPI 3 definition with foo title._Pet
+  - name: Foo Example OpenAPI 3 definition with foo title._Pet
     description: Pet Discription
     x-displayName: Pet
-  - name: Example OpenAPI 3 definition with foo title._other
+  - name: Foo Example OpenAPI 3 definition with foo title._other
     x-displayName: other
-  - name: Example OpenAPI 3 definition._Pet
+  - name: Bar Example OpenAPI 3 definition._Pet
     description: Pet Discription
     x-displayName: Pet
-  - name: Example OpenAPI 3 definition._other
+  - name: Bar Example OpenAPI 3 definition._other
     x-displayName: other
 paths:
   /pets:
@@ -40,7 +40,7 @@ paths:
         '200':
           description: example description
       tags:
-        - Example OpenAPI 3 definition with foo title._other
+        - Foo Example OpenAPI 3 definition with foo title._other
   /pets/{petId}:
     post:
       summary: summary example
@@ -49,19 +49,17 @@ paths:
         '201':
           description: example description
       tags:
-        - Example OpenAPI 3 definition._other
+        - Bar Example OpenAPI 3 definition._other
 components: {}
 x-tagGroups:
-  - name: foo
+  - name: Foo Example OpenAPI 3 definition with foo title.
     tags:
-      - Example OpenAPI 3 definition with foo title._Pet
-      - Example OpenAPI 3 definition with foo title._other
-    description: Information about API
-  - name: bar
+      - Foo Example OpenAPI 3 definition with foo title._Pet
+      - Foo Example OpenAPI 3 definition with foo title._other
+  - name: Bar Example OpenAPI 3 definition.
     tags:
-      - Example OpenAPI 3 definition._Pet
-      - Example OpenAPI 3 definition._other
-    description: Information about API
+      - Bar Example OpenAPI 3 definition._Pet
+      - Bar Example OpenAPI 3 definition._other
 
 openapi.yaml: join processed in <test>ms
 

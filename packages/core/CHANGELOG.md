@@ -1,5 +1,18 @@
 # @redocly/openapi-core
 
+## 1.8.2
+
+## 1.8.1
+
+## 1.8.0
+
+## 1.7.0
+
+### Patch Changes
+
+- Fix schema type of AsyncAPI operation tags
+- Fixed a problem where the linter incorrectly returned an error for valid examples that contain references.
+
 ## 1.6.0
 
 ### Minor Changes

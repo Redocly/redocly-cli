@@ -1,4 +1,4 @@
-import { ConfigFixture } from '../__tests__/fixtures/config';
+import { ConfigFixture } from '../../__tests__/fixtures/config';
 
 export const getFallbackApisOrExit = jest.fn((entrypoints) =>
   entrypoints.map((path: string) => ({ path }))

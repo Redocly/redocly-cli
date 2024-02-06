@@ -3,11 +3,11 @@ import { renderToString } from 'react-dom/server';
 import { handlerBuildCommand } from '../../commands/build-docs';
 import { BuildDocsArgv } from '../../commands/build-docs/types';
 import { getPageHTML } from '../../commands/build-docs/utils';
-import { getFallbackApisOrExit } from '../../utils';
+import { getFallbackApisOrExit } from '../../utils/miscellaneous';
 
 jest.mock('redoc');
 jest.mock('fs');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 const config = {
   output: '',

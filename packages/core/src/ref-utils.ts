@@ -43,15 +43,15 @@ export function escapePointer<T extends string | number>(fragment: T): T {
 }
 
 export function parseRef(ref: string): { uri: string | null; pointer: string[] } {
-  const [uri, pointer] = ref.split('#/');
+  const [uri, pointer = ''] = ref.split('#');
   return {
     uri: uri || null,
-    pointer: pointer ? pointer.split('/').map(unescapePointer).filter(isTruthy) : [],
+    pointer: parsePointer(pointer),
   };
 }
 
 export function parsePointer(pointer: string) {
-  return pointer.substr(2).split('/').map(unescapePointer);
+  return pointer.split('/').map(unescapePointer).filter(isTruthy);
 }
 
 export function pointerBaseName(pointer: string) {

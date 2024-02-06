@@ -1,26 +1,27 @@
 #!/usr/bin/env node
 
-import './assert-node-version';
+import './utils/assert-node-version';
 import * as yargs from 'yargs';
-import { outputExtensions, regionChoices } from './types';
+import { outputExtensions, PushArguments, regionChoices } from './types';
 import { RedoclyClient } from '@redocly/openapi-core';
 import { previewDocs } from './commands/preview-docs';
 import { handleStats } from './commands/stats';
 import { handleSplit } from './commands/split';
 import { handleJoin } from './commands/join';
-import { handlePush, transformPush } from './commands/push';
+import { handlePushStatus, PushStatusOptions } from './cms/commands/push-status';
 import { handleLint } from './commands/lint';
 import { handleBundle } from './commands/bundle';
 import { handleLogin } from './commands/login';
 import { handlerBuildCommand } from './commands/build-docs';
-import { cacheLatestVersion, notifyUpdateCliVersion } from './update-version-notifier';
+import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier';
 import { commandWrapper } from './wrapper';
-import { version } from './update-version-notifier';
+import { version } from './utils/update-version-notifier';
 import type { Arguments } from 'yargs';
 import type { OutputFormat, RuleSeverity } from '@redocly/openapi-core';
 import type { BuildDocsArgv } from './commands/build-docs/types';
 import { previewProject } from './commands/preview-project';
 import { PRODUCT_PLANS } from './commands/preview-project/constants';
+import { commonPushHandler } from './commands/push';
 
 if (!('replaceAll' in String.prototype)) {
   require('core-js/actual/string/replace-all');
@@ -45,7 +46,7 @@ yargs
         },
         format: {
           description: 'Use a specific output format.',
-          choices: ['stylish', 'json'] as ReadonlyArray<OutputFormat>,
+          choices: ['stylish', 'json', 'markdown'] as ReadonlyArray<OutputFormat>,
           default: 'stylish' as OutputFormat,
         },
       }),
@@ -146,23 +147,75 @@ yargs
       commandWrapper(handleJoin)(argv);
     }
   )
-
   .command(
-    'push [api] [maybeDestination] [maybeBranchName]',
-    'Push an API description to the Redocly API registry.',
+    'push-status [pushId]',
+    false,
     (yargs) =>
       yargs
-        .usage('push [api]')
-        .positional('api', { type: 'string' })
-        .positional('maybeDestination', { type: 'string' })
-        .hide('maybeDestination')
-        .hide('maybeBranchName')
+        .positional('pushId', {
+          description: 'Push id.',
+          type: 'string',
+          required: true,
+        })
+        .implies('max-execution-time', 'wait')
         .option({
           organization: {
             description: 'Name of the organization to push to.',
             type: 'string',
             alias: 'o',
           },
+          project: {
+            description: 'Name of the project to push to.',
+            type: 'string',
+            alias: 'p',
+          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          wait: {
+            description: 'Wait for build to finish.',
+            type: 'boolean',
+            default: false,
+          },
+          'max-execution-time': {
+            description: 'Maximum execution time in seconds.',
+            type: 'number',
+          },
+        }),
+    (argv) => {
+      process.env.REDOCLY_CLI_COMMAND = 'push-status';
+      commandWrapper(handlePushStatus)(argv as Arguments<PushStatusOptions>);
+    }
+  )
+  .command(
+    'push [apis...]',
+    'Push an API description to the Redocly API registry.',
+    (yargs) =>
+      yargs
+        .positional('apis', {
+          type: 'string',
+          array: true,
+          required: true,
+          default: [],
+        })
+        .hide('project')
+        .hide('domain')
+        .hide('mount-path')
+        .hide('author')
+        .hide('message')
+        .hide('default-branch')
+        .hide('verbose')
+        .hide('commit-sha')
+        .hide('commit-url')
+        .hide('namespace')
+        .hide('repository')
+        .hide('wait-for-deployment')
+        .hide('created-at')
+        .hide('max-execution-time')
+        .deprecateOption('batch-id', 'use --job-id')
+        .implies('job-id', 'batch-size')
+        .implies('batch-id', 'batch-size')
+        .implies('batch-size', 'job-id')
+        .implies('max-execution-time', 'wait-for-deployment')
+        .option({
           destination: {
             description: 'API name and version in the format `name@version`.',
             type: 'string',
@@ -217,15 +270,80 @@ yargs
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
             default: 'warn' as RuleSeverity,
           },
-        })
-        .deprecateOption('batch-id', 'use --job-id')
-        .deprecateOption('maybeDestination')
-        .implies('job-id', 'batch-size')
-        .implies('batch-id', 'batch-size')
-        .implies('batch-size', 'job-id'),
+          organization: {
+            description: 'Name of the organization to push to.',
+            type: 'string',
+            alias: 'o',
+          },
+          project: {
+            description: 'Name of the project to push to.',
+            type: 'string',
+            alias: 'p',
+          },
+          'mount-path': {
+            description: 'The path files should be pushed to.',
+            type: 'string',
+            alias: 'mp',
+          },
+          author: {
+            description: 'Author of the commit.',
+            type: 'string',
+            alias: 'a',
+          },
+          message: {
+            description: 'Commit message.',
+            type: 'string',
+            alias: 'm',
+          },
+          'commit-sha': {
+            description: 'Commit SHA.',
+            type: 'string',
+            alias: 'sha',
+          },
+          'commit-url': {
+            description: 'Commit URL.',
+            type: 'string',
+            alias: 'url',
+          },
+          namespace: {
+            description: 'Repository namespace.',
+            type: 'string',
+          },
+          repository: {
+            description: 'Repository name.',
+            type: 'string',
+          },
+          'created-at': {
+            description: 'Commit creation date.',
+            type: 'string',
+          },
+          domain: { description: 'Specify a domain.', alias: 'd', type: 'string' },
+          config: {
+            description: 'Path to the config file.',
+            requiresArg: true,
+            type: 'string',
+          },
+          'default-branch': {
+            type: 'string',
+            default: 'main',
+          },
+          'max-execution-time': {
+            description: 'Maximum execution time in seconds.',
+            type: 'number',
+          },
+          'wait-for-deployment': {
+            description: 'Wait for build to finish.',
+            type: 'boolean',
+            default: false,
+          },
+          verbose: {
+            type: 'boolean',
+            default: false,
+          },
+        }),
     (argv) => {
       process.env.REDOCLY_CLI_COMMAND = 'push';
-      commandWrapper(transformPush(handlePush))(argv);
+      commandWrapper(commonPushHandler(argv))(argv as PushArguments);
     }
   )
   .command(

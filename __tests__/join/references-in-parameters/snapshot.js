@@ -4,7 +4,7 @@ exports[`E2E join without options test: references-in-parameters 1`] = `
 
 openapi: 3.0.0
 info:
-  title: Example API
+  title: Foo Example API
   description: This is an example API.
   version: 1.0.0
 servers:
@@ -86,10 +86,10 @@ components:
       schema:
         type: integer
 x-tagGroups:
-  - name: foo
+  - name: Foo Example API
     tags:
       - foo_other
-  - name: bar
+  - name: Bar Example API
     tags:
       - bar_other
 

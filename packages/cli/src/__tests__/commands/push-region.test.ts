@@ -12,7 +12,7 @@ jest.mock('node-fetch', () => ({
 }));
 jest.mock('@redocly/openapi-core');
 jest.mock('../../commands/login');
-jest.mock('../../utils');
+jest.mock('../../utils/miscellaneous');
 
 (getMergedConfig as jest.Mock).mockImplementation((config) => config);
 

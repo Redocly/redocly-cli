@@ -17,6 +17,7 @@ RUN npm run prepare
 # Install redocly-cli globally, similar to npm install --global @redocly/cli
 # but the local package is used here
 RUN apk update && apk add jq && \
+    apk add git && \
     npm run pack:prepare && \
     npm install --global redocly-cli.tgz
 

@@ -18,12 +18,12 @@ import {
   printLintTotals,
   checkIfRulesetExist,
   sortTopLevelKeysForOas,
-} from '../utils';
+} from '../utils/miscellaneous';
 import type { OutputExtensions, Skips, Totals } from '../types';
 import { performance } from 'perf_hooks';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { checkForDeprecatedOptions } from '../utils';
+import { checkForDeprecatedOptions } from '../utils/miscellaneous';
 
 export type BundleOptions = {
   apis?: string[];

@@ -7,6 +7,44 @@ toc:
 
 <!-- do-not-remove -->
 
+## 1.8.2 (2024-02-01)
+
+### Patch Changes
+
+- Added markdown format option to stats command for use with GitHub job summaries.
+- Fixed an issue with the `push` command, when `destination` option does not work without specifying it in `redocly.yaml`.
+- Updated @redocly/openapi-core to v1.8.2.
+
+## 1.8.1 (2024-01-29)
+
+### Patch Changes
+
+- Added git to the docker image, so the push command can use git metadata.
+- Updated @redocly/openapi-core to v1.8.1.
+
+## 1.8.0 (2024-01-26)
+
+### Minor Changes
+
+- Added a `push` and `push-status` command for use with future Redocly products.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v1.8.0.
+
+## 1.7.0 (2024-01-23)
+
+### Minor Changes
+
+- Added a `preview` command that starts a local preview server for Redocly projects that use products that are currently in a pre-release stage.
+
+### Patch Changes
+
+- Fixed an issue with resolving references after splitting API descriptions written in the json format.
+- Added filename extension support for more `x-codeSamples` languages.
+- Fixed a problem where the linter incorrectly returned an error for valid examples that contain references.
+- Updated @redocly/openapi-core to v1.7.0.
+
 ## 1.6.0 (2023-12-21)
 
 ### Minor Changes
