@@ -55,9 +55,15 @@ components:
     Foo Example OpenAPI 3 definition foo._some-property:
       description: foo description
       type: string
+    Foo Example OpenAPI 3 definition foo._another-property:
+      description: description
+      $ref: '#/components/schemas/Foo Example OpenAPI 3 definition foo._some-property'
     Bar Example OpenAPI 3 definition._some-property:
       description: bar description
       type: string
+    Bar Example OpenAPI 3 definition._another-property:
+      description: description
+      $ref: '#/components/schemas/Bar Example OpenAPI 3 definition._some-property'
 x-tagGroups:
   - name: Foo Example OpenAPI 3 definition foo.
     tags:

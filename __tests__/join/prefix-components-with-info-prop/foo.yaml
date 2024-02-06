@@ -33,3 +33,6 @@ components:
     some-property:
       description: foo description
       type: string
+    another-property:
+      description: description
+      $ref: '#/components/schemas/some-property'
